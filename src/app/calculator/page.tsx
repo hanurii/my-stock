@@ -50,13 +50,72 @@ interface CalculatorData {
   stocks: StockData[];
 }
 
+const DATA_DIR = path.join(process.cwd(), "public", "data");
+const CALCULATOR_PATH = path.join(DATA_DIR, "calculator.json");
+const ARCHIVE_PATH = path.join(DATA_DIR, "calculator-archive.json");
+
+/**
+ * 과거 재무 데이터(history)를 병합한다.
+ * 같은 연도가 있으면 최신(incoming) 데이터를 우선한다.
+ */
+function mergeHistory(existing: YearlyData[], incoming: YearlyData[]): YearlyData[] {
+  const map = new Map<number, YearlyData>();
+  for (const h of existing) map.set(h.year, h);
+  for (const h of incoming) map.set(h.year, h); // 최신 우선
+  return Array.from(map.values()).sort((a, b) => a.year - b.year);
+}
+
+/**
+ * 최신 calculator.json과 아카이브를 병합하여 반환한다.
+ * 병합 결과는 아카이브에 자동 저장된다.
+ */
 function getCalculatorData(): CalculatorData | null {
   try {
-    const filePath = path.join(process.cwd(), "public", "data", "calculator.json");
-    const raw = fs.readFileSync(filePath, "utf-8");
-    return JSON.parse(raw) as CalculatorData;
+    const raw = fs.readFileSync(CALCULATOR_PATH, "utf-8");
+    const latest = JSON.parse(raw) as CalculatorData;
+
+    // 아카이브 로드
+    let archive: CalculatorData | null = null;
+    try {
+      const archiveRaw = fs.readFileSync(ARCHIVE_PATH, "utf-8");
+      archive = JSON.parse(archiveRaw) as CalculatorData;
+    } catch {
+      // 아카이브 없음 — 첫 실행
+    }
+
+    if (archive) {
+      // 아카이브의 각 종목 히스토리를 최신 데이터와 병합
+      for (const stock of latest.stocks) {
+        const archived = archive.stocks.find((s) => s.code === stock.code);
+        if (archived) {
+          stock.history = mergeHistory(archived.history, stock.history);
+        }
+      }
+
+      // 아카이브에만 있고 최신에 없는 종목도 보존
+      for (const archived of archive.stocks) {
+        if (!latest.stocks.find((s) => s.code === archived.code)) {
+          latest.stocks.push(archived);
+        }
+      }
+    }
+
+    // 병합 결과를 아카이브로 저장
+    try {
+      fs.writeFileSync(ARCHIVE_PATH, JSON.stringify(latest, null, 2), "utf-8");
+    } catch {
+      // 빌드 환경 등에서 쓰기 실패 시 무시
+    }
+
+    return latest;
   } catch {
-    return null;
+    // calculator.json이 없으면 아카이브에서라도 로드
+    try {
+      const archiveRaw = fs.readFileSync(ARCHIVE_PATH, "utf-8");
+      return JSON.parse(archiveRaw) as CalculatorData;
+    } catch {
+      return null;
+    }
   }
 }
 
