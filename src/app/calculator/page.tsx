@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { Collapsible } from "@/components/Collapsible";
 
 interface QuarterlyData {
   quarter: string;
@@ -76,10 +77,10 @@ export default function CalculatorPage() {
       {/* Header */}
       <section>
         <p className="text-[10px] uppercase tracking-[0.2em] text-primary-dim/60 mb-2">
-          Financial Calculator
+          Financial Statements
         </p>
         <h2 className="text-4xl font-serif font-bold text-on-surface tracking-tight">
-          재무지표 계산기
+          재무제표
         </h2>
         <p className="text-base text-on-surface-variant mt-2">
           {data.generated_at} 기준 · DART 공시 데이터 기반
@@ -89,18 +90,40 @@ export default function CalculatorPage() {
         </p>
       </section>
 
+      {/* 목차 */}
+      <section className="bg-surface-container-low rounded-xl p-6 ghost-border">
+        <h3 className="text-base font-serif text-on-surface mb-4">목차</h3>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+          {data.stocks.map((stock) => (
+            <a
+              key={stock.code}
+              href={`#stock-${stock.code}`}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-surface-container-high/50 transition-colors group"
+            >
+              <span className="text-primary-dim/40 group-hover:text-primary transition-colors text-sm">→</span>
+              <span className="text-base text-on-surface group-hover:text-primary transition-colors">
+                {stock.name}
+              </span>
+              {stock.is_preferred && (
+                <span className="text-[10px] text-primary/50">우선주</span>
+              )}
+            </a>
+          ))}
+        </div>
+      </section>
+
       {/* Stock Cards */}
       {data.stocks.map((stock) => {
-        // 연도별 내림차순 정렬
         const sortedHistory = [...stock.history]
           .filter((h) => h.eps || h.dps || h.bps)
           .sort((a, b) => b.year - a.year);
 
-        // 최근 4분기 = 최근 4년 데이터 (분기 데이터가 없으면 연간으로 대체)
-        const recent4 = sortedHistory.slice(0, 4);
-
         return (
-          <section key={stock.code} className="bg-surface-container-low rounded-xl ghost-border overflow-hidden">
+          <section
+            key={stock.code}
+            id={`stock-${stock.code}`}
+            className="bg-surface-container-low rounded-xl ghost-border overflow-hidden scroll-mt-8"
+          >
             {/* ── Stock Header ── */}
             <div className="p-8 flex justify-between items-start">
               <div>
@@ -112,9 +135,7 @@ export default function CalculatorPage() {
                     </span>
                   )}
                 </div>
-                <p className="text-base text-on-surface-variant mt-1.5">
-                  {stock.code}
-                </p>
+                <p className="text-base text-on-surface-variant mt-1.5">{stock.code}</p>
               </div>
               <div className="text-right">
                 <p className="text-xs text-on-surface-variant/50 mb-1">현재 종가</p>
@@ -125,7 +146,7 @@ export default function CalculatorPage() {
               </div>
             </div>
 
-            {/* ── Latest Metrics (핵심 카드) ── */}
+            {/* ── Latest Metrics ── */}
             <div className="px-8 pb-8">
               <div className="flex items-center gap-2 mb-5">
                 <h4 className="text-lg font-serif text-primary">최신 지표</h4>
@@ -144,9 +165,7 @@ export default function CalculatorPage() {
                   { label: "주당배당금", value: stock.latest.dps, unit: "원", desc: "확정 배당" },
                 ].map((m) => (
                   <div key={m.label} className="bg-surface-container rounded-xl p-5 ghost-border">
-                    <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">
-                      {m.label}
-                    </p>
+                    <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">{m.label}</p>
                     <p className="text-2xl font-mono text-on-surface leading-tight">
                       {m.value != null ? m.value.toLocaleString() : "—"}
                       <span className="text-sm text-on-surface-variant ml-1">{m.unit}</span>
@@ -157,60 +176,59 @@ export default function CalculatorPage() {
               </div>
             </div>
 
-            {/* ── 10-Year History Table ── */}
+            {/* ── 연도별 전체 추이 (접기/펼치기) ── */}
             {sortedHistory.length > 0 && (
               <div className="px-8 pb-8">
-                <h4 className="text-lg font-serif text-on-surface mb-4">연도별 전체 추이</h4>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-base">
-                    <thead>
-                      <tr className="text-xs uppercase tracking-wider text-on-surface-variant/50">
-                        <th className="text-left px-4 pb-3 font-normal">연도</th>
-                        <th className="text-right px-4 pb-3 font-normal">매출</th>
-                        <th className="text-right px-4 pb-3 font-normal">영업이익</th>
-                        <th className="text-right px-4 pb-3 font-normal">영업이익률</th>
-                        <th className="text-right px-4 pb-3 font-normal">EPS</th>
-                        <th className="text-right px-4 pb-3 font-normal">배당금</th>
-                        <th className="text-right px-4 pb-3 font-normal">배당성향</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {sortedHistory.map((h, i) => (
-                        <tr
-                          key={h.year}
-                          className={`transition-colors ${
-                            i === 0
-                              ? "bg-primary/5 hover:bg-primary/10"
-                              : "hover:bg-surface-container/30"
-                          }`}
-                        >
-                          <td className={`px-4 py-3 font-medium ${i === 0 ? "text-primary" : "text-on-surface"}`}>
-                            {h.year}
-                            {i === 0 && <span className="text-xs text-primary/60 ml-2">최신</span>}
-                          </td>
-                          <td className="px-4 py-3 text-right font-mono text-on-surface-variant">
-                            {(h as YearlyData).revenue ? `${((h as YearlyData).revenue / 1e8).toLocaleString(undefined, { maximumFractionDigits: 0 })}억` : "—"}
-                          </td>
-                          <td className="px-4 py-3 text-right font-mono text-on-surface-variant">
-                            {(h as YearlyData).operating_income ? `${((h as YearlyData).operating_income / 1e8).toLocaleString(undefined, { maximumFractionDigits: 0 })}억` : "—"}
-                          </td>
-                          <td className="px-4 py-3 text-right font-mono text-on-surface-variant">
-                            {(h as YearlyData).op_margin ? `${(h as YearlyData).op_margin}%` : "—"}
-                          </td>
-                          <td className={`px-4 py-3 text-right font-mono ${h.eps > 0 ? "text-on-surface" : h.eps < 0 ? "text-[#ffb4ab]" : "text-on-surface-variant/40"}`}>
-                            {h.eps ? h.eps.toLocaleString() : "—"}
-                          </td>
-                          <td className="px-4 py-3 text-right font-mono text-on-surface">
-                            {h.dps ? h.dps.toLocaleString() : "—"}
-                          </td>
-                          <td className="px-4 py-3 text-right font-mono text-on-surface-variant">
-                            {h.payout_ratio ? `${h.payout_ratio}%` : "—"}
-                          </td>
+                <Collapsible title="연도별 전체 추이">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-base">
+                      <thead>
+                        <tr className="text-xs uppercase tracking-wider text-on-surface-variant/50">
+                          <th className="text-left px-4 pb-3 font-normal">연도</th>
+                          <th className="text-right px-4 pb-3 font-normal">매출</th>
+                          <th className="text-right px-4 pb-3 font-normal">영업이익</th>
+                          <th className="text-right px-4 pb-3 font-normal">영업이익률</th>
+                          <th className="text-right px-4 pb-3 font-normal">EPS</th>
+                          <th className="text-right px-4 pb-3 font-normal">배당금</th>
+                          <th className="text-right px-4 pb-3 font-normal">배당성향</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody>
+                        {sortedHistory.map((h, i) => (
+                          <tr
+                            key={h.year}
+                            className={`transition-colors ${
+                              i === 0 ? "bg-primary/5 hover:bg-primary/10" : "hover:bg-surface-container/30"
+                            }`}
+                          >
+                            <td className={`px-4 py-3 font-medium ${i === 0 ? "text-primary" : "text-on-surface"}`}>
+                              {h.year}
+                              {i === 0 && <span className="text-xs text-primary/60 ml-2">최신</span>}
+                            </td>
+                            <td className="px-4 py-3 text-right font-mono text-on-surface-variant">
+                              {h.revenue ? `${(h.revenue / 1e8).toLocaleString(undefined, { maximumFractionDigits: 0 })}억` : "—"}
+                            </td>
+                            <td className="px-4 py-3 text-right font-mono text-on-surface-variant">
+                              {h.operating_income ? `${(h.operating_income / 1e8).toLocaleString(undefined, { maximumFractionDigits: 0 })}억` : "—"}
+                            </td>
+                            <td className="px-4 py-3 text-right font-mono text-on-surface-variant">
+                              {h.op_margin ? `${h.op_margin}%` : "—"}
+                            </td>
+                            <td className={`px-4 py-3 text-right font-mono ${h.eps > 0 ? "text-on-surface" : h.eps < 0 ? "text-[#ffb4ab]" : "text-on-surface-variant/40"}`}>
+                              {h.eps ? h.eps.toLocaleString() : "—"}
+                            </td>
+                            <td className="px-4 py-3 text-right font-mono text-on-surface">
+                              {h.dps ? h.dps.toLocaleString() : "—"}
+                            </td>
+                            <td className="px-4 py-3 text-right font-mono text-on-surface-variant">
+                              {h.payout_ratio ? `${h.payout_ratio}%` : "—"}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </Collapsible>
               </div>
             )}
           </section>
