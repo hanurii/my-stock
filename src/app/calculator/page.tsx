@@ -189,6 +189,8 @@ export default function CalculatorPage() {
                           <th className="text-right px-4 pb-3 font-normal">영업이익</th>
                           <th className="text-right px-4 pb-3 font-normal">영업이익률</th>
                           <th className="text-right px-4 pb-3 font-normal">EPS</th>
+                          <th className="text-right px-4 pb-3 font-normal">PER</th>
+                          <th className="text-right px-4 pb-3 font-normal">PBR</th>
                           <th className="text-right px-4 pb-3 font-normal">배당금</th>
                           <th className="text-right px-4 pb-3 font-normal">배당성향</th>
                         </tr>
@@ -216,6 +218,12 @@ export default function CalculatorPage() {
                             </td>
                             <td className={`px-4 py-3 text-right font-mono ${h.eps > 0 ? "text-on-surface" : h.eps < 0 ? "text-[#ffb4ab]" : "text-on-surface-variant/40"}`}>
                               {h.eps ? h.eps.toLocaleString() : "—"}
+                            </td>
+                            <td className="px-4 py-3 text-right font-mono text-on-surface-variant">
+                              {h.per ? `${h.per}배` : "—"}
+                            </td>
+                            <td className="px-4 py-3 text-right font-mono text-on-surface-variant">
+                              {h.pbr ? `${h.pbr}배` : "—"}
                             </td>
                             <td className="px-4 py-3 text-right font-mono text-on-surface">
                               {h.dps ? h.dps.toLocaleString() : "—"}
@@ -253,6 +261,96 @@ export default function CalculatorPage() {
             기업의 성장성과 주주환원 의지를 파악할 수 있습니다.
             EPS와 배당금이 꾸준히 늘어나는 기업이 좋은 기업입니다.
           </p>
+        </div>
+      </section>
+
+      {/* BPS 가이드 */}
+      <section className="bg-surface-container-low rounded-xl p-8 ghost-border">
+        <h3 className="text-lg font-serif text-on-surface mb-5">BPS(주당 순자산가치) 가이드</h3>
+        <div className="space-y-6 text-base text-on-surface-variant leading-relaxed">
+          <p>
+            주식 투자에서 <strong className="text-on-surface">BPS(Book-value Per Share)</strong>는{" "}
+            <strong className="text-primary">&apos;주당 순자산가치&apos;</strong>를 의미합니다.
+            기업의 재무 건전성과 내재 가치를 판단할 때 아주 중요한 지표 중 하나입니다.
+          </p>
+          <p>
+            쉽게 요약하자면, <strong className="text-on-surface">&quot;오늘 당장 회사가 문을 닫고 모든 자산을 팔아 빚을 갚은 뒤,
+            남은 돈을 주주들에게 나눠준다면 주당 얼마씩 돌아가는가?&quot;</strong>를 나타내는 수치입니다.
+          </p>
+
+          {/* 1. 계산 방법 */}
+          <div>
+            <h4 className="text-base font-bold text-on-surface mb-3">1. BPS 계산 방법</h4>
+            <p className="mb-3">
+              BPS는 기업의 <strong className="text-on-surface">순자산(자기자본)</strong>을 발행 주식 총수로 나누어 산출합니다.
+            </p>
+            <div className="bg-surface-container rounded-xl p-5 ghost-border text-center font-mono text-lg text-primary mb-3">
+              BPS = 순자산(총자산 − 총부채) ÷ 발행 주식 총수
+            </div>
+            <ul className="space-y-1.5 pl-4">
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">·</span>
+                <span><strong className="text-on-surface">순자산:</strong> 자본금, 자본잉여금, 이익잉여금 등을 모두 합친 금액입니다.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">·</span>
+                <span><strong className="text-on-surface">의미:</strong> BPS가 높을수록 기업의 수익성이나 재무 구조가 탄탄하여 &apos;알짜배기&apos; 기업일 가능성이 높습니다.</span>
+              </li>
+            </ul>
+          </div>
+
+          {/* 2. 활용법 */}
+          <div>
+            <h4 className="text-base font-bold text-on-surface mb-3">2. BPS를 어떻게 활용하나요?</h4>
+
+            <div className="space-y-4">
+              <div>
+                <p className="font-semibold text-on-surface mb-1.5">① 주가와의 비교</p>
+                <ul className="space-y-1.5 pl-4">
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary mt-0.5">·</span>
+                    <span><strong className="text-on-surface">현재 주가 &gt; BPS:</strong> 시장에서 기업의 미래 성장성을 높게 평가하여 자산 가치보다 더 비싸게 거래되고 있다는 뜻입니다.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary mt-0.5">·</span>
+                    <span><strong className="text-on-surface">현재 주가 &lt; BPS:</strong> 기업이 가진 실제 자산 가치보다 주가가 낮게 형성된 상태로, 흔히 &apos;저평가&apos; 되었다고 판단합니다.</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <p className="font-semibold text-on-surface mb-1.5">② PBR(주가순자산비율)과의 관계</p>
+                <ul className="space-y-1.5 pl-4">
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary mt-0.5">·</span>
+                    <span>BPS는 PBR 지표를 구하는 기초가 됩니다. PBR은 현재 주가를 BPS로 나눈 값입니다.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary mt-0.5">·</span>
+                    <span><strong className="text-on-surface">PBR이 1배 미만</strong>이라면, 주가가 주당 순자산가치에도 못 미친다는 의미이므로 청산 가치보다 낮게 거래되고 있다고 봅니다.</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* 3. 유의할 점 */}
+          <div>
+            <h4 className="text-base font-bold text-on-surface mb-3">3. 투자 시 유의할 점</h4>
+            <p className="mb-3">
+              BPS가 높거나 주가보다 크다고 해서 무조건 좋은 주식은 아닙니다.
+            </p>
+            <ul className="space-y-1.5 pl-4">
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">·</span>
+                <span><strong className="text-on-surface">업종별 특성:</strong> 제조나 금융업처럼 실물 자산이나 자본이 중요한 업종은 BPS가 중요하지만, 소프트웨어나 서비스업 같은 고성장주는 무형 자산의 가치가 커서 BPS가 상대적으로 낮게 나타날 수 있습니다.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">·</span>
+                <span><strong className="text-on-surface">자산의 질:</strong> 장부상 순자산이 많더라도 실제 현금화하기 어려운 노후 설비나 악성 재고가 포함되어 있을 수 있으므로 재무제표를 함께 살피는 것이 좋습니다.</span>
+              </li>
+            </ul>
+          </div>
         </div>
       </section>
     </div>
