@@ -1,6 +1,5 @@
 import fs from "fs";
 import path from "path";
-import { QuarterlyChart, AnnualChart } from "@/components/PerformanceCharts";
 
 interface QuarterlyData {
   quarter: string;
@@ -157,22 +156,6 @@ export default function CalculatorPage() {
                 ))}
               </div>
             </div>
-
-            {/* ── 최근 4분기 실적 차트 ── */}
-            {stock.quarterly && stock.quarterly.length > 0 && (
-              <div className="px-8 pb-8">
-                <h4 className="text-lg font-serif text-on-surface mb-5">최근 분기별 실적</h4>
-                <QuarterlyChart data={stock.quarterly as QuarterlyData[]} />
-              </div>
-            )}
-
-            {/* ── 10년 연간 실적 차트 ── */}
-            {stock.history.filter(h => h.revenue || h.operating_income).length >= 3 && (
-              <div className="px-8 pb-8">
-                <h4 className="text-lg font-serif text-on-surface mb-5">연간 실적 추이 (10년)</h4>
-                <AnnualChart data={stock.history as YearlyData[]} />
-              </div>
-            )}
 
             {/* ── 10-Year History Table ── */}
             {sortedHistory.length > 0 && (

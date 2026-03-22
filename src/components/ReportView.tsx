@@ -144,17 +144,37 @@ export function ReportView({ report }: { report: ReportData }) {
             const lines = investment_direction.split("\n");
             const elements: React.ReactNode[] = [];
             let i = 0;
+            let isSubTopic = false; // 3) 이후 하위 주제 여부
 
             while (i < lines.length) {
               const line = lines[i];
 
               // 제목 (**제목**)
               if (line.startsWith("**") && line.endsWith("**")) {
-                elements.push(
-                  <h4 key={i} className="text-lg font-bold text-primary mt-8 mb-3 first:mt-0 font-serif">
-                    {line.replace(/\*\*/g, "")}
-                  </h4>
-                );
+                const title = line.replace(/\*\*/g, "");
+                // 번호로 시작하는 대주제 (1), 2), 3) 등)
+                const isMainHeading = /^\d+\)/.test(title);
+                if (isMainHeading) {
+                  isSubTopic = /^3\)/.test(title);
+                  elements.push(
+                    <h4 key={i} className="text-lg font-bold text-primary mt-8 mb-3 first:mt-0 font-serif">
+                      {title}
+                    </h4>
+                  );
+                } else if (isSubTopic) {
+                  // 3) 하위 주제: 더 작은 크기 + 다른 색상
+                  elements.push(
+                    <h5 key={i} className="text-base font-semibold text-on-surface mt-6 mb-2 font-serif">
+                      {title}
+                    </h5>
+                  );
+                } else {
+                  elements.push(
+                    <h4 key={i} className="text-lg font-bold text-primary mt-8 mb-3 first:mt-0 font-serif">
+                      {title}
+                    </h4>
+                  );
+                }
                 i++;
                 continue;
               }
@@ -289,14 +309,14 @@ export function ReportView({ report }: { report: ReportData }) {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div className="bg-surface-container rounded-xl p-5 ghost-border">
-            <p className="text-[10px] uppercase tracking-[0.15em] text-primary-dim/60 mb-2">📍 미국</p>
-            <p className="text-lg font-serif text-primary">{cpi_gdp.matrix_us?.위치}</p>
-            <p className="text-sm text-on-surface-variant mt-2 leading-relaxed">{cpi_gdp.matrix_us?.해석}</p>
+            <p className="text-sm tracking-[0.1em] text-primary-dim/60 mb-2">📍 미국</p>
+            <p className="text-xl font-serif text-primary">{cpi_gdp.matrix_us?.위치}</p>
+            <p className="text-base text-on-surface-variant mt-2 leading-relaxed">{cpi_gdp.matrix_us?.해석}</p>
           </div>
           <div className="bg-surface-container rounded-xl p-5 ghost-border">
-            <p className="text-[10px] uppercase tracking-[0.15em] text-primary-dim/60 mb-2">📍 한국</p>
-            <p className="text-lg font-serif text-primary">{cpi_gdp.matrix_kr?.위치}</p>
-            <p className="text-sm text-on-surface-variant mt-2 leading-relaxed">{cpi_gdp.matrix_kr?.해석}</p>
+            <p className="text-sm tracking-[0.1em] text-primary-dim/60 mb-2">📍 한국</p>
+            <p className="text-xl font-serif text-primary">{cpi_gdp.matrix_kr?.위치}</p>
+            <p className="text-base text-on-surface-variant mt-2 leading-relaxed">{cpi_gdp.matrix_kr?.해석}</p>
           </div>
         </div>
       </section>
