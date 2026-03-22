@@ -1,10 +1,14 @@
 import fs from "fs";
 import path from "path";
+import { QuarterlyChart, AnnualChart } from "@/components/PerformanceCharts";
 
 interface QuarterlyData {
   quarter: string;
   eps: number;
+  revenue: number;
+  operating_income: number;
   net_income: number;
+  op_margin: number;
 }
 
 interface YearlyData {
@@ -15,6 +19,10 @@ interface YearlyData {
   payout_ratio: number;
   per: number;
   pbr: number;
+  revenue: number;
+  operating_income: number;
+  net_income: number;
+  op_margin: number;
 }
 
 interface StockData {
@@ -150,45 +158,21 @@ export default function CalculatorPage() {
               </div>
             </div>
 
-            {/* ── 최근 4분기 추이 ── */}
-            {stock.quarterly && stock.quarterly.filter(q => q.eps).length > 0 && (() => {
-              const validQuarters = stock.quarterly!.filter(q => q.eps);
-              const totalEps = validQuarters.reduce((sum, q) => sum + q.eps, 0);
+            {/* ── 최근 4분기 실적 차트 ── */}
+            {stock.quarterly && stock.quarterly.length > 0 && (
+              <div className="px-8 pb-8">
+                <h4 className="text-lg font-serif text-on-surface mb-5">최근 분기별 실적</h4>
+                <QuarterlyChart data={stock.quarterly as QuarterlyData[]} />
+              </div>
+            )}
 
-              return (
-                <div className="px-8 pb-8">
-                  <h4 className="text-lg font-serif text-on-surface mb-4">최근 분기별 EPS</h4>
-                  <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                    {stock.quarterly!.map((q) => (
-                      <div key={q.quarter} className="bg-surface-container rounded-xl p-5 ghost-border text-center">
-                        <p className="text-base font-serif text-primary mb-3">{q.quarter}</p>
-                        <div>
-                          <p className="text-xs text-on-surface-variant/50 mb-1">분기 EPS</p>
-                          <p className={`text-2xl font-mono ${q.eps > 0 ? "text-on-surface" : q.eps < 0 ? "text-[#ffb4ab]" : "text-on-surface-variant/30"}`}>
-                            {q.eps ? `${q.eps.toLocaleString()}원` : "미공시"}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                    {/* 합계 카드 */}
-                    {validQuarters.length >= 2 && (
-                      <div className="bg-primary/10 rounded-xl p-5 ghost-border text-center">
-                        <p className="text-base font-serif text-primary mb-3">합계</p>
-                        <div>
-                          <p className="text-xs text-primary/50 mb-1">{validQuarters.length}개 분기</p>
-                          <p className="text-2xl font-mono text-primary font-bold">
-                            {totalEps.toLocaleString()}원
-                          </p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  <p className="text-xs text-on-surface-variant/40 mt-3">
-                    ※ 각 분기의 개별 EPS입니다. 미공시 분기는 아직 보고서가 제출되지 않은 것입니다.
-                  </p>
-                </div>
-              );
-            })()}
+            {/* ── 10년 연간 실적 차트 ── */}
+            {stock.history.filter(h => h.revenue || h.operating_income).length >= 3 && (
+              <div className="px-8 pb-8">
+                <h4 className="text-lg font-serif text-on-surface mb-5">연간 실적 추이 (10년)</h4>
+                <AnnualChart data={stock.history as YearlyData[]} />
+              </div>
+            )}
 
             {/* ── 10-Year History Table ── */}
             {sortedHistory.length > 0 && (
@@ -199,10 +183,12 @@ export default function CalculatorPage() {
                     <thead>
                       <tr className="text-xs uppercase tracking-wider text-on-surface-variant/50">
                         <th className="text-left px-4 pb-3 font-normal">연도</th>
-                        <th className="text-right px-4 pb-3 font-normal">EPS (원)</th>
-                        <th className="text-right px-4 pb-3 font-normal">배당금 (원)</th>
+                        <th className="text-right px-4 pb-3 font-normal">매출</th>
+                        <th className="text-right px-4 pb-3 font-normal">영업이익</th>
+                        <th className="text-right px-4 pb-3 font-normal">영업이익률</th>
+                        <th className="text-right px-4 pb-3 font-normal">EPS</th>
+                        <th className="text-right px-4 pb-3 font-normal">배당금</th>
                         <th className="text-right px-4 pb-3 font-normal">배당성향</th>
-                        <th className="text-right px-4 pb-3 font-normal">BPS (원)</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -219,6 +205,15 @@ export default function CalculatorPage() {
                             {h.year}
                             {i === 0 && <span className="text-xs text-primary/60 ml-2">최신</span>}
                           </td>
+                          <td className="px-4 py-3 text-right font-mono text-on-surface-variant">
+                            {(h as YearlyData).revenue ? `${((h as YearlyData).revenue / 1e8).toLocaleString(undefined, { maximumFractionDigits: 0 })}억` : "—"}
+                          </td>
+                          <td className="px-4 py-3 text-right font-mono text-on-surface-variant">
+                            {(h as YearlyData).operating_income ? `${((h as YearlyData).operating_income / 1e8).toLocaleString(undefined, { maximumFractionDigits: 0 })}억` : "—"}
+                          </td>
+                          <td className="px-4 py-3 text-right font-mono text-on-surface-variant">
+                            {(h as YearlyData).op_margin ? `${(h as YearlyData).op_margin}%` : "—"}
+                          </td>
                           <td className={`px-4 py-3 text-right font-mono ${h.eps > 0 ? "text-on-surface" : h.eps < 0 ? "text-[#ffb4ab]" : "text-on-surface-variant/40"}`}>
                             {h.eps ? h.eps.toLocaleString() : "—"}
                           </td>
@@ -227,9 +222,6 @@ export default function CalculatorPage() {
                           </td>
                           <td className="px-4 py-3 text-right font-mono text-on-surface-variant">
                             {h.payout_ratio ? `${h.payout_ratio}%` : "—"}
-                          </td>
-                          <td className="px-4 py-3 text-right font-mono text-on-surface-variant">
-                            {h.bps ? h.bps.toLocaleString() : "—"}
                           </td>
                         </tr>
                       ))}

@@ -1,8 +1,67 @@
+"use client";
+
 import type { Indicator } from "@/lib/data";
+import React, { useState } from "react";
 
 interface IndicatorTableProps {
   title: string;
   indicators: Indicator[];
+}
+
+function CommentCell({ comment }: { comment: string }) {
+  const [open, setOpen] = useState(false);
+  const buttonRef = React.useRef<HTMLButtonElement>(null);
+  const [pos, setPos] = useState({ top: 0, left: 0 });
+
+  const handleOpen = () => {
+    if (!open && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setPos({
+        top: rect.top,
+        left: Math.max(8, rect.left - 192),
+      });
+    }
+    setOpen((v) => !v);
+  };
+
+  return (
+    <td className="px-3 py-3 text-xs text-on-surface-variant/60 leading-snug max-w-[240px]">
+      <span className="hidden min-[1475px]:inline">{comment}</span>
+      <span className="min-[1475px]:hidden">
+        <button
+          ref={buttonRef}
+          type="button"
+          onClick={handleOpen}
+          className="p-1 rounded hover:bg-surface-container-high/50 transition-colors"
+          aria-label="코멘트 보기"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            className="w-4 h-4 text-on-surface-variant/50"
+          >
+            <path
+              fillRule="evenodd"
+              d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-7-4a1 1 0 1 0-2 0 1 1 0 0 0 2 0ZM9 9a.75.75 0 0 0 0 1.5h.253a.25.25 0 0 1 .244.304l-.459 2.066A1.75 1.75 0 0 0 10.747 15H11a.75.75 0 0 0 0-1.5h-.253a.25.25 0 0 1-.244-.304l.459-2.066A1.75 1.75 0 0 0 9.253 9H9Z"
+              clipRule="evenodd"
+            />
+          </svg>
+        </button>
+        {open && (
+          <>
+            <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+            <div
+              className="fixed z-50 w-48 p-3 rounded-lg bg-surface-container-high text-on-surface text-xs leading-relaxed shadow-lg ghost-border"
+              style={{ top: pos.top, left: pos.left }}
+            >
+              {comment}
+            </div>
+          </>
+        )}
+      </span>
+    </td>
+  );
 }
 
 export function IndicatorTable({ title, indicators }: IndicatorTableProps) {
@@ -59,9 +118,7 @@ export function IndicatorTable({ title, indicators }: IndicatorTableProps) {
               <td className="px-3 py-3 text-xs text-on-surface-variant whitespace-nowrap hidden md:table-cell">
                 {ind.trend}
               </td>
-              <td className="px-3 py-3 text-xs text-on-surface-variant/60 leading-snug max-w-[240px]">
-                {ind.comment}
-              </td>
+              <CommentCell comment={ind.comment} />
             </tr>
           );
         })}
