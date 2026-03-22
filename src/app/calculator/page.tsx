@@ -1,6 +1,12 @@
 import fs from "fs";
 import path from "path";
 
+interface QuarterlyData {
+  quarter: string;
+  eps: number;
+  net_income: number;
+}
+
 interface YearlyData {
   year: number;
   eps: number;
@@ -16,6 +22,7 @@ interface StockData {
   name: string;
   is_preferred: boolean;
   current_price: number;
+  quarterly?: QuarterlyData[];
   latest: {
     eps: number;
     per: number | null;
@@ -143,37 +150,26 @@ export default function CalculatorPage() {
               </div>
             </div>
 
-            {/* ── 최근 4개년 하이라이트 ── */}
-            {recent4.length >= 2 && (
+            {/* ── 최근 4분기 추이 ── */}
+            {stock.quarterly && stock.quarterly.filter(q => q.eps).length > 0 && (
               <div className="px-8 pb-8">
-                <h4 className="text-lg font-serif text-on-surface mb-4">최근 추이</h4>
+                <h4 className="text-lg font-serif text-on-surface mb-4">최근 분기별 EPS</h4>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {recent4.map((h) => (
-                    <div key={h.year} className="bg-surface-container rounded-xl p-5 ghost-border text-center">
-                      <p className="text-base font-serif text-primary mb-3">{h.year}년</p>
-                      <div className="space-y-2">
-                        <div>
-                          <p className="text-xs text-on-surface-variant/50">EPS</p>
-                          <p className={`text-lg font-mono ${h.eps > 0 ? "text-on-surface" : h.eps < 0 ? "text-[#ffb4ab]" : "text-on-surface-variant/40"}`}>
-                            {h.eps ? h.eps.toLocaleString() : "—"}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-on-surface-variant/50">배당금</p>
-                          <p className="text-lg font-mono text-on-surface">
-                            {h.dps ? h.dps.toLocaleString() : "—"}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-on-surface-variant/50">배당성향</p>
-                          <p className="text-base font-mono text-on-surface-variant">
-                            {h.payout_ratio ? `${h.payout_ratio}%` : "—"}
-                          </p>
-                        </div>
+                  {stock.quarterly.map((q) => (
+                    <div key={q.quarter} className="bg-surface-container rounded-xl p-5 ghost-border text-center">
+                      <p className="text-base font-serif text-primary mb-3">{q.quarter}</p>
+                      <div>
+                        <p className="text-xs text-on-surface-variant/50 mb-1">EPS (누적)</p>
+                        <p className={`text-2xl font-mono ${q.eps > 0 ? "text-on-surface" : q.eps < 0 ? "text-[#ffb4ab]" : "text-on-surface-variant/30"}`}>
+                          {q.eps ? `${q.eps.toLocaleString()}원` : "미공시"}
+                        </p>
                       </div>
                     </div>
                   ))}
                 </div>
+                <p className="text-xs text-on-surface-variant/40 mt-3">
+                  ※ 분기 보고서의 EPS는 해당 분기까지의 누적 수치입니다. 미공시 분기는 아직 보고서가 제출되지 않은 것입니다.
+                </p>
               </div>
             )}
 
