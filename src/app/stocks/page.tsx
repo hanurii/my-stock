@@ -91,15 +91,6 @@ export default function StocksPage() {
         </p>
       </section>
 
-      {/* Market Insight */}
-      <section className="glass-card rounded-xl p-8 ghost-border">
-        <div className="flex items-center gap-3 mb-4">
-          <span className="material-symbols-outlined text-primary text-2xl">auto_awesome</span>
-          <h3 className="text-xl font-serif text-on-surface">시장 판단</h3>
-        </div>
-        <p className="text-base text-on-surface-variant leading-relaxed">{market_insight}</p>
-      </section>
-
       {/* Scoring Framework */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-5">
         {[
@@ -149,10 +140,11 @@ export default function StocksPage() {
       {/* Stock Rankings */}
       <section>
         <h3 className="text-2xl font-serif text-on-surface mb-2 tracking-tight">종목 순위</h3>
-        <p className="text-sm text-on-surface-variant mb-6">점수 높은 순 · 클릭하면 상세 정보</p>
+        <p className="text-sm text-on-surface-variant mb-6">점수 높은 순</p>
 
+        {/* A/B 등급 (항상 표시) */}
         <div className="space-y-4">
-          {stocks.map((stock, rank) => {
+          {stocks.filter(s => s.grade === "A" || s.grade === "B").map((stock, rank) => {
             const color = getGradeColor(stock.grade);
             const tierLabel = getTierLabel(stock.tier);
             const cat1Pct = (stock.cat1 / framework.category1.max_score) * 100;
@@ -235,6 +227,104 @@ export default function StocksPage() {
             );
           })}
         </div>
+
+        {/* C 등급 (접기/펼치기) */}
+        {stocks.filter(s => s.grade === "C").length > 0 && (
+          <div className="mt-6">
+            <Collapsible title={`C등급 — 워치리스트 (${stocks.filter(s => s.grade === "C").length}개)`}>
+              <div className="space-y-4">
+                {stocks.filter(s => s.grade === "C").map((stock) => {
+                  const color = getGradeColor(stock.grade);
+                  const tierLabel = getTierLabel(stock.tier);
+                  const globalRank = stocks.indexOf(stock) + 1;
+                  const cat1Pct = (stock.cat1 / framework.category1.max_score) * 100;
+                  const cat2Pct = (stock.cat2 / framework.category2.max_score) * 100;
+                  const cat3Pct = (stock.cat3 / framework.category3.max_score) * 100;
+
+                  return (
+                    <div key={stock.code} className="bg-surface-container-low rounded-xl ghost-border overflow-hidden">
+                      <div className="p-6">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-4">
+                            <span className="text-2xl font-serif font-bold w-8" style={{ color }}>{globalRank}</span>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <h4 className="text-lg font-medium text-on-surface">{stock.name}</h4>
+                                <span className="text-xs px-2 py-0.5 rounded font-bold" style={{ backgroundColor: `${color}20`, color }}>{stock.grade}</span>
+                                {tierLabel && <span className="text-xs text-on-surface-variant/50">{tierLabel}</span>}
+                              </div>
+                              <p className="text-sm text-on-surface-variant">{stock.code} · {stock.sector}</p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-3xl font-serif font-bold" style={{ color }}>{stock.score}</p>
+                            <p className="text-xs text-on-surface-variant">/100점</p>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-3 gap-3 mb-4">
+                          {[
+                            { label: "저평가", score: stock.cat1, max: framework.category1.max_score, pct: cat1Pct },
+                            { label: "주주환원", score: stock.cat2, max: framework.category2.max_score, pct: cat2Pct },
+                            { label: "성장/경쟁력", score: stock.cat3, max: framework.category3.max_score, pct: cat3Pct },
+                          ].map((cat) => (
+                            <div key={cat.label} className="bg-surface-container/50 rounded-lg p-3">
+                              <div className="flex justify-between items-center mb-1.5">
+                                <span className="text-xs text-on-surface-variant">{cat.label}</span>
+                                <span className="text-sm font-mono text-on-surface">{cat.score}/{cat.max}</span>
+                              </div>
+                              <div className="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+                                <div className="h-full rounded-full transition-all duration-500" style={{ width: `${cat.pct}%`, backgroundColor: color }} />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        <p className="text-sm text-on-surface-variant leading-relaxed">{stock.highlights}</p>
+                        {stock.catalyst && (
+                          <div className="mt-3 flex items-start gap-2">
+                            <span className="material-symbols-outlined text-primary text-sm mt-0.5">bolt</span>
+                            <p className="text-sm text-primary/80">{stock.catalyst}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </Collapsible>
+          </div>
+        )}
+
+        {/* D 등급 (접기/펼치기) */}
+        {stocks.filter(s => s.grade === "D").length > 0 && (
+          <div className="mt-6">
+            <Collapsible title={`D등급 — 투자 부적합 (${stocks.filter(s => s.grade === "D").length}개)`}>
+              <div className="space-y-4">
+                {stocks.filter(s => s.grade === "D").map((stock) => {
+                  const color = getGradeColor(stock.grade);
+                  const globalRank = stocks.indexOf(stock) + 1;
+
+                  return (
+                    <div key={stock.code} className="bg-surface-container-low rounded-xl ghost-border overflow-hidden">
+                      <div className="p-6 flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <span className="text-xl font-serif font-bold w-8" style={{ color }}>{globalRank}</span>
+                          <div>
+                            <h4 className="text-base font-medium text-on-surface">{stock.name}</h4>
+                            <p className="text-sm text-on-surface-variant">{stock.code} · {stock.sector}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <p className="text-sm text-on-surface-variant/60 max-w-sm text-right">{stock.highlights}</p>
+                          <p className="text-2xl font-serif font-bold" style={{ color }}>{stock.score}</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </Collapsible>
+          </div>
+        )}
       </section>
 
       {/* Excluded */}
