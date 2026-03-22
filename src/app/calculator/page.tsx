@@ -2,20 +2,32 @@ import fs from "fs";
 import path from "path";
 import { MarkdownText } from "@/components/MarkdownText";
 
-interface Metric {
-  value: number | null;
-  unit: string;
-  label: string;
-  description: string;
-  judgment?: string;
+interface YearlyData {
+  year: number;
+  eps: number;
+  dps: number;
+  bps: number;
+  payout_ratio: number;
+  per: number;
+  pbr: number;
 }
 
 interface StockData {
   code: string;
   name: string;
-  price: number;
-  basis: string;
-  metrics: Record<string, Metric>;
+  is_preferred: boolean;
+  current_price: number;
+  latest: {
+    eps: number;
+    per: number | null;
+    bps: number;
+    pbr: number | null;
+    dps: number;
+    dividend_yield: number | null;
+    payout_ratio: number | null;
+    basis_year: number;
+  };
+  history: YearlyData[];
 }
 
 interface CalculatorData {
@@ -34,37 +46,17 @@ function getCalculatorData(): CalculatorData | null {
   }
 }
 
-function getJudgmentColor(judgment?: string): string {
-  if (!judgment) return "#909097";
-  const firstChar = judgment.codePointAt(0);
-  if (firstChar === 0x1F534) return "#ffb4ab"; // 🔴
-  if (firstChar === 0x1F7E1) return "#e9c176"; // 🟡
-  if (firstChar === 0x1F7E2) return "#95d3ba"; // 🟢
-  if (firstChar === 0x1F535) return "#6ea8fe"; // 🔵
-  return "#909097";
-}
-
-function cleanJudgment(judgment?: string): string {
-  if (!judgment) return "";
-  return judgment.replace(/^(\u{1F534}|\u{1F7E1}|\u{1F7E2}|\u{1F535}|\u{26AA})\s*/u, "");
-}
-
 export default function CalculatorPage() {
   const data = getCalculatorData();
 
   if (!data) {
     return (
-      <div className="py-20">
-        <p className="text-[10px] uppercase tracking-[0.2em] text-primary-dim/60 mb-2">Financial Calculator</p>
-        <h2 className="text-4xl font-serif font-bold text-on-surface tracking-tight mb-4">재무지표 계산기</h2>
-        <div className="bg-surface-container-low rounded-xl p-8 ghost-border text-center">
-          <p className="text-on-surface-variant">데이터가 아직 생성되지 않았습니다.</p>
-        </div>
+      <div className="py-20 text-center">
+        <h2 className="text-3xl font-serif text-primary mb-4">데이터 없음</h2>
+        <p className="text-on-surface-variant">calculator.json이 아직 생성되지 않았습니다.</p>
       </div>
     );
   }
-
-  const metricKeys = ["PER", "PBR", "ROE", "EPS", "BPS", "부채비율", "영업이익률"];
 
   return (
     <div className="space-y-12">
@@ -77,120 +69,121 @@ export default function CalculatorPage() {
           재무지표 계산기
         </h2>
         <p className="text-base text-on-surface-variant mt-2">
-          {data.generated_at} 기준 · 데이터 소스: {data.source === "sample" ? "샘플 데이터 (DART API 연동 전)" : "DART 공시"}
+          {data.generated_at} 기준 · DART 공시 데이터 기반
+        </p>
+        <p className="text-sm text-on-surface-variant/60 mt-1">
+          실적 발표 직후 최신 EPS로 PER을 계산합니다. 증권사 반영 전에 먼저 확인하세요.
         </p>
       </section>
 
-      {/* Ranking */}
-      <section>
-        <h3 className="text-2xl font-serif text-on-surface mb-2 tracking-tight">
-          종합 투자 매력도 순위
-        </h3>
-        <p className="text-sm text-on-surface-variant mb-6">
-          PER, PBR, ROE, 부채비율, 영업이익률을 종합한 점수 (100점 만점)
-        </p>
-
-        <div className="space-y-4">
-          {data.stocks.map((stock, rank) => {
-            const score = stock.metrics["종합점수"];
-            const scoreColor = getJudgmentColor(score?.judgment);
-            const scoreWidth = Math.max(0, Math.min(100, score?.value || 0));
-
-            return (
-              <div key={stock.code} className="bg-surface-container-low rounded-xl p-6 ghost-border">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-4">
-                    <span
-                      className="text-2xl font-serif font-bold w-8"
-                      style={{ color: scoreColor }}
-                    >
-                      {rank + 1}
-                    </span>
-                    <div>
-                      <h4 className="text-lg font-medium text-on-surface">{stock.name}</h4>
-                      <p className="text-sm text-on-surface-variant">{stock.code} · {stock.price.toLocaleString()}원</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-3xl font-serif font-bold" style={{ color: scoreColor }}>
-                      {score?.value}
-                    </span>
-                    <span className="text-base text-on-surface-variant ml-1">점</span>
-                  </div>
-                </div>
-
-                {/* Score Bar */}
-                <div className="mb-4">
-                  <div className="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
-                    <div
-                      className="h-full rounded-full transition-all duration-700"
-                      style={{ width: `${scoreWidth}%`, backgroundColor: scoreColor }}
-                    />
-                  </div>
-                  <p className="text-xs mt-1.5" style={{ color: scoreColor }}>
-                    {cleanJudgment(score?.judgment)}
-                  </p>
-                </div>
-
-                {/* Metrics Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {metricKeys.map((key) => {
-                    const m = stock.metrics[key];
-                    if (!m || m.value === null) return null;
-                    const color = getJudgmentColor(m.judgment);
-
-                    return (
-                      <div key={key} className="bg-surface-container/50 rounded-lg p-3">
-                        <p className="text-[10px] uppercase tracking-wider text-on-surface-variant/50 mb-1">
-                          {m.label}
-                        </p>
-                        <p className="text-lg font-mono text-on-surface">
-                          {typeof m.value === "number" ? m.value.toLocaleString() : m.value}
-                          <span className="text-xs text-on-surface-variant ml-0.5">{m.unit}</span>
-                        </p>
-                        {m.judgment && (
-                          <div className="flex items-center gap-1.5 mt-1.5">
-                            <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
-                            <p className="text-[10px] leading-tight" style={{ color }}>
-                              {cleanJudgment(m.judgment)}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* Basis */}
-                <p className="text-[10px] text-on-surface-variant/40 mt-3">
-                  데이터 기준: {stock.basis}
-                </p>
+      {/* Stock Cards */}
+      {data.stocks.map((stock) => (
+        <section key={stock.code} className="bg-surface-container-low rounded-xl ghost-border overflow-hidden">
+          {/* Stock Header */}
+          <div className="p-6 flex justify-between items-start">
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-xl font-serif text-on-surface tracking-tight">{stock.name}</h3>
+                {stock.is_preferred && (
+                  <span className="text-[10px] uppercase tracking-wider bg-primary/10 text-primary px-2 py-0.5 rounded">
+                    우선주
+                  </span>
+                )}
               </div>
-            );
-          })}
-        </div>
-      </section>
+              <p className="text-sm text-on-surface-variant mt-1">
+                {stock.code} · {stock.latest.basis_year}년 사업보고서 기준
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="text-3xl font-serif text-primary tracking-tight">
+                {stock.current_price.toLocaleString()}
+                <span className="text-base text-on-surface-variant ml-1">원</span>
+              </p>
+            </div>
+          </div>
 
-      {/* Legend */}
+          {/* Latest Metrics */}
+          <div className="grid grid-cols-3 md:grid-cols-6 gap-px bg-surface-container">
+            {[
+              { label: "최신 EPS", value: stock.latest.eps, unit: "원", desc: "주당순이익" },
+              { label: "최신 PER", value: stock.latest.per, unit: "배", desc: "주가÷EPS" },
+              { label: "최신 BPS", value: stock.latest.bps, unit: "원", desc: "주당순자산" },
+              { label: "최신 PBR", value: stock.latest.pbr, unit: "배", desc: "주가÷BPS" },
+              { label: "배당수익률", value: stock.latest.dividend_yield, unit: "%", desc: "배당÷주가" },
+              { label: "주당배당금", value: stock.latest.dps, unit: "원", desc: "확정 배당" },
+            ].map((m) => (
+              <div key={m.label} className="bg-surface-container-low p-4">
+                <p className="text-[10px] uppercase tracking-wider text-on-surface-variant/50 mb-1">
+                  {m.label}
+                </p>
+                <p className="text-lg font-mono text-on-surface">
+                  {m.value != null ? m.value.toLocaleString() : "—"}
+                  <span className="text-xs text-on-surface-variant ml-0.5">{m.unit}</span>
+                </p>
+                <p className="text-[10px] text-on-surface-variant/40 mt-0.5">{m.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* 10-Year History Table */}
+          {stock.history.length > 0 && (
+            <div className="p-6">
+              <h4 className="text-sm font-serif text-on-surface mb-4">연도별 추이</h4>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-[10px] uppercase tracking-wider text-on-surface-variant/50">
+                      <th className="text-left px-3 pb-3 font-normal">연도</th>
+                      <th className="text-right px-3 pb-3 font-normal">EPS (원)</th>
+                      <th className="text-right px-3 pb-3 font-normal">배당금 (원)</th>
+                      <th className="text-right px-3 pb-3 font-normal">배당성향 (%)</th>
+                      <th className="text-right px-3 pb-3 font-normal">BPS (원)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {stock.history.filter(h => h.eps || h.dps || h.bps).map((h) => (
+                      <tr key={h.year} className="hover:bg-surface-container/30 transition-colors">
+                        <td className="px-3 py-2 text-on-surface font-medium">{h.year}</td>
+                        <td className={`px-3 py-2 text-right font-mono ${h.eps > 0 ? "text-on-surface" : h.eps < 0 ? "text-[#ffb4ab]" : "text-on-surface-variant/40"}`}>
+                          {h.eps ? h.eps.toLocaleString() : "—"}
+                        </td>
+                        <td className="px-3 py-2 text-right font-mono text-on-surface">
+                          {h.dps ? h.dps.toLocaleString() : "—"}
+                        </td>
+                        <td className="px-3 py-2 text-right font-mono text-on-surface-variant">
+                          {h.payout_ratio ? `${h.payout_ratio}%` : "—"}
+                        </td>
+                        <td className="px-3 py-2 text-right font-mono text-on-surface-variant">
+                          {h.bps ? h.bps.toLocaleString() : "—"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </section>
+      ))}
+
+      {/* Guide */}
       <section className="bg-surface-container-low rounded-xl p-6 ghost-border">
-        <h3 className="text-base font-serif text-on-surface mb-4">지표 해석 가이드</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-          <div>
-            <p className="text-on-surface font-medium mb-2">수익성 지표</p>
-            <div className="space-y-2 text-on-surface-variant">
-              <p><strong className="text-on-surface">EPS</strong> (주당순이익) — 1주당 벌어들이는 순이익. 높을수록 좋음.</p>
-              <p><strong className="text-on-surface">ROE</strong> (자기자본이익률) — 자본 대비 순이익. 10% 이상이면 양호.</p>
-              <p><strong className="text-on-surface">영업이익률</strong> — 매출 대비 영업이익. 본업의 수익성.</p>
-            </div>
-          </div>
-          <div>
-            <p className="text-on-surface font-medium mb-2">가치평가 지표</p>
-            <div className="space-y-2 text-on-surface-variant">
-              <p><strong className="text-on-surface">PER</strong> (주가수익비율) — 주가 ÷ EPS. 낮을수록 이익 대비 저평가.</p>
-              <p><strong className="text-on-surface">PBR</strong> (주가순자산비율) — 주가 ÷ BPS. 1 미만이면 자산 대비 저평가.</p>
-              <p><strong className="text-on-surface">부채비율</strong> — 부채 ÷ 자본. 100% 이하가 안정적.</p>
-            </div>
-          </div>
+        <h3 className="text-base font-serif text-on-surface mb-4">사용 가이드</h3>
+        <div className="space-y-3 text-sm text-on-surface-variant leading-relaxed">
+          <p>
+            <strong className="text-on-surface">최신 PER</strong> — 현재 주가를 가장 최근 공시된 EPS로 나눈 값입니다.
+            실적 발표 직후 증권사보다 먼저 확인할 수 있습니다.
+            PER이 낮을수록 이익 대비 주가가 저평가된 것입니다.
+          </p>
+          <p>
+            <strong className="text-on-surface">배당수익률</strong> — 확정된 주당배당금을 현재 주가로 나눈 값입니다.
+            은행 이자와 비교하여 투자 매력도를 판단할 수 있습니다.
+          </p>
+          <p>
+            <strong className="text-on-surface">연도별 추이</strong> — 10년간 EPS와 배당금의 추세를 보면
+            기업의 성장성과 주주환원 의지를 파악할 수 있습니다.
+            EPS와 배당금이 꾸준히 늘어나는 기업이 좋은 기업입니다.
+          </p>
         </div>
       </section>
     </div>
