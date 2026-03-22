@@ -1,0 +1,64 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme inline {
+  --font-serif: 'Noto Serif', serif;
+  --font-sans: 'Inter', sans-serif;
+  --font-mono: var(--font-geist-mono);
+
+  /* Private Atelier Color System */
+  --color-surface: #0c1324;
+  --color-surface-dim: #0c1324;
+  --color-surface-container-lowest: #070d1f;
+  --color-surface-container-low: #151b2d;
+  --color-surface-container: #191f31;
+  --color-surface-container-high: #23293c;
+  --color-surface-container-highest: #2e3447;
+  --color-surface-bright: #33394c;
+  --color-surface-variant: #2e3447;
+
+  --color-on-surface: #dce1fb;
+  --color-on-surface-variant: #c6c6cd;
+  --color-on-background: #dce1fb;
+
+  --color-primary: #e9c176;
+  --color-primary-dim: #9d7c39;
+  --color-on-primary: #412d00;
+
+  --color-secondary: #bcc7de;
+  --color-secondary-container: #3e495d;
+
+  --color-tertiary: #95d3ba;
+  --color-on-tertiary: #003829;
+
+  --color-outline: #909097;
+  --color-outline-variant: #45464d;
+
+  --color-error: #ffb4ab;
+
+  --color-gold-start: #e9c176;
+  --color-gold-end: #9d7c39;
+}
+
+body {
+  background-color: #0c1324;
+  color: #dce1fb;
+  font-family: 'Inter', sans-serif;
+}
+
+h1, h2, h3, .font-serif {
+  font-family: 'Noto Serif', serif;
+}
+
+.gold-shimmer {
+  background: linear-gradient(45deg, #e9c176 0%, #9d7c39 100%);
+}
+
+.glass-card {
+  background: rgba(46, 52, 71, 0.6);
+  backdrop-filter: blur(20px);
+}
+
+.ghost-border {
+  border: 1px solid rgba(69, 70, 77, 0.15);
+}
