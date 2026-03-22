@@ -84,7 +84,7 @@ export default function StocksPage() {
           Undervalued Stocks
         </p>
         <h2 className="text-4xl font-serif font-bold text-on-surface tracking-tight">
-          저평가 가치주
+          저평가 우량주
         </h2>
         <p className="text-base text-on-surface-variant mt-2">
           {data.generated_at} 기준 · 3대 카테고리 점수 시스템 (100점 만점)

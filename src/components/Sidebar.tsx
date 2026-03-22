@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 
 const navItems = [
   { href: "/", label: "거시경제 리포트", icon: "auto_graph" },
-  { href: "/stocks", label: "저평가 가치주", icon: "stars" },
+  { href: "/stocks", label: "저평가 우량주", icon: "stars" },
   { href: "/journal", label: "매매일지", icon: "history_edu" },
   { href: "/calculator", label: "재무제표 계산기", icon: "calculate" },
 ];
