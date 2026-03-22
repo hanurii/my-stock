@@ -80,7 +80,7 @@ export default function CalculatorPage() {
           Financial Statements
         </p>
         <h2 className="text-4xl font-serif font-bold text-on-surface tracking-tight">
-          재무제표
+          재무제표 계산기
         </h2>
         <p className="text-base text-on-surface-variant mt-2">
           {data.generated_at} 기준 · DART 공시 데이터 기반
