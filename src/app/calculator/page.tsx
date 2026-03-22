@@ -151,27 +151,44 @@ export default function CalculatorPage() {
             </div>
 
             {/* ── 최근 4분기 추이 ── */}
-            {stock.quarterly && stock.quarterly.filter(q => q.eps).length > 0 && (
-              <div className="px-8 pb-8">
-                <h4 className="text-lg font-serif text-on-surface mb-4">최근 분기별 EPS</h4>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {stock.quarterly.map((q) => (
-                    <div key={q.quarter} className="bg-surface-container rounded-xl p-5 ghost-border text-center">
-                      <p className="text-base font-serif text-primary mb-3">{q.quarter}</p>
-                      <div>
-                        <p className="text-xs text-on-surface-variant/50 mb-1">EPS (누적)</p>
-                        <p className={`text-2xl font-mono ${q.eps > 0 ? "text-on-surface" : q.eps < 0 ? "text-[#ffb4ab]" : "text-on-surface-variant/30"}`}>
-                          {q.eps ? `${q.eps.toLocaleString()}원` : "미공시"}
-                        </p>
+            {stock.quarterly && stock.quarterly.filter(q => q.eps).length > 0 && (() => {
+              const validQuarters = stock.quarterly!.filter(q => q.eps);
+              const totalEps = validQuarters.reduce((sum, q) => sum + q.eps, 0);
+
+              return (
+                <div className="px-8 pb-8">
+                  <h4 className="text-lg font-serif text-on-surface mb-4">최근 분기별 EPS</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    {stock.quarterly!.map((q) => (
+                      <div key={q.quarter} className="bg-surface-container rounded-xl p-5 ghost-border text-center">
+                        <p className="text-base font-serif text-primary mb-3">{q.quarter}</p>
+                        <div>
+                          <p className="text-xs text-on-surface-variant/50 mb-1">분기 EPS</p>
+                          <p className={`text-2xl font-mono ${q.eps > 0 ? "text-on-surface" : q.eps < 0 ? "text-[#ffb4ab]" : "text-on-surface-variant/30"}`}>
+                            {q.eps ? `${q.eps.toLocaleString()}원` : "미공시"}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                    {/* 합계 카드 */}
+                    {validQuarters.length >= 2 && (
+                      <div className="bg-primary/10 rounded-xl p-5 ghost-border text-center">
+                        <p className="text-base font-serif text-primary mb-3">합계</p>
+                        <div>
+                          <p className="text-xs text-primary/50 mb-1">{validQuarters.length}개 분기</p>
+                          <p className="text-2xl font-mono text-primary font-bold">
+                            {totalEps.toLocaleString()}원
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-xs text-on-surface-variant/40 mt-3">
+                    ※ 각 분기의 개별 EPS입니다. 미공시 분기는 아직 보고서가 제출되지 않은 것입니다.
+                  </p>
                 </div>
-                <p className="text-xs text-on-surface-variant/40 mt-3">
-                  ※ 분기 보고서의 EPS는 해당 분기까지의 누적 수치입니다. 미공시 분기는 아직 보고서가 제출되지 않은 것입니다.
-                </p>
-              </div>
-            )}
+              );
+            })()}
 
             {/* ── 10-Year History Table ── */}
             {sortedHistory.length > 0 && (
