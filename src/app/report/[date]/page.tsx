@@ -2,6 +2,8 @@ import { getReportData, getReportDates } from "@/lib/data";
 import { ReportView } from "@/components/ReportView";
 import Link from "next/link";
 
+export const dynamicParams = false;
+
 export function generateStaticParams() {
   const dates = getReportDates();
   return dates.map((date) => ({ date }));
