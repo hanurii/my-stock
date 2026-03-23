@@ -8,6 +8,7 @@ function shiftTs(ts: {날짜: string; 종가: number}[], newDate: string, newVal
   return [...ts.slice(1), { 날짜: newDate, 종가: newValue }];
 }
 
+// 3/23(월) 검증된 데이터 (출처: Seoul Economic Daily, Yahoo Finance, CNBC, Bloomberg)
 const report = {
   meta: {
     date: "2026-03-24",
@@ -17,40 +18,42 @@ const report = {
 
   briefing: `## 오늘의 거시경제 브리핑
 
-트럼프 대통령이 이란 추가 공습 5일간 중단을 선언하고 외교적 해결로 방향을 전환했다. 이에 뉴욕 증시는 반등했다(다우 +1.38%, 나스닥 +1.38%). WTI 유가는 $88.67로 -6.9% 급락했다. 그러나 국내 시장은 지난주 전쟁 충격의 후폭풍이 계속되고 있다. 코스피는 4,108.62로 전일 대비 -0.21% 약보합 마감, 코스닥은 915.20으로 -0.47% 하락했다. 3/20 대비 코스피 -28.9%, 코스닥 -21.2% 폭락이다.
+**3/23(월) "블랙 먼데이"** — 코스피가 -6.49%(5,405.75), 코스닥이 -5.56%(1,096.89) 폭락했다. 중동 전쟁 격화, 유가 급등, 원화 약세가 겹치며 매도 사이드카가 발동됐다. 3/20(5,781) 대비 이틀간 -6.5% 하락이다.
 
-원/달러 환율은 1,449.8원으로 33.8원 급락(-2.3%)했다. 정부의 고강도 구두개입(김용범 정책실장 "행동으로 대응")이 원화 강세를 이끌었다. 전쟁 추경 25조원 확대도 발표되었다.
+반면 뉴욕 증시는 반등했다. 트럼프 대통령이 이란 공습 중단을 선언하고 "생산적 대화"를 했다고 밝히면서 다우 +1.38%(+631pt), 나스닥 +1.38%, S&P500 +1.15%로 마감했다. WTI 유가는 $91.4로 -6.9% 급락했다.
 
-금 가격이 9일 연속 하락 중이다($4,226~4,360). 전통적 안전자산 역할이 작동하지 않고 있다. 미 국채 10년물 금리는 4.348%로 소폭 하락했으나 여전히 높은 수준이다. VIX 26.4로 불안심리가 지속되고 있다.
+원/달러 환율은 1,517.3원으로 17년래 최약세를 기록했다. 외국인 투자자 이탈과 수입물가 부담이 동시에 커지고 있다. 미 2년물 국채 수익률이 6월 이후 처음으로 4%를 돌파했다 — 유가발 인플레 우려로 금리 인하 기대가 후퇴하고 있다.
 
-**핵심 관전 포인트**: 이란 휴전 5일간 지속 여부. 휴전이 유지되면 유가 추가 하락 → 인플레 완화 기대 → 증시 반등. 휴전이 깨지면 유가 재급등 → 시장 추가 폭락 시나리오.`,
+금 가격이 장중 $4,250 이하까지 급락(2026년 최저)했다가 $4,427로 부분 회복했다. 전통적 안전자산이 작동하지 않는 비정상적 상황이다.
+
+**핵심 관전 포인트**: 한국 시장이 미국 반등 효과를 얼마나 반영할지. 이란 휴전 지속 여부가 유가와 글로벌 심리의 방향을 결정한다.`,
 
   scenario: {
-    "코드": "C",
-    "시나리오": "전쟁 휴전 기대 속 기술적 반등 (미국) vs 한국 후폭풍 지속",
-    "해석": "미국은 휴전 기대로 반등했으나, 한국은 서킷브레이커 이후 매물 소화 과정. 방향성 판단 유보.",
-    "대응": "신규 매수 자제. 휴전 5일 경과 확인 후 판단. 기존 보유 우량주는 유지.",
+    "코드": "D",
+    "시나리오": "중동 리스크 + 고유가 + 원화 약세 복합 충격",
+    "해석": "한국은 블랙먼데이 후폭풍, 미국은 이란 협상 기대 반등. 괴리 존재.",
+    "대응": "신규 매수 자제. 이란 협상 결과 확인 후 판단. 환율 안정 시 우량주 분할 매수 검토.",
   },
 
   indicators: {
     korea: [
       {
         name: "코스피",
-        value: 4108.62,
-        change: -0.21,
-        weekly_change: -28.93,
-        trend: "▼▼ 급락 후 약보합",
-        comment: "전쟁 충격 후폭풍. 3/20 5,781→4,108 (-28.9%). 서킷브레이커 2회 발동 후 매물 소화 중.",
-        timeseries: shiftTs(prev.indicators.korea[0].timeseries, "03/24", 4108.62),
+        value: 5405.75,
+        change: -6.49,
+        weekly_change: -6.49,
+        trend: "▼▼ 블랙먼데이 급락",
+        comment: "매도 사이드카 발동. 3/20 5,781 → 3/23 5,406 (-6.5%). 중동 리스크+고유가+원화약세 삼중고.",
+        timeseries: shiftTs(prev.indicators.korea[0].timeseries, "03/23", 5405.75),
       },
       {
         name: "코스닥",
-        value: 915.20,
-        change: -0.47,
-        weekly_change: -21.21,
-        trend: "▼▼ 급락 후 약보합",
-        comment: "소형주 추가 하락. 투자 심리 극도로 위축.",
-        timeseries: shiftTs(prev.indicators.korea[1].timeseries, "03/24", 915.20),
+        value: 1096.89,
+        change: -5.56,
+        weekly_change: -5.56,
+        trend: "▼▼ 급락",
+        comment: "소형주 급락. 투자 심리 극도로 위축.",
+        timeseries: shiftTs(prev.indicators.korea[1].timeseries, "03/23", 1096.89),
       },
     ],
     us: [
@@ -58,7 +61,7 @@ const report = {
         name: "나스닥",
         value: 21946.76,
         change: 1.38,
-        weekly_change: -3.25,
+        weekly_change: 1.38,
         trend: "▲ 반등",
         comment: "트럼프 이란 공습 중단 발표로 기술주 반등",
         timeseries: shiftTs(prev.indicators.us[0].timeseries, "03/23", 21946.76),
@@ -67,207 +70,205 @@ const report = {
         name: "다우존스",
         value: 46208.47,
         change: 1.38,
-        weekly_change: -2.92,
+        weekly_change: 1.38,
         trend: "▲ 반등",
-        comment: "휴전 기대감에 +631pt 상승",
+        comment: "이란 협상 기대감에 +631pt 상승",
         timeseries: shiftTs(prev.indicators.us[1].timeseries, "03/23", 46208.47),
       },
       {
         name: "S&P500",
         value: 6581.00,
         change: 1.15,
-        weekly_change: -1.5,
+        weekly_change: 1.15,
         trend: "▲ 반등",
-        comment: "전 섹터 반등. 에너지·방산주는 약세 전환.",
+        comment: "전 섹터 안도 랠리. 에너지주는 유가 하락에 약세.",
         timeseries: shiftTs(prev.indicators.us[2].timeseries, "03/23", 6581.00),
       },
     ],
     fx: [
       {
         name: "원/달러",
-        value: 1449.8,
-        change: -2.28,
-        weekly_change: -4.0,
-        trend: "▼ 원화 강세 전환",
-        comment: "정부 고강도 구두개입 효과. 1,450원대로 급락.",
-        timeseries: shiftTs(prev.indicators.fx[0].timeseries, "03/24", 1449.8),
+        value: 1517.3,
+        change: 1.11,
+        weekly_change: 1.11,
+        trend: "▲ 원화 약세 심화",
+        comment: "17년래 최약세. 외국인 이탈 + 수입물가 부담 가중.",
+        timeseries: shiftTs(prev.indicators.fx[0].timeseries, "03/23", 1517.3),
       },
       {
         name: "달러인덱스",
         value: 99.10,
-        change: -0.55,
+        change: -0.47,
         weekly_change: -0.47,
         trend: "▼ 약세",
         comment: "이란 긴장 완화로 달러 약세 전환",
-        timeseries: shiftTs(prev.indicators.fx[1].timeseries, "03/24", 99.10),
+        timeseries: shiftTs(prev.indicators.fx[1].timeseries, "03/23", 99.10),
       },
       {
         name: "엔/달러",
-        value: 158.28,
-        change: -0.60,
-        weekly_change: -0.5,
-        trend: "▼ 엔 소폭 강세",
-        comment: "위험회피 심리 완화로 엔 캐리트레이드 소폭 청산",
-        timeseries: shiftTs(prev.indicators.fx[2].timeseries, "03/24", 158.28),
+        value: 150.35,
+        change: -0.3,
+        weekly_change: -0.3,
+        trend: "▬ 횡보",
+        comment: "엔화 소폭 강세",
+        timeseries: shiftTs(prev.indicators.fx[2].timeseries, "03/23", 150.35),
       },
     ],
     bonds: [
       {
         name: "미국채10년",
-        value: 4.348,
-        change: -0.96,
-        weekly_change: -0.96,
-        trend: "▼ 소폭 하락",
-        comment: "휴전 기대로 안전자산 매도 → 금리 소폭 하락. 여전히 4.3%대 높은 수준.",
-        timeseries: shiftTs(prev.indicators.bonds[0].timeseries, "03/23", 4.348),
+        value: 4.39,
+        change: 0,
+        weekly_change: 0,
+        trend: "▬ 고수준 유지",
+        comment: "4.39%대 유지. 유가발 인플레 우려로 하락 제한.",
+        timeseries: shiftTs(prev.indicators.bonds[0].timeseries, "03/23", 4.39),
       },
       {
         name: "미국채2년",
-        value: 3.848,
-        change: -1.04,
-        weekly_change: -1.0,
-        trend: "▼ 소폭 하락",
-        comment: "단기 금리도 소폭 하락",
-        timeseries: shiftTs(prev.indicators.bonds[1].timeseries, "03/23", 3.848),
+        value: 3.97,
+        change: 0.77,
+        weekly_change: 0.77,
+        trend: "▲ 급등",
+        comment: "6월 이후 첫 4% 돌파. 유가발 인플레로 금리 인하 기대 후퇴.",
+        timeseries: shiftTs(prev.indicators.bonds[1].timeseries, "03/23", 3.97),
       },
     ],
     commodities: [
       {
         name: "WTI유가",
-        value: 88.67,
+        value: 91.40,
         change: -6.9,
-        weekly_change: -9.5,
+        weekly_change: -6.9,
         trend: "▼▼ 급락",
-        comment: "이란 휴전 기대감에 $98→$88 급락. 전쟁 프리미엄 축소.",
-        timeseries: shiftTs(prev.indicators.commodities[0].timeseries, "03/23", 88.67),
+        comment: "이란 협상 기대감에 $98→$91 급락. 전쟁 프리미엄 축소.",
+        timeseries: shiftTs(prev.indicators.commodities[0].timeseries, "03/23", 91.40),
       },
       {
         name: "두바이유",
         value: 134,
         change: 0,
         weekly_change: 0,
-        trend: "▬ 횡보",
-        comment: "WTI 대비 $45 프리미엄. 호르무즈 해협 리스크 반영.",
-        timeseries: shiftTs(prev.indicators.commodities[1].timeseries, "03/24", 134),
+        trend: "▬ 데이터 미갱신",
+        comment: "WTI 대비 높은 프리미엄 유지. 호르무즈 해협 리스크 반영.",
+        timeseries: shiftTs(prev.indicators.commodities[1].timeseries, "03/23", 134),
       },
       {
         name: "VIX",
-        value: 26.40,
-        change: -1.42,
-        weekly_change: -1.42,
-        trend: "▼ 소폭 하락",
-        comment: "여전히 높은 변동성. 20 이하로 내려와야 정상화.",
-        timeseries: shiftTs(prev.indicators.commodities[2].timeseries, "03/23", 26.40),
+        value: 26.78,
+        change: 0,
+        weekly_change: 0,
+        trend: "▬ 고수준 유지",
+        comment: "변동성 여전히 높음. 20 이하로 내려와야 정상화.",
+        timeseries: shiftTs(prev.indicators.commodities[2].timeseries, "03/23", 26.78),
       },
       {
         name: "금",
-        value: 4226,
-        change: -5.8,
-        weekly_change: -4.6,
-        trend: "▼▼ 9일 연속 하락",
-        comment: "전통적 안전자산 역할 미작동. 전쟁 중 오히려 하락.",
-        timeseries: shiftTs(prev.indicators.commodities[3].timeseries, "03/23", 4226),
+        value: 4427,
+        change: -0.05,
+        weekly_change: -0.05,
+        trend: "▼ 장중 급락 후 부분 회복",
+        comment: "장중 $4,250 이하(2026년 최저) 터치 후 $4,427 회복. 안전자산 역할 의문.",
+        timeseries: shiftTs(prev.indicators.commodities[3].timeseries, "03/23", 4427),
       },
       {
         name: "비트코인",
-        value: 69300,
-        change: -1.5,
-        weekly_change: -2.0,
-        trend: "▼ 약세",
-        comment: "$67K 저점 터치 후 반등. 변동 범위 넓음.",
-        timeseries: shiftTs(prev.indicators.commodities[4].timeseries, "03/23", 69300),
+        value: 70600,
+        change: 5.0,
+        weekly_change: 5.0,
+        trend: "▲ 반등",
+        comment: "트럼프 이란 협상 발표 후 약 5% 반등.",
+        timeseries: shiftTs(prev.indicators.commodities[4].timeseries, "03/23", 70600),
       },
     ],
   },
 
   spread: {
-    "10년물": 4.348,
+    "10년물": 4.39,
     "3개월물": 3.73,
-    "금리차": 0.618,
+    "금리차": 0.66,
     "상태": "정상",
   },
 
-  causal_chain: `**이란 휴전 → 유가 급락 → 증시 반등 체인**
+  causal_chain: `**이란 리스크 → 유가 급등 → 한국 블랙먼데이 체인**
 \`\`\`
-트럼프, 이란 공습 5일간 중단 선언
-  → WTI 유가 $98 → $88 (-6.9%)
-  → 인플레이션 재점화 우려 완화
-  → 미 국채 금리 소폭 하락 (4.39% → 4.35%)
-  → 나스닥 +1.38%, 다우 +1.38% 반등
+중동 전쟁 격화 (이란)
+  → 유가 급등 (WTI $98 수준까지 상승)
+  → 한국 수입물가 부담 + 원화 약세 (1,517원)
+  → 외국인 매도 가속
+  → 코스피 -6.49% 블랙먼데이
 \`\`\`
 
-**한국 시장은 별개 흐름**
+**트럼프 이란 협상 → 미국 반등 체인**
 \`\`\`
-서킷브레이커 2회 발동 (3/4, 3/9)
-  → 코스피 5,781 → 4,108 (-28.9%)
-  → 매물 소화 과정 진행 중
-  → 외국인 대규모 순매도 지속
-  → 정부 구두개입으로 환율은 안정화
+트럼프, 이란 공습 중단 + "생산적 대화" 발표
+  → WTI 유가 $98 → $91 (-6.9%)
+  → 인플레이션 재점화 우려 완화
+  → 다우 +631pt (+1.38%), 나스닥 +1.38%
+  → 한국 시장 3/24 갭업 출발 기대
 \`\`\``,
 
-  investment_direction: `**1) 이번 주 반드시 알고 있어야 하는 사실**
+  investment_direction: `**1) 반드시 알고 있어야 하는 사실**
 
-- 코스피가 **4,108**로 3/20 대비 **-28.9% 폭락**했다. 서킷브레이커가 2회 발동된 역사적 급락이다.
-- 트럼프가 이란 공습 **5일간 중단**을 선언했다. 이것이 진정한 휴전인지, 일시적 중단인지 지켜봐야 한다.
-- WTI 유가가 **$88.67**로 -6.9% 급락했다. 두바이유는 여전히 **$134**로 높다.
-- 미 국채 10년물 금리가 **4.348%**로 소폭 하락했으나 여전히 높은 수준이다.
-- VIX **26.4**로 높은 변동성 지속. 감정적 매매를 경계해야 한다.
-- 원/달러 환율이 **1,449.8원**으로 급락(-33원). 정부 개입 효과이나 지속성은 불확실.
-- 전쟁 추경 **25조원** 확대 발표. 재정 건전성 우려도 함께 부상.
+- 코스피가 **5,405.75**로 전일 대비 **-6.49% 폭락**했다(블랙먼데이). 매도 사이드카 발동.
+- 트럼프가 이란 공습 **중단**을 선언하고 협상에 나섰다. 미국 증시는 반등.
+- WTI 유가가 **$91.4**로 -6.9% 급락했다. 이란 협상 기대감.
+- 원/달러 환율이 **1,517.3원**으로 **17년래 최약세**. 수입물가·외국인 이탈 이중 압박.
+- 미 2년물 국채 수익률이 **4% 돌파**(6월 이후 최초). 금리 인하 기대 후퇴.
+- VIX **26.78**로 높은 변동성 지속. 감정적 매매 경계.
+- 금이 장중 **$4,250**(2026년 최저)까지 급락 후 반등. 안전자산 역할 의문.
 
-**2) 이번 주 유리한 항목과 불리한 항목**
+**2) 유리한 항목과 불리한 항목**
 
 | 구분 | 항목 |
 |------|------|
-| 🟢 유리 | 저평가 우량주 매수 기회 (코스피 -29% 폭락), 수출주 (원화 약세) |
-| 🟡 관망 | 해외 자산 (환율 변동성 높음) |
-| 🔴 불리 | 레버리지 투자, 단기 트레이딩 (VIX 26+) |
+| 🟢 유리 | 수출주 (원화 약세 수혜), 미국 반등 효과로 갭업 기대 |
+| 🟡 관망 | 저평가 우량주 (블랙먼데이로 가격 하락했으나 추세 미확인) |
+| 🔴 불리 | 해외 자산 신규 매수 (환율 1,517원), 레버리지 (VIX 26+) |
 
 **3) 이번 주 지켜봐야 할 주제**
 
-**이란 휴전 5일 카운트다운**
-- 왜 중요한가: 휴전 유지 → 유가 하락 → 인플레 완화 → 증시 반등. 휴전 실패 → 유가 재급등 → 추가 폭락.
-- 어떻게 대응할까: 5일간은 관망. 휴전 확정 시 코스피 4,000대는 **역사적 매수 기회**가 될 수 있다.
+**이란 협상 진행 상황**
+- 왜 중요한가: 협상 성공 → 유가 추가 하락 → 인플레 완화 → 증시 반등. 협상 결렬 → 유가 재급등 → 추가 하락.
+- 어떻게 대응할까: 협상 결과 나올 때까지 관망. 확정 시 분할 매수 검토.
 
-**코스피 4,000선 지지 여부**
-- 왜 중요한가: 현재 4,108. 4,000 이탈 시 추가 패닉 가능성. 반등 시 반등 폭이 클 수 있음.
-- 어떻게 대응할까: 워치리스트 B등급 이상 종목 중 목표가 도달 종목 확인. 분할 매수 준비.
+**코스피 5,400선 지지 여부**
+- 왜 중요한가: 블랙먼데이 후 미국 반등 효과 반영 시 기술적 반등 가능. 5,400 이탈 시 추가 하락 우려.
+- 어떻게 대응할까: 워치리스트 B등급 이상 종목 중 목표가 근접 종목 모니터링.
 
 **원/달러 환율 안정화**
-- 왜 중요한가: 환율 안정 → 외국인 매도 압력 완화 → 코스피 반등 동력.
-- 어떻게 대응할까: 1,450원 이하 안착 시 긍정적 시그널.`,
+- 왜 중요한가: 1,517원은 17년래 최약세. 환율 안정 → 외국인 매도 완화 → 코스피 반등 동력.
+- 어떻게 대응할까: 정부 개입 여부, 1,500원 이하 안착 여부 확인.`,
 
   news: [
-    { title: "트럼프, 이란 추가 공습 5일간 중단 선언 — 외교 전환 시사", link: "https://www.cnbc.com/2026/03/22/stock-market-today-live-updates.html", source: "CNBC", date: "2026-03-23" },
-    { title: "코스피 4,108 약보합 마감 — 환율 33원 급락에도 불구", link: "https://www.seoulfn.com/news/articleView.html?idxno=616708", source: "서울파이낸스", date: "2026-03-24" },
-    { title: "WTI 유가 $88대로 급락 (-6.9%) — 이란 휴전 기대감", link: "https://fortune.com/article/price-of-oil-03-23-2026/", source: "Fortune", date: "2026-03-23" },
-    { title: "전쟁 추경 25조원 확대 — 고유가 대응 + 취약계층 지원", link: "https://kr.investing.com/news/stock-market-news/article-1873212", source: "Investing.com", date: "2026-03-24" },
-    { title: "신현송 BIS 국장, 차기 한은 총재 후보로 지명", link: "#", source: "국내 경제뉴스", date: "2026-03-24" },
-    { title: "금 가격 9일 연속 하락 — 전통적 안전자산 역할 의문", link: "https://www.coindesk.com/markets/2026/03/23/bitcoin-holds-usd68-300-as-gold-crashes-for-a-ninth-day-and-asian-stocks-drop", source: "CoinDesk", date: "2026-03-23" },
-    { title: "다우 +631pt 반등, S&P500 +1.15% — 휴전 기대", link: "https://247wallst.com/investing/2026/03/23/stock-market-live-march-23-2026-sp-500-spy-soars-on-trump-announcement/", source: "247 Wall St", date: "2026-03-23" },
-    { title: "미 국채 10년물 금리, 7월 이후 최고치 터치 후 반락", link: "https://www.cnbc.com/2026/03/23/10-year-treasury-yields-rise-to-highest-level-since-july-2025.html", source: "CNBC", date: "2026-03-23" },
-    { title: "정부 고강도 구두개입 — '환율 안정 위해 행동으로 대응'", link: "#", source: "국내 경제뉴스", date: "2026-03-24" },
-    { title: "S&P Global 3월 PMI 발표 예정 — 투입·판매 가격 주목", link: "#", source: "경제 캘린더", date: "2026-03-24" },
+    { title: "\"블랙 먼데이\" — 코스피 -6.49% 폭락, 코스닥 -5.56% 급락, 매도 사이드카 발동", link: "https://en.sedaily.com/finance/2026/03/23/kospi-plunges-over-6-percent-as-soaring-oil-won-and-rate", source: "서울경제", date: "2026-03-23" },
+    { title: "트럼프, 이란 공습 중단 선언 — \"생산적 대화\" 진행. 미 증시 급반등", link: "https://finance.yahoo.com/news/live/stock-market-today-dow-sp-500-nasdaq-futures-soar-as-trump-postpones-iran-strike-citing-very-good-talks-230122467.html", source: "Yahoo Finance", date: "2026-03-23" },
+    { title: "WTI 유가 $91.4로 -6.9% 급락 — 이란 협상 기대감", link: "https://www.cnbc.com/2026/03/23/oil-prices-trump-iran-strait-of-hormuz-wti-crude-middle-east-lng-gas.html", source: "CNBC", date: "2026-03-23" },
+    { title: "원/달러 1,517원 — 17년래 최약세 기록", link: "https://www.koreaherald.com/article/10700238", source: "Korea Herald", date: "2026-03-23" },
+    { title: "미 2년물 국채 수익률 4% 돌파 — 6월 이후 첫. 금리 인하 기대 후퇴", link: "https://www.bloomberg.com/news/articles/2026-03-23/us-two-year-bond-yield-climbs-to-4-for-first-time-since-june", source: "Bloomberg", date: "2026-03-23" },
+    { title: "금값 장중 $4,250 급락(2026년 최저) 후 $4,427 회복", link: "https://finance.yahoo.com/personal-finance/investing/article/gold-price-today-monday-march-23-gold-briefly-falls-below-4300-its-lowest-price-of-2026-104957419.html", source: "Yahoo Finance", date: "2026-03-23" },
+    { title: "다우 +631pt 반등, S&P500 +1.15% — 이란 휴전 기대", link: "https://finance.yahoo.com/news/live/stock-market-today-dow-sp-500-nasdaq-futures-soar-as-trump-postpones-iran-strike-citing-very-good-talks-230122467.html", source: "Yahoo Finance", date: "2026-03-23" },
+    { title: "비트코인 $70,600 — 트럼프 발표 후 약 5% 반등", link: "https://fortune.com/article/price-of-bitcoin-03-23-2026/", source: "Fortune", date: "2026-03-23" },
   ],
 
   cpi_gdp: prev.cpi_gdp,
 
   divergence: `### ⚠️ 괴리 감지
 
-> 🇺🇸 **미국 괴리**: 나스닥이 3/20 급락에서 반등했으나 GDP 0.7%(저성장) + WTI $88(고유가) 조합은 스태그플레이션 우려를 유지시킨다. 휴전 실패 시 재차 급락 가능.
+> 🇺🇸 **미국 괴리**: 나스닥이 반등했으나 GDP 0.7%(저성장) + WTI $91(고유가) 조합은 스태그플레이션 우려를 유지시킨다. 이란 협상 실패 시 재차 급락 가능.
 
-> 🇰🇷 **한국 극단적 괴리**: 코스피 4,108은 3/20(5,781) 대비 **-29%** 수준. GDP 1.0%의 저성장에 전쟁 충격이 겹쳤다. 과매도 구간이나 반등 시점은 휴전 확정 이후가 될 가능성 높음.`,
+> 🇰🇷 **한국 급락 괴리**: 코스피 5,406은 3/20(5,781) 대비 -6.5%. 미국은 반등했는데 한국만 폭락한 것은 원화 약세(1,517원)와 외국인 매도가 추가 변수로 작용한 것. 미국 반등 효과 반영 시 기술적 반등 여지 있으나, 환율 불안 지속 시 제한적.`,
 
   asset_recommendation: prev.asset_recommendation,
 
   historical: prev.historical.map((h: Record<string, unknown>) => {
-    if (h.name === "코스피") return { ...h, current: 4108.62, percentile: 62.5, judgment: "🟡 평균 이하 — 과매도 구간 접근 중" };
+    if (h.name === "코스피") return { ...h, current: 5405.75, percentile: 84.9, judgment: "🟡 고점에서 조정 — 블랙먼데이 -6.5%" };
     if (h.name === "나스닥") return { ...h, current: 21946.76 };
-    if (h.name === "원/달러") return { ...h, current: 1449.8, percentile: 82.3, judgment: "🔴 원화 약세 — 수입물가 부담, 외국인 이탈 주의" };
-    if (h.name === "WTI유가") return { ...h, current: 88.67, percentile: 69.1, judgment: "🟡 유가 높음 — 인플레이션 압력" };
-    if (h.name === "금") return { ...h, current: 4226, percentile: 78.4, judgment: "🟡 금 고점에서 하락 중 — 9일 연속 하락" };
-    if (h.name === "VIX") return { ...h, current: 26.40, judgment: "🔴 높은 변동성 — 불안심리 확산, 급등락 주의" };
-    if (h.name === "미국채10년") return { ...h, current: 4.348, judgment: "🔴 금리 높음 — 주식 밸류에이션 압박" };
+    if (h.name === "원/달러") return { ...h, current: 1517.3, percentile: 92.1, judgment: "🔴 원화 극약세 — 17년래 최저, 수입물가 부담 극심" };
+    if (h.name === "WTI유가") return { ...h, current: 91.40, percentile: 71.5, judgment: "🔴 유가 높음 — 인플레이션 압력" };
+    if (h.name === "금") return { ...h, current: 4427, percentile: 82.4, judgment: "🟡 금 고점에서 급락 중 — 장중 2026년 최저 터치" };
+    if (h.name === "VIX") return { ...h, current: 26.78, judgment: "🔴 높은 변동성 — 불안심리 확산, 급등락 주의" };
+    if (h.name === "미국채10년") return { ...h, current: 4.39, judgment: "🔴 금리 높음 — 주식 밸류에이션 압박" };
     if (h.name === "달러인덱스") return { ...h, current: 99.10 };
     return h;
   }),
