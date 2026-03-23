@@ -36,6 +36,8 @@ interface JournalData {
   summary: {
     total_invested: number;
     total_current_value: number;
+    cash?: number;
+    total_assets?: number;
     gross_profit?: number;
     total_fees?: number;
     total_tax?: number;
@@ -104,6 +106,52 @@ export default function JournalPage() {
         <h3 className="text-2xl font-serif text-on-surface mb-6 tracking-tight">
           포트폴리오 현황
         </h3>
+
+        {/* 자산 현황 */}
+        {(summary.cash != null || hasHoldings) && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-8">
+            {summary.total_assets != null && (
+              <div className="bg-surface-container-low rounded-xl p-6 ghost-border">
+                <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">총 자산</p>
+                <p className="text-2xl font-mono text-primary font-bold">
+                  {formatMoney(summary.total_assets)}
+                  <span className="text-sm text-on-surface-variant ml-1">원</span>
+                </p>
+              </div>
+            )}
+            <div className="bg-surface-container-low rounded-xl p-6 ghost-border">
+              <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">주식 평가액</p>
+              <p className="text-2xl font-mono text-on-surface font-bold">
+                {formatMoney(summary.total_current_value)}
+                <span className="text-sm text-on-surface-variant ml-1">원</span>
+              </p>
+              <p className="text-xs text-on-surface-variant/40 mt-1">
+                {summary.total_assets ? `${((summary.total_current_value / summary.total_assets) * 100).toFixed(0)}%` : ""}
+              </p>
+            </div>
+            {summary.cash != null && (
+              <div className="bg-surface-container-low rounded-xl p-6 ghost-border">
+                <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">현금 (CMA)</p>
+                <p className="text-2xl font-mono text-on-surface font-bold">
+                  {formatMoney(summary.cash)}
+                  <span className="text-sm text-on-surface-variant ml-1">원</span>
+                </p>
+                <p className="text-xs text-on-surface-variant/40 mt-1">
+                  {summary.total_assets ? `${((summary.cash / summary.total_assets) * 100).toFixed(0)}%` : ""}
+                </p>
+              </div>
+            )}
+            <div className="bg-surface-container-low rounded-xl p-6 ghost-border">
+              <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">순수익</p>
+              <p className="text-2xl font-mono font-bold" style={{ color: profitColor }}>
+                {netProfit >= 0 ? "+" : ""}{formatMoney(netProfit)}원
+              </p>
+              <p className="text-xs mt-1" style={{ color: profitColor }}>
+                {(summary.net_profit_pct || 0) >= 0 ? "+" : ""}{summary.net_profit_pct || 0}%
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* 수익 & 비용 요약 */}
         {hasTransactions && (
