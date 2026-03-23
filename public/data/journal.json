@@ -1,15 +1,15 @@
 {
   "updated_at": "2026-03-23",
   "summary": {
-    "total_invested": 6746278,
-    "total_current_value": 7774500,
-    "gross_profit": 19042260,
-    "total_fees": 379707,
+    "total_invested": 14370006,
+    "total_current_value": 16867220,
+    "gross_profit": 19926120,
+    "total_fees": 402992,
     "total_tax": 285935,
-    "total_cost": 665642,
-    "net_profit": 18376618,
-    "net_profit_pct": 15.2,
-    "note": "비에이치아이 71주 보유 중. 순수익 = 실현수익 + 평가수익 - 비용."
+    "total_cost": 688927,
+    "net_profit": 19237193,
+    "net_profit_pct": 15.3,
+    "note": "비에이치아이 71주 + TIGER 200 112주 보유 중."
   },
   "holdings": [
     {
@@ -22,9 +22,63 @@
       "profit_amount": 1028222,
       "eval_amount": 7774500,
       "sector": "에너지기자재"
+    },
+    {
+      "code": "102110",
+      "name": "TIGER 200",
+      "quantity": 112,
+      "avg_price": 68069,
+      "current_price": 81185,
+      "profit_pct": 19.3,
+      "profit_amount": 1468992,
+      "eval_amount": 9092720,
+      "sector": "ETF (코스피200)"
     }
   ],
   "transactions": [
+    {
+      "id": 18,
+      "date": "2026-03-10",
+      "type": "매도",
+      "code": "102110",
+      "name": "TIGER 200",
+      "quantity": 60,
+      "price": 82800,
+      "total": 4968000,
+      "fees": 6937,
+      "tax": 0,
+      "net_amount": 4961063,
+      "reason": "이란-미국 전쟁 여파에 따른 분할 매도",
+      "ai_evaluation": "코스피200 추종 ETF를 82,800원에 60주 매도하며 약 35%(60/172주)를 정리했다. 매수가(평균 68,069원) 대비 +21.6% 수익 구간에서의 매도로, 지정학 리스크에 대한 일관된 대응이다. ETF는 개별 종목 리스크가 없어 급하게 매도할 필요성은 상대적으로 낮지만, 전쟁 확대에 따른 코스피 전체 하락에 대비한 판단으로 볼 수 있다. 112주는 남겨두어 상승 여지도 확보했다."
+    },
+    {
+      "id": 17,
+      "date": "2026-01-14",
+      "type": "매수",
+      "code": "102110",
+      "name": "TIGER 200",
+      "quantity": 21,
+      "price": 68350,
+      "total": 1435350,
+      "fees": 2004,
+      "net_amount": 1437354,
+      "reason": "코스피200 추종 ETF 추가 매수",
+      "ai_evaluation": "1차 매수(68,030원) 이후 2일 만에 68,350원에 21주를 추가 매수했다. 소폭 높은 가격이지만 분할 매수 차원에서 합리적이다. 다만 2일 간격은 시장 상황을 충분히 관찰하기에는 짧은 편이다."
+    },
+    {
+      "id": 16,
+      "date": "2026-01-12",
+      "type": "매수",
+      "code": "102110",
+      "name": "TIGER 200",
+      "quantity": 151,
+      "price": 68030,
+      "total": 10272530,
+      "fees": 14344,
+      "net_amount": 10286874,
+      "reason": "코스피 상승 추세에 맞춰 코스피200 추종 ETF 매수",
+      "ai_evaluation": "코스피200 ETF는 개별 종목 선정 부담 없이 시장 전체에 투자할 수 있는 합리적인 선택이다. 약 1,027만원 규모로 포트폴리오의 한 축을 ETF로 구성한 것은 분산 투자 원칙에 부합한다. 다만 151주를 한 번에 매수한 것은 시장 타이밍 리스크가 있으므로, 3~5회에 걸쳐 분할 매수했다면 더 안정적이었을 것이다."
+    },
     {
       "id": 15,
       "date": "2026-03-17",
