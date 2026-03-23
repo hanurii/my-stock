@@ -73,7 +73,7 @@ export function PortfolioPieChart({
                 color: "#dce1fb",
                 fontSize: "13px",
               }}
-              formatter={(value: number) => [`${formatMoney(value)}원`, ""]}
+              formatter={(value) => [`${formatMoney(Number(value))}원`, ""]}
             />
           </PieChart>
         </ResponsiveContainer>
