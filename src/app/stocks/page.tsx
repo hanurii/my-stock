@@ -159,7 +159,7 @@ export default function StocksPage() {
               </tr>
             </thead>
             <tbody>
-              {stocks.map((stock, i) => {
+              {stocks.filter(s => s.score >= 65).slice(0, 20).map((stock, i) => {
                 const color = getGradeColor(stock.grade);
                 return (
                   <tr key={stock.code} className={`hover:bg-surface-container/30 transition-colors ${i === 0 ? "bg-primary/5" : ""}`}>
