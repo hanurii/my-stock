@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { Collapsible } from "@/components/Collapsible";
+import { ScoreDetails } from "@/components/ScoreDetails";
 
 interface StockEntry {
   code: string;
@@ -16,6 +17,7 @@ interface StockEntry {
   a_grade_price?: number;
   current_price_at_scoring?: number;
   catalyst?: string;
+  score_details?: { item: string; basis: string; score: number; max: number; cat: number }[];
 }
 
 interface WatchlistData {
@@ -137,6 +139,48 @@ export default function StocksPage() {
         </div>
       </section>
 
+      {/* Quick Summary Table */}
+      <section className="bg-surface-container-low rounded-xl ghost-border overflow-hidden">
+        <div className="p-6 pb-3">
+          <h3 className="text-base font-serif text-on-surface">전체 종목 한눈에 보기</h3>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-xs uppercase tracking-wider text-on-surface-variant/50">
+                <th className="text-center px-3 pb-3 font-normal w-10">#</th>
+                <th className="text-left px-3 pb-3 font-normal">종목</th>
+                <th className="text-left px-3 pb-3 font-normal">섹터</th>
+                <th className="text-center px-3 pb-3 font-normal">등급</th>
+                <th className="text-right px-3 pb-3 font-normal">점수</th>
+                <th className="text-right px-3 pb-3 font-normal hidden md:table-cell">저평가</th>
+                <th className="text-right px-3 pb-3 font-normal hidden md:table-cell">주주환원</th>
+                <th className="text-right px-3 pb-3 font-normal hidden md:table-cell">성장</th>
+              </tr>
+            </thead>
+            <tbody>
+              {stocks.map((stock, i) => {
+                const color = getGradeColor(stock.grade);
+                return (
+                  <tr key={stock.code} className={`hover:bg-surface-container/30 transition-colors ${i === 0 ? "bg-primary/5" : ""}`}>
+                    <td className="text-center px-3 py-2.5 font-mono" style={{ color }}>{i + 1}</td>
+                    <td className="px-3 py-2.5 font-medium text-on-surface">{stock.name}</td>
+                    <td className="px-3 py-2.5 text-on-surface-variant">{stock.sector}</td>
+                    <td className="text-center px-3 py-2.5">
+                      <span className="text-xs px-2 py-0.5 rounded font-bold" style={{ backgroundColor: `${color}20`, color }}>{stock.grade}</span>
+                    </td>
+                    <td className="text-right px-3 py-2.5 font-mono font-bold" style={{ color }}>{stock.score}</td>
+                    <td className="text-right px-3 py-2.5 font-mono text-on-surface-variant hidden md:table-cell">{stock.cat1}/35</td>
+                    <td className="text-right px-3 py-2.5 font-mono text-on-surface-variant hidden md:table-cell">{stock.cat2}/40</td>
+                    <td className="text-right px-3 py-2.5 font-mono text-on-surface-variant hidden md:table-cell">{stock.cat3}/25</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
       {/* Stock Rankings */}
       <section>
         <h3 className="text-2xl font-serif text-on-surface mb-2 tracking-tight">종목 순위</h3>
@@ -222,6 +266,9 @@ export default function StocksPage() {
                       </p>
                     </div>
                   )}
+
+                  {/* 세부 채점 */}
+                  {stock.score_details && <ScoreDetails details={stock.score_details} />}
                 </div>
               </div>
             );
@@ -285,6 +332,9 @@ export default function StocksPage() {
                             <p className="text-sm text-primary/80">{stock.catalyst}</p>
                           </div>
                         )}
+
+                        {/* 세부 채점 */}
+                        {stock.score_details && <ScoreDetails details={stock.score_details} />}
                       </div>
                     </div>
                   );
