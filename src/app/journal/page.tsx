@@ -1,15 +1,269 @@
+import fs from "fs";
+import path from "path";
+import { Collapsible } from "@/components/Collapsible";
+import { MarkdownText } from "@/components/MarkdownText";
+
+interface Holding {
+  code: string;
+  name: string;
+  quantity: number;
+  avg_price: number;
+  current_price: number;
+  profit_pct: number;
+  profit_amount: number;
+  eval_amount: number;
+  sector?: string;
+}
+
+interface Transaction {
+  id: number;
+  date: string;
+  type: "매수" | "매도";
+  code: string;
+  name: string;
+  quantity: number;
+  price: number;
+  total: number;
+  reason: string;
+  ai_evaluation: string;
+}
+
+interface JournalData {
+  updated_at: string;
+  summary: {
+    total_invested: number;
+    total_current_value: number;
+    total_profit: number;
+    total_profit_pct: number;
+  };
+  holdings: Holding[];
+  transactions: Transaction[];
+}
+
+function getJournalData(): JournalData | null {
+  try {
+    const filePath = path.join(process.cwd(), "public", "data", "journal.json");
+    const raw = fs.readFileSync(filePath, "utf-8");
+    return JSON.parse(raw) as JournalData;
+  } catch {
+    return null;
+  }
+}
+
+function formatMoney(amount: number): string {
+  if (amount >= 1e8) return `${(amount / 1e8).toFixed(1)}억`;
+  if (amount >= 1e4) return `${(amount / 1e4).toFixed(0)}만`;
+  return amount.toLocaleString();
+}
+
 export default function JournalPage() {
-  return (
-    <div className="py-20">
-      <p className="text-[10px] uppercase tracking-[0.2em] text-primary-dim/60 mb-2">Trading Journal</p>
-      <h2 className="text-4xl font-serif font-bold text-on-surface tracking-tight mb-4">매매일지</h2>
-      <p className="text-sm text-on-surface-variant mb-8">주식 매매 기록 · 수익률 · AI 매매 평가</p>
-      <div className="bg-surface-container-low rounded-xl p-8 ghost-border">
-        <div className="flex items-center gap-3 text-primary-dim/60">
-          <span className="material-symbols-outlined">construction</span>
-          <span className="text-sm">준비 중</span>
-        </div>
+  const data = getJournalData();
+
+  if (!data) {
+    return (
+      <div className="py-20 text-center">
+        <h2 className="text-3xl font-serif text-primary mb-4">데이터 없음</h2>
       </div>
+    );
+  }
+
+  const { summary, holdings, transactions } = data;
+  const hasHoldings = holdings.length > 0;
+  const hasTransactions = transactions.length > 0;
+  const profitColor = summary.total_profit >= 0 ? "#95d3ba" : "#ffb4ab";
+
+  return (
+    <div className="space-y-14">
+      {/* Header */}
+      <section>
+        <p className="text-[10px] uppercase tracking-[0.2em] text-primary-dim/60 mb-2">
+          Trading Journal
+        </p>
+        <h2 className="text-4xl font-serif font-bold text-on-surface tracking-tight">
+          매매일지
+        </h2>
+        <p className="text-base text-on-surface-variant mt-2">
+          {data.updated_at} 기준
+        </p>
+      </section>
+
+      {/* ══════════════════════════════════════════════ */}
+      {/* 파트 1: 현재 보유 현황 */}
+      {/* ══════════════════════════════════════════════ */}
+
+      {/* 포트폴리오 요약 */}
+      <section>
+        <h3 className="text-2xl font-serif text-on-surface mb-6 tracking-tight">
+          포트폴리오 현황
+        </h3>
+
+        {!hasHoldings ? (
+          <div className="bg-surface-container-low rounded-xl p-10 ghost-border text-center">
+            <span className="material-symbols-outlined text-primary-dim/30 text-4xl mb-4 block">account_balance_wallet</span>
+            <p className="text-lg text-on-surface-variant">아직 보유 중인 종목이 없습니다</p>
+            <p className="text-sm text-on-surface-variant/50 mt-2">매매 기록을 추가하면 여기에 표시됩니다</p>
+          </div>
+        ) : (
+          <>
+            {/* 요약 카드 */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-8">
+              <div className="bg-surface-container-low rounded-xl p-6 ghost-border">
+                <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">총 투입금액</p>
+                <p className="text-2xl font-mono text-on-surface font-bold">
+                  {formatMoney(summary.total_invested)}
+                  <span className="text-sm text-on-surface-variant ml-1">원</span>
+                </p>
+              </div>
+              <div className="bg-surface-container-low rounded-xl p-6 ghost-border">
+                <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">현재 평가액</p>
+                <p className="text-2xl font-mono text-on-surface font-bold">
+                  {formatMoney(summary.total_current_value)}
+                  <span className="text-sm text-on-surface-variant ml-1">원</span>
+                </p>
+              </div>
+              <div className="bg-surface-container-low rounded-xl p-6 ghost-border">
+                <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">총 수익금</p>
+                <p className="text-2xl font-mono font-bold" style={{ color: profitColor }}>
+                  {summary.total_profit >= 0 ? "+" : ""}{formatMoney(summary.total_profit)}
+                  <span className="text-sm ml-1">원</span>
+                </p>
+              </div>
+              <div className="bg-surface-container-low rounded-xl p-6 ghost-border">
+                <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">투입 대비 수익률</p>
+                <p className="text-3xl font-mono font-bold" style={{ color: profitColor }}>
+                  {summary.total_profit_pct >= 0 ? "+" : ""}{summary.total_profit_pct}%
+                </p>
+              </div>
+            </div>
+
+            {/* 보유 종목 */}
+            <div className="bg-surface-container-low rounded-xl ghost-border overflow-hidden">
+              <div className="p-6 pb-3">
+                <h4 className="text-lg font-serif text-on-surface">보유 종목</h4>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-base">
+                  <thead>
+                    <tr className="text-xs uppercase tracking-wider text-on-surface-variant/50">
+                      <th className="text-left px-6 pb-3 font-normal">종목</th>
+                      <th className="text-right px-4 pb-3 font-normal">수량</th>
+                      <th className="text-right px-4 pb-3 font-normal">평균매수가</th>
+                      <th className="text-right px-4 pb-3 font-normal">현재가</th>
+                      <th className="text-right px-4 pb-3 font-normal">평가금액</th>
+                      <th className="text-right px-4 pb-3 font-normal">수익금</th>
+                      <th className="text-right px-6 pb-3 font-normal">수익률</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {holdings.map((h) => {
+                      const pColor = h.profit_pct >= 0 ? "#95d3ba" : "#ffb4ab";
+                      return (
+                        <tr key={h.code} className="hover:bg-surface-container/30 transition-colors">
+                          <td className="px-6 py-4">
+                            <p className="font-medium text-on-surface">{h.name}</p>
+                            <p className="text-sm text-on-surface-variant/50">{h.code}{h.sector ? ` · ${h.sector}` : ""}</p>
+                          </td>
+                          <td className="px-4 py-4 text-right font-mono text-on-surface">{h.quantity.toLocaleString()}주</td>
+                          <td className="px-4 py-4 text-right font-mono text-on-surface-variant">{h.avg_price.toLocaleString()}</td>
+                          <td className="px-4 py-4 text-right font-mono text-on-surface">{h.current_price.toLocaleString()}</td>
+                          <td className="px-4 py-4 text-right font-mono text-on-surface">{formatMoney(h.eval_amount)}</td>
+                          <td className="px-4 py-4 text-right font-mono" style={{ color: pColor }}>
+                            {h.profit_amount >= 0 ? "+" : ""}{formatMoney(h.profit_amount)}
+                          </td>
+                          <td className="px-6 py-4 text-right font-mono font-bold" style={{ color: pColor }}>
+                            {h.profit_pct >= 0 ? "+" : ""}{h.profit_pct}%
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </>
+        )}
+      </section>
+
+      {/* ══════════════════════════════════════════════ */}
+      {/* 파트 2: 매매 히스토리 */}
+      {/* ══════════════════════════════════════════════ */}
+
+      <section>
+        <h3 className="text-2xl font-serif text-on-surface mb-6 tracking-tight">
+          매매 히스토리
+        </h3>
+
+        {!hasTransactions ? (
+          <div className="bg-surface-container-low rounded-xl p-10 ghost-border text-center">
+            <span className="material-symbols-outlined text-primary-dim/30 text-4xl mb-4 block">history</span>
+            <p className="text-lg text-on-surface-variant">아직 매매 기록이 없습니다</p>
+            <p className="text-sm text-on-surface-variant/50 mt-2">매매 정보를 알려주시면 기록합니다</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {transactions.map((tx) => {
+              const isBuy = tx.type === "매수";
+              const typeColor = isBuy ? "#6ea8fe" : "#ffb4ab";
+              const typeIcon = isBuy ? "shopping_cart" : "sell";
+
+              return (
+                <div key={tx.id} className="bg-surface-container-low rounded-xl ghost-border overflow-hidden">
+                  <div className="p-6">
+                    {/* 거래 헤더 */}
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${typeColor}15` }}>
+                          <span className="material-symbols-outlined" style={{ color: typeColor }}>{typeIcon}</span>
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h4 className="text-lg font-medium text-on-surface">{tx.name}</h4>
+                            <span className="text-xs px-2 py-0.5 rounded font-bold" style={{ backgroundColor: `${typeColor}20`, color: typeColor }}>
+                              {tx.type}
+                            </span>
+                          </div>
+                          <p className="text-sm text-on-surface-variant">{tx.date} · {tx.code}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xl font-mono text-on-surface font-bold">
+                          {tx.total.toLocaleString()}원
+                        </p>
+                        <p className="text-sm text-on-surface-variant">
+                          {tx.quantity.toLocaleString()}주 × {tx.price.toLocaleString()}원
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* 매매 사유 */}
+                    {tx.reason && (
+                      <div className="mb-3">
+                        <p className="text-sm text-on-surface-variant leading-relaxed">
+                          <span className="text-on-surface font-medium">매매 사유: </span>
+                          {tx.reason}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* AI 평가 */}
+                    {tx.ai_evaluation && (
+                      <div className="bg-surface-container/50 rounded-xl p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="material-symbols-outlined text-primary text-sm">auto_awesome</span>
+                          <span className="text-xs text-primary font-medium">AI 매매 평가</span>
+                        </div>
+                        <p className="text-sm text-on-surface-variant leading-relaxed">
+                          <MarkdownText>{tx.ai_evaluation}</MarkdownText>
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </section>
     </div>
   );
 }

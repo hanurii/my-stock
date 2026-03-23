@@ -57,11 +57,11 @@ export function ReportView({ report }: { report: ReportData }) {
         </p>
 
         <div className="grid gap-5">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 gap-5">
             <IndicatorTable title="한국 시장" indicators={indicators.korea} />
             <IndicatorTable title="미국 시장" indicators={indicators.us} />
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 gap-5">
             <IndicatorTable title="환율" indicators={indicators.fx} />
             <IndicatorTable title="채권 금리" indicators={indicators.bonds} />
           </div>
