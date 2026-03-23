@@ -4,8 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const tabs = [
-  { href: "/stocks/oil-expert", label: "오일전문가 포트폴리오", icon: "local_fire_department" },
   { href: "/stocks/watchlist", label: "내 워치리스트", icon: "visibility" },
+  { href: "/stocks/oil-expert", label: "오일전문가 포트폴리오", icon: "local_fire_department" },
 ];
 
 export default function StocksLayout({ children }: { children: React.ReactNode }) {

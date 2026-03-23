@@ -24,6 +24,9 @@ interface Transaction {
   quantity: number;
   price: number;
   total: number;
+  fees?: number;
+  tax?: number;
+  net_amount?: number;
   reason: string;
   ai_evaluation: string;
 }
@@ -35,6 +38,10 @@ interface JournalData {
     total_current_value: number;
     total_profit: number;
     total_profit_pct: number;
+    realized_profit?: number;
+    total_fees?: number;
+    total_tax?: number;
+    total_cost?: number;
   };
   holdings: Holding[];
   transactions: Transaction[];
@@ -97,15 +104,68 @@ export default function JournalPage() {
           포트폴리오 현황
         </h3>
 
+        {/* 수익 & 비용 요약 */}
+        {hasTransactions && (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+            {summary.realized_profit != null && (
+              <div className="bg-surface-container-low rounded-xl p-5 ghost-border">
+                <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">실현 수익</p>
+                <p className="text-xl font-mono font-bold" style={{ color: (summary.realized_profit || 0) >= 0 ? "#95d3ba" : "#ffb4ab" }}>
+                  {(summary.realized_profit || 0) >= 0 ? "+" : ""}{formatMoney(summary.realized_profit || 0)}원
+                </p>
+              </div>
+            )}
+            {summary.total_fees != null && (
+              <div className="bg-surface-container-low rounded-xl p-5 ghost-border">
+                <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">누적 수수료</p>
+                <p className="text-xl font-mono text-[#ffb4ab] font-bold">
+                  -{formatMoney(summary.total_fees || 0)}원
+                </p>
+              </div>
+            )}
+            {summary.total_tax != null && (
+              <div className="bg-surface-container-low rounded-xl p-5 ghost-border">
+                <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">누적 제세금</p>
+                <p className="text-xl font-mono text-[#ffb4ab] font-bold">
+                  -{formatMoney(summary.total_tax || 0)}원
+                </p>
+              </div>
+            )}
+            {summary.total_cost != null && (
+              <div className="bg-surface-container-low rounded-xl p-5 ghost-border">
+                <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">총 비용 합계</p>
+                <p className="text-xl font-mono text-[#ffb4ab] font-bold">
+                  -{formatMoney(summary.total_cost || 0)}원
+                </p>
+              </div>
+            )}
+            {summary.total_profit != null && (
+              <div className="bg-surface-container-low rounded-xl p-5 ghost-border">
+                <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">순수익 (비용 차감)</p>
+                <p className="text-xl font-mono font-bold" style={{ color: profitColor }}>
+                  {summary.total_profit >= 0 ? "+" : ""}{formatMoney(summary.total_profit)}원
+                </p>
+              </div>
+            )}
+            {summary.total_profit_pct != null && (
+              <div className="bg-surface-container-low rounded-xl p-5 ghost-border">
+                <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">수익률</p>
+                <p className="text-2xl font-mono font-bold" style={{ color: profitColor }}>
+                  {summary.total_profit_pct >= 0 ? "+" : ""}{summary.total_profit_pct}%
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
         {!hasHoldings ? (
           <div className="bg-surface-container-low rounded-xl p-10 ghost-border text-center">
             <span className="material-symbols-outlined text-primary-dim/30 text-4xl mb-4 block">account_balance_wallet</span>
-            <p className="text-lg text-on-surface-variant">아직 보유 중인 종목이 없습니다</p>
-            <p className="text-sm text-on-surface-variant/50 mt-2">매매 기록을 추가하면 여기에 표시됩니다</p>
+            <p className="text-lg text-on-surface-variant">현재 보유 중인 종목이 없습니다</p>
           </div>
         ) : (
           <>
-            {/* 요약 카드 */}
+            {/* 보유 종목 요약 카드 */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-8">
               <div className="bg-surface-container-low rounded-xl p-6 ghost-border">
                 <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">총 투입금액</p>
@@ -232,6 +292,13 @@ export default function JournalPage() {
                         <p className="text-sm text-on-surface-variant">
                           {tx.quantity.toLocaleString()}주 × {tx.price.toLocaleString()}원
                         </p>
+                        {(tx.fees || tx.tax) && (
+                          <p className="text-xs text-on-surface-variant/40 mt-0.5">
+                            {tx.fees ? `수수료 ${tx.fees.toLocaleString()}원` : ""}
+                            {tx.fees && tx.tax ? " · " : ""}
+                            {tx.tax ? `세금 ${tx.tax.toLocaleString()}원` : ""}
+                          </p>
+                        )}
                       </div>
                     </div>
 
