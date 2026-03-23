@@ -241,14 +241,14 @@ const report = {
 - 어떻게 대응할까: 정부 개입 여부, 1,500원 이하 안착 여부 확인.`,
 
   news: [
-    { title: "\"블랙 먼데이\" — 코스피 -6.49% 폭락, 코스닥 -5.56% 급락, 매도 사이드카 발동", link: "https://en.sedaily.com/finance/2026/03/23/kospi-plunges-over-6-percent-as-soaring-oil-won-and-rate", source: "서울경제", date: "2026-03-23" },
-    { title: "트럼프, 이란 공습 중단 선언 — \"생산적 대화\" 진행. 미 증시 급반등", link: "https://finance.yahoo.com/news/live/stock-market-today-dow-sp-500-nasdaq-futures-soar-as-trump-postpones-iran-strike-citing-very-good-talks-230122467.html", source: "Yahoo Finance", date: "2026-03-23" },
-    { title: "WTI 유가 $91.4로 -6.9% 급락 — 이란 협상 기대감", link: "https://www.cnbc.com/2026/03/23/oil-prices-trump-iran-strait-of-hormuz-wti-crude-middle-east-lng-gas.html", source: "CNBC", date: "2026-03-23" },
-    { title: "원/달러 1,517원 — 17년래 최약세 기록", link: "https://www.koreaherald.com/article/10700238", source: "Korea Herald", date: "2026-03-23" },
-    { title: "미 2년물 국채 수익률 4% 돌파 — 6월 이후 첫. 금리 인하 기대 후퇴", link: "https://www.bloomberg.com/news/articles/2026-03-23/us-two-year-bond-yield-climbs-to-4-for-first-time-since-june", source: "Bloomberg", date: "2026-03-23" },
-    { title: "금값 장중 $4,250 급락(2026년 최저) 후 $4,427 회복", link: "https://finance.yahoo.com/personal-finance/investing/article/gold-price-today-monday-march-23-gold-briefly-falls-below-4300-its-lowest-price-of-2026-104957419.html", source: "Yahoo Finance", date: "2026-03-23" },
-    { title: "다우 +631pt 반등, S&P500 +1.15% — 이란 휴전 기대", link: "https://finance.yahoo.com/news/live/stock-market-today-dow-sp-500-nasdaq-futures-soar-as-trump-postpones-iran-strike-citing-very-good-talks-230122467.html", source: "Yahoo Finance", date: "2026-03-23" },
-    { title: "비트코인 $70,600 — 트럼프 발표 후 약 5% 반등", link: "https://fortune.com/article/price-of-bitcoin-03-23-2026/", source: "Fortune", date: "2026-03-23" },
+    { 제목: "\"블랙 먼데이\" — 코스피 -6.49% 폭락, 코스닥 -5.56% 급락, 매도 사이드카 발동", 링크: "https://en.sedaily.com/finance/2026/03/23/kospi-plunges-over-6-percent-as-soaring-oil-won-and-rate", 출처: "서울경제", 날짜: "2026-03-23" },
+    { 제목: "트럼프, 이란 공습 중단 선언 — \"생산적 대화\" 진행. 미 증시 급반등", 링크: "https://finance.yahoo.com/news/live/stock-market-today-dow-sp-500-nasdaq-futures-soar-as-trump-postpones-iran-strike-citing-very-good-talks-230122467.html", 출처: "Yahoo Finance", 날짜: "2026-03-23" },
+    { 제목: "WTI 유가 $91.4로 -6.9% 급락 — 이란 협상 기대감", 링크: "https://www.cnbc.com/2026/03/23/oil-prices-trump-iran-strait-of-hormuz-wti-crude-middle-east-lng-gas.html", 출처: "CNBC", 날짜: "2026-03-23" },
+    { 제목: "원/달러 1,517원 — 17년래 최약세 기록", 링크: "https://www.koreaherald.com/article/10700238", 출처: "Korea Herald", 날짜: "2026-03-23" },
+    { 제목: "미 2년물 국채 수익률 4% 돌파 — 6월 이후 첫. 금리 인하 기대 후퇴", 링크: "https://www.bloomberg.com/news/articles/2026-03-23/us-two-year-bond-yield-climbs-to-4-for-first-time-since-june", 출처: "Bloomberg", 날짜: "2026-03-23" },
+    { 제목: "금값 장중 $4,250 급락(2026년 최저) 후 $4,427 회복", 링크: "https://finance.yahoo.com/personal-finance/investing/article/gold-price-today-monday-march-23-gold-briefly-falls-below-4300-its-lowest-price-of-2026-104957419.html", 출처: "Yahoo Finance", 날짜: "2026-03-23" },
+    { 제목: "다우 +631pt 반등, S&P500 +1.15% — 이란 휴전 기대", 링크: "https://finance.yahoo.com/news/live/stock-market-today-dow-sp-500-nasdaq-futures-soar-as-trump-postpones-iran-strike-citing-very-good-talks-230122467.html", 출처: "Yahoo Finance", 날짜: "2026-03-23" },
+    { 제목: "비트코인 $70,600 — 트럼프 발표 후 약 5% 반등", 링크: "https://fortune.com/article/price-of-bitcoin-03-23-2026/", 출처: "Fortune", 날짜: "2026-03-23" },
   ],
 
   cpi_gdp: prev.cpi_gdp,
