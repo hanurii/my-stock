@@ -259,6 +259,8 @@ export default function OilExpertPage() {
 
   const latestDomestic = domestic.reduce((l, s) => s.scored_at > l ? s.scored_at : l, domestic[0]?.scored_at || "");
   const latestOverseas = overseas.reduce((l, s) => s.scored_at > l ? s.scored_at : l, overseas[0]?.scored_at || "");
+  const calculatedAt = formatScoredAt(new Date().toISOString().slice(0, 10));
+  const latestDataAt = formatScoredAt(latestDomestic > latestOverseas ? latestDomestic : latestOverseas);
 
   return (
     <div className="space-y-14">
@@ -273,9 +275,11 @@ export default function OilExpertPage() {
         <p className="text-base text-on-surface-variant mt-2">
           국내 {domestic.length}종목 + 해외 {overseas.length}종목 = 총 {allStocksCount}종목
         </p>
-        <p className="text-xs text-on-surface-variant/50 mt-1">
-          점수는 원시 데이터로부터 자동 계산됩니다
-        </p>
+        <div className="flex gap-4 mt-1.5 text-xs text-on-surface-variant/50">
+          <span>데이터 갱신: {latestDataAt}</span>
+          <span>·</span>
+          <span>점수 계산: {calculatedAt}</span>
+        </div>
       </section>
 
       {/* Portfolio Strategy */}
@@ -297,7 +301,7 @@ export default function OilExpertPage() {
             <h3 className="text-2xl font-serif text-on-surface tracking-tight">국내 종목</h3>
           </div>
           <p className="text-sm text-on-surface-variant ml-9">
-            {domestic.length}종목 · {formatScoredAt(latestDomestic)} 채점
+            {domestic.length}종목 · 데이터 {formatScoredAt(latestDomestic)} · 계산 {calculatedAt}
           </p>
         </div>
 
@@ -367,7 +371,7 @@ export default function OilExpertPage() {
             <h3 className="text-2xl font-serif text-on-surface tracking-tight">해외 종목</h3>
           </div>
           <p className="text-sm text-on-surface-variant ml-9">
-            {overseas.length}종목 · {formatScoredAt(latestOverseas)} 채점
+            {overseas.length}종목 · 데이터 {formatScoredAt(latestOverseas)} · 계산 {calculatedAt}
           </p>
         </div>
 
