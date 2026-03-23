@@ -2,52 +2,45 @@ import fs from "fs";
 import path from "path";
 import { Collapsible } from "@/components/Collapsible";
 import { ScoreDetails } from "@/components/ScoreDetails";
+import {
+  scoreDomestic,
+  getGradeColor,
+  getGradeLabel,
+  DOMESTIC_FRAMEWORK,
+  type DomesticStockInput,
+  type ScoredResult,
+} from "@/lib/scoring";
 
-interface StockEntry {
-  code: string;
-  name: string;
-  sector: string;
-  score: number;
-  grade: string;
+interface WatchlistStock extends DomesticStockInput {
   tier?: string;
-  cat1: number;
-  cat2: number;
-  cat3: number;
-  highlights: string;
+  catalyst?: string;
   a_grade_price?: number;
   current_price_at_scoring?: number;
-  catalyst?: string;
-  score_details?: { item: string; basis: string; score: number; max: number; cat: number }[];
 }
 
 interface WatchlistData {
-  generated_at: string;
-  framework: {
-    category1: { name: string; max_score: number; key_metrics: string[] };
-    category2: { name: string; max_score: number; key_metrics: string[] };
-    category3: { name: string; max_score: number; key_metrics: string[] };
-  };
-  grades: Record<string, { min: number; label: string; color: string }>;
-  stocks: StockEntry[];
-  excluded: { name: string; score: number; reason: string }[];
+  stocks: WatchlistStock[];
+  excluded: { name: string; reason: string }[];
+  tiers: Record<string, { label: string; desc: string }>;
   market_insight: string;
 }
 
-function getWatchlistData(): WatchlistData | null {
+type ScoredStock = WatchlistStock & ScoredResult;
+
+function getWatchlistData(): { stocks: ScoredStock[]; excluded: WatchlistData["excluded"]; tiers: WatchlistData["tiers"]; market_insight: string } | null {
   try {
     const filePath = path.join(process.cwd(), "public", "data", "watchlist.json");
     const raw = fs.readFileSync(filePath, "utf-8");
-    return JSON.parse(raw) as WatchlistData;
+    const data = JSON.parse(raw) as WatchlistData;
+
+    const stocks: ScoredStock[] = data.stocks
+      .map((s) => ({ ...s, ...scoreDomestic(s) }))
+      .sort((a, b) => b.score - a.score);
+
+    return { stocks, excluded: data.excluded, tiers: data.tiers, market_insight: data.market_insight };
   } catch {
     return null;
   }
-}
-
-function getGradeColor(grade: string): string {
-  const colors: Record<string, string> = {
-    A: "#95d3ba", B: "#6ea8fe", C: "#e9c176", D: "#ffb4ab",
-  };
-  return colors[grade] || "#909097";
 }
 
 function getTierLabel(tier?: string): string | null {
@@ -59,8 +52,17 @@ function getTierLabel(tier?: string): string | null {
   return tier ? labels[tier] || null : null;
 }
 
-export default function StocksPage() {
+function formatScoredAt(dateStr: string): string {
+  const d = new Date(dateStr + "T00:00:00");
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}.${m}.${day}`;
+}
+
+export default function WatchlistPage() {
   const data = getWatchlistData();
+  const framework = DOMESTIC_FRAMEWORK;
 
   if (!data) {
     return (
@@ -70,13 +72,16 @@ export default function StocksPage() {
     );
   }
 
-  const { framework, stocks, excluded, market_insight } = data;
+  const { stocks, excluded } = data;
 
   // 등급별 분류
-  const gradeGroups: Record<string, StockEntry[]> = { A: [], B: [], C: [], D: [] };
+  const gradeGroups: Record<string, ScoredStock[]> = { A: [], B: [], C: [], D: [] };
   stocks.forEach((s) => {
     if (gradeGroups[s.grade]) gradeGroups[s.grade].push(s);
   });
+
+  // 가장 최근 scored_at
+  const latestScoredAt = stocks.reduce((latest, s) => s.scored_at > latest ? s.scored_at : latest, stocks[0]?.scored_at || "");
 
   return (
     <div className="space-y-14">
@@ -89,18 +94,21 @@ export default function StocksPage() {
           저평가 우량주
         </h2>
         <p className="text-base text-on-surface-variant mt-2">
-          {data.generated_at} 기준 · 3대 카테고리 점수 시스템 (100점 만점)
+          {formatScoredAt(latestScoredAt)} 채점 · 3대 카테고리 점수 시스템 (100점 만점)
+        </p>
+        <p className="text-xs text-on-surface-variant/50 mt-1">
+          점수는 원시 데이터로부터 자동 계산됩니다
         </p>
       </section>
 
       {/* Scoring Framework */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-5">
         {[
-          { key: "category1", icon: "analytics" },
-          { key: "category2", icon: "volunteer_activism" },
-          { key: "category3", icon: "trending_up" },
+          { key: "category1" as const, icon: "analytics" },
+          { key: "category2" as const, icon: "volunteer_activism" },
+          { key: "category3" as const, icon: "trending_up" },
         ].map(({ key, icon }) => {
-          const cat = framework[key as keyof typeof framework];
+          const cat = framework[key];
           return (
             <div key={key} className="bg-surface-container-low rounded-xl p-6 ghost-border">
               <div className="flex items-center gap-3 mb-3">
@@ -127,12 +135,11 @@ export default function StocksPage() {
           {(["A", "B", "C", "D"] as const).map((grade) => {
             const count = gradeGroups[grade].length;
             const color = getGradeColor(grade);
-            const labels: Record<string, string> = { A: "강력 매수", B: "매수 검토", C: "워치리스트", D: "투자 부적합" };
             return (
               <div key={grade} className="text-center p-4 rounded-xl ghost-border bg-surface-container/30">
                 <p className="text-3xl font-serif font-bold" style={{ color }}>{grade}</p>
                 <p className="text-2xl font-mono text-on-surface mt-1">{count}<span className="text-sm text-on-surface-variant">개</span></p>
-                <p className="text-xs text-on-surface-variant mt-1">{labels[grade]}</p>
+                <p className="text-xs text-on-surface-variant mt-1">{getGradeLabel(grade)}</p>
               </div>
             );
           })}
@@ -156,6 +163,7 @@ export default function StocksPage() {
                 <th className="text-right px-3 pb-3 font-normal hidden md:table-cell">저평가</th>
                 <th className="text-right px-3 pb-3 font-normal hidden md:table-cell">주주환원</th>
                 <th className="text-right px-3 pb-3 font-normal hidden md:table-cell">성장</th>
+                <th className="text-right px-3 pb-3 font-normal hidden lg:table-cell">채점일</th>
               </tr>
             </thead>
             <tbody>
@@ -170,9 +178,10 @@ export default function StocksPage() {
                       <span className="text-xs px-2 py-0.5 rounded font-bold" style={{ backgroundColor: `${color}20`, color }}>{stock.grade}</span>
                     </td>
                     <td className="text-right px-3 py-2.5 font-mono font-bold" style={{ color }}>{stock.score}</td>
-                    <td className="text-right px-3 py-2.5 font-mono text-on-surface-variant hidden md:table-cell">{stock.cat1}/35</td>
-                    <td className="text-right px-3 py-2.5 font-mono text-on-surface-variant hidden md:table-cell">{stock.cat2}/40</td>
-                    <td className="text-right px-3 py-2.5 font-mono text-on-surface-variant hidden md:table-cell">{stock.cat3}/25</td>
+                    <td className="text-right px-3 py-2.5 font-mono text-on-surface-variant hidden md:table-cell">{stock.cat1}/{framework.category1.max_score}</td>
+                    <td className="text-right px-3 py-2.5 font-mono text-on-surface-variant hidden md:table-cell">{stock.cat2}/{framework.category2.max_score}</td>
+                    <td className="text-right px-3 py-2.5 font-mono text-on-surface-variant hidden md:table-cell">{stock.cat3}/{framework.category3.max_score}</td>
+                    <td className="text-right px-3 py-2.5 text-xs text-on-surface-variant/50 hidden lg:table-cell">{formatScoredAt(stock.scored_at)}</td>
                   </tr>
                 );
               })}
@@ -184,9 +193,9 @@ export default function StocksPage() {
       {/* Stock Rankings */}
       <section>
         <h3 className="text-2xl font-serif text-on-surface mb-2 tracking-tight">종목 순위</h3>
-        <p className="text-sm text-on-surface-variant mb-6">점수 높은 순</p>
+        <p className="text-sm text-on-surface-variant mb-6">점수 높은 순 · 자동 계산</p>
 
-        {/* A/B 등급 (항상 표시) */}
+        {/* A/B 등급 */}
         <div className="space-y-4">
           {stocks.filter(s => s.grade === "A" || s.grade === "B").map((stock, rank) => {
             const color = getGradeColor(stock.grade);
@@ -200,20 +209,17 @@ export default function StocksPage() {
                 <div className="p-6">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-4">
-                      <span className="text-2xl font-serif font-bold w-8" style={{ color }}>
-                        {rank + 1}
-                      </span>
+                      <span className="text-2xl font-serif font-bold w-8" style={{ color }}>{rank + 1}</span>
                       <div>
                         <div className="flex items-center gap-2">
                           <h4 className="text-lg font-medium text-on-surface">{stock.name}</h4>
-                          <span className="text-xs px-2 py-0.5 rounded font-bold" style={{ backgroundColor: `${color}20`, color }}>
-                            {stock.grade}
-                          </span>
-                          {tierLabel && (
-                            <span className="text-xs text-on-surface-variant/50">{tierLabel}</span>
-                          )}
+                          <span className="text-xs px-2 py-0.5 rounded font-bold" style={{ backgroundColor: `${color}20`, color }}>{stock.grade}</span>
+                          {tierLabel && <span className="text-xs text-on-surface-variant/50">{tierLabel}</span>}
                         </div>
-                        <p className="text-sm text-on-surface-variant">{stock.code} · {stock.sector}</p>
+                        <p className="text-sm text-on-surface-variant">
+                          {stock.code} · {stock.sector}
+                          <span className="text-xs text-on-surface-variant/40 ml-2">{formatScoredAt(stock.scored_at)} 채점</span>
+                        </p>
                       </div>
                     </div>
                     <div className="text-right">
@@ -222,7 +228,6 @@ export default function StocksPage() {
                     </div>
                   </div>
 
-                  {/* Category Scores */}
                   <div className="grid grid-cols-3 gap-3 mb-4">
                     {[
                       { label: "저평가", score: stock.cat1, max: framework.category1.max_score, pct: cat1Pct },
@@ -241,10 +246,8 @@ export default function StocksPage() {
                     ))}
                   </div>
 
-                  {/* Highlights */}
                   <p className="text-sm text-on-surface-variant leading-relaxed">{stock.highlights}</p>
 
-                  {/* Catalyst */}
                   {stock.catalyst && (
                     <div className="mt-3 flex items-start gap-2">
                       <span className="material-symbols-outlined text-primary text-sm mt-0.5">bolt</span>
@@ -252,7 +255,6 @@ export default function StocksPage() {
                     </div>
                   )}
 
-                  {/* A등급 진입 가격 */}
                   {stock.a_grade_price && (
                     <div className="mt-3 flex items-center gap-2">
                       <span className="material-symbols-outlined text-[#95d3ba] text-sm">flag</span>
@@ -267,15 +269,14 @@ export default function StocksPage() {
                     </div>
                   )}
 
-                  {/* 세부 채점 */}
-                  {stock.score_details && <ScoreDetails details={stock.score_details} />}
+                  <ScoreDetails details={stock.details} />
                 </div>
               </div>
             );
           })}
         </div>
 
-        {/* C 등급 (접기/펼치기) */}
+        {/* C 등급 */}
         {stocks.filter(s => s.grade === "C").length > 0 && (
           <div className="mt-6">
             <Collapsible title={`C등급 — 워치리스트 (${stocks.filter(s => s.grade === "C").length}개)`}>
@@ -300,7 +301,10 @@ export default function StocksPage() {
                                 <span className="text-xs px-2 py-0.5 rounded font-bold" style={{ backgroundColor: `${color}20`, color }}>{stock.grade}</span>
                                 {tierLabel && <span className="text-xs text-on-surface-variant/50">{tierLabel}</span>}
                               </div>
-                              <p className="text-sm text-on-surface-variant">{stock.code} · {stock.sector}</p>
+                              <p className="text-sm text-on-surface-variant">
+                                {stock.code} · {stock.sector}
+                                <span className="text-xs text-on-surface-variant/40 ml-2">{formatScoredAt(stock.scored_at)} 채점</span>
+                              </p>
                             </div>
                           </div>
                           <div className="text-right">
@@ -332,9 +336,7 @@ export default function StocksPage() {
                             <p className="text-sm text-primary/80">{stock.catalyst}</p>
                           </div>
                         )}
-
-                        {/* 세부 채점 */}
-                        {stock.score_details && <ScoreDetails details={stock.score_details} />}
+                        <ScoreDetails details={stock.details} />
                       </div>
                     </div>
                   );
@@ -344,7 +346,7 @@ export default function StocksPage() {
           </div>
         )}
 
-        {/* D 등급 (접기/펼치기) */}
+        {/* D 등급 */}
         {stocks.filter(s => s.grade === "D").length > 0 && (
           <div className="mt-6">
             <Collapsible title={`D등급 — 투자 부적합 (${stocks.filter(s => s.grade === "D").length}개)`}>
@@ -360,7 +362,10 @@ export default function StocksPage() {
                           <span className="text-xl font-serif font-bold w-8" style={{ color }}>{globalRank}</span>
                           <div>
                             <h4 className="text-base font-medium text-on-surface">{stock.name}</h4>
-                            <p className="text-sm text-on-surface-variant">{stock.code} · {stock.sector}</p>
+                            <p className="text-sm text-on-surface-variant">
+                              {stock.code} · {stock.sector}
+                              <span className="text-xs text-on-surface-variant/40 ml-2">{formatScoredAt(stock.scored_at)}</span>
+                            </p>
                           </div>
                         </div>
                         <div className="flex items-center gap-4">
@@ -383,10 +388,7 @@ export default function StocksPage() {
           <div className="space-y-2">
             {excluded.map((stock) => (
               <div key={stock.name} className="flex items-center justify-between p-4 bg-surface-container/30 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-mono text-[#ffb4ab]">{stock.score}점</span>
-                  <span className="text-base text-on-surface">{stock.name}</span>
-                </div>
+                <span className="text-base text-on-surface">{stock.name}</span>
                 <p className="text-sm text-on-surface-variant/60 max-w-md text-right">{stock.reason}</p>
               </div>
             ))}

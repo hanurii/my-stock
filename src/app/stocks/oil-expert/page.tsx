@@ -1,65 +1,61 @@
 import fs from "fs";
 import path from "path";
+import {
+  scoreDomestic,
+  scoreOverseas,
+  getGradeColor,
+  getGradeLabel,
+  DOMESTIC_FRAMEWORK,
+  OVERSEAS_FRAMEWORK,
+  type DomesticStockInput,
+  type OverseasStockInput,
+  type ScoredResult,
+} from "@/lib/scoring";
+import { ScoreDetails } from "@/components/ScoreDetails";
+import { Collapsible } from "@/components/Collapsible";
 
-interface StockEntry {
-  code: string;
-  name: string;
-  sector: string;
-  country?: string;
-  per: number | null;
-  pbr: number;
-  dividend_yield: number;
-  score: number;
-  grade: string;
-  cat1: number;
-  cat2: number;
-  cat3: number;
-  highlights: string;
-  estimated?: boolean;
-}
-
-interface Framework {
-  category1: { name: string; max_score: number; key_metrics: string[] };
-  category2: { name: string; max_score: number; key_metrics: string[] };
-  category3: { name: string; max_score: number; key_metrics: string[] };
-}
-
-interface MarketSection {
-  framework: Framework;
-  grades: Record<string, { min: number; label: string; color: string }>;
-  stocks: StockEntry[];
-}
+type ScoredDomestic = DomesticStockInput & ScoredResult;
+type ScoredOverseas = OverseasStockInput & ScoredResult;
 
 interface OilExpertData {
-  generated_at: string;
   owner: string;
-  domestic: MarketSection;
-  overseas: MarketSection;
-  insights: {
-    domestic_summary: string;
-    overseas_summary: string;
-    portfolio_strategy: string;
-  };
+  domestic: DomesticStockInput[];
+  overseas: OverseasStockInput[];
+  insights: { portfolio_strategy: string };
 }
 
-function getData(): OilExpertData | null {
+function getData(): { domestic: ScoredDomestic[]; overseas: ScoredOverseas[]; insights: OilExpertData["insights"] } | null {
   try {
     const filePath = path.join(process.cwd(), "public", "data", "oil-expert-watchlist.json");
     const raw = fs.readFileSync(filePath, "utf-8");
-    return JSON.parse(raw) as OilExpertData;
+    const data = JSON.parse(raw) as OilExpertData;
+
+    const domestic: ScoredDomestic[] = data.domestic
+      .map((s) => ({ ...s, ...scoreDomestic(s) }))
+      .sort((a, b) => b.score - a.score);
+
+    const overseas: ScoredOverseas[] = data.overseas
+      .map((s) => ({ ...s, ...scoreOverseas(s) }))
+      .sort((a, b) => b.score - a.score);
+
+    return { domestic, overseas, insights: data.insights };
   } catch {
     return null;
   }
 }
 
-function getGradeColor(grade: string): string {
-  const colors: Record<string, string> = {
-    A: "#95d3ba", B: "#6ea8fe", C: "#e9c176", D: "#ffb4ab",
-  };
-  return colors[grade] || "#909097";
+function formatScoredAt(dateStr: string): string {
+  const d = new Date(dateStr + "T00:00:00");
+  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`;
 }
 
-function StockTable({ stocks, framework, market }: { stocks: StockEntry[]; framework: Framework; market: "domestic" | "overseas" }) {
+type AnyScored = (ScoredDomestic | ScoredOverseas) & { country?: string };
+
+function StockTable({ stocks, framework, showCountry }: {
+  stocks: AnyScored[];
+  framework: typeof DOMESTIC_FRAMEWORK | typeof OVERSEAS_FRAMEWORK;
+  showCountry?: boolean;
+}) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
@@ -67,7 +63,7 @@ function StockTable({ stocks, framework, market }: { stocks: StockEntry[]; frame
           <tr className="text-xs uppercase tracking-wider text-on-surface-variant/50">
             <th className="text-center px-3 pb-3 font-normal w-10">#</th>
             <th className="text-left px-3 pb-3 font-normal">종목</th>
-            {market === "overseas" && <th className="text-left px-3 pb-3 font-normal hidden md:table-cell">국가</th>}
+            {showCountry && <th className="text-left px-3 pb-3 font-normal hidden md:table-cell">국가</th>}
             <th className="text-left px-3 pb-3 font-normal">섹터</th>
             <th className="text-center px-3 pb-3 font-normal">등급</th>
             <th className="text-right px-3 pb-3 font-normal">점수</th>
@@ -77,6 +73,7 @@ function StockTable({ stocks, framework, market }: { stocks: StockEntry[]; frame
             <th className="text-right px-3 pb-3 font-normal hidden lg:table-cell">{framework.category1.name.split("/")[0]}</th>
             <th className="text-right px-3 pb-3 font-normal hidden lg:table-cell">주주환원</th>
             <th className="text-right px-3 pb-3 font-normal hidden lg:table-cell">성장</th>
+            <th className="text-right px-3 pb-3 font-normal hidden lg:table-cell">채점일</th>
           </tr>
         </thead>
         <tbody>
@@ -89,7 +86,7 @@ function StockTable({ stocks, framework, market }: { stocks: StockEntry[]; frame
                   {stock.name}
                   {stock.estimated && <span className="text-[10px] text-on-surface-variant/40 ml-1">~</span>}
                 </td>
-                {market === "overseas" && <td className="px-3 py-2.5 text-on-surface-variant hidden md:table-cell">{stock.country}</td>}
+                {showCountry && <td className="px-3 py-2.5 text-on-surface-variant hidden md:table-cell">{stock.country}</td>}
                 <td className="px-3 py-2.5 text-on-surface-variant">{stock.sector}</td>
                 <td className="text-center px-3 py-2.5">
                   <span className="text-xs px-2 py-0.5 rounded font-bold" style={{ backgroundColor: `${color}20`, color }}>{stock.grade}</span>
@@ -103,6 +100,7 @@ function StockTable({ stocks, framework, market }: { stocks: StockEntry[]; frame
                 <td className="text-right px-3 py-2.5 font-mono text-on-surface-variant hidden lg:table-cell">{stock.cat1}/{framework.category1.max_score}</td>
                 <td className="text-right px-3 py-2.5 font-mono text-on-surface-variant hidden lg:table-cell">{stock.cat2}/{framework.category2.max_score}</td>
                 <td className="text-right px-3 py-2.5 font-mono text-on-surface-variant hidden lg:table-cell">{stock.cat3}/{framework.category3.max_score}</td>
+                <td className="text-right px-3 py-2.5 text-xs text-on-surface-variant/50 hidden lg:table-cell">{formatScoredAt(stock.scored_at)}</td>
               </tr>
             );
           })}
@@ -112,7 +110,10 @@ function StockTable({ stocks, framework, market }: { stocks: StockEntry[]; frame
   );
 }
 
-function StockCards({ stocks, framework }: { stocks: StockEntry[]; framework: Framework }) {
+function StockCards({ stocks, framework }: {
+  stocks: AnyScored[];
+  framework: typeof DOMESTIC_FRAMEWORK | typeof OVERSEAS_FRAMEWORK;
+}) {
   return (
     <div className="space-y-4">
       {stocks.map((stock, rank) => {
@@ -136,6 +137,7 @@ function StockCards({ stocks, framework }: { stocks: StockEntry[]; framework: Fr
                     <p className="text-sm text-on-surface-variant">
                       {stock.code} · {stock.sector}
                       {stock.country && <span> · {stock.country}</span>}
+                      <span className="text-xs text-on-surface-variant/40 ml-2">{formatScoredAt(stock.scored_at)} 채점</span>
                     </p>
                   </div>
                 </div>
@@ -145,7 +147,6 @@ function StockCards({ stocks, framework }: { stocks: StockEntry[]; framework: Fr
                 </div>
               </div>
 
-              {/* Category Scores */}
               <div className="grid grid-cols-3 gap-3 mb-4">
                 {[
                   { label: framework.category1.name.split("/")[0], score: stock.cat1, max: framework.category1.max_score, pct: cat1Pct },
@@ -164,7 +165,6 @@ function StockCards({ stocks, framework }: { stocks: StockEntry[]; framework: Fr
                 ))}
               </div>
 
-              {/* Key Metrics */}
               <div className="flex gap-4 mb-3 text-sm">
                 <span className="text-on-surface-variant">
                   PER <span className="font-mono text-on-surface">{stock.per != null ? `${stock.per}x` : "적자"}</span>
@@ -177,8 +177,9 @@ function StockCards({ stocks, framework }: { stocks: StockEntry[]; framework: Fr
                 </span>
               </div>
 
-              {/* Highlights */}
               <p className="text-sm text-on-surface-variant leading-relaxed">{stock.highlights}</p>
+
+              <ScoreDetails details={stock.details} />
             </div>
           </div>
         );
@@ -187,13 +188,11 @@ function StockCards({ stocks, framework }: { stocks: StockEntry[]; framework: Fr
   );
 }
 
-function GradeDistribution({ stocks }: { stocks: StockEntry[] }) {
-  const gradeGroups: Record<string, StockEntry[]> = { A: [], B: [], C: [], D: [] };
+function GradeDistribution({ stocks }: { stocks: AnyScored[] }) {
+  const gradeGroups: Record<string, AnyScored[]> = { A: [], B: [], C: [], D: [] };
   stocks.forEach((s) => {
     if (gradeGroups[s.grade]) gradeGroups[s.grade].push(s);
   });
-
-  const labels: Record<string, string> = { A: "강력 매수", B: "매수 검토", C: "워치리스트", D: "투자 부적합" };
 
   return (
     <div className="grid grid-cols-4 gap-4">
@@ -204,7 +203,7 @@ function GradeDistribution({ stocks }: { stocks: StockEntry[] }) {
           <div key={grade} className="text-center p-4 rounded-xl ghost-border bg-surface-container/30">
             <p className="text-3xl font-serif font-bold" style={{ color }}>{grade}</p>
             <p className="text-2xl font-mono text-on-surface mt-1">{count}<span className="text-sm text-on-surface-variant">개</span></p>
-            <p className="text-xs text-on-surface-variant mt-1">{labels[grade]}</p>
+            <p className="text-xs text-on-surface-variant mt-1">{getGradeLabel(grade)}</p>
           </div>
         );
       })}
@@ -212,8 +211,8 @@ function GradeDistribution({ stocks }: { stocks: StockEntry[] }) {
   );
 }
 
-function SectorBreakdown({ stocks }: { stocks: StockEntry[] }) {
-  const sectorMap = new Map<string, StockEntry[]>();
+function SectorBreakdown({ stocks }: { stocks: AnyScored[] }) {
+  const sectorMap = new Map<string, AnyScored[]>();
   stocks.forEach((s) => {
     const sector = s.sector.replace("(우)", "");
     const existing = sectorMap.get(sector) || [];
@@ -256,7 +255,10 @@ export default function OilExpertPage() {
   }
 
   const { domestic, overseas, insights } = data;
-  const allStocksCount = domestic.stocks.length + overseas.stocks.length;
+  const allStocksCount = domestic.length + overseas.length;
+
+  const latestDomestic = domestic.reduce((l, s) => s.scored_at > l ? s.scored_at : l, domestic[0]?.scored_at || "");
+  const latestOverseas = overseas.reduce((l, s) => s.scored_at > l ? s.scored_at : l, overseas[0]?.scored_at || "");
 
   return (
     <div className="space-y-14">
@@ -269,7 +271,10 @@ export default function OilExpertPage() {
           오일전문가 포트폴리오
         </h2>
         <p className="text-base text-on-surface-variant mt-2">
-          {data.generated_at} 기준 · 국내 {domestic.stocks.length}종목 + 해외 {overseas.stocks.length}종목 = 총 {allStocksCount}종목
+          국내 {domestic.length}종목 + 해외 {overseas.length}종목 = 총 {allStocksCount}종목
+        </p>
+        <p className="text-xs text-on-surface-variant/50 mt-1">
+          점수는 원시 데이터로부터 자동 계산됩니다
         </p>
       </section>
 
@@ -291,17 +296,19 @@ export default function OilExpertPage() {
             <span className="material-symbols-outlined text-primary">flag</span>
             <h3 className="text-2xl font-serif text-on-surface tracking-tight">국내 종목</h3>
           </div>
-          <p className="text-sm text-on-surface-variant ml-9">{domestic.stocks.length}종목 · {insights.domestic_summary}</p>
+          <p className="text-sm text-on-surface-variant ml-9">
+            {domestic.length}종목 · {formatScoredAt(latestDomestic)} 채점
+          </p>
         </div>
 
         {/* Domestic Scoring Framework */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {[
-            { key: "category1", icon: "analytics" },
-            { key: "category2", icon: "volunteer_activism" },
-            { key: "category3", icon: "trending_up" },
+            { key: "category1" as const, icon: "analytics" },
+            { key: "category2" as const, icon: "volunteer_activism" },
+            { key: "category3" as const, icon: "trending_up" },
           ].map(({ key, icon }) => {
-            const cat = domestic.framework[key as keyof Framework];
+            const cat = DOMESTIC_FRAMEWORK[key];
             return (
               <div key={key} className="bg-surface-container-low rounded-xl p-5 ghost-border">
                 <div className="flex items-center gap-3 mb-2">
@@ -319,50 +326,36 @@ export default function OilExpertPage() {
           })}
         </div>
 
-        {/* Domestic Grade Distribution */}
         <div className="bg-surface-container-low rounded-xl p-6 ghost-border">
           <h3 className="text-base font-serif text-on-surface mb-4">등급 분포 — 국내</h3>
-          <GradeDistribution stocks={domestic.stocks} />
+          <GradeDistribution stocks={domestic} />
         </div>
 
-        {/* Domestic Sector Breakdown */}
         <div className="bg-surface-container-low rounded-xl p-6 ghost-border">
           <h3 className="text-base font-serif text-on-surface mb-4">섹터별 분포</h3>
-          <SectorBreakdown stocks={domestic.stocks} />
+          <SectorBreakdown stocks={domestic} />
         </div>
 
-        {/* Domestic Full Table */}
         <div className="bg-surface-container-low rounded-xl ghost-border overflow-hidden">
           <div className="p-6 pb-3">
             <h3 className="text-base font-serif text-on-surface">국내 전체 종목</h3>
           </div>
-          <StockTable stocks={domestic.stocks} framework={domestic.framework} market="domestic" />
+          <StockTable stocks={domestic} framework={DOMESTIC_FRAMEWORK} />
         </div>
 
-        {/* Domestic B Grade Cards */}
-        {domestic.stocks.filter(s => s.grade === "A" || s.grade === "B").length > 0 && (
+        {/* Domestic A/B Cards */}
+        {domestic.filter(s => s.grade === "A" || s.grade === "B").length > 0 && (
           <div>
-            <h4 className="text-lg font-serif text-on-surface mb-4">
-              A/B 등급 — 매수 검토 대상
-            </h4>
-            <StockCards
-              stocks={domestic.stocks.filter(s => s.grade === "A" || s.grade === "B")}
-              framework={domestic.framework}
-            />
+            <h4 className="text-lg font-serif text-on-surface mb-4">A/B 등급 — 매수 검토 대상</h4>
+            <StockCards stocks={domestic.filter(s => s.grade === "A" || s.grade === "B")} framework={DOMESTIC_FRAMEWORK} />
           </div>
         )}
 
-        {/* Domestic C Grade Cards */}
-        {domestic.stocks.filter(s => s.grade === "C").length > 0 && (
-          <div>
-            <h4 className="text-lg font-serif text-on-surface mb-4">
-              C등급 — 워치리스트 ({domestic.stocks.filter(s => s.grade === "C").length}개)
-            </h4>
-            <StockCards
-              stocks={domestic.stocks.filter(s => s.grade === "C")}
-              framework={domestic.framework}
-            />
-          </div>
+        {/* Domestic C Cards */}
+        {domestic.filter(s => s.grade === "C").length > 0 && (
+          <Collapsible title={`C등급 — 워치리스트 (${domestic.filter(s => s.grade === "C").length}개)`}>
+            <StockCards stocks={domestic.filter(s => s.grade === "C")} framework={DOMESTIC_FRAMEWORK} />
+          </Collapsible>
         )}
       </section>
 
@@ -373,10 +366,11 @@ export default function OilExpertPage() {
             <span className="material-symbols-outlined text-primary">public</span>
             <h3 className="text-2xl font-serif text-on-surface tracking-tight">해외 종목</h3>
           </div>
-          <p className="text-sm text-on-surface-variant ml-9">{overseas.stocks.length}종목 · {insights.overseas_summary}</p>
+          <p className="text-sm text-on-surface-variant ml-9">
+            {overseas.length}종목 · {formatScoredAt(latestOverseas)} 채점
+          </p>
         </div>
 
-        {/* Overseas Scoring Framework */}
         <div className="bg-surface-container-low rounded-xl p-5 ghost-border">
           <div className="flex items-start gap-3 mb-4">
             <span className="material-symbols-outlined text-primary/60 text-lg mt-0.5">info</span>
@@ -387,11 +381,11 @@ export default function OilExpertPage() {
           </div>
           <div className="grid grid-cols-3 gap-3">
             {[
-              { key: "category1", icon: "analytics" },
-              { key: "category2", icon: "volunteer_activism" },
-              { key: "category3", icon: "trending_up" },
+              { key: "category1" as const, icon: "analytics" },
+              { key: "category2" as const, icon: "volunteer_activism" },
+              { key: "category3" as const, icon: "trending_up" },
             ].map(({ key, icon }) => {
-              const cat = overseas.framework[key as keyof Framework];
+              const cat = OVERSEAS_FRAMEWORK[key];
               return (
                 <div key={key} className="bg-surface-container/50 rounded-lg p-4">
                   <div className="flex items-center gap-2 mb-1">
@@ -405,44 +399,29 @@ export default function OilExpertPage() {
           </div>
         </div>
 
-        {/* Overseas Grade Distribution */}
         <div className="bg-surface-container-low rounded-xl p-6 ghost-border">
           <h3 className="text-base font-serif text-on-surface mb-4">등급 분포 — 해외</h3>
-          <GradeDistribution stocks={overseas.stocks} />
+          <GradeDistribution stocks={overseas} />
         </div>
 
-        {/* Overseas Full Table */}
         <div className="bg-surface-container-low rounded-xl ghost-border overflow-hidden">
           <div className="p-6 pb-3">
             <h3 className="text-base font-serif text-on-surface">해외 전체 종목</h3>
           </div>
-          <StockTable stocks={overseas.stocks} framework={overseas.framework} market="overseas" />
+          <StockTable stocks={overseas} framework={OVERSEAS_FRAMEWORK} showCountry />
         </div>
 
-        {/* Overseas B Grade Cards */}
-        {overseas.stocks.filter(s => s.grade === "A" || s.grade === "B").length > 0 && (
+        {overseas.filter(s => s.grade === "A" || s.grade === "B").length > 0 && (
           <div>
-            <h4 className="text-lg font-serif text-on-surface mb-4">
-              A/B 등급 — 매수 검토 대상
-            </h4>
-            <StockCards
-              stocks={overseas.stocks.filter(s => s.grade === "A" || s.grade === "B")}
-              framework={overseas.framework}
-            />
+            <h4 className="text-lg font-serif text-on-surface mb-4">A/B 등급 — 매수 검토 대상</h4>
+            <StockCards stocks={overseas.filter(s => s.grade === "A" || s.grade === "B")} framework={OVERSEAS_FRAMEWORK} />
           </div>
         )}
 
-        {/* Overseas C Grade Cards */}
-        {overseas.stocks.filter(s => s.grade === "C").length > 0 && (
-          <div>
-            <h4 className="text-lg font-serif text-on-surface mb-4">
-              C등급 — 워치리스트 ({overseas.stocks.filter(s => s.grade === "C").length}개)
-            </h4>
-            <StockCards
-              stocks={overseas.stocks.filter(s => s.grade === "C")}
-              framework={overseas.framework}
-            />
-          </div>
+        {overseas.filter(s => s.grade === "C").length > 0 && (
+          <Collapsible title={`C등급 — 워치리스트 (${overseas.filter(s => s.grade === "C").length}개)`}>
+            <StockCards stocks={overseas.filter(s => s.grade === "C")} framework={OVERSEAS_FRAMEWORK} />
+          </Collapsible>
         )}
       </section>
 
@@ -466,8 +445,8 @@ export default function OilExpertPage() {
             </thead>
             <tbody>
               {[
-                ...domestic.stocks.map(s => ({ ...s, market: "국내" as const })),
-                ...overseas.stocks.map(s => ({ ...s, market: "해외" as const })),
+                ...domestic.map(s => ({ ...s, market: "국내" as const })),
+                ...overseas.map(s => ({ ...s, market: "해외" as const })),
               ]
                 .sort((a, b) => b.score - a.score)
                 .slice(0, 5)
@@ -500,7 +479,7 @@ export default function OilExpertPage() {
         <div className="flex items-start gap-3">
           <span className="material-symbols-outlined text-on-surface-variant/50 text-lg mt-0.5">warning</span>
           <div className="space-y-2 text-sm text-on-surface-variant leading-relaxed">
-            <p>국내 종목은 국내 점수표, 해외 종목은 해외 전용 점수표로 각각 채점되었습니다.</p>
+            <p>국내 종목은 국내 점수표, 해외 종목은 해외 전용 점수표로 각각 자동 채점되었습니다.</p>
             <p>오일전문가가 이 종목들을 매수한 시점에는 대부분 더 높은 등급이었을 것입니다. 주가가 오르면서 점수가 내려간 것이므로, 현재 점수가 낮아도 보유 중인 것은 합리적입니다.</p>
             <p><strong className="text-on-surface">~</strong> 표시 종목은 일부 데이터가 추정치입니다.</p>
           </div>
