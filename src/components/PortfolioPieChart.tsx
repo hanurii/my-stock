@@ -105,41 +105,97 @@ export function PortfolioPieChart({
 
       {/* Legend */}
       <div className="flex-1 space-y-2">
-        {data.map((item, i) => (
-          <div
-            key={i}
-            className="flex items-center justify-between py-2.5 px-3 rounded-lg transition-all duration-300 cursor-default"
-            style={{
-              backgroundColor: activeIndex === i ? `${item.color}15` : "transparent",
-              opacity: activeIndex >= 0 && activeIndex !== i ? 0.4 : 1,
-            }}
-            onMouseEnter={() => setActiveIndex(i)}
-            onMouseLeave={() => setActiveIndex(-1)}
-          >
-            <div className="flex items-center gap-3">
-              <span
-                className="w-3 h-3 rounded-full shrink-0 transition-transform duration-300"
-                style={{
-                  backgroundColor: item.color,
-                  transform: activeIndex === i ? "scale(1.5)" : "scale(1)",
-                  boxShadow: activeIndex === i ? `0 0 6px ${item.color}80` : "none",
-                }}
-              />
-              <span className="text-base text-on-surface">{item.name}</span>
+        {/* 주식 카테고리 */}
+        {(() => {
+          const stockItems = data.filter(d => d.name !== "현금 (CMA)");
+          const stockTotal = stockItems.reduce((s, d) => s + d.value, 0);
+          const stockPct = total > 0 ? ((stockTotal / total) * 100).toFixed(1) : "0";
+          const isStockActive = activeIndex >= 0 && activeIndex < stockItems.length;
+
+          return (
+            <div>
+              <div className="flex items-center justify-between py-2 px-3 mb-1">
+                <span className="text-sm font-medium text-on-surface-variant">주식</span>
+                <div className="flex items-center gap-4">
+                  <span className="text-sm font-mono text-on-surface-variant">{formatMoney(stockTotal)}원</span>
+                  <span className="text-sm font-mono text-on-surface-variant w-14 text-right">{stockPct}%</span>
+                </div>
+              </div>
+              <div className="pl-2 space-y-1">
+                {stockItems.map((item, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between py-2 px-3 rounded-lg transition-all duration-300 cursor-default"
+                    style={{
+                      backgroundColor: activeIndex === i ? `${item.color}15` : "transparent",
+                      opacity: activeIndex >= 0 && activeIndex !== i ? 0.4 : 1,
+                    }}
+                    onMouseEnter={() => setActiveIndex(i)}
+                    onMouseLeave={() => setActiveIndex(-1)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span
+                        className="w-2.5 h-2.5 rounded-full shrink-0 transition-transform duration-300"
+                        style={{
+                          backgroundColor: item.color,
+                          transform: activeIndex === i ? "scale(1.5)" : "scale(1)",
+                          boxShadow: activeIndex === i ? `0 0 6px ${item.color}80` : "none",
+                        }}
+                      />
+                      <span className="text-sm text-on-surface">{item.name}</span>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <span className="text-sm font-mono text-on-surface">{formatMoney(item.value)}원</span>
+                      <span
+                        className="text-sm font-mono w-14 text-right transition-colors duration-300"
+                        style={{ color: activeIndex === i ? item.color : "#909097" }}
+                      >
+                        {item.pct}%
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className="flex items-center gap-4">
-              <span className="text-base font-mono text-on-surface">
-                {formatMoney(item.value)}원
-              </span>
-              <span
-                className="text-sm font-mono w-14 text-right transition-colors duration-300"
-                style={{ color: activeIndex === i ? item.color : "#909097" }}
-              >
-                {item.pct}%
-              </span>
+          );
+        })()}
+
+        {/* 현금 */}
+        {data.filter(d => d.name === "현금 (CMA)").map((item) => {
+          const cashIdx = data.indexOf(item);
+          return (
+            <div
+              key="cash"
+              className="flex items-center justify-between py-2.5 px-3 rounded-lg transition-all duration-300 cursor-default mt-2"
+              style={{
+                backgroundColor: activeIndex === cashIdx ? `${item.color}15` : "transparent",
+                opacity: activeIndex >= 0 && activeIndex !== cashIdx ? 0.4 : 1,
+              }}
+              onMouseEnter={() => setActiveIndex(cashIdx)}
+              onMouseLeave={() => setActiveIndex(-1)}
+            >
+              <div className="flex items-center gap-3">
+                <span
+                  className="w-3 h-3 rounded-full shrink-0 transition-transform duration-300"
+                  style={{
+                    backgroundColor: item.color,
+                    transform: activeIndex === cashIdx ? "scale(1.5)" : "scale(1)",
+                  }}
+                />
+                <span className="text-sm font-medium text-on-surface">현금 (CMA)</span>
+              </div>
+              <div className="flex items-center gap-4">
+                <span className="text-base font-mono text-on-surface">{formatMoney(item.value)}원</span>
+                <span
+                  className="text-sm font-mono w-14 text-right transition-colors duration-300"
+                  style={{ color: activeIndex === cashIdx ? item.color : "#909097" }}
+                >
+                  {item.pct}%
+                </span>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
