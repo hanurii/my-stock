@@ -16,12 +16,17 @@ const catNames: Record<number, string> = {
   3: "미래 성장/경쟁력",
 };
 
+function getScoreColor(pct: number): string {
+  if (pct >= 80) return "#95d3ba";
+  if (pct >= 50) return "#e9c176";
+  return "#ffb4ab";
+}
+
 export function ScoreDetails({ details }: { details: ScoreDetail[] }) {
   const [open, setOpen] = useState(false);
 
   if (!details || details.length === 0) return null;
 
-  // 카테고리별 그룹핑
   const grouped: Record<number, ScoreDetail[]> = {};
   details.forEach((d) => {
     if (!grouped[d.cat]) grouped[d.cat] = [];
@@ -44,46 +49,45 @@ export function ScoreDetails({ details }: { details: ScoreDetail[] }) {
       </button>
 
       {open && (
-        <div className="mt-4 space-y-5">
+        <div className="mt-4 space-y-6">
           {[1, 2, 3].map((catNum) => {
             const items = grouped[catNum];
             if (!items) return null;
             const catTotal = items.reduce((s, d) => s + d.score, 0);
             const catMax = items.reduce((s, d) => s + d.max, 0);
+            const catPct = catMax > 0 ? (catTotal / catMax) * 100 : 0;
 
             return (
               <div key={catNum}>
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between mb-3">
                   <h5 className="text-sm font-medium text-on-surface">
-                    카테고리 {catNum}: {catNames[catNum]}
+                    {catNames[catNum]}
                   </h5>
-                  <span className="text-sm font-mono text-primary">
+                  <span className="text-base font-mono font-bold" style={{ color: getScoreColor(catPct) }}>
                     {catTotal}/{catMax}
                   </span>
                 </div>
-                <div className="space-y-1">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                   {items.map((d) => {
                     const pct = d.max > 0 ? (d.score / d.max) * 100 : 0;
+                    const color = getScoreColor(pct);
+
                     return (
-                      <div key={d.item} className="flex items-center gap-3 py-1.5 px-3 rounded-lg bg-surface-container/30">
-                        <span className="text-sm text-on-surface w-28 shrink-0">{d.item}</span>
-                        <div className="flex-1">
-                          <div className="w-full h-1 bg-surface-container-highest rounded-full overflow-hidden">
-                            <div
-                              className="h-full rounded-full transition-all duration-300"
-                              style={{
-                                width: `${pct}%`,
-                                backgroundColor: pct >= 80 ? "#95d3ba" : pct >= 50 ? "#e9c176" : "#ffb4ab",
-                              }}
-                            />
-                          </div>
+                      <div key={d.item} className="bg-surface-container/40 rounded-xl p-4">
+                        <p className="text-xs text-on-surface-variant/60 mb-2">{d.item}</p>
+                        <div className="flex items-end justify-between mb-2">
+                          <span className="text-2xl font-mono font-bold leading-none" style={{ color }}>
+                            {d.score}
+                          </span>
+                          <span className="text-xs text-on-surface-variant/40">/{d.max}</span>
                         </div>
-                        <span className="text-xs font-mono text-on-surface-variant w-12 text-right">
-                          {d.score}/{d.max}
-                        </span>
-                        <span className="text-xs text-on-surface-variant/50 w-36 text-right hidden md:block">
-                          {d.basis}
-                        </span>
+                        <div className="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden mb-2">
+                          <div
+                            className="h-full rounded-full transition-all duration-300"
+                            style={{ width: `${pct}%`, backgroundColor: color }}
+                          />
+                        </div>
+                        <p className="text-[11px] text-on-surface-variant/50 leading-snug">{d.basis}</p>
                       </div>
                     );
                   })}
