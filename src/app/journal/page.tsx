@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import { Collapsible } from "@/components/Collapsible";
 import { MarkdownText } from "@/components/MarkdownText";
+import { PortfolioPieChart } from "@/components/PortfolioPieChart";
 
 interface Holding {
   code: string;
@@ -150,6 +151,14 @@ export default function JournalPage() {
                 {(summary.net_profit_pct || 0) >= 0 ? "+" : ""}{summary.net_profit_pct || 0}%
               </p>
             </div>
+          </div>
+        )}
+
+        {/* 포트폴리오 비율 차트 */}
+        {hasHoldings && (
+          <div className="bg-surface-container-low rounded-xl p-8 ghost-border mb-8">
+            <h4 className="text-lg font-serif text-on-surface mb-6">포트폴리오 구성</h4>
+            <PortfolioPieChart holdings={holdings} cash={summary.cash} />
           </div>
         )}
 
