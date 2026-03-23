@@ -90,7 +90,7 @@ export default function JournalPage() {
         <p className="text-[10px] uppercase tracking-[0.2em] text-primary-dim/60 mb-2">
           Trading Journal
         </p>
-        <h2 className="text-4xl font-serif font-bold text-on-surface tracking-tight">
+        <h2 className="text-3xl sm:text-4xl font-serif font-bold text-on-surface tracking-tight">
           매매일지
         </h2>
         <p className="text-base text-on-surface-variant mt-2">
@@ -112,17 +112,17 @@ export default function JournalPage() {
         {(summary.cash != null || hasHoldings) && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-8">
             {summary.total_assets != null && (
-              <div className="bg-surface-container-low rounded-xl p-6 ghost-border">
+              <div className="bg-surface-container-low rounded-xl p-4 sm:p-6 ghost-border">
                 <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">총 자산</p>
-                <p className="text-2xl font-mono text-primary font-bold">
+                <p className="text-xl sm:text-2xl font-mono text-primary font-bold break-all">
                   {formatMoney(summary.total_assets)}
                   <span className="text-sm text-on-surface-variant ml-1">원</span>
                 </p>
               </div>
             )}
-            <div className="bg-surface-container-low rounded-xl p-6 ghost-border">
+            <div className="bg-surface-container-low rounded-xl p-4 sm:p-6 ghost-border">
               <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">주식 평가액</p>
-              <p className="text-2xl font-mono text-on-surface font-bold">
+              <p className="text-xl sm:text-2xl font-mono text-on-surface font-bold break-all">
                 {formatMoney(summary.total_current_value)}
                 <span className="text-sm text-on-surface-variant ml-1">원</span>
               </p>
@@ -131,9 +131,9 @@ export default function JournalPage() {
               </p>
             </div>
             {summary.cash != null && (
-              <div className="bg-surface-container-low rounded-xl p-6 ghost-border">
+              <div className="bg-surface-container-low rounded-xl p-4 sm:p-6 ghost-border">
                 <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">현금 (CMA)</p>
-                <p className="text-2xl font-mono text-on-surface font-bold">
+                <p className="text-xl sm:text-2xl font-mono text-on-surface font-bold break-all">
                   {formatMoney(summary.cash)}
                   <span className="text-sm text-on-surface-variant ml-1">원</span>
                 </p>
@@ -142,9 +142,9 @@ export default function JournalPage() {
                 </p>
               </div>
             )}
-            <div className="bg-surface-container-low rounded-xl p-6 ghost-border">
+            <div className="bg-surface-container-low rounded-xl p-4 sm:p-6 ghost-border">
               <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">순수익</p>
-              <p className="text-2xl font-mono font-bold" style={{ color: profitColor }}>
+              <p className="text-xl sm:text-2xl font-mono font-bold break-all" style={{ color: profitColor }}>
                 {netProfit >= 0 ? "+" : ""}{formatMoney(netProfit)}원
               </p>
               <p className="text-xs mt-1" style={{ color: profitColor }}>
@@ -164,53 +164,53 @@ export default function JournalPage() {
 
         {/* 수익 & 비용 요약 */}
         {hasTransactions && (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-8">
             {summary.gross_profit != null && (
-              <div className="bg-surface-container-low rounded-xl p-5 ghost-border">
+              <div className="bg-surface-container-low rounded-xl p-3 sm:p-5 ghost-border">
                 <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">매매차익</p>
-                <p className="text-xl font-mono font-bold" style={{ color: (summary.gross_profit || 0) >= 0 ? "#95d3ba" : "#ffb4ab" }}>
+                <p className="text-base sm:text-xl font-mono font-bold break-all" style={{ color: (summary.gross_profit || 0) >= 0 ? "#95d3ba" : "#ffb4ab" }}>
                   {(summary.gross_profit || 0) >= 0 ? "+" : ""}{formatMoney(summary.gross_profit || 0)}원
                 </p>
                 <p className="text-xs text-on-surface-variant/40 mt-1">비용 차감 전</p>
               </div>
             )}
             {summary.total_fees != null && (
-              <div className="bg-surface-container-low rounded-xl p-5 ghost-border">
+              <div className="bg-surface-container-low rounded-xl p-3 sm:p-5 ghost-border">
                 <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">누적 수수료</p>
-                <p className="text-xl font-mono text-[#ffb4ab] font-bold">
+                <p className="text-base sm:text-xl font-mono text-[#ffb4ab] font-bold break-all">
                   -{formatMoney(summary.total_fees || 0)}원
                 </p>
               </div>
             )}
             {summary.total_tax != null && (
-              <div className="bg-surface-container-low rounded-xl p-5 ghost-border">
+              <div className="bg-surface-container-low rounded-xl p-3 sm:p-5 ghost-border">
                 <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">누적 제세금</p>
-                <p className="text-xl font-mono text-[#ffb4ab] font-bold">
+                <p className="text-base sm:text-xl font-mono text-[#ffb4ab] font-bold break-all">
                   -{formatMoney(summary.total_tax || 0)}원
                 </p>
               </div>
             )}
             {summary.total_cost != null && (
-              <div className="bg-surface-container-low rounded-xl p-5 ghost-border">
+              <div className="bg-surface-container-low rounded-xl p-3 sm:p-5 ghost-border">
                 <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">총 비용 합계</p>
-                <p className="text-xl font-mono text-[#ffb4ab] font-bold">
+                <p className="text-base sm:text-xl font-mono text-[#ffb4ab] font-bold break-all">
                   -{formatMoney(summary.total_cost || 0)}원
                 </p>
               </div>
             )}
             {summary.net_profit != null && (
-              <div className="bg-surface-container-low rounded-xl p-5 ghost-border">
+              <div className="bg-surface-container-low rounded-xl p-3 sm:p-5 ghost-border">
                 <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">순수익</p>
-                <p className="text-xl font-mono font-bold" style={{ color: profitColor }}>
+                <p className="text-base sm:text-xl font-mono font-bold break-all" style={{ color: profitColor }}>
                   {netProfit >= 0 ? "+" : ""}{formatMoney(netProfit)}원
                 </p>
                 <p className="text-xs text-on-surface-variant/40 mt-1">비용 차감 후</p>
               </div>
             )}
             {summary.net_profit_pct != null && (
-              <div className="bg-surface-container-low rounded-xl p-5 ghost-border">
+              <div className="bg-surface-container-low rounded-xl p-3 sm:p-5 ghost-border">
                 <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">수익률</p>
-                <p className="text-2xl font-mono font-bold" style={{ color: profitColor }}>
+                <p className="text-xl sm:text-2xl font-mono font-bold" style={{ color: profitColor }}>
                   {(summary.net_profit_pct || 0) >= 0 ? "+" : ""}{summary.net_profit_pct}%
                 </p>
               </div>
@@ -226,31 +226,31 @@ export default function JournalPage() {
         ) : (
           <>
             {/* 보유 종목 요약 카드 */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-8">
-              <div className="bg-surface-container-low rounded-xl p-6 ghost-border">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-5 mb-8">
+              <div className="bg-surface-container-low rounded-xl p-4 sm:p-6 ghost-border">
                 <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">총 투입금액</p>
-                <p className="text-2xl font-mono text-on-surface font-bold">
+                <p className="text-xl sm:text-2xl font-mono text-on-surface font-bold break-all">
                   {formatMoney(summary.total_invested)}
                   <span className="text-sm text-on-surface-variant ml-1">원</span>
                 </p>
               </div>
-              <div className="bg-surface-container-low rounded-xl p-6 ghost-border">
+              <div className="bg-surface-container-low rounded-xl p-4 sm:p-6 ghost-border">
                 <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">현재 평가액</p>
-                <p className="text-2xl font-mono text-on-surface font-bold">
+                <p className="text-xl sm:text-2xl font-mono text-on-surface font-bold break-all">
                   {formatMoney(summary.total_current_value)}
                   <span className="text-sm text-on-surface-variant ml-1">원</span>
                 </p>
               </div>
-              <div className="bg-surface-container-low rounded-xl p-6 ghost-border">
+              <div className="bg-surface-container-low rounded-xl p-4 sm:p-6 ghost-border">
                 <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">총 수익금</p>
-                <p className="text-2xl font-mono font-bold" style={{ color: profitColor }}>
+                <p className="text-xl sm:text-2xl font-mono font-bold break-all" style={{ color: profitColor }}>
                   {netProfit >= 0 ? "+" : ""}{formatMoney(netProfit)}
                   <span className="text-sm ml-1">원</span>
                 </p>
               </div>
-              <div className="bg-surface-container-low rounded-xl p-6 ghost-border">
+              <div className="bg-surface-container-low rounded-xl p-4 sm:p-6 ghost-border">
                 <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">투입 대비 수익률</p>
-                <p className="text-3xl font-mono font-bold" style={{ color: profitColor }}>
+                <p className="text-2xl sm:text-3xl font-mono font-bold" style={{ color: profitColor }}>
                   {(summary.net_profit_pct || 0) >= 0 ? "+" : ""}{summary.net_profit_pct || 0}%
                 </p>
               </div>
@@ -348,9 +348,9 @@ export default function JournalPage() {
                 <div key={tx.id} className="bg-surface-container-low rounded-xl ghost-border overflow-hidden">
                   <div className="p-6">
                     {/* 거래 헤더 */}
-                    <div className="flex items-center justify-between mb-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
                       <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${typeColor}15` }}>
+                        <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: `${typeColor}15` }}>
                           <span className="material-symbols-outlined" style={{ color: typeColor }}>{typeIcon}</span>
                         </div>
                         <div>
@@ -363,7 +363,7 @@ export default function JournalPage() {
                           <p className="text-sm text-on-surface-variant">{tx.date} · {tx.code}</p>
                         </div>
                       </div>
-                      <div className="text-right">
+                      <div className="text-left sm:text-right ml-14 sm:ml-0">
                         <p className="text-xl font-mono text-on-surface font-bold">
                           {tx.total.toLocaleString()}원
                         </p>

@@ -52,9 +52,9 @@ export function PortfolioPieChart({
   const activeItem = activeIndex >= 0 ? data[activeIndex] : null;
 
   return (
-    <div className="flex flex-col md:flex-row items-center gap-8">
+    <div className="flex flex-col md:flex-row items-center gap-4 sm:gap-8">
       {/* Pie Chart */}
-      <div className="w-72 h-72 shrink-0 relative">
+      <div className="w-52 h-52 sm:w-72 sm:h-72 shrink-0 relative">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie

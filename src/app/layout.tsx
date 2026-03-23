@@ -20,12 +20,12 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-full flex bg-surface text-on-surface">
+      <body className="min-h-full md:flex bg-surface text-on-surface">
         <Sidebar />
 
         {/* Main Content */}
-        <main className="flex-1 pl-64 min-h-screen">
-          <div className="px-12 py-10 max-w-[1200px]">{children}</div>
+        <main className="pl-0 md:pl-64 md:flex-1 min-h-screen min-w-0">
+          <div className="px-4 pt-16 pb-8 md:px-12 md:py-10 max-w-[1200px]">{children}</div>
         </main>
       </body>
     </html>

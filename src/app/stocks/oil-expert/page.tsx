@@ -84,7 +84,7 @@ function StockTable({ stocks, framework, showCountry }: {
               <tr key={stock.code} className={`hover:bg-surface-container/30 transition-colors ${i === 0 ? "bg-primary/5" : ""}`}>
                 <td className="text-center px-3 py-2.5 font-mono" style={{ color }}>{i + 1}</td>
                 <td className="px-3 py-2.5 font-medium text-on-surface">
-                  <span className="inline-flex items-center gap-1.5">
+                  <span className="inline-flex items-center gap-1.5 flex-wrap">
                     {stock.name}
                     {stock.estimated && <span className="text-[10px] text-on-surface-variant/40">~</span>}
                     <RankChange currentRank={i + 1} previousRank={stock.previous_rank} />
@@ -129,7 +129,7 @@ function StockCards({ stocks, framework }: {
 
         return (
           <div key={stock.code} className="bg-surface-container-low rounded-xl ghost-border overflow-hidden">
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               <GradeChangeBadge grade={stock.grade} score={stock.score} previousScore={stock.previous_score} gradeChangeReason={stock.grade_change_reason} />
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-4">
@@ -138,8 +138,8 @@ function StockCards({ stocks, framework }: {
                     <RankChange currentRank={rank + 1} previousRank={stock.previous_rank} />
                   </div>
                   <div>
-                    <div className="flex items-center gap-2">
-                      <h4 className="text-lg font-medium text-on-surface">{stock.name}</h4>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h4 className="text-base sm:text-lg font-medium text-on-surface">{stock.name}</h4>
                       <span className="text-xs px-2 py-0.5 rounded font-bold" style={{ backgroundColor: `${color}20`, color }}>{stock.grade}</span>
                       {stock.estimated && <span className="text-xs text-on-surface-variant/40">추정치</span>}
                     </div>
@@ -151,21 +151,21 @@ function StockCards({ stocks, framework }: {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-3xl font-serif font-bold" style={{ color }}>{stock.score}</p>
+                  <p className="text-2xl sm:text-3xl font-serif font-bold" style={{ color }}>{stock.score}</p>
                   <p className="text-xs text-on-surface-variant">/100점</p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-3 mb-4">
+              <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-4">
                 {[
                   { label: framework.category1.name.split("/")[0], score: stock.cat1, max: framework.category1.max_score, pct: cat1Pct },
                   { label: "주주환원", score: stock.cat2, max: framework.category2.max_score, pct: cat2Pct },
                   { label: "성장/경쟁력", score: stock.cat3, max: framework.category3.max_score, pct: cat3Pct },
                 ].map((cat) => (
-                  <div key={cat.label} className="bg-surface-container/50 rounded-lg p-3">
-                    <div className="flex justify-between items-center mb-1.5">
-                      <span className="text-xs text-on-surface-variant">{cat.label}</span>
-                      <span className="text-sm font-mono text-on-surface">{cat.score}/{cat.max}</span>
+                  <div key={cat.label} className="bg-surface-container/50 rounded-lg p-2 sm:p-3">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-1.5 gap-0.5">
+                      <span className="text-[10px] sm:text-xs text-on-surface-variant">{cat.label}</span>
+                      <span className="text-xs sm:text-sm font-mono text-on-surface">{cat.score}/{cat.max}</span>
                     </div>
                     <div className="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
                       <div className="h-full rounded-full transition-all duration-500" style={{ width: `${cat.pct}%`, backgroundColor: color }} />
@@ -204,7 +204,7 @@ function GradeDistribution({ stocks }: { stocks: AnyScored[] }) {
   });
 
   return (
-    <div className="grid grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
       {(["A", "B", "C", "D"] as const).map((grade) => {
         const count = gradeGroups[grade].length;
         const color = getGradeColor(grade);
@@ -275,7 +275,7 @@ export default function OilExpertPage() {
         <p className="text-[10px] uppercase tracking-[0.2em] text-primary-dim/60 mb-2">
           Oil Expert Portfolio
         </p>
-        <h2 className="text-4xl font-serif font-bold text-on-surface tracking-tight">
+        <h2 className="text-3xl sm:text-4xl font-serif font-bold text-on-surface tracking-tight">
           오일전문가 포트폴리오
         </h2>
         <p className="text-base text-on-surface-variant mt-2">
@@ -387,7 +387,7 @@ export default function OilExpertPage() {
               국내 점수와 절대값 비교 불가 — 등급과 상대 순위로 비교.
             </p>
           </div>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {[
               { key: "category1" as const, icon: "analytics" },
               { key: "category2" as const, icon: "volunteer_activism" },

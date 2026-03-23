@@ -18,8 +18,8 @@ const catNames: Record<number, string> = {
 
 interface ScoreStyle {
   color: string;
-  glow?: string;       // text-shadow
-  barGradient?: string; // 바 그라데이션
+  glow?: string;
+  barGradient?: string;
 }
 
 function getScoreStyle(pct: number): ScoreStyle {
@@ -101,31 +101,51 @@ export function ScoreDetails({ details }: { details: ScoreDetail[] }) {
                     const style = getScoreStyle(pct);
 
                     return (
-                      <div key={d.item} className="flex items-center gap-4 py-2 px-4 rounded-lg bg-surface-container/30">
-                        {/* 좌: 항목명 */}
-                        <span className="text-sm text-on-surface font-medium w-28 shrink-0">
-                          {d.item}
-                        </span>
-
-                        {/* 중: 근거 */}
-                        <span className="text-sm text-on-surface-variant/60 flex-1">
-                          {d.basis}
-                        </span>
-
-                        {/* 우: 그래프 + 점수 */}
-                        <div className="flex items-center gap-3 shrink-0">
-                          <div className="w-24 h-2 bg-surface-container-highest rounded-full overflow-hidden">
-                            <div
-                              className="h-full rounded-full transition-all duration-300"
-                              style={{ width: `${pct}%`, background: style.barGradient || style.color }}
-                            />
-                          </div>
-                          <span
-                            className="text-sm font-mono font-bold w-14 text-right"
-                            style={{ color: style.color, textShadow: style.glow }}
-                          >
-                            {d.score}/{d.max}
+                      <div key={d.item} className="py-2 px-3 sm:px-4 rounded-lg bg-surface-container/30">
+                        {/* 모바일: 2행, PC: 1행 */}
+                        <div className="hidden sm:flex items-center gap-4">
+                          <span className="text-sm text-on-surface font-medium w-28 shrink-0">
+                            {d.item}
                           </span>
+                          <span className="text-sm text-on-surface-variant/60 flex-1">
+                            {d.basis}
+                          </span>
+                          <div className="flex items-center gap-3 shrink-0">
+                            <div className="w-24 h-2 bg-surface-container-highest rounded-full overflow-hidden">
+                              <div
+                                className="h-full rounded-full transition-all duration-300"
+                                style={{ width: `${pct}%`, background: style.barGradient || style.color }}
+                              />
+                            </div>
+                            <span
+                              className="text-sm font-mono font-bold w-14 text-right"
+                              style={{ color: style.color, textShadow: style.glow }}
+                            >
+                              {d.score}/{d.max}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* 모바일 전용 레이아웃 */}
+                        <div className="sm:hidden">
+                          <div className="flex items-center justify-between mb-1.5">
+                            <span className="text-sm text-on-surface font-medium">{d.item}</span>
+                            <span
+                              className="text-sm font-mono font-bold"
+                              style={{ color: style.color, textShadow: style.glow }}
+                            >
+                              {d.score}/{d.max}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <span className="text-xs text-on-surface-variant/60 shrink-0">{d.basis}</span>
+                            <div className="flex-1 h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+                              <div
+                                className="h-full rounded-full transition-all duration-300"
+                                style={{ width: `${pct}%`, background: style.barGradient || style.color }}
+                              />
+                            </div>
+                          </div>
                         </div>
                       </div>
                     );

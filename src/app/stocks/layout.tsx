@@ -28,7 +28,8 @@ export default function StocksLayout({ children }: { children: React.ReactNode }
               }`}
             >
               <span className="material-symbols-outlined text-lg">{tab.icon}</span>
-              {tab.label}
+              <span className="hidden sm:inline">{tab.label}</span>
+              <span className="sm:hidden text-xs">{tab.label}</span>
             </Link>
           );
         })}

@@ -21,7 +21,7 @@ export default function Home() {
     <div className="space-y-12">
       {/* 날짜별 리포트 목록 */}
       {dates.length > 1 && (
-        <section className="bg-surface-container-low rounded-xl p-6 ghost-border">
+        <section className="bg-surface-container-low rounded-xl p-4 sm:p-6 ghost-border overflow-hidden">
           <h3 className="text-base font-serif text-on-surface mb-4 tracking-tight">
             지난 리포트
           </h3>

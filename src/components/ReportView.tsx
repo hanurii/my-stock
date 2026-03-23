@@ -13,12 +13,12 @@ export function ReportView({ report }: { report: ReportData }) {
   return (
     <div className="space-y-12">
       {/* ── Hero Header ── */}
-      <section className="flex justify-between items-end">
+      <section>
         <div>
           <p className="text-[10px] uppercase tracking-[0.2em] text-primary-dim/60 mb-2">
             Daily Macro Report
           </p>
-          <h2 className="text-4xl font-serif font-bold text-on-surface tracking-tight">
+          <h2 className="text-3xl sm:text-4xl font-serif font-bold text-on-surface tracking-tight">
             거시경제 데일리 리포트
           </h2>
           <p className="text-base text-on-surface-variant mt-2">
@@ -28,7 +28,7 @@ export function ReportView({ report }: { report: ReportData }) {
       </section>
 
       {/* ── Briefing ── */}
-      <section className="glass-card rounded-xl p-8 ghost-border">
+      <section className="glass-card rounded-xl p-5 sm:p-8 ghost-border overflow-hidden">
         <div className="flex items-center gap-3 mb-6">
           <span className="material-symbols-outlined text-primary text-2xl">auto_awesome</span>
           <h3 className="text-xl font-serif text-on-surface tracking-tight">
@@ -84,7 +84,7 @@ export function ReportView({ report }: { report: ReportData }) {
       </section>
 
       {/* ── Causal Chain ── */}
-      <section className="bg-surface-container-low rounded-xl p-8 ghost-border">
+      <section className="bg-surface-container-low rounded-xl p-5 sm:p-8 ghost-border">
         <h3 className="text-xl font-serif text-on-surface mb-5 tracking-tight">
           오늘의 인과관계 분석
         </h3>
@@ -135,7 +135,7 @@ export function ReportView({ report }: { report: ReportData }) {
       </section>
 
       {/* ── Investment Direction ── */}
-      <section className="bg-surface-container-low rounded-xl p-8 ghost-border">
+      <section className="bg-surface-container-low rounded-xl p-5 sm:p-8 ghost-border">
         <h3 className="text-xl font-serif text-on-surface mb-5 tracking-tight">
           이번 주 투자 방향
         </h3>
@@ -193,12 +193,12 @@ export function ReportView({ report }: { report: ReportData }) {
                   const bodyRows = dataRows.slice(1);
 
                   elements.push(
-                    <div key={`table-${i}`} className="rounded-xl overflow-hidden ghost-border my-4">
-                      <table className="w-full text-base">
+                    <div key={`table-${i}`} className="rounded-xl overflow-x-auto ghost-border my-4">
+                      <table className="text-base">
                         <thead>
                           <tr>
                             {headerCells.map((cell, ci) => (
-                              <th key={ci} className="text-left px-4 py-3 text-[10px] uppercase tracking-wider text-on-surface-variant/50 font-normal bg-surface-container/50">
+                              <th key={ci} className="text-left px-4 py-3 text-[10px] uppercase tracking-wider text-on-surface-variant/50 font-normal bg-surface-container/50 whitespace-nowrap">
                                 {cell.trim()}
                               </th>
                             ))}
@@ -210,7 +210,7 @@ export function ReportView({ report }: { report: ReportData }) {
                             return (
                               <tr key={ri} className="hover:bg-surface-container-high/30 transition-colors">
                                 {cells.map((cell, ci) => (
-                                  <td key={ci} className="px-4 py-3 text-base text-on-surface-variant leading-relaxed">
+                                  <td key={ci} className="px-4 py-3 text-base text-on-surface-variant leading-relaxed whitespace-nowrap">
                                     <MarkdownText>{cell.trim()}</MarkdownText>
                                   </td>
                                 ))}
@@ -323,7 +323,7 @@ export function ReportView({ report }: { report: ReportData }) {
 
       {/* ── Asset Recommendation ── */}
       {asset_recommendation && asset_recommendation.trim() && (
-        <section className="bg-surface-container-low rounded-xl p-8 ghost-border">
+        <section className="bg-surface-container-low rounded-xl p-5 sm:p-8 ghost-border">
           <h3 className="text-xl font-serif text-on-surface mb-5 tracking-tight">
             현재 환경에서의 자산별 판단
           </h3>
@@ -348,12 +348,12 @@ export function ReportView({ report }: { report: ReportData }) {
                     const headerCells = dataRows[0].split("|").filter((c) => c.trim());
                     const bodyRows = dataRows.slice(1);
                     elements.push(
-                      <div key={`table-${i}`} className="rounded-xl overflow-hidden ghost-border my-4">
-                        <table className="w-full text-base">
+                      <div key={`table-${i}`} className="rounded-xl overflow-x-auto ghost-border my-4">
+                        <table className="text-base">
                           <thead>
                             <tr>
                               {headerCells.map((cell, ci) => (
-                                <th key={ci} className="text-left px-4 py-3 text-[10px] uppercase tracking-wider text-on-surface-variant/50 font-normal bg-surface-container/50">
+                                <th key={ci} className="text-left px-4 py-3 text-[10px] uppercase tracking-wider text-on-surface-variant/50 font-normal bg-surface-container/50 whitespace-nowrap">
                                   {cell.trim()}
                                 </th>
                               ))}
@@ -365,7 +365,7 @@ export function ReportView({ report }: { report: ReportData }) {
                               return (
                                 <tr key={ri} className="hover:bg-surface-container-high/30 transition-colors">
                                   {cells.map((cell, ci) => (
-                                    <td key={ci} className="px-4 py-3 text-base text-on-surface-variant leading-relaxed">
+                                    <td key={ci} className="px-4 py-3 text-base text-on-surface-variant leading-relaxed whitespace-nowrap">
                                       <MarkdownText>{cell.trim()}</MarkdownText>
                                     </td>
                                   ))}
@@ -425,7 +425,7 @@ export function ReportView({ report }: { report: ReportData }) {
 
       {/* ── Divergence Warning ── */}
       {divergence && divergence.trim() && (
-        <section className="bg-surface-container-low rounded-xl p-8 ghost-border border-l-2 border-primary">
+        <section className="bg-surface-container-low rounded-xl p-5 sm:p-8 ghost-border border-l-2 border-primary">
           <div className="flex items-center gap-3 mb-4">
             <span className="material-symbols-outlined text-primary">warning</span>
             <h3 className="text-lg font-serif text-primary tracking-tight">괴리 감지</h3>

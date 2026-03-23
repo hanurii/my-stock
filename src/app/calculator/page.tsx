@@ -138,7 +138,7 @@ export default function CalculatorPage() {
         <p className="text-[10px] uppercase tracking-[0.2em] text-primary-dim/60 mb-2">
           Financial Statements
         </p>
-        <h2 className="text-4xl font-serif font-bold text-on-surface tracking-tight">
+        <h2 className="text-3xl sm:text-4xl font-serif font-bold text-on-surface tracking-tight">
           재무제표 계산기
         </h2>
         <p className="text-base text-on-surface-variant mt-2">
@@ -184,7 +184,7 @@ export default function CalculatorPage() {
             className="bg-surface-container-low rounded-xl ghost-border overflow-hidden scroll-mt-8"
           >
             {/* ── Stock Header ── */}
-            <div className="p-8 flex justify-between items-start">
+            <div className="p-5 sm:p-8 flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
               <div>
                 <div className="flex items-center gap-3">
                   <h3 className="text-2xl font-serif text-on-surface tracking-tight">{stock.name}</h3>
@@ -196,9 +196,9 @@ export default function CalculatorPage() {
                 </div>
                 <p className="text-base text-on-surface-variant mt-1.5">{stock.code}</p>
               </div>
-              <div className="text-right">
+              <div className="sm:text-right">
                 <p className="text-xs text-on-surface-variant/50 mb-1">현재 종가</p>
-                <p className="text-4xl font-serif text-primary tracking-tight">
+                <p className="text-3xl sm:text-4xl font-serif text-primary tracking-tight">
                   {stock.current_price.toLocaleString()}
                   <span className="text-lg text-on-surface-variant ml-1">원</span>
                 </p>
@@ -206,7 +206,7 @@ export default function CalculatorPage() {
             </div>
 
             {/* ── Latest Metrics ── */}
-            <div className="px-8 pb-8">
+            <div className="px-5 sm:px-8 pb-5 sm:pb-8">
               <div className="flex items-center gap-2 mb-5">
                 <h4 className="text-lg font-serif text-primary">최신 지표</h4>
                 <span className="text-sm text-on-surface-variant">
@@ -214,7 +214,7 @@ export default function CalculatorPage() {
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
                 {[
                   { label: "EPS", value: stock.latest.eps, unit: "원", desc: "주당순이익" },
                   { label: "PER", value: stock.latest.per, unit: "배", desc: "현재 주가 ÷ EPS" },
@@ -223,9 +223,9 @@ export default function CalculatorPage() {
                   { label: "배당수익률", value: stock.latest.dividend_yield, unit: "%", desc: "배당금 ÷ 현재 주가" },
                   { label: "주당배당금", value: stock.latest.dps, unit: "원", desc: "확정 배당" },
                 ].map((m) => (
-                  <div key={m.label} className="bg-surface-container rounded-xl p-5 ghost-border">
+                  <div key={m.label} className="bg-surface-container rounded-xl p-3 sm:p-5 ghost-border">
                     <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">{m.label}</p>
-                    <p className="text-2xl font-mono text-on-surface leading-tight">
+                    <p className="text-xl sm:text-2xl font-mono text-on-surface leading-tight break-all">
                       {m.value != null ? m.value.toLocaleString() : "—"}
                       <span className="text-sm text-on-surface-variant ml-1">{m.unit}</span>
                     </p>
@@ -237,7 +237,7 @@ export default function CalculatorPage() {
 
             {/* ── 연도별 전체 추이 (접기/펼치기) ── */}
             {sortedHistory.length > 0 && (
-              <div className="px-8 pb-8">
+              <div className="px-5 sm:px-8 pb-5 sm:pb-8">
                 <Collapsible title="연도별 전체 추이">
                   <div className="overflow-x-auto">
                     <table className="w-full text-base">

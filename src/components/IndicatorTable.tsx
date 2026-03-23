@@ -66,7 +66,7 @@ function CommentCell({ comment }: { comment: string }) {
 
 export function IndicatorTable({ title, indicators }: IndicatorTableProps) {
   return (
-    <div className="bg-surface-container-low rounded-xl p-6 ghost-border">
+    <div className="bg-surface-container-low rounded-xl p-4 sm:p-6 ghost-border overflow-hidden">
       <h4 className="text-base font-serif text-on-surface mb-5 tracking-tight">
         {title}
       </h4>
