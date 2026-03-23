@@ -16,10 +16,35 @@ const catNames: Record<number, string> = {
   3: "미래 성장/경쟁력",
 };
 
-function getScoreColor(pct: number): string {
-  if (pct >= 80) return "#95d3ba";
-  if (pct >= 50) return "#e9c176";
-  return "#ffb4ab";
+interface ScoreStyle {
+  color: string;
+  glow?: string;       // text-shadow
+  barGradient?: string; // 바 그라데이션
+}
+
+function getScoreStyle(pct: number): ScoreStyle {
+  if (pct >= 90) return {
+    color: "#e0f7ff",
+    glow: "0 0 12px rgba(180, 235, 255, 0.8), 0 0 4px rgba(255, 255, 255, 0.6)",
+    barGradient: "linear-gradient(90deg, #88e0f7, #d4f5ff, #88e0f7)",
+  };
+  if (pct >= 70) return {
+    color: "#6eedb5",
+    glow: "0 0 10px rgba(110, 237, 181, 0.6), 0 0 3px rgba(149, 211, 186, 0.4)",
+    barGradient: "linear-gradient(90deg, #4dcea0, #95d3ba, #4dcea0)",
+  };
+  if (pct >= 50) return {
+    color: "#f0d060",
+    barGradient: "linear-gradient(90deg, #d4a640, #f0d060, #d4a640)",
+  };
+  if (pct >= 30) return {
+    color: "#b0b0bc",
+    barGradient: "linear-gradient(90deg, #8e8e9a, #c8c8d0, #8e8e9a)",
+  };
+  return {
+    color: "#6b5030",
+    barGradient: "linear-gradient(90deg, #5a4020, #8b6f47, #5a4020)",
+  };
 }
 
 export function ScoreDetails({ details }: { details: ScoreDetail[] }) {
@@ -63,20 +88,26 @@ export function ScoreDetails({ details }: { details: ScoreDetail[] }) {
                   <h5 className="text-sm font-medium text-on-surface">
                     {catNames[catNum]}
                   </h5>
-                  <span className="text-base font-mono font-bold" style={{ color: getScoreColor(catPct) }}>
+                  <span
+                    className="text-base font-mono font-bold"
+                    style={{ color: getScoreStyle(catPct).color, textShadow: getScoreStyle(catPct).glow }}
+                  >
                     {catTotal}/{catMax}
                   </span>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                   {items.map((d) => {
                     const pct = d.max > 0 ? (d.score / d.max) * 100 : 0;
-                    const color = getScoreColor(pct);
+                    const style = getScoreStyle(pct);
 
                     return (
                       <div key={d.item} className="bg-surface-container/40 rounded-xl p-4">
                         <p className="text-xs text-on-surface-variant/60 mb-2">{d.item}</p>
                         <div className="flex items-end justify-between mb-2">
-                          <span className="text-2xl font-mono font-bold leading-none" style={{ color }}>
+                          <span
+                            className="text-2xl font-mono font-bold leading-none"
+                            style={{ color: style.color, textShadow: style.glow }}
+                          >
                             {d.score}
                           </span>
                           <span className="text-xs text-on-surface-variant/40">/{d.max}</span>
@@ -84,7 +115,7 @@ export function ScoreDetails({ details }: { details: ScoreDetail[] }) {
                         <div className="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden mb-2">
                           <div
                             className="h-full rounded-full transition-all duration-300"
-                            style={{ width: `${pct}%`, backgroundColor: color }}
+                            style={{ width: `${pct}%`, background: style.barGradient || style.color }}
                           />
                         </div>
                         <p className="text-[11px] text-on-surface-variant/50 leading-snug">{d.basis}</p>
