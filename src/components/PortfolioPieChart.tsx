@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { PieChart, Pie, Cell, ResponsiveContainer, Sector } from "recharts";
+import { useState } from "react";
+import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 
 interface PortfolioItem {
   name: string;
@@ -11,57 +11,15 @@ interface PortfolioItem {
 }
 
 const COLORS = [
-  "#e9c176",
-  "#95d3ba",
-  "#c084fc",
-  "#60a5fa",
-  "#f472b6",
-  "#fb923c",
-  "#2dd4bf",
-  "#a78bfa",
+  "#e9c176", "#95d3ba", "#c084fc", "#60a5fa",
+  "#f472b6", "#fb923c", "#2dd4bf", "#a78bfa",
 ];
-
 const CASH_COLOR = "#45464d";
 
 function formatMoney(amount: number): string {
   if (amount >= 1e8) return `${(amount / 1e8).toFixed(1)}억`;
   if (amount >= 1e4) return `${(amount / 1e4).toFixed(0)}만`;
   return amount.toLocaleString();
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function ActiveShape(props: any) {
-  const {
-    cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill,
-    payload,
-  } = props as {
-    cx: number; cy: number; innerRadius: number; outerRadius: number;
-    startAngle: number; endAngle: number; fill: string;
-    payload: PortfolioItem;
-  };
-
-  return (
-    <g>
-      {/* 확대된 섹터 */}
-      <Sector
-        cx={cx}
-        cy={cy}
-        innerRadius={innerRadius - 4}
-        outerRadius={(outerRadius as number) + 10}
-        startAngle={startAngle}
-        endAngle={endAngle}
-        fill={fill}
-        style={{ filter: `drop-shadow(0 0 8px ${fill}60)`, transition: "all 0.3s ease" }}
-      />
-      {/* 중앙 텍스트 */}
-      <text x={cx} y={cy - 10} textAnchor="middle" fill="#dce1fb" fontSize="14" fontWeight="600">
-        {payload.name}
-      </text>
-      <text x={cx} y={cy + 14} textAnchor="middle" fill={fill} fontSize="22" fontWeight="700" fontFamily="monospace">
-        {payload.pct}%
-      </text>
-    </g>
-  );
 }
 
 export function PortfolioPieChart({
@@ -91,13 +49,12 @@ export function PortfolioPieChart({
     });
   }
 
-  const onEnter = useCallback((_: unknown, index: number) => setActiveIndex(index), []);
-  const onLeave = useCallback(() => setActiveIndex(-1), []);
+  const activeItem = activeIndex >= 0 ? data[activeIndex] : null;
 
   return (
     <div className="flex flex-col md:flex-row items-center gap-8">
       {/* Pie Chart */}
-      <div className="w-72 h-72 shrink-0">
+      <div className="w-72 h-72 shrink-0 relative">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
@@ -108,10 +65,8 @@ export function PortfolioPieChart({
               outerRadius={105}
               dataKey="value"
               stroke="none"
-              activeIndex={activeIndex >= 0 ? activeIndex : undefined}
-              activeShape={ActiveShape}
-              onMouseEnter={onEnter}
-              onMouseLeave={onLeave}
+              onMouseEnter={(_, index) => setActiveIndex(index)}
+              onMouseLeave={() => setActiveIndex(-1)}
             >
               {data.map((entry, i) => (
                 <Cell
@@ -119,21 +74,41 @@ export function PortfolioPieChart({
                   fill={entry.color}
                   style={{
                     transition: "all 0.3s ease",
-                    opacity: activeIndex >= 0 && activeIndex !== i ? 0.4 : 1,
+                    opacity: activeIndex >= 0 && activeIndex !== i ? 0.3 : 1,
+                    transform: activeIndex === i ? "scale(1.05)" : "scale(1)",
+                    transformOrigin: "center",
+                    filter: activeIndex === i ? `drop-shadow(0 0 8px ${entry.color}80)` : "none",
                   }}
                 />
               ))}
             </Pie>
           </PieChart>
         </ResponsiveContainer>
+
+        {/* 중앙 호버 정보 */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          {activeItem ? (
+            <div className="text-center transition-all duration-300">
+              <p className="text-sm text-on-surface font-medium">{activeItem.name}</p>
+              <p className="text-2xl font-mono font-bold" style={{ color: activeItem.color }}>
+                {activeItem.pct}%
+              </p>
+            </div>
+          ) : (
+            <div className="text-center">
+              <p className="text-xs text-on-surface-variant/50">총 자산</p>
+              <p className="text-lg font-mono text-on-surface font-bold">{formatMoney(total)}원</p>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Legend */}
-      <div className="flex-1 space-y-3">
+      <div className="flex-1 space-y-2">
         {data.map((item, i) => (
           <div
             key={i}
-            className="flex items-center justify-between py-2 px-3 rounded-lg transition-all duration-300 cursor-default"
+            className="flex items-center justify-between py-2.5 px-3 rounded-lg transition-all duration-300 cursor-default"
             style={{
               backgroundColor: activeIndex === i ? `${item.color}15` : "transparent",
               opacity: activeIndex >= 0 && activeIndex !== i ? 0.4 : 1,
@@ -147,6 +122,7 @@ export function PortfolioPieChart({
                 style={{
                   backgroundColor: item.color,
                   transform: activeIndex === i ? "scale(1.5)" : "scale(1)",
+                  boxShadow: activeIndex === i ? `0 0 6px ${item.color}80` : "none",
                 }}
               />
               <span className="text-base text-on-surface">{item.name}</span>
