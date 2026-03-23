@@ -36,12 +36,12 @@ interface JournalData {
   summary: {
     total_invested: number;
     total_current_value: number;
-    total_profit: number;
-    total_profit_pct: number;
-    realized_profit?: number;
+    gross_profit?: number;
     total_fees?: number;
     total_tax?: number;
     total_cost?: number;
+    net_profit?: number;
+    net_profit_pct?: number;
   };
   holdings: Holding[];
   transactions: Transaction[];
@@ -77,7 +77,8 @@ export default function JournalPage() {
   const { summary, holdings, transactions } = data;
   const hasHoldings = holdings.length > 0;
   const hasTransactions = transactions.length > 0;
-  const profitColor = summary.total_profit >= 0 ? "#95d3ba" : "#ffb4ab";
+  const netProfit = summary.net_profit || 0;
+  const profitColor = netProfit >= 0 ? "#95d3ba" : "#ffb4ab";
 
   return (
     <div className="space-y-14">
@@ -107,12 +108,13 @@ export default function JournalPage() {
         {/* 수익 & 비용 요약 */}
         {hasTransactions && (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-            {summary.realized_profit != null && (
+            {summary.gross_profit != null && (
               <div className="bg-surface-container-low rounded-xl p-5 ghost-border">
-                <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">실현 수익</p>
-                <p className="text-xl font-mono font-bold" style={{ color: (summary.realized_profit || 0) >= 0 ? "#95d3ba" : "#ffb4ab" }}>
-                  {(summary.realized_profit || 0) >= 0 ? "+" : ""}{formatMoney(summary.realized_profit || 0)}원
+                <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">매매차익</p>
+                <p className="text-xl font-mono font-bold" style={{ color: (summary.gross_profit || 0) >= 0 ? "#95d3ba" : "#ffb4ab" }}>
+                  {(summary.gross_profit || 0) >= 0 ? "+" : ""}{formatMoney(summary.gross_profit || 0)}원
                 </p>
+                <p className="text-xs text-on-surface-variant/40 mt-1">비용 차감 전</p>
               </div>
             )}
             {summary.total_fees != null && (
@@ -139,19 +141,20 @@ export default function JournalPage() {
                 </p>
               </div>
             )}
-            {summary.total_profit != null && (
+            {summary.net_profit != null && (
               <div className="bg-surface-container-low rounded-xl p-5 ghost-border">
-                <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">순수익 (비용 차감)</p>
+                <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">순수익</p>
                 <p className="text-xl font-mono font-bold" style={{ color: profitColor }}>
-                  {summary.total_profit >= 0 ? "+" : ""}{formatMoney(summary.total_profit)}원
+                  {netProfit >= 0 ? "+" : ""}{formatMoney(netProfit)}원
                 </p>
+                <p className="text-xs text-on-surface-variant/40 mt-1">비용 차감 후</p>
               </div>
             )}
-            {summary.total_profit_pct != null && (
+            {summary.net_profit_pct != null && (
               <div className="bg-surface-container-low rounded-xl p-5 ghost-border">
                 <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">수익률</p>
                 <p className="text-2xl font-mono font-bold" style={{ color: profitColor }}>
-                  {summary.total_profit_pct >= 0 ? "+" : ""}{summary.total_profit_pct}%
+                  {(summary.net_profit_pct || 0) >= 0 ? "+" : ""}{summary.net_profit_pct}%
                 </p>
               </div>
             )}
@@ -184,14 +187,14 @@ export default function JournalPage() {
               <div className="bg-surface-container-low rounded-xl p-6 ghost-border">
                 <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">총 수익금</p>
                 <p className="text-2xl font-mono font-bold" style={{ color: profitColor }}>
-                  {summary.total_profit >= 0 ? "+" : ""}{formatMoney(summary.total_profit)}
+                  {netProfit >= 0 ? "+" : ""}{formatMoney(netProfit)}
                   <span className="text-sm ml-1">원</span>
                 </p>
               </div>
               <div className="bg-surface-container-low rounded-xl p-6 ghost-border">
                 <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">투입 대비 수익률</p>
                 <p className="text-3xl font-mono font-bold" style={{ color: profitColor }}>
-                  {summary.total_profit_pct >= 0 ? "+" : ""}{summary.total_profit_pct}%
+                  {(summary.net_profit_pct || 0) >= 0 ? "+" : ""}{summary.net_profit_pct || 0}%
                 </p>
               </div>
             </div>
@@ -263,8 +266,23 @@ export default function JournalPage() {
           <div className="space-y-4">
             {transactions.map((tx) => {
               const isBuy = tx.type === "매수";
-              const typeColor = isBuy ? "#6ea8fe" : "#ffb4ab";
+              const typeColor = isBuy ? "#6ea8fe" : "#95d3ba";
               const typeIcon = isBuy ? "shopping_cart" : "sell";
+
+              // 매도 시 수익/손실 계산 (같은 종목의 매수 평균가 기준)
+              let sellProfit = 0;
+              let sellProfitPct = 0;
+              if (!isBuy) {
+                const buyTx = transactions.find(t => t.type === "매수" && t.code === tx.code);
+                if (buyTx) {
+                  const costBasis = buyTx.price * tx.quantity;
+                  const sellGross = tx.total;
+                  const sellCosts = (tx.fees || 0) + (tx.tax || 0);
+                  sellProfit = sellGross - costBasis - sellCosts;
+                  sellProfitPct = costBasis > 0 ? (sellProfit / costBasis) * 100 : 0;
+                }
+              }
+              const sellProfitColor = sellProfit >= 0 ? "#95d3ba" : "#ffb4ab";
 
               return (
                 <div key={tx.id} className="bg-surface-container-low rounded-xl ghost-border overflow-hidden">
@@ -301,6 +319,30 @@ export default function JournalPage() {
                         )}
                       </div>
                     </div>
+
+                    {/* 매도 수익/손실 결과 */}
+                    {!isBuy && sellProfit !== 0 && (
+                      <div className="mb-4 p-4 rounded-xl" style={{ backgroundColor: `${sellProfitColor}10` }}>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="material-symbols-outlined text-sm" style={{ color: sellProfitColor }}>
+                              {sellProfit >= 0 ? "trending_up" : "trending_down"}
+                            </span>
+                            <span className="text-base font-medium" style={{ color: sellProfitColor }}>
+                              {sellProfit >= 0 ? "수익 실현" : "손실 실현"}
+                            </span>
+                          </div>
+                          <div className="text-right">
+                            <span className="text-xl font-mono font-bold" style={{ color: sellProfitColor }}>
+                              {sellProfit >= 0 ? "+" : ""}{formatMoney(sellProfit)}원
+                            </span>
+                            <span className="text-sm font-mono ml-2" style={{ color: sellProfitColor }}>
+                              ({sellProfitPct >= 0 ? "+" : ""}{sellProfitPct.toFixed(1)}%)
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
 
                     {/* 매매 사유 */}
                     {tx.reason && (
