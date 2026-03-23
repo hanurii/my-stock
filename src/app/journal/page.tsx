@@ -269,13 +269,16 @@ export default function JournalPage() {
               const typeColor = isBuy ? "#6ea8fe" : "#95d3ba";
               const typeIcon = isBuy ? "shopping_cart" : "sell";
 
-              // 매도 시 수익/손실 계산 (같은 종목의 매수 평균가 기준)
+              // 매도 시 수익/손실 계산 (같은 종목의 전체 매수 평균가 기준)
               let sellProfit = 0;
               let sellProfitPct = 0;
               if (!isBuy) {
-                const buyTx = transactions.find(t => t.type === "매수" && t.code === tx.code);
-                if (buyTx) {
-                  const costBasis = buyTx.price * tx.quantity;
+                const buyTxs = transactions.filter(t => t.type === "매수" && t.code === tx.code);
+                if (buyTxs.length > 0) {
+                  const totalBuyQty = buyTxs.reduce((s, t) => s + t.quantity, 0);
+                  const totalBuyAmt = buyTxs.reduce((s, t) => s + t.total, 0);
+                  const avgBuyPrice = totalBuyQty > 0 ? totalBuyAmt / totalBuyQty : 0;
+                  const costBasis = avgBuyPrice * tx.quantity;
                   const sellGross = tx.total;
                   const sellCosts = (tx.fees || 0) + (tx.tax || 0);
                   sellProfit = sellGross - costBasis - sellCosts;

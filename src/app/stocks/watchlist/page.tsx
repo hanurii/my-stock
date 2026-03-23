@@ -82,6 +82,7 @@ export default function WatchlistPage() {
 
   // 가장 최근 scored_at
   const latestScoredAt = stocks.reduce((latest, s) => s.scored_at > latest ? s.scored_at : latest, stocks[0]?.scored_at || "");
+  const calculatedAt = formatScoredAt(new Date().toISOString().slice(0, 10));
 
   return (
     <div className="space-y-14">
@@ -94,11 +95,13 @@ export default function WatchlistPage() {
           저평가 우량주
         </h2>
         <p className="text-base text-on-surface-variant mt-2">
-          {formatScoredAt(latestScoredAt)} 채점 · 3대 카테고리 점수 시스템 (100점 만점)
+          3대 카테고리 점수 시스템 (100점 만점)
         </p>
-        <p className="text-xs text-on-surface-variant/50 mt-1">
-          점수는 원시 데이터로부터 자동 계산됩니다
-        </p>
+        <div className="flex gap-4 mt-1.5 text-xs text-on-surface-variant/50">
+          <span>데이터 갱신: {formatScoredAt(latestScoredAt)}</span>
+          <span>·</span>
+          <span>점수 계산: {calculatedAt}</span>
+        </div>
       </section>
 
       {/* Scoring Framework */}
