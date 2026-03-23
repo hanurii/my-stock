@@ -95,30 +95,38 @@ export function ScoreDetails({ details }: { details: ScoreDetail[] }) {
                     {catTotal}/{catMax}
                   </span>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                <div className="space-y-2">
                   {items.map((d) => {
                     const pct = d.max > 0 ? (d.score / d.max) * 100 : 0;
                     const style = getScoreStyle(pct);
 
                     return (
-                      <div key={d.item} className="bg-surface-container/40 rounded-xl p-4">
-                        <p className="text-xs text-on-surface-variant/60 mb-2">{d.item}</p>
-                        <div className="flex items-end justify-between mb-2">
+                      <div key={d.item} className="flex items-center gap-4 py-2 px-4 rounded-lg bg-surface-container/30">
+                        {/* 좌: 항목명 */}
+                        <span className="text-sm text-on-surface font-medium w-28 shrink-0">
+                          {d.item}
+                        </span>
+
+                        {/* 중: 근거 */}
+                        <span className="text-sm text-on-surface-variant/60 flex-1">
+                          {d.basis}
+                        </span>
+
+                        {/* 우: 그래프 + 점수 */}
+                        <div className="flex items-center gap-3 shrink-0">
+                          <div className="w-24 h-2 bg-surface-container-highest rounded-full overflow-hidden">
+                            <div
+                              className="h-full rounded-full transition-all duration-300"
+                              style={{ width: `${pct}%`, background: style.barGradient || style.color }}
+                            />
+                          </div>
                           <span
-                            className="text-2xl font-mono font-bold leading-none"
+                            className="text-sm font-mono font-bold w-14 text-right"
                             style={{ color: style.color, textShadow: style.glow }}
                           >
-                            {d.score}
+                            {d.score}/{d.max}
                           </span>
-                          <span className="text-xs text-on-surface-variant/40">/{d.max}</span>
                         </div>
-                        <div className="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden mb-2">
-                          <div
-                            className="h-full rounded-full transition-all duration-300"
-                            style={{ width: `${pct}%`, background: style.barGradient || style.color }}
-                          />
-                        </div>
-                        <p className="text-[11px] text-on-surface-variant/50 leading-snug">{d.basis}</p>
                       </div>
                     );
                   })}
