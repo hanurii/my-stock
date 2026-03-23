@@ -29,8 +29,8 @@ function formatMoney(amount: number): string {
   return amount.toLocaleString();
 }
 
-// 호버 시 확대되는 활성 섹터
-function ActiveShape(props: Record<string, unknown>) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function ActiveShape(props: any) {
   const {
     cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill,
     payload,
