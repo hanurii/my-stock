@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import { Collapsible } from "@/components/Collapsible";
 import { ScoreDetails } from "@/components/ScoreDetails";
+import { RankChange, GradeChangeBadge } from "@/components/RankChange";
 import {
   scoreDomestic,
   getGradeColor,
@@ -80,8 +81,6 @@ export default function WatchlistPage() {
     if (gradeGroups[s.grade]) gradeGroups[s.grade].push(s);
   });
 
-  // 가장 최근 scored_at
-  const latestScoredAt = stocks.reduce((latest, s) => s.scored_at > latest ? s.scored_at : latest, stocks[0]?.scored_at || "");
   const calculatedAt = formatScoredAt(new Date().toISOString().slice(0, 10));
 
   return (
@@ -97,11 +96,9 @@ export default function WatchlistPage() {
         <p className="text-base text-on-surface-variant mt-2">
           3대 카테고리 점수 시스템 (100점 만점)
         </p>
-        <div className="flex gap-4 mt-1.5 text-xs text-on-surface-variant/50">
-          <span>데이터 갱신: {formatScoredAt(latestScoredAt)}</span>
-          <span>·</span>
-          <span>점수 계산: {calculatedAt}</span>
-        </div>
+        <p className="text-xs text-on-surface-variant/50 mt-1.5">
+          점수 갱신: {calculatedAt}
+        </p>
       </section>
 
       {/* Scoring Framework */}
@@ -113,13 +110,13 @@ export default function WatchlistPage() {
         ].map(({ key, icon }) => {
           const cat = framework[key];
           return (
-            <div key={key} className="bg-surface-container-low rounded-xl p-6 ghost-border">
-              <div className="flex items-center gap-3 mb-3">
-                <span className="material-symbols-outlined text-primary">{icon}</span>
-                <h4 className="text-base font-serif text-on-surface">{cat.name}</h4>
+            <div key={key} className="bg-surface-container-low rounded-xl p-5 ghost-border">
+              <div className="flex items-center gap-3 mb-2">
+                <span className="material-symbols-outlined text-primary text-lg">{icon}</span>
+                <h4 className="text-sm font-serif text-on-surface">{cat.name}</h4>
               </div>
-              <p className="text-3xl font-serif text-primary mb-2">{cat.max_score}<span className="text-base text-on-surface-variant">점</span></p>
-              <div className="flex flex-wrap gap-1.5 mt-3">
+              <p className="text-2xl font-serif text-primary mb-2">{cat.max_score}<span className="text-sm text-on-surface-variant">점</span></p>
+              <div className="flex flex-wrap gap-1.5">
                 {cat.key_metrics.map((m: string) => (
                   <span key={m} className="text-xs bg-surface-container-high px-2 py-0.5 rounded text-on-surface-variant">
                     {m}
@@ -163,27 +160,42 @@ export default function WatchlistPage() {
                 <th className="text-left px-3 pb-3 font-normal">섹터</th>
                 <th className="text-center px-3 pb-3 font-normal">등급</th>
                 <th className="text-right px-3 pb-3 font-normal">점수</th>
-                <th className="text-right px-3 pb-3 font-normal hidden md:table-cell">저평가</th>
-                <th className="text-right px-3 pb-3 font-normal hidden md:table-cell">주주환원</th>
-                <th className="text-right px-3 pb-3 font-normal hidden md:table-cell">성장</th>
+                <th className="text-right px-3 pb-3 font-normal hidden md:table-cell">PER</th>
+                <th className="text-right px-3 pb-3 font-normal hidden md:table-cell">PBR</th>
+                <th className="text-right px-3 pb-3 font-normal hidden md:table-cell">배당률</th>
+                <th className="text-right px-3 pb-3 font-normal hidden lg:table-cell">{framework.category1.name.split("/")[0]}</th>
+                <th className="text-right px-3 pb-3 font-normal hidden lg:table-cell">주주환원</th>
+                <th className="text-right px-3 pb-3 font-normal hidden lg:table-cell">성장</th>
                 <th className="text-right px-3 pb-3 font-normal hidden lg:table-cell">채점일</th>
               </tr>
             </thead>
             <tbody>
-              {stocks.filter(s => s.score >= 65).slice(0, 20).map((stock, i) => {
+              {stocks.map((stock, i) => {
                 const color = getGradeColor(stock.grade);
                 return (
                   <tr key={stock.code} className={`hover:bg-surface-container/30 transition-colors ${i === 0 ? "bg-primary/5" : ""}`}>
                     <td className="text-center px-3 py-2.5 font-mono" style={{ color }}>{i + 1}</td>
-                    <td className="px-3 py-2.5 font-medium text-on-surface">{stock.name}</td>
+                    <td className="px-3 py-2.5 font-medium text-on-surface">
+                      <span className="inline-flex items-center gap-1.5">
+                        {stock.name}
+                        {stock.estimated && <span className="text-[10px] text-on-surface-variant/40">~</span>}
+                        <RankChange currentRank={i + 1} previousRank={stock.previous_rank} />
+                        <GradeChangeBadge grade={stock.grade} score={stock.score} previousScore={stock.previous_score} compact />
+                      </span>
+                    </td>
                     <td className="px-3 py-2.5 text-on-surface-variant">{stock.sector}</td>
                     <td className="text-center px-3 py-2.5">
                       <span className="text-xs px-2 py-0.5 rounded font-bold" style={{ backgroundColor: `${color}20`, color }}>{stock.grade}</span>
                     </td>
                     <td className="text-right px-3 py-2.5 font-mono font-bold" style={{ color }}>{stock.score}</td>
-                    <td className="text-right px-3 py-2.5 font-mono text-on-surface-variant hidden md:table-cell">{stock.cat1}/{framework.category1.max_score}</td>
-                    <td className="text-right px-3 py-2.5 font-mono text-on-surface-variant hidden md:table-cell">{stock.cat2}/{framework.category2.max_score}</td>
-                    <td className="text-right px-3 py-2.5 font-mono text-on-surface-variant hidden md:table-cell">{stock.cat3}/{framework.category3.max_score}</td>
+                    <td className="text-right px-3 py-2.5 font-mono text-on-surface-variant hidden md:table-cell">
+                      {stock.per != null ? `${stock.per}x` : "적자"}
+                    </td>
+                    <td className="text-right px-3 py-2.5 font-mono text-on-surface-variant hidden md:table-cell">{stock.pbr}x</td>
+                    <td className="text-right px-3 py-2.5 font-mono text-on-surface-variant hidden md:table-cell">{stock.dividend_yield}%</td>
+                    <td className="text-right px-3 py-2.5 font-mono text-on-surface-variant hidden lg:table-cell">{stock.cat1}/{framework.category1.max_score}</td>
+                    <td className="text-right px-3 py-2.5 font-mono text-on-surface-variant hidden lg:table-cell">{stock.cat2}/{framework.category2.max_score}</td>
+                    <td className="text-right px-3 py-2.5 font-mono text-on-surface-variant hidden lg:table-cell">{stock.cat3}/{framework.category3.max_score}</td>
                     <td className="text-right px-3 py-2.5 text-xs text-on-surface-variant/50 hidden lg:table-cell">{formatScoredAt(stock.scored_at)}</td>
                   </tr>
                 );
@@ -210,13 +222,18 @@ export default function WatchlistPage() {
             return (
               <div key={stock.code} className="bg-surface-container-low rounded-xl ghost-border overflow-hidden">
                 <div className="p-6">
+                  <GradeChangeBadge grade={stock.grade} score={stock.score} previousScore={stock.previous_score} gradeChangeReason={stock.grade_change_reason} />
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-4">
-                      <span className="text-2xl font-serif font-bold w-8" style={{ color }}>{rank + 1}</span>
+                      <div className="text-center w-8">
+                        <span className="text-2xl font-serif font-bold" style={{ color }}>{rank + 1}</span>
+                        <RankChange currentRank={rank + 1} previousRank={stock.previous_rank} />
+                      </div>
                       <div>
                         <div className="flex items-center gap-2">
                           <h4 className="text-lg font-medium text-on-surface">{stock.name}</h4>
                           <span className="text-xs px-2 py-0.5 rounded font-bold" style={{ backgroundColor: `${color}20`, color }}>{stock.grade}</span>
+                          {stock.estimated && <span className="text-xs text-on-surface-variant/40">추정치</span>}
                           {tierLabel && <span className="text-xs text-on-surface-variant/50">{tierLabel}</span>}
                         </div>
                         <p className="text-sm text-on-surface-variant">
@@ -233,7 +250,7 @@ export default function WatchlistPage() {
 
                   <div className="grid grid-cols-3 gap-3 mb-4">
                     {[
-                      { label: "저평가", score: stock.cat1, max: framework.category1.max_score, pct: cat1Pct },
+                      { label: framework.category1.name.split("/")[0], score: stock.cat1, max: framework.category1.max_score, pct: cat1Pct },
                       { label: "주주환원", score: stock.cat2, max: framework.category2.max_score, pct: cat2Pct },
                       { label: "성장/경쟁력", score: stock.cat3, max: framework.category3.max_score, pct: cat3Pct },
                     ].map((cat) => (
@@ -247,6 +264,18 @@ export default function WatchlistPage() {
                         </div>
                       </div>
                     ))}
+                  </div>
+
+                  <div className="flex gap-4 mb-3 text-sm">
+                    <span className="text-on-surface-variant">
+                      PER <span className="font-mono text-on-surface">{stock.per != null ? `${stock.per}x` : "적자"}</span>
+                    </span>
+                    <span className="text-on-surface-variant">
+                      PBR <span className="font-mono text-on-surface">{stock.pbr}x</span>
+                    </span>
+                    <span className="text-on-surface-variant">
+                      배당 <span className="font-mono text-on-surface">{stock.dividend_yield}%</span>
+                    </span>
                   </div>
 
                   <p className="text-sm text-on-surface-variant leading-relaxed">{stock.highlights}</p>
@@ -295,13 +324,18 @@ export default function WatchlistPage() {
                   return (
                     <div key={stock.code} className="bg-surface-container-low rounded-xl ghost-border overflow-hidden">
                       <div className="p-6">
+                        <GradeChangeBadge grade={stock.grade} score={stock.score} previousScore={stock.previous_score} gradeChangeReason={stock.grade_change_reason} />
                         <div className="flex items-center justify-between mb-4">
                           <div className="flex items-center gap-4">
-                            <span className="text-2xl font-serif font-bold w-8" style={{ color }}>{globalRank}</span>
+                            <div className="text-center w-8">
+                              <span className="text-2xl font-serif font-bold" style={{ color }}>{globalRank}</span>
+                              <RankChange currentRank={globalRank} previousRank={stock.previous_rank} />
+                            </div>
                             <div>
                               <div className="flex items-center gap-2">
                                 <h4 className="text-lg font-medium text-on-surface">{stock.name}</h4>
                                 <span className="text-xs px-2 py-0.5 rounded font-bold" style={{ backgroundColor: `${color}20`, color }}>{stock.grade}</span>
+                                {stock.estimated && <span className="text-xs text-on-surface-variant/40">추정치</span>}
                                 {tierLabel && <span className="text-xs text-on-surface-variant/50">{tierLabel}</span>}
                               </div>
                               <p className="text-sm text-on-surface-variant">
@@ -317,7 +351,7 @@ export default function WatchlistPage() {
                         </div>
                         <div className="grid grid-cols-3 gap-3 mb-4">
                           {[
-                            { label: "저평가", score: stock.cat1, max: framework.category1.max_score, pct: cat1Pct },
+                            { label: framework.category1.name.split("/")[0], score: stock.cat1, max: framework.category1.max_score, pct: cat1Pct },
                             { label: "주주환원", score: stock.cat2, max: framework.category2.max_score, pct: cat2Pct },
                             { label: "성장/경쟁력", score: stock.cat3, max: framework.category3.max_score, pct: cat3Pct },
                           ].map((cat) => (
@@ -332,6 +366,18 @@ export default function WatchlistPage() {
                             </div>
                           ))}
                         </div>
+                        <div className="flex gap-4 mb-3 text-sm">
+                          <span className="text-on-surface-variant">
+                            PER <span className="font-mono text-on-surface">{stock.per != null ? `${stock.per}x` : "적자"}</span>
+                          </span>
+                          <span className="text-on-surface-variant">
+                            PBR <span className="font-mono text-on-surface">{stock.pbr}x</span>
+                          </span>
+                          <span className="text-on-surface-variant">
+                            배당 <span className="font-mono text-on-surface">{stock.dividend_yield}%</span>
+                          </span>
+                        </div>
+
                         <p className="text-sm text-on-surface-variant leading-relaxed">{stock.highlights}</p>
                         {stock.catalyst && (
                           <div className="mt-3 flex items-start gap-2">
@@ -364,7 +410,11 @@ export default function WatchlistPage() {
                         <div className="flex items-center gap-4">
                           <span className="text-xl font-serif font-bold w-8" style={{ color }}>{globalRank}</span>
                           <div>
-                            <h4 className="text-base font-medium text-on-surface">{stock.name}</h4>
+                            <h4 className="text-base font-medium text-on-surface inline-flex items-center gap-1.5">
+                              {stock.name}
+                              <RankChange currentRank={globalRank} previousRank={stock.previous_rank} />
+                              <GradeChangeBadge grade={stock.grade} score={stock.score} previousScore={stock.previous_score} compact />
+                            </h4>
                             <p className="text-sm text-on-surface-variant">
                               {stock.code} · {stock.sector}
                               <span className="text-xs text-on-surface-variant/40 ml-2">{formatScoredAt(stock.scored_at)}</span>

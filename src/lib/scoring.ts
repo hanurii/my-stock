@@ -56,6 +56,10 @@ export interface DomesticStockInput {
   growth_potential: GrowthPotential;
   management_quality: ManagementQuality;
   global_brand: boolean;
+  // 이전 채점 비교
+  previous_score?: number;
+  previous_rank?: number;
+  grade_change_reason?: string;
 }
 
 // ── 해외 종목 입력 ──
@@ -83,6 +87,10 @@ export interface OverseasStockInput {
   growth_potential: GrowthPotential;
   management_quality: ManagementQuality;
   global_brand: boolean;
+  // 이전 채점 비교
+  previous_score?: number;
+  previous_rank?: number;
+  grade_change_reason?: string;
 }
 
 // ── 등급 산출 ──

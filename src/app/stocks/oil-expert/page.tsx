@@ -13,6 +13,7 @@ import {
 } from "@/lib/scoring";
 import { ScoreDetails } from "@/components/ScoreDetails";
 import { Collapsible } from "@/components/Collapsible";
+import { RankChange, GradeChangeBadge } from "@/components/RankChange";
 
 type ScoredDomestic = DomesticStockInput & ScoredResult;
 type ScoredOverseas = OverseasStockInput & ScoredResult;
@@ -83,8 +84,12 @@ function StockTable({ stocks, framework, showCountry }: {
               <tr key={stock.code} className={`hover:bg-surface-container/30 transition-colors ${i === 0 ? "bg-primary/5" : ""}`}>
                 <td className="text-center px-3 py-2.5 font-mono" style={{ color }}>{i + 1}</td>
                 <td className="px-3 py-2.5 font-medium text-on-surface">
-                  {stock.name}
-                  {stock.estimated && <span className="text-[10px] text-on-surface-variant/40 ml-1">~</span>}
+                  <span className="inline-flex items-center gap-1.5">
+                    {stock.name}
+                    {stock.estimated && <span className="text-[10px] text-on-surface-variant/40">~</span>}
+                    <RankChange currentRank={i + 1} previousRank={stock.previous_rank} />
+                    <GradeChangeBadge grade={stock.grade} score={stock.score} previousScore={stock.previous_score} compact />
+                  </span>
                 </td>
                 {showCountry && <td className="px-3 py-2.5 text-on-surface-variant hidden md:table-cell">{stock.country}</td>}
                 <td className="px-3 py-2.5 text-on-surface-variant">{stock.sector}</td>
@@ -125,9 +130,13 @@ function StockCards({ stocks, framework }: {
         return (
           <div key={stock.code} className="bg-surface-container-low rounded-xl ghost-border overflow-hidden">
             <div className="p-6">
+              <GradeChangeBadge grade={stock.grade} score={stock.score} previousScore={stock.previous_score} gradeChangeReason={stock.grade_change_reason} />
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-4">
-                  <span className="text-2xl font-serif font-bold w-8" style={{ color }}>{rank + 1}</span>
+                  <div className="text-center w-8">
+                    <span className="text-2xl font-serif font-bold" style={{ color }}>{rank + 1}</span>
+                    <RankChange currentRank={rank + 1} previousRank={stock.previous_rank} />
+                  </div>
                   <div>
                     <div className="flex items-center gap-2">
                       <h4 className="text-lg font-medium text-on-surface">{stock.name}</h4>
@@ -257,10 +266,7 @@ export default function OilExpertPage() {
   const { domestic, overseas, insights } = data;
   const allStocksCount = domestic.length + overseas.length;
 
-  const latestDomestic = domestic.reduce((l, s) => s.scored_at > l ? s.scored_at : l, domestic[0]?.scored_at || "");
-  const latestOverseas = overseas.reduce((l, s) => s.scored_at > l ? s.scored_at : l, overseas[0]?.scored_at || "");
   const calculatedAt = formatScoredAt(new Date().toISOString().slice(0, 10));
-  const latestDataAt = formatScoredAt(latestDomestic > latestOverseas ? latestDomestic : latestOverseas);
 
   return (
     <div className="space-y-14">
@@ -275,11 +281,9 @@ export default function OilExpertPage() {
         <p className="text-base text-on-surface-variant mt-2">
           국내 {domestic.length}종목 + 해외 {overseas.length}종목 = 총 {allStocksCount}종목
         </p>
-        <div className="flex gap-4 mt-1.5 text-xs text-on-surface-variant/50">
-          <span>데이터 갱신: {latestDataAt}</span>
-          <span>·</span>
-          <span>점수 계산: {calculatedAt}</span>
-        </div>
+        <p className="text-xs text-on-surface-variant/50 mt-1.5">
+          점수 갱신: {calculatedAt}
+        </p>
       </section>
 
       {/* Portfolio Strategy */}
@@ -301,7 +305,7 @@ export default function OilExpertPage() {
             <h3 className="text-2xl font-serif text-on-surface tracking-tight">국내 종목</h3>
           </div>
           <p className="text-sm text-on-surface-variant ml-9">
-            {domestic.length}종목 · 데이터 {formatScoredAt(latestDomestic)} · 계산 {calculatedAt}
+            {domestic.length}종목 · 점수 갱신: {calculatedAt}
           </p>
         </div>
 
@@ -371,7 +375,7 @@ export default function OilExpertPage() {
             <h3 className="text-2xl font-serif text-on-surface tracking-tight">해외 종목</h3>
           </div>
           <p className="text-sm text-on-surface-variant ml-9">
-            {overseas.length}종목 · 데이터 {formatScoredAt(latestOverseas)} · 계산 {calculatedAt}
+            {overseas.length}종목 · 점수 갱신: {calculatedAt}
           </p>
         </div>
 
