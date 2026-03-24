@@ -1,12 +1,10 @@
 /**
- * 워치리스트 시세 자동 업데이트 스크립트
+ * 워치리스트 & 오일전문가 포트폴리오 시세 자동 업데이트 스크립트
  *
- * 네이버 금융 API에서 현재가·PER·PBR·배당수익률을 직접 가져와
- * watchlist.json을 업데이트한다.
- *
- * - 네이버 금융이 실적 발표를 반영하므로 EPS/BPS 변경도 자동 반영
- * - 점수 변화 시 previous_score/previous_rank/grade_change_reason도 자동 갱신
- * - 수동 업데이트 불필요 (완전 자동)
+ * - 국내 종목: 네이버 금융 API (PER/PBR/배당수익률 직접 조회)
+ * - 해외 종목: Yahoo Finance v10 quoteSummary (crumb/cookie 인증)
+ * - 동일 종목은 한 번만 조회하여 양쪽에 재활용
+ * - 점수 변화 시 previous_score/previous_rank/grade_change_reason 자동 갱신
  *
  * 사용법: npx tsx scripts/update-watchlist-scores.ts
  */
@@ -14,19 +12,38 @@ import fs from "fs";
 import path from "path";
 import {
   scoreDomestic,
+  scoreOverseas,
   getGrade,
   type DomesticStockInput,
+  type OverseasStockInput,
+  type ScoredResult,
 } from "../src/lib/scoring";
 
 // ── 설정 ──
 
 const NAVER_API = "https://m.stock.naver.com/api/stock";
+const YAHOO_SUMMARY = "https://query2.finance.yahoo.com/v10/finance/quoteSummary";
+const YAHOO_CRUMB_URL = "https://query2.finance.yahoo.com/v1/test/getcrumb";
+const YAHOO_COOKIE_URL = "https://fc.yahoo.com/curveball";
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
 const REQUEST_DELAY_MS = 1000;
 
 // ── 타입 ──
 
-interface Stock extends DomesticStockInput {
+interface MarketData {
+  price?: number;
+  per: number | null;
+  pbr: number;
+  dividend_yield: number;
+}
+
+interface StockBase {
+  code: string;
+  name: string;
+  per: number | null;
+  pbr: number;
+  dividend_yield: number;
+  scored_at: string;
   current_price_at_scoring?: number;
   previous_score?: number;
   previous_rank?: number;
@@ -34,12 +51,12 @@ interface Stock extends DomesticStockInput {
   [key: string]: unknown;
 }
 
-interface NaverData {
-  price: number;
-  per: number | null;
-  pbr: number;
-  dividend_yield: number;
-}
+// Yahoo 심볼 매핑 (코드 → Yahoo 심볼)
+const YAHOO_SYMBOL_MAP: Record<string, string> = {
+  "PBR.A": "PBR-A",
+  "LGEN": "LGEN.L",
+  "AV.": "AV.L",
+};
 
 // ── 유틸 ──
 
@@ -55,8 +72,6 @@ const diff = (a: number | null, b: number | null): string => {
   return `${sign}${d.toFixed(2)}`;
 };
 
-// ── 네이버 금융 API ──
-
 function parseNumber(value: string | undefined): number | null {
   if (!value) return null;
   const cleaned = value.replace(/[^0-9.\-]/g, "");
@@ -64,7 +79,9 @@ function parseNumber(value: string | undefined): number | null {
   return isNaN(num) ? null : num;
 }
 
-async function fetchFromNaver(code: string): Promise<NaverData | null> {
+// ── 네이버 금융 API (국내) ──
+
+async function fetchFromNaver(code: string): Promise<MarketData | null> {
   try {
     const url = `${NAVER_API}/${code}/integration`;
     const res = await fetch(url, { headers: { "User-Agent": UA } });
@@ -72,18 +89,14 @@ async function fetchFromNaver(code: string): Promise<NaverData | null> {
 
     const json = await res.json();
     const infos: { key: string; value: string }[] = json.totalInfos || [];
-
     const get = (key: string) => infos.find((i) => i.key === key)?.value;
 
     const price = json.closePrice
       ? parseNumber(json.closePrice)
       : parseNumber(get("전일"));
-
-    // 장중이면 현재가 사용
     const currentPrice = json.currentPrice
       ? parseNumber(json.currentPrice)
       : null;
-
     const finalPrice = currentPrice || price;
     if (!finalPrice) return null;
 
@@ -91,7 +104,7 @@ async function fetchFromNaver(code: string): Promise<NaverData | null> {
     let pbr = parseNumber(get("PBR"));
     const dividendYield = parseNumber(get("배당수익률"));
 
-    // integration에서 PER/PBR이 N/A인 경우 finance/annual에서 직접 계산
+    // PER/PBR이 N/A인 경우 finance/annual에서 직접 계산
     if (per == null || pbr == null || pbr === 0) {
       const fallback = await fetchFundamentalsFromNaver(code, finalPrice);
       if (fallback) {
@@ -100,21 +113,12 @@ async function fetchFromNaver(code: string): Promise<NaverData | null> {
       }
     }
 
-    return {
-      price: finalPrice,
-      per,
-      pbr: pbr ?? 0,
-      dividend_yield: dividendYield ?? 0,
-    };
+    return { price: finalPrice, per, pbr: pbr ?? 0, dividend_yield: dividendYield ?? 0 };
   } catch {
     return null;
   }
 }
 
-/**
- * integration에서 PER/PBR이 N/A일 때
- * finance/annual의 최신 확정 EPS/BPS로 직접 계산
- */
 async function fetchFundamentalsFromNaver(
   code: string,
   price: number,
@@ -133,10 +137,7 @@ async function fetchFundamentalsFromNaver(
       | undefined;
     if (!periods || !rows) return null;
 
-    // 최신 확정(isConsensus=N) 기간 찾기
-    const confirmed = [...periods]
-      .filter((p) => p.isConsensus === "N")
-      .pop();
+    const confirmed = [...periods].filter((p) => p.isConsensus === "N").pop();
     if (!confirmed) return null;
 
     const getValue = (title: string): number | null => {
@@ -146,7 +147,6 @@ async function fetchFundamentalsFromNaver(
 
     const eps = getValue("EPS");
     const bps = getValue("BPS");
-
     const per = eps && eps > 0 ? parseFloat((price / eps).toFixed(2)) : null;
     const pbr = bps && bps > 0 ? parseFloat((price / bps).toFixed(2)) : 0;
 
@@ -155,8 +155,77 @@ async function fetchFundamentalsFromNaver(
         `   📈 finance/annual fallback (${confirmed.key}): EPS ${fmt(eps)} BPS ${fmt(bps)} → PER ${fmt(per)} PBR ${pbr}`,
       );
     }
-
     return { per, pbr };
+  } catch {
+    return null;
+  }
+}
+
+// ── Yahoo Finance API (해외) ──
+
+let yahooCookie: string | null = null;
+let yahooCrumb: string | null = null;
+
+async function initYahooAuth(): Promise<boolean> {
+  try {
+    // Step 1: Get cookie
+    const cookieRes = await fetch(YAHOO_COOKIE_URL, {
+      headers: { "User-Agent": UA },
+      redirect: "manual",
+    });
+    const setCookie = cookieRes.headers.get("set-cookie");
+    if (setCookie) {
+      yahooCookie = setCookie.split(";")[0];
+    }
+
+    // Step 2: Get crumb
+    const crumbRes = await fetch(YAHOO_CRUMB_URL, {
+      headers: {
+        "User-Agent": UA,
+        ...(yahooCookie ? { Cookie: yahooCookie } : {}),
+      },
+    });
+    yahooCrumb = await crumbRes.text();
+
+    return !!yahooCookie && !!yahooCrumb;
+  } catch {
+    return false;
+  }
+}
+
+function getYahooSymbol(code: string): string {
+  return YAHOO_SYMBOL_MAP[code] || code;
+}
+
+async function fetchFromYahoo(code: string, existingPbr: number): Promise<MarketData | null> {
+  if (!yahooCookie || !yahooCrumb) return null;
+
+  try {
+    const symbol = getYahooSymbol(code);
+    const url = `${YAHOO_SUMMARY}/${symbol}?modules=summaryDetail,defaultKeyStatistics,price&crumb=${yahooCrumb}`;
+    const res = await fetch(url, {
+      headers: { "User-Agent": UA, Cookie: yahooCookie },
+    });
+    if (!res.ok) return null;
+
+    const json = await res.json();
+    const r = json.quoteSummary?.result?.[0];
+    if (!r) return null;
+
+    const price = r.price?.regularMarketPrice?.raw;
+    const pe = r.summaryDetail?.trailingPE?.raw ?? null;
+    let pb = r.defaultKeyStatistics?.priceToBook?.raw ?? 0;
+    const divYield = r.summaryDetail?.dividendYield?.raw ?? 0;
+
+    // 영국 주식 PBR 단위 문제 (펜스/파운드 → 100배 이상이면 기존값 유지)
+    if (pb > 100) pb = existingPbr;
+
+    return {
+      price,
+      per: pe != null ? parseFloat(pe.toFixed(2)) : null,
+      pbr: pb > 0 ? parseFloat(pb.toFixed(2)) : 0,
+      dividend_yield: divYield > 0 ? parseFloat((divYield * 100).toFixed(2)) : 0,
+    };
   } catch {
     return null;
   }
@@ -164,29 +233,31 @@ async function fetchFundamentalsFromNaver(
 
 // ── 채점 & 순위 ──
 
-function scoreAll(stocks: Stock[]): { scores: number[]; ranks: number[]; grades: string[] } {
-  const results = stocks.map((s) => scoreDomestic(s));
+function scoreAllDomestic(stocks: StockBase[]): { scores: number[]; ranks: number[]; grades: string[] } {
+  const results = stocks.map((s) => scoreDomestic(s as DomesticStockInput));
+  return buildRanks(results);
+}
+
+function scoreAllOverseas(stocks: StockBase[]): { scores: number[]; ranks: number[]; grades: string[] } {
+  const results = stocks.map((s) => scoreOverseas(s as unknown as OverseasStockInput));
+  return buildRanks(results);
+}
+
+function buildRanks(results: ScoredResult[]): { scores: number[]; ranks: number[]; grades: string[] } {
   const scores = results.map((r) => r.score);
   const grades = results.map((r) => r.grade);
-
-  // 점수 내림차순으로 순위 계산
   const indexed = scores.map((score, i) => ({ score, i }));
   indexed.sort((a, b) => b.score - a.score);
-  const ranks = new Array<number>(stocks.length);
-  indexed.forEach((item, rank) => {
-    ranks[item.i] = rank + 1;
-  });
-
+  const ranks = new Array<number>(scores.length);
+  indexed.forEach((item, rank) => { ranks[item.i] = rank + 1; });
   return { scores, ranks, grades };
 }
 
 function buildChangeReason(
-  stock: Stock,
   prev: { per: number | null; pbr: number; div: number },
   next: { per: number | null; pbr: number; div: number },
 ): string {
   const parts: string[] = [];
-
   if (prev.per != null && next.per != null && prev.per !== next.per) {
     parts.push(`PER ${prev.per}→${next.per}`);
   }
@@ -196,24 +267,28 @@ function buildChangeReason(
   if (prev.div !== next.div) {
     parts.push(`배당 ${prev.div}%→${next.div}%`);
   }
-
   return parts.join(", ");
 }
 
-// ── 메인 ──
+// ── 공통 업데이트 로직 ──
 
-async function main() {
-  const filePath = path.join(process.cwd(), "public", "data", "watchlist.json");
-  const raw = fs.readFileSync(filePath, "utf-8");
-  const data = JSON.parse(raw);
-  const stocks = data.stocks as Stock[];
-  const today = new Date().toISOString().split("T")[0];
+interface UpdateResult {
+  updated: number;
+  skipped: number;
+  scoreChanges: number;
+  gradeChanges: number;
+  rankChanges: number;
+}
 
-  console.log(`📊 워치리스트 시세 업데이트 (${today})`);
-  console.log("─".repeat(65));
-
-  // Step 1: 업데이트 전 현재 점수/순위 계산
-  const before = scoreAll(stocks);
+async function updateStocks(
+  stocks: StockBase[],
+  fetchFn: (code: string, stock: StockBase) => Promise<MarketData | null>,
+  scoreFn: (stocks: StockBase[]) => { scores: number[]; ranks: number[]; grades: string[] },
+  today: string,
+  naverCache: Map<string, MarketData>,
+): Promise<UpdateResult> {
+  // Step 1: 업데이트 전 점수/순위
+  const before = scoreFn(stocks);
 
   // Step 2: 시세 업데이트
   let updated = 0;
@@ -224,73 +299,69 @@ async function main() {
     const stock = stocks[i];
     prevMarketData.push({ per: stock.per, pbr: stock.pbr, div: stock.dividend_yield });
 
-    const result = await fetchFromNaver(stock.code);
+    // 캐시 확인 (워치리스트에서 이미 조회한 국내 종목)
+    let result = naverCache.get(stock.code) || null;
+    if (!result) {
+      result = await fetchFn(stock.code, stock);
+      if (result) naverCache.set(stock.code, result);
+      await sleep(REQUEST_DELAY_MS);
+    } else {
+      console.log(`   ♻️ 캐시 재활용`);
+    }
 
     if (!result) {
       console.log(`\n❌ ${stock.name} (${stock.code}): 시세 조회 실패 — 건너뜀`);
       skipped++;
-      await sleep(REQUEST_DELAY_MS);
       continue;
     }
 
-    // 네이버에서 N/A인 항목은 기존 값 유지
     const newPer = result.per ?? stock.per;
     const newPbr = result.pbr > 0 ? result.pbr : stock.pbr;
     const newDiv = result.dividend_yield;
 
-    const prev = prevMarketData[i];
-
     stock.per = newPer;
     stock.pbr = newPbr;
     stock.dividend_yield = newDiv;
-    stock.current_price_at_scoring = result.price;
+    if (result.price) stock.current_price_at_scoring = result.price;
     stock.scored_at = today;
 
-    // fundamentals 필드가 남아있으면 제거 (더 이상 필요 없음)
-    if ("fundamentals" in stock) {
-      delete stock.fundamentals;
-    }
+    if ("fundamentals" in stock) delete stock.fundamentals;
 
     const kept: string[] = [];
     if (result.per == null) kept.push("PER");
     if (result.pbr === 0) kept.push("PBR");
 
+    const priceStr = result.price ? `${fmt(result.price)}` : "";
     console.log(
-      `\n✅ ${stock.name} (${stock.code}) ${fmt(stock.current_price_at_scoring)}원` +
+      `\n✅ ${stock.name} (${stock.code}) ${priceStr}` +
         (kept.length > 0 ? ` ⚠️ ${kept.join("/")} 기존값 유지` : ""),
     );
     console.log(
-      `   PER ${fmt(prev.per)} → ${fmt(newPer)} (${diff(prev.per, newPer)})` +
-        ` | PBR ${prev.pbr} → ${newPbr} (${diff(prev.pbr, newPbr)})` +
-        ` | 배당률 ${prev.div}% → ${newDiv}% (${diff(prev.div, newDiv)})`,
+      `   PER ${fmt(prevMarketData[i].per)} → ${fmt(newPer)} (${diff(prevMarketData[i].per, newPer)})` +
+        ` | PBR ${prevMarketData[i].pbr} → ${newPbr} (${diff(prevMarketData[i].pbr, newPbr)})` +
+        ` | 배당률 ${prevMarketData[i].div}% → ${newDiv}% (${diff(prevMarketData[i].div, newDiv)})`,
     );
 
     updated++;
-    await sleep(REQUEST_DELAY_MS);
   }
 
-  // Step 3: 업데이트 후 점수/순위 계산 & 변화 반영
-  const after = scoreAll(stocks);
-
+  // Step 3: 변화 반영
+  const after = scoreFn(stocks);
   let gradeChanges = 0;
   let scoreChanges = 0;
   let rankChanges = 0;
 
   for (let i = 0; i < stocks.length; i++) {
     const stock = stocks[i];
-
-    // previous_score, previous_rank 저장
     stock.previous_score = before.scores[i];
     stock.previous_rank = before.ranks[i];
 
-    // 점수/등급 변화 감지
     const oldGrade = before.grades[i];
     const newGrade = after.grades[i];
     const scoreChanged = before.scores[i] !== after.scores[i];
 
     if (scoreChanged) {
       const reason = buildChangeReason(
-        stock,
         prevMarketData[i],
         { per: stock.per, pbr: stock.pbr, div: stock.dividend_yield },
       );
@@ -299,37 +370,100 @@ async function main() {
 
       if (oldGrade !== newGrade) {
         gradeChanges++;
-        console.log(
-          `\n🔄 ${stock.name}: ${oldGrade}(${before.scores[i]}점) → ${newGrade}(${after.scores[i]}점) | ${reason}`,
-        );
+        console.log(`\n🔄 ${stock.name}: ${oldGrade}(${before.scores[i]}점) → ${newGrade}(${after.scores[i]}점) | ${reason}`);
       } else {
-        console.log(
-          `\n📝 ${stock.name}: ${before.scores[i]}점 → ${after.scores[i]}점 | ${reason}`,
-        );
+        console.log(`\n📝 ${stock.name}: ${before.scores[i]}점 → ${after.scores[i]}점 | ${reason}`);
       }
     } else {
       delete stock.grade_change_reason;
     }
 
-    if (before.ranks[i] !== after.ranks[i]) {
-      rankChanges++;
-    }
+    if (before.ranks[i] !== after.ranks[i]) rankChanges++;
   }
 
-  // 저장
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2) + "\n", "utf-8");
+  return { updated, skipped, scoreChanges, gradeChanges, rankChanges };
+}
 
-  console.log("\n" + "─".repeat(65));
+function printSummary(label: string, r: UpdateResult) {
   console.log(
-    `💾 완료: ${updated}개 업데이트, ${skipped}개 실패` +
-      (scoreChanges > 0 ? `, ${scoreChanges}개 점수 변화` : "") +
-      (gradeChanges > 0 ? ` (등급 변화 ${gradeChanges}개)` : "") +
-      (rankChanges > 0 ? `, ${rankChanges}개 순위 변동` : ""),
+    `💾 ${label}: ${r.updated}개 업데이트, ${r.skipped}개 실패` +
+      (r.scoreChanges > 0 ? `, ${r.scoreChanges}개 점수 변화` : "") +
+      (r.gradeChanges > 0 ? ` (등급 변화 ${r.gradeChanges}개)` : "") +
+      (r.rankChanges > 0 ? `, ${r.rankChanges}개 순위 변동` : ""),
+  );
+}
+
+// ── 메인 ──
+
+async function main() {
+  const today = new Date().toISOString().split("T")[0];
+  const naverCache = new Map<string, MarketData>();
+
+  // ─── 1. 워치리스트 (국내) ───
+  const watchlistPath = path.join(process.cwd(), "public", "data", "watchlist.json");
+  const watchlistData = JSON.parse(fs.readFileSync(watchlistPath, "utf-8"));
+
+  console.log(`\n📊 [워치리스트] 시세 업데이트 (${today})`);
+  console.log("─".repeat(65));
+
+  const watchlistResult = await updateStocks(
+    watchlistData.stocks as StockBase[],
+    async (code) => fetchFromNaver(code),
+    scoreAllDomestic,
+    today,
+    naverCache,
   );
 
-  if (skipped > 0) {
-    process.exitCode = 1;
+  fs.writeFileSync(watchlistPath, JSON.stringify(watchlistData, null, 2) + "\n", "utf-8");
+  console.log("\n" + "─".repeat(65));
+  printSummary("워치리스트", watchlistResult);
+
+  // ─── 2. 오일전문가 포트폴리오 ───
+  const oilPath = path.join(process.cwd(), "public", "data", "oil-expert-watchlist.json");
+  const oilData = JSON.parse(fs.readFileSync(oilPath, "utf-8"));
+
+  // 2-1. 국내 종목
+  console.log(`\n\n📊 [오일전문가 - 국내] 시세 업데이트 (${today})`);
+  console.log("─".repeat(65));
+
+  const oilDomesticResult = await updateStocks(
+    oilData.domestic as StockBase[],
+    async (code) => fetchFromNaver(code),
+    scoreAllDomestic,
+    today,
+    naverCache,
+  );
+
+  console.log("\n" + "─".repeat(65));
+  printSummary("오일전문가 국내", oilDomesticResult);
+
+  // 2-2. 해외 종목
+  console.log(`\n\n📊 [오일전문가 - 해외] 시세 업데이트 (${today})`);
+  console.log("─".repeat(65));
+
+  const yahooOk = await initYahooAuth();
+  if (!yahooOk) {
+    console.log("⚠️ Yahoo Finance 인증 실패 — 해외 종목 건너뜀");
+  } else {
+    const oilOverseasResult = await updateStocks(
+      oilData.overseas as StockBase[],
+      async (code, stock) => fetchFromYahoo(code, stock.pbr),
+      scoreAllOverseas,
+      today,
+      new Map(), // 해외는 별도 캐시 (네이버 캐시와 분리)
+    );
+
+    console.log("\n" + "─".repeat(65));
+    printSummary("오일전문가 해외", oilOverseasResult);
   }
+
+  fs.writeFileSync(oilPath, JSON.stringify(oilData, null, 2) + "\n", "utf-8");
+
+  console.log("\n" + "═".repeat(65));
+  console.log("✨ 전체 업데이트 완료");
+
+  const totalSkipped = watchlistResult.skipped + oilDomesticResult.skipped;
+  if (totalSkipped > 0) process.exitCode = 1;
 }
 
 main().catch((err) => {
