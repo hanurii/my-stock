@@ -273,6 +273,7 @@ async function main() {
   const after = scoreAll(stocks);
 
   let gradeChanges = 0;
+  let scoreChanges = 0;
   let rankChanges = 0;
 
   for (let i = 0; i < stocks.length; i++) {
@@ -282,22 +283,31 @@ async function main() {
     stock.previous_score = before.scores[i];
     stock.previous_rank = before.ranks[i];
 
-    // 등급 변화 감지
+    // 점수/등급 변화 감지
     const oldGrade = before.grades[i];
     const newGrade = after.grades[i];
+    const scoreChanged = before.scores[i] !== after.scores[i];
 
-    if (oldGrade !== newGrade) {
-      stock.grade_change_reason = buildChangeReason(
+    if (scoreChanged) {
+      const reason = buildChangeReason(
         stock,
         prevMarketData[i],
         { per: stock.per, pbr: stock.pbr, div: stock.dividend_yield },
       );
-      gradeChanges++;
-      console.log(
-        `\n🔄 ${stock.name}: ${oldGrade}(${before.scores[i]}점) → ${newGrade}(${after.scores[i]}점) | ${stock.grade_change_reason}`,
-      );
+      stock.grade_change_reason = reason;
+      scoreChanges++;
+
+      if (oldGrade !== newGrade) {
+        gradeChanges++;
+        console.log(
+          `\n🔄 ${stock.name}: ${oldGrade}(${before.scores[i]}점) → ${newGrade}(${after.scores[i]}점) | ${reason}`,
+        );
+      } else {
+        console.log(
+          `\n📝 ${stock.name}: ${before.scores[i]}점 → ${after.scores[i]}점 | ${reason}`,
+        );
+      }
     } else {
-      // 등급 변화가 없으면 사유 초기화
       delete stock.grade_change_reason;
     }
 
@@ -312,7 +322,8 @@ async function main() {
   console.log("\n" + "─".repeat(65));
   console.log(
     `💾 완료: ${updated}개 업데이트, ${skipped}개 실패` +
-      (gradeChanges > 0 ? `, ${gradeChanges}개 등급 변화` : "") +
+      (scoreChanges > 0 ? `, ${scoreChanges}개 점수 변화` : "") +
+      (gradeChanges > 0 ? ` (등급 변화 ${gradeChanges}개)` : "") +
       (rankChanges > 0 ? `, ${rankChanges}개 순위 변동` : ""),
   );
 

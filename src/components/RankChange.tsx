@@ -15,23 +15,28 @@ export function GradeChangeBadge({ grade, score, previousScore, gradeChangeReaso
   gradeChangeReason?: string;
   compact?: boolean;
 }) {
-  if (previousScore == null) return null;
+  if (previousScore == null || score === previousScore) return null;
   const prevGrade = getGrade(previousScore);
-  if (prevGrade === grade) return null;
+  const gradeChanged = prevGrade !== grade;
   const isUpgrade = score > previousScore;
   const color = isUpgrade ? "bg-emerald-500/10 text-emerald-400" : "bg-red-500/10 text-red-400";
+  const scoreDiff = score - previousScore;
+  const sign = scoreDiff > 0 ? "+" : "";
 
   if (compact) {
     return (
       <span className={`text-[10px] px-1 py-0.5 rounded ${color}`}>
-        {prevGrade}{"\u2192"}{grade}
+        {gradeChanged ? `${prevGrade}\u2192${grade}` : `${sign}${scoreDiff}`}
       </span>
     );
   }
 
   return (
     <div className={`flex items-center gap-2 text-xs px-3 py-1.5 rounded-lg mb-3 ${color}`}>
-      <span className="font-bold">{prevGrade}{"\u2192"}{grade}</span>
+      {gradeChanged
+        ? <span className="font-bold">{prevGrade}{"\u2192"}{grade}</span>
+        : <span className="font-bold">{sign}{scoreDiff}점</span>
+      }
       <span className="text-on-surface-variant/60">({previousScore}{"\u2192"}{score}점)</span>
       {gradeChangeReason && <span className="text-on-surface-variant/80">{gradeChangeReason}</span>}
     </div>
