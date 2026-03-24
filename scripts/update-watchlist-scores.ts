@@ -459,10 +459,90 @@ async function main() {
 
   fs.writeFileSync(oilPath, JSON.stringify(oilData, null, 2) + "\n", "utf-8");
 
+  // ─── 3. 매매일지 보유 종목 ───
+  const journalPath = path.join(process.cwd(), "public", "data", "journal.json");
+  const journalData = JSON.parse(fs.readFileSync(journalPath, "utf-8"));
+
+  console.log(`\n\n📊 [매매일지] 보유 종목 시세 업데이트 (${today})`);
+  console.log("─".repeat(65));
+
+  const holdings = journalData.holdings as {
+    code: string; name: string;
+    quantity: number; avg_price: number;
+    current_price: number; eval_amount: number;
+    profit_amount: number; profit_pct: number;
+    [key: string]: unknown;
+  }[];
+
+  let journalUpdated = 0;
+  let journalSkipped = 0;
+
+  for (const h of holdings) {
+    // 네이버 캐시 재활용 또는 신규 조회
+    let cached = naverCache.get(h.code);
+    if (!cached) {
+      const result = await fetchFromNaver(h.code);
+      if (result) {
+        naverCache.set(h.code, result);
+        cached = result;
+      }
+      await sleep(REQUEST_DELAY_MS);
+    }
+
+    if (!cached?.price) {
+      console.log(`\n❌ ${h.name} (${h.code}): 시세 조회 실패 — 건너뜀`);
+      journalSkipped++;
+      continue;
+    }
+
+    const prevPrice = h.current_price;
+    const newPrice = cached.price;
+
+    h.current_price = newPrice;
+    h.eval_amount = newPrice * h.quantity;
+    h.profit_amount = h.eval_amount - h.avg_price * h.quantity;
+    h.profit_pct = parseFloat(((h.profit_amount / (h.avg_price * h.quantity)) * 100).toFixed(1));
+
+    const priceDiff = newPrice - prevPrice;
+    const sign = priceDiff >= 0 ? "+" : "";
+    console.log(
+      `\n✅ ${h.name} (${h.code}) ${fmt(prevPrice)}원 → ${fmt(newPrice)}원 (${sign}${fmt(priceDiff)})` +
+        `\n   평가금액 ${fmt(h.eval_amount)}원 | 수익 ${fmt(h.profit_amount)}원 (${h.profit_pct}%)`,
+    );
+
+    journalUpdated++;
+  }
+
+  // 요약 갱신
+  if (journalUpdated > 0) {
+    const totalEval = holdings.reduce((s, h) => s + h.eval_amount, 0);
+    const totalInvested = holdings.reduce((s, h) => s + h.avg_price * h.quantity, 0);
+    const holdingsProfit = totalEval - totalInvested;
+
+    journalData.summary.total_current_value = totalEval;
+    journalData.summary.total_assets = totalEval + journalData.summary.cash;
+
+    // 순수익 = 매매차익 + 보유평가손익 - 비용
+    const netProfit = journalData.summary.gross_profit + holdingsProfit - journalData.summary.total_cost;
+    journalData.summary.net_profit = netProfit;
+    journalData.summary.net_profit_pct = parseFloat(
+      ((netProfit / journalData.summary.total_invested) * 100).toFixed(1),
+    );
+
+    console.log(
+      `\n📊 포트폴리오 요약: 평가액 ${fmt(totalEval)}원 | 총자산 ${fmt(journalData.summary.total_assets)}원 | 순수익률 ${journalData.summary.net_profit_pct}%`,
+    );
+  }
+
+  fs.writeFileSync(journalPath, JSON.stringify(journalData, null, 2) + "\n", "utf-8");
+
+  console.log("\n" + "─".repeat(65));
+  console.log(`💾 매매일지: ${journalUpdated}개 업데이트, ${journalSkipped}개 실패`);
+
   console.log("\n" + "═".repeat(65));
   console.log("✨ 전체 업데이트 완료");
 
-  const totalSkipped = watchlistResult.skipped + oilDomesticResult.skipped;
+  const totalSkipped = watchlistResult.skipped + oilDomesticResult.skipped + journalSkipped;
   if (totalSkipped > 0) process.exitCode = 1;
 }
 
