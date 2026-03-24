@@ -306,8 +306,11 @@ async function updateStocks(
   today: string,
   naverCache: Map<string, MarketData>,
 ): Promise<UpdateResult> {
-  // Step 1: 업데이트 전 점수/순위
+  // Step 1: 업데이트 전 점수/순위 + 이미 오늘 업데이트된 종목 기록
   const before = scoreFn(stocks);
+  const alreadyUpdatedToday = stocks.map(
+    (s) => s.scored_at === today && s.previous_score != null,
+  );
 
   // Step 2: 시세 업데이트
   let updated = 0;
@@ -374,9 +377,8 @@ async function updateStocks(
     const stock = stocks[i];
 
     // 같은 날 중복 실행 시 previous_score/previous_rank를 덮어쓰지 않음
-    // (scored_at이 이미 오늘이면 기존 previous_score 유지)
-    const alreadyUpdatedToday = stock.scored_at === today && stock.previous_score != null;
-    if (!alreadyUpdatedToday) {
+    // (Step 2 전에 scored_at이 이미 오늘이었는지 기준)
+    if (!alreadyUpdatedToday[i]) {
       stock.previous_score = before.scores[i];
       stock.previous_rank = before.ranks[i];
     }
@@ -400,7 +402,7 @@ async function updateStocks(
       } else {
         console.log(`\n📝 ${stock.name}: ${prevScore}점 → ${after.scores[i]}점 | ${reason}`);
       }
-    } else if (!alreadyUpdatedToday) {
+    } else if (!alreadyUpdatedToday[i]) {
       delete stock.grade_change_reason;
     }
 
