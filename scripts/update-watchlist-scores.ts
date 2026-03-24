@@ -83,6 +83,16 @@ function parseNumber(value: string | undefined): number | null {
 
 async function fetchFromNaver(code: string): Promise<MarketData | null> {
   try {
+    // basic API에서 오늘 종가 조회
+    const basicRes = await fetch(`${NAVER_API}/${code}/basic`, {
+      headers: { "User-Agent": UA },
+    });
+    const basicJson = basicRes.ok ? await basicRes.json() : null;
+    const todayClose = basicJson?.closePrice
+      ? parseNumber(String(basicJson.closePrice))
+      : null;
+
+    // integration API에서 PER/PBR/배당수익률 조회
     const url = `${NAVER_API}/${code}/integration`;
     const res = await fetch(url, { headers: { "User-Agent": UA } });
     if (!res.ok) return null;
@@ -91,13 +101,8 @@ async function fetchFromNaver(code: string): Promise<MarketData | null> {
     const infos: { key: string; value: string }[] = json.totalInfos || [];
     const get = (key: string) => infos.find((i) => i.key === key)?.value;
 
-    const price = json.closePrice
-      ? parseNumber(json.closePrice)
-      : parseNumber(get("전일"));
-    const currentPrice = json.currentPrice
-      ? parseNumber(json.currentPrice)
-      : null;
-    const finalPrice = currentPrice || price;
+    // 오늘 종가 우선, 없으면 전일 종가
+    const finalPrice = todayClose || parseNumber(get("전일"));
     if (!finalPrice) return null;
 
     let per = parseNumber(get("PER"));
@@ -233,39 +238,53 @@ async function fetchFromYahoo(code: string, existingPbr: number): Promise<Market
 
 // ── 채점 & 순위 ──
 
-function scoreAllDomestic(stocks: StockBase[]): { scores: number[]; ranks: number[]; grades: string[] } {
+type ScoreFn = (stocks: StockBase[]) => ScoredAll;
+
+interface ScoredAll {
+  scores: number[];
+  ranks: number[];
+  grades: string[];
+  details: ScoredResult["details"][];
+}
+
+function scoreAllDomestic(stocks: StockBase[]): ScoredAll {
   const results = stocks.map((s) => scoreDomestic(s as DomesticStockInput));
   return buildRanks(results);
 }
 
-function scoreAllOverseas(stocks: StockBase[]): { scores: number[]; ranks: number[]; grades: string[] } {
+function scoreAllOverseas(stocks: StockBase[]): ScoredAll {
   const results = stocks.map((s) => scoreOverseas(s as unknown as OverseasStockInput));
   return buildRanks(results);
 }
 
-function buildRanks(results: ScoredResult[]): { scores: number[]; ranks: number[]; grades: string[] } {
+function buildRanks(results: ScoredResult[]): ScoredAll {
   const scores = results.map((r) => r.score);
   const grades = results.map((r) => r.grade);
+  const details = results.map((r) => r.details);
   const indexed = scores.map((score, i) => ({ score, i }));
   indexed.sort((a, b) => b.score - a.score);
   const ranks = new Array<number>(scores.length);
   indexed.forEach((item, rank) => { ranks[item.i] = rank + 1; });
-  return { scores, ranks, grades };
+  return { scores, ranks, grades, details };
 }
 
+/**
+ * 업데이트 전후 채점 세부 항목을 비교하여
+ * 실제 점수가 변한 항목만 사유로 반환
+ */
 function buildChangeReason(
-  prev: { per: number | null; pbr: number; div: number },
-  next: { per: number | null; pbr: number; div: number },
+  beforeDetails: ScoredResult["details"],
+  afterDetails: ScoredResult["details"],
 ): string {
   const parts: string[] = [];
-  if (prev.per != null && next.per != null && prev.per !== next.per) {
-    parts.push(`PER ${prev.per}→${next.per}`);
-  }
-  if (prev.pbr !== next.pbr) {
-    parts.push(`PBR ${prev.pbr}→${next.pbr}`);
-  }
-  if (prev.div !== next.div) {
-    parts.push(`배당 ${prev.div}%→${next.div}%`);
+  for (let i = 0; i < beforeDetails.length; i++) {
+    const b = beforeDetails[i];
+    const a = afterDetails[i];
+    if (b && a && b.score !== a.score) {
+      const diff = a.score - b.score;
+      const sign = diff > 0 ? "+" : "";
+      parts.push(`${a.item} ${b.score}→${a.score}점(${sign}${diff})`);
+    }
   }
   return parts.join(", ");
 }
@@ -283,7 +302,7 @@ interface UpdateResult {
 async function updateStocks(
   stocks: StockBase[],
   fetchFn: (code: string, stock: StockBase) => Promise<MarketData | null>,
-  scoreFn: (stocks: StockBase[]) => { scores: number[]; ranks: number[]; grades: string[] },
+  scoreFn: ScoreFn,
   today: string,
   naverCache: Map<string, MarketData>,
 ): Promise<UpdateResult> {
@@ -353,32 +372,40 @@ async function updateStocks(
 
   for (let i = 0; i < stocks.length; i++) {
     const stock = stocks[i];
-    stock.previous_score = before.scores[i];
-    stock.previous_rank = before.ranks[i];
 
-    const oldGrade = before.grades[i];
+    // 같은 날 중복 실행 시 previous_score/previous_rank를 덮어쓰지 않음
+    // (scored_at이 이미 오늘이면 기존 previous_score 유지)
+    const alreadyUpdatedToday = stock.scored_at === today && stock.previous_score != null;
+    if (!alreadyUpdatedToday) {
+      stock.previous_score = before.scores[i];
+      stock.previous_rank = before.ranks[i];
+    }
+
+    const oldGrade = stock.previous_score != null ? getGrade(stock.previous_score) : before.grades[i];
     const newGrade = after.grades[i];
-    const scoreChanged = before.scores[i] !== after.scores[i];
+    const prevScore = stock.previous_score ?? before.scores[i];
+    const scoreChanged = prevScore !== after.scores[i];
 
     if (scoreChanged) {
       const reason = buildChangeReason(
-        prevMarketData[i],
-        { per: stock.per, pbr: stock.pbr, div: stock.dividend_yield },
+        before.details[i],
+        after.details[i],
       );
       stock.grade_change_reason = reason;
       scoreChanges++;
 
       if (oldGrade !== newGrade) {
         gradeChanges++;
-        console.log(`\n🔄 ${stock.name}: ${oldGrade}(${before.scores[i]}점) → ${newGrade}(${after.scores[i]}점) | ${reason}`);
+        console.log(`\n🔄 ${stock.name}: ${oldGrade}(${prevScore}점) → ${newGrade}(${after.scores[i]}점) | ${reason}`);
       } else {
-        console.log(`\n📝 ${stock.name}: ${before.scores[i]}점 → ${after.scores[i]}점 | ${reason}`);
+        console.log(`\n📝 ${stock.name}: ${prevScore}점 → ${after.scores[i]}점 | ${reason}`);
       }
-    } else {
+    } else if (!alreadyUpdatedToday) {
       delete stock.grade_change_reason;
     }
 
-    if (before.ranks[i] !== after.ranks[i]) rankChanges++;
+    const prevRank = stock.previous_rank ?? before.ranks[i];
+    if (prevRank !== after.ranks[i]) rankChanges++;
   }
 
   return { updated, skipped, scoreChanges, gradeChanges, rankChanges };
