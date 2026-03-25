@@ -248,7 +248,7 @@ interface ScoredAll {
 }
 
 function scoreAllDomestic(stocks: StockBase[]): ScoredAll {
-  const results = stocks.map((s) => scoreDomestic(s as DomesticStockInput));
+  const results = stocks.map((s) => scoreDomestic(s as unknown as DomesticStockInput));
   return buildRanks(results);
 }
 
