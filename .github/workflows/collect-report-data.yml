@@ -1,0 +1,38 @@
+name: Collect Report Data
+
+on:
+  schedule:
+    # 평일+토 21:30 UTC = 06:30 KST (스케줄 트리거 30분 전)
+    - cron: '30 21 * * 0-5'
+  workflow_dispatch: # 수동 실행 가능
+
+permissions:
+  contents: write
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Collect report data
+        run: npx tsx scripts/collect-report-data.ts
+        continue-on-error: true
+
+      - name: Commit & push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/data/*.json
+          if ! git diff --staged --quiet; then
+            KST_DATE=$(TZ=Asia/Seoul date +%Y-%m-%d)
+            git commit -m "chore: ${KST_DATE} 리포트 데이터 수집 (draft)"
+            git push
+          else
+            echo "변경 사항 없음 — 커밋 생략"
+          fi
