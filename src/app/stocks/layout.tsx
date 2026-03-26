@@ -4,7 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const tabs = [
-  { href: "/stocks/watchlist", label: "내 워치리스트", icon: "visibility" },
+  { href: "/stocks/watchlist", label: "저평가 배당주", icon: "paid" },
+  { href: "/stocks/growth", label: "저평가 성장주", icon: "trending_up" },
   { href: "/stocks/oil-expert", label: "오일전문가 포트폴리오", icon: "local_fire_department" },
 ];
 

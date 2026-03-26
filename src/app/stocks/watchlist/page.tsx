@@ -88,10 +88,10 @@ export default function WatchlistPage() {
       {/* Header */}
       <section>
         <p className="text-[10px] uppercase tracking-[0.2em] text-primary-dim/60 mb-2">
-          Undervalued Stocks
+          Undervalued Dividend Stocks
         </p>
         <h2 className="text-3xl sm:text-4xl font-serif font-bold text-on-surface tracking-tight">
-          저평가 우량주
+          저평가 배당주
         </h2>
         <p className="text-base text-on-surface-variant mt-2">
           3대 카테고리 점수 시스템 (100점 만점)
@@ -454,7 +454,7 @@ export default function WatchlistPage() {
         <h3 className="text-lg font-serif text-on-surface mb-5">점수 시스템 해석</h3>
         <div className="space-y-4 text-base text-on-surface-variant leading-relaxed">
           <p>
-            <strong className="text-on-surface">핵심 공식:</strong> 저평가 우량주 = 저PER + 저PBR + 고ROE + 주주환원 + 안전마진.
+            <strong className="text-on-surface">핵심 공식:</strong> 저평가 배당주 = 저PER + 저PBR + 고ROE + 주주환원 + 안전마진.
             반면 저PER + 저PBR + 저ROE + 매출감소 = 가치함정 (회피).
           </p>
           <p>
