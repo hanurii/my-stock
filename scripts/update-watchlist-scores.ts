@@ -37,6 +37,8 @@ interface MarketData {
   per: number | null;
   pbr: number;
   dividend_yield: number;
+  market_cap?: number | null;         // 시가총액 (억원)
+  foreign_ownership?: number | null;  // 외국인 보유비중 (%)
 }
 
 interface StockBase {
@@ -120,7 +122,22 @@ async function fetchFromNaver(code: string): Promise<MarketData | null> {
       }
     }
 
-    return { price: finalPrice, per, pbr: pbr ?? 0, dividend_yield: dividendYield ?? 0 };
+    // 시가총액: "73조 7,046억" → 억원 단위로 파싱
+    const marketCapStr = get("시총");
+    let marketCap: number | null = null;
+    if (marketCapStr) {
+      let total = 0;
+      const joMatch = marketCapStr.match(/([\d,]+)조/);
+      const eokMatch = marketCapStr.match(/([\d,]+)억/);
+      if (joMatch) total += parseFloat(joMatch[1].replace(/,/g, "")) * 10000;
+      if (eokMatch) total += parseFloat(eokMatch[1].replace(/,/g, ""));
+      if (total > 0) marketCap = Math.round(total);
+    }
+
+    // 외국인 보유비중: "49.89%" → 49.89
+    const foreignOwnership = parseNumber(get("외인소진율"));
+
+    return { price: finalPrice, per, pbr: pbr ?? 0, dividend_yield: dividendYield ?? 0, market_cap: marketCap, foreign_ownership: foreignOwnership };
   } catch {
     return null;
   }
@@ -163,6 +180,46 @@ async function fetchFundamentalsFromNaver(
       );
     }
     return { per, pbr };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * 네이버 finance/annual에서 전년 영업이익률을 조회
+ * 확정 실적 기간 중 마지막에서 두 번째(= 전년) 영업이익률을 반환
+ */
+async function fetchPrevYearOpMargin(code: string): Promise<number | null> {
+  try {
+    const url = `${NAVER_API}/${code}/finance/annual`;
+    const res = await fetch(url, { headers: { "User-Agent": UA } });
+    if (!res.ok) return null;
+
+    const json = await res.json();
+    const periods = json.financeInfo?.trTitleList as
+      | { key: string; isConsensus: string }[]
+      | undefined;
+    const rows = json.financeInfo?.rowList as
+      | { title: string; columns: Record<string, { value: string }> }[]
+      | undefined;
+    if (!periods || !rows) return null;
+
+    // 확정 실적만 필터 (컨센서스 제외)
+    const confirmed = periods.filter((p) => p.isConsensus === "N");
+    if (confirmed.length < 2) return null;
+
+    // 마지막에서 두 번째 = 전년
+    const prevYear = confirmed[confirmed.length - 2];
+
+    // "영업이익률" 행 찾기
+    const opMarginRow = rows.find((r) => r.title === "영업이익률");
+    if (!opMarginRow) return null;
+
+    const value = parseNumber(opMarginRow.columns[prevYear.key]?.value);
+    if (value != null) {
+      console.log(`   📊 전년 영업이익률 (${prevYear.key}): ${value}%`);
+    }
+    return value;
   } catch {
     return null;
   }
@@ -354,6 +411,8 @@ async function updateStocks(
     stock.pbr = newPbr;
     stock.dividend_yield = newDiv;
     if (result.price) stock.current_price_at_scoring = result.price;
+    if (result.market_cap != null) stock.market_cap = result.market_cap;
+    if (result.foreign_ownership != null) stock.foreign_ownership = result.foreign_ownership;
     stock.scored_at = today;
 
     if ("fundamentals" in stock) delete stock.fundamentals;
@@ -465,6 +524,17 @@ async function main() {
     console.log("─".repeat(65));
 
     const baseRate = growthData.base_rate ?? 2.75;
+
+    // 전년 영업이익률 자동 조회 (성장주 전용)
+    console.log("\n📊 전년 영업이익률 조회 중...");
+    for (const stock of growthData.stocks as StockBase[]) {
+      const prevMargin = await fetchPrevYearOpMargin(stock.code);
+      if (prevMargin != null) {
+        stock.prev_year_op_margin = prevMargin;
+      }
+      await sleep(REQUEST_DELAY_MS);
+    }
+
     const growthResult = await updateStocks(
       growthData.stocks as StockBase[],
       async (code) => fetchFromNaver(code),

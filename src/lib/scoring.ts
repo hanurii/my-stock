@@ -467,9 +467,9 @@ export const OVERSEAS_FRAMEWORK = {
 };
 
 export const GROWTH_FRAMEWORK = {
-  category1: { name: "성장성", max_score: 35, key_metrics: ["매출성장률", "영업이익성장률", "분기YoY", "R&D·투자비율"] },
-  category2: { name: "합리적 밸류에이션", max_score: 35, key_metrics: ["PEG", "PSR", "PER", "흑자지속성"] },
-  category3: { name: "경쟁력/재무건전성", max_score: 30, key_metrics: ["부채비율", "영업이익률", "글로벌확장성", "종합경쟁력"] },
+  category1: { name: "성장성", max_score: 35, key_metrics: ["매출성장률", "영업이익성장률", "분기YoY", "성장가속도", "R&D·투자비율"] },
+  category2: { name: "합리적 밸류에이션", max_score: 30, key_metrics: ["PEG", "PSR", "PER", "흑자지속성"] },
+  category3: { name: "경쟁력/저평가시그널", max_score: 35, key_metrics: ["부채비율", "영업이익률", "이익률개선", "글로벌확장성", "종합경쟁력", "시가총액", "외국인비중"] },
 };
 
 export const GRADES = {
@@ -505,8 +505,11 @@ export interface GrowthStockInput {
   // Cat3: 경쟁력/재무건전성
   debt_ratio: number;                // 부채비율 (%)
   op_margin: number;                 // 영업이익률 (%)
+  prev_year_op_margin: number | null; // 전년 영업이익률 (%, null = 데이터 없음)
   global_revenue_ratio: number;      // 해외매출 비중 (%)
-  competitive_edge: number;          // 종합 경쟁력 (0~12, 주관 — 보수적 채점)
+  competitive_edge: number;          // 종합 경쟁력 (0~8, 주관 — 보수적 채점)
+  market_cap: number | null;         // 시가총액 (억원, null = 미확인)
+  foreign_ownership: number | null;  // 외국인 보유비중 (%, null = 미확인)
   // 이전 채점 비교
   previous_score?: number;
   previous_rank?: number;
@@ -531,29 +534,46 @@ export function scoreGrowth(input: GrowthStockInput, baseRate: number): ScoredRe
 
   // ── Cat1: 성장성 (만점 35) ──
 
-  // 매출 성장률 3년 CAGR: >20%: 10, >12%: 7, >5%: 4, ≤5%: 1
+  // 매출 성장률 3년 CAGR: >20%: 8, >12%: 6, >5%: 3, ≤5%: 1
   let revGrowthScore: number;
-  if (input.revenue_growth_3y > 20) revGrowthScore = 10;
-  else if (input.revenue_growth_3y > 12) revGrowthScore = 7;
-  else if (input.revenue_growth_3y > 5) revGrowthScore = 4;
+  if (input.revenue_growth_3y > 20) revGrowthScore = 8;
+  else if (input.revenue_growth_3y > 12) revGrowthScore = 6;
+  else if (input.revenue_growth_3y > 5) revGrowthScore = 3;
   else revGrowthScore = 1;
-  details.push({ item: "매출 성장률 (3Y CAGR)", basis: `${input.revenue_growth_3y}%`, score: revGrowthScore, max: 10, cat: 1 });
+  details.push({ item: "매출 성장률 (3Y CAGR)", basis: `${input.revenue_growth_3y}%`, score: revGrowthScore, max: 8, cat: 1 });
 
-  // 영업이익 성장률 3년 CAGR: >25%: 10, >15%: 7, >5%: 4, ≤5%: 1
+  // 영업이익 성장률 3년 CAGR: >25%: 8, >15%: 6, >5%: 3, ≤5%: 1
   let opGrowthScore: number;
-  if (input.op_profit_growth_3y > 25) opGrowthScore = 10;
-  else if (input.op_profit_growth_3y > 15) opGrowthScore = 7;
-  else if (input.op_profit_growth_3y > 5) opGrowthScore = 4;
+  if (input.op_profit_growth_3y > 25) opGrowthScore = 8;
+  else if (input.op_profit_growth_3y > 15) opGrowthScore = 6;
+  else if (input.op_profit_growth_3y > 5) opGrowthScore = 3;
   else opGrowthScore = 1;
-  details.push({ item: "영업이익 성장률 (3Y CAGR)", basis: `${input.op_profit_growth_3y}%`, score: opGrowthScore, max: 10, cat: 1 });
+  details.push({ item: "영업이익 성장률 (3Y CAGR)", basis: `${input.op_profit_growth_3y}%`, score: opGrowthScore, max: 8, cat: 1 });
 
-  // 최근 분기 YoY 영업이익 성장률: >30%: 8, >15%: 6, >0%: 3, ≤0%: 0
+  // 최근 분기 YoY 영업이익 성장률: >30%: 7, >15%: 5, >0%: 3, ≤0%: 0
   let qtrGrowthScore: number;
-  if (input.recent_qtr_op_growth > 30) qtrGrowthScore = 8;
-  else if (input.recent_qtr_op_growth > 15) qtrGrowthScore = 6;
+  if (input.recent_qtr_op_growth > 30) qtrGrowthScore = 7;
+  else if (input.recent_qtr_op_growth > 15) qtrGrowthScore = 5;
   else if (input.recent_qtr_op_growth > 0) qtrGrowthScore = 3;
   else qtrGrowthScore = 0;
-  details.push({ item: "최근 분기 YoY 영업이익", basis: `${input.recent_qtr_op_growth}%`, score: qtrGrowthScore, max: 8, cat: 1 });
+  details.push({ item: "최근 분기 YoY 영업이익", basis: `${input.recent_qtr_op_growth}%`, score: qtrGrowthScore, max: 7, cat: 1 });
+
+  // 성장 가속도: 최근 분기 성장 > 3년 평균 → 지금 순풍이 불고 있다
+  let accelScore: number;
+  let accelBasis: string;
+  if (input.recent_qtr_op_growth > 0 && input.op_profit_growth_3y > 0
+      && input.recent_qtr_op_growth > input.op_profit_growth_3y * 2) {
+    accelScore = 5;
+    accelBasis = `분기 ${input.recent_qtr_op_growth}% > 3Y ${input.op_profit_growth_3y}%×2 (강한 가속)`;
+  } else if (input.recent_qtr_op_growth > 0
+      && input.recent_qtr_op_growth > input.op_profit_growth_3y) {
+    accelScore = 3;
+    accelBasis = `분기 ${input.recent_qtr_op_growth}% > 3Y ${input.op_profit_growth_3y}% (가속 중)`;
+  } else {
+    accelScore = 0;
+    accelBasis = "가속 미확인";
+  }
+  details.push({ item: "성장 가속도", basis: accelBasis, score: accelScore, max: 5, cat: 1 });
 
   // R&D·설비투자/매출 비율: >10%: 7, >5%: 5, >2%: 3, ≤2%: 1
   let rndScore: number;
@@ -563,92 +583,118 @@ export function scoreGrowth(input: GrowthStockInput, baseRate: number): ScoredRe
   else rndScore = 1;
   details.push({ item: "R&D·설비투자/매출", basis: `${input.rnd_investment_ratio}%`, score: rndScore, max: 7, cat: 1 });
 
-  const cat1 = revGrowthScore + opGrowthScore + qtrGrowthScore + rndScore;
+  const cat1 = revGrowthScore + opGrowthScore + qtrGrowthScore + accelScore + rndScore;
 
-  // ── Cat2: 합리적 밸류에이션 (만점 35) ──
+  // ── Cat2: 합리적 밸류에이션 (만점 30) ──
 
-  // PEG: <0.5: 15, <1.0: 12, <1.5: 8, <2.0: 4, ≥2.0 또는 산출불가: 0
+  // PEG: <0.5: 10, <1.0: 8, <1.5: 5, <2.0: 2, ≥2.0: 0, 적자(null): -5 감점
   let pegScore: number;
   let pegBasis: string;
   if (input.peg == null) {
-    pegScore = 0;
-    pegBasis = "산출 불가 (적자 또는 역성장)";
+    pegScore = input.profit_status === "deficit" ? -5 : 0;
+    pegBasis = input.profit_status === "deficit" ? "산출 불가 (적자 — 감점)" : "산출 불가 (역성장)";
   } else if (input.peg < 0.5) {
-    pegScore = 15;
+    pegScore = 10;
     pegBasis = `${input.peg} (<0.5)`;
   } else if (input.peg < 1.0) {
-    pegScore = 12;
+    pegScore = 8;
     pegBasis = `${input.peg} (<1.0)`;
   } else if (input.peg < 1.5) {
-    pegScore = 8;
+    pegScore = 5;
     pegBasis = `${input.peg} (<1.5)`;
   } else if (input.peg < 2.0) {
-    pegScore = 4;
+    pegScore = 2;
     pegBasis = `${input.peg} (<2.0)`;
   } else {
     pegScore = 0;
     pegBasis = `${input.peg} (≥2.0)`;
   }
-  details.push({ item: "PEG", basis: pegBasis, score: pegScore, max: 15, cat: 2 });
+  details.push({ item: "PEG", basis: pegBasis, score: pegScore, max: 10, cat: 2 });
 
-  // PSR: <1: 8, <3: 6, <5: 4, <10: 2, ≥10: 0
+  // PSR: <0.5: 10, <1: 8, <3: 6, <5: 3, <10: 1, ≥10: 0
+  // PSR이 낮다 = 매출은 나오는데 시장이 아직 주목 안 함 → "저평가 발굴" 핵심 지표
   let psrScore: number;
-  if (input.psr < 1) psrScore = 8;
+  if (input.psr < 0.5) psrScore = 10;
+  else if (input.psr < 1) psrScore = 8;
   else if (input.psr < 3) psrScore = 6;
-  else if (input.psr < 5) psrScore = 4;
-  else if (input.psr < 10) psrScore = 2;
+  else if (input.psr < 5) psrScore = 3;
+  else if (input.psr < 10) psrScore = 1;
   else psrScore = 0;
-  details.push({ item: "PSR", basis: `${input.psr}배`, score: psrScore, max: 8, cat: 2 });
+  details.push({ item: "PSR", basis: `${input.psr}배`, score: psrScore, max: 10, cat: 2 });
 
-  // PER: <15: 7, <25: 5, <40: 3, ≥40 또는 적자: 0
+  // PER: <15: 5, <25: 3, <40: 1, ≥40: 0, 적자(null/음수): -5 감점
   let perScore: number;
   let perBasis: string;
-  if (input.per == null) {
-    perScore = 0;
-    perBasis = "적자 (PER 산출 불가)";
+  if (input.per == null || input.per < 0) {
+    perScore = -5;
+    perBasis = "적자 (PER 마이너스 — 감점)";
   } else if (input.per < 15) {
-    perScore = 7;
+    perScore = 5;
     perBasis = `${input.per}배 (<15)`;
   } else if (input.per < 25) {
-    perScore = 5;
+    perScore = 3;
     perBasis = `${input.per}배 (<25)`;
   } else if (input.per < 40) {
-    perScore = 3;
+    perScore = 1;
     perBasis = `${input.per}배 (<40)`;
   } else {
     perScore = 0;
     perBasis = `${input.per}배 (≥40)`;
   }
-  details.push({ item: "PER", basis: perBasis, score: perScore, max: 7, cat: 2 });
+  details.push({ item: "PER", basis: perBasis, score: perScore, max: 5, cat: 2 });
 
-  // 흑자 지속성: 흑자 지속: 5, 흑자 전환 임박: 3, 적자 지속: 0
+  // 흑자 지속성: 흑자 지속: 5, 흑자 전환 임박: 3, 적자 지속: -5 감점
   const profitStatusMap: Record<ProfitStatus, { score: number; label: string }> = {
     sustained: { score: 5, label: "흑자 지속" },
     turning: { score: 3, label: "흑자 전환 임박" },
-    deficit: { score: 0, label: "적자 지속" },
+    deficit: { score: -5, label: "적자 지속 (감점)" },
   };
   const profitResult = profitStatusMap[input.profit_status];
   details.push({ item: "흑자 지속성", basis: profitResult.label, score: profitResult.score, max: 5, cat: 2 });
 
   const cat2 = pegScore + psrScore + perScore + profitResult.score;
 
-  // ── Cat3: 경쟁력/재무건전성 (만점 30) ──
+  // ── Cat3: 경쟁력/재무건전성 (만점 35) ──
 
-  // 부채비율: <50%: 8, <100%: 5, <200%: 2, ≥200%: 0
+  // 부채비율: <50%: 6, <100%: 4, <200%: 2, ≥200%: 0
   let debtScore: number;
-  if (input.debt_ratio < 50) debtScore = 8;
-  else if (input.debt_ratio < 100) debtScore = 5;
+  if (input.debt_ratio < 50) debtScore = 6;
+  else if (input.debt_ratio < 100) debtScore = 4;
   else if (input.debt_ratio < 200) debtScore = 2;
   else debtScore = 0;
-  details.push({ item: "부채비율", basis: `${input.debt_ratio}%`, score: debtScore, max: 8, cat: 3 });
+  details.push({ item: "부채비율", basis: `${input.debt_ratio}%`, score: debtScore, max: 6, cat: 3 });
 
-  // 영업이익률: >15%: 7, >8%: 5, >3%: 3, ≤3%: 0
+  // 영업이익률: >15%: 5, >8%: 4, >3%: 2, ≤3%: 0
   let marginScore: number;
-  if (input.op_margin > 15) marginScore = 7;
-  else if (input.op_margin > 8) marginScore = 5;
-  else if (input.op_margin > 3) marginScore = 3;
+  if (input.op_margin > 15) marginScore = 5;
+  else if (input.op_margin > 8) marginScore = 4;
+  else if (input.op_margin > 3) marginScore = 2;
   else marginScore = 0;
-  details.push({ item: "영업이익률", basis: `${input.op_margin}%`, score: marginScore, max: 7, cat: 3 });
+  details.push({ item: "영업이익률", basis: `${input.op_margin}%`, score: marginScore, max: 5, cat: 3 });
+
+  // 영업이익률 개선 추세: 전년 대비 개선폭
+  let marginTrendScore: number;
+  let marginTrendBasis: string;
+  if (input.prev_year_op_margin == null) {
+    marginTrendScore = 0;
+    marginTrendBasis = "전년 데이터 없음";
+  } else {
+    const improvement = input.op_margin - input.prev_year_op_margin;
+    if (improvement > 5) {
+      marginTrendScore = 5;
+      marginTrendBasis = `${input.prev_year_op_margin}% → ${input.op_margin}% (+${improvement.toFixed(1)}%p, 대폭 개선)`;
+    } else if (improvement > 2) {
+      marginTrendScore = 3;
+      marginTrendBasis = `${input.prev_year_op_margin}% → ${input.op_margin}% (+${improvement.toFixed(1)}%p, 개선)`;
+    } else if (improvement > 0) {
+      marginTrendScore = 1;
+      marginTrendBasis = `${input.prev_year_op_margin}% → ${input.op_margin}% (+${improvement.toFixed(1)}%p, 소폭 개선)`;
+    } else {
+      marginTrendScore = 0;
+      marginTrendBasis = `${input.prev_year_op_margin}% → ${input.op_margin}% (${improvement.toFixed(1)}%p, 악화)`;
+    }
+  }
+  details.push({ item: "영업이익률 개선", basis: marginTrendBasis, score: marginTrendScore, max: 5, cat: 3 });
 
   // 글로벌 확장성: 해외매출 >30%: 3, >10%: 2, ≤10%: 0
   let globalScore: number;
@@ -657,16 +703,63 @@ export function scoreGrowth(input: GrowthStockInput, baseRate: number): ScoredRe
   else globalScore = 0;
   details.push({ item: "글로벌 확장성", basis: `해외매출 ${input.global_revenue_ratio}%`, score: globalScore, max: 3, cat: 3 });
 
-  // 종합 경쟁력 (주관, 보수적 채점): 0~12
-  const edgeScore = Math.min(12, Math.max(0, input.competitive_edge));
+  // 종합 경쟁력 (주관, 보수적 채점): 0~8
+  const edgeScore = Math.min(8, Math.max(0, input.competitive_edge));
   let edgeBasis: string;
-  if (edgeScore >= 10) edgeBasis = "명백한 시장 지배력";
-  else if (edgeScore >= 7) edgeBasis = "뚜렷한 경쟁 우위";
+  if (edgeScore >= 7) edgeBasis = "뚜렷한 경쟁 우위";
   else if (edgeScore >= 4) edgeBasis = "보통 수준의 경쟁력";
   else edgeBasis = "경쟁 우위 불명확";
-  details.push({ item: "종합 경쟁력", basis: edgeBasis, score: edgeScore, max: 12, cat: 3 });
+  details.push({ item: "종합 경쟁력", basis: edgeBasis, score: edgeScore, max: 8, cat: 3 });
 
-  const cat3 = debtScore + marginScore + globalScore + edgeScore;
+  // 시가총액 (발견 가능성): 소형주일수록 아직 시장이 모를 확률 높음
+  let capScore: number;
+  let capBasis: string;
+  if (input.market_cap == null) {
+    capScore = 0;
+    capBasis = "미확인";
+  } else if (input.market_cap < 3000) {
+    capScore = 4;
+    capBasis = `${input.market_cap.toLocaleString()}억 (소형주 — 발굴 기회)`;
+  } else if (input.market_cap < 7000) {
+    capScore = 3;
+    capBasis = `${input.market_cap.toLocaleString()}억 (중소형주)`;
+  } else if (input.market_cap < 20000) {
+    capScore = 2;
+    capBasis = `${input.market_cap.toLocaleString()}억 (중형주)`;
+  } else if (input.market_cap < 100000) {
+    capScore = 1;
+    capBasis = `${input.market_cap.toLocaleString()}억 (대형주)`;
+  } else {
+    capScore = 0;
+    capBasis = `${input.market_cap.toLocaleString()}억 (초대형주)`;
+  }
+  details.push({ item: "시가총액", basis: capBasis, score: capScore, max: 4, cat: 3 });
+
+  // 외국인 보유비중 (시장 관심도): 낮을수록 아직 시장이 주목 안 한 종목
+  let foreignScore: number;
+  let foreignBasis: string;
+  if (input.foreign_ownership == null) {
+    foreignScore = 0;
+    foreignBasis = "미확인";
+  } else if (input.foreign_ownership < 5) {
+    foreignScore = 4;
+    foreignBasis = `${input.foreign_ownership}% (시장 미주목)`;
+  } else if (input.foreign_ownership < 10) {
+    foreignScore = 3;
+    foreignBasis = `${input.foreign_ownership}% (관심 초기)`;
+  } else if (input.foreign_ownership < 20) {
+    foreignScore = 2;
+    foreignBasis = `${input.foreign_ownership}% (보통)`;
+  } else if (input.foreign_ownership < 30) {
+    foreignScore = 1;
+    foreignBasis = `${input.foreign_ownership}% (관심 높음)`;
+  } else {
+    foreignScore = 0;
+    foreignBasis = `${input.foreign_ownership}% (이미 널리 알려짐)`;
+  }
+  details.push({ item: "외국인 보유비중", basis: foreignBasis, score: foreignScore, max: 4, cat: 3 });
+
+  const cat3 = debtScore + marginScore + marginTrendScore + globalScore + edgeScore + capScore + foreignScore;
 
   // ── 금리 환경 감점 ──
 

@@ -140,7 +140,7 @@ export default function GrowthPage() {
           저평가 성장주
         </h2>
         <p className="text-base text-on-surface-variant mt-2">
-          GARP 스코어링 · 기본 100점 − 금리 감점
+          GARP 스코어링 · 성장성 35 + 밸류에이션 30 + 경쟁력/시그널 35 − 금리 감점
         </p>
         <p className="text-xs text-on-surface-variant/50 mt-1.5">
           점수 갱신: {calculatedAt}
@@ -257,6 +257,12 @@ export default function GrowthPage() {
                 <th className="text-right px-3 pb-3 font-normal hidden md:table-cell">
                   매출↑
                 </th>
+                <th className="text-right px-3 pb-3 font-normal hidden md:table-cell">
+                  시총
+                </th>
+                <th className="text-right px-3 pb-3 font-normal hidden md:table-cell">
+                  외인
+                </th>
                 <th className="text-right px-3 pb-3 font-normal hidden lg:table-cell">
                   성장성
                 </th>
@@ -264,7 +270,7 @@ export default function GrowthPage() {
                   밸류에이션
                 </th>
                 <th className="text-right px-3 pb-3 font-normal hidden lg:table-cell">
-                  경쟁력
+                  시그널
                 </th>
                 <th className="text-right px-3 pb-3 font-normal hidden lg:table-cell">
                   채점일
@@ -334,6 +340,12 @@ export default function GrowthPage() {
                     </td>
                     <td className="text-right px-3 py-2.5 font-mono text-on-surface-variant hidden md:table-cell">
                       {stock.revenue_growth_3y}%
+                    </td>
+                    <td className="text-right px-3 py-2.5 font-mono text-on-surface-variant hidden md:table-cell">
+                      {stock.market_cap != null ? (stock.market_cap >= 10000 ? `${(stock.market_cap / 10000).toFixed(1)}조` : `${stock.market_cap.toLocaleString()}억`) : "—"}
+                    </td>
+                    <td className="text-right px-3 py-2.5 font-mono text-on-surface-variant hidden md:table-cell">
+                      {stock.foreign_ownership != null ? `${stock.foreign_ownership}%` : "—"}
                     </td>
                     <td className="text-right px-3 py-2.5 font-mono text-on-surface-variant hidden lg:table-cell">
                       {stock.cat1}/{framework.category1.max_score}
@@ -465,7 +477,7 @@ export default function GrowthPage() {
                           pct: cat2Pct,
                         },
                         {
-                          label: "경쟁력/재무",
+                          label: "경쟁력/시그널",
                           score: stock.cat3,
                           max: framework.category3.max_score,
                           pct: cat3Pct,
@@ -527,6 +539,22 @@ export default function GrowthPage() {
                           {stock.op_profit_growth_3y}%
                         </span>
                       </span>
+                      {stock.market_cap != null && (
+                        <span className="text-on-surface-variant">
+                          시총{" "}
+                          <span className="font-mono text-on-surface">
+                            {stock.market_cap >= 10000 ? `${(stock.market_cap / 10000).toFixed(1)}조` : `${stock.market_cap.toLocaleString()}억`}
+                          </span>
+                        </span>
+                      )}
+                      {stock.foreign_ownership != null && (
+                        <span className="text-on-surface-variant">
+                          외인{" "}
+                          <span className="font-mono text-on-surface">
+                            {stock.foreign_ownership}%
+                          </span>
+                        </span>
+                      )}
                     </div>
 
                     <p className="text-sm text-on-surface-variant leading-relaxed">
@@ -677,13 +705,13 @@ export default function GrowthPage() {
                                 pct: cat1Pct,
                               },
                               {
-                                label: "주주환원",
+                                label: "밸류에이션",
                                 score: stock.cat2,
                                 max: framework.category2.max_score,
                                 pct: cat2Pct,
                               },
                               {
-                                label: "성장/경쟁력",
+                                label: "경쟁력/시그널",
                                 score: stock.cat3,
                                 max: framework.category3.max_score,
                                 pct: cat3Pct,
@@ -738,6 +766,22 @@ export default function GrowthPage() {
                                 {stock.revenue_growth_3y}%
                               </span>
                             </span>
+                            {stock.market_cap != null && (
+                              <span className="text-on-surface-variant">
+                                시총{" "}
+                                <span className="font-mono text-on-surface">
+                                  {stock.market_cap >= 10000 ? `${(stock.market_cap / 10000).toFixed(1)}조` : `${stock.market_cap.toLocaleString()}억`}
+                                </span>
+                              </span>
+                            )}
+                            {stock.foreign_ownership != null && (
+                              <span className="text-on-surface-variant">
+                                외인{" "}
+                                <span className="font-mono text-on-surface">
+                                  {stock.foreign_ownership}%
+                                </span>
+                              </span>
+                            )}
                           </div>
 
                           <p className="text-sm text-on-surface-variant leading-relaxed">
@@ -863,8 +907,8 @@ export default function GrowthPage() {
         <div className="space-y-4 text-base text-on-surface-variant leading-relaxed">
           <p>
             <strong className="text-on-surface">핵심 공식:</strong> 저평가
-            성장주 = 높은 매출·이익 성장률 + 낮은 PEG + 경쟁우위 + 재무건전성.
-            반면 고PER + 적자 지속 + 고부채 + 성장 둔화 = 고평가 함정 (회피).
+            성장주 = 높은 성장률 + 성장 가속 + 낮은 PEG/PSR + 경쟁우위 + 소형주(시장 미주목) + 낮은 외국인비중.
+            반면 적자(PER 마이너스) + 고부채 + 성장 둔화 = 고평가 함정 (감점·회피).
           </p>
           <p>
             <strong className="text-on-surface">
