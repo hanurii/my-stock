@@ -447,7 +447,31 @@ async function main() {
   console.log("\n" + "─".repeat(65));
   printSummary("워치리스트", watchlistResult);
 
-  // ─── 2. 오일전문가 포트폴리오 ───
+  // ─── 2. 저평가 성장주 (국내) ───
+  const growthPath = path.join(process.cwd(), "public", "data", "growth-watchlist.json");
+  const growthData = JSON.parse(fs.readFileSync(growthPath, "utf-8"));
+
+  if ((growthData.stocks as StockBase[]).length > 0) {
+    console.log(`\n\n📊 [저평가 성장주] 시세 업데이트 (${today})`);
+    console.log("─".repeat(65));
+
+    const growthResult = await updateStocks(
+      growthData.stocks as StockBase[],
+      async (code) => fetchFromNaver(code),
+      scoreAllDomestic,
+      today,
+      naverCache,
+    );
+
+    console.log("\n" + "─".repeat(65));
+    printSummary("저평가 성장주", growthResult);
+  } else {
+    console.log(`\n\n📊 [저평가 성장주] 종목 없음 — 건너뜀`);
+  }
+
+  fs.writeFileSync(growthPath, JSON.stringify(growthData, null, 2) + "\n", "utf-8");
+
+  // ─── 3. 오일전문가 포트폴리오 ───
   const oilPath = path.join(process.cwd(), "public", "data", "oil-expert-watchlist.json");
   const oilData = JSON.parse(fs.readFileSync(oilPath, "utf-8"));
 
@@ -488,7 +512,7 @@ async function main() {
 
   fs.writeFileSync(oilPath, JSON.stringify(oilData, null, 2) + "\n", "utf-8");
 
-  // ─── 3. 매매일지 보유 종목 ───
+  // ─── 4. 매매일지 보유 종목 ───
   const journalPath = path.join(process.cwd(), "public", "data", "journal.json");
   const journalData = JSON.parse(fs.readFileSync(journalPath, "utf-8"));
 
