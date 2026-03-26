@@ -2,10 +2,10 @@
  * 거시경제 리포트 데이터 수집 스크립트
  *
  * GitHub Actions에서 매일 06:30 KST에 실행.
- * Yahoo Finance 시계열 + 매일경제 RSS 뉴스를 수집하여
+ * Yahoo Finance 시계열 + 매일경제/한국경제 RSS 뉴스를 수집하여
  * draft 리포트 JSON을 생성한다.
- * 분석 섹션(briefing, scenario 등)은 비워두고,
- * 스케줄 트리거(Claude)가 채워넣는다.
+ * 분석 섹션(briefing, scenario 등)은 직전 리포트 값을 유지하며,
+ * 스케줄 트리거(Claude)가 새로 채워넣는다.
  *
  * 사용법: npx tsx scripts/collect-report-data.ts
  */
@@ -15,24 +15,35 @@ import path from "path";
 // ── 설정 ──
 
 const YAHOO_API = "https://query1.finance.yahoo.com/v8/finance/chart";
-const MK_RSS_IDS = ["30100041", "50200011"]; // 경제, 증권
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
 
+// 매일경제 RSS (경제, 증권)
+const MK_RSS_URLS = [
+  "https://www.mk.co.kr/rss/30100041",
+  "https://www.mk.co.kr/rss/50200011",
+];
+// 한국경제 RSS (경제, 증권)
+const HK_RSS_URLS = [
+  "https://www.hankyung.com/feed/economy",
+  "https://www.hankyung.com/feed/finance",
+];
+
 const SYMBOLS = [
-  { yahoo: "^KS11", name: "코스피", section: "korea", idx: 0 },
-  { yahoo: "^KQ11", name: "코스닥", section: "korea", idx: 1 },
-  { yahoo: "^IXIC", name: "나스닥", section: "us", idx: 0 },
-  { yahoo: "^DJI", name: "다우존스", section: "us", idx: 1 },
-  { yahoo: "^GSPC", name: "S&P500", section: "us", idx: 2 },
-  { yahoo: "KRW=X", name: "원/달러", section: "fx", idx: 0 },
-  { yahoo: "DX-Y.NYB", name: "달러인덱스", section: "fx", idx: 1 },
-  { yahoo: "JPY=X", name: "엔/달러", section: "fx", idx: 2 },
-  { yahoo: "^TNX", name: "미국채10년", section: "bonds", idx: 0 },
-  { yahoo: "^IRX", name: "미국채2년", section: "bonds", idx: 1 },
-  { yahoo: "CL=F", name: "WTI유가", section: "commodities", idx: 0 },
-  { yahoo: "^VIX", name: "VIX", section: "commodities", idx: 2 },
-  { yahoo: "GC=F", name: "금", section: "commodities", idx: 3 },
-  { yahoo: "BTC-USD", name: "비트코인", section: "commodities", idx: 4 },
+  { yahoo: "^KS11", name: "코스피", section: "korea" },
+  { yahoo: "^KQ11", name: "코스닥", section: "korea" },
+  { yahoo: "^IXIC", name: "나스닥", section: "us" },
+  { yahoo: "^DJI", name: "다우존스", section: "us" },
+  { yahoo: "^GSPC", name: "S&P500", section: "us" },
+  { yahoo: "KRW=X", name: "원/달러", section: "fx" },
+  { yahoo: "DX-Y.NYB", name: "달러인덱스", section: "fx" },
+  { yahoo: "JPY=X", name: "엔/달러", section: "fx" },
+  { yahoo: "^TNX", name: "미국채10년", section: "bonds" },
+  { yahoo: "^IRX", name: "미국채2년", section: "bonds" },
+  { yahoo: "CL=F", name: "WTI유가", section: "commodities" },
+  { yahoo: "BZ=F", name: "브렌트유", section: "commodities" },
+  { yahoo: "^VIX", name: "VIX", section: "commodities" },
+  { yahoo: "GC=F", name: "금", section: "commodities" },
+  { yahoo: "BTC-USD", name: "비트코인", section: "commodities" },
 ];
 
 const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
@@ -99,7 +110,7 @@ async function fetchYahoo(
   }
 }
 
-// ── 매일경제 RSS ──
+// ── 뉴스 RSS (매일경제 + 한국경제) ──
 
 interface NewsItem {
   제목: string;
@@ -108,40 +119,62 @@ interface NewsItem {
   날짜: string;
 }
 
-async function fetchMKNews(): Promise<NewsItem[]> {
-  const allItems: { title: string; link: string; date: Date; dateStr: string }[] = [];
+interface RawNewsItem {
+  title: string;
+  link: string;
+  source: string;
+  date: Date;
+  dateStr: string;
+}
 
-  // 전날 오전 7시 KST 이후만 수집
-  const now = new Date();
-  const kstNow = new Date(now.getTime() + 9 * 60 * 60 * 1000);
-  const yesterday7am = new Date(kstNow);
-  yesterday7am.setUTCDate(yesterday7am.getUTCDate() - 1);
-  yesterday7am.setUTCHours(7 - 9, 0, 0, 0); // KST 7am = UTC -2 (previous day)
+// 경제 핵심 키워드 (포함 필터)
+const NEWS_KEYWORDS =
+  /증시|코스피|코스닥|환율|원달러|유가|WTI|금리|FOMC|금값|채권|인플레|GDP|CPI|경기|수출|무역|이란|전쟁|트럼프|연준|파월|주가|반등|급락|하락|상승|외국인|기관|관세|반도체|AI|석유|OPEC/;
 
-  for (const rssId of MK_RSS_IDS) {
+// 불필요 기사 제외 패턴
+const NEWS_EXCLUDE =
+  /\[표\]|고시표|일일시세|마감시세|장마감|종목별|외국환|기준금리표|공시지가|부동산.*공시|인사|부고|칼럼|사설/;
+
+async function fetchRssNews(
+  urls: string[],
+  sourceName: string,
+  cutoffDate: Date,
+  maxCount: number,
+): Promise<RawNewsItem[]> {
+  const allItems: RawNewsItem[] = [];
+
+  for (const url of urls) {
     try {
-      const res = await fetch(`https://www.mk.co.kr/rss/${rssId}`, {
-        headers: { "User-Agent": UA },
-      });
+      const res = await fetch(url, { headers: { "User-Agent": UA } });
       if (!res.ok) continue;
       const xml = await res.text();
 
       const items = xml.match(/<item>[\s\S]*?<\/item>/g) || [];
       for (const item of items) {
-        const title = item.match(/CDATA\[(.*?)\]\]/)?.[1] || "";
-        const link = item.match(/<link>[\s\S]*?CDATA\[(.*?)\]\]/)?.[1] || "";
+        const title =
+          item.match(/<title>[\s\S]*?CDATA\[(.*?)\]\]/)?.[1] ||
+          item.match(/<title>(.*?)<\/title>/)?.[1] ||
+          "";
+        const link =
+          item.match(/<link>[\s\S]*?CDATA\[(.*?)\]\]/)?.[1] ||
+          item.match(/<link>(.*?)<\/link>/)?.[1] ||
+          "";
         const pubDateStr = item.match(/<pubDate>(.*?)<\/pubDate>/)?.[1] || "";
-        const category = item.match(/<category>[\s\S]*?CDATA\[(.*?)\]\]/)?.[1] || "";
+        const category =
+          item.match(/<category>[\s\S]*?CDATA\[(.*?)\]\]/)?.[1] || "";
 
-        // 경제/증시와 무관한 카테고리 제외
-        if (/연예|스포츠|라이프|문화|오피니언/.test(category)) continue;
+        // 카테고리 필터
+        if (/연예|스포츠|라이프|문화|오피니언|부동산/.test(category)) continue;
 
         const pubDate = new Date(pubDateStr);
         if (isNaN(pubDate.getTime())) continue;
-        if (pubDate < yesterday7am) continue;
+        if (pubDate < cutoffDate) continue;
+
+        // 불필요 기사 제외
+        if (NEWS_EXCLUDE.test(title)) continue;
 
         const dateStr = pubDate.toISOString().split("T")[0];
-        allItems.push({ title, link, date: pubDate, dateStr });
+        allItems.push({ title, link, source: sourceName, date: pubDate, dateStr });
       }
       await sleep(500);
     } catch {
@@ -149,15 +182,12 @@ async function fetchMKNews(): Promise<NewsItem[]> {
     }
   }
 
-  // 최신순 정렬 후 경제 핵심 키워드로 필터링
-  const keywords = /증시|코스피|코스닥|환율|원달러|유가|WTI|금리|FOMC|금값|채권|인플레|GDP|CPI|경기|수출|무역|이란|전쟁|트럼프|연준|파월|주가|반등|급락|하락|상승|외국인|기관/;
-
+  // 키워드 필터 → 최신순 정렬 → 중복 제거
   const filtered = allItems
-    .filter((item) => keywords.test(item.title))
+    .filter((item) => NEWS_KEYWORDS.test(item.title))
     .sort((a, b) => b.date.getTime() - a.date.getTime());
 
-  // 중복 제거 (제목 유사도)
-  const unique: typeof filtered = [];
+  const unique: RawNewsItem[] = [];
   for (const item of filtered) {
     const isDup = unique.some(
       (u) => item.title.substring(0, 15) === u.title.substring(0, 15),
@@ -165,12 +195,81 @@ async function fetchMKNews(): Promise<NewsItem[]> {
     if (!isDup) unique.push(item);
   }
 
-  return unique.slice(0, 8).map((item) => ({
+  return unique.slice(0, maxCount);
+}
+
+async function fetchNews(): Promise<NewsItem[]> {
+  // 전날 오전 7시 KST 이후만 수집
+  const now = new Date();
+  const kstNow = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+  const yesterday7am = new Date(kstNow);
+  yesterday7am.setUTCDate(yesterday7am.getUTCDate() - 1);
+  yesterday7am.setUTCHours(7 - 9, 0, 0, 0); // KST 7am = UTC -2 (previous day)
+
+  // 매일경제 6개, 한국경제 6개 병렬 수집
+  const [mkItems, hkItems] = await Promise.all([
+    fetchRssNews(MK_RSS_URLS, "매일경제", yesterday7am, 6),
+    fetchRssNews(HK_RSS_URLS, "한국경제", yesterday7am, 6),
+  ]);
+
+  return [...mkItems, ...hkItems].map((item) => ({
     제목: item.title,
     링크: item.link,
-    출처: "매일경제",
+    출처: item.source,
     날짜: item.dateStr,
   }));
+}
+
+// ── 두바이유 (네이버 금융 스크래핑) ──
+
+interface DubaiCrudeData {
+  timeseries: TimeseriesPoint[];
+  latest: number;
+  prevClose: number | null;
+}
+
+async function fetchDubaiCrude(): Promise<DubaiCrudeData | null> {
+  try {
+    const url =
+      "https://finance.naver.com/marketindex/worldDailyQuote.naver?marketindexCd=OIL_DU&fdtc=2&page=1";
+    const res = await fetch(url, { headers: { "User-Agent": UA } });
+    if (!res.ok) return null;
+    const html = await res.text();
+
+    const rows = html.match(/<tr[\s\S]*?<\/tr>/g) || [];
+    const points: { date: Date; dateStr: string; value: number }[] = [];
+
+    for (const row of rows) {
+      const tds = (row.match(/<td[^>]*>([\s\S]*?)<\/td>/g) || []).map((td) =>
+        td.replace(/<[^>]+>/g, "").trim(),
+      );
+      if (tds.length < 2) continue;
+      const dateMatch = tds[0].match(/(\d{4})\.(\d{2})\.(\d{2})/);
+      const value = parseFloat(tds[1].replace(/,/g, ""));
+      if (!dateMatch || isNaN(value)) continue;
+
+      const d = new Date(`${dateMatch[1]}-${dateMatch[2]}-${dateMatch[3]}`);
+      const dateStr = `${dateMatch[2]}/${dateMatch[3]}`;
+      points.push({ date: d, dateStr, value });
+    }
+
+    if (points.length === 0) return null;
+
+    // 오래된 순 정렬 → 최근 10개
+    points.sort((a, b) => a.date.getTime() - b.date.getTime());
+    const last10 = points.slice(-10);
+    const timeseries = last10.map((p) => ({
+      날짜: p.dateStr,
+      종가: parseFloat(p.value.toFixed(2)),
+    }));
+    const latest = timeseries[timeseries.length - 1]?.종가 ?? 0;
+    const prevClose =
+      timeseries.length >= 2 ? timeseries[timeseries.length - 2]?.종가 : null;
+
+    return { timeseries, latest, prevClose };
+  } catch {
+    return null;
+  }
 }
 
 // ── 메인 ──
@@ -214,10 +313,13 @@ async function main() {
       continue;
     }
 
-    const indicator = indicators[sym.section]?.[sym.idx];
+    // 이름 기반 매핑: 섹션 배열에서 name이 일치하는 지표를 찾는다
+    const sectionArr = indicators[sym.section] as Record<string, unknown>[] | undefined;
+    const indicator = sectionArr?.find((ind) => ind.name === sym.name);
     if (!indicator) {
-      console.log(`  ⚠️ ${sym.name}: 섹션 매핑 실패`);
+      console.log(`  ⚠️ ${sym.name}: 섹션 "${sym.section}"에서 이름 매칭 실패`);
       failCount++;
+      await sleep(500);
       continue;
     }
 
@@ -251,11 +353,42 @@ async function main() {
 
   console.log(`\n   ${successCount}개 성공, ${failCount}개 실패\n`);
 
-  // ── 2. 매일경제 RSS 뉴스 수집 ──
-  console.log("2️⃣ 매일경제 RSS 뉴스 수집");
-  const news = await fetchMKNews();
-  console.log(`  ${news.length}개 기사 수집`);
-  news.forEach((n) => console.log(`  · ${n.날짜} | ${n.제목.substring(0, 50)}`));
+  // ── 1-2. 두바이유 (네이버 금융) ──
+  console.log("1️⃣-2 두바이유 (네이버 금융)");
+  const dubaiData = await fetchDubaiCrude();
+  const dubaiIndicator = (indicators.commodities as Record<string, unknown>[])?.find(
+    (ind) => ind.name === "두바이유",
+  );
+  if (dubaiData && dubaiIndicator) {
+    const oldValue = dubaiIndicator.value;
+    dubaiIndicator.timeseries = dubaiData.timeseries;
+    dubaiIndicator.value = dubaiData.latest;
+    if (dubaiData.prevClose && dubaiData.prevClose !== 0) {
+      dubaiIndicator.change = parseFloat(
+        (((dubaiData.latest - dubaiData.prevClose) / dubaiData.prevClose) * 100).toFixed(2),
+      );
+    }
+    if (dubaiData.timeseries.length >= 6) {
+      const weekAgo = dubaiData.timeseries[dubaiData.timeseries.length - 6].종가;
+      if (weekAgo !== 0) {
+        dubaiIndicator.weekly_change = parseFloat(
+          (((dubaiData.latest - weekAgo) / weekAgo) * 100).toFixed(2),
+        );
+      }
+    }
+    console.log(`  ✅ 두바이유: ${oldValue} → ${dubaiData.latest}`);
+  } else {
+    console.log(`  ❌ 두바이유: ${dubaiData ? "지표 매칭 실패" : "조회 실패"} — 직전 값 유지`);
+  }
+  console.log();
+
+  // ── 2. 매일경제 + 한국경제 RSS 뉴스 수집 ──
+  console.log("2️⃣ 매일경제 + 한국경제 RSS 뉴스 수집");
+  const news = await fetchNews();
+  const mkCount = news.filter((n) => n.출처 === "매일경제").length;
+  const hkCount = news.filter((n) => n.출처 === "한국경제").length;
+  console.log(`  매일경제 ${mkCount}개 + 한국경제 ${hkCount}개 = 총 ${news.length}개`);
+  news.forEach((n) => console.log(`  · [${n.출처}] ${n.날짜} | ${n.제목.substring(0, 50)}`));
 
   // ── 3. spread 계산 ──
   const bond10 = indicators.bonds?.[0]?.value ?? prev.spread["10년물"];
@@ -267,21 +400,19 @@ async function main() {
     "상태": bond10 > bond2 ? "정상" : "역전",
   };
 
-  // ── 4. historical current 값 업데이트 ──
+  // ── 4. historical current 값 업데이트 (이름 기반) ──
   const historical = JSON.parse(JSON.stringify(prev.historical));
-  const valueMap: Record<string, number> = {
-    "코스피": indicators.korea[0]?.value,
-    "코스닥": indicators.korea[1]?.value,
-    "나스닥": indicators.us[0]?.value,
-    "S&P500": indicators.us[2]?.value,
-    "원/달러": indicators.fx[0]?.value,
-    "WTI유가": indicators.commodities[0]?.value,
-    "금": indicators.commodities[3]?.value,
-    "VIX": indicators.commodities[2]?.value,
-    "미국채10년": indicators.bonds[0]?.value,
-    "달러인덱스": indicators.fx[1]?.value,
-    "비트코인": indicators.commodities[4]?.value,
-  };
+  const allIndicators = [
+    ...indicators.korea,
+    ...indicators.us,
+    ...indicators.fx,
+    ...indicators.bonds,
+    ...indicators.commodities,
+  ];
+  const valueMap: Record<string, number> = {};
+  for (const ind of allIndicators) {
+    if (ind?.name && ind?.value != null) valueMap[ind.name] = ind.value;
+  }
   for (const h of historical) {
     if (valueMap[h.name] != null) h.current = valueMap[h.name];
   }
@@ -294,19 +425,19 @@ async function main() {
       generated_at: kst.generated_at,
     },
 
-    // === 분석 섹션 (스케줄 트리거가 채울 영역) ===
-    briefing: "",
-    scenario: { 코드: "", 시나리오: "", 해석: "", 대응: "" },
+    // === 분석 섹션 (직전 리포트 유지 → 스케줄 트리거가 새로 채움) ===
+    briefing: prev.briefing || "",
+    scenario: prev.scenario || { 코드: "", 시나리오: "", 해석: "", 대응: "" },
 
     // === 데이터 섹션 (스크립트가 채운 영역) ===
     indicators,
     spread,
-    causal_chain: "",
-    investment_direction: "",
+    causal_chain: prev.causal_chain || "",
+    investment_direction: prev.investment_direction || "",
     news,
     cpi_gdp: prev.cpi_gdp,
-    divergence: "",
-    asset_recommendation: "",
+    divergence: prev.divergence || "",
+    asset_recommendation: prev.asset_recommendation || "",
     historical,
     longterm_charts: prev.longterm_charts,
   };
