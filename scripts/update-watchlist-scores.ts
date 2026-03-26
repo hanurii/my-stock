@@ -13,9 +13,11 @@ import path from "path";
 import {
   scoreDomestic,
   scoreOverseas,
+  scoreGrowth,
   getGrade,
   type DomesticStockInput,
   type OverseasStockInput,
+  type GrowthStockInput,
   type ScoredResult,
 } from "../src/lib/scoring";
 
@@ -257,6 +259,13 @@ function scoreAllOverseas(stocks: StockBase[]): ScoredAll {
   return buildRanks(results);
 }
 
+function makeScoreAllGrowth(baseRate: number): ScoreFn {
+  return (stocks: StockBase[]) => {
+    const results = stocks.map((s) => scoreGrowth(s as unknown as GrowthStockInput, baseRate));
+    return buildRanks(results);
+  };
+}
+
 function buildRanks(results: ScoredResult[]): ScoredAll {
   const scores = results.map((r) => r.score);
   const grades = results.map((r) => r.grade);
@@ -455,10 +464,11 @@ async function main() {
     console.log(`\n\n📊 [저평가 성장주] 시세 업데이트 (${today})`);
     console.log("─".repeat(65));
 
+    const baseRate = growthData.base_rate ?? 2.75;
     const growthResult = await updateStocks(
       growthData.stocks as StockBase[],
       async (code) => fetchFromNaver(code),
-      scoreAllDomestic,
+      makeScoreAllGrowth(baseRate),
       today,
       naverCache,
     );
