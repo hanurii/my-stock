@@ -110,10 +110,10 @@ export function IndicatorTable({ title, indicators }: IndicatorTableProps) {
                 {ind.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </td>
               <td className={`px-3 py-3 text-right font-mono text-sm whitespace-nowrap ${changeColor}`}>
-                {ind.change > 0 ? "+" : ""}{ind.change.toFixed(2)}%
+                {ind.change > 0 ? "+" : ""}{ind.change_unit === "bp" ? `${ind.change.toFixed(1)}bp` : `${ind.change.toFixed(2)}%`}
               </td>
               <td className={`px-3 py-3 text-right font-mono text-sm whitespace-nowrap ${weeklyColor}`}>
-                {ind.weekly_change > 0 ? "+" : ""}{ind.weekly_change.toFixed(1)}%
+                {ind.weekly_change > 0 ? "+" : ""}{ind.change_unit === "bp" ? `${ind.weekly_change.toFixed(1)}bp` : `${ind.weekly_change.toFixed(1)}%`}
               </td>
               <td className="px-3 py-3 text-xs text-on-surface-variant whitespace-nowrap hidden md:table-cell">
                 {ind.trend}

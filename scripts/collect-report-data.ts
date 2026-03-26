@@ -328,20 +328,31 @@ async function main() {
     indicator.value = data.latest;
 
     // change 계산 (전일 대비)
+    // 채권 금리(bonds)는 bp(basis point) 단위, 그 외는 퍼센트 변동률
+    const isBond = sym.section === "bonds";
     if (data.prevClose && data.prevClose !== 0) {
-      indicator.change = parseFloat(
-        (((data.latest - data.prevClose) / data.prevClose) * 100).toFixed(2),
-      );
+      indicator.change = isBond
+        ? parseFloat(((data.latest - data.prevClose) * 100).toFixed(1))   // bp
+        : parseFloat(
+            (((data.latest - data.prevClose) / data.prevClose) * 100).toFixed(2),
+          );
     }
 
     // weekly_change 계산 (5영업일 전 대비)
     if (data.timeseries.length >= 6) {
       const weekAgo = data.timeseries[data.timeseries.length - 6].종가;
       if (weekAgo !== 0) {
-        indicator.weekly_change = parseFloat(
-          (((data.latest - weekAgo) / weekAgo) * 100).toFixed(2),
-        );
+        indicator.weekly_change = isBond
+          ? parseFloat(((data.latest - weekAgo) * 100).toFixed(1))        // bp
+          : parseFloat(
+              (((data.latest - weekAgo) / weekAgo) * 100).toFixed(2),
+            );
       }
+    }
+
+    // 채권은 단위 표기 추가
+    if (isBond) {
+      indicator.change_unit = "bp";
     }
 
     console.log(

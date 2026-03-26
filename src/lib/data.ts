@@ -9,6 +9,7 @@ export interface Indicator {
   trend: string;
   comment: string;
   timeseries?: { 날짜: string; 종가: number }[];
+  change_unit?: "bp" | "%";
   error?: boolean;
 }
 
