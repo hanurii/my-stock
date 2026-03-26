@@ -4,26 +4,23 @@ import { Collapsible } from "@/components/Collapsible";
 import { ScoreDetails } from "@/components/ScoreDetails";
 import { RankChange, GradeChangeBadge } from "@/components/RankChange";
 import {
-  scoreDomestic,
+  scoreGrowth,
   getGradeColor,
   getGradeLabel,
-  DOMESTIC_FRAMEWORK,
-  type DomesticStockInput,
+  getInterestRatePenalty,
+  GROWTH_FRAMEWORK,
+  type GrowthStockInput,
   type ScoredResult,
 } from "@/lib/scoring";
 
-interface GrowthStock extends DomesticStockInput {
-  tier?: string;
-  catalyst?: string;
-  a_grade_price?: number;
-  current_price_at_scoring?: number;
-}
+type GrowthStock = GrowthStockInput;
 
 interface GrowthWatchlistData {
   stocks: GrowthStock[];
   excluded: { name: string; reason: string }[];
   tiers: Record<string, { label: string; desc: string }>;
   market_insight: string;
+  base_rate: number;
 }
 
 type ScoredStock = GrowthStock & ScoredResult;
@@ -33,6 +30,7 @@ function getGrowthData(): {
   excluded: GrowthWatchlistData["excluded"];
   tiers: GrowthWatchlistData["tiers"];
   market_insight: string;
+  base_rate: number;
 } | null {
   try {
     const filePath = path.join(
@@ -44,8 +42,9 @@ function getGrowthData(): {
     const raw = fs.readFileSync(filePath, "utf-8");
     const data = JSON.parse(raw) as GrowthWatchlistData;
 
+    const baseRate = data.base_rate ?? 2.75;
     const stocks: ScoredStock[] = data.stocks
-      .map((s) => ({ ...s, ...scoreDomestic(s) }))
+      .map((s) => ({ ...s, ...scoreGrowth(s, baseRate) }))
       .sort((a, b) => b.score - a.score);
 
     return {
@@ -53,6 +52,7 @@ function getGrowthData(): {
       excluded: data.excluded,
       tiers: data.tiers,
       market_insight: data.market_insight,
+      base_rate: baseRate,
     };
   } catch {
     return null;
@@ -78,7 +78,7 @@ function formatScoredAt(dateStr: string): string {
 
 export default function GrowthPage() {
   const data = getGrowthData();
-  const framework = DOMESTIC_FRAMEWORK;
+  const framework = GROWTH_FRAMEWORK;
 
   if (!data || data.stocks.length === 0) {
     return (
@@ -113,7 +113,8 @@ export default function GrowthPage() {
     );
   }
 
-  const { stocks, excluded } = data;
+  const { stocks, excluded, base_rate } = data;
+  const rateInfo = getInterestRatePenalty(base_rate);
 
   // 등급별 분류
   const gradeGroups: Record<string, ScoredStock[]> = {
@@ -139,19 +140,33 @@ export default function GrowthPage() {
           저평가 성장주
         </h2>
         <p className="text-base text-on-surface-variant mt-2">
-          3대 카테고리 점수 시스템 (100점 만점)
+          GARP 스코어링 · 기본 100점 − 금리 감점
         </p>
         <p className="text-xs text-on-surface-variant/50 mt-1.5">
           점수 갱신: {calculatedAt}
         </p>
+
+        {/* 금리 환경 배너 */}
+        <div className={`mt-4 flex items-center gap-3 rounded-xl p-4 ghost-border ${rateInfo.penalty >= 10 ? "bg-[#ffb4ab]/10" : rateInfo.penalty >= 5 ? "bg-[#e9c176]/10" : "bg-[#95d3ba]/10"}`}>
+          <span className="material-symbols-outlined text-lg" style={{ color: rateInfo.penalty >= 10 ? "#ffb4ab" : rateInfo.penalty >= 5 ? "#e9c176" : "#95d3ba" }}>
+            {rateInfo.penalty >= 10 ? "warning" : rateInfo.penalty >= 5 ? "info" : "check_circle"}
+          </span>
+          <div>
+            <p className="text-sm text-on-surface">
+              한국은행 기준금리 <span className="font-mono font-bold">{base_rate}%</span>
+              {rateInfo.penalty > 0 && <span className="text-on-surface-variant"> · 전 종목 <span className="font-mono font-bold" style={{ color: "#ffb4ab" }}>−{rateInfo.penalty}점</span> 감점</span>}
+            </p>
+            <p className="text-xs text-on-surface-variant/60 mt-0.5">{rateInfo.label}</p>
+          </div>
+        </div>
       </section>
 
       {/* Scoring Framework */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-5">
         {[
-          { key: "category1" as const, icon: "analytics" },
-          { key: "category2" as const, icon: "volunteer_activism" },
-          { key: "category3" as const, icon: "trending_up" },
+          { key: "category1" as const, icon: "trending_up" },
+          { key: "category2" as const, icon: "query_stats" },
+          { key: "category3" as const, icon: "shield" },
         ].map(({ key, icon }) => {
           const cat = framework[key];
           return (
@@ -220,6 +235,9 @@ export default function GrowthPage() {
           <h3 className="text-base font-serif text-on-surface">
             전체 종목 한눈에 보기
           </h3>
+          {stocks.filter(s => s.score < 45).length > 0 && (
+            <p className="text-xs text-on-surface-variant/40 mt-1">45점 미만 {stocks.filter(s => s.score < 45).length}개 종목 생략</p>
+          )}
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -231,22 +249,22 @@ export default function GrowthPage() {
                 <th className="text-center px-3 pb-3 font-normal">등급</th>
                 <th className="text-right px-3 pb-3 font-normal">점수</th>
                 <th className="text-right px-3 pb-3 font-normal hidden md:table-cell">
-                  PER
+                  PEG
                 </th>
                 <th className="text-right px-3 pb-3 font-normal hidden md:table-cell">
-                  PBR
+                  PSR
                 </th>
                 <th className="text-right px-3 pb-3 font-normal hidden md:table-cell">
-                  배당률
+                  매출↑
                 </th>
                 <th className="text-right px-3 pb-3 font-normal hidden lg:table-cell">
-                  {framework.category1.name.split("/")[0]}
+                  성장성
                 </th>
                 <th className="text-right px-3 pb-3 font-normal hidden lg:table-cell">
-                  주주환원
+                  밸류에이션
                 </th>
                 <th className="text-right px-3 pb-3 font-normal hidden lg:table-cell">
-                  성장
+                  경쟁력
                 </th>
                 <th className="text-right px-3 pb-3 font-normal hidden lg:table-cell">
                   채점일
@@ -254,18 +272,19 @@ export default function GrowthPage() {
               </tr>
             </thead>
             <tbody>
-              {stocks.map((stock, i) => {
+              {stocks.filter(s => s.score >= 45).map((stock) => {
                 const color = getGradeColor(stock.grade);
+                const rank = stocks.indexOf(stock) + 1;
                 return (
                   <tr
                     key={stock.code}
-                    className={`hover:bg-surface-container/30 transition-colors ${i === 0 ? "bg-primary/5" : ""}`}
+                    className={`hover:bg-surface-container/30 transition-colors ${rank === 1 ? "bg-primary/5" : ""}`}
                   >
                     <td
                       className="text-center px-3 py-2.5 font-mono"
                       style={{ color }}
                     >
-                      {i + 1}
+                      {rank}
                     </td>
                     <td className="px-3 py-2.5 font-medium text-on-surface">
                       <span className="inline-flex items-center gap-1.5 flex-wrap">
@@ -276,7 +295,7 @@ export default function GrowthPage() {
                           </span>
                         )}
                         <RankChange
-                          currentRank={i + 1}
+                          currentRank={rank}
                           previousRank={stock.previous_rank}
                         />
                         <GradeChangeBadge
@@ -308,13 +327,13 @@ export default function GrowthPage() {
                       {stock.score}
                     </td>
                     <td className="text-right px-3 py-2.5 font-mono text-on-surface-variant hidden md:table-cell">
-                      {stock.per != null ? `${stock.per}x` : "적자"}
+                      {stock.peg != null ? `${stock.peg}` : "—"}
                     </td>
                     <td className="text-right px-3 py-2.5 font-mono text-on-surface-variant hidden md:table-cell">
-                      {stock.pbr}x
+                      {stock.psr}x
                     </td>
                     <td className="text-right px-3 py-2.5 font-mono text-on-surface-variant hidden md:table-cell">
-                      {stock.dividend_yield}%
+                      {stock.revenue_growth_3y}%
                     </td>
                     <td className="text-right px-3 py-2.5 font-mono text-on-surface-variant hidden lg:table-cell">
                       {stock.cat1}/{framework.category1.max_score}
@@ -434,19 +453,19 @@ export default function GrowthPage() {
                     <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-4">
                       {[
                         {
-                          label: framework.category1.name.split("/")[0],
+                          label: "성장성",
                           score: stock.cat1,
                           max: framework.category1.max_score,
                           pct: cat1Pct,
                         },
                         {
-                          label: "주주환원",
+                          label: "밸류에이션",
                           score: stock.cat2,
                           max: framework.category2.max_score,
                           pct: cat2Pct,
                         },
                         {
-                          label: "성장/경쟁력",
+                          label: "경쟁력/재무",
                           score: stock.cat3,
                           max: framework.category3.max_score,
                           pct: cat3Pct,
@@ -477,7 +496,19 @@ export default function GrowthPage() {
                       ))}
                     </div>
 
-                    <div className="flex gap-4 mb-3 text-sm">
+                    <div className="flex flex-wrap gap-x-4 gap-y-1 mb-3 text-sm">
+                      <span className="text-on-surface-variant">
+                        PEG{" "}
+                        <span className="font-mono text-on-surface">
+                          {stock.peg != null ? stock.peg : "—"}
+                        </span>
+                      </span>
+                      <span className="text-on-surface-variant">
+                        PSR{" "}
+                        <span className="font-mono text-on-surface">
+                          {stock.psr}x
+                        </span>
+                      </span>
                       <span className="text-on-surface-variant">
                         PER{" "}
                         <span className="font-mono text-on-surface">
@@ -485,15 +516,15 @@ export default function GrowthPage() {
                         </span>
                       </span>
                       <span className="text-on-surface-variant">
-                        PBR{" "}
+                        매출↑{" "}
                         <span className="font-mono text-on-surface">
-                          {stock.pbr}x
+                          {stock.revenue_growth_3y}%
                         </span>
                       </span>
                       <span className="text-on-surface-variant">
-                        배당{" "}
+                        영업이익↑{" "}
                         <span className="font-mono text-on-surface">
-                          {stock.dividend_yield}%
+                          {stock.op_profit_growth_3y}%
                         </span>
                       </span>
                     </div>
@@ -682,7 +713,19 @@ export default function GrowthPage() {
                               </div>
                             ))}
                           </div>
-                          <div className="flex gap-4 mb-3 text-sm">
+                          <div className="flex flex-wrap gap-x-4 gap-y-1 mb-3 text-sm">
+                            <span className="text-on-surface-variant">
+                              PEG{" "}
+                              <span className="font-mono text-on-surface">
+                                {stock.peg != null ? stock.peg : "—"}
+                              </span>
+                            </span>
+                            <span className="text-on-surface-variant">
+                              PSR{" "}
+                              <span className="font-mono text-on-surface">
+                                {stock.psr}x
+                              </span>
+                            </span>
                             <span className="text-on-surface-variant">
                               PER{" "}
                               <span className="font-mono text-on-surface">
@@ -690,15 +733,9 @@ export default function GrowthPage() {
                               </span>
                             </span>
                             <span className="text-on-surface-variant">
-                              PBR{" "}
+                              매출↑{" "}
                               <span className="font-mono text-on-surface">
-                                {stock.pbr}x
-                              </span>
-                            </span>
-                            <span className="text-on-surface-variant">
-                              배당{" "}
-                              <span className="font-mono text-on-surface">
-                                {stock.dividend_yield}%
+                                {stock.revenue_growth_3y}%
                               </span>
                             </span>
                           </div>
@@ -826,21 +863,20 @@ export default function GrowthPage() {
         <div className="space-y-4 text-base text-on-surface-variant leading-relaxed">
           <p>
             <strong className="text-on-surface">핵심 공식:</strong> 저평가
-            성장주 = 저PER + 저PBR + 고성장률 + 경쟁우위 + 안전마진. 반면
-            저PER + 저PBR + 저ROE + 매출감소 = 가치함정 (회피).
+            성장주 = 높은 매출·이익 성장률 + 낮은 PEG + 경쟁우위 + 재무건전성.
+            반면 고PER + 적자 지속 + 고부채 + 성장 둔화 = 고평가 함정 (회피).
           </p>
           <p>
             <strong className="text-on-surface">
-              A등급은 아무 때나 나오지 않습니다.
+              금리가 높으면 성장주가 불리합니다.
             </strong>{" "}
-            시장이 전반적으로 오른 상태에서는 A등급이 0개입니다. 시장
-            조정(20~35% 하락) 시 B/A등급 진입 종목이 나타나므로, 워치리스트를
-            유지하며 기다리는 것이 전략입니다.
+            고금리 환경에서는 전 종목에 감점이 적용되어 매수 등급 진입이
+            어려워집니다. 금리 인하 사이클에서 성장주 매수 기회가 열립니다.
           </p>
           <p>
             <strong className="text-on-surface">분기별 재점검:</strong> 실적
-            시즌마다 매출 성장률, EPS 업데이트, 경쟁력 변화를 반영하여 점수를
-            갱신합니다.
+            시즌마다 매출 성장률, EPS, PEG 변화를 반영하여 점수를 갱신합니다.
+            기준금리 변동 시에도 전체 점수가 재산출됩니다.
           </p>
         </div>
       </section>

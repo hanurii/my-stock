@@ -57,60 +57,69 @@ function StockTable({ stocks, framework, showCountry }: {
   framework: typeof DOMESTIC_FRAMEWORK | typeof OVERSEAS_FRAMEWORK;
   showCountry?: boolean;
 }) {
+  const hiddenCount = stocks.filter(s => s.score < 45).length;
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="text-xs uppercase tracking-wider text-on-surface-variant/50">
-            <th className="text-center px-3 pb-3 font-normal w-10">#</th>
-            <th className="text-left px-3 pb-3 font-normal">종목</th>
-            {showCountry && <th className="text-left px-3 pb-3 font-normal hidden md:table-cell">국가</th>}
-            <th className="text-left px-3 pb-3 font-normal">섹터</th>
-            <th className="text-center px-3 pb-3 font-normal">등급</th>
-            <th className="text-right px-3 pb-3 font-normal">점수</th>
-            <th className="text-right px-3 pb-3 font-normal hidden md:table-cell">PER</th>
-            <th className="text-right px-3 pb-3 font-normal hidden md:table-cell">PBR</th>
-            <th className="text-right px-3 pb-3 font-normal hidden md:table-cell">배당률</th>
-            <th className="text-right px-3 pb-3 font-normal hidden lg:table-cell">{framework.category1.name.split("/")[0]}</th>
-            <th className="text-right px-3 pb-3 font-normal hidden lg:table-cell">주주환원</th>
-            <th className="text-right px-3 pb-3 font-normal hidden lg:table-cell">성장</th>
-            <th className="text-right px-3 pb-3 font-normal hidden lg:table-cell">채점일</th>
-          </tr>
-        </thead>
-        <tbody>
-          {stocks.map((stock, i) => {
-            const color = getGradeColor(stock.grade);
-            return (
-              <tr key={stock.code} className={`hover:bg-surface-container/30 transition-colors ${i === 0 ? "bg-primary/5" : ""}`}>
-                <td className="text-center px-3 py-2.5 font-mono" style={{ color }}>{i + 1}</td>
-                <td className="px-3 py-2.5 font-medium text-on-surface">
-                  <span className="inline-flex items-center gap-1.5 flex-wrap">
-                    {stock.name}
-                    {stock.estimated && <span className="text-[10px] text-on-surface-variant/40">~</span>}
-                    <RankChange currentRank={i + 1} previousRank={stock.previous_rank} />
-                    <GradeChangeBadge grade={stock.grade} score={stock.score} previousScore={stock.previous_score} compact />
-                  </span>
-                </td>
-                {showCountry && <td className="px-3 py-2.5 text-on-surface-variant hidden md:table-cell">{stock.country}</td>}
-                <td className="px-3 py-2.5 text-on-surface-variant">{stock.sector}</td>
-                <td className="text-center px-3 py-2.5">
-                  <span className="text-xs px-2 py-0.5 rounded font-bold" style={{ backgroundColor: `${color}20`, color }}>{stock.grade}</span>
-                </td>
-                <td className="text-right px-3 py-2.5 font-mono font-bold" style={{ color }}>{stock.score}</td>
-                <td className="text-right px-3 py-2.5 font-mono text-on-surface-variant hidden md:table-cell">
-                  {stock.per != null ? `${stock.per}x` : "적자"}
-                </td>
-                <td className="text-right px-3 py-2.5 font-mono text-on-surface-variant hidden md:table-cell">{stock.pbr}x</td>
-                <td className="text-right px-3 py-2.5 font-mono text-on-surface-variant hidden md:table-cell">{stock.dividend_yield}%</td>
-                <td className="text-right px-3 py-2.5 font-mono text-on-surface-variant hidden lg:table-cell">{stock.cat1}/{framework.category1.max_score}</td>
-                <td className="text-right px-3 py-2.5 font-mono text-on-surface-variant hidden lg:table-cell">{stock.cat2}/{framework.category2.max_score}</td>
-                <td className="text-right px-3 py-2.5 font-mono text-on-surface-variant hidden lg:table-cell">{stock.cat3}/{framework.category3.max_score}</td>
-                <td className="text-right px-3 py-2.5 text-xs text-on-surface-variant/50 hidden lg:table-cell">{formatScoredAt(stock.scored_at)}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+    <div>
+      {hiddenCount > 0 && (
+        <div className="px-6 pb-2">
+          <p className="text-xs text-on-surface-variant/40">45점 미만 {hiddenCount}개 종목 생략</p>
+        </div>
+      )}
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="text-xs uppercase tracking-wider text-on-surface-variant/50">
+              <th className="text-center px-3 pb-3 font-normal w-10">#</th>
+              <th className="text-left px-3 pb-3 font-normal">종목</th>
+              {showCountry && <th className="text-left px-3 pb-3 font-normal hidden md:table-cell">국가</th>}
+              <th className="text-left px-3 pb-3 font-normal">섹터</th>
+              <th className="text-center px-3 pb-3 font-normal">등급</th>
+              <th className="text-right px-3 pb-3 font-normal">점수</th>
+              <th className="text-right px-3 pb-3 font-normal hidden md:table-cell">PER</th>
+              <th className="text-right px-3 pb-3 font-normal hidden md:table-cell">PBR</th>
+              <th className="text-right px-3 pb-3 font-normal hidden md:table-cell">배당률</th>
+              <th className="text-right px-3 pb-3 font-normal hidden lg:table-cell">{framework.category1.name.split("/")[0]}</th>
+              <th className="text-right px-3 pb-3 font-normal hidden lg:table-cell">주주환원</th>
+              <th className="text-right px-3 pb-3 font-normal hidden lg:table-cell">성장</th>
+              <th className="text-right px-3 pb-3 font-normal hidden lg:table-cell">채점일</th>
+            </tr>
+          </thead>
+          <tbody>
+            {stocks.filter(s => s.score >= 45).map((stock) => {
+              const color = getGradeColor(stock.grade);
+              const rank = stocks.indexOf(stock) + 1;
+              return (
+                <tr key={stock.code} className={`hover:bg-surface-container/30 transition-colors ${rank === 1 ? "bg-primary/5" : ""}`}>
+                  <td className="text-center px-3 py-2.5 font-mono" style={{ color }}>{rank}</td>
+                  <td className="px-3 py-2.5 font-medium text-on-surface">
+                    <span className="inline-flex items-center gap-1.5 flex-wrap">
+                      {stock.name}
+                      {stock.estimated && <span className="text-[10px] text-on-surface-variant/40">~</span>}
+                      <RankChange currentRank={rank} previousRank={stock.previous_rank} />
+                      <GradeChangeBadge grade={stock.grade} score={stock.score} previousScore={stock.previous_score} compact />
+                    </span>
+                  </td>
+                  {showCountry && <td className="px-3 py-2.5 text-on-surface-variant hidden md:table-cell">{stock.country}</td>}
+                  <td className="px-3 py-2.5 text-on-surface-variant">{stock.sector}</td>
+                  <td className="text-center px-3 py-2.5">
+                    <span className="text-xs px-2 py-0.5 rounded font-bold" style={{ backgroundColor: `${color}20`, color }}>{stock.grade}</span>
+                  </td>
+                  <td className="text-right px-3 py-2.5 font-mono font-bold" style={{ color }}>{stock.score}</td>
+                  <td className="text-right px-3 py-2.5 font-mono text-on-surface-variant hidden md:table-cell">
+                    {stock.per != null ? `${stock.per}x` : "적자"}
+                  </td>
+                  <td className="text-right px-3 py-2.5 font-mono text-on-surface-variant hidden md:table-cell">{stock.pbr}x</td>
+                  <td className="text-right px-3 py-2.5 font-mono text-on-surface-variant hidden md:table-cell">{stock.dividend_yield}%</td>
+                  <td className="text-right px-3 py-2.5 font-mono text-on-surface-variant hidden lg:table-cell">{stock.cat1}/{framework.category1.max_score}</td>
+                  <td className="text-right px-3 py-2.5 font-mono text-on-surface-variant hidden lg:table-cell">{stock.cat2}/{framework.category2.max_score}</td>
+                  <td className="text-right px-3 py-2.5 font-mono text-on-surface-variant hidden lg:table-cell">{stock.cat3}/{framework.category3.max_score}</td>
+                  <td className="text-right px-3 py-2.5 text-xs text-on-surface-variant/50 hidden lg:table-cell">{formatScoredAt(stock.scored_at)}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

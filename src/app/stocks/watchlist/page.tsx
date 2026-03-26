@@ -150,6 +150,9 @@ export default function WatchlistPage() {
       <section className="bg-surface-container-low rounded-xl ghost-border overflow-hidden">
         <div className="p-6 pb-3">
           <h3 className="text-base font-serif text-on-surface">전체 종목 한눈에 보기</h3>
+          {stocks.filter(s => s.score < 45).length > 0 && (
+            <p className="text-xs text-on-surface-variant/40 mt-1">45점 미만 {stocks.filter(s => s.score < 45).length}개 종목 생략</p>
+          )}
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -170,16 +173,17 @@ export default function WatchlistPage() {
               </tr>
             </thead>
             <tbody>
-              {stocks.map((stock, i) => {
+              {stocks.filter(s => s.score >= 45).map((stock) => {
                 const color = getGradeColor(stock.grade);
+                const rank = stocks.indexOf(stock) + 1;
                 return (
-                  <tr key={stock.code} className={`hover:bg-surface-container/30 transition-colors ${i === 0 ? "bg-primary/5" : ""}`}>
-                    <td className="text-center px-3 py-2.5 font-mono" style={{ color }}>{i + 1}</td>
+                  <tr key={stock.code} className={`hover:bg-surface-container/30 transition-colors ${rank === 1 ? "bg-primary/5" : ""}`}>
+                    <td className="text-center px-3 py-2.5 font-mono" style={{ color }}>{rank}</td>
                     <td className="px-3 py-2.5 font-medium text-on-surface">
                       <span className="inline-flex items-center gap-1.5 flex-wrap">
                         {stock.name}
                         {stock.estimated && <span className="text-[10px] text-on-surface-variant/40">~</span>}
-                        <RankChange currentRank={i + 1} previousRank={stock.previous_rank} />
+                        <RankChange currentRank={rank} previousRank={stock.previous_rank} />
                         <GradeChangeBadge grade={stock.grade} score={stock.score} previousScore={stock.previous_score} compact />
                       </span>
                     </td>
