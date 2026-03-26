@@ -332,7 +332,7 @@ async function main() {
     const isBond = sym.section === "bonds";
     if (data.prevClose && data.prevClose !== 0) {
       indicator.change = isBond
-        ? parseFloat(((data.latest - data.prevClose) * 100).toFixed(1))   // bp
+        ? parseFloat((data.latest - data.prevClose).toFixed(3))           // %p
         : parseFloat(
             (((data.latest - data.prevClose) / data.prevClose) * 100).toFixed(2),
           );
@@ -343,7 +343,7 @@ async function main() {
       const weekAgo = data.timeseries[data.timeseries.length - 6].종가;
       if (weekAgo !== 0) {
         indicator.weekly_change = isBond
-          ? parseFloat(((data.latest - weekAgo) * 100).toFixed(1))        // bp
+          ? parseFloat((data.latest - weekAgo).toFixed(3))                // %p
           : parseFloat(
               (((data.latest - weekAgo) / weekAgo) * 100).toFixed(2),
             );
@@ -352,7 +352,7 @@ async function main() {
 
     // 채권은 단위 표기 추가
     if (isBond) {
-      indicator.change_unit = "bp";
+      indicator.change_unit = "%p";
     }
 
     console.log(
