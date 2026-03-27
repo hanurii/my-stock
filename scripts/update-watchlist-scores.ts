@@ -462,7 +462,6 @@ async function updateStocks(
         after.details[i],
       );
       stock.grade_change_reason = reason;
-      stock.previous_details = before.details[i];
       scoreChanges++;
 
       if (oldGrade !== newGrade) {
@@ -473,6 +472,12 @@ async function updateStocks(
       }
     } else if (!alreadyUpdatedToday[i]) {
       delete stock.grade_change_reason;
+    }
+
+    // 현재 세부 점수 항상 저장 (UI 표시용 + 다음 실행 비교 기준)
+    stock.details = after.details[i];
+    if (!alreadyUpdatedToday[i]) {
+      stock.previous_details = before.details[i];
     }
 
     const prevRank = stock.previous_rank ?? before.ranks[i];
