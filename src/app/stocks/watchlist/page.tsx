@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import { Collapsible } from "@/components/Collapsible";
 import { ScoreDetails } from "@/components/ScoreDetails";
-import { RankChange, GradeChangeBadge } from "@/components/RankChange";
+import { RankChange, GradeChangeBadge, ScoreChangeComment } from "@/components/RankChange";
 import {
   scoreDomestic,
   getGradeColor,
@@ -226,7 +226,7 @@ export default function WatchlistPage() {
             return (
               <div key={stock.code} className="bg-surface-container-low rounded-xl ghost-border overflow-hidden">
                 <div className="p-4 sm:p-6">
-                  <GradeChangeBadge grade={stock.grade} score={stock.score} previousScore={stock.previous_score} gradeChangeReason={stock.grade_change_reason} />
+                  <ScoreChangeComment score={stock.score} previousScore={stock.previous_score} grade={stock.grade} details={stock.details} previousDetails={stock.previous_details} />
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-4">
                       <div className="text-center w-8">
@@ -328,7 +328,7 @@ export default function WatchlistPage() {
                   return (
                     <div key={stock.code} className="bg-surface-container-low rounded-xl ghost-border overflow-hidden">
                       <div className="p-6">
-                        <GradeChangeBadge grade={stock.grade} score={stock.score} previousScore={stock.previous_score} gradeChangeReason={stock.grade_change_reason} />
+                        <ScoreChangeComment score={stock.score} previousScore={stock.previous_score} grade={stock.grade} details={stock.details} previousDetails={stock.previous_details} />
                         <div className="flex items-center justify-between mb-4">
                           <div className="flex items-center gap-4">
                             <div className="text-center w-8">

@@ -61,6 +61,7 @@ export interface DomesticStockInput {
   // 이전 채점 비교
   previous_score?: number;
   previous_rank?: number;
+  previous_details?: ScoreDetail[];
   grade_change_reason?: string;
 }
 
@@ -92,6 +93,7 @@ export interface OverseasStockInput {
   // 이전 채점 비교
   previous_score?: number;
   previous_rank?: number;
+  previous_details?: ScoreDetail[];
   grade_change_reason?: string;
 }
 
@@ -513,6 +515,7 @@ export interface GrowthStockInput {
   // 이전 채점 비교
   previous_score?: number;
   previous_rank?: number;
+  previous_details?: ScoreDetail[];
   grade_change_reason?: string;
 }
 

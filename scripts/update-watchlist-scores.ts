@@ -462,6 +462,7 @@ async function updateStocks(
         after.details[i],
       );
       stock.grade_change_reason = reason;
+      stock.previous_details = before.details[i];
       scoreChanges++;
 
       if (oldGrade !== newGrade) {
