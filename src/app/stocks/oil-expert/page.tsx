@@ -11,6 +11,7 @@ import {
   type OverseasStockInput,
   type ScoredResult,
 } from "@/lib/scoring";
+import { formatScoredAt } from "@/lib/format";
 import { ScoreDetails } from "@/components/ScoreDetails";
 import { Collapsible } from "@/components/Collapsible";
 import { RankChange, GradeChangeBadge, ScoreChangeComment } from "@/components/RankChange";
@@ -43,11 +44,6 @@ function getData(): { domestic: ScoredDomestic[]; overseas: ScoredOverseas[]; in
   } catch {
     return null;
   }
-}
-
-function formatScoredAt(dateStr: string): string {
-  const d = new Date(dateStr + "T00:00:00");
-  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`;
 }
 
 type AnyScored = (ScoredDomestic | ScoredOverseas) & { country?: string };
@@ -85,9 +81,9 @@ function StockTable({ stocks, framework, showCountry }: {
             </tr>
           </thead>
           <tbody>
-            {stocks.filter(s => s.score >= 45).map((stock) => {
+            {stocks.filter(s => s.score >= 45).map((stock, i) => {
               const color = getGradeColor(stock.grade);
-              const rank = stocks.indexOf(stock) + 1;
+              const rank = i + 1;
               return (
                 <tr key={stock.code} className={`hover:bg-surface-container/30 transition-colors ${rank === 1 ? "bg-primary/5" : ""}`}>
                   <td className="text-center px-3 py-2.5 font-mono" style={{ color }}>{rank}</td>
@@ -275,6 +271,11 @@ export default function OilExpertPage() {
   const { domestic, overseas, insights } = data;
   const allStocksCount = domestic.length + overseas.length;
 
+  const domesticAB = domestic.filter(s => s.grade === "A" || s.grade === "B");
+  const domesticC = domestic.filter(s => s.grade === "C");
+  const overseasAB = overseas.filter(s => s.grade === "A" || s.grade === "B");
+  const overseasC = overseas.filter(s => s.grade === "C");
+
   const calculatedAt = formatScoredAt(new Date().toISOString().slice(0, 10));
 
   return (
@@ -361,17 +362,17 @@ export default function OilExpertPage() {
         </div>
 
         {/* Domestic A/B Cards */}
-        {domestic.filter(s => s.grade === "A" || s.grade === "B").length > 0 && (
+        {domesticAB.length > 0 && (
           <div>
             <h4 className="text-lg font-serif text-on-surface mb-4">A/B 등급 — 매수 검토 대상</h4>
-            <StockCards stocks={domestic.filter(s => s.grade === "A" || s.grade === "B")} framework={DOMESTIC_FRAMEWORK} />
+            <StockCards stocks={domesticAB} framework={DOMESTIC_FRAMEWORK} />
           </div>
         )}
 
         {/* Domestic C Cards */}
-        {domestic.filter(s => s.grade === "C").length > 0 && (
-          <Collapsible title={`C등급 — 워치리스트 (${domestic.filter(s => s.grade === "C").length}개)`}>
-            <StockCards stocks={domestic.filter(s => s.grade === "C")} framework={DOMESTIC_FRAMEWORK} />
+        {domesticC.length > 0 && (
+          <Collapsible title={`C등급 — 워치리스트 (${domesticC.length}개)`}>
+            <StockCards stocks={domesticC} framework={DOMESTIC_FRAMEWORK} />
           </Collapsible>
         )}
       </section>
@@ -428,16 +429,16 @@ export default function OilExpertPage() {
           <StockTable stocks={overseas} framework={OVERSEAS_FRAMEWORK} showCountry />
         </div>
 
-        {overseas.filter(s => s.grade === "A" || s.grade === "B").length > 0 && (
+        {overseasAB.length > 0 && (
           <div>
             <h4 className="text-lg font-serif text-on-surface mb-4">A/B 등급 — 매수 검토 대상</h4>
-            <StockCards stocks={overseas.filter(s => s.grade === "A" || s.grade === "B")} framework={OVERSEAS_FRAMEWORK} />
+            <StockCards stocks={overseasAB} framework={OVERSEAS_FRAMEWORK} />
           </div>
         )}
 
-        {overseas.filter(s => s.grade === "C").length > 0 && (
-          <Collapsible title={`C등급 — 워치리스트 (${overseas.filter(s => s.grade === "C").length}개)`}>
-            <StockCards stocks={overseas.filter(s => s.grade === "C")} framework={OVERSEAS_FRAMEWORK} />
+        {overseasC.length > 0 && (
+          <Collapsible title={`C등급 — 워치리스트 (${overseasC.length}개)`}>
+            <StockCards stocks={overseasC} framework={OVERSEAS_FRAMEWORK} />
           </Collapsible>
         )}
       </section>

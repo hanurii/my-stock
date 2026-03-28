@@ -12,6 +12,7 @@ import {
   type GrowthStockInput,
   type ScoredResult,
 } from "@/lib/scoring";
+import { formatScoredAt } from "@/lib/format";
 
 type GrowthStock = GrowthStockInput;
 
@@ -68,14 +69,6 @@ function getTierLabel(tier?: string): string | null {
   return tier ? labels[tier] || null : null;
 }
 
-function formatScoredAt(dateStr: string): string {
-  const d = new Date(dateStr + "T00:00:00");
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}.${m}.${day}`;
-}
-
 export default function GrowthPage() {
   const data = getGrowthData();
   const framework = GROWTH_FRAMEWORK;
@@ -116,16 +109,22 @@ export default function GrowthPage() {
   const { stocks, excluded, base_rate } = data;
   const rateInfo = getInterestRatePenalty(base_rate);
 
-  // 등급별 분류
+  // 등급별 분류 (한 번만 계산)
   const gradeGroups: Record<string, ScoredStock[]> = {
     A: [],
     B: [],
     C: [],
     D: [],
   };
-  stocks.forEach((s) => {
+  const visibleStocks: ScoredStock[] = [];
+  for (const s of stocks) {
     if (gradeGroups[s.grade]) gradeGroups[s.grade].push(s);
-  });
+    if (s.score >= 45) visibleStocks.push(s);
+  }
+  const hiddenCount = stocks.length - visibleStocks.length;
+  const abStocks = [...gradeGroups.A, ...gradeGroups.B];
+  const cStocks = gradeGroups.C;
+  const dStocks = gradeGroups.D;
 
   const calculatedAt = formatScoredAt(new Date().toISOString().slice(0, 10));
 
@@ -235,8 +234,8 @@ export default function GrowthPage() {
           <h3 className="text-base font-serif text-on-surface">
             전체 종목 한눈에 보기
           </h3>
-          {stocks.filter(s => s.score < 45).length > 0 && (
-            <p className="text-xs text-on-surface-variant/40 mt-1">45점 미만 {stocks.filter(s => s.score < 45).length}개 종목 생략</p>
+          {hiddenCount > 0 && (
+            <p className="text-xs text-on-surface-variant/40 mt-1">45점 미만 {hiddenCount}개 종목 생략</p>
           )}
         </div>
         <div className="overflow-x-auto">
@@ -278,9 +277,9 @@ export default function GrowthPage() {
               </tr>
             </thead>
             <tbody>
-              {stocks.filter(s => s.score >= 45).map((stock) => {
+              {visibleStocks.map((stock, i) => {
                 const color = getGradeColor(stock.grade);
-                const rank = stocks.indexOf(stock) + 1;
+                const rank = i + 1;
                 return (
                   <tr
                     key={stock.code}
@@ -378,8 +377,7 @@ export default function GrowthPage() {
 
         {/* A/B 등급 */}
         <div className="space-y-4">
-          {stocks
-            .filter((s) => s.grade === "A" || s.grade === "B")
+          {abStocks
             .map((stock, rank) => {
               const color = getGradeColor(stock.grade);
               const tierLabel = getTierLabel(stock.tier);
@@ -601,14 +599,13 @@ export default function GrowthPage() {
         </div>
 
         {/* C 등급 */}
-        {stocks.filter((s) => s.grade === "C").length > 0 && (
+        {cStocks.length > 0 && (
           <div className="mt-6">
             <Collapsible
-              title={`C등급 — 워치리스트 (${stocks.filter((s) => s.grade === "C").length}개)`}
+              title={`C등급 — 워치리스트 (${cStocks.length}개)`}
             >
               <div className="space-y-4">
-                {stocks
-                  .filter((s) => s.grade === "C")
+                {cStocks
                   .map((stock) => {
                     const color = getGradeColor(stock.grade);
                     const tierLabel = getTierLabel(stock.tier);
@@ -798,14 +795,13 @@ export default function GrowthPage() {
         )}
 
         {/* D 등급 */}
-        {stocks.filter((s) => s.grade === "D").length > 0 && (
+        {dStocks.length > 0 && (
           <div className="mt-6">
             <Collapsible
-              title={`D등급 — 투자 부적합 (${stocks.filter((s) => s.grade === "D").length}개)`}
+              title={`D등급 — 투자 부적합 (${dStocks.length}개)`}
             >
               <div className="space-y-4">
-                {stocks
-                  .filter((s) => s.grade === "D")
+                {dStocks
                   .map((stock) => {
                     const color = getGradeColor(stock.grade);
                     const globalRank = stocks.indexOf(stock) + 1;

@@ -3,6 +3,46 @@ import { ChartsSection } from "@/components/ChartsSection";
 import { MarkdownText } from "@/components/MarkdownText";
 import type { ReportData } from "@/lib/data";
 
+// ── 마크다운 테이블 파싱 (investment_direction, asset_recommendation 공용) ──
+
+function MarkdownTable({ tableLines, keyPrefix }: { tableLines: string[]; keyPrefix: string }) {
+  const dataRows = tableLines.filter((l) => !l.match(/^\|[\s-|]+$/));
+  if (dataRows.length < 1) return null;
+
+  const headerCells = dataRows[0].split("|").filter((c) => c.trim());
+  const bodyRows = dataRows.slice(1);
+
+  return (
+    <div className="rounded-xl overflow-x-auto ghost-border my-4">
+      <table className="text-base">
+        <thead>
+          <tr>
+            {headerCells.map((cell, ci) => (
+              <th key={`${keyPrefix}-h-${ci}`} className="text-left px-4 py-3 text-[10px] uppercase tracking-wider text-on-surface-variant/50 font-normal bg-surface-container/50 whitespace-nowrap">
+                {cell.trim()}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {bodyRows.map((row, ri) => {
+            const cells = row.split("|").filter((c) => c.trim());
+            return (
+              <tr key={`${keyPrefix}-r-${ri}`} className="hover:bg-surface-container-high/30 transition-colors">
+                {cells.map((cell, ci) => (
+                  <td key={ci} className="px-4 py-3 text-base text-on-surface-variant leading-relaxed whitespace-nowrap">
+                    <MarkdownText>{cell.trim()}</MarkdownText>
+                  </td>
+                ))}
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 export function ReportView({ report }: { report: ReportData }) {
   const {
     meta, briefing, scenario, indicators, spread,
@@ -186,42 +226,7 @@ export function ReportView({ report }: { report: ReportData }) {
                   tableLines.push(lines[i]);
                   i++;
                 }
-                // 구분선(|---) 제외하고 파싱
-                const dataRows = tableLines.filter((l) => !l.match(/^\|[\s-|]+$/));
-                if (dataRows.length >= 1) {
-                  const headerCells = dataRows[0].split("|").filter((c) => c.trim());
-                  const bodyRows = dataRows.slice(1);
-
-                  elements.push(
-                    <div key={`table-${i}`} className="rounded-xl overflow-x-auto ghost-border my-4">
-                      <table className="text-base">
-                        <thead>
-                          <tr>
-                            {headerCells.map((cell, ci) => (
-                              <th key={ci} className="text-left px-4 py-3 text-[10px] uppercase tracking-wider text-on-surface-variant/50 font-normal bg-surface-container/50 whitespace-nowrap">
-                                {cell.trim()}
-                              </th>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {bodyRows.map((row, ri) => {
-                            const cells = row.split("|").filter((c) => c.trim());
-                            return (
-                              <tr key={ri} className="hover:bg-surface-container-high/30 transition-colors">
-                                {cells.map((cell, ci) => (
-                                  <td key={ci} className="px-4 py-3 text-base text-on-surface-variant leading-relaxed whitespace-nowrap">
-                                    <MarkdownText>{cell.trim()}</MarkdownText>
-                                  </td>
-                                ))}
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
-                  );
-                }
+                elements.push(<MarkdownTable key={`table-${i}`} tableLines={tableLines} keyPrefix={`inv-${i}`} />);
                 continue;
               }
 
@@ -343,40 +348,7 @@ export function ReportView({ report }: { report: ReportData }) {
                     tableLines.push(lines[i]);
                     i++;
                   }
-                  const dataRows = tableLines.filter((l) => !l.match(/^\|[\s-|]+$/));
-                  if (dataRows.length >= 1) {
-                    const headerCells = dataRows[0].split("|").filter((c) => c.trim());
-                    const bodyRows = dataRows.slice(1);
-                    elements.push(
-                      <div key={`table-${i}`} className="rounded-xl overflow-x-auto ghost-border my-4">
-                        <table className="text-base">
-                          <thead>
-                            <tr>
-                              {headerCells.map((cell, ci) => (
-                                <th key={ci} className="text-left px-4 py-3 text-[10px] uppercase tracking-wider text-on-surface-variant/50 font-normal bg-surface-container/50 whitespace-nowrap">
-                                  {cell.trim()}
-                                </th>
-                              ))}
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {bodyRows.map((row, ri) => {
-                              const cells = row.split("|").filter((c) => c.trim());
-                              return (
-                                <tr key={ri} className="hover:bg-surface-container-high/30 transition-colors">
-                                  {cells.map((cell, ci) => (
-                                    <td key={ci} className="px-4 py-3 text-base text-on-surface-variant leading-relaxed whitespace-nowrap">
-                                      <MarkdownText>{cell.trim()}</MarkdownText>
-                                    </td>
-                                  ))}
-                                </tr>
-                              );
-                            })}
-                          </tbody>
-                        </table>
-                      </div>
-                    );
-                  }
+                  elements.push(<MarkdownTable key={`table-${i}`} tableLines={tableLines} keyPrefix={`asset-${i}`} />);
                   continue;
                 }
 

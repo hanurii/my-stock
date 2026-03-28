@@ -11,6 +11,7 @@ import {
   type DomesticStockInput,
   type ScoredResult,
 } from "@/lib/scoring";
+import { formatScoredAt } from "@/lib/format";
 
 interface WatchlistStock extends DomesticStockInput {
   tier?: string;
@@ -53,12 +54,105 @@ function getTierLabel(tier?: string): string | null {
   return tier ? labels[tier] || null : null;
 }
 
-function formatScoredAt(dateStr: string): string {
-  const d = new Date(dateStr + "T00:00:00");
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}.${m}.${day}`;
+// ── 공통 StockCard 컴포넌트 (A/B/C 등급 공용) ──
+
+function StockCard({ stock, globalRank, framework }: {
+  stock: ScoredStock;
+  globalRank: number;
+  framework: typeof DOMESTIC_FRAMEWORK;
+}) {
+  const color = getGradeColor(stock.grade);
+  const tierLabel = getTierLabel(stock.tier);
+  const cat1Pct = (stock.cat1 / framework.category1.max_score) * 100;
+  const cat2Pct = (stock.cat2 / framework.category2.max_score) * 100;
+  const cat3Pct = (stock.cat3 / framework.category3.max_score) * 100;
+
+  return (
+    <div className="bg-surface-container-low rounded-xl ghost-border overflow-hidden">
+      <div className="p-4 sm:p-6">
+        <ScoreChangeComment score={stock.score} previousScore={stock.previous_score} grade={stock.grade} details={stock.details} previousDetails={stock.previous_details} />
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-4">
+            <div className="text-center w-8">
+              <span className="text-2xl font-serif font-bold" style={{ color }}>{globalRank}</span>
+              <RankChange currentRank={globalRank} previousRank={stock.previous_rank} />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h4 className="text-base sm:text-lg font-medium text-on-surface">{stock.name}</h4>
+                <span className="text-xs px-2 py-0.5 rounded font-bold" style={{ backgroundColor: `${color}20`, color }}>{stock.grade}</span>
+                {stock.estimated && <span className="text-xs text-on-surface-variant/40">추정치</span>}
+                {tierLabel && <span className="text-xs text-on-surface-variant/50">{tierLabel}</span>}
+              </div>
+              <p className="text-sm text-on-surface-variant">
+                {stock.code} · {stock.sector}
+                <span className="text-xs text-on-surface-variant/40 ml-2">{formatScoredAt(stock.scored_at)} 채점</span>
+              </p>
+            </div>
+          </div>
+          <div className="text-right">
+            <p className="text-2xl sm:text-3xl font-serif font-bold" style={{ color }}>{stock.score}</p>
+            <p className="text-xs text-on-surface-variant">/100점</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-4">
+          {[
+            { label: framework.category1.name.split("/")[0], score: stock.cat1, max: framework.category1.max_score, pct: cat1Pct },
+            { label: "주주환원", score: stock.cat2, max: framework.category2.max_score, pct: cat2Pct },
+            { label: "성장/경쟁력", score: stock.cat3, max: framework.category3.max_score, pct: cat3Pct },
+          ].map((cat) => (
+            <div key={cat.label} className="bg-surface-container/50 rounded-lg p-2 sm:p-3">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-1.5 gap-0.5">
+                <span className="text-[10px] sm:text-xs text-on-surface-variant">{cat.label}</span>
+                <span className="text-xs sm:text-sm font-mono text-on-surface">{cat.score}/{cat.max}</span>
+              </div>
+              <div className="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+                <div className="h-full rounded-full transition-all duration-500" style={{ width: `${cat.pct}%`, backgroundColor: color }} />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="flex gap-4 mb-3 text-sm">
+          <span className="text-on-surface-variant">
+            PER <span className="font-mono text-on-surface">{stock.per != null ? `${stock.per}x` : "적자"}</span>
+          </span>
+          <span className="text-on-surface-variant">
+            PBR <span className="font-mono text-on-surface">{stock.pbr}x</span>
+          </span>
+          <span className="text-on-surface-variant">
+            배당 <span className="font-mono text-on-surface">{stock.dividend_yield}%</span>
+          </span>
+        </div>
+
+        <p className="text-sm text-on-surface-variant leading-relaxed">{stock.highlights}</p>
+
+        {stock.catalyst && (
+          <div className="mt-3 flex items-start gap-2">
+            <span className="material-symbols-outlined text-primary text-sm mt-0.5">bolt</span>
+            <p className="text-sm text-primary/80">{stock.catalyst}</p>
+          </div>
+        )}
+
+        {stock.a_grade_price && (
+          <div className="mt-3 flex items-center gap-2">
+            <span className="material-symbols-outlined text-[#95d3ba] text-sm">flag</span>
+            <p className="text-sm text-[#95d3ba]">
+              A등급 예상 진입가: {stock.a_grade_price.toLocaleString()}원
+              {stock.current_price_at_scoring && (
+                <span className="text-on-surface-variant/50 ml-1">
+                  (분석 당시 {stock.current_price_at_scoring.toLocaleString()}원 대비 -{Math.round((1 - stock.a_grade_price / stock.current_price_at_scoring) * 100)}%)
+                </span>
+              )}
+            </p>
+          </div>
+        )}
+
+        <ScoreDetails details={stock.details} />
+      </div>
+    </div>
+  );
 }
 
 export default function WatchlistPage() {
@@ -75,11 +169,21 @@ export default function WatchlistPage() {
 
   const { stocks, excluded } = data;
 
-  // 등급별 분류
-  const gradeGroups: Record<string, ScoredStock[]> = { A: [], B: [], C: [], D: [] };
-  stocks.forEach((s) => {
-    if (gradeGroups[s.grade]) gradeGroups[s.grade].push(s);
-  });
+  // 등급별 분류 (한 번만 계산)
+  const abStocks: ScoredStock[] = [];
+  const cStocks: ScoredStock[] = [];
+  const dStocks: ScoredStock[] = [];
+  const gradeCount: Record<string, number> = { A: 0, B: 0, C: 0, D: 0 };
+  const visibleStocks: ScoredStock[] = [];
+  const hiddenCount = stocks.filter(s => s.score < 45).length;
+
+  for (const s of stocks) {
+    if (gradeCount[s.grade] !== undefined) gradeCount[s.grade]++;
+    if (s.grade === "A" || s.grade === "B") abStocks.push(s);
+    else if (s.grade === "C") cStocks.push(s);
+    else dStocks.push(s);
+    if (s.score >= 45) visibleStocks.push(s);
+  }
 
   const calculatedAt = formatScoredAt(new Date().toISOString().slice(0, 10));
 
@@ -133,7 +237,7 @@ export default function WatchlistPage() {
         <h3 className="text-base font-serif text-on-surface mb-4">등급 분포</h3>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {(["A", "B", "C", "D"] as const).map((grade) => {
-            const count = gradeGroups[grade].length;
+            const count = gradeCount[grade];
             const color = getGradeColor(grade);
             return (
               <div key={grade} className="text-center p-4 rounded-xl ghost-border bg-surface-container/30">
@@ -150,8 +254,8 @@ export default function WatchlistPage() {
       <section className="bg-surface-container-low rounded-xl ghost-border overflow-hidden">
         <div className="p-6 pb-3">
           <h3 className="text-base font-serif text-on-surface">전체 종목 한눈에 보기</h3>
-          {stocks.filter(s => s.score < 45).length > 0 && (
-            <p className="text-xs text-on-surface-variant/40 mt-1">45점 미만 {stocks.filter(s => s.score < 45).length}개 종목 생략</p>
+          {hiddenCount > 0 && (
+            <p className="text-xs text-on-surface-variant/40 mt-1">45점 미만 {hiddenCount}개 종목 생략</p>
           )}
         </div>
         <div className="overflow-x-auto">
@@ -173,9 +277,9 @@ export default function WatchlistPage() {
               </tr>
             </thead>
             <tbody>
-              {stocks.filter(s => s.score >= 45).map((stock) => {
+              {visibleStocks.map((stock, i) => {
                 const color = getGradeColor(stock.grade);
-                const rank = stocks.indexOf(stock) + 1;
+                const rank = i + 1;
                 return (
                   <tr key={stock.code} className={`hover:bg-surface-container/30 transition-colors ${rank === 1 ? "bg-primary/5" : ""}`}>
                     <td className="text-center px-3 py-2.5 font-mono" style={{ color }}>{rank}</td>
@@ -216,183 +320,20 @@ export default function WatchlistPage() {
 
         {/* A/B 등급 */}
         <div className="space-y-4">
-          {stocks.filter(s => s.grade === "A" || s.grade === "B").map((stock, rank) => {
-            const color = getGradeColor(stock.grade);
-            const tierLabel = getTierLabel(stock.tier);
-            const cat1Pct = (stock.cat1 / framework.category1.max_score) * 100;
-            const cat2Pct = (stock.cat2 / framework.category2.max_score) * 100;
-            const cat3Pct = (stock.cat3 / framework.category3.max_score) * 100;
-
-            return (
-              <div key={stock.code} className="bg-surface-container-low rounded-xl ghost-border overflow-hidden">
-                <div className="p-4 sm:p-6">
-                  <ScoreChangeComment score={stock.score} previousScore={stock.previous_score} grade={stock.grade} details={stock.details} previousDetails={stock.previous_details} />
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-4">
-                      <div className="text-center w-8">
-                        <span className="text-2xl font-serif font-bold" style={{ color }}>{rank + 1}</span>
-                        <RankChange currentRank={rank + 1} previousRank={stock.previous_rank} />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <h4 className="text-base sm:text-lg font-medium text-on-surface">{stock.name}</h4>
-                          <span className="text-xs px-2 py-0.5 rounded font-bold" style={{ backgroundColor: `${color}20`, color }}>{stock.grade}</span>
-                          {stock.estimated && <span className="text-xs text-on-surface-variant/40">추정치</span>}
-                          {tierLabel && <span className="text-xs text-on-surface-variant/50">{tierLabel}</span>}
-                        </div>
-                        <p className="text-sm text-on-surface-variant">
-                          {stock.code} · {stock.sector}
-                          <span className="text-xs text-on-surface-variant/40 ml-2">{formatScoredAt(stock.scored_at)} 채점</span>
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-2xl sm:text-3xl font-serif font-bold" style={{ color }}>{stock.score}</p>
-                      <p className="text-xs text-on-surface-variant">/100점</p>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-4">
-                    {[
-                      { label: framework.category1.name.split("/")[0], score: stock.cat1, max: framework.category1.max_score, pct: cat1Pct },
-                      { label: "주주환원", score: stock.cat2, max: framework.category2.max_score, pct: cat2Pct },
-                      { label: "성장/경쟁력", score: stock.cat3, max: framework.category3.max_score, pct: cat3Pct },
-                    ].map((cat) => (
-                      <div key={cat.label} className="bg-surface-container/50 rounded-lg p-2 sm:p-3">
-                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-1.5 gap-0.5">
-                          <span className="text-[10px] sm:text-xs text-on-surface-variant">{cat.label}</span>
-                          <span className="text-xs sm:text-sm font-mono text-on-surface">{cat.score}/{cat.max}</span>
-                        </div>
-                        <div className="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
-                          <div className="h-full rounded-full transition-all duration-500" style={{ width: `${cat.pct}%`, backgroundColor: color }} />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="flex gap-4 mb-3 text-sm">
-                    <span className="text-on-surface-variant">
-                      PER <span className="font-mono text-on-surface">{stock.per != null ? `${stock.per}x` : "적자"}</span>
-                    </span>
-                    <span className="text-on-surface-variant">
-                      PBR <span className="font-mono text-on-surface">{stock.pbr}x</span>
-                    </span>
-                    <span className="text-on-surface-variant">
-                      배당 <span className="font-mono text-on-surface">{stock.dividend_yield}%</span>
-                    </span>
-                  </div>
-
-                  <p className="text-sm text-on-surface-variant leading-relaxed">{stock.highlights}</p>
-
-                  {stock.catalyst && (
-                    <div className="mt-3 flex items-start gap-2">
-                      <span className="material-symbols-outlined text-primary text-sm mt-0.5">bolt</span>
-                      <p className="text-sm text-primary/80">{stock.catalyst}</p>
-                    </div>
-                  )}
-
-                  {stock.a_grade_price && (
-                    <div className="mt-3 flex items-center gap-2">
-                      <span className="material-symbols-outlined text-[#95d3ba] text-sm">flag</span>
-                      <p className="text-sm text-[#95d3ba]">
-                        A등급 예상 진입가: {stock.a_grade_price.toLocaleString()}원
-                        {stock.current_price_at_scoring && (
-                          <span className="text-on-surface-variant/50 ml-1">
-                            (분석 당시 {stock.current_price_at_scoring.toLocaleString()}원 대비 -{Math.round((1 - stock.a_grade_price / stock.current_price_at_scoring) * 100)}%)
-                          </span>
-                        )}
-                      </p>
-                    </div>
-                  )}
-
-                  <ScoreDetails details={stock.details} />
-                </div>
-              </div>
-            );
+          {abStocks.map((stock) => {
+            const globalRank = stocks.indexOf(stock) + 1;
+            return <StockCard key={stock.code} stock={stock} globalRank={globalRank} framework={framework} />;
           })}
         </div>
 
         {/* C 등급 */}
-        {stocks.filter(s => s.grade === "C").length > 0 && (
+        {cStocks.length > 0 && (
           <div className="mt-6">
-            <Collapsible title={`C등급 — 워치리스트 (${stocks.filter(s => s.grade === "C").length}개)`}>
+            <Collapsible title={`C등급 — 워치리스트 (${cStocks.length}개)`}>
               <div className="space-y-4">
-                {stocks.filter(s => s.grade === "C").map((stock) => {
-                  const color = getGradeColor(stock.grade);
-                  const tierLabel = getTierLabel(stock.tier);
+                {cStocks.map((stock) => {
                   const globalRank = stocks.indexOf(stock) + 1;
-                  const cat1Pct = (stock.cat1 / framework.category1.max_score) * 100;
-                  const cat2Pct = (stock.cat2 / framework.category2.max_score) * 100;
-                  const cat3Pct = (stock.cat3 / framework.category3.max_score) * 100;
-
-                  return (
-                    <div key={stock.code} className="bg-surface-container-low rounded-xl ghost-border overflow-hidden">
-                      <div className="p-6">
-                        <ScoreChangeComment score={stock.score} previousScore={stock.previous_score} grade={stock.grade} details={stock.details} previousDetails={stock.previous_details} />
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="flex items-center gap-4">
-                            <div className="text-center w-8">
-                              <span className="text-2xl font-serif font-bold" style={{ color }}>{globalRank}</span>
-                              <RankChange currentRank={globalRank} previousRank={stock.previous_rank} />
-                            </div>
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <h4 className="text-lg font-medium text-on-surface">{stock.name}</h4>
-                                <span className="text-xs px-2 py-0.5 rounded font-bold" style={{ backgroundColor: `${color}20`, color }}>{stock.grade}</span>
-                                {stock.estimated && <span className="text-xs text-on-surface-variant/40">추정치</span>}
-                                {tierLabel && <span className="text-xs text-on-surface-variant/50">{tierLabel}</span>}
-                              </div>
-                              <p className="text-sm text-on-surface-variant">
-                                {stock.code} · {stock.sector}
-                                <span className="text-xs text-on-surface-variant/40 ml-2">{formatScoredAt(stock.scored_at)} 채점</span>
-                              </p>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-2xl sm:text-3xl font-serif font-bold" style={{ color }}>{stock.score}</p>
-                            <p className="text-xs text-on-surface-variant">/100점</p>
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-4">
-                          {[
-                            { label: framework.category1.name.split("/")[0], score: stock.cat1, max: framework.category1.max_score, pct: cat1Pct },
-                            { label: "주주환원", score: stock.cat2, max: framework.category2.max_score, pct: cat2Pct },
-                            { label: "성장/경쟁력", score: stock.cat3, max: framework.category3.max_score, pct: cat3Pct },
-                          ].map((cat) => (
-                            <div key={cat.label} className="bg-surface-container/50 rounded-lg p-3">
-                              <div className="flex justify-between items-center mb-1.5">
-                                <span className="text-xs text-on-surface-variant">{cat.label}</span>
-                                <span className="text-sm font-mono text-on-surface">{cat.score}/{cat.max}</span>
-                              </div>
-                              <div className="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
-                                <div className="h-full rounded-full transition-all duration-500" style={{ width: `${cat.pct}%`, backgroundColor: color }} />
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                        <div className="flex gap-4 mb-3 text-sm">
-                          <span className="text-on-surface-variant">
-                            PER <span className="font-mono text-on-surface">{stock.per != null ? `${stock.per}x` : "적자"}</span>
-                          </span>
-                          <span className="text-on-surface-variant">
-                            PBR <span className="font-mono text-on-surface">{stock.pbr}x</span>
-                          </span>
-                          <span className="text-on-surface-variant">
-                            배당 <span className="font-mono text-on-surface">{stock.dividend_yield}%</span>
-                          </span>
-                        </div>
-
-                        <p className="text-sm text-on-surface-variant leading-relaxed">{stock.highlights}</p>
-                        {stock.catalyst && (
-                          <div className="mt-3 flex items-start gap-2">
-                            <span className="material-symbols-outlined text-primary text-sm mt-0.5">bolt</span>
-                            <p className="text-sm text-primary/80">{stock.catalyst}</p>
-                          </div>
-                        )}
-                        <ScoreDetails details={stock.details} />
-                      </div>
-                    </div>
-                  );
+                  return <StockCard key={stock.code} stock={stock} globalRank={globalRank} framework={framework} />;
                 })}
               </div>
             </Collapsible>
@@ -400,11 +341,11 @@ export default function WatchlistPage() {
         )}
 
         {/* D 등급 */}
-        {stocks.filter(s => s.grade === "D").length > 0 && (
+        {dStocks.length > 0 && (
           <div className="mt-6">
-            <Collapsible title={`D등급 — 투자 부적합 (${stocks.filter(s => s.grade === "D").length}개)`}>
+            <Collapsible title={`D등급 — 투자 부적합 (${dStocks.length}개)`}>
               <div className="space-y-4">
-                {stocks.filter(s => s.grade === "D").map((stock) => {
+                {dStocks.map((stock) => {
                   const color = getGradeColor(stock.grade);
                   const globalRank = stocks.indexOf(stock) + 1;
 
