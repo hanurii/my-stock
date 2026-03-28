@@ -88,15 +88,39 @@ async function fetchYahoo(
     const result = json.chart?.result?.[0];
     if (!result) return null;
 
+    const meta = result.meta as {
+      regularMarketPrice?: number;
+      regularMarketTime?: number;
+    } | undefined;
     const timestamps: number[] = result.timestamp || [];
     const closes: (number | null)[] = result.indicators?.quote?.[0]?.close || [];
 
     const valid: TimeseriesPoint[] = [];
     for (let i = 0; i < timestamps.length; i++) {
-      if (closes[i] != null) {
+      const closeVal = closes[i];
+      if (closeVal != null) {
         const d = new Date(timestamps[i] * 1000);
         const dateStr = `${String(d.getMonth() + 1).padStart(2, "0")}/${String(d.getDate()).padStart(2, "0")}`;
-        valid.push({ 날짜: dateStr, 종가: roundValue(name, closes[i]!) });
+        valid.push({ 날짜: dateStr, 종가: roundValue(name, closeVal) });
+      } else if (i === timestamps.length - 1 && meta?.regularMarketPrice) {
+        // Yahoo Finance가 마지막 거래일의 close를 null로 반환하는 경우가 있음.
+        // meta.regularMarketPrice는 항상 최신 체결가를 담고 있으므로 이를 사용.
+        const d = new Date(timestamps[i] * 1000);
+        const dateStr = `${String(d.getMonth() + 1).padStart(2, "0")}/${String(d.getDate()).padStart(2, "0")}`;
+        valid.push({ 날짜: dateStr, 종가: roundValue(name, meta.regularMarketPrice) });
+      }
+    }
+
+    // timestamps 배열에 아예 없는 경우: meta.regularMarketTime이 더 최신이면 추가
+    if (meta?.regularMarketPrice && meta?.regularMarketTime) {
+      const lastTs = timestamps[timestamps.length - 1] ?? 0;
+      if (meta.regularMarketTime > lastTs) {
+        const d = new Date(meta.regularMarketTime * 1000);
+        const dateStr = `${String(d.getMonth() + 1).padStart(2, "0")}/${String(d.getDate()).padStart(2, "0")}`;
+        const lastEntry = valid[valid.length - 1];
+        if (!lastEntry || lastEntry.날짜 !== dateStr) {
+          valid.push({ 날짜: dateStr, 종가: roundValue(name, meta.regularMarketPrice) });
+        }
       }
     }
 
@@ -272,6 +296,17 @@ async function fetchDubaiCrude(): Promise<DubaiCrudeData | null> {
   }
 }
 
+// 리포트 발행일(YYYY-MM-DD) 기준으로 직전 거래일(MM/DD)을 반환한다.
+// 토/일은 거래일이 아니므로 역순으로 평일을 찾는다.
+function getExpectedLastTradingDay(reportDate: string): string {
+  const d = new Date(reportDate + "T00:00:00Z");
+  d.setUTCDate(d.getUTCDate() - 1);
+  while (d.getUTCDay() === 0 || d.getUTCDay() === 6) {
+    d.setUTCDate(d.getUTCDate() - 1);
+  }
+  return `${String(d.getUTCMonth() + 1).padStart(2, "0")}/${String(d.getUTCDate()).padStart(2, "0")}`;
+}
+
 // ── 메인 ──
 
 async function main() {
@@ -363,6 +398,30 @@ async function main() {
   }
 
   console.log(`\n   ${successCount}개 성공, ${failCount}개 실패\n`);
+
+  // ── 1-1. 코스피/코스닥 신선도 검증 ──
+  // 리포트 발행일 기준 직전 거래일 데이터인지 확인.
+  // 전전날 데이터가 재활용되는 경우 즉시 실패 처리.
+  console.log("1️⃣-1 코스피/코스닥 신선도 검증");
+  const expectedTradingDay = getExpectedLastTradingDay(kst.date);
+  let staleKorea = false;
+  for (const koreaInd of (indicators.korea as Record<string, unknown>[]) ?? []) {
+    const ts = koreaInd.timeseries as TimeseriesPoint[] | undefined;
+    const latestDate = ts?.[ts.length - 1]?.날짜;
+    if (latestDate !== expectedTradingDay) {
+      console.error(
+        `  ❌ ${koreaInd.name}: 최신 데이터(${latestDate ?? "없음"})가 직전 거래일(${expectedTradingDay})과 불일치 — 전전날 재활용 방지를 위해 실패 처리`,
+      );
+      staleKorea = true;
+    } else {
+      console.log(`  ✅ ${koreaInd.name}: ${latestDate} (직전 거래일 일치)`);
+    }
+  }
+  if (staleKorea) {
+    process.exitCode = 1;
+    return;
+  }
+  console.log();
 
   // ── 1-2. 두바이유 (네이버 금융) ──
   console.log("1️⃣-2 두바이유 (네이버 금융)");
