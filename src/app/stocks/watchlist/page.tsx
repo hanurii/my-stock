@@ -232,6 +232,168 @@ export default function WatchlistPage() {
         })}
       </section>
 
+      {/* Scoring Criteria */}
+      <section>
+        <Collapsible title="채점 기준표">
+          <div className="space-y-6">
+            {/* Cat1: 저평가/이익창출력 */}
+            <div className="bg-surface-container-low rounded-xl p-5 ghost-border">
+              <div className="flex items-center gap-2 mb-4">
+                <span className="material-symbols-outlined text-primary text-lg">analytics</span>
+                <h4 className="text-base font-serif text-on-surface">저평가/이익창출력</h4>
+                <span className="text-xs text-on-surface-variant ml-auto">만점 35</span>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-xs uppercase tracking-wider text-on-surface-variant/50">
+                      <th className="text-left px-3 pb-2 font-normal">항목</th>
+                      <th className="text-left px-3 pb-2 font-normal">만점</th>
+                      <th className="text-left px-3 pb-2 font-normal">기준</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-on-surface-variant">
+                    <tr className="border-t border-surface-container-highest/30">
+                      <td className="px-3 py-2 text-on-surface">PER</td>
+                      <td className="px-3 py-2 font-mono">20</td>
+                      <td className="px-3 py-2">&lt;5배: 20 · &lt;8배: 15 · &lt;10배: 10 · &ge;10배: 5 · 적자: 0</td>
+                    </tr>
+                    <tr className="border-t border-surface-container-highest/30">
+                      <td className="px-3 py-2 text-on-surface">PBR</td>
+                      <td className="px-3 py-2 font-mono">5</td>
+                      <td className="px-3 py-2">&lt;0.3배: 5 · &lt;0.6배: 4 · &lt;1.0배: 3 · &ge;1.0배: 0</td>
+                    </tr>
+                    <tr className="border-t border-surface-container-highest/30">
+                      <td className="px-3 py-2 text-on-surface">이익 지속가능성</td>
+                      <td className="px-3 py-2 font-mono">5</td>
+                      <td className="px-3 py-2">지속가능: 5 · 불안정: 0</td>
+                    </tr>
+                    <tr className="border-t border-surface-container-highest/30">
+                      <td className="px-3 py-2 text-on-surface">중복상장 여부</td>
+                      <td className="px-3 py-2 font-mono">5</td>
+                      <td className="px-3 py-2">단독상장: 5 · 중복상장: 0</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Cat2: 주주환원 의지 */}
+            <div className="bg-surface-container-low rounded-xl p-5 ghost-border">
+              <div className="flex items-center gap-2 mb-4">
+                <span className="material-symbols-outlined text-primary text-lg">volunteer_activism</span>
+                <h4 className="text-base font-serif text-on-surface">주주환원 의지</h4>
+                <span className="text-xs text-on-surface-variant ml-auto">만점 40</span>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-xs uppercase tracking-wider text-on-surface-variant/50">
+                      <th className="text-left px-3 pb-2 font-normal">항목</th>
+                      <th className="text-left px-3 pb-2 font-normal">만점</th>
+                      <th className="text-left px-3 pb-2 font-normal">기준</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-on-surface-variant">
+                    <tr className="border-t border-surface-container-highest/30">
+                      <td className="px-3 py-2 text-on-surface">배당수익률</td>
+                      <td className="px-3 py-2 font-mono">10</td>
+                      <td className="px-3 py-2">&gt;7%: 10 · &gt;5%: 7 · &gt;3%: 5 · &le;3%: 2</td>
+                    </tr>
+                    <tr className="border-t border-surface-container-highest/30">
+                      <td className="px-3 py-2 text-on-surface">분기배당</td>
+                      <td className="px-3 py-2 font-mono">5</td>
+                      <td className="px-3 py-2">실시: 5 · 미실시: 0</td>
+                    </tr>
+                    <tr className="border-t border-surface-container-highest/30">
+                      <td className="px-3 py-2 text-on-surface">배당 연속 인상</td>
+                      <td className="px-3 py-2 font-mono">5</td>
+                      <td className="px-3 py-2">10년+: 5 · 5년+: 4 · 3년+: 3 · 미달/들쑥날쑥: 0</td>
+                    </tr>
+                    <tr className="border-t border-surface-container-highest/30">
+                      <td className="px-3 py-2 text-on-surface">자사주 소각</td>
+                      <td className="px-3 py-2 font-mono">7</td>
+                      <td className="px-3 py-2">5년 연속: 7 · 3년 연속: 5 · 1년: 3 · 안 함: 0</td>
+                    </tr>
+                    <tr className="border-t border-surface-container-highest/30">
+                      <td className="px-3 py-2 text-on-surface">소각 비율</td>
+                      <td className="px-3 py-2 font-mono">8</td>
+                      <td className="px-3 py-2">&gt;2%: 8 · &gt;1.5%: 5 · &gt;0.5%: 3 · &le;0.5%: 0</td>
+                    </tr>
+                    <tr className="border-t border-surface-container-highest/30">
+                      <td className="px-3 py-2 text-on-surface">자사주 보유</td>
+                      <td className="px-3 py-2 font-mono">5</td>
+                      <td className="px-3 py-2">없음(0%): 5 · &lt;2%: 4 · &lt;5%: 2 · &ge;5%: 0</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Cat3: 미래 성장/경쟁력 */}
+            <div className="bg-surface-container-low rounded-xl p-5 ghost-border">
+              <div className="flex items-center gap-2 mb-4">
+                <span className="material-symbols-outlined text-primary text-lg">trending_up</span>
+                <h4 className="text-base font-serif text-on-surface">미래성장/경쟁력</h4>
+                <span className="text-xs text-on-surface-variant ml-auto">만점 25</span>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-xs uppercase tracking-wider text-on-surface-variant/50">
+                      <th className="text-left px-3 pb-2 font-normal">항목</th>
+                      <th className="text-left px-3 pb-2 font-normal">만점</th>
+                      <th className="text-left px-3 pb-2 font-normal">기준</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-on-surface-variant">
+                    <tr className="border-t border-surface-container-highest/30">
+                      <td className="px-3 py-2 text-on-surface">미래 성장 잠재력</td>
+                      <td className="px-3 py-2 font-mono">10</td>
+                      <td className="px-3 py-2">매우 높다: 10 · 높다: 7 · 보통: 5 · 낮다: 3</td>
+                    </tr>
+                    <tr className="border-t border-surface-container-highest/30">
+                      <td className="px-3 py-2 text-on-surface">기업 경영</td>
+                      <td className="px-3 py-2 font-mono">10</td>
+                      <td className="px-3 py-2">우수한 경영자: 10 · 전문경영자: 5 · 저조: 0</td>
+                    </tr>
+                    <tr className="border-t border-surface-container-highest/30">
+                      <td className="px-3 py-2 text-on-surface">세계적 브랜드</td>
+                      <td className="px-3 py-2 font-mono">5</td>
+                      <td className="px-3 py-2">있다: 5 · 없다: 0</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* 등급 기준 */}
+            <div className="bg-surface-container-low rounded-xl p-5 ghost-border">
+              <h4 className="text-base font-serif text-on-surface mb-3">등급 기준</h4>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {([
+                  { grade: "A", range: "80점 초과", label: "강력 매수" },
+                  { grade: "B", range: "70~80점", label: "매수 검토" },
+                  { grade: "C", range: "50~69점", label: "워치리스트" },
+                  { grade: "D", range: "50점 미만", label: "투자 부적합" },
+                ] as const).map(({ grade, range, label }) => {
+                  const color = getGradeColor(grade);
+                  return (
+                    <div key={grade} className="flex items-center gap-3 bg-surface-container/30 rounded-lg p-3">
+                      <span className="text-xl font-serif font-bold" style={{ color }}>{grade}</span>
+                      <div>
+                        <p className="text-sm font-mono text-on-surface">{range}</p>
+                        <p className="text-xs text-on-surface-variant">{label}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </Collapsible>
+      </section>
+
       {/* Grade Distribution */}
       <section className="bg-surface-container-low rounded-xl p-6 ghost-border">
         <h3 className="text-base font-serif text-on-surface mb-4">등급 분포</h3>
