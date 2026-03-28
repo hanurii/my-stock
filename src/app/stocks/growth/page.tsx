@@ -12,6 +12,7 @@ import {
   type GrowthStockInput,
   type ScoredResult,
 } from "@/lib/scoring";
+import { GrowthScoringCriteria } from "@/components/ScoringCriteria";
 import { formatScoredAt } from "@/lib/format";
 
 type GrowthStock = GrowthStockInput;
@@ -198,6 +199,11 @@ export default function GrowthPage() {
             </div>
           );
         })}
+      </section>
+
+      {/* Scoring Criteria */}
+      <section>
+        <GrowthScoringCriteria />
       </section>
 
       {/* Grade Distribution */}

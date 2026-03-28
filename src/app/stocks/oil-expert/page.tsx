@@ -12,6 +12,7 @@ import {
   type ScoredResult,
 } from "@/lib/scoring";
 import { formatScoredAt } from "@/lib/format";
+import { DomesticScoringCriteria, OverseasScoringCriteria } from "@/components/ScoringCriteria";
 import { ScoreDetails } from "@/components/ScoreDetails";
 import { Collapsible } from "@/components/Collapsible";
 import { RankChange, GradeChangeBadge, ScoreChangeComment } from "@/components/RankChange";
@@ -344,6 +345,8 @@ export default function OilExpertPage() {
           })}
         </div>
 
+        <DomesticScoringCriteria />
+
         <div className="bg-surface-container-low rounded-xl p-6 ghost-border">
           <h3 className="text-base font-serif text-on-surface mb-4">등급 분포 — 국내</h3>
           <GradeDistribution stocks={domestic} />
@@ -416,6 +419,8 @@ export default function OilExpertPage() {
             })}
           </div>
         </div>
+
+        <OverseasScoringCriteria />
 
         <div className="bg-surface-container-low rounded-xl p-6 ghost-border">
           <h3 className="text-base font-serif text-on-surface mb-4">등급 분포 — 해외</h3>
