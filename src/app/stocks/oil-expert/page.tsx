@@ -15,7 +15,7 @@ import { formatScoredAt } from "@/lib/format";
 import { DomesticScoringCriteria, OverseasScoringCriteria } from "@/components/ScoringCriteria";
 import { ScoreDetails } from "@/components/ScoreDetails";
 import { Collapsible } from "@/components/Collapsible";
-import { RankChange, GradeChangeBadge, ScoreChangeComment } from "@/components/RankChange";
+import { RankChange, ScoreChangeComment } from "@/components/RankChange";
 
 type ScoredDomestic = DomesticStockInput & ScoredResult;
 type ScoredOverseas = OverseasStockInput & ScoredResult;
@@ -93,7 +93,6 @@ function StockTable({ stocks, framework, showCountry }: {
                       {stock.name}
                       {stock.estimated && <span className="text-[10px] text-on-surface-variant/40">~</span>}
                       <RankChange currentRank={rank} previousRank={stock.previous_rank} />
-                      <GradeChangeBadge grade={stock.grade} score={stock.score} previousScore={stock.previous_score} compact />
                     </span>
                   </td>
                   {showCountry && <td className="px-3 py-2.5 text-on-surface-variant hidden md:table-cell">{stock.country}</td>}

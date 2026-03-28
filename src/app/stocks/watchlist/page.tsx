@@ -294,7 +294,6 @@ export default function WatchlistPage() {
                         {stock.name}
                         {stock.estimated && <span className="text-[10px] text-on-surface-variant/40">~</span>}
                         <RankChange currentRank={rank} previousRank={stock.previous_rank} />
-                        <GradeChangeBadge grade={stock.grade} score={stock.score} previousScore={stock.previous_score} compact />
                       </span>
                     </td>
                     <td className="px-3 py-2.5 text-on-surface-variant">{stock.sector}</td>

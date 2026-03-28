@@ -309,12 +309,6 @@ export default function GrowthPage() {
                           currentRank={rank}
                           previousRank={stock.previous_rank}
                         />
-                        <GradeChangeBadge
-                          grade={stock.grade}
-                          score={stock.score}
-                          previousScore={stock.previous_score}
-                          compact
-                        />
                       </span>
                     </td>
                     <td className="px-3 py-2.5 text-on-surface-variant">
