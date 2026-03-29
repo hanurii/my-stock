@@ -298,6 +298,7 @@ async function fetchDividends(corpCode: string): Promise<ShareholderReturnData["
 
 async function fetchCapitalChanges(corpCode: string): Promise<ShareholderReturnData["capital_changes"]> {
   const results: ShareholderReturnData["capital_changes"] = [];
+  // 가장 최근 사업보고서 1건만 조회 (누적 이력이 포함되므로 중복 방지)
   for (const year of YEARS) {
     const list = await dartGet<StockIssuance>("irdsSttus", {
       corp_code: corpCode, bsns_year: String(year), reprt_code: REPRT_CODE,
@@ -308,13 +309,15 @@ async function fetchCapitalChanges(corpCode: string): Promise<ShareholderReturnD
       const qty = parseNum(row.isu_dcrs_qy);
       if (qty === 0) continue;
       results.push({
-        year,
+        year: Number(row.isu_dcrs_de?.split(".")[0]) || year,
         date: row.isu_dcrs_de || "",
         type: row.isu_dcrs_stle || "",
         quantity: qty,
         price: parseNum(row.isu_dcrs_mstvdv_amount),
       });
     }
+    // 최근 보고서에서 데이터를 찾으면 종료 (이전 보고서는 중복)
+    break;
   }
   return results;
 }
