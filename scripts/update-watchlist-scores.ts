@@ -261,33 +261,30 @@ async function fetchFundamentalsFromDart(
       const eps = parseNumber(epsItem.thstrm_amount);
       if (!eps || eps <= 0) continue;
 
-      // BPS: 자본총계 / 발행주식수 (발행주식수 = 지배주주순이익 / 보통주EPS)
+      // BPS: 자본총계 / 발행주식총수 (stockTotqySttus API)
       const equityItem = items.find((i) =>
         i.account_nm.replace(/\s/g, "") === "자본총계" && i.sj_div === "BS",
       );
       const equity = parseNumber(equityItem?.thstrm_amount);
 
-      // 지배주주순이익 찾기 (다양한 항목명 대응)
-      const niItem = items.find((i) =>
-        (i.sj_div === "IS" || i.sj_div === "CIS") &&
-        i.account_nm.includes("지배") &&
-        (i.account_nm.includes("순이익") || i.account_nm.includes("이익")),
-      ) || items.find((i) =>
-        (i.sj_div === "IS" || i.sj_div === "CIS") &&
-        i.account_nm === "당기순이익",
-      );
-      const ni = parseNumber(niItem?.thstrm_amount);
-
-      // 보통주 EPS (BPS 계산용 — 발행주식수 역산)
-      const commonEpsItem = items.find((i) =>
-        i.account_nm.includes("보통주") && i.account_nm.includes("주당") && i.account_nm.includes("이익") && !i.account_nm.includes("희석"),
-      ) || items.find((i) => i.account_nm.includes("기본주당이익") && !i.account_nm.includes("희석"));
-      const commonEps = parseNumber(commonEpsItem?.thstrm_amount);
-
       let bps = 0;
-      if (equity && ni && commonEps && commonEps > 0) {
-        const shares = Math.round(ni / commonEps);
-        bps = shares > 0 ? parseFloat((equity / shares).toFixed(0)) : 0;
+      if (equity && equity > 0) {
+        try {
+          await sleep(300);
+          const sharesUrl = `${DART_API}/stockTotqySttus.json?crtfc_key=${DART_API_KEY}&corp_code=${corpCode}&bsns_year=${p.year}&reprt_code=${p.code}`;
+          const sharesRes = await fetch(sharesUrl);
+          const sharesData = await sharesRes.json();
+          if (sharesData.list) {
+            // 보통주 + 우선주 발행주식총수 합산
+            const totalRow = sharesData.list.find((r: { se: string }) => r.se === "합계");
+            if (totalRow) {
+              const totalShares = parseNumber(totalRow.istc_totqy);
+              if (totalShares && totalShares > 0) {
+                bps = Math.round(equity / totalShares);
+              }
+            }
+          }
+        } catch { /* 발행주식수 조회 실패 시 BPS = 0 */ }
       }
 
       const per = parseFloat((price / eps).toFixed(2));
@@ -646,15 +643,15 @@ async function updateStocks(
         dart = await fetchFundamentalsFromDart(stock.code, result.price, isPreferred);
         if (dart && dartCache) dartCache.set(stock.code, dart);
       } else {
-        // 캐시된 DART 데이터를 현재 가격으로 PER 재계산
+        // 캐시된 DART 데이터를 현재 가격으로 PER/PBR 재계산
         if (dart.eps && dart.eps > 0) dart.per = parseFloat((result.price / dart.eps).toFixed(2));
+        if (dart.bps > 0) dart.pbr = parseFloat((result.price / dart.bps).toFixed(2));
         if (dart.dps > 0) dart.dividend_yield = parseFloat((dart.dps / result.price * 100).toFixed(2));
       }
 
       if (dart && dart.per != null) {
         newPer = dart.per;
-        // PBR은 네이버 값 사용 (DART BPS 역산이 불안정)
-        newPbr = result.pbr > 0 ? result.pbr : stock.pbr;
+        newPbr = dart.pbr > 0 ? dart.pbr : (result.pbr > 0 ? result.pbr : stock.pbr);
         newDiv = dart.dividend_yield > 0 ? dart.dividend_yield : result.dividend_yield;
         dataSource = `DART 확정(${dart.period})`;
       } else {
