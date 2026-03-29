@@ -180,6 +180,17 @@ export function GrowthScoringCriteria() {
             { item: "흑자 지속성", max: 5, criteria: "흑자 지속: 5 · 전환 임박: 3 · 적자 지속: −5" },
           ]}
         />
+        <div className="bg-surface-container-low rounded-xl p-4 ghost-border">
+          <div className="flex items-start gap-2">
+            <span className="material-symbols-outlined text-on-surface-variant text-base mt-0.5">info</span>
+            <div className="text-xs text-on-surface-variant leading-relaxed space-y-2">
+              <p className="font-serif text-sm text-on-surface">밸류에이션 지표 해석</p>
+              <p><strong className="text-on-surface">PEG</strong> = PER &divide; 이익성장률. 성장 속도 대비 주가가 싼지 비싼지를 판단합니다. 1.0 미만이면 성장 대비 저평가, 1.0 이상이면 고평가입니다. 이익이 역성장(마이너스)이면 분모가 음수가 되어 산출 불가(null)로 처리됩니다.</p>
+              <p><strong className="text-on-surface">PSR</strong> = 시가총액 &divide; 매출액. 아직 이익이 적은 성장 초기 기업의 가치를 매출 규모로 가늠합니다. 낮을수록 매출 대비 주가가 저렴합니다.</p>
+              <p><strong className="text-on-surface">PER</strong> = 주가 &divide; 주당순이익. 현재 이익 대비 주가 수준을 나타냅니다. 성장주는 PER이 높은 편이므로 PEG와 함께 봐야 합니다.</p>
+            </div>
+          </div>
+        </div>
         <CriteriaTable
           title="경쟁력/저평가 시그널" icon="shield" maxScore={35}
           rows={[
