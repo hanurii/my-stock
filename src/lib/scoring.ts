@@ -879,3 +879,188 @@ export function scoreGrowth(input: GrowthStockInput, baseRate: number, shReturn?
 
   return { cat1, cat2, cat3, score, grade, details, shareholderBadges };
 }
+
+// ── 성장주 스크리닝 (자동 매매용) ──
+
+export interface GrowthScreenInput {
+  code: string;
+  name: string;
+  market: string;              // KOSPI | KOSDAQ
+  // 시세
+  per: number | null;
+  pbr: number;
+  market_cap: number;          // 억원
+  foreign_ownership: number;
+  dividend_yield: number;
+  current_price: number;
+  // 연간 실적
+  revenue_latest: number;      // 최근 연도 매출
+  revenue_prev: number;        // 전년 매출
+  op_profit_latest: number;    // 최근 연도 영업이익
+  op_profit_prev: number;      // 전년 영업이익
+  op_margin: number;           // 영업이익률 (%)
+  op_margin_prev: number | null; // 전년 영업이익률 (%)
+  profit_years: number;        // 연속 흑자 연수
+  // 컨센서스
+  eps_current: number | null;  // 최근 확정 EPS
+  eps_consensus: number | null; // 컨센서스 EPS (미래)
+}
+
+export function scoreGrowthScreen(input: GrowthScreenInput, baseRate: number): ScoredResult {
+  const details: ScoreDetail[] = [];
+
+  // ── Cat1: 성장 모멘텀 (만점 45) ──
+
+  // 컨센서스 EPS 성장률 (15점)
+  let consensusScore: number;
+  let consensusBasis: string;
+  if (input.eps_current && input.eps_current > 0 && input.eps_consensus && input.eps_consensus > 0) {
+    const epsGrowth = ((input.eps_consensus - input.eps_current) / input.eps_current) * 100;
+    if (epsGrowth > 30) consensusScore = 15;
+    else if (epsGrowth > 15) consensusScore = 10;
+    else if (epsGrowth > 5) consensusScore = 6;
+    else consensusScore = 0;
+    consensusBasis = `EPS ${input.eps_current.toLocaleString()}→${input.eps_consensus.toLocaleString()} (${epsGrowth > 0 ? "+" : ""}${epsGrowth.toFixed(1)}%)`;
+  } else {
+    consensusScore = 0;
+    consensusBasis = "컨센서스 없음";
+  }
+  details.push({ item: "컨센서스 EPS 성장률", basis: consensusBasis, score: consensusScore, max: 15, cat: 1 });
+
+  // 영업이익 성장률 YoY (12점)
+  let opGrowthScore: number;
+  let opGrowthPct = 0;
+  if (input.op_profit_prev > 0 && input.op_profit_latest > 0) {
+    opGrowthPct = ((input.op_profit_latest - input.op_profit_prev) / input.op_profit_prev) * 100;
+  } else if (input.op_profit_prev <= 0 && input.op_profit_latest > 0) {
+    opGrowthPct = 100; // 적자 → 흑자 전환
+  } else {
+    opGrowthPct = -100;
+  }
+  if (opGrowthPct > 50) opGrowthScore = 12;
+  else if (opGrowthPct > 30) opGrowthScore = 9;
+  else if (opGrowthPct > 15) opGrowthScore = 6;
+  else if (opGrowthPct > 0) opGrowthScore = 3;
+  else opGrowthScore = 0;
+  details.push({ item: "영업이익 성장률 YoY", basis: `${opGrowthPct > 0 ? "+" : ""}${opGrowthPct.toFixed(1)}%`, score: opGrowthScore, max: 12, cat: 1 });
+
+  // 매출 성장률 YoY (8점)
+  let revGrowthScore: number;
+  let revGrowthPct = 0;
+  if (input.revenue_prev > 0) {
+    revGrowthPct = ((input.revenue_latest - input.revenue_prev) / input.revenue_prev) * 100;
+  }
+  if (revGrowthPct > 30) revGrowthScore = 8;
+  else if (revGrowthPct > 15) revGrowthScore = 6;
+  else if (revGrowthPct > 5) revGrowthScore = 3;
+  else revGrowthScore = 1;
+  details.push({ item: "매출 성장률 YoY", basis: `${revGrowthPct > 0 ? "+" : ""}${revGrowthPct.toFixed(1)}%`, score: revGrowthScore, max: 8, cat: 1 });
+
+  // 영업이익률 개선 (10점)
+  let marginImpScore: number;
+  let marginImpBasis: string;
+  if (input.op_margin_prev != null) {
+    const diff = input.op_margin - input.op_margin_prev;
+    if (diff > 5) marginImpScore = 10;
+    else if (diff > 2) marginImpScore = 7;
+    else if (diff > 0) marginImpScore = 3;
+    else marginImpScore = 0;
+    marginImpBasis = `${input.op_margin_prev.toFixed(1)}%→${input.op_margin.toFixed(1)}% (${diff > 0 ? "+" : ""}${diff.toFixed(1)}%p)`;
+  } else {
+    marginImpScore = 0;
+    marginImpBasis = "전년 데이터 없음";
+  }
+  details.push({ item: "영업이익률 개선", basis: marginImpBasis, score: marginImpScore, max: 10, cat: 1 });
+
+  const cat1 = consensusScore + opGrowthScore + revGrowthScore + marginImpScore;
+
+  // ── Cat2: 성장 대비 밸류에이션 (만점 35) ──
+
+  // Forward PER (15점)
+  let fwdPerScore: number;
+  let fwdPerBasis: string;
+  if (input.eps_consensus && input.eps_consensus > 0 && input.current_price > 0) {
+    const fwdPer = input.current_price / input.eps_consensus;
+    if (fwdPer < 8) fwdPerScore = 15;
+    else if (fwdPer < 12) fwdPerScore = 11;
+    else if (fwdPer < 20) fwdPerScore = 7;
+    else if (fwdPer < 30) fwdPerScore = 3;
+    else fwdPerScore = 0;
+    fwdPerBasis = `${fwdPer.toFixed(1)}배`;
+  } else {
+    fwdPerScore = 0;
+    fwdPerBasis = "산출 불가 (컨센서스 없음)";
+  }
+  details.push({ item: "Forward PER", basis: fwdPerBasis, score: fwdPerScore, max: 15, cat: 2 });
+
+  // PER (10점)
+  let perScore: number;
+  if (input.per == null || input.per <= 0) perScore = 0;
+  else if (input.per < 10) perScore = 10;
+  else if (input.per < 15) perScore = 8;
+  else if (input.per < 25) perScore = 5;
+  else if (input.per < 40) perScore = 2;
+  else perScore = 0;
+  details.push({ item: "PER", basis: input.per != null ? `${input.per.toFixed(1)}배` : "적자", score: perScore, max: 10, cat: 2 });
+
+  // PEG 대용 (10점)
+  let pegScore: number;
+  let pegBasis: string;
+  if (input.per && input.per > 0 && opGrowthPct > 0) {
+    const peg = input.per / opGrowthPct;
+    if (peg < 0.5) pegScore = 10;
+    else if (peg < 1.0) pegScore = 7;
+    else if (peg < 1.5) pegScore = 4;
+    else if (peg < 2.0) pegScore = 1;
+    else pegScore = 0;
+    pegBasis = `${peg.toFixed(2)} (PER ${input.per.toFixed(1)} ÷ 성장률 ${opGrowthPct.toFixed(0)}%)`;
+  } else {
+    pegScore = 0;
+    pegBasis = "산출 불가";
+  }
+  details.push({ item: "PEG", basis: pegBasis, score: pegScore, max: 10, cat: 2 });
+
+  const cat2 = fwdPerScore + perScore + pegScore;
+
+  // ── Cat3: 안전장치 (만점 20) ──
+
+  // 흑자 지속 연수 (10점)
+  let profitScore: number;
+  if (input.profit_years >= 3) profitScore = 10;
+  else if (input.profit_years === 2) profitScore = 7;
+  else if (input.profit_years === 1) profitScore = 3;
+  else profitScore = 0;
+  details.push({ item: "흑자 지속", basis: `${input.profit_years}년 연속`, score: profitScore, max: 10, cat: 3 });
+
+  // 영업이익률 수준 (10점)
+  let marginScore: number;
+  if (input.op_margin > 15) marginScore = 10;
+  else if (input.op_margin > 8) marginScore = 7;
+  else if (input.op_margin > 3) marginScore = 4;
+  else marginScore = 0;
+  details.push({ item: "영업이익률", basis: `${input.op_margin.toFixed(1)}%`, score: marginScore, max: 10, cat: 3 });
+
+  const cat3 = profitScore + marginScore;
+
+  // ── 금리 감점 ──
+  const rateResult = getInterestRatePenalty(baseRate);
+  if (rateResult.penalty > 0) {
+    details.push({ item: "금리 환경 감점", basis: `기준금리 ${baseRate}% — ${rateResult.label}`, score: -rateResult.penalty, max: 0, cat: 0 });
+  }
+
+  const score = Math.max(0, cat1 + cat2 + cat3 - rateResult.penalty);
+
+  // 역성장 등급 상한
+  let grade = getGrade(score);
+  if (opGrowthPct < 0) {
+    const gradeOrder = ["A", "B", "C", "D"];
+    const currentIdx = gradeOrder.indexOf(grade);
+    const capIdx = gradeOrder.indexOf("D");
+    if (currentIdx < capIdx) {
+      grade = "D";
+      details.push({ item: "역성장 등급 상한", basis: `영업이익 YoY ${opGrowthPct.toFixed(1)}% → D등급 고정`, score: 0, max: 0, cat: 1 });
+    }
+  }
+
+  return { cat1, cat2, cat3, score, grade, details };
+}

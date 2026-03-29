@@ -7,6 +7,7 @@ const tabs = [
   { href: "/stocks/watchlist", label: "저평가 배당주", icon: "paid" },
   { href: "/stocks/growth", label: "저평가 성장주", icon: "trending_up" },
   { href: "/stocks/oil-expert", label: "오일전문가 포트폴리오", icon: "local_fire_department" },
+  { href: "/stocks/growth-screen", label: "성장주 스크리닝", icon: "screen_search_desktop" },
   { href: "/stocks/berkshire", label: "버핏 포트폴리오", icon: "account_balance" },
 ];
 
