@@ -22,7 +22,7 @@ import {
   type GrowthScreenInput,
   type ScoredResult,
 } from "../src/lib/scoring";
-import { loadShareholderReturnMap } from "./load-shareholder-returns";
+import { loadShareholderReturnMap, invalidateShareholderCache } from "./load-shareholder-returns";
 
 // ── 설정 ──
 
@@ -44,6 +44,7 @@ interface MarketData {
   dividend_yield: number;
   market_cap?: number | null;         // 시가총액 (억원)
   foreign_ownership?: number | null;  // 외국인 보유비중 (%)
+  prev_year_op_margin?: number | null; // 전년 영업이익률 (finance/annual에서 추출)
 }
 
 interface StockBase {
@@ -118,12 +119,14 @@ async function fetchFromNaver(code: string): Promise<MarketData | null> {
     let pbr = parseNumber(get("PBR"));
     const dividendYield = parseNumber(get("배당수익률"));
 
-    // PER/PBR이 N/A인 경우 finance/annual에서 직접 계산
+    // PER/PBR이 N/A인 경우 finance/annual에서 직접 계산 + 전년 영업이익률 추출
+    let prevYearOpMargin: number | null = null;
     if (per == null || pbr == null || pbr === 0) {
       const fallback = await fetchFundamentalsFromNaver(code, finalPrice);
       if (fallback) {
         if (per == null && fallback.per != null) per = fallback.per;
         if ((pbr == null || pbr === 0) && fallback.pbr > 0) pbr = fallback.pbr;
+        if (fallback.prev_year_op_margin != null) prevYearOpMargin = fallback.prev_year_op_margin;
       }
     }
 
@@ -142,7 +145,7 @@ async function fetchFromNaver(code: string): Promise<MarketData | null> {
     // 외국인 보유비중: "49.89%" → 49.89
     const foreignOwnership = parseNumber(get("외인소진율"));
 
-    return { price: finalPrice, per, pbr: pbr ?? 0, dividend_yield: dividendYield ?? 0, market_cap: marketCap, foreign_ownership: foreignOwnership };
+    return { price: finalPrice, per, pbr: pbr ?? 0, dividend_yield: dividendYield ?? 0, market_cap: marketCap, foreign_ownership: foreignOwnership, prev_year_op_margin: prevYearOpMargin };
   } catch {
     return null;
   }
@@ -151,7 +154,7 @@ async function fetchFromNaver(code: string): Promise<MarketData | null> {
 async function fetchFundamentalsFromNaver(
   code: string,
   price: number,
-): Promise<{ per: number | null; pbr: number } | null> {
+): Promise<{ per: number | null; pbr: number; prev_year_op_margin?: number | null } | null> {
   try {
     const url = `${NAVER_API}/${code}/finance/annual`;
     const res = await fetch(url, { headers: { "User-Agent": UA } });
@@ -166,25 +169,33 @@ async function fetchFundamentalsFromNaver(
       | undefined;
     if (!periods || !rows) return null;
 
-    const confirmed = [...periods].filter((p) => p.isConsensus === "N").pop();
+    const confirmedAll = [...periods].filter((p) => p.isConsensus === "N");
+    const confirmed = confirmedAll[confirmedAll.length - 1];
     if (!confirmed) return null;
 
-    const getValue = (title: string): number | null => {
+    const getValue = (title: string, periodKey: string): number | null => {
       const row = rows.find((r) => r.title === title);
-      return parseNumber(row?.columns[confirmed.key]?.value);
+      return parseNumber(row?.columns[periodKey]?.value);
     };
 
-    const eps = getValue("EPS");
-    const bps = getValue("BPS");
+    const eps = getValue("EPS", confirmed.key);
+    const bps = getValue("BPS", confirmed.key);
     const per = eps && eps > 0 ? parseFloat((price / eps).toFixed(2)) : null;
     const pbr = bps && bps > 0 ? parseFloat((price / bps).toFixed(2)) : 0;
+
+    // 전년 영업이익률도 함께 추출 (별도 API 호출 불필요)
+    let prevYearOpMargin: number | null = null;
+    if (confirmedAll.length >= 2) {
+      const prevYear = confirmedAll[confirmedAll.length - 2];
+      prevYearOpMargin = getValue("영업이익률", prevYear.key);
+    }
 
     if (per != null || pbr > 0) {
       console.log(
         `   📈 finance/annual fallback (${confirmed.key}): EPS ${fmt(eps)} BPS ${fmt(bps)} → PER ${fmt(per)} PBR ${pbr}`,
       );
     }
-    return { per, pbr };
+    return { per, pbr, prev_year_op_margin: prevYearOpMargin };
   } catch {
     return null;
   }
@@ -501,9 +512,9 @@ async function ensureShareholderData(stocks: { code: string; name: string }[]): 
 
   console.log(`\n📦 주주환원 데이터 누락 ${missing.length}개 종목 자동 수집`);
 
-  // 동적 import (fetch-shareholder-returns.ts에서 export한 함수)
-  const { loadCorpCodeMap, fetchStockShareholderData } = await import("./fetch-shareholder-returns");
-  const corpMap = await loadCorpCodeMap();
+  // 기존 캐시된 corpCodeMap 재사용
+  const { fetchStockShareholderData } = await import("./fetch-shareholder-returns");
+  const corpMap = await ensureCorpCodeMap();
 
   for (const stock of missing) {
     const corpCode = corpMap.get(stock.code);
@@ -522,6 +533,7 @@ async function ensureShareholderData(stocks: { code: string; name: string }[]): 
 
   existing.generated_at = new Date().toISOString().slice(0, 10);
   fs.writeFileSync(SH_RETURNS_PATH, JSON.stringify(existing, null, 2), "utf-8");
+  invalidateShareholderCache(); // 새 데이터 반영을 위해 캐시 무효화
   console.log(`  ✓ shareholder-returns.json 업데이트 완료\n`);
 }
 
@@ -615,10 +627,11 @@ async function updateStocks(
       continue;
     }
 
-    // 네이버에서 가격/시총/외인 적용
+    // 네이버에서 가격/시총/외인/전년영업이익률 적용
     if (result.price) stock.current_price_at_scoring = result.price;
     if (result.market_cap != null) stock.market_cap = result.market_cap;
     if (result.foreign_ownership != null) stock.foreign_ownership = result.foreign_ownership;
+    if (result.prev_year_op_margin != null) stock.prev_year_op_margin = result.prev_year_op_margin;
     stock.scored_at = today;
 
     // DART 확정 실적으로 PER/PBR/배당 결정
@@ -797,15 +810,7 @@ async function main() {
 
     const baseRate = growthData.base_rate ?? 2.75;
 
-    // 전년 영업이익률 자동 조회 (성장주 전용)
-    console.log("\n📊 전년 영업이익률 조회 중...");
-    for (const stock of growthData.stocks as StockBase[]) {
-      const prevMargin = await fetchPrevYearOpMargin(stock.code);
-      if (prevMargin != null) {
-        stock.prev_year_op_margin = prevMargin;
-      }
-      await sleep(REQUEST_DELAY_MS);
-    }
+    // 전년 영업이익률은 updateStocks() 내 finance/annual 폴백에서 자동 추출
 
     const growthResult = await updateStocks(
       growthData.stocks as StockBase[],

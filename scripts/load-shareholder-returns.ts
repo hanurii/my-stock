@@ -3,6 +3,7 @@
  *
  * shareholder-returns.json을 읽어 ShareholderReturnData 맵으로 변환.
  * screen-growth-full, enrich-candidates-dart, update-watchlist-scores에서 공용.
+ * 메모이제이션: 같은 프로세스 내에서 파일을 1번만 읽음. invalidate()로 캐시 무효화 가능.
  */
 import fs from "fs";
 import path from "path";
@@ -13,7 +14,11 @@ const DILUTIVE_TYPES = new Set([
   "주식매수선택권행사", "상환권행사",
 ]);
 
+let cached: Map<string, ShareholderReturnData> | null = null;
+
 export function loadShareholderReturnMap(): Map<string, ShareholderReturnData> {
+  if (cached) return cached;
+
   const map = new Map<string, ShareholderReturnData>();
   try {
     const filePath = path.join(process.cwd(), "public", "data", "shareholder-returns.json");
@@ -34,5 +39,12 @@ export function loadShareholderReturnMap(): Map<string, ShareholderReturnData> {
       map.set(s.code, { treasury_cancellation_years: cancellationYears, consecutive_dividend_years: consecutiveDivYears, dilutive_event_count: dilutiveCount });
     }
   } catch { /* shareholder-returns.json 없으면 빈 맵 */ }
+
+  cached = map;
   return map;
+}
+
+/** 캐시 무효화 — ensureShareholderData() 이후 호출 */
+export function invalidateShareholderCache(): void {
+  cached = null;
 }
