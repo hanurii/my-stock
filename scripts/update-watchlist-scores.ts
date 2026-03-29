@@ -881,6 +881,10 @@ async function main() {
       let screenUpdated = 0;
       const baseRate = screenData.base_rate ?? 2.75;
 
+      // 누락 종목 주주환원 데이터 자동 수��� + 로드
+      await ensureShareholderData(candidates as { code: string; name: string }[]);
+      const screenShReturnMap = loadShareholderReturnMap();
+
       for (const c of candidates) {
         // 네이버에서 오늘 종가만 조회 (캐시 활용)
         let market = naverCache.get(c.code) || null;
@@ -905,8 +909,8 @@ async function main() {
         c.dividend_yield = market.dividend_yield;
         c.pbr = market.pbr;
 
-        // 점수 재계산
-        const result = scoreGrowthScreen(c, baseRate);
+        // 점수 재계산 (주주환원 보정 포함)
+        const result = scoreGrowthScreen(c, baseRate, screenShReturnMap.get(c.code));
         c.score = result.score;
         c.grade = result.grade;
         c.cat1 = result.cat1;
