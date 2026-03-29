@@ -158,10 +158,19 @@ export function GrowthScoringCriteria() {
             { item: "매출 성장률 (3Y CAGR)", max: 8, criteria: ">20%: 8 · >12%: 6 · >5%: 3 · ≤5%: 1" },
             { item: "영업이익 성장률 (3Y CAGR)", max: 8, criteria: ">25%: 8 · >15%: 6 · >5%: 3 · ≤5%: 1" },
             { item: "최근 분기 YoY 영업이익", max: 7, criteria: ">30%: 7 · >15%: 5 · >0%: 3 · ≤0%: 0" },
-            { item: "성장 가속도", max: 5, criteria: "분기 > 3Y×2 (강한 가속): 5 · 분기 > 3Y (가속 중): 3 · 미확인: 0" },
+            { item: "성장 가속도", max: 5, criteria: "분기 > 3Y×2 (강한 가속): 5 · 분기 > 3Y (가속 중): 3 · 둔화·정체: 0" },
             { item: "R&D·설비투자/매출", max: 7, criteria: ">10%: 7 · >5%: 5 · >2%: 3 · ≤2%: 1" },
           ]}
         />
+        <div className="bg-surface-container-low rounded-xl p-4 ghost-border">
+          <div className="flex items-start gap-2">
+            <span className="material-symbols-outlined text-on-surface-variant text-base mt-0.5">info</span>
+            <div className="text-xs text-on-surface-variant leading-relaxed space-y-1">
+              <p className="font-serif text-sm text-on-surface">성장 가속도 해석</p>
+              <p>최근 분기 YoY 영업이익 성장률이 3년 평균(CAGR)을 넘는지 비교합니다. 3년간 고성장한 종목일수록 최근 분기가 그 평균을 넘기 어렵기 때문에, 대부분의 종목은 &lsquo;둔화·정체&rsquo;에 해당합니다. &lsquo;가속 중&rsquo; 이상이 나오는 종목은 지금 순풍이 불고 있다는 시그널이므로 희소한 가점 항목입니다.</p>
+            </div>
+          </div>
+        </div>
         <CriteriaTable
           title="합리적 밸류에이션" icon="query_stats" maxScore={30}
           rows={[

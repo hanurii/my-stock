@@ -574,7 +574,7 @@ export function scoreGrowth(input: GrowthStockInput, baseRate: number): ScoredRe
     accelBasis = `분기 ${input.recent_qtr_op_growth}% > 3Y ${input.op_profit_growth_3y}% (가속 중)`;
   } else {
     accelScore = 0;
-    accelBasis = "가속 미확인";
+    accelBasis = `분기 ${input.recent_qtr_op_growth}% ≤ 3Y ${input.op_profit_growth_3y}% (둔화·정체)`;
   }
   details.push({ item: "성장 가속도", basis: accelBasis, score: accelScore, max: 5, cat: 1 });
 
