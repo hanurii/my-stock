@@ -9,6 +9,7 @@ import { formatUSD } from "@/lib/format";
 interface Holding {
   rank: number;
   name: string;
+  name_kr: string | null;
   ticker: string | null;
   cusip: string;
   title_of_class: string;
@@ -83,6 +84,28 @@ function formatDate(dateStr: string): string {
   return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`;
 }
 
+function displayName(name: string, nameKr: string | null): string {
+  return nameKr ? `${name} (${nameKr})` : name;
+}
+
+const SECTOR_KR: Record<string, string> = {
+  Financials: "금융",
+  Technology: "기술",
+  "Consumer Staples": "필수소비재",
+  Energy: "에너지",
+  Communication: "커뮤니케이션",
+  Healthcare: "헬스케어",
+  "Consumer Discretionary": "임의소비재",
+  Materials: "소재",
+  Industrials: "산업재",
+  "Real Estate": "부동산",
+  ETF: "ETF",
+};
+
+function sectorKr(sector: string): string {
+  return SECTOR_KR[sector] ? `${sector} (${SECTOR_KR[sector]})` : sector;
+}
+
 function formatShares(n: number): string {
   if (n >= 1e6) return `${(n / 1e6).toFixed(1)}M`;
   if (n >= 1e3) return `${(n / 1e3).toFixed(0)}K`;
@@ -91,11 +114,12 @@ function formatShares(n: number): string {
 
 // ── 변화 테이블 ──
 
-function ChangeSection({ title, icon, color, entries }: {
+function ChangeSection({ title, icon, color, entries, holdingsMap }: {
   title: string;
   icon: string;
   color: string;
   entries: ChangeEntry[];
+  holdingsMap: Map<string, Holding>;
 }) {
   if (entries.length === 0) return null;
 
@@ -107,10 +131,13 @@ function ChangeSection({ title, icon, color, entries }: {
         <span className="text-xs text-on-surface-variant ml-auto">{entries.length}개</span>
       </div>
       <div className="space-y-2">
-        {entries.map((e) => (
+        {entries.map((e) => {
+          const h = holdingsMap.get(e.cusip);
+          const nameKr = h?.name_kr ?? null;
+          return (
           <div key={e.cusip} className="flex items-center justify-between py-2 px-3 rounded-lg bg-surface-container/30">
             <div className="flex items-center gap-3">
-              <span className="text-sm font-medium text-on-surface">{e.name}</span>
+              <span className="text-sm font-medium text-on-surface">{displayName(e.name, nameKr)}</span>
               {e.ticker && <span className="text-xs font-mono text-on-surface-variant">{e.ticker}</span>}
             </div>
             <div className="flex items-center gap-4 text-sm">
@@ -132,7 +159,8 @@ function ChangeSection({ title, icon, color, entries }: {
               </span>
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
@@ -206,7 +234,11 @@ function generateInsights(
   if (changes.decreased.length > 0) {
     const bigSells = changes.decreased.filter((c) => c.change_pct < -30);
     if (bigSells.length > 0) {
-      const names = bigSells.map((c) => `${c.ticker || c.name}(${c.change_pct.toFixed(0)}%)`).join(", ");
+      const names = bigSells.map((c) => {
+        const h = holdings.find((x) => x.cusip === c.cusip);
+        const label = h?.name_kr || c.ticker || c.name;
+        return `${label}(${c.change_pct.toFixed(0)}%)`;
+      }).join(", ");
       insights.push({
         icon: "remove_circle",
         color: "#ffb4ab",
@@ -217,7 +249,10 @@ function generateInsights(
   }
 
   if (changes.new_buys.length > 0) {
-    const names = changes.new_buys.map((c) => c.ticker || c.name).join(", ");
+    const names = changes.new_buys.map((c) => {
+      const h = holdings.find((x) => x.cusip === c.cusip);
+      return h?.name_kr || c.ticker || c.name;
+    }).join(", ");
     insights.push({
       icon: "add_circle",
       color: "#95d3ba",
@@ -227,7 +262,10 @@ function generateInsights(
   }
 
   if (changes.exits.length > 0) {
-    const names = changes.exits.map((c) => c.ticker || c.name).join(", ");
+    const names = changes.exits.map((c) => {
+      const h = holdings.find((x) => x.cusip === c.cusip);
+      return h?.name_kr || c.ticker || c.name;
+    }).join(", ");
     insights.push({
       icon: "cancel",
       color: "#ffb4ab",
@@ -249,14 +287,14 @@ function generateInsights(
     insights.push({
       icon: "pie_chart",
       color: "#e9c176",
-      title: `${topSector.sector} 섹터 ${topSector.weight_pct}% — 포트폴리오의 핵심`,
+      title: `${sectorKr(topSector.sector)} ${topSector.weight_pct}% — 포트폴리오의 핵심`,
       body: sectorLabel[topSector.sector] || `${topSector.sector} 섹터에 가장 큰 비중을 두고 있습니다.`,
     });
   }
 
   // 5. 집중도 코멘트
   if (concentration.top5_pct > 65) {
-    const top5Names = holdings.slice(0, 5).map((h) => h.ticker || h.name).join(", ");
+    const top5Names = holdings.slice(0, 5).map((h) => h.name_kr || h.ticker || h.name).join(", ");
     insights.push({
       icon: "target",
       color: "#c084fc",
@@ -276,7 +314,7 @@ function generateInsights(
         insights.push({
           icon: weightChange > 0 ? "arrow_upward" : "arrow_downward",
           color: weightChange > 0 ? "#6ea8fe" : "#fb923c",
-          title: `1위 ${top.ticker || top.name} 비중 ${prevWeight}% → ${top.weight_pct}%`,
+          title: `1위 ${top.name_kr || top.ticker || top.name} 비중 ${prevWeight}% → ${top.weight_pct}%`,
           body: weightChange > 0
             ? "최대 보유 종목의 비중이 늘었습니다. 추가 매수이거나 주가 상승에 따른 자연 증가입니다."
             : "최대 보유 종목의 비중을 줄이고 있습니다. 차익 실현 또는 리스크 관리로 해석됩니다.",
@@ -306,6 +344,7 @@ export default function BerkshirePage() {
   const { holdings, changes, sectors, concentration } = latest;
 
   const hasChanges = changes.new_buys.length + changes.increased.length + changes.decreased.length + changes.exits.length > 0;
+  const holdingsMap = new Map(holdings.map((h) => [h.cusip, h]));
 
   // ── 시장 총평 자동 생성 ──
   const insights = generateInsights(latest, history, cash_trend);
@@ -362,10 +401,10 @@ export default function BerkshirePage() {
           </h3>
           <p className="text-sm text-on-surface-variant mb-6">이전 분기 대비 변동 사항</p>
           <div className="grid gap-5">
-            <ChangeSection title="신규 매수" icon="add_circle" color="#95d3ba" entries={changes.new_buys} />
-            <ChangeSection title="비중 확대" icon="trending_up" color="#6ea8fe" entries={changes.increased} />
-            <ChangeSection title="비중 축소" icon="trending_down" color="#fb923c" entries={changes.decreased} />
-            <ChangeSection title="전량 매도" icon="remove_circle" color="#ffb4ab" entries={changes.exits} />
+            <ChangeSection title="신규 매수" icon="add_circle" color="#95d3ba" entries={changes.new_buys} holdingsMap={holdingsMap} />
+            <ChangeSection title="비중 확대" icon="trending_up" color="#6ea8fe" entries={changes.increased} holdingsMap={holdingsMap} />
+            <ChangeSection title="비중 축소" icon="trending_down" color="#fb923c" entries={changes.decreased} holdingsMap={holdingsMap} />
+            <ChangeSection title="전량 매도" icon="remove_circle" color="#ffb4ab" entries={changes.exits} holdingsMap={holdingsMap} />
           </div>
         </section>
       )}
@@ -397,13 +436,14 @@ export default function BerkshirePage() {
                     <td className="text-center px-3 py-2.5 font-mono text-primary">{h.rank}</td>
                     <td className="px-3 py-2.5 font-medium text-on-surface">
                       {h.name}
+                      {h.name_kr && <span className="text-on-surface-variant text-xs ml-1">({h.name_kr})</span>}
                       <span className="md:hidden text-xs text-on-surface-variant ml-1.5">{h.ticker}</span>
                     </td>
                     <td className="px-3 py-2.5 font-mono text-on-surface-variant hidden md:table-cell">{h.ticker || "—"}</td>
                     <td className="text-right px-3 py-2.5 font-mono text-on-surface-variant hidden md:table-cell">{formatShares(h.shares)}</td>
                     <td className="text-right px-3 py-2.5 font-mono text-on-surface">{formatUSD(h.value)}</td>
                     <td className="text-right px-3 py-2.5 font-mono font-bold text-primary">{h.weight_pct}%</td>
-                    <td className="px-3 py-2.5 text-on-surface-variant hidden lg:table-cell">{h.sector || "—"}</td>
+                    <td className="px-3 py-2.5 text-on-surface-variant hidden lg:table-cell">{h.sector ? sectorKr(h.sector) : "—"}</td>
                   </tr>
                 ))}
               </tbody>
@@ -423,6 +463,7 @@ export default function BerkshirePage() {
                           <td className="text-center px-3 py-2 font-mono text-on-surface-variant w-10">{h.rank}</td>
                           <td className="px-3 py-2 text-on-surface">
                             {h.name}
+                            {h.name_kr && <span className="text-xs text-on-surface-variant ml-1">({h.name_kr})</span>}
                             {h.ticker && <span className="text-xs text-on-surface-variant ml-1.5">{h.ticker}</span>}
                           </td>
                           <td className="text-right px-3 py-2 font-mono text-on-surface-variant hidden md:table-cell">{formatShares(h.shares)}</td>
@@ -446,7 +487,7 @@ export default function BerkshirePage() {
         </h3>
         <p className="text-sm text-on-surface-variant mb-6">포트폴리오 섹터별 비중</p>
         <div className="bg-surface-container-low rounded-xl p-6 ghost-border">
-          <SectorPieChart sectors={sectors} totalValue={latest.total_value} />
+          <SectorPieChart sectors={sectors.map(s => ({ ...s, sector: sectorKr(s.sector) }))} totalValue={latest.total_value} />
         </div>
       </section>
 
