@@ -197,7 +197,7 @@ export function GrowthScoringCriteria() {
           rows={[
             { item: "자사주 소각", max: 3, criteria: "3년+: +3 · 2년: +2 · 1년: +1 · 없음: 0" },
             { item: "배당 연속성", max: 2, criteria: "4년+: +2 · 2~3년: +1 · 불규칙/없음: 0" },
-            { item: "지분 희석 (감점)", max: 0, criteria: "30건+: −8 · 15~29건: −5 · 8~14건: −3 · 3~7건: −1 · ≤2건: 0" },
+            { item: "지분 희석 (감점)", max: 0, criteria: "1건당 −5점 (상한 없음)" },
           ]}
         />
         <div className="bg-surface-container-low rounded-xl p-4 ghost-border">
@@ -207,7 +207,7 @@ export function GrowthScoringCriteria() {
               주주환원 데이터는 DART OpenAPI 기반 최근 5년 이력입니다.
               희석 대상: 전환권행사, 신주인수권행사, 유상증자(제3자배정/일반공모), 주식매수선택권행사 등.
               데이터 미확보 종목은 보정 없이 기존 점수를 유지합니다.
-              희석 등급 상한: 30건+ → D 고정 · 15~29건 → C 이하 · 8~14건 → B 이하.
+              희석 등급 상한: 10건+ → D 고정 · 5~9건 → C 이하 · 3~4건 → B 이하.
             </p>
           </div>
         </div>

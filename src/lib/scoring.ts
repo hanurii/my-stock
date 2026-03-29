@@ -825,26 +825,10 @@ export function scoreGrowth(input: GrowthStockInput, baseRate: number, shReturn?
     }
     details.push({ item: "배당 연속성", basis: divBasis, score: divScore, max: 2, cat: 4 });
 
-    // 지분 희석 감점
-    let dilutionScore: number;
-    let dilutionBasis: string;
+    // 지분 희석 감점: 1건당 -5점
     const dc = shReturn.dilutive_event_count;
-    if (dc >= 30) {
-      dilutionScore = -8;
-      dilutionBasis = `희석 이벤트 ${dc}건 (극심)`;
-    } else if (dc >= 15) {
-      dilutionScore = -5;
-      dilutionBasis = `희석 이벤트 ${dc}건 (심각)`;
-    } else if (dc >= 8) {
-      dilutionScore = -3;
-      dilutionBasis = `희석 이벤트 ${dc}건 (상당)`;
-    } else if (dc >= 3) {
-      dilutionScore = -1;
-      dilutionBasis = `희석 이벤트 ${dc}건 (소량)`;
-    } else {
-      dilutionScore = 0;
-      dilutionBasis = dc > 0 ? `희석 이벤트 ${dc}건` : "희석 이력 없음";
-    }
+    const dilutionScore = dc * -5;
+    const dilutionBasis = dc > 0 ? `희석 이벤트 ${dc}건 × -5점` : "희석 이력 없음";
     details.push({ item: "지분 희석", basis: dilutionBasis, score: dilutionScore, max: 0, cat: 4 });
 
     shReturnAdj = cancelScore + divScore + dilutionScore;
@@ -852,7 +836,7 @@ export function scoreGrowth(input: GrowthStockInput, baseRate: number, shReturn?
     shareholderBadges = {
       cancellation: shReturn.treasury_cancellation_years >= 2,
       dividend: shReturn.consecutive_dividend_years >= 3,
-      dilution: dc >= 8,
+      dilution: dc >= 3,
     };
   }
 
@@ -863,11 +847,11 @@ export function scoreGrowth(input: GrowthStockInput, baseRate: number, shReturn?
   let gradeCap: string | undefined;
   if (shReturn) {
     const dc = shReturn.dilutive_event_count;
-    if (dc >= 30) {
+    if (dc >= 10) {
       gradeCap = "D";
-    } else if (dc >= 15) {
+    } else if (dc >= 5) {
       gradeCap = "C";
-    } else if (dc >= 8) {
+    } else if (dc >= 3) {
       gradeCap = "B";
     }
     if (gradeCap) {
