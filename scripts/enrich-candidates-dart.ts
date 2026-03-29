@@ -10,7 +10,7 @@
 import fs from "fs";
 import path from "path";
 import { loadCorpCodeMap } from "./fetch-shareholder-returns";
-import { scoreGrowthScreen, type GrowthScreenInput } from "../src/lib/scoring";
+import { scoreGrowthScreen, type GrowthScreenInput, type ShareholderReturnData } from "../src/lib/scoring";
 
 // ── 설정 ──
 
@@ -113,28 +113,63 @@ function extractFinancials(items: DartFinItem[]): { current: YearlyFinancials; p
 }
 
 async function fetchDartFinancials(corpCode: string): Promise<{ current: YearlyFinancials; prev: YearlyFinancials; prevPrev: YearlyFinancials } | null> {
-  // 최근 연도부터 시도 (사업보고서가 아직 안 나온 연도가 있을 수 있음)
+  // fnlttSinglAcntAll은 한 번 호출하면 당기/전기/전전기 3년치를 한꺼번에 반환.
+  // 최근 연도부터 시도하되, CFS(연결) 우선 → OFS(별도) 폴백.
   for (const year of YEARS) {
-    // CFS(연결) 우선, OFS(별도) 폴백
-    for (const fsDiv of ["CFS", "OFS"]) {
-      const items = await dartGet("fnlttSinglAcntAll", {
-        corp_code: corpCode,
-        bsns_year: String(year),
-        reprt_code: "11011",
-        fs_div: fsDiv,
-      });
-      await sleep(REQUEST_DELAY_MS);
+    // CFS 먼저
+    const cfsItems = await dartGet("fnlttSinglAcntAll", {
+      corp_code: corpCode, bsns_year: String(year), reprt_code: "11011", fs_div: "CFS",
+    });
+    await sleep(REQUEST_DELAY_MS);
 
-      if (!items || items.length === 0) continue;
-
-      const result = extractFinancials(items);
-      // 매출이 있어야 유효한 데이터
-      if (result.current.revenue > 0) {
-        return result;
-      }
+    if (cfsItems && cfsItems.length > 0) {
+      const result = extractFinancials(cfsItems);
+      if (result.current.revenue > 0) return result;
     }
+
+    // CFS 실패 시 OFS 폴백 (같은 연도)
+    const ofsItems = await dartGet("fnlttSinglAcntAll", {
+      corp_code: corpCode, bsns_year: String(year), reprt_code: "11011", fs_div: "OFS",
+    });
+    await sleep(REQUEST_DELAY_MS);
+
+    if (ofsItems && ofsItems.length > 0) {
+      const result = extractFinancials(ofsItems);
+      if (result.current.revenue > 0) return result;
+    }
+    // 이 연도에 데이터 없으면 이전 연도로 (사업보고서 미제출 가능)
   }
   return null;
+}
+
+// ── 주주환원 데이터 로드 ──
+
+const DILUTIVE_TYPES = new Set([
+  "전환권행사", "신주인수권행사", "유상증자(제3자배정)",
+  "주식매수선택권행사", "상환권행사",
+]);
+
+function loadShareholderReturnMap(): Map<string, ShareholderReturnData> {
+  const map = new Map<string, ShareholderReturnData>();
+  try {
+    const filePath = path.join(process.cwd(), "public", "data", "shareholder-returns.json");
+    const raw = JSON.parse(fs.readFileSync(filePath, "utf-8")) as {
+      stocks: { code: string; treasury_stock: { cancelled: number }[]; dividends: { year: number; dps: number | null }[]; capital_changes: { type: string }[] }[];
+    };
+    const currentYear = new Date().getFullYear();
+    for (const s of raw.stocks) {
+      const cancellationYears = s.treasury_stock.filter((t) => t.cancelled > 0).length;
+      const validDivs = s.dividends.filter((d) => d.year < currentYear).sort((a, b) => b.year - a.year);
+      let consecutiveDivYears = 0;
+      for (const d of validDivs) {
+        if (d.dps !== null && d.dps > 0) consecutiveDivYears++;
+        else break;
+      }
+      const dilutiveCount = s.capital_changes.filter((c) => DILUTIVE_TYPES.has(c.type)).length;
+      map.set(s.code, { treasury_cancellation_years: cancellationYears, consecutive_dividend_years: consecutiveDivYears, dilutive_event_count: dilutiveCount });
+    }
+  } catch { /* shareholder-returns.json 없으면 빈 맵 */ }
+  return map;
 }
 
 // ── 메인 ──
@@ -154,6 +189,10 @@ async function main() {
 
   // corp_code 매핑
   const corpMap = await loadCorpCodeMap();
+
+  // 주주환원 데이터
+  const shReturnMap = loadShareholderReturnMap();
+  console.log(`  주주환원 데이터: ${shReturnMap.size}개 종목 로드\n`);
 
   let enriched = 0;
   let failed = 0;
@@ -200,10 +239,12 @@ async function main() {
     c.profit_years = profitYears;
 
     // 점수 재계산
-    const result = scoreGrowthScreen(c, data.base_rate);
+    const shReturn = shReturnMap.get(c.code);
+    const result = scoreGrowthScreen(c, data.base_rate, shReturn);
     c.score = result.score;
     c.grade = result.grade;
     c.details = result.details;
+    (c as unknown as Record<string, unknown>).shareholderBadges = result.shareholderBadges;
 
     const diff = c.score - prevScore;
     console.log(`    → DART 반영: ${prevScore}→${c.score}점 (${diff > 0 ? "+" : ""}${diff}) [${c.grade}]`);

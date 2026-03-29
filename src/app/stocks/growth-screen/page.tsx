@@ -38,6 +38,7 @@ interface Candidate {
   profit_years: number;
   eps_current: number | null;
   eps_consensus: number | null;
+  shareholderBadges?: { cancellation: boolean; dividend: boolean; dilution: boolean };
   is_top10: boolean;
 }
 
@@ -141,6 +142,15 @@ export default function GrowthScreenPage() {
                           {stock.grade}
                         </span>
                         <span className="text-xs text-on-surface-variant/50">{stock.market}</span>
+                        {stock.shareholderBadges?.cancellation && (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ backgroundColor: "#95d3ba20", color: "#95d3ba" }}>소각</span>
+                        )}
+                        {stock.shareholderBadges?.dividend && (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ backgroundColor: "#e9c17620", color: "#e9c176" }}>배당</span>
+                        )}
+                        {stock.shareholderBadges?.dilution && (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ backgroundColor: "#ffb4ab20", color: "#ffb4ab" }}>희석주의</span>
+                        )}
                       </div>
                       <p className="text-sm text-on-surface-variant">{stock.code} · 시총 {fmtNum(stock.market_cap)}</p>
                     </div>
@@ -167,11 +177,12 @@ export default function GrowthScreenPage() {
                 </div>
 
                 {/* 카테고리 점수 */}
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-4 gap-2">
                   {[
                     { label: "성장 모멘텀", score: stock.cat1, max: 45 },
                     { label: "밸류에이션", score: stock.cat2, max: 35 },
                     { label: "안전장치", score: stock.cat3, max: 20 },
+                    { label: "주주환원", score: stock.details.filter((d) => d.cat === 4).reduce((s, d) => s + d.score, 0), max: 5 },
                   ].map(({ label, score, max }) => {
                     const pct = max > 0 ? (score / max) * 100 : 0;
                     return (

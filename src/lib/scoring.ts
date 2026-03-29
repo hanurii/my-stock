@@ -906,7 +906,7 @@ export interface GrowthScreenInput {
   eps_consensus: number | null; // 컨센서스 EPS (미래)
 }
 
-export function scoreGrowthScreen(input: GrowthScreenInput, baseRate: number): ScoredResult {
+export function scoreGrowthScreen(input: GrowthScreenInput, baseRate: number, shReturn?: ShareholderReturnData): ScoredResult {
   const details: ScoreDetail[] = [];
 
   // ── Cat1: 성장 모멘텀 (만점 45) ──
@@ -1003,20 +1003,23 @@ export function scoreGrowthScreen(input: GrowthScreenInput, baseRate: number): S
   else perScore = 0;
   details.push({ item: "PER", basis: input.per != null ? `${input.per.toFixed(1)}배` : "적자", score: perScore, max: 10, cat: 2 });
 
-  // PEG 대용 (10점)
+  // PEG (10점) — PER ÷ EPS 성장률 (Forward PER과 동일한 EPS 기준)
   let pegScore: number;
   let pegBasis: string;
-  if (input.per && input.per > 0 && opGrowthPct > 0) {
-    const peg = input.per / opGrowthPct;
+  const epsGrowthPct = input.eps_current && input.eps_current > 0 && input.eps_consensus && input.eps_consensus > 0
+    ? ((input.eps_consensus - input.eps_current) / input.eps_current) * 100
+    : null;
+  if (input.per && input.per > 0 && epsGrowthPct && epsGrowthPct > 0) {
+    const peg = input.per / epsGrowthPct;
     if (peg < 0.5) pegScore = 10;
     else if (peg < 1.0) pegScore = 7;
     else if (peg < 1.5) pegScore = 4;
     else if (peg < 2.0) pegScore = 1;
     else pegScore = 0;
-    pegBasis = `${peg.toFixed(2)} (PER ${input.per.toFixed(1)} ÷ 성장률 ${opGrowthPct.toFixed(0)}%)`;
+    pegBasis = `${peg.toFixed(2)} (PER ${input.per.toFixed(1)} ÷ EPS성장률 ${epsGrowthPct.toFixed(0)}%)`;
   } else {
     pegScore = 0;
-    pegBasis = "산출 불가";
+    pegBasis = epsGrowthPct != null && epsGrowthPct <= 0 ? "EPS 역성장" : "산출 불가 (컨센서스 없음)";
   }
   details.push({ item: "PEG", basis: pegBasis, score: pegScore, max: 10, cat: 2 });
 
@@ -1042,16 +1045,92 @@ export function scoreGrowthScreen(input: GrowthScreenInput, baseRate: number): S
 
   const cat3 = profitScore + marginScore;
 
+  // ── Cat4: 주주환원 보정 ──
+
+  let shReturnAdj = 0;
+  let shareholderBadges: ShareholderBadges | undefined;
+
+  if (shReturn) {
+    // 자사주 소각 가점
+    let cancelScore: number;
+    let cancelBasis: string;
+    if (shReturn.treasury_cancellation_years >= 3) {
+      cancelScore = 3;
+      cancelBasis = `${shReturn.treasury_cancellation_years}년 소각 실적`;
+    } else if (shReturn.treasury_cancellation_years === 2) {
+      cancelScore = 2;
+      cancelBasis = "2년 소각 실적";
+    } else if (shReturn.treasury_cancellation_years === 1) {
+      cancelScore = 1;
+      cancelBasis = "1년 소각 실적";
+    } else {
+      cancelScore = 0;
+      cancelBasis = "소각 실적 없음";
+    }
+    details.push({ item: "자사주 소각", basis: cancelBasis, score: cancelScore, max: 3, cat: 4 });
+
+    // 배당 연속성 가점
+    let divScore: number;
+    let divBasis: string;
+    if (shReturn.consecutive_dividend_years >= 4) {
+      divScore = 2;
+      divBasis = `${shReturn.consecutive_dividend_years}년 연속 배당`;
+    } else if (shReturn.consecutive_dividend_years >= 2) {
+      divScore = 1;
+      divBasis = `${shReturn.consecutive_dividend_years}년 연속 배당`;
+    } else {
+      divScore = 0;
+      divBasis = shReturn.consecutive_dividend_years === 1 ? "1년 배당 (불규칙)" : "배당 없음";
+    }
+    details.push({ item: "배당 연속성", basis: divBasis, score: divScore, max: 2, cat: 4 });
+
+    // 지분 희석 감점: 1건당 -5점
+    const dc = shReturn.dilutive_event_count;
+    const dilutionScore = dc * -5;
+    const dilutionBasis = dc > 0 ? `희석 이벤트 ${dc}건 × -5점` : "희석 이력 없음";
+    details.push({ item: "지분 희석", basis: dilutionBasis, score: dilutionScore, max: 0, cat: 4 });
+
+    shReturnAdj = cancelScore + divScore + dilutionScore;
+
+    shareholderBadges = {
+      cancellation: shReturn.treasury_cancellation_years >= 2,
+      dividend: shReturn.consecutive_dividend_years >= 3,
+      dilution: dc >= 3,
+    };
+  }
+
   // ── 금리 감점 ──
   const rateResult = getInterestRatePenalty(baseRate);
   if (rateResult.penalty > 0) {
     details.push({ item: "금리 환경 감점", basis: `기준금리 ${baseRate}% — ${rateResult.label}`, score: -rateResult.penalty, max: 0, cat: 0 });
   }
 
-  const score = Math.max(0, cat1 + cat2 + cat3 - rateResult.penalty);
+  const score = Math.max(0, cat1 + cat2 + cat3 + shReturnAdj - rateResult.penalty);
+
+  // 지분 희석 등급 상한 (Grade Cap)
+  let grade = getGrade(score);
+  let gradeCap: string | undefined;
+  if (shReturn) {
+    const dc = shReturn.dilutive_event_count;
+    if (dc >= 10) {
+      gradeCap = "D";
+    } else if (dc >= 5) {
+      gradeCap = "C";
+    } else if (dc >= 3) {
+      gradeCap = "B";
+    }
+    if (gradeCap) {
+      const gradeOrder = ["A", "B", "C", "D"];
+      const currentIdx = gradeOrder.indexOf(grade);
+      const capIdx = gradeOrder.indexOf(gradeCap);
+      if (currentIdx < capIdx) {
+        grade = gradeCap;
+        details.push({ item: "희석 등급 상한", basis: `희석 ${dc}건 → 최대 ${gradeCap}등급`, score: 0, max: 0, cat: 4 });
+      }
+    }
+  }
 
   // 역성장 등급 상한
-  let grade = getGrade(score);
   if (opGrowthPct < 0) {
     const gradeOrder = ["A", "B", "C", "D"];
     const currentIdx = gradeOrder.indexOf(grade);
@@ -1062,5 +1141,5 @@ export function scoreGrowthScreen(input: GrowthScreenInput, baseRate: number): S
     }
   }
 
-  return { cat1, cat2, cat3, score, grade, details };
+  return { cat1, cat2, cat3, score, grade, details, shareholderBadges };
 }
