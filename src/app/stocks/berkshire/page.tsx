@@ -138,6 +138,156 @@ function ChangeSection({ title, icon, color, entries }: {
   );
 }
 
+// ── 시장 총평 자동 생성 ──
+
+interface Insight {
+  icon: string;
+  color: string;
+  title: string;
+  body: string;
+}
+
+function generateInsights(
+  latest: Berkshire13FData["latest"],
+  history: Berkshire13FData["history"],
+  cashTrend: CashDataPoint[],
+): Insight[] {
+  const insights: Insight[] = [];
+  const { holdings, changes, sectors, concentration } = latest;
+
+  // 1. 현금 추이 분석
+  if (cashTrend.length >= 3) {
+    const recent = cashTrend[0];
+    const prev = cashTrend[1];
+    const older = cashTrend[cashTrend.length - 1];
+    const cashTrendUp = recent.cash > older.cash;
+    const cashChange = prev.cash > 0 ? ((recent.cash - prev.cash) / prev.cash) * 100 : 0;
+
+    if (Math.abs(cashChange) > 20) {
+      const direction = cashChange > 0 ? "증가" : "감소";
+      insights.push({
+        icon: cashChange > 0 ? "savings" : "payments",
+        color: cashChange > 0 ? "#95d3ba" : "#e9c176",
+        title: `현금성자산 전 분기 대비 ${Math.abs(cashChange).toFixed(0)}% ${direction}`,
+        body: `${formatUSD(prev.cash)} → ${formatUSD(recent.cash)}.` +
+          (cashChange > 0
+            ? " 주식을 매도하고 현금을 쌓고 있습니다. 시장 고평가 또는 더 좋은 기회를 기다리는 시그널입니다."
+            : " 현금을 소진하며 투자에 나서고 있습니다. 매력적인 투자처를 발견했거나 시장 저평가 판단 시그널입니다."),
+      });
+    } else if (cashTrendUp && recent.cash_ratio_pct > 5) {
+      insights.push({
+        icon: "savings",
+        color: "#95d3ba",
+        title: `현금 비율 ${recent.cash_ratio_pct}% — 장기 평균 대비 높은 수준`,
+        body: "현금을 많이 보유하고 있다는 것은 적극적으로 투자할 곳을 찾지 못하고 있다는 의미입니다.",
+      });
+    }
+  }
+
+  // 2. 포트폴리오 가치 추이
+  if (history.length >= 2) {
+    const prevValue = history[0].total_value;
+    const valueChange = ((latest.total_value - prevValue) / prevValue) * 100;
+    const posChange = latest.total_positions - history[0].total_positions;
+
+    if (Math.abs(valueChange) > 3 || Math.abs(posChange) >= 3) {
+      const valueDir = valueChange > 0 ? "증가" : "감소";
+      insights.push({
+        icon: valueChange > 0 ? "trending_up" : "trending_down",
+        color: valueChange > 0 ? "#6ea8fe" : "#ffb4ab",
+        title: `주식 포트폴리오 ${formatUSD(prevValue)} → ${formatUSD(latest.total_value)} (${valueChange > 0 ? "+" : ""}${valueChange.toFixed(1)}%)`,
+        body: `전 분기 대비 포트폴리오 가치가 ${valueDir}했으며, 종목 수는 ${history[0].total_positions}개 → ${latest.total_positions}개로 변화했습니다.` +
+          (valueChange < -5 ? " 대규모 매도가 진행 중일 수 있습니다." : ""),
+      });
+    }
+  }
+
+  // 3. 주요 매매 활동
+  if (changes.decreased.length > 0) {
+    const bigSells = changes.decreased.filter((c) => c.change_pct < -30);
+    if (bigSells.length > 0) {
+      const names = bigSells.map((c) => `${c.ticker || c.name}(${c.change_pct.toFixed(0)}%)`).join(", ");
+      insights.push({
+        icon: "remove_circle",
+        color: "#ffb4ab",
+        title: "대규모 비중 축소 감지",
+        body: `${names}을 30% 이상 축소했습니다. 해당 종목 또는 섹터에 대한 확신이 줄어든 시그널입니다.`,
+      });
+    }
+  }
+
+  if (changes.new_buys.length > 0) {
+    const names = changes.new_buys.map((c) => c.ticker || c.name).join(", ");
+    insights.push({
+      icon: "add_circle",
+      color: "#95d3ba",
+      title: `${changes.new_buys.length}개 종목 신규 편입`,
+      body: `${names}. 버핏이 새로 주목하는 기업들입니다. 해당 산업의 장기 전망에 대한 긍정적 시각으로 해석할 수 있습니다.`,
+    });
+  }
+
+  if (changes.exits.length > 0) {
+    const names = changes.exits.map((c) => c.ticker || c.name).join(", ");
+    insights.push({
+      icon: "cancel",
+      color: "#ffb4ab",
+      title: `${changes.exits.length}개 종목 전량 매도`,
+      body: `${names} 포지션을 완전히 청산했습니다.`,
+    });
+  }
+
+  // 4. 섹터 집중도 분석
+  const topSector = sectors[0];
+  if (topSector && topSector.weight_pct > 35) {
+    const sectorLabel: Record<string, string> = {
+      Financials: "금융주는 고금리 환경에서 수익이 좋은 섹터입니다. 이 비중이 높다는 것은 고금리가 당분간 지속될 것이라는 판단을 시사합니다.",
+      Technology: "기술 섹터에 강한 확신을 보이고 있습니다.",
+      Energy: "에너지 가격이 구조적으로 높은 수준을 유지할 것이라는 장기적 뷰로 읽힙니다.",
+      "Consumer Staples": "경기 방어적 필수소비재에 집중하고 있어, 경기 둔화를 대비하는 포지션입니다.",
+      Healthcare: "헬스케어 섹터의 장기 성장에 베팅하고 있습니다.",
+    };
+    insights.push({
+      icon: "pie_chart",
+      color: "#e9c176",
+      title: `${topSector.sector} 섹터 ${topSector.weight_pct}% — 포트폴리오의 핵심`,
+      body: sectorLabel[topSector.sector] || `${topSector.sector} 섹터에 가장 큰 비중을 두고 있습니다.`,
+    });
+  }
+
+  // 5. 집중도 코멘트
+  if (concentration.top5_pct > 65) {
+    const top5Names = holdings.slice(0, 5).map((h) => h.ticker || h.name).join(", ");
+    insights.push({
+      icon: "target",
+      color: "#c084fc",
+      title: `Top 5 집중도 ${concentration.top5_pct}%`,
+      body: `${top5Names}. 확신 있는 소수 종목에 자산을 집중하는 버핏의 전형적인 스타일입니다. 확신이 줄어든 종목은 빠르게 정리하는 경향이 있습니다.`,
+    });
+  }
+
+  // 6. 1위 종목 분석
+  const top = holdings[0];
+  if (top && history.length > 0) {
+    const prevTop = history[0].top5[0];
+    if (prevTop && top.cusip !== undefined) {
+      const prevWeight = prevTop.weight_pct;
+      const weightChange = top.weight_pct - prevWeight;
+      if (Math.abs(weightChange) > 2) {
+        insights.push({
+          icon: weightChange > 0 ? "arrow_upward" : "arrow_downward",
+          color: weightChange > 0 ? "#6ea8fe" : "#fb923c",
+          title: `1위 ${top.ticker || top.name} 비중 ${prevWeight}% → ${top.weight_pct}%`,
+          body: weightChange > 0
+            ? "최대 보유 종목의 비중이 늘었습니다. 추가 매수이거나 주가 상승에 따른 자연 증가입니다."
+            : "최대 보유 종목의 비중을 줄이고 있습니다. 차익 실현 또는 리스크 관리로 해석됩니다.",
+        });
+      }
+    }
+  }
+
+  return insights;
+}
+
 // ── 페이지 ──
 
 export default function BerkshirePage() {
@@ -157,6 +307,9 @@ export default function BerkshirePage() {
 
   const hasChanges = changes.new_buys.length + changes.increased.length + changes.decreased.length + changes.exits.length > 0;
 
+  // ── 시장 총평 자동 생성 ──
+  const insights = generateInsights(latest, history, cash_trend);
+
   return (
     <div className="space-y-14">
       {/* Header */}
@@ -175,40 +328,29 @@ export default function BerkshirePage() {
         </p>
       </section>
 
-      {/* Investment Signals */}
-      <section className="bg-surface-container-low rounded-xl p-6 ghost-border">
-        <div className="flex items-start gap-3">
-          <span className="material-symbols-outlined text-primary text-xl mt-0.5">psychology</span>
-          <div className="space-y-2">
-            <h3 className="text-base font-serif text-on-surface">투자 시그널</h3>
-            <div className="space-y-1.5 text-sm text-on-surface-variant leading-relaxed">
-              <p>
-                <strong className="text-on-surface">집중도:</strong> Top 5 종목이 포트폴리오의{" "}
-                <span className="font-mono text-primary">{concentration.top5_pct}%</span>를 차지합니다.
-                {concentration.top5_pct > 70 && " 매우 집중된 포트폴리오입니다."}
-                {concentration.top5_pct <= 70 && concentration.top5_pct > 50 && " 상당히 집중된 포트폴리오입니다."}
-              </p>
-              {hasChanges && (
-                <p>
-                  <strong className="text-on-surface">변화:</strong>{" "}
-                  {changes.new_buys.length > 0 && <span className="text-tertiary">{changes.new_buys.length}개 신규 매수</span>}
-                  {changes.new_buys.length > 0 && changes.exits.length > 0 && ", "}
-                  {changes.exits.length > 0 && <span className="text-error">{changes.exits.length}개 전량 매도</span>}
-                  {(changes.new_buys.length > 0 || changes.exits.length > 0) && changes.increased.length > 0 && ", "}
-                  {changes.increased.length > 0 && <span className="text-info">{changes.increased.length}개 비중 확대</span>}
-                  {(changes.new_buys.length > 0 || changes.exits.length > 0 || changes.increased.length > 0) && changes.decreased.length > 0 && ", "}
-                  {changes.decreased.length > 0 && <span className="text-on-surface-variant">{changes.decreased.length}개 비중 축소</span>}
-                </p>
-              )}
-              <p>
-                <strong className="text-on-surface">1위:</strong>{" "}
-                {holdings[0]?.ticker || holdings[0]?.name} ({holdings[0]?.weight_pct}%) —{" "}
-                {holdings[0]?.weight_pct > 25
-                  ? "단일 종목 비중이 매우 높습니다."
-                  : "포트폴리오의 핵심 종목입니다."}
-              </p>
+      {/* Market Commentary */}
+      <section className="bg-surface-container-low rounded-xl p-5 sm:p-8 ghost-border">
+        <div className="flex items-center gap-3 mb-5">
+          <span className="material-symbols-outlined text-primary text-2xl">psychology</span>
+          <h3 className="text-xl font-serif text-on-surface tracking-tight">
+            버핏의 포트폴리오에서 읽는 시장 시그널
+          </h3>
+        </div>
+        <div className="space-y-4">
+          {insights.map((insight, i) => (
+            <div key={i} className="flex items-start gap-3">
+              <span
+                className="material-symbols-outlined text-lg mt-0.5 shrink-0"
+                style={{ color: insight.color }}
+              >
+                {insight.icon}
+              </span>
+              <div>
+                <p className="text-sm font-bold text-on-surface mb-1">{insight.title}</p>
+                <p className="text-sm text-on-surface-variant leading-relaxed">{insight.body}</p>
+              </div>
             </div>
-          </div>
+          ))}
         </div>
       </section>
 
