@@ -865,5 +865,17 @@ export function scoreGrowth(input: GrowthStockInput, baseRate: number, shReturn?
     }
   }
 
+  // 역성장 등급 상한
+  if (input.op_profit_growth_3y < 0) {
+    const growthCap = "C";
+    const gradeOrder = ["A", "B", "C", "D"];
+    const currentIdx = gradeOrder.indexOf(grade);
+    const capIdx = gradeOrder.indexOf(growthCap);
+    if (currentIdx < capIdx) {
+      grade = growthCap;
+      details.push({ item: "역성장 등급 상한", basis: `영업이익 3Y CAGR ${input.op_profit_growth_3y}% → 최대 C등급`, score: 0, max: 0, cat: 1 });
+    }
+  }
+
   return { cat1, cat2, cat3, score, grade, details, shareholderBadges };
 }

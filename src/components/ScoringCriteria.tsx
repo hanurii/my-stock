@@ -168,6 +168,7 @@ export function GrowthScoringCriteria() {
             <div className="text-xs text-on-surface-variant leading-relaxed space-y-1">
               <p className="font-serif text-sm text-on-surface">성장 가속도 해석</p>
               <p>최근 분기 YoY 영업이익 성장률이 3년 평균(CAGR)을 넘는지 비교합니다. 3년간 고성장한 종목일수록 최근 분기가 그 평균을 넘기 어렵기 때문에, 대부분의 종목은 &lsquo;둔화·정체&rsquo;에 해당합니다. &lsquo;가속 중&rsquo; 이상이 나오는 종목은 지금 순풍이 불고 있다는 시그널이므로 희소한 가점 항목입니다.</p>
+              <p>영업이익 3Y CAGR이 마이너스(역성장)인 종목은 성장주의 핵심 전제가 깨진 상태이므로, 최대 C등급으로 제한됩니다.</p>
             </div>
           </div>
         </div>
