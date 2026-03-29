@@ -415,8 +415,9 @@ async function updateStocks(
     if (result.foreign_ownership != null) stock.foreign_ownership = result.foreign_ownership;
     stock.scored_at = today;
 
-    // API에서 PER/PBR/배당 모두 정상 조회되면 estimated 플래그 자동 제거
-    if (result.per != null && result.pbr > 0 && result.dividend_yield > 0) {
+    // API에서 PER/PBR 정상 조회되면 estimated 플래그 자동 제거
+    // (무배당 성장주는 dividend_yield=0이 정상이므로 배당 조건 제외)
+    if (result.per != null && result.pbr > 0) {
       if (stock.estimated) {
         delete stock.estimated;
         console.log(`   ✅ estimated 플래그 해제 (API 데이터 정상)`);
