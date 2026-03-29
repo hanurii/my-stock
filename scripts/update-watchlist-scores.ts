@@ -346,6 +346,57 @@ function loadShareholderReturnMap(): Map<string, ShareholderReturnData> {
   return map;
 }
 
+// ── 누락 종목 주주환원 데이터 자동 수집 ──
+
+const SH_RETURNS_PATH = path.join(process.cwd(), "public", "data", "shareholder-returns.json");
+
+async function ensureShareholderData(stocks: { code: string; name: string }[]): Promise<void> {
+  // 기존 데이터 로드
+  let existing: { generated_at: string; description: string; stocks: { code: string }[] };
+  try {
+    existing = JSON.parse(fs.readFileSync(SH_RETURNS_PATH, "utf-8"));
+  } catch {
+    existing = { generated_at: "", description: "", stocks: [] };
+  }
+
+  const existingCodes = new Set(existing.stocks.map((s) => s.code));
+  const missing = stocks.filter((s) => /^\d{6}$/.test(s.code) && !existingCodes.has(s.code));
+
+  if (missing.length === 0) return;
+
+  const dartKey = process.env.DART_API_KEY ?? "";
+  if (!dartKey) {
+    console.warn(`  ⚠ 주주환원 데이터 누락 ${missing.length}개 종목 — DART_API_KEY 미설정으로 건너뜀`);
+    missing.forEach((s) => console.warn(`    · ${s.name}(${s.code})`));
+    return;
+  }
+
+  console.log(`\n📦 주주환원 데이터 누락 ${missing.length}개 종목 자동 수집`);
+
+  // 동적 import (fetch-shareholder-returns.ts에서 export한 함수)
+  const { loadCorpCodeMap, fetchStockShareholderData } = await import("./fetch-shareholder-returns");
+  const corpMap = await loadCorpCodeMap();
+
+  for (const stock of missing) {
+    const corpCode = corpMap.get(stock.code);
+    if (!corpCode) {
+      console.warn(`  ⚠ ${stock.name}(${stock.code}) — corp_code 매핑 실패, 건너뜀`);
+      continue;
+    }
+    console.log(`  + ${stock.name}(${stock.code}) → corp_code: ${corpCode}`);
+    try {
+      const data = await fetchStockShareholderData(corpCode, stock.code, stock.name);
+      existing.stocks.push(data as typeof existing.stocks[number]);
+    } catch (e) {
+      console.warn(`  ⚠ ${stock.name} 수집 실패:`, e);
+    }
+  }
+
+  existing.generated_at = new Date().toISOString().slice(0, 10);
+  fs.writeFileSync(SH_RETURNS_PATH, JSON.stringify(existing, null, 2), "utf-8");
+  console.log(`  ✓ shareholder-returns.json 업데이트 완료\n`);
+}
+
 function makeScoreAllGrowth(baseRate: number): ScoreFn {
   const shReturnMap = loadShareholderReturnMap();
   return (stocks: StockBase[]) => {
@@ -568,6 +619,9 @@ async function main() {
   if ((growthData.stocks as StockBase[]).length > 0) {
     console.log(`\n\n📊 [저평가 성장주] 시세 업데이트 (${today})`);
     console.log("─".repeat(65));
+
+    // 누락 종목 주주환원 데이터 자동 수집
+    await ensureShareholderData(growthData.stocks as { code: string; name: string }[]);
 
     const baseRate = growthData.base_rate ?? 2.75;
 

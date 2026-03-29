@@ -75,7 +75,7 @@ interface MajorShareholder {
 }
 
 // 최종 출력 타입
-interface ShareholderReturnData {
+export interface ShareholderReturnData {
   code: string;
   name: string;
   corp_code: string;
@@ -154,7 +154,7 @@ async function dartGet<T>(endpoint: string, params: Record<string, string>): Pro
 
 // ── Step 1: corp_code 매핑 다운로드 ──
 
-async function loadCorpCodeMap(): Promise<Map<string, string>> {
+export async function loadCorpCodeMap(): Promise<Map<string, string>> {
   console.log("📦 corp_code 매핑 다운로드 중...");
   const url = `${DART_API}/corpCode.xml?crtfc_key=${DART_API_KEY}`;
   const res = await fetch(url);
@@ -344,6 +344,30 @@ async function fetchMajorShareholder(corpCode: string): Promise<ShareholderRetur
   return results;
 }
 
+// ── 개별 종목 수집 (외부에서 재사용 가능) ──
+
+export async function fetchStockShareholderData(
+  corpCode: string,
+  stockCode: string,
+  stockName: string,
+): Promise<ShareholderReturnData> {
+  const [treasuryStock, dividends, capitalChanges, majorShareholder] = await Promise.all([
+    fetchTreasuryStock(corpCode),
+    fetchDividends(corpCode),
+    fetchCapitalChanges(corpCode),
+    fetchMajorShareholder(corpCode),
+  ]);
+  return {
+    code: stockCode,
+    name: stockName,
+    corp_code: corpCode,
+    treasury_stock: treasuryStock,
+    dividends,
+    capital_changes: capitalChanges,
+    major_shareholder: majorShareholder,
+  };
+}
+
 // ── 메인 ──
 
 async function main() {
@@ -375,22 +399,7 @@ async function main() {
     }
     console.log(`  [${idx}/${stocks.length}] ${stock.name}(${stock.code}) → corp_code: ${corpCode}`);
 
-    const [treasuryStock, dividends, capitalChanges, majorShareholder] = await Promise.all([
-      fetchTreasuryStock(corpCode),
-      fetchDividends(corpCode),
-      fetchCapitalChanges(corpCode),
-      fetchMajorShareholder(corpCode),
-    ]);
-
-    results.push({
-      code: stock.code,
-      name: stock.name,
-      corp_code: corpCode,
-      treasury_stock: treasuryStock,
-      dividends,
-      capital_changes: capitalChanges,
-      major_shareholder: majorShareholder,
-    });
+    results.push(await fetchStockShareholderData(corpCode, stock.code, stock.name));
   }
 
   // 저장
