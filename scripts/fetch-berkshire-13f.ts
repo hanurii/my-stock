@@ -574,9 +574,15 @@ async function main() {
   if (fs.existsSync(OUTPUT_PATH)) {
     prevData = JSON.parse(fs.readFileSync(OUTPUT_PATH, "utf-8")) as Berkshire13FData;
 
-    // 동일 Filing이면 조기 종료 (초기 빌드가 아닐 때만)
+    // 동일 Filing이면 is_new 해제 후 종료 (초기 빌드가 아닐 때만)
     if (!isInitialBuild && prevData.latest.accession_number === latestFiling.accessionNumber) {
-      console.log("\n✅ 이미 최신 Filing 반영됨 — 업데이트 불필요");
+      if ((prevData as unknown as Record<string, unknown>).is_new) {
+        (prevData as unknown as Record<string, unknown>).is_new = false;
+        fs.writeFileSync(OUTPUT_PATH, JSON.stringify(prevData, null, 2) + "\n", "utf-8");
+        console.log("\n✅ 이미 최신 Filing 반영됨 — is_new 플래그 해제");
+      } else {
+        console.log("\n✅ 이미 최신 Filing 반영됨 — 업데이트 불필요");
+      }
       return;
     }
   }
@@ -680,9 +686,10 @@ async function main() {
   await sleep(REQUEST_DELAY_MS);
   const cashData = await fetchCashData();
 
-  // 결과 저장
-  const result: Berkshire13FData & { cash_trend: CashDataPoint[] } = {
+  // 결과 저장 (새 Filing 감지 → is_new: true, 차주 실행 시 해제)
+  const result: Berkshire13FData & { cash_trend: CashDataPoint[]; is_new: boolean } = {
     generated_at: new Date().toISOString().split("T")[0],
+    is_new: true,
     latest: {
       accession_number: latestFiling.accessionNumber,
       filing_date: latestFiling.filingDate,
