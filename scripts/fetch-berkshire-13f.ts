@@ -596,6 +596,9 @@ async function main() {
   console.log(`\n${"─".repeat(50)}`);
   console.log(`📊 최신 분기 파싱: ${latestFiling.reportDate}`);
   const holdings = await fetchAndParseHoldings(latestFiling);
+  if (holdings.length === 0) {
+    throw new Error("Holdings가 0건입니다. SEC XML이 비정상일 수 있습니다.");
+  }
   const totalValue = holdings.reduce((s, h) => s + h.value, 0);
   console.log(`   ${holdings.length}개 포지션, 총 $${(totalValue / 1e9).toFixed(1)}B`);
 
