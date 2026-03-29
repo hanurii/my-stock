@@ -14,6 +14,7 @@ const catNames: Record<number, string> = {
   1: "저평가/이익창출력",
   2: "주주환원 의지",
   3: "미래 성장/경쟁력",
+  4: "주주환원 보정",
 };
 
 interface ScoreStyle {
@@ -75,11 +76,12 @@ export function ScoreDetails({ details }: { details: ScoreDetail[] }) {
 
       {open && (
         <div className="mt-4 space-y-6">
-          {[1, 2, 3].map((catNum) => {
+          {[1, 2, 3, 4].map((catNum) => {
             const items = grouped[catNum];
             if (!items) return null;
             const catTotal = items.reduce((s, d) => s + d.score, 0);
-            const catMax = items.reduce((s, d) => s + d.max, 0);
+            const catMax = items.reduce((s, d) => s + Math.max(0, d.max), 0);
+            const isAdjustment = catNum === 4;
             const catPct = catMax > 0 ? (catTotal / catMax) * 100 : 0;
 
             return (
@@ -90,15 +92,21 @@ export function ScoreDetails({ details }: { details: ScoreDetail[] }) {
                   </h5>
                   <span
                     className="text-base font-mono font-bold"
-                    style={{ color: getScoreStyle(catPct).color, textShadow: getScoreStyle(catPct).glow }}
+                    style={{ color: isAdjustment ? (catTotal > 0 ? "#95d3ba" : catTotal < 0 ? "#ffb4ab" : "#b0b0bc") : getScoreStyle(catPct).color, textShadow: isAdjustment ? undefined : getScoreStyle(catPct).glow }}
                   >
-                    {catTotal}/{catMax}
+                    {isAdjustment ? (catTotal > 0 ? `+${catTotal}` : `${catTotal}`) : `${catTotal}/${catMax}`}
                   </span>
                 </div>
                 <div className="space-y-2">
                   {items.map((d) => {
+                    const isAdj = isAdjustment || d.max <= 0;
                     const pct = d.max > 0 ? (d.score / d.max) * 100 : 0;
-                    const style = getScoreStyle(pct);
+                    const style = isAdj
+                      ? { color: d.score > 0 ? "#95d3ba" : d.score < 0 ? "#ffb4ab" : "#b0b0bc" }
+                      : getScoreStyle(pct);
+                    const scoreLabel = isAdj
+                      ? (d.score > 0 ? `+${d.score}` : `${d.score}`)
+                      : `${d.score}/${d.max}`;
 
                     return (
                       <div key={d.item} className="py-2 px-3 sm:px-4 rounded-lg bg-surface-container/30">
@@ -111,17 +119,19 @@ export function ScoreDetails({ details }: { details: ScoreDetail[] }) {
                             {d.basis}
                           </span>
                           <div className="flex items-center gap-3 shrink-0">
-                            <div className="w-24 h-2 bg-surface-container-highest rounded-full overflow-hidden">
-                              <div
-                                className="h-full rounded-full transition-all duration-300"
-                                style={{ width: `${pct}%`, background: style.barGradient || style.color }}
-                              />
-                            </div>
+                            {!isAdj && (
+                              <div className="w-24 h-2 bg-surface-container-highest rounded-full overflow-hidden">
+                                <div
+                                  className="h-full rounded-full transition-all duration-300"
+                                  style={{ width: `${pct}%`, background: ("barGradient" in style ? style.barGradient : undefined) || style.color }}
+                                />
+                              </div>
+                            )}
                             <span
                               className="text-sm font-mono font-bold w-14 text-right"
-                              style={{ color: style.color, textShadow: style.glow }}
+                              style={{ color: style.color, textShadow: "glow" in style ? style.glow : undefined }}
                             >
-                              {d.score}/{d.max}
+                              {scoreLabel}
                             </span>
                           </div>
                         </div>
@@ -132,19 +142,21 @@ export function ScoreDetails({ details }: { details: ScoreDetail[] }) {
                             <span className="text-sm text-on-surface font-medium">{d.item}</span>
                             <span
                               className="text-sm font-mono font-bold"
-                              style={{ color: style.color, textShadow: style.glow }}
+                              style={{ color: style.color, textShadow: "glow" in style ? style.glow : undefined }}
                             >
-                              {d.score}/{d.max}
+                              {scoreLabel}
                             </span>
                           </div>
                           <div className="flex items-center gap-3">
                             <span className="text-xs text-on-surface-variant/60 shrink-0">{d.basis}</span>
-                            <div className="flex-1 h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
-                              <div
-                                className="h-full rounded-full transition-all duration-300"
-                                style={{ width: `${pct}%`, background: style.barGradient || style.color }}
-                              />
-                            </div>
+                            {!isAdj && (
+                              <div className="flex-1 h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+                                <div
+                                  className="h-full rounded-full transition-all duration-300"
+                                  style={{ width: `${pct}%`, background: ("barGradient" in style ? style.barGradient : undefined) || style.color }}
+                                />
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>

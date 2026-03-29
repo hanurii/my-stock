@@ -192,6 +192,24 @@ export function GrowthScoringCriteria() {
             { item: "외국인 보유비중", max: 4, criteria: "<5%: 4 · <10%: 3 · <20%: 2 · <30%: 1 · ≥30%: 0" },
           ]}
         />
+        <CriteriaTable
+          title="주주환원 보정" icon="volunteer_activism" maxScore={5}
+          rows={[
+            { item: "자사주 소각", max: 3, criteria: "3년+: +3 · 2년: +2 · 1년: +1 · 없음: 0" },
+            { item: "배당 연속성", max: 2, criteria: "4년+: +2 · 2~3년: +1 · 불규칙/없음: 0" },
+            { item: "지분 희석 (감점)", max: 0, criteria: "30건+: −8 · 15~29건: −5 · 8~14건: −3 · 3~7건: −1 · ≤2건: 0" },
+          ]}
+        />
+        <div className="bg-surface-container-low rounded-xl p-4 ghost-border">
+          <div className="flex items-start gap-2">
+            <span className="material-symbols-outlined text-on-surface-variant text-base mt-0.5">info</span>
+            <p className="text-xs text-on-surface-variant leading-relaxed">
+              주주환원 데이터는 DART OpenAPI 기반 최근 5년 이력입니다.
+              희석 대상: 전환권행사, 신주인수권행사, 유상증자(제3자배정/일반공모), 주식매수선택권행사 등.
+              데이터 미확보 종목은 보정 없이 기존 점수를 유지합니다.
+            </p>
+          </div>
+        </div>
         <div className="bg-surface-container-low rounded-xl p-5 ghost-border">
           <h4 className="text-base font-serif text-on-surface mb-3">금리 환경 감점</h4>
           <div className="overflow-x-auto">

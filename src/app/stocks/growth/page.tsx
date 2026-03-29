@@ -11,6 +11,7 @@ import {
   GROWTH_FRAMEWORK,
   type GrowthStockInput,
   type ScoredResult,
+  type ShareholderReturnData,
 } from "@/lib/scoring";
 import { GrowthScoringCriteria } from "@/components/ScoringCriteria";
 import { formatScoredAt } from "@/lib/format";
@@ -26,6 +27,55 @@ interface GrowthWatchlistData {
 }
 
 type ScoredStock = GrowthStock & ScoredResult;
+
+// ── 주주환원 데이터 변환 ──
+
+const DILUTIVE_TYPES = new Set([
+  "전환권행사", "신주인수권행사", "유상증자(제3자배정)",
+  "유상증자(일반공모)", "유상증자(주주우선공모)",
+  "주식매수선택권행사", "상환권행사",
+]);
+
+interface RawShareholderStock {
+  code: string;
+  treasury_stock: { year: number; cancelled: number }[];
+  dividends: { year: number; dps: number | null }[];
+  capital_changes: { year: number; type: string }[];
+}
+
+function loadShareholderReturns(): Map<string, ShareholderReturnData> {
+  const map = new Map<string, ShareholderReturnData>();
+  try {
+    const filePath = path.join(process.cwd(), "public", "data", "shareholder-returns.json");
+    const raw = JSON.parse(fs.readFileSync(filePath, "utf-8")) as { stocks: RawShareholderStock[] };
+
+    const currentYear = new Date().getFullYear();
+    for (const s of raw.stocks) {
+      const cancellationYears = s.treasury_stock.filter((t) => t.cancelled > 0).length;
+
+      // 연속 배당 연도 수 (현재 연도 제외, 최근부터 역순)
+      const validDivs = s.dividends
+        .filter((d) => d.year < currentYear)
+        .sort((a, b) => b.year - a.year);
+      let consecutiveDivYears = 0;
+      for (const d of validDivs) {
+        if (d.dps !== null && d.dps > 0) consecutiveDivYears++;
+        else break;
+      }
+
+      const dilutiveCount = s.capital_changes.filter((c) => DILUTIVE_TYPES.has(c.type)).length;
+
+      map.set(s.code, {
+        treasury_cancellation_years: cancellationYears,
+        consecutive_dividend_years: consecutiveDivYears,
+        dilutive_event_count: dilutiveCount,
+      });
+    }
+  } catch {
+    // shareholder-returns.json 없으면 빈 맵 반환
+  }
+  return map;
+}
 
 function getGrowthData(): {
   stocks: ScoredStock[];
@@ -44,9 +94,12 @@ function getGrowthData(): {
     const raw = fs.readFileSync(filePath, "utf-8");
     const data = JSON.parse(raw) as GrowthWatchlistData;
 
+    // 주주환원 데이터 로드
+    const shReturnMap = loadShareholderReturns();
+
     const baseRate = data.base_rate ?? 2.75;
     const stocks: ScoredStock[] = data.stocks
-      .map((s) => ({ ...s, ...scoreGrowth(s, baseRate) }))
+      .map((s) => ({ ...s, ...scoreGrowth(s, baseRate, shReturnMap.get(s.code)) }))
       .sort((a, b) => b.score - a.score);
 
     return {
@@ -59,6 +112,23 @@ function getGrowthData(): {
   } catch {
     return null;
   }
+}
+
+function ShareholderBadges({ badges }: { badges?: ScoredResult["shareholderBadges"] }) {
+  if (!badges) return null;
+  return (
+    <>
+      {badges.cancellation && (
+        <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ backgroundColor: "#95d3ba20", color: "#95d3ba" }}>소각</span>
+      )}
+      {badges.dividend && (
+        <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ backgroundColor: "#e9c17620", color: "#e9c176" }}>배당</span>
+      )}
+      {badges.dilution && (
+        <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ backgroundColor: "#ffb4ab20", color: "#ffb4ab" }}>희석주의</span>
+      )}
+    </>
+  );
 }
 
 function getTierLabel(tier?: string): string | null {
@@ -140,7 +210,7 @@ export default function GrowthPage() {
           저평가 성장주
         </h2>
         <p className="text-base text-on-surface-variant mt-2">
-          GARP 스코어링 · 성장성 35 + 밸류에이션 30 + 경쟁력/시그널 35 − 금리 감점
+          GARP 스코어링 · 성장성 35 + 밸류에이션 30 + 경쟁력/시그널 35 ± 주주환원 보정 − 금리 감점
         </p>
         <p className="text-xs text-on-surface-variant/50 mt-1.5">
           점수 갱신: {calculatedAt}
@@ -300,6 +370,7 @@ export default function GrowthPage() {
                     <td className="px-3 py-2.5 font-medium text-on-surface">
                       <span className="inline-flex items-center gap-1.5 flex-wrap">
                         {stock.name}
+                        <ShareholderBadges badges={stock.shareholderBadges} />
                         {stock.estimated && (
                           <span className="text-[10px] text-on-surface-variant/40">
                             ~
@@ -423,6 +494,7 @@ export default function GrowthPage() {
                             >
                               {stock.grade}
                             </span>
+                            <ShareholderBadges badges={stock.shareholderBadges} />
                             {stock.estimated && (
                               <span className="text-xs text-on-surface-variant/40">
                                 추정치
@@ -652,6 +724,7 @@ export default function GrowthPage() {
                                   >
                                     {stock.grade}
                                   </span>
+                                  <ShareholderBadges badges={stock.shareholderBadges} />
                                   {stock.estimated && (
                                     <span className="text-xs text-on-surface-variant/40">
                                       추정치
@@ -822,6 +895,7 @@ export default function GrowthPage() {
                             <div>
                               <h4 className="text-base font-medium text-on-surface inline-flex items-center gap-1.5 flex-wrap">
                                 {stock.name}
+                                <ShareholderBadges badges={stock.shareholderBadges} />
                                 <RankChange
                                   currentRank={globalRank}
                                   previousRank={stock.previous_rank}

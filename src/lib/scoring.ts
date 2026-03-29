@@ -27,6 +27,21 @@ export interface ScoredResult {
   score: number;
   grade: string;
   details: ScoreDetail[];
+  shareholderBadges?: ShareholderBadges;
+}
+
+// ── 주주환원 보정 ──
+
+export interface ShareholderReturnData {
+  treasury_cancellation_years: number;  // 소각 실적이 있는 연도 수
+  consecutive_dividend_years: number;   // 최근 연속 배당 연도 수
+  dilutive_event_count: number;         // 희석성 이벤트 건수 (5년)
+}
+
+export interface ShareholderBadges {
+  cancellation: boolean;  // 소각 배지 (녹색)
+  dividend: boolean;      // 배당 배지 (황색)
+  dilution: boolean;      // 희석주의 배지 (적색)
 }
 
 // ── 국내 종목 입력 ──
@@ -532,7 +547,7 @@ export function getInterestRatePenalty(baseRate: number): { penalty: number; lab
 
 // ── 성장주 채점 ──
 
-export function scoreGrowth(input: GrowthStockInput, baseRate: number): ScoredResult {
+export function scoreGrowth(input: GrowthStockInput, baseRate: number, shReturn?: ShareholderReturnData): ScoredResult {
   const details: ScoreDetail[] = [];
 
   // ── Cat1: 성장성 (만점 35) ──
@@ -771,6 +786,76 @@ export function scoreGrowth(input: GrowthStockInput, baseRate: number): ScoredRe
     details.push({ item: "금리 환경 감점", basis: `기준금리 ${baseRate}% — ${rateResult.label}`, score: -rateResult.penalty, max: 0, cat: 0 });
   }
 
-  const score = Math.max(0, cat1 + cat2 + cat3 - rateResult.penalty);
-  return { cat1, cat2, cat3, score, grade: getGrade(score), details };
+  // ── Cat4: 주주환원 보정 ──
+
+  let shReturnAdj = 0;
+  let shareholderBadges: ShareholderBadges | undefined;
+
+  if (shReturn) {
+    // 자사주 소각 가점
+    let cancelScore: number;
+    let cancelBasis: string;
+    if (shReturn.treasury_cancellation_years >= 3) {
+      cancelScore = 3;
+      cancelBasis = `${shReturn.treasury_cancellation_years}년 소각 실적`;
+    } else if (shReturn.treasury_cancellation_years === 2) {
+      cancelScore = 2;
+      cancelBasis = "2년 소각 실적";
+    } else if (shReturn.treasury_cancellation_years === 1) {
+      cancelScore = 1;
+      cancelBasis = "1년 소각 실적";
+    } else {
+      cancelScore = 0;
+      cancelBasis = "소각 실적 없음";
+    }
+    details.push({ item: "자사주 소각", basis: cancelBasis, score: cancelScore, max: 3, cat: 4 });
+
+    // 배당 연속성 가점
+    let divScore: number;
+    let divBasis: string;
+    if (shReturn.consecutive_dividend_years >= 4) {
+      divScore = 2;
+      divBasis = `${shReturn.consecutive_dividend_years}년 연속 배당`;
+    } else if (shReturn.consecutive_dividend_years >= 2) {
+      divScore = 1;
+      divBasis = `${shReturn.consecutive_dividend_years}년 연속 배당`;
+    } else {
+      divScore = 0;
+      divBasis = shReturn.consecutive_dividend_years === 1 ? "1년 배당 (불규칙)" : "배당 없음";
+    }
+    details.push({ item: "배당 연속성", basis: divBasis, score: divScore, max: 2, cat: 4 });
+
+    // 지분 희석 감점
+    let dilutionScore: number;
+    let dilutionBasis: string;
+    const dc = shReturn.dilutive_event_count;
+    if (dc >= 30) {
+      dilutionScore = -8;
+      dilutionBasis = `희석 이벤트 ${dc}건 (극심)`;
+    } else if (dc >= 15) {
+      dilutionScore = -5;
+      dilutionBasis = `희석 이벤트 ${dc}건 (심각)`;
+    } else if (dc >= 8) {
+      dilutionScore = -3;
+      dilutionBasis = `희석 이벤트 ${dc}건 (상당)`;
+    } else if (dc >= 3) {
+      dilutionScore = -1;
+      dilutionBasis = `희석 이벤트 ${dc}건 (소량)`;
+    } else {
+      dilutionScore = 0;
+      dilutionBasis = dc > 0 ? `희석 이벤트 ${dc}건` : "희석 이력 없음";
+    }
+    details.push({ item: "지분 희석", basis: dilutionBasis, score: dilutionScore, max: 0, cat: 4 });
+
+    shReturnAdj = cancelScore + divScore + dilutionScore;
+
+    shareholderBadges = {
+      cancellation: shReturn.treasury_cancellation_years >= 2,
+      dividend: shReturn.consecutive_dividend_years >= 3,
+      dilution: dc >= 8,
+    };
+  }
+
+  const score = Math.max(0, cat1 + cat2 + cat3 + shReturnAdj - rateResult.penalty);
+  return { cat1, cat2, cat3, score, grade: getGrade(score), details, shareholderBadges };
 }
