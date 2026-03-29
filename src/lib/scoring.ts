@@ -857,5 +857,29 @@ export function scoreGrowth(input: GrowthStockInput, baseRate: number, shReturn?
   }
 
   const score = Math.max(0, cat1 + cat2 + cat3 + shReturnAdj - rateResult.penalty);
-  return { cat1, cat2, cat3, score, grade: getGrade(score), details, shareholderBadges };
+
+  // 지분 희석 등급 상한 (Grade Cap)
+  let grade = getGrade(score);
+  let gradeCap: string | undefined;
+  if (shReturn) {
+    const dc = shReturn.dilutive_event_count;
+    if (dc >= 30) {
+      gradeCap = "D";
+    } else if (dc >= 15) {
+      gradeCap = "C";
+    } else if (dc >= 8) {
+      gradeCap = "B";
+    }
+    if (gradeCap) {
+      const gradeOrder = ["A", "B", "C", "D"];
+      const currentIdx = gradeOrder.indexOf(grade);
+      const capIdx = gradeOrder.indexOf(gradeCap);
+      if (currentIdx < capIdx) {
+        grade = gradeCap;
+        details.push({ item: "희석 등급 상한", basis: `희석 ${dc}건 → 최대 ${gradeCap}등급`, score: 0, max: 0, cat: 4 });
+      }
+    }
+  }
+
+  return { cat1, cat2, cat3, score, grade, details, shareholderBadges };
 }
