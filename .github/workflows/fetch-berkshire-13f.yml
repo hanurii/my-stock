@@ -1,0 +1,33 @@
+name: Berkshire 13F 포트폴리오 업데이트
+
+on:
+  schedule:
+    # 매주 월요일 01:00 UTC = 10:00 KST
+    - cron: '0 1 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fetch-13f:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Berkshire 13F 데이터 수집
+        run: npx tsx scripts/fetch-berkshire-13f.ts
+      - name: Commit & push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/data/berkshire-13f.json
+          if ! git diff --staged --quiet; then
+            KST_DATE=$(TZ=Asia/Seoul date +%Y-%m-%d)
+            git commit -m "chore: Berkshire 13F 업데이트 ${KST_DATE}"
+            git push
+          else
+            echo "새로운 13F 공시 없음 — 커밋 생략"
+          fi
