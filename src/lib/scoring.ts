@@ -610,7 +610,7 @@ export function scoreGrowth(input: GrowthStockInput, baseRate: number, shReturn?
   let pegBasis: string;
   if (input.peg == null) {
     pegScore = input.profit_status === "deficit" ? -5 : 0;
-    pegBasis = input.profit_status === "deficit" ? "산출 불가 (적자 — 감점)" : "산출 불가 (역성장)";
+    pegBasis = input.profit_status === "deficit" ? "산출 불가 (적자 — 감점)" : "산출 불가 (이익성장률 음수 또는 데이터 부족)";
   } else if (input.peg < 0.5) {
     pegScore = 10;
     pegBasis = `${input.peg} (<0.5)`;
