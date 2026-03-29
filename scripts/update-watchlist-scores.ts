@@ -237,24 +237,44 @@ async function fetchFundamentalsFromDart(
 
   for (const p of periods) {
     try {
-      const url = `${DART_API}/fnlttSinglAcntAll.json?crtfc_key=${DART_API_KEY}&corp_code=${corpCode}&bsns_year=${p.year}&reprt_code=${p.code}&fs_div=CFS`;
-      const res = await fetch(url);
-      if (!res.ok) continue;
-      const data = await res.json();
-      if (data.status !== "000") continue;
+      // 연결재무제표(CFS) 우선, 없으면 별도재무제표(OFS)
+      let items: { account_nm: string; thstrm_amount: string; sj_div: string }[] = [];
+      let fsDiv = "CFS";
 
-      const items: { account_nm: string; thstrm_amount: string; sj_div: string }[] = data.list;
+      for (const fs of ["CFS", "OFS"] as const) {
+        const url = `${DART_API}/fnlttSinglAcntAll.json?crtfc_key=${DART_API_KEY}&corp_code=${corpCode}&bsns_year=${p.year}&reprt_code=${p.code}&fs_div=${fs}`;
+        const res = await fetch(url);
+        if (!res.ok) continue;
+        const data = await res.json();
+        if (data.status === "000") {
+          items = data.list;
+          fsDiv = fs;
+          break;
+        }
+        await sleep(300);
+      }
+      if (items.length === 0) continue;
 
-      // EPS: 우선주면 "우선주" 포함 항목, 아니면 "보통주" 포함 또는 "기본주당이익"
+      // EPS 탐색 (다양한 항목명 대응)
+      // "이익" 또는 "손익" 매칭 (DART 항목명이 종목마다 다름)
+      const hasEarnings = (nm: string) => nm.includes("이익") || nm.includes("손익");
+      const epsSearches = isPreferred
+        ? [
+            (i: { account_nm: string }) => i.account_nm.includes("우선주") && i.account_nm.includes("주당") && hasEarnings(i.account_nm),
+            (i: { account_nm: string }) => i.account_nm.includes("보통주") && i.account_nm.includes("기본") && hasEarnings(i.account_nm) && !i.account_nm.includes("희석"),
+            (i: { account_nm: string }) => /기본.*주당/.test(i.account_nm) && hasEarnings(i.account_nm) && !i.account_nm.includes("희석"),
+            (i: { account_nm: string }) => /기본.*주당/.test(i.account_nm) && hasEarnings(i.account_nm),
+          ]
+        : [
+            (i: { account_nm: string }) => i.account_nm.includes("보통주") && i.account_nm.includes("기본") && hasEarnings(i.account_nm) && !i.account_nm.includes("희석"),
+            (i: { account_nm: string }) => /기본.*주당/.test(i.account_nm) && hasEarnings(i.account_nm) && !i.account_nm.includes("희석"),
+            (i: { account_nm: string }) => /기본.*주당/.test(i.account_nm) && hasEarnings(i.account_nm),
+          ];
+
       let epsItem;
-      if (isPreferred) {
-        epsItem = items.find((i) => i.account_nm.includes("우선주") && i.account_nm.includes("주당") && i.account_nm.includes("이익"));
-      }
-      if (!epsItem) {
-        epsItem = items.find((i) => i.account_nm.includes("보통주") && i.account_nm.includes("주당") && i.account_nm.includes("이익") && !i.account_nm.includes("희석"));
-      }
-      if (!epsItem) {
-        epsItem = items.find((i) => i.account_nm.includes("기본주당이익") && !i.account_nm.includes("희석"));
+      for (const search of epsSearches) {
+        epsItem = items.find(search);
+        if (epsItem) break;
       }
       if (!epsItem) continue;
 
@@ -310,7 +330,7 @@ async function fetchFundamentalsFromDart(
         }
       } catch { /* 배당 조회 실패 시 무시 */ }
 
-      console.log(`   📋 DART 확정(${p.label}): EPS ${fmt(eps)} BPS ${fmt(bps)} → PER ${per} PBR ${pbr} | 배당 ${fmt(dps)}원 (${dividendYield}%)`);
+      console.log(`   📋 DART 확정(${p.label}, ${fsDiv}): EPS ${fmt(eps)} BPS ${fmt(bps)} → PER ${per} PBR ${pbr} | 배당 ${fmt(dps)}원 (${dividendYield}%)`);
 
       return { per, pbr, eps, bps, dividend_yield: dividendYield, dps, period: p.label };
     } catch {
