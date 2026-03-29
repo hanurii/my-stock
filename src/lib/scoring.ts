@@ -873,7 +873,7 @@ export function scoreGrowth(input: GrowthStockInput, baseRate: number, shReturn?
     const capIdx = gradeOrder.indexOf(growthCap);
     if (currentIdx < capIdx) {
       grade = growthCap;
-      details.push({ item: "역성장 등급 상한", basis: `영업이익 3Y CAGR ${input.op_profit_growth_3y}% → 최대 C등급`, score: 0, max: 0, cat: 1 });
+      details.push({ item: "역성장 등급 상한", basis: `영업이익 3Y CAGR ${input.op_profit_growth_3y}% → ${growthCap}등급 고정`, score: 0, max: 0, cat: 1 });
     }
   }
 
