@@ -100,7 +100,11 @@ function getGrowthData(): {
     const baseRate = data.base_rate ?? 2.75;
     const stocks: ScoredStock[] = data.stocks
       .map((s) => ({ ...s, ...scoreGrowth(s, baseRate, shReturnMap.get(s.code)) }))
-      .sort((a, b) => b.score - a.score);
+      .sort((a, b) => {
+        const gradeOrder: Record<string, number> = { A: 0, B: 1, C: 2, D: 3 };
+        const gDiff = (gradeOrder[a.grade] ?? 9) - (gradeOrder[b.grade] ?? 9);
+        return gDiff !== 0 ? gDiff : b.score - a.score;
+      });
 
     return {
       stocks,
