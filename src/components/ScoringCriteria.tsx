@@ -205,7 +205,8 @@ export function GrowthScoringCriteria() {
             <span className="material-symbols-outlined text-on-surface-variant text-base mt-0.5">info</span>
             <p className="text-xs text-on-surface-variant leading-relaxed">
               주주환원 데이터는 DART OpenAPI 기반 최근 5년 이력입니다.
-              희석 대상: 전환권행사, 신주인수권행사, 유상증자(제3자배정/일반공모), 주식매수선택권행사 등.
+              나쁜 희석(감점 대상): 전환권행사, 신주인수권행사, 유상증자(제3자배정), 주식매수선택권행사, 상환권행사.
+              합리적 희석(감점 제외): 유상증자(일반공모/주주우선공모/주주배정), 무상증자, 주식분할 등.
               데이터 미확보 종목은 보정 없이 기존 점수를 유지합니다.
               희석 등급 상한: 10건+ → D 고정 · 5~9건 → C 이하 · 3~4건 → B 이하.
             </p>

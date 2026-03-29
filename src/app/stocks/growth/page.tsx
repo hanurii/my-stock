@@ -30,11 +30,12 @@ type ScoredStock = GrowthStock & ScoredResult;
 
 // ── 주주환원 데이터 변환 ──
 
+// 나쁜 희석: 기존 주주 지분을 일방적으로 희석시키는 행위
 const DILUTIVE_TYPES = new Set([
   "전환권행사", "신주인수권행사", "유상증자(제3자배정)",
-  "유상증자(일반공모)", "유상증자(주주우선공모)",
   "주식매수선택권행사", "상환권행사",
 ]);
+// 합리적 희석 (감점 제외): 유상증자(일반공모), 유상증자(주주우선공모), 유상증자(주주배정)
 
 interface RawShareholderStock {
   code: string;
