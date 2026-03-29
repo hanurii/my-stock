@@ -29,6 +29,14 @@ interface ChangeEntry {
   current_weight_pct: number;
 }
 
+interface CashDataPoint {
+  period: string;
+  cash: number;
+  cash_equivalents: number;
+  total_assets: number;
+  cash_ratio_pct: number;
+}
+
 interface Berkshire13FData {
   generated_at: string;
   latest: {
@@ -47,6 +55,7 @@ interface Berkshire13FData {
     sectors: { sector: string; value: number; weight_pct: number; count: number }[];
     concentration: { top5_pct: number; top10_pct: number };
   };
+  cash_trend: CashDataPoint[];
   history: {
     accession_number: string;
     filing_date: string;
@@ -143,7 +152,7 @@ export default function BerkshirePage() {
     );
   }
 
-  const { latest, history } = data;
+  const { latest, history, cash_trend } = data;
   const { holdings, changes, sectors, concentration } = latest;
 
   const hasChanges = changes.new_buys.length + changes.increased.length + changes.decreased.length + changes.exits.length > 0;
@@ -298,6 +307,111 @@ export default function BerkshirePage() {
           <SectorPieChart sectors={sectors} totalValue={latest.total_value} />
         </div>
       </section>
+
+      {/* Cash Trend */}
+      {cash_trend && cash_trend.length > 0 && (
+        <section>
+          <h3 className="text-2xl font-serif text-on-surface mb-2 tracking-tight">
+            현금성자산 추이
+          </h3>
+          <p className="text-sm text-on-surface-variant mb-6">
+            10-Q/10-K 기준 현금 및 현금성자산 (단기 재무부채권 제외)
+          </p>
+          <div className="bg-surface-container-low rounded-xl ghost-border overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-xs uppercase tracking-wider text-on-surface-variant/50">
+                    <th className="text-left px-4 pb-3 pt-4 font-normal">기준일</th>
+                    <th className="text-right px-4 pb-3 pt-4 font-normal">현금성자산</th>
+                    <th className="text-right px-4 pb-3 pt-4 font-normal">총자산</th>
+                    <th className="text-right px-4 pb-3 pt-4 font-normal">현금 비율</th>
+                    <th className="text-left px-4 pb-3 pt-4 font-normal hidden md:table-cell">추세</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {cash_trend.map((c, i) => {
+                    const prevCash = cash_trend[i + 1]?.cash;
+                    const isIncrease = prevCash != null && c.cash > prevCash;
+                    const isDecrease = prevCash != null && c.cash < prevCash;
+                    const isLatest = i === 0;
+
+                    return (
+                      <tr key={c.period} className={`hover:bg-surface-container/30 transition-colors ${isLatest ? "bg-primary/5" : ""}`}>
+                        <td className={`px-4 py-3 font-mono ${isLatest ? "text-primary" : "text-on-surface-variant"}`}>
+                          {formatDate(c.period)}
+                        </td>
+                        <td className="text-right px-4 py-3 font-mono text-on-surface font-bold">
+                          {formatUSD(c.cash)}
+                        </td>
+                        <td className="text-right px-4 py-3 font-mono text-on-surface-variant">
+                          {formatUSD(c.total_assets)}
+                        </td>
+                        <td className="text-right px-4 py-3 font-mono font-bold" style={{
+                          color: c.cash_ratio_pct >= 6 ? "#95d3ba" : c.cash_ratio_pct >= 4 ? "#e9c176" : "#ffb4ab"
+                        }}>
+                          {c.cash_ratio_pct}%
+                        </td>
+                        <td className="px-4 py-3 hidden md:table-cell">
+                          {isIncrease && (
+                            <span className="text-xs text-emerald-400 flex items-center gap-1">
+                              <span className="material-symbols-outlined text-sm">trending_up</span>
+                              현금 증가
+                            </span>
+                          )}
+                          {isDecrease && (
+                            <span className="text-xs text-red-400 flex items-center gap-1">
+                              <span className="material-symbols-outlined text-sm">trending_down</span>
+                              현금 감소
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div className="mt-3 flex items-start gap-2 px-1">
+            <span className="material-symbols-outlined text-on-surface-variant/40 text-sm mt-0.5">info</span>
+            <p className="text-xs text-on-surface-variant/50 leading-relaxed">
+              XBRL 공시 기준 현금 및 현금성자산입니다. 버크셔가 대량 보유한 단기 재무부채권(T-Bills)은
+              별도 항목으로 분류되어 이 수치에 포함되지 않으므로, 실제 유동성은 이보다 훨씬 큽니다.
+              주식 포트폴리오 가치가 줄면서 현금이 늘어나는 패턴은 버핏의 시장 고평가 판단 시그널입니다.
+            </p>
+          </div>
+        </section>
+      )}
+
+      {/* Equity Portfolio Value Trend */}
+      {history.length > 0 && (
+        <section className="bg-surface-container-low rounded-xl p-6 ghost-border">
+          <div className="flex items-start gap-3">
+            <span className="material-symbols-outlined text-primary text-xl mt-0.5">monitoring</span>
+            <div className="space-y-2">
+              <h3 className="text-base font-serif text-on-surface">주식 포트폴리오 가치 추이</h3>
+              <div className="flex flex-wrap gap-4 mt-3">
+                {[...history].reverse().map((h) => (
+                  <div key={h.report_period} className="text-center">
+                    <p className="text-xs text-on-surface-variant">{formatDate(h.report_period).slice(2)}</p>
+                    <p className="text-sm font-mono text-on-surface">{formatUSD(h.total_value)}</p>
+                    <p className="text-[10px] text-on-surface-variant/50">{h.total_positions}종목</p>
+                  </div>
+                ))}
+                <div className="text-center">
+                  <p className="text-xs text-primary">{formatDate(latest.report_period).slice(2)}</p>
+                  <p className="text-sm font-mono text-primary font-bold">{formatUSD(latest.total_value)}</p>
+                  <p className="text-[10px] text-primary/50">{latest.total_positions}종목</p>
+                </div>
+              </div>
+              <p className="text-xs text-on-surface-variant/50 mt-2">
+                13F 주식 포트폴리오만 반영. 현금, 채권, 비상장 투자는 미포함.
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Historical Comparison */}
       {history.length > 0 && (

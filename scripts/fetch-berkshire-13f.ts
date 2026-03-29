@@ -458,63 +458,209 @@ function computeConcentration(holdings: Holding[]): { top5_pct: number; top10_pc
   };
 }
 
+// ── XBRL 현금 데이터 수집 ──
+
+interface CashDataPoint {
+  period: string;       // "2025-12-31"
+  cash: number;         // Cash + Restricted Cash ($)
+  cash_equivalents: number; // Cash equivalents ($)
+  total_assets: number; // Total assets ($)
+  cash_ratio_pct: number;  // cash / total_assets * 100
+}
+
+async function fetchCashData(): Promise<CashDataPoint[]> {
+  console.log("\n📡 XBRL 현금 데이터 조회...");
+
+  const url = `https://data.sec.gov/api/xbrl/companyfacts/CIK${CIK}.json`;
+  const data = await fetchJSON(url) as { facts: Record<string, Record<string, { units: { USD: { end: string; val: number; form: string }[] } }>> };
+  const usGaap = data.facts?.["us-gaap"] || {};
+
+  function getQuarterly(tag: string): { end: string; val: number }[] {
+    const units = usGaap[tag]?.units?.USD || [];
+    return units
+      .filter((u) => u.end >= "2023-01-01" && (u.form === "10-Q" || u.form === "10-K"))
+      .sort((a, b) => b.end.localeCompare(a.end))
+      .filter((u, i, arr) => i === 0 || u.end !== arr[i - 1].end)
+      .slice(0, 8);
+  }
+
+  const cashData = getQuarterly("CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents");
+  const cashEqData = getQuarterly("CashEquivalentsAtCarryingValue");
+  const assetsData = getQuarterly("Assets");
+
+  const cashEqMap = new Map(cashEqData.map((d) => [d.end, d.val]));
+  const assetsMap = new Map(assetsData.map((d) => [d.end, d.val]));
+
+  const result: CashDataPoint[] = [];
+  for (const c of cashData) {
+    const assets = assetsMap.get(c.end) || 0;
+    result.push({
+      period: c.end,
+      cash: c.val,
+      cash_equivalents: cashEqMap.get(c.end) || 0,
+      total_assets: assets,
+      cash_ratio_pct: assets > 0 ? parseFloat(((c.val / assets) * 100).toFixed(1)) : 0,
+    });
+  }
+
+  console.log(`   ✅ ${result.length}개 분기 현금 데이터 수집`);
+  result.slice(0, 4).forEach((d) =>
+    console.log(`   ${d.period}: Cash $${(d.cash / 1e9).toFixed(1)}B / Assets $${(d.total_assets / 1e9).toFixed(0)}B (${d.cash_ratio_pct}%)`),
+  );
+
+  return result;
+}
+
+// ── 여러 분기 13F 수집 ──
+
+interface FilingInfo {
+  accessionNumber: string;
+  filingDate: string;
+  reportDate: string;
+}
+
+async function findRecent13Fs(count: number): Promise<FilingInfo[]> {
+  console.log("📡 SEC EDGAR Submissions API 조회...");
+  const data = await fetchJSON(SUBMISSIONS_URL) as {
+    filings: {
+      recent: {
+        accessionNumber: string[];
+        filingDate: string[];
+        reportDate: string[];
+        form: string[];
+      };
+    };
+  };
+
+  const recent = data.filings.recent;
+  const filings: FilingInfo[] = [];
+  for (let i = 0; i < recent.form.length && filings.length < count; i++) {
+    if (recent.form[i] === "13F-HR") {
+      filings.push({
+        accessionNumber: recent.accessionNumber[i],
+        filingDate: recent.filingDate[i],
+        reportDate: recent.reportDate[i],
+      });
+    }
+  }
+  return filings;
+}
+
+async function fetchAndParseHoldings(filing: FilingInfo): Promise<Holding[]> {
+  const xml = await fetchInfoTableXml(filing.accessionNumber);
+  const rawHoldings = parseHoldingsXml(xml);
+  return aggregateByCusip(rawHoldings);
+}
+
 // ── 메인 ──
 
 async function main() {
-  const filing = await findLatest13F();
-  if (!filing) {
+  const isInitialBuild = !fs.existsSync(OUTPUT_PATH);
+  const filings = await findRecent13Fs(isInitialBuild ? 6 : 1);
+
+  if (filings.length === 0) {
     console.log("❌ 13F-HR 공시를 찾을 수 없습니다");
     return;
   }
 
+  const latestFiling = filings[0];
   console.log(`\n📋 최신 13F-HR`);
-  console.log(`   Accession: ${filing.accessionNumber}`);
-  console.log(`   Filing Date: ${filing.filingDate}`);
-  console.log(`   Report Period: ${filing.reportDate}`);
+  console.log(`   Accession: ${latestFiling.accessionNumber}`);
+  console.log(`   Filing Date: ${latestFiling.filingDate}`);
+  console.log(`   Report Period: ${latestFiling.reportDate}`);
 
   // 이전 데이터 로드
   let prevData: Berkshire13FData | null = null;
   if (fs.existsSync(OUTPUT_PATH)) {
     prevData = JSON.parse(fs.readFileSync(OUTPUT_PATH, "utf-8")) as Berkshire13FData;
 
-    // 동일 Filing이면 조기 종료
-    if (prevData.latest.accession_number === filing.accessionNumber) {
+    // 동일 Filing이면 조기 종료 (초기 빌드가 아닐 때만)
+    if (!isInitialBuild && prevData.latest.accession_number === latestFiling.accessionNumber) {
       console.log("\n✅ 이미 최신 Filing 반영됨 — 업데이트 불필요");
       return;
     }
   }
 
+  // ── 최신 13F 파싱 ──
   await sleep(REQUEST_DELAY_MS);
-
-  // Holdings XML 파싱
-  const xml = await fetchInfoTableXml(filing.accessionNumber);
-  const rawHoldings = parseHoldingsXml(xml);
-  console.log(`\n📊 파싱 완료: ${rawHoldings.length}개 항목 (합산 전)`);
-
-  const holdings = aggregateByCusip(rawHoldings);
+  console.log(`\n${"─".repeat(50)}`);
+  console.log(`📊 최신 분기 파싱: ${latestFiling.reportDate}`);
+  const holdings = await fetchAndParseHoldings(latestFiling);
   const totalValue = holdings.reduce((s, h) => s + h.value, 0);
-  console.log(`   합산 후: ${holdings.length}개 포지션, 총 $${(totalValue / 1e9).toFixed(1)}B`);
+  console.log(`   ${holdings.length}개 포지션, 총 $${(totalValue / 1e9).toFixed(1)}B`);
 
-  // 변화 계산
+  // ── 이전 분기들 수집 (히스토리 구축) ──
+  const history: HistoricalFiling[] = [];
+
+  let initialChanges: Berkshire13FData["latest"]["changes"] | null = null;
+
+  if (isInitialBuild && filings.length > 1) {
+    console.log(`\n${"─".repeat(50)}`);
+    console.log(`📜 이전 ${filings.length - 1}개 분기 히스토리 수집...`);
+
+    let prevQuarterHoldings: Holding[] | null = null;
+
+    for (let i = 1; i < filings.length; i++) {
+      const f = filings[i];
+      await sleep(REQUEST_DELAY_MS * 2);
+      console.log(`\n   [${i}/${filings.length - 1}] ${f.reportDate} (filed ${f.filingDate})`);
+
+      try {
+        const h = await fetchAndParseHoldings(f);
+        const tv = h.reduce((s, x) => s + x.value, 0);
+        console.log(`   → ${h.length}개 포지션, $${(tv / 1e9).toFixed(1)}B`);
+
+        history.push({
+          accession_number: f.accessionNumber,
+          filing_date: f.filingDate,
+          report_period: f.reportDate,
+          total_value: tv,
+          total_positions: h.length,
+          top5: h.slice(0, 5).map((x) => ({
+            name: x.name,
+            ticker: x.ticker,
+            weight_pct: x.weight_pct,
+          })),
+        });
+
+        // 직전 분기 보존 (변화 비교용)
+        if (i === 1) prevQuarterHoldings = h;
+      } catch (e) {
+        console.log(`   ⚠️ 파싱 실패: ${e instanceof Error ? e.message : e}`);
+      }
+    }
+
+    // 직전 분기와 비교
+    if (prevQuarterHoldings) {
+      initialChanges = computeChanges(holdings, prevQuarterHoldings);
+      console.log(`\n📈 최신 vs 직전 분기 변화:`);
+      console.log(`   신규 매수: ${initialChanges.new_buys.length}개`);
+      console.log(`   비중 확대: ${initialChanges.increased.length}개`);
+      console.log(`   비중 축소: ${initialChanges.decreased.length}개`);
+      console.log(`   전량 매도: ${initialChanges.exits.length}개`);
+    }
+  }
+
+  // 변화 계산 (기존 데이터 있으면 이전 latest와 비교)
   const previousHoldings = prevData?.latest.holdings || [];
-  const changes = computeChanges(holdings, previousHoldings);
+  const changes = initialChanges
+    ?? computeChanges(holdings, previousHoldings);
 
-  console.log(`\n📈 포트폴리오 변화:`);
-  console.log(`   신규 매수: ${changes.new_buys.length}개`);
-  console.log(`   비중 확대: ${changes.increased.length}개`);
-  console.log(`   비중 축소: ${changes.decreased.length}개`);
-  console.log(`   전량 매도: ${changes.exits.length}개`);
+  if (!initialChanges && previousHoldings.length > 0) {
+    console.log(`\n📈 포트폴리오 변화:`);
+    console.log(`   신규 매수: ${changes.new_buys.length}개`);
+    console.log(`   비중 확대: ${changes.increased.length}개`);
+    console.log(`   비중 축소: ${changes.decreased.length}개`);
+    console.log(`   전량 매도: ${changes.exits.length}개`);
+  }
 
   // 섹터/집중도
   const sectors = computeSectors(holdings);
   const concentration = computeConcentration(holdings);
-
   console.log(`\n🏛️ 집중도: Top5 ${concentration.top5_pct}%, Top10 ${concentration.top10_pct}%`);
 
-  // 히스토리 관리
-  const history: HistoricalFiling[] = [];
-  if (prevData) {
-    // 이전 latest를 히스토리로 이동
+  // 히스토리 관리 (기존 데이터가 있는 경우)
+  if (prevData && history.length === 0) {
     history.push({
       accession_number: prevData.latest.accession_number,
       filing_date: prevData.latest.filing_date,
@@ -527,17 +673,20 @@ async function main() {
         weight_pct: h.weight_pct,
       })),
     });
-    // 기존 히스토리 추가 (최대 MAX_HISTORY개)
     history.push(...prevData.history.slice(0, MAX_HISTORY - 1));
   }
 
+  // ── XBRL 현금 데이터 ──
+  await sleep(REQUEST_DELAY_MS);
+  const cashData = await fetchCashData();
+
   // 결과 저장
-  const result: Berkshire13FData = {
+  const result: Berkshire13FData & { cash_trend: CashDataPoint[] } = {
     generated_at: new Date().toISOString().split("T")[0],
     latest: {
-      accession_number: filing.accessionNumber,
-      filing_date: filing.filingDate,
-      report_period: filing.reportDate,
+      accession_number: latestFiling.accessionNumber,
+      filing_date: latestFiling.filingDate,
+      report_period: latestFiling.reportDate,
       total_value: totalValue,
       total_positions: holdings.length,
       holdings,
@@ -546,6 +695,7 @@ async function main() {
       concentration,
     },
     history,
+    cash_trend: cashData,
   };
 
   fs.writeFileSync(OUTPUT_PATH, JSON.stringify(result, null, 2) + "\n", "utf-8");
