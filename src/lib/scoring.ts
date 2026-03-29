@@ -867,7 +867,7 @@ export function scoreGrowth(input: GrowthStockInput, baseRate: number, shReturn?
 
   // 역성장 등급 상한
   if (input.op_profit_growth_3y < 0) {
-    const growthCap = "C";
+    const growthCap = "D";
     const gradeOrder = ["A", "B", "C", "D"];
     const currentIdx = gradeOrder.indexOf(grade);
     const capIdx = gradeOrder.indexOf(growthCap);
