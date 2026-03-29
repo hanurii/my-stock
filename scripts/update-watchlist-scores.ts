@@ -1,7 +1,7 @@
 /**
  * 워치리스트 & 오일전문가 포트폴리오 시세 자동 업데이트 스크립트
  *
- * - 국내 종목: 네이버 금융 API (PER/PBR/배당수익률 직접 조회)
+ * - 국내 종목: DART 확정 실적 (PER/PBR) + 네이버 금융 (가격/배���/시총/외인)
  * - 해외 종목: Yahoo Finance v10 quoteSummary (crumb/cookie 인증)
  * - 동일 종목은 한 번만 조회하여 양쪽에 재활용
  * - 점수 변화 시 previous_score/previous_rank/grade_change_reason 자동 갱신
@@ -25,6 +25,8 @@ import {
 // ── 설정 ──
 
 const NAVER_API = "https://m.stock.naver.com/api/stock";
+const DART_API = "https://opendart.fss.or.kr/api";
+const DART_API_KEY = process.env.DART_API_KEY || "";
 const YAHOO_SUMMARY = "https://query2.finance.yahoo.com/v10/finance/quoteSummary";
 const YAHOO_CRUMB_URL = "https://query2.finance.yahoo.com/v1/test/getcrumb";
 const YAHOO_COOKIE_URL = "https://fc.yahoo.com/curveball";
@@ -184,6 +186,142 @@ async function fetchFundamentalsFromNaver(
   } catch {
     return null;
   }
+}
+
+// ── DART 확정 실적 (국내 PER/PBR) ──
+
+import { loadCorpCodeMap } from "./fetch-shareholder-returns";
+
+let corpCodeMap: Map<string, string> | null = null;
+
+async function ensureCorpCodeMap(): Promise<Map<string, string>> {
+  if (!corpCodeMap) {
+    corpCodeMap = await loadCorpCodeMap();
+  }
+  return corpCodeMap;
+}
+
+interface DartFundamentals {
+  per: number | null;
+  pbr: number;
+  eps: number | null;
+  bps: number;
+  dividend_yield: number;   // DART 확정 배당���익률 (현재가 기준)
+  dps: number;              // 주당배당금
+  period: string;           // "FY2025" 등
+}
+
+/**
+ * DART 확정 실적에서 EPS/BPS/배당 조회하여 PER/PBR 계산.
+ * 최신 사업보고서부터 역순 탐색.
+ */
+async function fetchFundamentalsFromDart(
+  stockCode: string,
+  price: number,
+  isPreferred: boolean = false,
+): Promise<DartFundamentals | null> {
+  if (!DART_API_KEY) return null;
+
+  const map = await ensureCorpCodeMap();
+  // 우선주(코드 끝 5)는 보통주 코드로 매핑 (같은 corp_code)
+  const lookupCode = isPreferred ? stockCode.slice(0, 5) + "0" : stockCode;
+  const corpCode = map.get(lookupCode);
+  if (!corpCode) return null;
+
+  // 최신 사업보고서부터 역순 탐색
+  const currentYear = new Date().getFullYear();
+  const periods = [
+    { year: currentYear - 1, code: "11011", label: `FY${currentYear - 1}`, quarters: 4 },
+    { year: currentYear - 2, code: "11011", label: `FY${currentYear - 2}`, quarters: 4 },
+  ];
+
+  for (const p of periods) {
+    try {
+      const url = `${DART_API}/fnlttSinglAcntAll.json?crtfc_key=${DART_API_KEY}&corp_code=${corpCode}&bsns_year=${p.year}&reprt_code=${p.code}&fs_div=CFS`;
+      const res = await fetch(url);
+      if (!res.ok) continue;
+      const data = await res.json();
+      if (data.status !== "000") continue;
+
+      const items: { account_nm: string; thstrm_amount: string; sj_div: string }[] = data.list;
+
+      // EPS: 우선주면 "우선주" 포함 항목, 아니면 "보통주" 포함 또는 "기본주당이익"
+      let epsItem;
+      if (isPreferred) {
+        epsItem = items.find((i) => i.account_nm.includes("우선주") && i.account_nm.includes("주당") && i.account_nm.includes("이익"));
+      }
+      if (!epsItem) {
+        epsItem = items.find((i) => i.account_nm.includes("보통주") && i.account_nm.includes("주당") && i.account_nm.includes("이익") && !i.account_nm.includes("희석"));
+      }
+      if (!epsItem) {
+        epsItem = items.find((i) => i.account_nm.includes("기본주당이익") && !i.account_nm.includes("희석"));
+      }
+      if (!epsItem) continue;
+
+      const eps = parseNumber(epsItem.thstrm_amount);
+      if (!eps || eps <= 0) continue;
+
+      // BPS: 자본총계 / 발행주식수 (발행주식수 = 지배주주순이익 / 보통주EPS)
+      const equityItem = items.find((i) =>
+        i.account_nm.replace(/\s/g, "") === "자본총계" && i.sj_div === "BS",
+      );
+      const equity = parseNumber(equityItem?.thstrm_amount);
+
+      // 지배주주순이익 찾기 (다양한 항목명 대응)
+      const niItem = items.find((i) =>
+        (i.sj_div === "IS" || i.sj_div === "CIS") &&
+        i.account_nm.includes("지배") &&
+        (i.account_nm.includes("순이익") || i.account_nm.includes("이익")),
+      ) || items.find((i) =>
+        (i.sj_div === "IS" || i.sj_div === "CIS") &&
+        i.account_nm === "당기순이익",
+      );
+      const ni = parseNumber(niItem?.thstrm_amount);
+
+      // 보통주 EPS (BPS 계산용 — 발행주식수 역산)
+      const commonEpsItem = items.find((i) =>
+        i.account_nm.includes("보통주") && i.account_nm.includes("주당") && i.account_nm.includes("이익") && !i.account_nm.includes("희석"),
+      ) || items.find((i) => i.account_nm.includes("기본주당이익") && !i.account_nm.includes("희석"));
+      const commonEps = parseNumber(commonEpsItem?.thstrm_amount);
+
+      let bps = 0;
+      if (equity && ni && commonEps && commonEps > 0) {
+        const shares = Math.round(ni / commonEps);
+        bps = shares > 0 ? parseFloat((equity / shares).toFixed(0)) : 0;
+      }
+
+      const per = parseFloat((price / eps).toFixed(2));
+      const pbr = bps > 0 ? parseFloat((price / bps).toFixed(2)) : 0;
+
+      // 배당 정보 조회 (alotMatter)
+      let dps = 0;
+      let dividendYield = 0;
+      try {
+        await sleep(300);
+        const divUrl = `${DART_API}/alotMatter.json?crtfc_key=${DART_API_KEY}&corp_code=${corpCode}&bsns_year=${p.year}&reprt_code=11011`;
+        const divRes = await fetch(divUrl);
+        const divData = await divRes.json();
+        if (divData.list) {
+          const stockKind = isPreferred ? "우선주" : "보통주";
+          const dpsItem = divData.list.find((i: { se: string; stock_knd: string }) =>
+            i.se === "주당 현금배당금(원)" && i.stock_knd === stockKind,
+          );
+          if (dpsItem) {
+            dps = parseNumber(dpsItem.thstrm) || 0;
+            dividendYield = price > 0 ? parseFloat((dps / price * 100).toFixed(2)) : 0;
+          }
+        }
+      } catch { /* 배당 조회 실패 시 무시 */ }
+
+      console.log(`   📋 DART 확정(${p.label}): EPS ${fmt(eps)} BPS ${fmt(bps)} → PER ${per} PBR ${pbr} | 배당 ${fmt(dps)}원 (${dividendYield}%)`);
+
+      return { per, pbr, eps, bps, dividend_yield: dividendYield, dps, period: p.label };
+    } catch {
+      continue;
+    }
+  }
+
+  return null;
 }
 
 /**
@@ -453,6 +591,8 @@ async function updateStocks(
   scoreFn: ScoreFn,
   today: string,
   naverCache: Map<string, MarketData>,
+  useDart: boolean = false,
+  dartCache?: Map<string, DartFundamentals>,
 ): Promise<UpdateResult> {
   // Step 1: 업데이트 전 점수/순위 + 이미 오늘 업데이트된 종목 기록
   const before = scoreFn(stocks);
@@ -485,37 +625,68 @@ async function updateStocks(
       continue;
     }
 
-    const newPer = result.per ?? stock.per;
-    const newPbr = result.pbr > 0 ? result.pbr : stock.pbr;
-    const newDiv = result.dividend_yield;
-
-    stock.per = newPer;
-    stock.pbr = newPbr;
-    stock.dividend_yield = newDiv;
+    // 네이버에서 가격/시총/외인 적용
     if (result.price) stock.current_price_at_scoring = result.price;
     if (result.market_cap != null) stock.market_cap = result.market_cap;
     if (result.foreign_ownership != null) stock.foreign_ownership = result.foreign_ownership;
     stock.scored_at = today;
 
-    // API에서 PER/PBR 정상 조회되면 estimated 플래그 자동 제거
-    // (무배당 성장주는 dividend_yield=0이 정상이므로 배당 조건 제외)
-    if (result.per != null && result.pbr > 0) {
+    // DART 확정 실적으로 PER/PBR/배당 결정
+    let newPer: number | null;
+    let newPbr: number;
+    let newDiv: number;
+    let dataSource = "네이버";
+
+    if (useDart && result.price && result.price > 0) {
+      const isPreferred = stock.code.endsWith("5") || stock.code.endsWith("7") || stock.code.endsWith("9");
+      // DART 캐시 확인
+      let dart = dartCache?.get(stock.code) ?? null;
+      if (!dart) {
+        await sleep(300);
+        dart = await fetchFundamentalsFromDart(stock.code, result.price, isPreferred);
+        if (dart && dartCache) dartCache.set(stock.code, dart);
+      } else {
+        // 캐시된 DART 데이터를 현재 가격으로 PER 재계산
+        if (dart.eps && dart.eps > 0) dart.per = parseFloat((result.price / dart.eps).toFixed(2));
+        if (dart.dps > 0) dart.dividend_yield = parseFloat((dart.dps / result.price * 100).toFixed(2));
+      }
+
+      if (dart && dart.per != null) {
+        newPer = dart.per;
+        // PBR은 네이버 값 사용 (DART BPS 역산이 불안정)
+        newPbr = result.pbr > 0 ? result.pbr : stock.pbr;
+        newDiv = dart.dividend_yield > 0 ? dart.dividend_yield : result.dividend_yield;
+        dataSource = `DART 확정(${dart.period})`;
+      } else {
+        // DART 실패 → 이전 값 유지
+        newPer = stock.per;
+        newPbr = stock.pbr;
+        newDiv = result.dividend_yield;
+        dataSource = "⚠️ DART 실패 — 이전값 유지";
+      }
+    } else {
+      // 해외 종목 등 DART 미사용
+      newPer = result.per ?? stock.per;
+      newPbr = result.pbr > 0 ? result.pbr : stock.pbr;
+      newDiv = result.dividend_yield;
+    }
+
+    stock.per = newPer;
+    stock.pbr = newPbr;
+    stock.dividend_yield = newDiv;
+
+    // estimated 플래그 자동 제거
+    if (newPer != null && newPbr > 0) {
       if (stock.estimated) {
         delete stock.estimated;
-        console.log(`   ✅ estimated 플래그 해제 (API 데이터 정상)`);
       }
     }
 
     if ("fundamentals" in stock) delete stock.fundamentals;
 
-    const kept: string[] = [];
-    if (result.per == null) kept.push("PER");
-    if (result.pbr === 0) kept.push("PBR");
-
     const priceStr = result.price ? `${fmt(result.price)}` : "";
     console.log(
-      `\n✅ ${stock.name} (${stock.code}) ${priceStr}` +
-        (kept.length > 0 ? ` ⚠️ ${kept.join("/")} 기존값 유지` : ""),
+      `\n✅ ${stock.name} (${stock.code}) ${priceStr} [${dataSource}]`,
     );
     console.log(
       `   PER ${fmt(prevMarketData[i].per)} → ${fmt(newPer)} (${diff(prevMarketData[i].per, newPer)})` +
@@ -592,6 +763,15 @@ function printSummary(label: string, r: UpdateResult) {
 async function main() {
   const today = new Date().toISOString().split("T")[0];
   const naverCache = new Map<string, MarketData>();
+  const dartCache = new Map<string, DartFundamentals>();
+
+  // DART corp_code 매핑 사전 로드
+  if (DART_API_KEY) {
+    console.log("📡 DART corp_code 매핑 로드...");
+    await ensureCorpCodeMap();
+  } else {
+    console.log("⚠️ DART_API_KEY 미설정 — 네이버 TTM 사용");
+  }
 
   // ─── 1. 워치리스트 (국내) ───
   const watchlistPath = path.join(process.cwd(), "public", "data", "watchlist.json");
@@ -606,6 +786,8 @@ async function main() {
     scoreAllDomestic,
     today,
     naverCache,
+    !!DART_API_KEY,
+    dartCache,
   );
 
   fs.writeFileSync(watchlistPath, JSON.stringify(watchlistData, null, 2) + "\n", "utf-8");
@@ -641,6 +823,8 @@ async function main() {
       makeScoreAllGrowth(baseRate),
       today,
       naverCache,
+      !!DART_API_KEY,
+      dartCache,
     );
 
     console.log("\n" + "─".repeat(65));
@@ -665,6 +849,8 @@ async function main() {
     scoreAllDomestic,
     today,
     naverCache,
+    !!DART_API_KEY,
+    dartCache,
   );
 
   console.log("\n" + "─".repeat(65));

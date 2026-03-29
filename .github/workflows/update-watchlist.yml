@@ -22,6 +22,8 @@ jobs:
 
       - name: Update watchlist scores
         run: npx tsx scripts/update-watchlist-scores.ts
+        env:
+          DART_API_KEY: ${{ secrets.DART_API_KEY }}
         continue-on-error: true
 
       - name: Commit & push if changed
