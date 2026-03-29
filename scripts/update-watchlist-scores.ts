@@ -14,10 +14,12 @@ import {
   scoreDomestic,
   scoreOverseas,
   scoreGrowth,
+  scoreGrowthScreen,
   getGrade,
   type DomesticStockInput,
   type OverseasStockInput,
   type GrowthStockInput,
+  type GrowthScreenInput,
   type ScoredResult,
   type ShareholderReturnData,
 } from "../src/lib/scoring";
@@ -895,7 +897,75 @@ async function main() {
 
   fs.writeFileSync(oilPath, JSON.stringify(oilData, null, 2) + "\n", "utf-8");
 
-  // ─── 4. 매매일지 보유 종목 ───
+  // ─── 4. 성장주 스크리닝 종가 갱신 ───
+  const screenPath = path.join(process.cwd(), "public", "data", "growth-candidates.json");
+  try {
+    const screenData = JSON.parse(fs.readFileSync(screenPath, "utf-8"));
+    const candidates = screenData.candidates as (GrowthScreenInput & { score: number; grade: string; cat1: number; cat2: number; cat3: number; details: unknown[]; is_top10: boolean })[];
+
+    if (candidates.length > 0) {
+      console.log(`\n\n📊 [성장주 스크리닝] 종가 기준 밸류에이션 갱신 (${today})`);
+      console.log("─".repeat(65));
+
+      let screenUpdated = 0;
+      const baseRate = screenData.base_rate ?? 2.75;
+
+      for (const c of candidates) {
+        // 네이버에서 오늘 종가만 조회 (캐시 활용)
+        let market = naverCache.get(c.code) || null;
+        if (!market) {
+          market = await fetchFromNaver(c.code);
+          if (market) naverCache.set(c.code, market);
+          await sleep(REQUEST_DELAY_MS);
+        }
+
+        if (!market?.price) continue;
+
+        const prevScore = c.score;
+        const prevPrice = c.current_price;
+
+        // 종가 기반 밸류에이션 갱신 (실적 데이터는 건드리지 않음)
+        c.current_price = market.price;
+        if (c.eps_current && c.eps_current > 0) {
+          c.per = parseFloat((market.price / c.eps_current).toFixed(2));
+        }
+        if (market.market_cap != null) c.market_cap = market.market_cap;
+        if (market.foreign_ownership != null) c.foreign_ownership = market.foreign_ownership;
+        c.dividend_yield = market.dividend_yield;
+        c.pbr = market.pbr;
+
+        // 점수 재계산
+        const result = scoreGrowthScreen(c, baseRate);
+        c.score = result.score;
+        c.grade = result.grade;
+        c.cat1 = result.cat1;
+        c.cat2 = result.cat2;
+        c.cat3 = result.cat3;
+        c.details = result.details;
+
+        const diff = c.score - prevScore;
+        if (diff !== 0) {
+          console.log(`  ${c.name}: ${prevPrice?.toLocaleString()}→${market.price.toLocaleString()}원 | ${prevScore}→${c.score}점 (${diff > 0 ? "+" : ""}${diff})`);
+        }
+        screenUpdated++;
+      }
+
+      // 재정렬 + Top 10 재지정
+      const gradeOrder: Record<string, number> = { A: 0, B: 1, C: 2, D: 3 };
+      candidates.sort((a, b) => {
+        const gd = (gradeOrder[a.grade] ?? 9) - (gradeOrder[b.grade] ?? 9);
+        return gd !== 0 ? gd : b.score - a.score;
+      });
+      candidates.forEach((c, i) => { c.is_top10 = i < 10; });
+
+      fs.writeFileSync(screenPath, JSON.stringify(screenData, null, 2), "utf-8");
+      console.log(`\n💾 성장주 스크리���: ${screenUpdated}개 종가 갱신`);
+    }
+  } catch {
+    // growth-candidates.json 없으면 건너뜀
+  }
+
+  // ─── 5. 매매일지 보��� 종목 ───
   const journalPath = path.join(process.cwd(), "public", "data", "journal.json");
   const journalData = JSON.parse(fs.readFileSync(journalPath, "utf-8"));
 
