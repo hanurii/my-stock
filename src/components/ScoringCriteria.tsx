@@ -186,9 +186,10 @@ export function GrowthScoringCriteria() {
             <span className="material-symbols-outlined text-on-surface-variant text-base mt-0.5">info</span>
             <div className="text-xs text-on-surface-variant leading-relaxed space-y-2">
               <p className="font-serif text-sm text-on-surface">밸류에이션 지표 해석</p>
-              <p><strong className="text-on-surface">PEG</strong> = PER &divide; 이익성장률. 성장 속도 대비 주가가 싼지 비싼지를 판단합니다. 1.0 미만이면 성장 대비 저평가, 1.0 이상이면 고평가입니다. 이익이 역성장(마이너스)이면 분모가 음수가 되어 산출 불가(null)로 처리됩니다.</p>
+              <p><strong className="text-on-surface">PEG</strong> = PER &divide; <strong>순이익(EPS)</strong> 성장률. 성장 속도 대비 주가가 싼지 비싼지를 판단합니다. 1.0 미만이면 성장 대비 저평가, 1.0 이상이면 고평가입니다. 순이익 성장률이 음수이면 분모가 음수가 되어 산출 불가(null)로 처리됩니다.</p>
               <p><strong className="text-on-surface">PSR</strong> = 시가총액 &divide; 매출액. 아직 이익이 적은 성장 초기 기업의 가치를 매출 규모로 가늠합니다. 낮을수록 매출 대비 주가가 저렴합니다.</p>
               <p><strong className="text-on-surface">PER</strong> = 주가 &divide; 주당순이익. 현재 이익 대비 주가 수준을 나타냅니다. 성장주는 PER이 높은 편이므로 PEG와 함께 봐야 합니다.</p>
+              <p><strong className="text-on-surface">PEG 산출 불가 vs 역성장 등급 상한</strong> — PEG는 <em>순이익(EPS)</em> 성장률 기준이고, 역성장 등급 상한은 <em>영업이익</em> 3Y CAGR 기준입니다. 영업이익은 본업 수익력, 순이익은 영업외비용·일회성 손실까지 포함하므로 결과가 다를 수 있습니다. 영업이익이 성장 중이면 PEG가 산출 불가여도 역성장 등급 상한은 적용되지 않습니다.</p>
             </div>
           </div>
         </div>
