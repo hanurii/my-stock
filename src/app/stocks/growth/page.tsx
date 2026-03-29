@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import Link from "next/link";
 import { Collapsible } from "@/components/Collapsible";
 import { ScoreDetails } from "@/components/ScoreDetails";
 import { RankChange, GradeChangeBadge, ScoreChangeComment } from "@/components/RankChange";
@@ -220,6 +221,15 @@ export default function GrowthPage() {
         <p className="text-xs text-on-surface-variant/50 mt-1.5">
           점수 갱신: {calculatedAt}
         </p>
+
+        <Link
+          href="/stocks/growth/reports"
+          className="inline-flex items-center gap-1.5 mt-3 text-sm text-primary-dim/70 hover:text-primary transition-colors"
+        >
+          <span className="material-symbols-outlined text-base">lab_profile</span>
+          종목 리서치 리포트
+          <span className="material-symbols-outlined text-sm">arrow_forward</span>
+        </Link>
 
         {/* 금리 환경 배너 */}
         <div className={`mt-4 flex items-center gap-3 rounded-xl p-4 ghost-border ${rateInfo.penalty >= 10 ? "bg-[#ffb4ab]/10" : rateInfo.penalty >= 5 ? "bg-[#e9c176]/10" : "bg-[#95d3ba]/10"}`}>
