@@ -36,7 +36,8 @@ function sleep(ms: number) { return new Promise((r) => setTimeout(r, ms)); }
 
 function parseNum(s: string | undefined | null): number {
   if (!s || s === "-" || s === "") return 0;
-  return Number(s.replace(/,/g, "")) || 0;
+  const m = s.replace(/,/g, "").match(/-?[\d.]+/);
+  return m ? Number(m[0]) || 0 : 0;
 }
 
 function today(): string {
@@ -98,39 +99,51 @@ async function fetchPhase1(code: string): Promise<Omit<Phase1Data, "code" | "nam
     const res = await fetch(`${NAVER_API}/${code}/integration`, { headers: HEADERS });
     if (!res.ok) return null;
     const json = await res.json();
-    const str = JSON.stringify(json);
 
-    let per: number | null = null;
-    let pbr = 0;
-    let dividendYield = 0;
+    // totalInfos key-value 조회 (안정적)
+    const infos: { key: string; value: string }[] = json.totalInfos || [];
+    const get = (key: string) => infos.find((i) => i.key === key)?.value;
+
+    let per: number | null = parseNum(get("PER"));
+    let pbr = parseNum(get("PBR"));
+    let dividendYield = parseNum(get("배당수익률"));
     let marketCap = 0;
-    let foreignOwnership = 0;
-    let price = 0;
+    let foreignOwnership = parseNum(get("외인소진율"));
 
-    const perM = str.match(/"code":"per","key":"PER","value":"([\d,.]+)배"/);
-    if (perM) per = parseFloat(perM[1].replace(/,/g, ""));
+    const capStr = get("시총");
+    if (capStr) marketCap = parseMarketCap(capStr);
 
-    const pbrM = str.match(/"code":"pbr","key":"PBR","value":"([\d,.]+)배"/);
-    if (pbrM) pbr = parseFloat(pbrM[1].replace(/,/g, ""));
-
-    const dyM = str.match(/"code":"dividendYieldRatio","key":"배당수익률","value":"([\d,.]+)%"/);
-    if (dyM) dividendYield = parseFloat(dyM[1].replace(/,/g, ""));
-
-    const capM = str.match(/"code":"marketValue","key":"시총","value":"([^"]+)"/);
-    if (capM) marketCap = parseMarketCap(capM[1]);
-
-    const foreignM = str.match(/"code":"foreignRatio","key":"외인소진율","value":"([\d,.]+)%"/);
-    if (foreignM) foreignOwnership = parseFloat(foreignM[1].replace(/,/g, ""));
-
-    const priceM = str.match(/"code":"closePrice","key":"전일","value":"([\d,]+)원"/);
-    if (priceM) price = parseNum(priceM[1]);
+    // 가격: totalInfos "전일" → basic API fallback
+    let price = parseNum(get("전일"));
     if (!price) {
-      // basic API fallback
       try {
         const basicRes = await fetch(`${NAVER_API}/${code}/basic`, { headers: HEADERS });
         if (basicRes.ok) {
           const basicJson = await basicRes.json();
           price = parseNum(basicJson.closePrice);
+        }
+      } catch { /* ignore */ }
+    }
+
+    // PER/PBR fallback: finance/annual에서 EPS/BPS로 직접 계산
+    if (price > 0 && (per == null || pbr === 0)) {
+      try {
+        const finRes = await fetch(`${NAVER_API}/${code}/finance/annual`, { headers: HEADERS });
+        if (finRes.ok) {
+          const finJson = await finRes.json();
+          const periods = finJson.financeInfo?.trTitleList as { key: string; isConsensus: string }[] | undefined;
+          const rows = finJson.financeInfo?.rowList as { title: string; columns: Record<string, { value: string }> }[] | undefined;
+          if (periods && rows) {
+            const confirmed = periods.filter((p) => p.isConsensus === "N");
+            const latest = confirmed[confirmed.length - 1];
+            if (latest) {
+              const getVal = (title: string) => parseNum(rows.find((r) => r.title === title)?.columns[latest.key]?.value);
+              const eps = getVal("EPS");
+              const bps = getVal("BPS");
+              if (per == null && eps > 0) per = parseFloat((price / eps).toFixed(2));
+              if (pbr === 0 && bps > 0) pbr = parseFloat((price / bps).toFixed(2));
+            }
+          }
         }
       } catch { /* ignore */ }
     }
