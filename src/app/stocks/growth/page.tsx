@@ -370,7 +370,6 @@ export default function GrowthPage() {
                     <td className="px-3 py-2.5 font-medium text-on-surface">
                       <span className="inline-flex items-center gap-1.5 flex-wrap">
                         {stock.name}
-                        <ShareholderBadges badges={stock.shareholderBadges} />
                         {stock.estimated && (
                           <span className="text-[10px] text-on-surface-variant/40">
                             ~
