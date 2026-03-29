@@ -423,7 +423,11 @@ async function main() {
   console.log(`  증자/CB/BW 이력: ${withCapital.length}개`);
 }
 
-main().catch((e) => {
-  console.error("❌ 실행 오류:", e);
-  process.exit(1);
-});
+// 직접 실행 시에만 main() 호출 (import 시에는 실행 안 함)
+const isDirectRun = process.argv[1]?.includes("fetch-shareholder-returns");
+if (isDirectRun) {
+  main().catch((e) => {
+    console.error("❌ 실행 오류:", e);
+    process.exit(1);
+  });
+}
