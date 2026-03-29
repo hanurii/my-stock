@@ -10,7 +10,8 @@
 import fs from "fs";
 import path from "path";
 import { loadCorpCodeMap } from "./fetch-shareholder-returns";
-import { scoreGrowthScreen, type GrowthScreenInput, type ShareholderReturnData } from "../src/lib/scoring";
+import { scoreGrowthScreen, type GrowthScreenInput } from "../src/lib/scoring";
+import { loadShareholderReturnMap } from "./load-shareholder-returns";
 
 // ── 설정 ──
 
@@ -140,36 +141,6 @@ async function fetchDartFinancials(corpCode: string): Promise<{ current: YearlyF
     // 이 연도에 데이터 없으면 이전 연도로 (사업보고서 미제출 가능)
   }
   return null;
-}
-
-// ── 주주환원 데이터 로드 ──
-
-const DILUTIVE_TYPES = new Set([
-  "전환권행사", "신주인수권행사", "유상증자(제3자배정)",
-  "주식매수선택권행사", "상환권행사",
-]);
-
-function loadShareholderReturnMap(): Map<string, ShareholderReturnData> {
-  const map = new Map<string, ShareholderReturnData>();
-  try {
-    const filePath = path.join(process.cwd(), "public", "data", "shareholder-returns.json");
-    const raw = JSON.parse(fs.readFileSync(filePath, "utf-8")) as {
-      stocks: { code: string; treasury_stock: { cancelled: number }[]; dividends: { year: number; dps: number | null }[]; capital_changes: { type: string }[] }[];
-    };
-    const currentYear = new Date().getFullYear();
-    for (const s of raw.stocks) {
-      const cancellationYears = s.treasury_stock.filter((t) => t.cancelled > 0).length;
-      const validDivs = s.dividends.filter((d) => d.year < currentYear).sort((a, b) => b.year - a.year);
-      let consecutiveDivYears = 0;
-      for (const d of validDivs) {
-        if (d.dps !== null && d.dps > 0) consecutiveDivYears++;
-        else break;
-      }
-      const dilutiveCount = s.capital_changes.filter((c) => DILUTIVE_TYPES.has(c.type)).length;
-      map.set(s.code, { treasury_cancellation_years: cancellationYears, consecutive_dividend_years: consecutiveDivYears, dilutive_event_count: dilutiveCount });
-    }
-  } catch { /* shareholder-returns.json 없으면 빈 맵 */ }
-  return map;
 }
 
 // ── 메인 ──
