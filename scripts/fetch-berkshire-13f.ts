@@ -64,6 +64,7 @@ interface HistoricalFiling {
 
 interface Berkshire13FData {
   generated_at: string;
+  is_new: boolean;
   latest: {
     accession_number: string;
     filing_date: string;
@@ -81,6 +82,7 @@ interface Berkshire13FData {
     concentration: { top5_pct: number; top10_pct: number };
   };
   history: HistoricalFiling[];
+  cash_trend: CashDataPoint[];
 }
 
 // ── CUSIP → 티커/섹터 매핑 ──
@@ -417,7 +419,7 @@ function computeChanges(
   return {
     new_buys: new_buys.sort((a, b) => b.current_value - a.current_value),
     increased: increased.sort((a, b) => b.current_value - a.current_value),
-    decreased: decreased.sort((a, b) => a.change_pct - b.change_pct),
+    decreased: decreased.sort((a, b) => b.current_value - a.current_value),
     exits: exits.sort((a, b) => b.previous_shares - a.previous_shares),
   };
 }
@@ -578,8 +580,8 @@ async function main() {
 
     // 동일 Filing이면 is_new 해제 후 종료 (초기 빌드가 아닐 때만)
     if (!isInitialBuild && prevData.latest.accession_number === latestFiling.accessionNumber) {
-      if ((prevData as unknown as Record<string, unknown>).is_new) {
-        (prevData as unknown as Record<string, unknown>).is_new = false;
+      if (prevData.is_new) {
+        prevData.is_new = false;
         fs.writeFileSync(OUTPUT_PATH, JSON.stringify(prevData, null, 2) + "\n", "utf-8");
         console.log("\n✅ 이미 최신 Filing 반영됨 — is_new 플래그 해제");
       } else {
@@ -689,7 +691,7 @@ async function main() {
   const cashData = await fetchCashData();
 
   // 결과 저장 (새 Filing 감지 → is_new: true, 차주 실행 시 해제)
-  const result: Berkshire13FData & { cash_trend: CashDataPoint[]; is_new: boolean } = {
+  const result: Berkshire13FData = {
     generated_at: new Date().toISOString().split("T")[0],
     is_new: true,
     latest: {
@@ -703,7 +705,7 @@ async function main() {
       sectors,
       concentration,
     },
-    history,
+    history: history.slice(0, MAX_HISTORY),
     cash_trend: cashData,
   };
 

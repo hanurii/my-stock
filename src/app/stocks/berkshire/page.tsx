@@ -80,7 +80,7 @@ function getData(): Berkshire13FData | null {
 }
 
 function formatDate(dateStr: string): string {
-  const d = new Date(dateStr + "T00:00:00");
+  const d = new Date(dateStr + "T00:00:00Z");
   return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`;
 }
 
@@ -306,8 +306,8 @@ function generateInsights(
   // 6. 1위 종목 분석
   const top = holdings[0];
   if (top && history.length > 0) {
-    const prevTop = history[0].top5[0];
-    if (prevTop && top.cusip !== undefined) {
+    const prevTop = history[0].top5?.[0];
+    if (prevTop) {
       const prevWeight = prevTop.weight_pct;
       const weightChange = top.weight_pct - prevWeight;
       if (Math.abs(weightChange) > 2) {
