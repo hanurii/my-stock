@@ -2,10 +2,10 @@ name: Update Watchlist Scores
 
 on:
   schedule:
-    # 평일 06:30 KST = 21:30 UTC (전일)
-    - cron: '30 21 * * 0-4'
-    # 평일 17:00 KST = 08:00 UTC
-    - cron: '0 8 * * 1-5'
+    # 매일 06:30 KST = 21:30 UTC (전일)
+    - cron: '30 21 * * *'
+    # 매일 17:00 KST = 08:00 UTC
+    - cron: '0 8 * * *'
   workflow_dispatch: # 수동 실행 가능
 
 permissions:
@@ -32,7 +32,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add public/data/watchlist.json public/data/growth-watchlist.json public/data/oil-expert-watchlist.json public/data/journal.json
+          git add public/data/watchlist.json public/data/growth-watchlist.json public/data/oil-expert-watchlist.json public/data/journal.json public/data/growth-candidates.json public/data/shareholder-returns.json
           if ! git diff --staged --quiet; then
             git commit -m "chore: 워치리스트/오일전문가 시세 업데이트 $(date -u +%Y-%m-%d)"
             git push
