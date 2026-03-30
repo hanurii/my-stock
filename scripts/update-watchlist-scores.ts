@@ -938,6 +938,7 @@ async function main() {
       });
       candidates.forEach((c, i) => { c.is_top10 = i < 10; });
 
+      screenData.scanned_at = today;
       fs.writeFileSync(screenPath, JSON.stringify(screenData, null, 2), "utf-8");
       console.log(`\n💾 성장주 스크리���: ${screenUpdated}개 종가 갱신`);
     }
