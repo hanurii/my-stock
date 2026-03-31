@@ -1,7 +1,8 @@
-import fs from "fs";
+import fs from "fs/promises";
 import path from "path";
 import { getGradeColor } from "@/lib/scoring";
 import { Collapsible } from "@/components/Collapsible";
+
 
 // ── 타입 ──
 
@@ -54,10 +55,10 @@ interface ScreenData {
 
 // ── 데이터 로드 ──
 
-function getData(): ScreenData | null {
+async function getData(): Promise<ScreenData | null> {
   try {
     const filePath = path.join(process.cwd(), "public", "data", "growth-candidates.json");
-    return JSON.parse(fs.readFileSync(filePath, "utf-8"));
+    return JSON.parse(await fs.readFile(filePath, "utf-8"));
   } catch {
     return null;
   }
@@ -78,8 +79,8 @@ function fmtGrowth(latest: number, prev: number): string {
 
 // ── 페이지 ──
 
-export default function GrowthScreenPage() {
-  const data = getData();
+export default async function GrowthScreenPage() {
+  const data = await getData();
 
   if (!data || data.candidates.length === 0) {
     return (

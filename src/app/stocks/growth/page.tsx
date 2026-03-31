@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs from "fs/promises";
 import path from "path";
 import { Collapsible } from "@/components/Collapsible";
 import { ScoreDetails } from "@/components/ScoreDetails";
@@ -15,6 +15,7 @@ import {
 } from "@/lib/scoring";
 import { GrowthScoringCriteria } from "@/components/ScoringCriteria";
 import { formatScoredAt } from "@/lib/format";
+
 
 type GrowthStock = GrowthStockInput;
 
@@ -44,11 +45,11 @@ interface RawShareholderStock {
   capital_changes: { year: number; type: string }[];
 }
 
-function loadShareholderReturns(): Map<string, ShareholderReturnData> {
+async function loadShareholderReturns(): Promise<Map<string, ShareholderReturnData>> {
   const map = new Map<string, ShareholderReturnData>();
   try {
     const filePath = path.join(process.cwd(), "public", "data", "shareholder-returns.json");
-    const raw = JSON.parse(fs.readFileSync(filePath, "utf-8")) as { stocks: RawShareholderStock[] };
+    const raw = JSON.parse(await fs.readFile(filePath, "utf-8")) as { stocks: RawShareholderStock[] };
 
     const currentYear = new Date().getFullYear();
     for (const s of raw.stocks) {
@@ -78,13 +79,13 @@ function loadShareholderReturns(): Map<string, ShareholderReturnData> {
   return map;
 }
 
-function getGrowthData(): {
+async function getGrowthData(): Promise<{
   stocks: ScoredStock[];
   excluded: GrowthWatchlistData["excluded"];
   tiers: GrowthWatchlistData["tiers"];
   market_insight: string;
   base_rate: number;
-} | null {
+} | null> {
   try {
     const filePath = path.join(
       process.cwd(),
@@ -92,11 +93,11 @@ function getGrowthData(): {
       "data",
       "growth-watchlist.json",
     );
-    const raw = fs.readFileSync(filePath, "utf-8");
+    const raw = await fs.readFile(filePath, "utf-8");
     const data = JSON.parse(raw) as GrowthWatchlistData;
 
     // 주주환원 데이터 로드
-    const shReturnMap = loadShareholderReturns();
+    const shReturnMap = await loadShareholderReturns();
 
     const baseRate = data.base_rate ?? 2.75;
     const stocks: ScoredStock[] = data.stocks
@@ -145,8 +146,8 @@ function getTierLabel(tier?: string): string | null {
   return tier ? labels[tier] || null : null;
 }
 
-export default function GrowthPage() {
-  const data = getGrowthData();
+export default async function GrowthPage() {
+  const data = await getGrowthData();
   const framework = GROWTH_FRAMEWORK;
 
   if (!data || data.stocks.length === 0) {

@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs from "fs/promises";
 import path from "path";
 import { Collapsible } from "@/components/Collapsible";
 import { ScoreDetails } from "@/components/ScoreDetails";
@@ -13,6 +13,7 @@ import {
 } from "@/lib/scoring";
 import { DomesticScoringCriteria } from "@/components/ScoringCriteria";
 import { formatScoredAt } from "@/lib/format";
+
 
 interface WatchlistStock extends DomesticStockInput {
   tier?: string;
@@ -30,10 +31,10 @@ interface WatchlistData {
 
 type ScoredStock = WatchlistStock & ScoredResult;
 
-function getWatchlistData(): { stocks: ScoredStock[]; excluded: WatchlistData["excluded"]; tiers: WatchlistData["tiers"]; market_insight: string } | null {
+async function getWatchlistData(): Promise<{ stocks: ScoredStock[]; excluded: WatchlistData["excluded"]; tiers: WatchlistData["tiers"]; market_insight: string } | null> {
   try {
     const filePath = path.join(process.cwd(), "public", "data", "watchlist.json");
-    const raw = fs.readFileSync(filePath, "utf-8");
+    const raw = await fs.readFile(filePath, "utf-8");
     const data = JSON.parse(raw) as WatchlistData;
 
     const stocks: ScoredStock[] = data.stocks
@@ -156,8 +157,8 @@ function StockCard({ stock, globalRank, framework }: {
   );
 }
 
-export default function WatchlistPage() {
-  const data = getWatchlistData();
+export default async function WatchlistPage() {
+  const data = await getWatchlistData();
   const framework = DOMESTIC_FRAMEWORK;
 
   if (!data) {

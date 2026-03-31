@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs from "fs/promises";
 import path from "path";
 import {
   scoreDomestic,
@@ -17,6 +17,7 @@ import { ScoreDetails } from "@/components/ScoreDetails";
 import { Collapsible } from "@/components/Collapsible";
 import { RankChange, ScoreChangeComment } from "@/components/RankChange";
 
+
 type ScoredDomestic = DomesticStockInput & ScoredResult;
 type ScoredOverseas = OverseasStockInput & ScoredResult;
 
@@ -27,10 +28,10 @@ interface OilExpertData {
   insights: { portfolio_strategy: string };
 }
 
-function getData(): { domestic: ScoredDomestic[]; overseas: ScoredOverseas[]; insights: OilExpertData["insights"] } | null {
+async function getData(): Promise<{ domestic: ScoredDomestic[]; overseas: ScoredOverseas[]; insights: OilExpertData["insights"] } | null> {
   try {
     const filePath = path.join(process.cwd(), "public", "data", "oil-expert-watchlist.json");
-    const raw = fs.readFileSync(filePath, "utf-8");
+    const raw = await fs.readFile(filePath, "utf-8");
     const data = JSON.parse(raw) as OilExpertData;
 
     const domestic: ScoredDomestic[] = data.domestic
@@ -257,8 +258,8 @@ function SectorBreakdown({ stocks }: { stocks: AnyScored[] }) {
   );
 }
 
-export default function OilExpertPage() {
-  const data = getData();
+export default async function OilExpertPage() {
+  const data = await getData();
 
   if (!data) {
     return (

@@ -1,8 +1,9 @@
-import fs from "fs";
+import fs from "fs/promises";
 import path from "path";
 import { Collapsible } from "@/components/Collapsible";
 import { SectorPieChart } from "@/components/SectorPieChart";
 import { formatUSD } from "@/lib/format";
+
 
 // ── 타입 ──
 
@@ -69,10 +70,10 @@ interface Berkshire13FData {
 
 // ── 데이터 로드 ──
 
-function getData(): Berkshire13FData | null {
+async function getData(): Promise<Berkshire13FData | null> {
   try {
     const filePath = path.join(process.cwd(), "public", "data", "berkshire-13f.json");
-    const raw = fs.readFileSync(filePath, "utf-8");
+    const raw = await fs.readFile(filePath, "utf-8");
     return JSON.parse(raw) as Berkshire13FData;
   } catch {
     return null;
@@ -328,8 +329,8 @@ function generateInsights(
 
 // ── 페이지 ──
 
-export default function BerkshirePage() {
-  const data = getData();
+export default async function BerkshirePage() {
+  const data = await getData();
 
   if (!data) {
     return (
