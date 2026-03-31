@@ -276,7 +276,9 @@ export default function OilExpertPage() {
   const overseasAB = overseas.filter(s => s.grade === "A" || s.grade === "B");
   const overseasC = overseas.filter(s => s.grade === "C");
 
-  const calculatedAt = formatScoredAt(new Date().toISOString().slice(0, 10));
+  const calculatedAt = formatScoredAt(
+    [...domestic, ...overseas].reduce((latest, s) => (s.scored_at > latest ? s.scored_at : latest), domestic[0]?.scored_at ?? "")
+  );
 
   return (
     <div className="space-y-14">

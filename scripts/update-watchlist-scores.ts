@@ -764,7 +764,8 @@ function printSummary(label: string, r: UpdateResult) {
 // ── 메인 ──
 
 async function main() {
-  const today = new Date().toISOString().split("T")[0];
+  const kstNow = new Date(Date.now() + 9 * 3600_000);
+  const today = kstNow.toISOString().split("T")[0];
   const naverCache = new Map<string, MarketData>();
   const dartCache = new Map<string, DartFundamentals>();
 
