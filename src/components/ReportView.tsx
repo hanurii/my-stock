@@ -50,6 +50,8 @@ export function ReportView({ report }: { report: ReportData }) {
     cpi_gdp, divergence, historical, asset_recommendation,
   } = report;
 
+  const isDraft = !briefing || briefing.trim() === "";
+
   return (
     <div className="space-y-12">
       {/* ── Hero Header ── */}
@@ -65,27 +67,47 @@ export function ReportView({ report }: { report: ReportData }) {
             {meta.generated_at} ({meta.weekday}) 기준
           </p>
         </div>
+        {isDraft && (
+          <div className="mt-4 px-4 py-3 rounded-lg bg-amber-500/10 border border-amber-500/30">
+            <p className="text-sm text-amber-400 flex items-center gap-2">
+              <span className="material-symbols-outlined text-base">hourglass_top</span>
+              분석 대기 중 — 데이터는 수집되었으나 AI 분석이 아직 완료되지 않았습니다.
+            </p>
+          </div>
+        )}
       </section>
 
       {/* ── Briefing ── */}
-      <section className="glass-card rounded-xl p-5 sm:p-8 ghost-border overflow-hidden">
-        <div className="flex items-center gap-3 mb-6">
-          <span className="material-symbols-outlined text-primary text-2xl">auto_awesome</span>
-          <h3 className="text-xl font-serif text-on-surface tracking-tight">
-            오늘의 거시경제 브리핑
-          </h3>
-        </div>
-        <div className="space-y-4">
-          {briefing.split("\n").map((line, i) => {
-            if (line.startsWith("## ") || line.startsWith("### ") || !line.trim()) return null;
-            return (
-              <p key={i} className="text-base text-on-surface-variant leading-[1.8]">
-                <MarkdownText>{line}</MarkdownText>
-              </p>
-            );
-          })}
-        </div>
-      </section>
+      {isDraft ? (
+        <section className="glass-card rounded-xl p-5 sm:p-8 ghost-border overflow-hidden opacity-50">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="material-symbols-outlined text-on-surface-variant text-2xl">hourglass_top</span>
+            <h3 className="text-xl font-serif text-on-surface-variant tracking-tight">
+              오늘의 거시경제 브리핑
+            </h3>
+          </div>
+          <p className="text-base text-on-surface-variant italic">분석 섹션 생성 대기 중...</p>
+        </section>
+      ) : (
+        <section className="glass-card rounded-xl p-5 sm:p-8 ghost-border overflow-hidden">
+          <div className="flex items-center gap-3 mb-6">
+            <span className="material-symbols-outlined text-primary text-2xl">auto_awesome</span>
+            <h3 className="text-xl font-serif text-on-surface tracking-tight">
+              오늘의 거시경제 브리핑
+            </h3>
+          </div>
+          <div className="space-y-4">
+            {briefing.split("\n").map((line, i) => {
+              if (line.startsWith("## ") || line.startsWith("### ") || !line.trim()) return null;
+              return (
+                <p key={i} className="text-base text-on-surface-variant leading-[1.8]">
+                  <MarkdownText>{line}</MarkdownText>
+                </p>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {/* ── Indicator Dashboard ── */}
       <section>

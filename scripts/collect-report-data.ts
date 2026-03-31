@@ -495,19 +495,20 @@ async function main() {
       generated_at: kst.generated_at,
     },
 
-    // === 분석 섹션 (직전 리포트 유지 → 스케줄 트리거가 새로 채움) ===
-    briefing: prev.briefing || "",
-    scenario: prev.scenario || { 코드: "", 시나리오: "", 해석: "", 대응: "" },
+    // === 분석 섹션 (빈 값 → 스케줄 트리거가 새로 채움) ===
+    // prev에서 복사하지 않음: stale briefing 전파 방지
+    briefing: "",
+    scenario: { 코드: "", 시나리오: "", 해석: "", 대응: "" },
 
     // === 데이터 섹션 (스크립트가 채운 영역) ===
     indicators,
     spread,
-    causal_chain: prev.causal_chain || "",
-    investment_direction: prev.investment_direction || "",
+    causal_chain: "",
+    investment_direction: "",
     news,
     cpi_gdp: prev.cpi_gdp,
-    divergence: prev.divergence || "",
-    asset_recommendation: prev.asset_recommendation || "",
+    divergence: "",
+    asset_recommendation: "",
     historical,
     longterm_charts: prev.longterm_charts,
   };
