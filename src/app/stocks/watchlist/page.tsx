@@ -186,7 +186,9 @@ export default function WatchlistPage() {
     if (s.score >= 45) visibleStocks.push(s);
   }
 
-  const calculatedAt = formatScoredAt(new Date().toISOString().slice(0, 10));
+  const calculatedAt = formatScoredAt(
+    stocks.reduce((latest, s) => (s.scored_at > latest ? s.scored_at : latest), stocks[0]?.scored_at ?? "")
+  );
 
   return (
     <div className="space-y-14">

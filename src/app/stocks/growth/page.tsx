@@ -202,7 +202,9 @@ export default function GrowthPage() {
   const cStocks = gradeGroups.C;
   const dStocks = gradeGroups.D;
 
-  const calculatedAt = formatScoredAt(new Date().toISOString().slice(0, 10));
+  const calculatedAt = formatScoredAt(
+    stocks.reduce((latest, s) => (s.scored_at > latest ? s.scored_at : latest), stocks[0]?.scored_at ?? "")
+  );
 
   return (
     <div className="space-y-14">
