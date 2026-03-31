@@ -695,7 +695,7 @@ async function main() {
 
   // 결과 저장 (새 Filing 감지 → is_new: true, 차주 실행 시 해제)
   const result: Berkshire13FData = {
-    generated_at: new Date().toISOString().split("T")[0],
+    generated_at: new Date(Date.now() + 9 * 3600_000).toISOString().split("T")[0],
     is_new: true,
     latest: {
       accession_number: latestFiling.accessionNumber,

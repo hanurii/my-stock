@@ -197,7 +197,7 @@ async function fetchRssNews(
         // 불필요 기사 제외
         if (NEWS_EXCLUDE.test(title)) continue;
 
-        const dateStr = pubDate.toISOString().split("T")[0];
+        const dateStr = new Date(pubDate.getTime() + 9 * 3600_000).toISOString().split("T")[0];
         allItems.push({ title, link, source: sourceName, date: pubDate, dateStr });
       }
       await sleep(500);

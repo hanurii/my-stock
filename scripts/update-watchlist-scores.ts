@@ -531,7 +531,7 @@ async function ensureShareholderData(stocks: { code: string; name: string }[]): 
     }
   }
 
-  existing.generated_at = new Date().toISOString().slice(0, 10);
+  existing.generated_at = new Date(Date.now() + 9 * 3600_000).toISOString().split("T")[0];
   fs.writeFileSync(SH_RETURNS_PATH, JSON.stringify(existing, null, 2), "utf-8");
   invalidateShareholderCache(); // 새 데이터 반영을 위해 캐시 무효화
   console.log(`  ✓ shareholder-returns.json 업데이트 완료\n`);
