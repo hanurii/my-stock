@@ -592,6 +592,7 @@ async function updateStocks(
   fetchFn: (code: string, stock: StockBase) => Promise<MarketData | null>,
   scoreFn: ScoreFn,
   today: string,
+  scoredAt: string,
   naverCache: Map<string, MarketData>,
   useDart: boolean = false,
   dartCache?: Map<string, DartFundamentals>,
@@ -599,7 +600,7 @@ async function updateStocks(
   // Step 1: 업데이트 전 점수/순위 + 이미 오늘 업데이트된 종목 기록
   const before = scoreFn(stocks);
   const alreadyUpdatedToday = stocks.map(
-    (s) => s.scored_at === today && s.previous_score != null,
+    (s) => s.scored_at.startsWith(today) && s.previous_score != null,
   );
 
   // Step 2: 시세 업데이트
@@ -632,7 +633,7 @@ async function updateStocks(
     if (result.market_cap != null) stock.market_cap = result.market_cap;
     if (result.foreign_ownership != null) stock.foreign_ownership = result.foreign_ownership;
     if (result.prev_year_op_margin != null) stock.prev_year_op_margin = result.prev_year_op_margin;
-    stock.scored_at = today;
+    stock.scored_at = scoredAt;
 
     // DART 확정 실적으로 PER/PBR/배당 결정
     let newPer: number | null;
@@ -766,6 +767,9 @@ function printSummary(label: string, r: UpdateResult) {
 async function main() {
   const kstNow = new Date(Date.now() + 9 * 3600_000);
   const today = kstNow.toISOString().split("T")[0];
+  const hh = String(kstNow.getUTCHours()).padStart(2, "0");
+  const mm = String(kstNow.getUTCMinutes()).padStart(2, "0");
+  const scoredAt = `${today}T${hh}:${mm}`;
   const naverCache = new Map<string, MarketData>();
   const dartCache = new Map<string, DartFundamentals>();
 
@@ -789,6 +793,7 @@ async function main() {
     async (code) => fetchFromNaver(code),
     scoreAllDomestic,
     today,
+    scoredAt,
     naverCache,
     !!DART_API_KEY,
     dartCache,
@@ -818,6 +823,7 @@ async function main() {
       async (code) => fetchFromNaver(code),
       makeScoreAllGrowth(baseRate),
       today,
+      scoredAt,
       naverCache,
       !!DART_API_KEY,
       dartCache,
@@ -844,6 +850,7 @@ async function main() {
     async (code) => fetchFromNaver(code),
     scoreAllDomestic,
     today,
+    scoredAt,
     naverCache,
     !!DART_API_KEY,
     dartCache,
@@ -865,6 +872,7 @@ async function main() {
       async (code, stock) => fetchFromYahoo(code, stock.pbr),
       scoreAllOverseas,
       today,
+      scoredAt,
       new Map(), // 해외는 별도 캐시 (네이버 캐시와 분리)
     );
 
@@ -878,7 +886,7 @@ async function main() {
   const screenPath = path.join(process.cwd(), "public", "data", "growth-candidates.json");
   try {
     const screenData = JSON.parse(fs.readFileSync(screenPath, "utf-8"));
-    const candidates = screenData.candidates as (GrowthScreenInput & { score: number; grade: string; cat1: number; cat2: number; cat3: number; details: unknown[]; is_top10: boolean })[];
+    const candidates = screenData.candidates as (GrowthScreenInput & { score: number; grade: string; cat1: number; cat2: number; cat3: number; details: unknown[]; is_top10: boolean; previous_score?: number; previous_rank?: number; previous_details?: unknown[] })[];
 
     if (candidates.length > 0) {
       console.log(`\n\n📊 [성장주 스크리닝] 종가 기준 밸류에이션 갱신 (${today})`);

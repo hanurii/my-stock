@@ -1,12 +1,19 @@
 /**
  * "2026-03-28" → "2026.03.28"
+ * "2026-03-28T06:30" → "2026.03.28 오전"
+ * "2026-03-28T17:00" → "2026.03.28 오후"
  */
 export function formatScoredAt(dateStr: string): string {
-  const d = new Date(dateStr + "T00:00:00");
+  const hasTime = dateStr.includes("T");
+  const datePart = hasTime ? dateStr.split("T")[0] : dateStr;
+  const d = new Date(datePart + "T00:00:00");
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
-  return `${y}.${m}.${day}`;
+  const base = `${y}.${m}.${day}`;
+  if (!hasTime) return base;
+  const hour = parseInt(dateStr.split("T")[1].split(":")[0], 10);
+  return `${base} ${hour < 12 ? "오전" : "오후"}`;
 }
 
 /**
