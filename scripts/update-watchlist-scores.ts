@@ -895,11 +895,29 @@ async function main() {
       let screenUpdated = 0;
       const baseRate = screenData.base_rate ?? 2.75;
 
-      // 누락 종목 주주환원 데이터 자동 수��� + 로드
+      // 당일 중복 실행 시 previous 덮어쓰기 방지
+      const screenAlreadyUpdatedToday = screenData.scanned_at === today
+        && candidates.some((c) => c.previous_score != null);
+
+      // 업데이트 전 점수·순위 스냅샷
+      const gradeOrderBefore: Record<string, number> = { A: 0, B: 1, C: 2, D: 3 };
+      const beforeScores = candidates.map((c) => c.score);
+      const beforeDetails = candidates.map((c) => c.details);
+      const sortedBefore = candidates
+        .map((c, i) => ({ i, grade: c.grade, score: c.score }))
+        .sort((a, b) => {
+          const gd = (gradeOrderBefore[a.grade] ?? 9) - (gradeOrderBefore[b.grade] ?? 9);
+          return gd !== 0 ? gd : b.score - a.score;
+        });
+      const beforeRanks = new Array<number>(candidates.length);
+      sortedBefore.forEach((entry, rank) => { beforeRanks[entry.i] = rank + 1; });
+
+      // 누락 종목 주주환원 데이터 자동 수집 + 로드
       await ensureShareholderData(candidates as { code: string; name: string }[]);
       const screenShReturnMap = loadShareholderReturnMap();
 
-      for (const c of candidates) {
+      for (let ci = 0; ci < candidates.length; ci++) {
+        const c = candidates[ci];
         // 네이버에서 오늘 종가만 조회 (캐시 활용)
         let market = naverCache.get(c.code) || null;
         if (!market) {
@@ -910,7 +928,6 @@ async function main() {
 
         if (!market?.price) continue;
 
-        const prevScore = c.score;
         const prevPrice = c.current_price;
 
         // 종가 기반 밸류에이션 갱신 (실적 데이터는 건드리지 않음)
@@ -932,9 +949,16 @@ async function main() {
         c.cat3 = result.cat3;
         c.details = result.details;
 
-        const diff = c.score - prevScore;
+        // 이전 점수·순위·세부 저장 (당일 중복 실행 시 보호)
+        if (!screenAlreadyUpdatedToday) {
+          c.previous_score = beforeScores[ci];
+          c.previous_rank = beforeRanks[ci];
+          c.previous_details = beforeDetails[ci];
+        }
+
+        const diff = c.score - beforeScores[ci];
         if (diff !== 0) {
-          console.log(`  ${c.name}: ${prevPrice?.toLocaleString()}→${market.price.toLocaleString()}원 | ${prevScore}→${c.score}점 (${diff > 0 ? "+" : ""}${diff})`);
+          console.log(`  ${c.name}: ${prevPrice?.toLocaleString()}→${market.price.toLocaleString()}원 | ${beforeScores[ci]}→${c.score}점 (${diff > 0 ? "+" : ""}${diff})`);
         }
         screenUpdated++;
       }

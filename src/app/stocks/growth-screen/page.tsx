@@ -2,6 +2,7 @@ import fs from "fs/promises";
 import path from "path";
 import { getGradeColor } from "@/lib/scoring";
 import { Collapsible } from "@/components/Collapsible";
+import { RankChange, GradeChangeBadge, ScoreChangeComment } from "@/components/RankChange";
 
 
 // ── 타입 ──
@@ -40,6 +41,9 @@ interface Candidate {
   eps_current: number | null;
   eps_consensus: number | null;
   shareholderBadges?: { cancellation: boolean; dividend: boolean; dilution: boolean };
+  previous_score?: number;
+  previous_rank?: number;
+  previous_details?: ScoreDetail[];
   is_top10: boolean;
 }
 
@@ -133,8 +137,9 @@ export default async function GrowthScreenPage() {
               <div key={stock.code} className="bg-surface-container-low rounded-xl ghost-border p-4 sm:p-5">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3">
-                    <span className="text-xl font-serif font-bold w-8" style={{ color }}>
+                    <span className="text-xl font-serif font-bold w-8 flex items-center gap-1" style={{ color }}>
                       {i + 1}
+                      <RankChange currentRank={i + 1} previousRank={stock.previous_rank} />
                     </span>
                     <div>
                       <div className="flex items-center gap-2">
@@ -157,10 +162,15 @@ export default async function GrowthScreenPage() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-2xl font-serif font-bold" style={{ color }}>{stock.score}</p>
+                    <div className="flex items-center justify-end gap-1.5">
+                      <GradeChangeBadge grade={stock.grade} score={stock.score} previousScore={stock.previous_score} compact />
+                      <p className="text-2xl font-serif font-bold" style={{ color }}>{stock.score}</p>
+                    </div>
                     <p className="text-xs text-on-surface-variant">/100점</p>
                   </div>
                 </div>
+
+                <ScoreChangeComment score={stock.score} previousScore={stock.previous_score} grade={stock.grade} details={stock.details} previousDetails={stock.previous_details} />
 
                 {/* 핵심 지표 */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
@@ -246,7 +256,9 @@ export default async function GrowthScreenPage() {
                   const color = getGradeColor(stock.grade);
                   return (
                     <tr key={stock.code} className="border-t border-surface-container-highest/30">
-                      <td className="text-center px-2 py-2 font-mono" style={{ color }}>{i + 11}</td>
+                      <td className="text-center px-2 py-2 font-mono" style={{ color }}>
+                        <span className="inline-flex items-center gap-1">{i + 11}<RankChange currentRank={i + 11} previousRank={stock.previous_rank} /></span>
+                      </td>
                       <td className="px-2 py-2">
                         <span className="text-on-surface">{stock.name}</span>
                         <span className="text-xs text-on-surface-variant/50 ml-1.5">{stock.market}</span>
@@ -256,7 +268,12 @@ export default async function GrowthScreenPage() {
                           {stock.grade}
                         </span>
                       </td>
-                      <td className="text-right px-2 py-2 font-mono font-bold" style={{ color }}>{stock.score}</td>
+                      <td className="text-right px-2 py-2 font-mono font-bold" style={{ color }}>
+                        <span className="inline-flex items-center justify-end gap-1">
+                          <GradeChangeBadge grade={stock.grade} score={stock.score} previousScore={stock.previous_score} compact />
+                          {stock.score}
+                        </span>
+                      </td>
                       <td className="text-right px-2 py-2 font-mono text-on-surface-variant hidden sm:table-cell">{fmtNum(stock.market_cap)}</td>
                       <td className="text-right px-2 py-2 font-mono text-on-surface-variant hidden sm:table-cell">{stock.per?.toFixed(1) ?? "-"}</td>
                       <td className="text-right px-2 py-2 font-mono text-on-surface-variant hidden lg:table-cell">{fmtGrowth(stock.op_profit_latest, stock.op_profit_prev)}</td>
