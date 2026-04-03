@@ -1,7 +1,7 @@
 /**
  * 워치리스트 & 오일전문가 포트폴리오 시세 자동 업데이트 스크립트
  *
- * - 국내 종목: DART 확정 실적 (PER/PBR) + 네이버 금융 (가격/배���/시총/외인)
+ * - 국내 종목: DART 확정 실적 (PER/PBR) + 네이버 금융 (가격/배당/시총/외인)
  * - 해외 종목: Yahoo Finance v10 quoteSummary (crumb/cookie 인증)
  * - 동일 종목은 한 번만 조회하여 양쪽에 재활용
  * - 점수 변화 시 previous_score/previous_rank/grade_change_reason 자동 갱신
@@ -219,7 +219,7 @@ interface DartFundamentals {
   pbr: number;
   eps: number | null;
   bps: number;
-  dividend_yield: number;   // DART 확정 배당���익률 (현재가 기준)
+  dividend_yield: number;   // DART 확정 배당수익률 (현재가 기준)
   dps: number;              // 주당배당금
   period: string;           // "FY2025" 등
 }
@@ -389,6 +389,87 @@ async function fetchPrevYearOpMargin(code: string): Promise<number | null> {
       console.log(`   📊 전년 영업이익률 (${prevYear.key}): ${value}%`);
     }
     return value;
+  } catch {
+    return null;
+  }
+}
+
+// ── 성장주 스크리닝 실적 조회 (공시월용) ──
+
+interface ScreenFundamentals {
+  revenue_latest: number;
+  revenue_prev: number;
+  op_profit_latest: number;
+  op_profit_prev: number;
+  op_margin: number;
+  op_margin_prev: number | null;
+  profit_years: number;
+  eps_current: number | null;
+  eps_consensus: number | null;
+}
+
+function parseNumStr(s: string | undefined | null): number {
+  if (!s || s === "-" || s === "") return 0;
+  const m = s.replace(/,/g, "").match(/-?[\d.]+/);
+  return m ? Number(m[0]) || 0 : 0;
+}
+
+/**
+ * 네이버 finance/annual에서 실적 데이터를 조회 (성장주 스크리닝 후보용)
+ * screen-growth-full.ts의 fetchPhase2()와 동일한 로직
+ */
+async function fetchScreenFundamentals(code: string): Promise<ScreenFundamentals | null> {
+  try {
+    const url = `${NAVER_API}/${code}/finance/annual`;
+    const res = await fetch(url, { headers: { "User-Agent": UA } });
+    if (!res.ok) return null;
+    const json = await res.json();
+
+    const periods = json.financeInfo?.trTitleList as { key: string; isConsensus: string }[] | undefined;
+    const rows = json.financeInfo?.rowList as { title: string; columns: Record<string, { value: string }> }[] | undefined;
+    if (!periods || !rows) return null;
+
+    const confirmed = periods.filter((p: { isConsensus: string }) => p.isConsensus === "N");
+    const latest = confirmed[confirmed.length - 1];
+    const prev = confirmed[confirmed.length - 2];
+    if (!latest) return null;
+
+    const consensus = periods.find((p: { isConsensus: string }) => p.isConsensus === "Y");
+
+    const getValue = (title: string, periodKey: string): number => {
+      const row = rows.find((r: { title: string }) => r.title === title);
+      return parseNumStr(row?.columns[periodKey]?.value);
+    };
+
+    const revLatest = getValue("매출액", latest.key);
+    const revPrev = prev ? getValue("매출액", prev.key) : 0;
+    const opLatest = getValue("영업이익", latest.key);
+    const opPrev = prev ? getValue("영업이익", prev.key) : 0;
+    const opMargin = getValue("영업이익률", latest.key);
+    const opMarginPrev = prev ? getValue("영업이익률", prev.key) : null;
+
+    const epsRow = rows.find((r: { title: string }) => r.title === "EPS");
+    const epsCurrent = epsRow ? parseNumStr(epsRow.columns[latest.key]?.value) : null;
+    const epsConsensus = consensus && epsRow ? parseNumStr(epsRow.columns[consensus.key]?.value) : null;
+
+    let profitYears = 0;
+    for (let i = confirmed.length - 1; i >= 0; i--) {
+      const op = getValue("영업이익", confirmed[i].key);
+      if (op > 0) profitYears++;
+      else break;
+    }
+
+    return {
+      revenue_latest: revLatest,
+      revenue_prev: revPrev,
+      op_profit_latest: opLatest,
+      op_profit_prev: opPrev,
+      op_margin: opMargin || 0,
+      op_margin_prev: opMarginPrev,
+      profit_years: profitYears,
+      eps_current: epsCurrent && epsCurrent > 0 ? epsCurrent : null,
+      eps_consensus: epsConsensus && epsConsensus > 0 ? epsConsensus : null,
+    };
   } catch {
     return null;
   }
@@ -894,13 +975,22 @@ async function main() {
   const screenPath = path.join(process.cwd(), "public", "data", "growth-candidates.json");
   try {
     const screenData = JSON.parse(fs.readFileSync(screenPath, "utf-8"));
-    const candidates = screenData.candidates as (GrowthScreenInput & { score: number; grade: string; cat1: number; cat2: number; cat3: number; details: unknown[]; is_top10: boolean; previous_score?: number; previous_rank?: number; previous_details?: unknown[] })[];
+    const candidates = screenData.candidates as (GrowthScreenInput & { score: number; grade: string; cat1: number; cat2: number; cat3: number; details: unknown[]; is_top10: boolean; previous_score?: number; previous_rank?: number; previous_details?: unknown[]; fundamentals_updated_at?: string })[];
 
     if (candidates.length > 0) {
-      console.log(`\n\n📊 [성장주 스크리닝] 종가 기준 밸류에이션 갱신 (${today})`);
+      // 공시월 판별 (3월=사업보고서, 5월=1Q, 8월=반기, 11월=3Q)
+      const DISCLOSURE_MONTHS = [3, 4, 5, 8, 11]; // TODO: 4월 임시 추가 — 3월 공시 데이터 수집 후 제거
+      const currentMonth = new Date().getMonth() + 1;
+      const isDisclosureMonth = DISCLOSURE_MONTHS.includes(currentMonth);
+
+      const modeLabel = isDisclosureMonth ? "종가 + 실적 갱신" : "종가 기준 밸류에이션 갱신";
+      console.log(`\n\n📊 [성장주 스크리닝] ${modeLabel} (${today})`);
+      if (isDisclosureMonth) console.log(`  📋 공시월(${currentMonth}월) — 실적 데이터도 갱신합니다`);
       console.log("─".repeat(65));
 
       let screenUpdated = 0;
+      let fundamentalsUpdated = 0;
+      let fundamentalsSkipped = 0;
       const baseRate = screenData.base_rate ?? 2.75;
 
       // 당일 중복 실행 시 previous 덮어쓰기 방지
@@ -938,15 +1028,44 @@ async function main() {
 
         const prevPrice = c.current_price;
 
-        // 종가 기반 밸류에이션 갱신 (실적 데이터는 건드리지 않음)
+        // 종가 기반 밸류에이션 갱신
         c.current_price = market.price;
-        if (c.eps_current && c.eps_current > 0) {
-          c.per = parseFloat((market.price / c.eps_current).toFixed(2));
-        }
         if (market.market_cap != null) c.market_cap = market.market_cap;
         if (market.foreign_ownership != null) c.foreign_ownership = market.foreign_ownership;
         c.dividend_yield = market.dividend_yield;
         c.pbr = market.pbr;
+
+        // 공시월: 실적 데이터 갱신 (이번 달 이미 갱신된 종목은 스킵)
+        if (isDisclosureMonth) {
+          const alreadyUpdatedThisMonth = c.fundamentals_updated_at
+            && c.fundamentals_updated_at.startsWith(today.slice(0, 7)); // YYYY-MM 비교
+
+          if (alreadyUpdatedThisMonth) {
+            fundamentalsSkipped++;
+          } else {
+            const fundamentals = await fetchScreenFundamentals(c.code);
+            if (fundamentals) {
+              c.revenue_latest = fundamentals.revenue_latest;
+              c.revenue_prev = fundamentals.revenue_prev;
+              c.op_profit_latest = fundamentals.op_profit_latest;
+              c.op_profit_prev = fundamentals.op_profit_prev;
+              c.op_margin = fundamentals.op_margin;
+              c.op_margin_prev = fundamentals.op_margin_prev;
+              c.profit_years = fundamentals.profit_years;
+              c.eps_current = fundamentals.eps_current;
+              c.eps_consensus = fundamentals.eps_consensus;
+              c.fundamentals_updated_at = today;
+              fundamentalsUpdated++;
+              console.log(`  📋 ${c.name}: 실적 갱신 (매출 ${fundamentals.revenue_latest?.toLocaleString()}억, 영업이익 ${fundamentals.op_profit_latest?.toLocaleString()}억, EPS ${fundamentals.eps_current?.toLocaleString()})`);
+            }
+            await sleep(REQUEST_DELAY_MS);
+          }
+        }
+
+        // PER 재계산 (실적 갱신 후 최신 EPS 기반)
+        if (c.eps_current && c.eps_current > 0) {
+          c.per = parseFloat((market.price / c.eps_current).toFixed(2));
+        }
 
         // 점수 재계산 (주주환원 보정 포함)
         const result = scoreGrowthScreen(c, baseRate, screenShReturnMap.get(c.code));
@@ -981,13 +1100,16 @@ async function main() {
 
       screenData.scanned_at = today;
       fs.writeFileSync(screenPath, JSON.stringify(screenData, null, 2), "utf-8");
-      console.log(`\n💾 성장주 스크리���: ${screenUpdated}개 종가 갱신`);
+      console.log(`\n💾 성장주 스크리닝: ${screenUpdated}개 종가 갱신`);
+      if (isDisclosureMonth) {
+        console.log(`  📋 실적 갱신: ${fundamentalsUpdated}개 완료, ${fundamentalsSkipped}개 스킵 (이미 갱신됨)`);
+      }
     }
   } catch {
     // growth-candidates.json 없으면 건너뜀
   }
 
-  // ─── 5. 매매일지 보��� 종목 ───
+  // ─── 5. 매매일지 보유 종목 ───
   const journalPath = path.join(process.cwd(), "public", "data", "journal.json");
   const journalData = JSON.parse(fs.readFileSync(journalPath, "utf-8"));
 
