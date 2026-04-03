@@ -65,7 +65,8 @@ async function loadShareholderReturns(): Promise<Map<string, ShareholderReturnDa
         else break;
       }
 
-      const dilutiveCount = s.capital_changes.filter((c) => DILUTIVE_TYPES.has(c.type)).length;
+      const cutoffYear = currentYear - 5;
+      const dilutiveCount = s.capital_changes.filter((c) => DILUTIVE_TYPES.has(c.type) && c.year >= cutoffYear).length;
 
       map.set(s.code, {
         treasury_cancellation_years: cancellationYears,
