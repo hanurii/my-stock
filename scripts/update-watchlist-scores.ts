@@ -475,6 +475,146 @@ async function fetchScreenFundamentals(code: string): Promise<ScreenFundamentals
   }
 }
 
+// ── 저평가 성장주 실적 조회 (공시월용) ──
+
+interface GrowthFundamentals {
+  revenue_growth_3y: number;
+  op_profit_growth_3y: number;
+  recent_qtr_op_growth: number;
+  op_margin: number;
+  psr: number | null;
+  peg: number | null;
+  profit_status: "sustained" | "turning" | "deficit";
+  debt_ratio: number;
+}
+
+/**
+ * 네이버 finance/annual + finance/quarter에서 저평가 성장주 실적 데이터를 계산.
+ * CAGR, 분기 YoY, 영업이익률, 부채비율, PSR, PEG, 흑자 지속성 산출.
+ */
+async function fetchGrowthFundamentals(
+  code: string,
+  marketCap: number | null,
+  per: number | null,
+): Promise<GrowthFundamentals | null> {
+  try {
+    // 1. 연간 데이터 조회
+    const annualRes = await fetch(`${NAVER_API}/${code}/finance/annual`, { headers: { "User-Agent": UA } });
+    if (!annualRes.ok) return null;
+    const annualJson = await annualRes.json();
+
+    const periods = annualJson.financeInfo?.trTitleList as { key: string; isConsensus: string }[] | undefined;
+    const rows = annualJson.financeInfo?.rowList as { title: string; columns: Record<string, { value: string }> }[] | undefined;
+    if (!periods || !rows) return null;
+
+    const confirmed = periods.filter((p: { isConsensus: string }) => p.isConsensus === "N");
+    if (confirmed.length < 2) return null;
+
+    const getValue = (title: string, periodKey: string): number => {
+      const row = rows.find((r: { title: string }) => r.title === title);
+      return parseNumStr(row?.columns[periodKey]?.value);
+    };
+
+    const latest = confirmed[confirmed.length - 1];
+    const prev = confirmed[confirmed.length - 2];
+
+    // CAGR 계산: 확정 기간 수에 따라 2년 또는 3년 CAGR
+    const oldest = confirmed[0];
+    const years = confirmed.length - 1; // 기간 수 - 1 = 년수
+
+    const revLatest = getValue("매출액", latest.key);
+    const revOldest = getValue("매출액", oldest.key);
+    const opLatest = getValue("영업이익", latest.key);
+    const opOldest = getValue("영업이익", oldest.key);
+
+    const calcCAGR = (latest: number, oldest: number, years: number): number => {
+      if (oldest <= 0 || latest <= 0 || years <= 0) return 0;
+      return (Math.pow(latest / oldest, 1 / years) - 1) * 100;
+    };
+
+    const revenueGrowth3y = parseFloat(calcCAGR(revLatest, revOldest, years).toFixed(1));
+    const opProfitGrowth3y = parseFloat(calcCAGR(opLatest, opOldest, years).toFixed(1));
+
+    // 영업이익률 (최신)
+    const opMargin = getValue("영업이익률", latest.key);
+
+    // 부채비율
+    const debtRatio = getValue("부채비율", latest.key);
+
+    // PSR = 시총(억원) / 매출(억원)
+    const psr = marketCap && revLatest > 0
+      ? parseFloat((marketCap / revLatest).toFixed(2))
+      : null;
+
+    // EPS 성장률 → PEG
+    const epsLatest = getValue("EPS", latest.key);
+    const epsPrev = getValue("EPS", prev.key);
+    let peg: number | null = null;
+    if (per && per > 0 && epsPrev > 0 && epsLatest > 0) {
+      const epsGrowth = ((epsLatest - epsPrev) / epsPrev) * 100;
+      if (epsGrowth > 0) {
+        peg = parseFloat((per / epsGrowth).toFixed(2));
+      }
+    }
+
+    // 흑자 지속성
+    let consecutiveProfitYears = 0;
+    for (let i = confirmed.length - 1; i >= 0; i--) {
+      if (getValue("영업이익", confirmed[i].key) > 0) consecutiveProfitYears++;
+      else break;
+    }
+    let profitStatus: "sustained" | "turning" | "deficit";
+    if (opLatest <= 0) profitStatus = "deficit";
+    else if (consecutiveProfitYears >= 3) profitStatus = "sustained";
+    else profitStatus = "turning";
+
+    // 2. 분기 데이터 조회 → 최근 분기 YoY 영업이익 성장률
+    let recentQtrOpGrowth = 0;
+    try {
+      await sleep(REQUEST_DELAY_MS);
+      const qtrRes = await fetch(`${NAVER_API}/${code}/finance/quarter`, { headers: { "User-Agent": UA } });
+      if (qtrRes.ok) {
+        const qtrJson = await qtrRes.json();
+        const qtrPeriods = qtrJson.financeInfo?.trTitleList as { key: string; isConsensus: string }[] | undefined;
+        const qtrRows = qtrJson.financeInfo?.rowList as { title: string; columns: Record<string, { value: string }> }[] | undefined;
+        if (qtrPeriods && qtrRows) {
+          const qtrConfirmed = qtrPeriods.filter((p: { isConsensus: string }) => p.isConsensus === "N");
+          if (qtrConfirmed.length >= 5) {
+            // 최근 확정 분기 vs 4분기 전 (= 전년 동기)
+            const recentQtr = qtrConfirmed[qtrConfirmed.length - 1];
+            const yoyQtr = qtrConfirmed[qtrConfirmed.length - 5];
+            const opRow = qtrRows.find((r: { title: string }) => r.title === "영업이익");
+            if (opRow) {
+              const recentOp = parseNumStr(opRow.columns[recentQtr.key]?.value);
+              const yoyOp = parseNumStr(opRow.columns[yoyQtr.key]?.value);
+              if (yoyOp > 0 && recentOp > 0) {
+                recentQtrOpGrowth = parseFloat((((recentOp - yoyOp) / yoyOp) * 100).toFixed(1));
+              } else if (yoyOp <= 0 && recentOp > 0) {
+                recentQtrOpGrowth = 999; // 적자→흑자 전환
+              } else if (yoyOp > 0 && recentOp <= 0) {
+                recentQtrOpGrowth = -100; // 흑자→적자 전환
+              }
+            }
+          }
+        }
+      }
+    } catch { /* 분기 데이터 조회 실패 시 0 유지 */ }
+
+    return {
+      revenue_growth_3y: revenueGrowth3y,
+      op_profit_growth_3y: opProfitGrowth3y,
+      recent_qtr_op_growth: recentQtrOpGrowth,
+      op_margin: opMargin || 0,
+      psr: psr,
+      peg,
+      profit_status: profitStatus,
+      debt_ratio: debtRatio || 0,
+    };
+  } catch {
+    return null;
+  }
+}
+
 // ── Yahoo Finance API (해외) ──
 
 let yahooCookie: string | null = null;
@@ -862,6 +1002,11 @@ async function main() {
   const naverCache = new Map<string, MarketData>();
   const dartCache = new Map<string, DartFundamentals>();
 
+  // 공시월 판별 (3월=사업보고서, 5월=1Q, 8월=반기, 11월=3Q)
+  const DISCLOSURE_MONTHS = [3, 5, 8, 11];
+  const currentMonth = kstNow.getUTCMonth() + 1;
+  const isDisclosureMonth = DISCLOSURE_MONTHS.includes(currentMonth);
+
   // DART corp_code 매핑 사전 로드
   if (DART_API_KEY) {
     console.log("📡 DART corp_code 매핑 로드...");
@@ -920,6 +1065,59 @@ async function main() {
 
     console.log("\n" + "─".repeat(65));
     printSummary("저평가 성장주", growthResult);
+
+    // 공시월: 실적 데이터(CAGR, 분기 YoY, 영업이익률 등) 자동 갱신
+    if (isDisclosureMonth) {
+      const stocks = growthData.stocks as (StockBase & {
+        revenue_growth_3y: number; op_profit_growth_3y: number;
+        recent_qtr_op_growth: number; op_margin: number;
+        psr: number; peg: number | null; profit_status: string;
+        debt_ratio: number; market_cap: number | null;
+        fundamentals_updated_at?: string;
+      })[];
+
+      console.log(`\n  📋 공시월(${currentMonth}월) — 실적 데이터 갱신`);
+
+      let gFundUpdated = 0;
+      let gFundSkipped = 0;
+
+      for (const stock of stocks) {
+        const alreadyUpdatedThisMonth = stock.fundamentals_updated_at
+          && stock.fundamentals_updated_at.startsWith(today.slice(0, 7));
+
+        if (alreadyUpdatedThisMonth) {
+          gFundSkipped++;
+          continue;
+        }
+
+        const fund = await fetchGrowthFundamentals(stock.code, stock.market_cap, stock.per);
+        if (fund) {
+          stock.revenue_growth_3y = fund.revenue_growth_3y;
+          stock.op_profit_growth_3y = fund.op_profit_growth_3y;
+          stock.recent_qtr_op_growth = fund.recent_qtr_op_growth;
+          stock.op_margin = fund.op_margin;
+          if (fund.psr != null) stock.psr = fund.psr;
+          stock.peg = fund.peg;
+          stock.profit_status = fund.profit_status;
+          stock.debt_ratio = fund.debt_ratio;
+          stock.fundamentals_updated_at = today;
+          gFundUpdated++;
+          console.log(`    ${stock.name}: CAGR 매출${fund.revenue_growth_3y}%/영업${fund.op_profit_growth_3y}% | 분기YoY ${fund.recent_qtr_op_growth}% | 영업이익률 ${fund.op_margin}%`);
+        }
+        await sleep(REQUEST_DELAY_MS);
+      }
+
+      // 실적 갱신 후 재채점
+      if (gFundUpdated > 0) {
+        const shReturnMap = loadShareholderReturnMap();
+        const baseRate = growthData.base_rate ?? 2.75;
+        const scoreAll = makeScoreAllGrowth(baseRate);
+        scoreAll(stocks);
+        console.log(`  📋 실적 갱신: ${gFundUpdated}개 완료, ${gFundSkipped}개 스킵 → 재채점 완료`);
+      } else {
+        console.log(`  📋 실적 갱신: ${gFundSkipped}개 스킵 (이미 갱신됨)`);
+      }
+    }
   } else {
     console.log(`\n\n📊 [저평가 성장주] 종목 없음 — 건너뜀`);
   }
@@ -978,11 +1176,6 @@ async function main() {
     const candidates = screenData.candidates as (GrowthScreenInput & { score: number; grade: string; cat1: number; cat2: number; cat3: number; details: unknown[]; is_top10: boolean; previous_score?: number; previous_rank?: number; previous_details?: unknown[]; fundamentals_updated_at?: string })[];
 
     if (candidates.length > 0) {
-      // 공시월 판별 (3월=사업보고서, 5월=1Q, 8월=반기, 11월=3Q)
-      const DISCLOSURE_MONTHS = [3, 5, 8, 11];
-      const currentMonth = new Date().getMonth() + 1;
-      const isDisclosureMonth = DISCLOSURE_MONTHS.includes(currentMonth);
-
       const modeLabel = isDisclosureMonth ? "종가 + 실적 갱신" : "종가 기준 밸류에이션 갱신";
       console.log(`\n\n📊 [성장주 스크리닝] ${modeLabel} (${today})`);
       if (isDisclosureMonth) console.log(`  📋 공시월(${currentMonth}월) — 실적 데이터도 갱신합니다`);
