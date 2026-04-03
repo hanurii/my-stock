@@ -338,7 +338,7 @@ export default function JournalPage() {
                   const costBasis = avgBuyPrice * tx.quantity;
                   const sellGross = tx.total;
                   const sellCosts = (tx.fees || 0) + (tx.tax || 0);
-                  sellProfit = sellGross - costBasis - sellCosts;
+                  sellProfit = Math.round(sellGross - costBasis - sellCosts);
                   sellProfitPct = costBasis > 0 ? (sellProfit / costBasis) * 100 : 0;
                 }
               }
