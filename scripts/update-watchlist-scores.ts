@@ -541,16 +541,24 @@ function makeScoreAllGrowth(baseRate: number): ScoreFn {
   const shReturnMap = loadShareholderReturnMap();
   return (stocks: StockBase[]) => {
     const results = stocks.map((s) => scoreGrowth(s as unknown as GrowthStockInput, baseRate, shReturnMap.get(s.code)));
-    return buildRanks(results);
+    return buildRanks(results, true);
   };
 }
 
-function buildRanks(results: ScoredResult[]): ScoredAll {
+function buildRanks(results: ScoredResult[], sortByGradeThenScore = false): ScoredAll {
   const scores = results.map((r) => r.score);
   const grades = results.map((r) => r.grade);
   const details = results.map((r) => r.details);
-  const indexed = scores.map((score, i) => ({ score, i }));
-  indexed.sort((a, b) => b.score - a.score);
+  const indexed = scores.map((score, i) => ({ score, grade: grades[i], i }));
+  if (sortByGradeThenScore) {
+    const gradeOrder: Record<string, number> = { A: 0, B: 1, C: 2, D: 3 };
+    indexed.sort((a, b) => {
+      const gDiff = (gradeOrder[a.grade] ?? 9) - (gradeOrder[b.grade] ?? 9);
+      return gDiff !== 0 ? gDiff : b.score - a.score;
+    });
+  } else {
+    indexed.sort((a, b) => b.score - a.score);
+  }
   const ranks = new Array<number>(scores.length);
   indexed.forEach((item, rank) => { ranks[item.i] = rank + 1; });
   return { scores, ranks, grades, details };
