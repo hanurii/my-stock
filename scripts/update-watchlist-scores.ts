@@ -979,7 +979,7 @@ async function main() {
 
     if (candidates.length > 0) {
       // 공시월 판별 (3월=사업보고서, 5월=1Q, 8월=반기, 11월=3Q)
-      const DISCLOSURE_MONTHS = [3, 4, 5, 8, 11]; // TODO: 4월 임시 추가 — 3월 공시 데이터 수집 후 제거
+      const DISCLOSURE_MONTHS = [3, 5, 8, 11];
       const currentMonth = new Date().getMonth() + 1;
       const isDisclosureMonth = DISCLOSURE_MONTHS.includes(currentMonth);
 
