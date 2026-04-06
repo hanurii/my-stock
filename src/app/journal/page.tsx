@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import { Collapsible } from "@/components/Collapsible";
 import { MarkdownText } from "@/components/MarkdownText";
+import { DividendSummary } from "@/components/DividendSummary";
 import { PortfolioPieChart } from "@/components/PortfolioPieChart";
 
 interface Holding {
@@ -32,6 +33,22 @@ interface Transaction {
   ai_evaluation: string;
 }
 
+interface DividendStock {
+  name: string;
+  dps: number;
+  type: "common" | "preferred" | "etf";
+  dividend_cycle?: "quarterly" | "annual";
+  note?: string;
+  next_dividend_date?: string;
+  next_dividend_note?: string;
+}
+
+interface DividendData {
+  updated_at: string;
+  basis_year: number;
+  stocks: Record<string, DividendStock>;
+}
+
 interface JournalData {
   updated_at: string;
   summary: {
@@ -60,6 +77,16 @@ function getJournalData(): JournalData | null {
   }
 }
 
+function getDividendData(): DividendData | null {
+  try {
+    const filePath = path.join(process.cwd(), "public", "data", "dividend-data.json");
+    const raw = fs.readFileSync(filePath, "utf-8");
+    return JSON.parse(raw) as DividendData;
+  } catch {
+    return null;
+  }
+}
+
 function formatMoney(amount: number): string {
   if (amount >= 1e8) return `${(amount / 1e8).toFixed(1)}억`;
   if (amount >= 1e4) return `${(amount / 1e4).toFixed(0)}만`;
@@ -68,6 +95,7 @@ function formatMoney(amount: number): string {
 
 export default function JournalPage() {
   const data = getJournalData();
+  const dividendData = getDividendData();
 
   if (!data) {
     return (
@@ -303,6 +331,46 @@ export default function JournalPage() {
           </>
         )}
       </section>
+
+      {/* ══════════════════════════════════════════════ */}
+      {/* 배당 수입 예상 */}
+      {/* ══════════════════════════════════════════════ */}
+
+      {hasHoldings && dividendData && (() => {
+        const dividendHoldings = holdings.map((h) => {
+          const dStock = dividendData.stocks[h.code];
+          return {
+            code: h.code,
+            name: h.name,
+            quantity: h.quantity,
+            avg_price: h.avg_price,
+            current_price: h.current_price,
+            eval_amount: h.eval_amount,
+            dps: dStock?.dps ?? 0,
+            stock_type: dStock?.type ?? ("common" as const),
+            dividend_cycle: dStock?.dividend_cycle,
+            note: dStock?.note,
+            next_dividend_date: dStock?.next_dividend_date,
+            next_dividend_note: dStock?.next_dividend_note,
+          };
+        });
+
+        return (
+          <section>
+            <p className="text-[10px] uppercase tracking-[0.2em] text-primary-dim/60 mb-2">
+              Dividend Income
+            </p>
+            <h3 className="text-2xl font-serif text-on-surface mb-6 tracking-tight">
+              배당 수입 예상
+            </h3>
+            <DividendSummary
+              holdings={dividendHoldings}
+              totalInvested={summary.total_invested}
+              basisYear={dividendData.basis_year}
+            />
+          </section>
+        );
+      })()}
 
       {/* ══════════════════════════════════════════════ */}
       {/* 파트 2: 매매 히스토리 */}
