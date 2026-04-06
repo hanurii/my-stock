@@ -1383,6 +1383,70 @@ async function main() {
   console.log("\n" + "─".repeat(65));
   console.log(`💾 매매일지: ${journalUpdated}개 업데이트, ${journalSkipped}개 실패`);
 
+  // ─── 6. 배당 데이터 갱신 ───
+  const dividendPath = path.join(process.cwd(), "public", "data", "dividend-data.json");
+  try {
+    const dividendData = JSON.parse(fs.readFileSync(dividendPath, "utf-8"));
+    let divUpdated = 0;
+
+    console.log(`\n\n💰 [배당 데이터] DPS 갱신 (${today})`);
+    console.log("─".repeat(65));
+
+    for (const h of holdings) {
+      // ETF는 별도 API 구조이므로 건너뜀
+      if (dividendData.stocks[h.code]?.type === "etf") continue;
+
+      // 네이버 integration API에서 주당배당금 조회
+      try {
+        const intRes = await fetch(`${NAVER_API}/${h.code}/integration`, {
+          headers: { "User-Agent": UA },
+        });
+        if (!intRes.ok) continue;
+        const intJson = await intRes.json();
+        const infos: { code: string; key: string; value: string; valueDesc?: string }[] = intJson.totalInfos || [];
+
+        const dpsEntry = infos.find((i) => i.key === "주당배당금");
+        const dps = dpsEntry ? parseNumber(dpsEntry.value) : null;
+
+        if (dps != null && dps >= 0) {
+          const prev = dividendData.stocks[h.code];
+          const prevDps = prev?.dps ?? 0;
+
+          if (!prev) {
+            // 신규 종목 자동 추가
+            dividendData.stocks[h.code] = {
+              name: h.name,
+              dps,
+              type: "common" as const,
+              dividend_cycle: "annual" as const,
+              next_dividend_date: `${new Date().getFullYear()}-12-31`,
+              next_dividend_note: "결산배당 기준일",
+            };
+            console.log(`\n🆕 ${h.name} (${h.code}): 신규 추가 — DPS ${fmt(dps)}원`);
+            divUpdated++;
+          } else if (prevDps !== dps) {
+            prev.dps = dps;
+            prev.name = h.name;
+            console.log(`\n✅ ${h.name} (${h.code}): DPS ${fmt(prevDps)}원 → ${fmt(dps)}원`);
+            divUpdated++;
+          }
+        }
+
+        await sleep(REQUEST_DELAY_MS);
+      } catch {
+        // 개별 종목 조회 실패 시 무시
+      }
+    }
+
+    dividendData.updated_at = today;
+    fs.writeFileSync(dividendPath, JSON.stringify(dividendData, null, 2) + "\n", "utf-8");
+
+    console.log("\n" + "─".repeat(65));
+    console.log(`💾 배당 데이터: ${divUpdated}개 DPS 갱신`);
+  } catch {
+    // dividend-data.json 없으면 건너뜀
+  }
+
   console.log("\n" + "═".repeat(65));
   console.log("✨ 전체 업데이트 완료");
 

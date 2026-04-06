@@ -32,7 +32,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add public/data/watchlist.json public/data/growth-watchlist.json public/data/oil-expert-watchlist.json public/data/journal.json public/data/growth-candidates.json public/data/shareholder-returns.json
+          git add public/data/watchlist.json public/data/growth-watchlist.json public/data/oil-expert-watchlist.json public/data/journal.json public/data/growth-candidates.json public/data/shareholder-returns.json public/data/dividend-data.json
           if ! git diff --staged --quiet; then
             git commit -m "chore: 워치리스트/오일전문가 시세 업데이트 $(TZ=Asia/Seoul date +%Y-%m-%d)"
             git pull --rebase origin master
