@@ -31,9 +31,10 @@ export function SectorPieChart({
 }: {
   sectors: SectorItem[];
   totalValue: number;
-  currency?: "usd" | "krw";
+  currency?: "usd" | "krw" | "count";
 }) {
-  const fmt = currency === "krw" ? formatKRW : formatUSD;
+  const formatCount = (v: number) => `${v}개 종목`;
+  const fmt = currency === "count" ? formatCount : currency === "krw" ? formatKRW : formatUSD;
   const [activeIndex, setActiveIndex] = useState(-1);
 
   const data = sectors.map((s, i) => ({
@@ -124,7 +125,9 @@ export function SectorPieChart({
                 <span className="text-xs text-on-surface-variant/50">{item.count}개</span>
               </div>
               <div className="flex items-center gap-4">
-                <span className="text-sm font-mono text-on-surface">{fmt(item.value)}</span>
+                {currency !== "count" && (
+                  <span className="text-sm font-mono text-on-surface">{fmt(item.value)}</span>
+                )}
                 <span
                   className="text-sm font-mono w-14 text-right transition-colors duration-300"
                   style={{ color: activeIndex === i ? item.color : "#909097" }}

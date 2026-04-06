@@ -16,6 +16,7 @@ import { DomesticScoringCriteria, OverseasScoringCriteria } from "@/components/S
 import { ScoreDetails } from "@/components/ScoreDetails";
 import { Collapsible } from "@/components/Collapsible";
 import { RankChange, ScoreChangeComment } from "@/components/RankChange";
+import { SectorPieChart } from "@/components/SectorPieChart";
 
 
 type ScoredDomestic = DomesticStockInput & ScoredResult;
@@ -226,36 +227,25 @@ function GradeDistribution({ stocks }: { stocks: AnyScored[] }) {
   );
 }
 
-function SectorBreakdown({ stocks }: { stocks: AnyScored[] }) {
-  const sectorMap = new Map<string, AnyScored[]>();
+function buildSectorData(stocks: AnyScored[]) {
+  const sectorMap = new Map<string, { count: number; names: string[] }>();
   stocks.forEach((s) => {
     const sector = s.sector.replace("(우)", "");
-    const existing = sectorMap.get(sector) || [];
-    existing.push(s);
-    sectorMap.set(sector, existing);
+    const prev = sectorMap.get(sector) || { count: 0, names: [] };
+    prev.count += 1;
+    prev.names.push(s.name);
+    sectorMap.set(sector, prev);
   });
-
-  const sectors = Array.from(sectorMap.entries()).sort((a, b) => b[1].length - a[1].length);
-
-  return (
-    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-      {sectors.map(([sector, sectorStocks]) => {
-        const avgScore = Math.round(sectorStocks.reduce((sum, s) => sum + s.score, 0) / sectorStocks.length);
-        const color = getGradeColor(avgScore >= 80 ? "A" : avgScore >= 70 ? "B" : avgScore >= 50 ? "C" : "D");
-        return (
-          <div key={sector} className="bg-surface-container/30 rounded-lg p-3 ghost-border">
-            <div className="flex justify-between items-center mb-1">
-              <span className="text-sm font-medium text-on-surface">{sector}</span>
-              <span className="text-xs font-mono" style={{ color }}>{avgScore}점</span>
-            </div>
-            <p className="text-xs text-on-surface-variant">
-              {sectorStocks.map(s => s.name).join(", ")}
-            </p>
-          </div>
-        );
-      })}
-    </div>
-  );
+  const total = stocks.length;
+  return Array.from(sectorMap.entries())
+    .map(([sector, { count, names }]) => ({
+      sector,
+      value: count,
+      weight_pct: total > 0 ? (count / total) * 100 : 0,
+      count,
+      names,
+    }))
+    .sort((a, b) => b.count - a.count);
 }
 
 export default async function OilExpertPage() {
@@ -356,7 +346,11 @@ export default async function OilExpertPage() {
 
         <div className="bg-surface-container-low rounded-xl p-6 ghost-border">
           <h3 className="text-base font-serif text-on-surface mb-4">섹터별 분포</h3>
-          <SectorBreakdown stocks={domestic} />
+          <SectorPieChart
+            sectors={buildSectorData(domestic)}
+            totalValue={domestic.length}
+            currency="count"
+          />
         </div>
 
         <div className="bg-surface-container-low rounded-xl ghost-border overflow-hidden">
@@ -427,6 +421,15 @@ export default async function OilExpertPage() {
         <div className="bg-surface-container-low rounded-xl p-6 ghost-border">
           <h3 className="text-base font-serif text-on-surface mb-4">등급 분포 — 해외</h3>
           <GradeDistribution stocks={overseas} />
+        </div>
+
+        <div className="bg-surface-container-low rounded-xl p-6 ghost-border">
+          <h3 className="text-base font-serif text-on-surface mb-4">섹터별 분포 — 해외</h3>
+          <SectorPieChart
+            sectors={buildSectorData(overseas)}
+            totalValue={overseas.length}
+            currency="count"
+          />
         </div>
 
         <div className="bg-surface-container-low rounded-xl ghost-border overflow-hidden">
