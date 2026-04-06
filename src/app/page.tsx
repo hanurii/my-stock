@@ -1,6 +1,6 @@
 import { getReportData, getReportDates } from "@/lib/data";
 import { ReportView } from "@/components/ReportView";
-import Link from "next/link";
+import { DateNav } from "@/components/DateNav";
 
 export default function Home() {
   const dates = getReportDates();
@@ -25,21 +25,7 @@ export default function Home() {
           <h3 className="text-base font-serif text-on-surface mb-4 tracking-tight">
             지난 리포트
           </h3>
-          <div className="flex flex-wrap gap-2">
-            {dates.map((date, i) => (
-              <Link
-                key={date}
-                href={i === 0 ? "/" : `/report/${date}`}
-                className={`px-3 py-1.5 rounded-lg text-sm transition-all ${
-                  i === 0
-                    ? "gold-shimmer text-on-primary font-bold"
-                    : "bg-surface-container-high text-on-surface-variant hover:text-primary hover:bg-surface-container-highest"
-                }`}
-              >
-                {date}
-              </Link>
-            ))}
-          </div>
+          <DateNav dates={dates} activeDate={dates[0]} fadeFrom="surface-container-low" />
         </section>
       )}
 
