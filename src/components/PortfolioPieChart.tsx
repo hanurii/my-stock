@@ -33,7 +33,8 @@ export function PortfolioPieChart({
 
   const total = holdings.reduce((s, h) => s + h.eval_amount, 0) + (cash || 0);
 
-  const data: PortfolioItem[] = holdings.map((h, i) => ({
+  const sorted = [...holdings].sort((a, b) => b.eval_amount - a.eval_amount);
+  const data: PortfolioItem[] = sorted.map((h, i) => ({
     name: h.name,
     value: h.eval_amount,
     color: COLORS[i % COLORS.length],

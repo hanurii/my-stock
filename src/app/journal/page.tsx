@@ -4,6 +4,8 @@ import { Collapsible } from "@/components/Collapsible";
 import { MarkdownText } from "@/components/MarkdownText";
 import { DividendSummary } from "@/components/DividendSummary";
 import { PortfolioPieChart } from "@/components/PortfolioPieChart";
+import { SectorPieChart } from "@/components/SectorPieChart";
+import { SectorProfitTable } from "@/components/SectorProfitTable";
 
 interface Holding {
   code: string;
@@ -93,6 +95,27 @@ function formatMoney(amount: number): string {
   return amount.toLocaleString();
 }
 
+const SECTOR_GROUP: Record<string, string> = {
+  "반도체": "기술", "IT서비스": "기술", "디스플레이장비": "기술",
+  "소프트웨어": "기술", "전자장비": "기술",
+  "금융": "금융", "은행": "금융", "보험": "금융", "증권": "금융",
+  "에너지": "에너지", "에너지기자재": "에너지",
+  "자동차": "산업재", "기계": "산업재", "조선": "산업재", "건설": "산업재",
+  "화학": "소재", "철강": "소재",
+  "제약": "헬스케어", "바이오": "헬스케어",
+  "음식료": "필수소비재", "유통": "임의소비재",
+  "미디어": "커뮤니케이션", "통신": "커뮤니케이션",
+};
+
+interface SectorStat {
+  evalAmount: number;
+  invested: number;
+  profit: number;
+  count: number;
+  names: string[];
+  holdings: Holding[];
+}
+
 export default function JournalPage() {
   const data = getJournalData();
   const dividendData = getDividendData();
@@ -110,6 +133,31 @@ export default function JournalPage() {
   const hasTransactions = transactions.length > 0;
   const netProfit = summary.net_profit || 0;
   const profitColor = netProfit >= 0 ? "#95d3ba" : "#ffb4ab";
+
+  const sectorStats = new Map<string, SectorStat>();
+  let totalEval = 0;
+  for (const h of holdings) {
+    const raw = h.sector || "기타";
+    const key = raw.startsWith("ETF") ? "ETF" : (SECTOR_GROUP[raw] || raw);
+    const prev = sectorStats.get(key) || { evalAmount: 0, invested: 0, profit: 0, count: 0, names: [], holdings: [] };
+    prev.evalAmount += h.eval_amount;
+    prev.invested += h.avg_price * h.quantity;
+    prev.profit += h.profit_amount;
+    prev.count += 1;
+    prev.names.push(h.name);
+    prev.holdings.push(h);
+    sectorStats.set(key, prev);
+    totalEval += h.eval_amount;
+  }
+
+  const sectorList = Array.from(sectorStats.entries())
+    .map(([sector, s]) => ({
+      sector,
+      ...s,
+      weightPct: totalEval > 0 ? (s.evalAmount / totalEval) * 100 : 0,
+      profitPct: s.invested > 0 ? (s.profit / s.invested) * 100 : 0,
+    }))
+    .sort((a, b) => b.evalAmount - a.evalAmount);
 
   return (
     <div className="space-y-14">
@@ -187,6 +235,48 @@ export default function JournalPage() {
           <div className="bg-surface-container-low rounded-xl p-8 ghost-border mb-8">
             <h4 className="text-lg font-serif text-on-surface mb-6">포트폴리오 구성</h4>
             <PortfolioPieChart holdings={holdings} cash={summary.cash} />
+          </div>
+        )}
+
+        {/* 섹터별 비중 차트 */}
+        {hasHoldings && (
+          <div className="bg-surface-container-low rounded-xl p-8 ghost-border mb-8">
+            <h4 className="text-lg font-serif text-on-surface mb-6">섹터별 비중</h4>
+            <SectorPieChart
+              sectors={sectorList.map((s) => ({
+                sector: s.sector,
+                value: s.evalAmount,
+                weight_pct: s.weightPct,
+                count: s.count,
+                names: s.names,
+              }))}
+              totalValue={totalEval}
+              currency="krw"
+            />
+          </div>
+        )}
+
+        {/* 섹터별 수익 현황 */}
+        {hasHoldings && (
+          <div className="bg-surface-container-low rounded-xl p-6 sm:p-8 ghost-border mb-8">
+            <h4 className="text-lg font-serif text-on-surface mb-6">섹터별 수익 현황</h4>
+            <SectorProfitTable
+              sectors={sectorList.map((s) => ({
+                sector: s.sector,
+                count: s.count,
+                invested: s.invested,
+                evalAmount: s.evalAmount,
+                profit: s.profit,
+                profitPct: s.profitPct,
+                holdings: [...s.holdings].sort((a, b) => b.eval_amount - a.eval_amount).map((h) => ({
+                  name: h.name,
+                  invested: h.avg_price * h.quantity,
+                  evalAmount: h.eval_amount,
+                  profitAmount: h.profit_amount,
+                  profitPct: h.profit_pct,
+                })),
+              }))}
+            />
           </div>
         )}
 
@@ -303,7 +393,7 @@ export default function JournalPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {holdings.map((h) => {
+                    {[...holdings].sort((a, b) => b.eval_amount - a.eval_amount).map((h) => {
                       const pColor = h.profit_pct >= 0 ? "#95d3ba" : "#ffb4ab";
                       return (
                         <tr key={h.code} className="hover:bg-surface-container/30 transition-colors">
