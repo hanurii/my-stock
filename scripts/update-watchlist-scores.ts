@@ -1005,7 +1005,8 @@ async function main() {
   // 공시월 판별 (3월=사업보고서, 5월=1Q, 8월=반기, 11월=3Q)
   const DISCLOSURE_MONTHS = [3, 5, 8, 11];
   const currentMonth = kstNow.getUTCMonth() + 1;
-  const isDisclosureMonth = DISCLOSURE_MONTHS.includes(currentMonth);
+  const forceFundamentals = process.argv.includes("--force-fundamentals");
+  const isDisclosureMonth = DISCLOSURE_MONTHS.includes(currentMonth) || forceFundamentals;
 
   // DART corp_code 매핑 사전 로드
   if (DART_API_KEY) {
