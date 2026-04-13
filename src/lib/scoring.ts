@@ -1143,3 +1143,237 @@ export function scoreGrowthScreen(input: GrowthScreenInput, baseRate: number, sh
 
   return { cat1, cat2, cat3, score, grade, details, shareholderBadges };
 }
+
+// ─────────────────────────────────────────────
+// 바이오주 채점 엔진
+// 7대 기준: 특허/논문/학회/임상/빅파마계약/계약구조/경영진
+// ─────────────────────────────────────────────
+
+export type ConferenceLevel = "oral_top4" | "poster_top4" | "other_intl" | "none";
+export type HighestPhase = "approved" | "phase3" | "phase2" | "phase1" | "preclinical" | "none";
+export type LicenseOutTier = "top20" | "global" | "domestic" | "none";
+export type TerminationHistory = "none" | "re_contracted" | "terminated";
+export type ContractStructure = "no_return" | "unknown" | "returnable";
+export type CeoBackground = "scientist" | "cto_scientist" | "professional" | "unknown";
+export type ExitSignal = "none" | "minor" | "major";
+
+export interface BioStockInput {
+  code: string;
+  name: string;
+  market: string;
+  // Cat1: 기술 검증
+  patent_domestic: number;
+  patent_pct: number;
+  pubmed_count: number;
+  high_if_papers: number;
+  total_citations: number;
+  conference_level: ConferenceLevel | null;
+  // Cat2: 임상/사업
+  highest_phase: HighestPhase;
+  pipeline_count: number;
+  results_transparency: number;
+  license_out_tier: LicenseOutTier;
+  termination_history: TerminationHistory;
+  contract_structure: ContractStructure | null;
+  // Cat3: 경영/재무
+  ceo_background: CeoBackground;
+  dilution_3yr_pct: number;
+  exit_signal: ExitSignal;
+  cash_runway_years: number | null;
+  // 메타
+  market_cap: number;
+  current_price: number;
+}
+
+export function scoreBio(input: BioStockInput): ScoredResult {
+  const details: ScoreDetail[] = [];
+  let cat1 = 0, cat2 = 0, cat3 = 0;
+
+  // ── Cat1: 기술 검증 (35점) ──
+
+  // 국내 특허 건수 (5점)
+  {
+    const n = input.patent_domestic;
+    const s = n >= 10 ? 5 : n >= 5 ? 3 : n >= 1 ? 1 : 0;
+    cat1 += s;
+    details.push({ item: "국내 특허 건수", basis: `${n}건`, score: s, max: 5, cat: 1 });
+  }
+
+  // PCT/해외 특허 (5점)
+  {
+    const n = input.patent_pct;
+    const s = n >= 5 ? 5 : n >= 3 ? 3 : n >= 1 ? 1 : 0;
+    cat1 += s;
+    details.push({ item: "PCT/해외 특허", basis: `${n}건`, score: s, max: 5, cat: 1 });
+  }
+
+  // PubMed 논문 수 (5점)
+  {
+    const n = input.pubmed_count;
+    const s = n >= 20 ? 5 : n >= 10 ? 3 : n >= 3 ? 1 : 0;
+    cat1 += s;
+    details.push({ item: "PubMed 논문 수", basis: `${n}편`, score: s, max: 5, cat: 1 });
+  }
+
+  // 고영향 저널 논문 IF≥10 (5점)
+  {
+    const n = input.high_if_papers;
+    const s = n >= 3 ? 5 : n >= 1 ? 3 : 0;
+    cat1 += s;
+    details.push({ item: "고영향 저널 (IF≥10)", basis: `${n}편`, score: s, max: 5, cat: 1 });
+  }
+
+  // 논문 피인용 수 (5점)
+  {
+    const n = input.total_citations;
+    const s = n >= 500 ? 5 : n >= 100 ? 3 : n >= 20 ? 1 : 0;
+    cat1 += s;
+    details.push({ item: "논문 피인용 수", basis: `총 ${n.toLocaleString()}회`, score: s, max: 5, cat: 1 });
+  }
+
+  // 주요 학회 발표 (10점)
+  {
+    const lvl = input.conference_level;
+    const s = lvl === "oral_top4" ? 10 : lvl === "poster_top4" ? 6 : lvl === "other_intl" ? 3 : 0;
+    const labels: Record<string, string> = {
+      oral_top4: "ASCO/ASH/AACR/ESMO 구두 발표",
+      poster_top4: "ASCO/ASH/AACR/ESMO 포스터 발표",
+      other_intl: "기타 국제 학회",
+      none: "발표 이력 없음",
+    };
+    cat1 += s;
+    details.push({ item: "주요 학회 발표", basis: lvl ? labels[lvl] : "미확인", score: s, max: 10, cat: 1 });
+  }
+
+  // ── Cat2: 임상/사업 진행 (45점) ──
+
+  // 최고 임상 단계 (15점)
+  {
+    const phaseScores: Record<HighestPhase, number> = {
+      approved: 15, phase3: 12, phase2: 8, phase1: 4, preclinical: 1, none: 0,
+    };
+    const phaseLabels: Record<HighestPhase, string> = {
+      approved: "허가/출시", phase3: "임상 3상", phase2: "임상 2상",
+      phase1: "임상 1상", preclinical: "전임상", none: "없음",
+    };
+    const s = phaseScores[input.highest_phase];
+    cat2 += s;
+    details.push({ item: "최고 임상 단계", basis: phaseLabels[input.highest_phase], score: s, max: 15, cat: 2 });
+  }
+
+  // 임상 파이프라인 수 (5점)
+  {
+    const n = input.pipeline_count;
+    const s = n >= 5 ? 5 : n >= 3 ? 3 : n >= 1 ? 1 : 0;
+    cat2 += s;
+    details.push({ item: "임상 파이프라인 수", basis: `${n}개`, score: s, max: 5, cat: 2 });
+  }
+
+  // 임상 결과 공개 투명성 (5점)
+  {
+    const r = input.results_transparency;
+    const s = r >= 50 ? 5 : r >= 25 ? 3 : r > 0 ? 1 : 0;
+    cat2 += s;
+    details.push({ item: "임상 결과 투명성", basis: `결과 공개 ${r}%`, score: s, max: 5, cat: 2 });
+  }
+
+  // 빅파마 L/O 계약 (10점)
+  {
+    const tierScores: Record<LicenseOutTier, number> = { top20: 10, global: 6, domestic: 3, none: 0 };
+    const tierLabels: Record<LicenseOutTier, string> = {
+      top20: "Top 20 빅파마 계약", global: "기타 글로벌 계약", domestic: "국내 L/O", none: "없음",
+    };
+    const s = tierScores[input.license_out_tier];
+    cat2 += s;
+    details.push({ item: "빅파마 L/O 계약", basis: tierLabels[input.license_out_tier], score: s, max: 10, cat: 2 });
+  }
+
+  // 계약 파기 이력 (5점)
+  {
+    const histScores: Record<TerminationHistory, number> = { none: 5, re_contracted: 2, terminated: 0 };
+    const histLabels: Record<TerminationHistory, string> = {
+      none: "파기 이력 없음", re_contracted: "파기 후 재계약", terminated: "파기 이력 있음",
+    };
+    const s = histScores[input.termination_history];
+    cat2 += s;
+    details.push({ item: "계약 파기 이력", basis: histLabels[input.termination_history], score: s, max: 5, cat: 2 });
+  }
+
+  // 계약 구조 건전성 (5점)
+  {
+    const cs = input.contract_structure;
+    const s = cs === "no_return" ? 5 : cs === "unknown" ? 2 : cs === "returnable" ? 0 : 2;
+    const labels: Record<string, string> = {
+      no_return: "반환의무 없음", unknown: "불명", returnable: "반환의무 있음",
+    };
+    cat2 += s;
+    details.push({ item: "계약 구조 건전성", basis: cs ? labels[cs] : "미확인", score: s, max: 5, cat: 2 });
+  }
+
+  // ── Cat3: 경영/재무 건전성 (20점) ──
+
+  // CEO/CTO 기술자 출신 (6점)
+  {
+    const bgScores: Record<CeoBackground, number> = { scientist: 6, cto_scientist: 4, professional: 2, unknown: 1 };
+    const bgLabels: Record<CeoBackground, string> = {
+      scientist: "박사/연구원 출신 CEO", cto_scientist: "기술자 CTO 보유",
+      professional: "경영 전문가", unknown: "확인 불가",
+    };
+    const s = bgScores[input.ceo_background];
+    cat3 += s;
+    details.push({ item: "CEO/CTO 기술 전문성", basis: bgLabels[input.ceo_background], score: s, max: 6, cat: 3 });
+  }
+
+  // 최근 3년 희석률 (7점)
+  {
+    const d = input.dilution_3yr_pct;
+    const s = d === 0 ? 7 : d < 10 ? 5 : d < 20 ? 3 : d < 30 ? 1 : 0;
+    cat3 += s;
+    details.push({ item: "최근 3년 희석률", basis: `${d.toFixed(1)}%`, score: s, max: 7, cat: 3 });
+  }
+
+  // 엑싯 시그널 (4점)
+  {
+    const exitScores: Record<ExitSignal, number> = { none: 4, minor: 2, major: 0 };
+    const exitLabels: Record<ExitSignal, string> = {
+      none: "대표이사 매도 없음", minor: "소량 매도", major: "대량 매도",
+    };
+    const s = exitScores[input.exit_signal];
+    cat3 += s;
+    details.push({ item: "엑싯 시그널", basis: exitLabels[input.exit_signal], score: s, max: 4, cat: 3 });
+  }
+
+  // 현금 런웨이 (3점)
+  {
+    const y = input.cash_runway_years;
+    const s = y == null ? 1 : y >= 2 ? 3 : y >= 1 ? 2 : 0;
+    cat3 += s;
+    details.push({ item: "현금 런웨이", basis: y != null ? `${y.toFixed(1)}년` : "미확인", score: s, max: 3, cat: 3 });
+  }
+
+  // ── 감점/보너스 ──
+  let score = cat1 + cat2 + cat3;
+
+  if (input.termination_history === "terminated" && input.license_out_tier === "none") {
+    score -= 5;
+    details.push({ item: "감점: 계약파기 + L/O 없음", basis: "기술 신뢰도 훼손", score: -5, max: 0, cat: 0 });
+  }
+
+  if (input.dilution_3yr_pct >= 30 && input.cash_runway_years != null && input.cash_runway_years < 1) {
+    score -= 5;
+    details.push({ item: "감점: 고희석 + 자금 부족", basis: `희석 ${input.dilution_3yr_pct.toFixed(1)}% & 런웨이 ${input.cash_runway_years.toFixed(1)}년`, score: -5, max: 0, cat: 0 });
+  }
+
+  if ((input.highest_phase === "phase3" || input.highest_phase === "approved") && (input.license_out_tier === "top20" || input.license_out_tier === "global")) {
+    const bonus = Math.min(5, 100 - score);
+    if (bonus > 0) {
+      score += bonus;
+      details.push({ item: "보너스: 3상+ & 빅파마 계약", basis: "기술 이중 검증", score: bonus, max: 5, cat: 0 });
+    }
+  }
+
+  score = Math.max(0, Math.min(100, score));
+  const grade = getGrade(score);
+
+  return { cat1, cat2, cat3, score, grade, details };
+}

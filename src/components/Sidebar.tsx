@@ -9,6 +9,7 @@ const navItems = [
   { href: "/stocks", label: "저평가 우량주", icon: "stars" },
   { href: "/journal", label: "매매일지", icon: "history_edu" },
   { href: "/calculator", label: "재무제표 계산기", icon: "calculate" },
+  { href: "/bio", label: "기대 바이오주", icon: "biotech" },
 ];
 
 export function Sidebar() {
