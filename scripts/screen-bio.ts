@@ -601,44 +601,29 @@ async function main() {
   }
 
   const scored: ScoredBio[] = [];
-  let idx = 0;
+  const BATCH_SIZE = 5; // 5개 종목 동시 처리
 
-  for (const stock of bioStocks) {
-    idx++;
+  async function processStock(stock: BioStock, idx: number): Promise<ScoredBio> {
     const corpCode = corpMap.get(stock.code) || "";
     const nameEn = getEnglishName(stock.code, stock.name);
     const override = overrides[stock.code] || {};
 
-    process.stdout.write(`  [${idx}/${bioStocks.length}] ${stock.name} (${stock.code})...`);
+    // 종목당 6개 API를 동시에 호출 (Promise.all)
+    const [patents, papers, clinical, deals, mgmt, runway] = await Promise.all([
+      fetchPatents(stock.name, stock.code),
+      fetchPapers(nameEn, stock.code),
+      fetchClinicalTrials(nameEn, stock.code),
+      fetchDartDeals(corpCode, stock.code),
+      fetchManagement(corpCode, stock.code),
+      fetchCashRunway(stock.code),
+    ]);
 
-    // 2a: 특허
-    const patents = await fetchPatents(stock.name, stock.code);
+    // 통계 업데이트
     patents.domestic > 0 ? stats.kipris.ok++ : stats.kipris.fail++;
-    await sleep(500);
-
-    // 2b: 논문
-    const papers = await fetchPapers(nameEn, stock.code);
     papers.pubmed_count > 0 ? stats.papers.ok++ : stats.papers.fail++;
-    await sleep(500);
-
-    // 2c: 임상
-    const clinical = await fetchClinicalTrials(nameEn, stock.code);
     clinical.pipeline_count > 0 ? stats.clinical.ok++ : stats.clinical.fail++;
-    await sleep(500);
-
-    // 2d: DART 공시
-    const deals = await fetchDartDeals(corpCode, stock.code);
     deals.license_out_tier !== "none" ? stats.dart.ok++ : stats.dart.fail++;
-    await sleep(300);
-
-    // 2e: DART 임원/지분
-    const mgmt = await fetchManagement(corpCode, stock.code);
-    await sleep(300);
-
-    // 2f: 현금 런웨이
-    const runway = await fetchCashRunway(stock.code);
     runway != null ? stats.naver.ok++ : stats.naver.fail++;
-    await sleep(300);
 
     // 수동 보정 머지
     const conferenceLevel: ConferenceLevel | null = override.conference_level ?? null;
@@ -680,9 +665,20 @@ async function main() {
     };
 
     const result = scoreBio(input);
-    console.log(` ${result.grade} (${result.score}점)`);
+    console.log(`  [${idx}/${bioStocks.length}] ${stock.name} → ${result.grade} (${result.score}점)`);
 
-    scored.push({ ...input, scored: result, pipelines: clinical.pipelines, data_confidence: confidence });
+    return { ...input, scored: result, pipelines: clinical.pipelines, data_confidence: confidence };
+  }
+
+  // 배치 병렬 실행: BATCH_SIZE개씩 동시 처리
+  for (let i = 0; i < bioStocks.length; i += BATCH_SIZE) {
+    const batch = bioStocks.slice(i, i + BATCH_SIZE);
+    const results = await Promise.all(
+      batch.map((stock, bi) => processStock(stock, i + bi + 1))
+    );
+    scored.push(...results);
+    // 배치 간 대기 (Rate Limit 보호)
+    if (i + BATCH_SIZE < bioStocks.length) await sleep(500);
   }
 
   // 캐시 저장
