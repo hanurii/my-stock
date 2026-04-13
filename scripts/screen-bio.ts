@@ -145,10 +145,18 @@ function loadAliases(): Record<string, CompanyAlias> {
 
 interface BioStock { code: string; name: string; market: string; marketCap: number; price: number; sector: string; }
 
+// 바이오 업종 코드 (Naver integration API의 industryCode)
+const BIO_INDUSTRY_CODES = new Set([
+  "261", // 제약
+  "262", // 의료정밀
+  "286", // 의약품 (알테오젠 등)
+]);
+
 async function collectBioStocks(): Promise<BioStock[]> {
   console.log("\n🔬 Phase 1: 바이오 종목 목록 수집");
-  const all: BioStock[] = [];
 
+  // Step 1: 전 종목 수집 (시총순)
+  const allStocks: { code: string; name: string; market: string; cap: number; price: number }[] = [];
   for (const market of ["KOSPI", "KOSDAQ"]) {
     let page = 1;
     while (true) {
@@ -159,21 +167,63 @@ async function collectBioStocks(): Promise<BioStock[]> {
       if (stocks.length === 0) break;
       for (const s of stocks) {
         if (s.stockEndType !== "stock") continue;
-        // 업종 정보로 바이오 필터링
-        const sector: string = s.sectorName || s.industryGroupKor || "";
-        if (BIO_SECTOR_KEYWORDS.test(sector) || BIO_SECTOR_KEYWORDS.test(s.stockName)) {
-          const cap = parseMarketCap(s.marketValue || "0");
-          if (cap >= 300) { // 시총 300억+
-            all.push({ code: s.itemCode, name: s.stockName, market, marketCap: cap, price: parseNum(s.closePrice), sector });
-          }
+        const capStr: string = s.marketValueHangeul || s.marketValue || "0";
+        const cap = parseMarketCap(capStr);
+        if (cap >= 300) {
+          allStocks.push({ code: s.itemCode, name: s.stockName, market, cap, price: parseNum(s.closePrice || s.closePriceRaw) });
         }
       }
       page++;
       if (stocks.length < 100) break;
     }
   }
+  console.log(`  전체 종목: ${allStocks.length}개 (시총 300억+)`);
 
-  console.log(`  ✓ ${all.length}개 바이오 종목 수집 (시총 300억+)`);
+  // Step 2: 이름 기반 1차 필터 + industryCode 기반 2차 필터
+  // 이름에 바이오 키워드가 포함된 종목은 바로 통과
+  const nameFiltered: typeof allStocks = [];
+  const needIndustryCheck: typeof allStocks = [];
+
+  for (const s of allStocks) {
+    if (BIO_SECTOR_KEYWORDS.test(s.name)) {
+      nameFiltered.push(s);
+    } else {
+      needIndustryCheck.push(s);
+    }
+  }
+  console.log(`  이름 기반 1차 필터: ${nameFiltered.length}개`);
+
+  // industryCode로 바이오 업종 확인 (배치 병렬)
+  console.log(`  업종 코드 확인 중... (${needIndustryCheck.length}개)`);
+  const industryFiltered: typeof allStocks = [];
+  const INDUSTRY_BATCH = 10;
+
+  for (let i = 0; i < needIndustryCheck.length; i += INDUSTRY_BATCH) {
+    const batch = needIndustryCheck.slice(i, i + INDUSTRY_BATCH);
+    const results = await Promise.all(batch.map(async (s) => {
+      try {
+        const res = await fetch(`${NAVER_API}/${s.code}/integration`, { headers: HEADERS });
+        if (!res.ok) return null;
+        const json = await res.json();
+        if (BIO_INDUSTRY_CODES.has(json.industryCode)) return s;
+      } catch { /* ignore */ }
+      return null;
+    }));
+    industryFiltered.push(...results.filter((r): r is NonNullable<typeof r> => r !== null));
+    if (i + INDUSTRY_BATCH < needIndustryCheck.length) await sleep(300);
+  }
+  console.log(`  업종 코드 2차 필터: ${industryFiltered.length}개`);
+
+  // 합치기 + 중복 제거
+  const codeSet = new Set<string>();
+  const all: BioStock[] = [];
+  for (const s of [...nameFiltered, ...industryFiltered]) {
+    if (codeSet.has(s.code)) continue;
+    codeSet.add(s.code);
+    all.push({ code: s.code, name: s.name, market: s.market, marketCap: s.cap, price: s.price, sector: "" });
+  }
+
+  console.log(`  ✓ ${all.length}개 바이오 종목 수집 완료`);
   return all;
 }
 
@@ -230,28 +280,10 @@ async function fetchPapers(nameEn: string, code: string): Promise<PaperData> {
     console.warn(`  ⚠ PubMed 실패 (${nameEn}):`, (e as Error).message);
   }
 
-  await sleep(200);
-
-  // Semantic Scholar 검색 (인용수 + 고영향 저널)
-  try {
-    const query = encodeURIComponent(nameEn);
-    const url = `https://api.semanticscholar.org/graph/v1/paper/search?query=${query}&fields=citationCount,venue,year&limit=100`;
-    const res = await fetchWithRetry(url);
-    if (res.ok) {
-      const json = await res.json();
-      const papers = json.data || [];
-      for (const p of papers) {
-        total_citations += p.citationCount || 0;
-        // 고영향 저널 간이 판별 (대표적 바이오 고영향 저널명)
-        const venue = (p.venue || "").toLowerCase();
-        if (HIGH_IF_JOURNALS.some(j => venue.includes(j))) {
-          high_if_papers++;
-        }
-      }
-    }
-  } catch (e) {
-    console.warn(`  ⚠ Semantic Scholar 실패 (${nameEn}):`, (e as Error).message);
-  }
+  // Semantic Scholar는 Rate Limit이 매우 엄격하여 일시 비활성화
+  // TODO: API 키 발급 후 재활성화 (https://www.semanticscholar.org/product/api#api-key)
+  // await sleep(3000);
+  // try { ... } catch { ... }
 
   const result = { pubmed_count, high_if_papers, total_citations };
   setCache(code, "papers", result);
@@ -601,22 +633,23 @@ async function main() {
   }
 
   const scored: ScoredBio[] = [];
-  const BATCH_SIZE = 5; // 5개 종목 동시 처리
+  const BATCH_SIZE = 5; // 5개 종목 동시 처리 (S2는 순차이므로 안전)
 
   async function processStock(stock: BioStock, idx: number): Promise<ScoredBio> {
     const corpCode = corpMap.get(stock.code) || "";
     const nameEn = getEnglishName(stock.code, stock.name);
     const override = overrides[stock.code] || {};
 
-    // 종목당 6개 API를 동시에 호출 (Promise.all)
-    const [patents, papers, clinical, deals, mgmt, runway] = await Promise.all([
+    // 5개 API 동시 호출 (PubMed+S2 제외 — S2는 Rate Limit이 엄격하여 별도 수집)
+    const [patents, clinical, deals, mgmt, runway] = await Promise.all([
       fetchPatents(stock.name, stock.code),
-      fetchPapers(nameEn, stock.code),
       fetchClinicalTrials(nameEn, stock.code),
       fetchDartDeals(corpCode, stock.code),
       fetchManagement(corpCode, stock.code),
       fetchCashRunway(stock.code),
     ]);
+    // papers는 Phase 2.5에서 순차 수집 (여기선 빈 값)
+    const papers: PaperData = { pubmed_count: 0, high_if_papers: 0, total_citations: 0 };
 
     // 통계 업데이트
     patents.domestic > 0 ? stats.kipris.ok++ : stats.kipris.fail++;
@@ -677,8 +710,23 @@ async function main() {
       batch.map((stock, bi) => processStock(stock, i + bi + 1))
     );
     scored.push(...results);
-    // 배치 간 대기 (Rate Limit 보호)
     if (i + BATCH_SIZE < bioStocks.length) await sleep(500);
+  }
+
+  // Phase 2.5: PubMed + Semantic Scholar 순차 수집 (S2 Rate Limit 보호)
+  console.log("\n📄 Phase 2.5: 논문 데이터 순차 수집 (PubMed + Semantic Scholar)");
+  for (let i = 0; i < scored.length; i++) {
+    const s = scored[i];
+    const nameEn = getEnglishName(s.code, s.name);
+    const papers = await fetchPapers(nameEn, s.code);
+    s.pubmed_count = papers.pubmed_count;
+    s.high_if_papers = papers.high_if_papers;
+    s.total_citations = papers.total_citations;
+    papers.pubmed_count > 0 ? stats.papers.ok++ : stats.papers.fail++;
+    // 점수 재계산
+    s.scored = scoreBio(s);
+    if ((i + 1) % 20 === 0) console.log(`  ${i + 1}/${scored.length} 완료`);
+    await sleep(1500); // S2 Rate Limit: 5분당 100건 → 3초 간격
   }
 
   // 캐시 저장
