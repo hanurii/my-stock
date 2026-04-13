@@ -104,6 +104,9 @@ export function BioTabs({ trackA, trackB }: BioTabsProps) {
 
   return (
     <div>
+      {/* 채점 기준 레퍼런스 */}
+      <ScoringReference />
+
       {/* 수동 입력 가이드 */}
       <Details summary="수동 입력 가이드 (bio-manual-overrides.json)">
         <div className="space-y-3 mt-2 text-sm text-on-surface-variant">
@@ -234,21 +237,9 @@ function TrackAView({ candidates }: { candidates: TrackACandidate[] }) {
               })}
             </div>
 
-            {/* 세부 채점 (접을 수 있음) */}
+            {/* 세부 채점 (카테고리별 그룹) */}
             <Details summary="세부 채점">
-              <div className="space-y-1 mt-2">
-                {stock.details.map((d) => (
-                  <div key={d.item} className="flex items-center justify-between text-sm py-1">
-                    <span className="text-on-surface-variant">{d.item}</span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-on-surface-variant/60">{d.basis}</span>
-                      <span className="font-mono text-on-surface" style={{ color: d.score < 0 ? "#ffb4ab" : undefined }}>
-                        {d.max > 0 ? `${d.score}/${d.max}` : d.score > 0 ? `+${d.score}` : `${d.score}`}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <GroupedDetails details={stock.details} />
             </Details>
           </div>
         );
@@ -411,5 +402,183 @@ function Details({ summary, children }: { summary: string; children: React.React
       </summary>
       {children}
     </details>
+  );
+}
+
+// ── 채점 기준 레퍼런스 ──
+
+const SCORING_CRITERIA = [
+  {
+    cat: "기술 검증", max: 25, color: "#6ea8fe",
+    items: [
+      { name: "PubMed 논문 수", max: 5, logic: "≥20편 → 5 / ≥10편 → 3 / ≥3편 → 1" },
+      { name: "고영향 저널 (IF≥10)", max: 5, logic: "≥3편 → 5 / ≥1편 → 3" },
+      { name: "논문 피인용 수", max: 5, logic: "≥500회 → 5 / ≥100회 → 3 / ≥20회 → 1" },
+      { name: "주요 학회 발표", max: 10, logic: "ASCO/ASH/AACR/ESMO 구두 초청 → 10 (포스터·기타 = 0)" },
+    ],
+  },
+  {
+    cat: "임상/사업", max: 52, color: "#95d3ba",
+    items: [
+      { name: "최고 임상 단계", max: 15, logic: "허가 → 15 / 3상 → 12 / 2상 → 8 / 1상 → 4 / 전임상 → 1" },
+      { name: "파이프라인 수", max: 5, logic: "≥5개 → 5 / ≥3개 → 3 / ≥1개 → 1" },
+      { name: "임상 결과 투명성", max: 5, logic: "결과 공개 ≥50% → 5 / ≥25% → 3 / >0% → 1" },
+      { name: "빅파마 L/O 계약", max: 10, logic: "Top 20 → 10 / 기타 글로벌 → 6 / 국내 → 3" },
+      { name: "계약 파기 이력", max: 5, logic: "없음 → 5 / 재계약 → 2 / 파기 → 0" },
+      { name: "계약 반환의무", max: 4, logic: "없음 → 4 / 불명 → 2 / 있음 → 0" },
+      { name: "마일스톤 비율", max: 4, logic: "≥70% → 4 / ≥40% → 2 / >0% → 1 (수동)" },
+      { name: "공시 성실성", max: 4, logic: "정직 → 4 / 불명 → 2 / 과대포장 → 0 (수동)" },
+    ],
+  },
+  {
+    cat: "경영/재무", max: 23, color: "#e9c176",
+    items: [
+      { name: "CEO/CTO 기술 전문성", max: 6, logic: "박사/연구원 CEO → 6 / 기술자 CTO → 4 / 경영전문가 → 2" },
+      { name: "최근 3년 희석률", max: 5, logic: "0% → 5 / <10% → 4 / <20% → 2 / <30% → 1" },
+      { name: "엑싯 시그널", max: 4, logic: "매도 없음 → 4 / 소량 → 2 / 대량 → 0" },
+      { name: "현금 런웨이", max: 5, logic: "≥3년 → 5 / ≥2년 → 4 / ≥1년 → 2 / <1년 → 0" },
+      { name: "투자 자금 질", max: 3, logic: "장기 바이오 → 3 / 혼합 → 2 / 단기 투기 → 0 (반자동)" },
+    ],
+  },
+] as const;
+
+const PENALTY_BONUS = [
+  { name: "계약파기 + L/O 없음", score: -5, desc: "기술 신뢰도 훼손" },
+  { name: "고희석(≥30%) + 런웨이 <1년", score: -5, desc: "재무 위험" },
+  { name: "임상 중단/철회 + 완료 0건", score: -3, desc: "자동 감지" },
+  { name: "임상 과대포장", score: -3, desc: "수동 플래그" },
+  { name: "3상+ & Top20 빅파마", score: 5, desc: "기술 이중 검증" },
+] as const;
+
+function ScoringReference() {
+  return (
+    <Details summary="채점 기준 (100점 만점)">
+      <div className="mt-3 space-y-4">
+        {SCORING_CRITERIA.map((cat) => (
+          <div key={cat.cat}>
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: cat.color }} />
+              <span className="text-sm font-medium text-on-surface">{cat.cat}</span>
+              <span className="text-xs text-on-surface-variant">({cat.max}점)</span>
+            </div>
+            <div className="ml-4 space-y-1.5">
+              {cat.items.map((item) => (
+                <div key={item.name} className="flex items-baseline gap-2 text-xs">
+                  <span className="text-on-surface min-w-[130px] sm:min-w-[160px] shrink-0">{item.name}</span>
+                  <span className="font-mono text-on-surface-variant/60 shrink-0">{item.max}점</span>
+                  <span className="text-on-surface-variant/50">{item.logic}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+
+        {/* 감점/보너스 */}
+        <div>
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-2 h-2 rounded-full bg-on-surface-variant/40" />
+            <span className="text-sm font-medium text-on-surface">감점 / 보너스</span>
+          </div>
+          <div className="ml-4 space-y-1.5">
+            {PENALTY_BONUS.map((rule) => (
+              <div key={rule.name} className="flex items-baseline gap-2 text-xs">
+                <span className="text-on-surface min-w-[130px] sm:min-w-[160px] shrink-0">{rule.name}</span>
+                <span className="font-mono shrink-0" style={{ color: rule.score < 0 ? "#ffb4ab" : "#95d3ba" }}>
+                  {rule.score > 0 ? `+${rule.score}` : rule.score}
+                </span>
+                <span className="text-on-surface-variant/50">{rule.desc}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 등급 */}
+        <div className="flex gap-4 pt-2 border-t border-on-surface-variant/10 text-xs text-on-surface-variant/60">
+          <span><span className="font-bold" style={{ color: "#95d3ba" }}>A</span> 80+</span>
+          <span><span className="font-bold" style={{ color: "#6ea8fe" }}>B</span> 70-79</span>
+          <span><span className="font-bold" style={{ color: "#e9c176" }}>C</span> 50-69</span>
+          <span><span className="font-bold" style={{ color: "#ffb4ab" }}>D</span> &lt;50</span>
+        </div>
+      </div>
+    </Details>
+  );
+}
+
+// ── 카테고리별 세부 채점 ──
+
+const CAT_META: Record<number, { label: string; color: string; max: number }> = {
+  1: { label: "기술 검증", color: "#6ea8fe", max: 25 },
+  2: { label: "임상/사업", color: "#95d3ba", max: 52 },
+  3: { label: "경영/재무", color: "#e9c176", max: 23 },
+};
+
+function GroupedDetails({ details }: { details: ScoreDetail[] }) {
+  const cats = [1, 2, 3] as const;
+  const bonusPenalty = details.filter((d) => d.cat === 0);
+
+  return (
+    <div className="space-y-3 mt-2">
+      {cats.map((catNum) => {
+        const items = details.filter((d) => d.cat === catNum);
+        if (items.length === 0) return null;
+        const meta = CAT_META[catNum];
+        const catTotal = items.reduce((sum, d) => sum + d.score, 0);
+        const pct = meta.max > 0 ? (catTotal / meta.max) * 100 : 0;
+
+        return (
+          <div key={catNum}>
+            {/* 카테고리 헤더 */}
+            <div className="flex items-center gap-2 mb-1.5">
+              <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: meta.color }} />
+              <span className="text-xs font-medium text-on-surface">{meta.label}</span>
+              <span className="text-xs font-mono" style={{ color: pct >= 70 ? "#95d3ba" : pct >= 50 ? "#e9c176" : "#ffb4ab" }}>
+                {catTotal}/{meta.max}
+              </span>
+              <div className="flex-1 h-1 bg-surface-container-highest rounded-full overflow-hidden ml-1">
+                <div className="h-full rounded-full" style={{
+                  width: `${pct}%`,
+                  backgroundColor: pct >= 70 ? "#95d3ba" : pct >= 50 ? "#e9c176" : "#ffb4ab",
+                }} />
+              </div>
+            </div>
+            {/* 항목들 */}
+            <div className="ml-3.5 space-y-0.5">
+              {items.map((d) => (
+                <div key={d.item} className="flex items-center justify-between text-xs py-0.5">
+                  <span className="text-on-surface-variant">{d.item}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-on-surface-variant/50">{d.basis}</span>
+                    <span className="font-mono text-on-surface w-10 text-right">{d.score}/{d.max}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+
+      {/* 감점/보너스 */}
+      {bonusPenalty.length > 0 && (
+        <div>
+          <div className="flex items-center gap-2 mb-1.5">
+            <div className="w-1.5 h-1.5 rounded-full bg-on-surface-variant/40" />
+            <span className="text-xs font-medium text-on-surface">감점 / 보너스</span>
+          </div>
+          <div className="ml-3.5 space-y-0.5">
+            {bonusPenalty.map((d) => (
+              <div key={d.item} className="flex items-center justify-between text-xs py-0.5">
+                <span className="text-on-surface-variant">{d.item}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-on-surface-variant/50">{d.basis}</span>
+                  <span className="font-mono w-10 text-right" style={{ color: d.score < 0 ? "#ffb4ab" : "#95d3ba" }}>
+                    {d.score > 0 ? `+${d.score}` : d.score}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
