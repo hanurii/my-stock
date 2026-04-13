@@ -41,10 +41,16 @@ const FORCE = process.argv.includes("--force");
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24시간
 
 const TOP20_PHARMA = [
+  // 영문명
   "pfizer", "roche", "genentech", "novartis", "merck", "msd", "j&j", "janssen", "johnson",
   "abbvie", "sanofi", "astrazeneca", "gsk", "glaxo", "bristol-myers", "bms",
   "eli lilly", "lilly", "amgen", "gilead", "bayer", "takeda", "novo nordisk",
   "boehringer", "biogen", "regeneron", "moderna", "vertex",
+  // 한글명 (DART 공시 제목에서 매칭)
+  "화이자", "로슈", "제넨텍", "노바티스", "머크", "얀센", "존슨앤존슨", "존슨앤드존슨",
+  "애브비", "사노피", "아스트라제네카", "글락소", "브리스톨", "일라이릴리", "릴리",
+  "암젠", "길리어드", "바이엘", "다케다", "노보노디스크", "베링거", "바이오젠",
+  "리제네론", "모더나", "버텍스",
 ];
 
 const BIO_SECTOR_KEYWORDS = /바이오|제약|의약|생명과학|셀|젠|팜|메디|진단|항체|세포치료|헬스케어/;
@@ -225,6 +231,56 @@ async function collectBioStocks(): Promise<BioStock[]> {
 
   console.log(`  ✓ ${all.length}개 바이오 종목 수집 완료`);
   return all;
+}
+
+// ── Phase 2g: 학회 발표 뉴스 크롤링 ──
+
+const CONFERENCE_ORAL_KEYWORDS = /oral presentation|구두 발표|구두발표|late.?breaking|keynote|초청 연사|초청연사|plenary/i;
+const CONFERENCE_POSTER_KEYWORDS = /poster presentation|포스터 발표|포스터발표|e-poster/i;
+const TOP4_CONFERENCES = /ASCO|ASH|AACR|ESMO/i;
+
+async function fetchConferenceLevel(name: string, code: string): Promise<ConferenceLevel | null> {
+  const cached = getCached<ConferenceLevel | null>(code, "conference");
+  if (cached !== null && cached !== undefined) return cached;
+
+  let result = null as ConferenceLevel | null;
+
+  try {
+    // 네이버 뉴스 검색: "{종목명} ASCO OR ASH OR AACR OR ESMO 발표"
+    const query = encodeURIComponent(`${name} ASCO ASH AACR ESMO 발표`);
+    const url = `https://openapi.naver.com/v1/search/news.json?query=${query}&display=20&sort=date`;
+    const res = await fetchWithRetry(url, {
+      headers: {
+        "X-Naver-Client-Id": "KbJFMYqVbbMjVnMRPGt4",
+        "X-Naver-Client-Secret": "e4hnA3_kMz",
+      },
+    });
+
+    if (res.ok) {
+      const json = await res.json();
+      const items = json.items || [];
+
+      for (const item of items) {
+        const text = `${item.title} ${item.description}`.replace(/<[^>]+>/g, "");
+
+        if (TOP4_CONFERENCES.test(text)) {
+          if (CONFERENCE_ORAL_KEYWORDS.test(text)) {
+            result = "oral_top4" as ConferenceLevel;
+            break;
+          } else if (CONFERENCE_POSTER_KEYWORDS.test(text) && result !== "oral_top4") {
+            result = "poster_top4" as ConferenceLevel;
+          } else if (!result) {
+            result = "other_intl" as ConferenceLevel;
+          }
+        }
+      }
+    }
+  } catch (e) {
+    console.warn(`  ⚠ 학회 뉴스 검색 실패 (${name}):`, (e as Error).message);
+  }
+
+  setCache(code, "conference", result);
+  return result;
 }
 
 // ── Phase 2a: KIPRIS 특허 검색 ──
@@ -640,13 +696,14 @@ async function main() {
     const nameEn = getEnglishName(stock.code, stock.name);
     const override = overrides[stock.code] || {};
 
-    // 5개 API 동시 호출 (PubMed+S2 제외 — S2는 Rate Limit이 엄격하여 별도 수집)
-    const [patents, clinical, deals, mgmt, runway] = await Promise.all([
+    // 6개 API 동시 호출 (PubMed+S2 제외 — S2는 Rate Limit이 엄격하여 별도 수집)
+    const [patents, clinical, deals, mgmt, runway, conferenceFromNews] = await Promise.all([
       fetchPatents(stock.name, stock.code),
       fetchClinicalTrials(nameEn, stock.code),
       fetchDartDeals(corpCode, stock.code),
       fetchManagement(corpCode, stock.code),
       fetchCashRunway(stock.code),
+      fetchConferenceLevel(stock.name, stock.code),
     ]);
     // papers는 Phase 2.5에서 순차 수집 (여기선 빈 값)
     const papers: PaperData = { pubmed_count: 0, high_if_papers: 0, total_citations: 0 };
@@ -658,8 +715,8 @@ async function main() {
     deals.license_out_tier !== "none" ? stats.dart.ok++ : stats.dart.fail++;
     runway != null ? stats.naver.ok++ : stats.naver.fail++;
 
-    // 수동 보정 머지
-    const conferenceLevel: ConferenceLevel | null = override.conference_level ?? null;
+    // 수동 보정 머지 (수동 > 뉴스 크롤링 > null)
+    const conferenceLevel: ConferenceLevel | null = override.conference_level ?? conferenceFromNews ?? null;
     const contractStructure: ContractStructure | null = override.contract_structure ?? null;
     const ceoBg: CeoBackground = override.ceo_background ?? mgmt.ceo_background;
 
