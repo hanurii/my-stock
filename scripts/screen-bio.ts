@@ -38,7 +38,8 @@ const OVERRIDES_FILE = path.join(DATA_DIR, "bio-manual-overrides.json");
 const ALIASES_FILE = path.join(DATA_DIR, "bio-company-aliases.json");
 
 const FORCE = process.argv.includes("--force");
-const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24시간
+const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24시간 (기본)
+const KIPRIS_CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7일 (KIPRIS 월 1000건 제한)
 
 const TOP20_PHARMA = [
   // 영문명
@@ -116,7 +117,8 @@ function getCached<T>(code: string, source: string): T | null {
   if (FORCE) return null;
   const entry = cache[code]?.[source];
   if (!entry) return null;
-  if (Date.now() - entry.fetched_at > CACHE_TTL_MS) return null;
+  const ttl = source === "kipris" ? KIPRIS_CACHE_TTL_MS : CACHE_TTL_MS;
+  if (Date.now() - entry.fetched_at > ttl) return null;
   return entry.data as T;
 }
 
@@ -293,17 +295,17 @@ async function fetchPatents(name: string, code: string): Promise<PatentData> {
 
   let domestic = 0, pct = 0;
   try {
-    const url = `http://plus.kipris.or.kr/openapi/rest/patUtiModInfoSearchSevice/applicantNameSearchInfo?applicant=${encodeURIComponent(name)}&patent=true&utility=false&numOfRows=100&ServiceKey=${KIPRIS_API_KEY}`;
+    // KIPRIS 데이터 서비스 API — 특허·실용 공개·등록공보 (numOfRows=1로 건수만 조회)
+    const url = `http://plus.kipris.or.kr/kipo-api/kipi/patUtiModInfoSearchSevice/getAdvancedSearch?ServiceKey=${encodeURIComponent(KIPRIS_API_KEY)}&applicant=${encodeURIComponent(name)}&numOfRows=1&pageNo=1`;
     const res = await fetchWithRetry(url);
     if (res.ok) {
       const text = await res.text();
-      // 총 건수 파싱
-      const totalMatch = text.match(/<TotalCount>(\d+)<\/TotalCount>/);
-      domestic = totalMatch ? parseInt(totalMatch[1]) : 0;
-      // PCT 건수: internationalApplicationNumber 필드가 있는 건
-      const pctMatches = text.match(/<internationalApplicationNumber>[^<]+<\/internationalApplicationNumber>/g);
-      pct = pctMatches ? pctMatches.length : 0;
+      if (text.includes("<resultCode>00</resultCode>")) {
+        const totalMatch = text.match(/<totalCount>(\d+)<\/totalCount>/);
+        domestic = totalMatch ? parseInt(totalMatch[1]) : 0;
+      }
     }
+    // PCT 건수는 특허 패밀리 API로 추후 확인 (현재는 0)
   } catch (e) {
     console.warn(`  ⚠ KIPRIS 실패 (${name}):`, (e as Error).message);
   }
