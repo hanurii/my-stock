@@ -15,7 +15,7 @@ import path from "path";
 import { scoreBio, getGrade, type BioStockInput, type ScoredResult, type ScoreDetail } from "../src/lib/scoring";
 import type {
   ConferenceLevel, HighestPhase, LicenseOutTier, TerminationHistory,
-  ContractStructure, CeoBackground, ExitSignal,
+  ContractStructure, CeoBackground, ExitSignal, DisclosureHonesty, FundQuality,
 } from "../src/lib/scoring";
 import { loadCorpCodeMap } from "./fetch-shareholder-returns";
 
@@ -144,6 +144,10 @@ interface ManualOverride {
   conference_level?: ConferenceLevel;
   contract_structure?: ContractStructure;
   ceo_background?: CeoBackground;
+  milestone_ratio?: number;
+  disclosure_honesty?: DisclosureHonesty;
+  fund_quality?: FundQuality;
+  clinical_hype?: boolean;
   notes?: string;
 }
 
@@ -374,6 +378,8 @@ interface ClinicalData {
   pipeline_count: number;
   results_transparency: number;
   pipelines: PipelineInfo[];
+  withdrawn_terminated_count: number;
+  successful_completion_count: number;
 }
 
 interface PipelineInfo {
@@ -402,7 +408,7 @@ async function fetchClinicalTrials(nameEn: string, code: string): Promise<Clinic
   const cached = getCached<ClinicalData>(code, "clinical");
   if (cached) return cached;
 
-  const result: ClinicalData = { highest_phase: "none", pipeline_count: 0, results_transparency: 0, pipelines: [] };
+  const result: ClinicalData = { highest_phase: "none", pipeline_count: 0, results_transparency: 0, pipelines: [], withdrawn_terminated_count: 0, successful_completion_count: 0 };
 
   try {
     const query = encodeURIComponent(nameEn);
@@ -440,6 +446,12 @@ async function fetchClinicalTrials(nameEn: string, code: string): Promise<Clinic
       result.pipeline_count = studies.length;
       result.highest_phase = studies.length > 0 ? toHighestPhase(allPhases) : "none";
       result.results_transparency = studies.length > 0 ? Math.round((hasResultsCount / studies.length) * 100) : 0;
+      result.withdrawn_terminated_count = result.pipelines.filter(
+        p => p.status === "WITHDRAWN" || p.status === "TERMINATED"
+      ).length;
+      result.successful_completion_count = result.pipelines.filter(
+        p => p.status === "COMPLETED" && p.hasResults
+      ).length;
     }
   } catch (e) {
     console.warn(`  ⚠ ClinicalTrials.gov 실패 (${nameEn}):`, (e as Error).message);
@@ -617,6 +629,37 @@ async function fetchCashRunway(code: string): Promise<number | null> {
   }
 }
 
+// ── Phase 2g: DART 최대주주 — 펀드/VC 감지 ──
+
+const FUND_KEYWORDS = ["투자조합", "벤처", "캐피탈", "PEF", "사모", "펀드", "인베스트"];
+
+async function detectFundPresence(corpCode: string, code: string): Promise<boolean> {
+  const cached = getCached<boolean>(code, "fund_detect");
+  if (cached !== null && cached !== undefined) return cached;
+  if (!corpCode) { setCache(code, "fund_detect", false); return false; }
+
+  try {
+    const year = new Date().getFullYear() - 1;
+    const url = `${DART_API}/hyslrChgSttus.json?crtfc_key=${DART_API_KEY}&corp_code=${corpCode}&bsns_year=${year}&reprt_code=11011`;
+    const res = await fetchWithRetry(url);
+    if (res.ok) {
+      const json = await res.json();
+      if (json.status === "000" && json.list) {
+        const hasFund = json.list.some((sh: { nm?: string }) =>
+          FUND_KEYWORDS.some(kw => (sh.nm || "").includes(kw))
+        );
+        setCache(code, "fund_detect", hasFund);
+        return hasFund;
+      }
+    }
+  } catch (e) {
+    console.warn(`  ⚠ DART 주주 실패 (${corpCode}):`, (e as Error).message);
+  }
+
+  setCache(code, "fund_detect", false);
+  return false;
+}
+
 // ── Phase 6: B 트랙 기술 상세 조사 ──
 
 interface TechDetail {
@@ -768,14 +811,15 @@ async function main() {
     const nameEn = getEnglishName(stock.code, stock.name);
     const override = overrides[stock.code] || {};
 
-    // 6개 API 동시 호출 (PubMed+S2 제외 — S2는 Rate Limit이 엄격하여 별도 수집)
-    const [patents, clinical, deals, mgmt, runway, conferenceFromNews] = await Promise.all([
+    // 7개 API 동시 호출 (PubMed+S2 제외 — S2는 Rate Limit이 엄격하여 별도 수집)
+    const [patents, clinical, deals, mgmt, runway, conferenceFromNews, hasFund] = await Promise.all([
       fetchPatents(stock.name, stock.code),
       fetchClinicalTrials(nameEn, stock.code),
       fetchDartDeals(corpCode, stock.code),
       fetchManagement(corpCode, stock.code),
       fetchCashRunway(stock.code),
       fetchConferenceLevel(stock.name, stock.code),
+      detectFundPresence(corpCode, stock.code),
     ]);
     // papers는 Phase 2.5에서 순차 수집 (여기선 빈 값)
     const papers: PaperData = { pubmed_count: 0, high_if_papers: 0, total_citations: 0 };
@@ -818,10 +862,16 @@ async function main() {
       license_out_tier: deals.license_out_tier,
       termination_history: deals.termination_history,
       contract_structure: contractStructure,
+      milestone_ratio: override.milestone_ratio ?? null,
+      disclosure_honesty: override.disclosure_honesty ?? null,
       ceo_background: ceoBg,
       dilution_3yr_pct: mgmt.dilution_3yr_pct,
       exit_signal: mgmt.exit_signal,
       cash_runway_years: runway,
+      fund_quality: override.fund_quality ?? (hasFund ? "mixed" : "unknown"),
+      withdrawn_terminated_count: clinical.withdrawn_terminated_count,
+      successful_completion_count: clinical.successful_completion_count,
+      clinical_hype: override.clinical_hype ?? null,
       market_cap: stock.marketCap,
       current_price: stock.price,
     };

@@ -104,8 +104,40 @@ export function BioTabs({ trackA, trackB }: BioTabsProps) {
 
   return (
     <div>
+      {/* 수동 입력 가이드 */}
+      <Details summary="수동 입력 가이드 (bio-manual-overrides.json)">
+        <div className="space-y-3 mt-2 text-sm text-on-surface-variant">
+          <p className="text-xs text-on-surface-variant/60 mb-2">아래 항목은 자동 수집이 불가하여 수동 입력이 필요합니다. DART 전자공시시스템(dart.fss.or.kr)에서 확인 후 JSON 파일에 입력하세요.</p>
+          <div>
+            <p className="font-medium text-on-surface">contract_structure <span className="text-xs font-normal text-on-surface-variant">&quot;no_return&quot; | &quot;returnable&quot; | &quot;unknown&quot;</span></p>
+            <p>DART → 주요사항보고서 → 기술이전 계약 공시문 → &quot;반환&quot; / &quot;해지 시 원상회복&quot; 조항 확인</p>
+          </div>
+          <div>
+            <p className="font-medium text-on-surface">milestone_ratio <span className="text-xs font-normal text-on-surface-variant">0~100 (숫자)</span></p>
+            <p>동일 공시문에서 계약금·마일스톤·로열티 금액 확인 → 마일스톤이 총 계약금에서 차지하는 비중(%)을 계산하여 입력</p>
+          </div>
+          <div>
+            <p className="font-medium text-on-surface">disclosure_honesty <span className="text-xs font-normal text-on-surface-variant">&quot;honest&quot; | &quot;hype&quot; | &quot;unknown&quot;</span></p>
+            <p>회사 IR/공시 제목과 실제 내용 비교. &quot;글로벌 최초&quot;, &quot;획기적&quot; 등 수식어만 있고 구체적 데이터 없으면 hype</p>
+          </div>
+          <div>
+            <p className="font-medium text-on-surface">fund_quality <span className="text-xs font-normal text-on-surface-variant">&quot;longterm_bio&quot; | &quot;mixed&quot; | &quot;shortterm_speculative&quot; | &quot;unknown&quot;</span></p>
+            <p>DART → 대량보유상황보고 → 주요 주주가 바이오 전문 장기펀드인지, 단기 차익 목적 VC인지 판단. 펀드 존재 여부는 자동 감지되며, 미입력 시 펀드 있으면 mixed, 없으면 unknown</p>
+          </div>
+          <div>
+            <p className="font-medium text-on-surface">clinical_hype <span className="text-xs font-normal text-on-surface-variant">true | false</span></p>
+            <p>중간분석 결과를 최종처럼 발표, 부분 데이터만 선택 공개, &quot;임상 신청&quot;을 &quot;임상 승인&quot;처럼 포장하는 경우 true</p>
+          </div>
+          <div className="bg-surface-container/30 rounded-lg p-3 mt-2">
+            <p className="text-xs text-on-surface-variant/80 font-mono">
+              {`예시: { "068270": { "contract_structure": "no_return", "milestone_ratio": 70, "disclosure_honesty": "honest", "fund_quality": "longterm_bio", "clinical_hype": false } }`}
+            </p>
+          </div>
+        </div>
+      </Details>
+
       {/* 탭 헤더 */}
-      <div className="flex gap-1 mb-6 bg-surface-container-low rounded-lg p-1">
+      <div className="flex gap-1 mb-6 bg-surface-container-low rounded-lg p-1 mt-4">
         <button
           onClick={() => setTab("a")}
           className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
@@ -182,9 +214,9 @@ function TrackAView({ candidates }: { candidates: TrackACandidate[] }) {
             {/* 카테고리 점수 바 */}
             <div className="grid grid-cols-3 gap-2 mb-3">
               {[
-                { label: "기술 검증", score: stock.cat1, max: 35 },
-                { label: "임상/사업", score: stock.cat2, max: 45 },
-                { label: "경영/재무", score: stock.cat3, max: 20 },
+                { label: "기술 검증", score: stock.cat1, max: 25 },
+                { label: "임상/사업", score: stock.cat2, max: 52 },
+                { label: "경영/재무", score: stock.cat3, max: 23 },
               ].map(({ label, score, max }) => {
                 const pct = max > 0 ? (score / max) * 100 : 0;
                 return (

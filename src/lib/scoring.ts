@@ -1156,30 +1156,39 @@ export type TerminationHistory = "none" | "re_contracted" | "terminated";
 export type ContractStructure = "no_return" | "unknown" | "returnable";
 export type CeoBackground = "scientist" | "cto_scientist" | "professional" | "unknown";
 export type ExitSignal = "none" | "minor" | "major";
+export type DisclosureHonesty = "honest" | "hype" | "unknown";
+export type FundQuality = "longterm_bio" | "mixed" | "shortterm_speculative" | "unknown";
 
 export interface BioStockInput {
   code: string;
   name: string;
   market: string;
-  // Cat1: 기술 검증
-  patent_domestic: number;
-  patent_pct: number;
+  // Cat1: 기술 검증 (25점)
+  patent_domestic: number;  // 참고용 — 채점 미반영
+  patent_pct: number;       // 참고용 — 채점 미반영
   pubmed_count: number;
   high_if_papers: number;
   total_citations: number;
   conference_level: ConferenceLevel | null;
-  // Cat2: 임상/사업
+  // Cat2: 임상/사업 (52점)
   highest_phase: HighestPhase;
   pipeline_count: number;
   results_transparency: number;
   license_out_tier: LicenseOutTier;
   termination_history: TerminationHistory;
   contract_structure: ContractStructure | null;
-  // Cat3: 경영/재무
+  milestone_ratio: number | null;         // 마일스톤 비중 0-100% (수동)
+  disclosure_honesty: DisclosureHonesty | null;  // 공시 성실성 (수동)
+  // Cat3: 경영/재무 (23점)
   ceo_background: CeoBackground;
   dilution_3yr_pct: number;
   exit_signal: ExitSignal;
   cash_runway_years: number | null;
+  fund_quality: FundQuality | null;       // 투자 자금 질 (반자동)
+  // 임상 과대포장 감지
+  withdrawn_terminated_count: number;     // 중단/철회 임상 수 (자동)
+  successful_completion_count: number;    // 완료+결과공개 임상 수 (자동)
+  clinical_hype: boolean | null;          // 임상 과대포장 플래그 (수동)
   // 메타
   market_cap: number;
   current_price: number;
@@ -1189,23 +1198,8 @@ export function scoreBio(input: BioStockInput): ScoredResult {
   const details: ScoreDetail[] = [];
   let cat1 = 0, cat2 = 0, cat3 = 0;
 
-  // ── Cat1: 기술 검증 (35점) ──
-
-  // 국내 특허 건수 (5점)
-  {
-    const n = input.patent_domestic;
-    const s = n >= 10 ? 5 : n >= 5 ? 3 : n >= 1 ? 1 : 0;
-    cat1 += s;
-    details.push({ item: "국내 특허 건수", basis: `${n}건`, score: s, max: 5, cat: 1 });
-  }
-
-  // PCT/해외 특허 (5점)
-  {
-    const n = input.patent_pct;
-    const s = n >= 5 ? 5 : n >= 3 ? 3 : n >= 1 ? 1 : 0;
-    cat1 += s;
-    details.push({ item: "PCT/해외 특허", basis: `${n}건`, score: s, max: 5, cat: 1 });
-  }
+  // ── Cat1: 기술 검증 (25점) ──
+  // 특허 건수는 채점에서 제외 — 양이 아닌 질(빅파마 인정)로 간접 평가
 
   // PubMed 논문 수 (5점)
   {
@@ -1231,21 +1225,21 @@ export function scoreBio(input: BioStockInput): ScoredResult {
     details.push({ item: "논문 피인용 수", basis: `총 ${n.toLocaleString()}회`, score: s, max: 5, cat: 1 });
   }
 
-  // 주요 학회 발표 (10점)
+  // 주요 학회 발표 (10점) — 구두 초청 발표만 인정
   {
     const lvl = input.conference_level;
-    const s = lvl === "oral_top4" ? 10 : lvl === "poster_top4" ? 6 : lvl === "other_intl" ? 3 : 0;
+    const s = lvl === "oral_top4" ? 10 : 0;
     const labels: Record<string, string> = {
       oral_top4: "ASCO/ASH/AACR/ESMO 구두 발표",
-      poster_top4: "ASCO/ASH/AACR/ESMO 포스터 발표",
-      other_intl: "기타 국제 학회",
+      poster_top4: "포스터 발표 (미인정)",
+      other_intl: "기타 학회 (미인정)",
       none: "발표 이력 없음",
     };
     cat1 += s;
     details.push({ item: "주요 학회 발표", basis: lvl ? labels[lvl] : "미확인", score: s, max: 10, cat: 1 });
   }
 
-  // ── Cat2: 임상/사업 진행 (45점) ──
+  // ── Cat2: 임상/사업 진행 (52점) ──
 
   // 최고 임상 단계 (15점)
   {
@@ -1299,18 +1293,37 @@ export function scoreBio(input: BioStockInput): ScoredResult {
     details.push({ item: "계약 파기 이력", basis: histLabels[input.termination_history], score: s, max: 5, cat: 2 });
   }
 
-  // 계약 구조 건전성 (5점)
+  // 계약 반환의무 (4점)
   {
     const cs = input.contract_structure;
-    const s = cs === "no_return" ? 5 : cs === "unknown" ? 2 : cs === "returnable" ? 0 : 2;
+    const s = cs === "no_return" ? 4 : cs === "unknown" ? 2 : cs === "returnable" ? 0 : 2;
     const labels: Record<string, string> = {
       no_return: "반환의무 없음", unknown: "불명", returnable: "반환의무 있음",
     };
     cat2 += s;
-    details.push({ item: "계약 구조 건전성", basis: cs ? labels[cs] : "미확인", score: s, max: 5, cat: 2 });
+    details.push({ item: "계약 반환의무", basis: cs ? labels[cs] : "미확인", score: s, max: 4, cat: 2 });
   }
 
-  // ── Cat3: 경영/재무 건전성 (20점) ──
+  // 마일스톤 비율 (4점)
+  {
+    const r = input.milestone_ratio;
+    const s = r == null ? 1 : r >= 70 ? 4 : r >= 40 ? 2 : r > 0 ? 1 : 0;
+    cat2 += s;
+    details.push({ item: "마일스톤 비율", basis: r != null ? `마일스톤 ${r}%` : "미확인", score: s, max: 4, cat: 2 });
+  }
+
+  // 공시 성실성 (4점)
+  {
+    const h = input.disclosure_honesty;
+    const s = h === "honest" ? 4 : h === "unknown" ? 2 : h === "hype" ? 0 : 2;
+    const labels: Record<string, string> = {
+      honest: "정직한 공시", unknown: "불명", hype: "과대포장 의심",
+    };
+    cat2 += s;
+    details.push({ item: "공시 성실성", basis: h ? labels[h] : "미확인", score: s, max: 4, cat: 2 });
+  }
+
+  // ── Cat3: 경영/재무 건전성 (23점) ──
 
   // CEO/CTO 기술자 출신 (6점)
   {
@@ -1324,12 +1337,12 @@ export function scoreBio(input: BioStockInput): ScoredResult {
     details.push({ item: "CEO/CTO 기술 전문성", basis: bgLabels[input.ceo_background], score: s, max: 6, cat: 3 });
   }
 
-  // 최근 3년 희석률 (7점)
+  // 최근 3년 희석률 (5점)
   {
     const d = input.dilution_3yr_pct;
-    const s = d === 0 ? 7 : d < 10 ? 5 : d < 20 ? 3 : d < 30 ? 1 : 0;
+    const s = d === 0 ? 5 : d < 10 ? 4 : d < 20 ? 2 : d < 30 ? 1 : 0;
     cat3 += s;
-    details.push({ item: "최근 3년 희석률", basis: `${d.toFixed(1)}%`, score: s, max: 7, cat: 3 });
+    details.push({ item: "최근 3년 희석률", basis: `${d.toFixed(1)}%`, score: s, max: 5, cat: 3 });
   }
 
   // 엑싯 시그널 (4점)
@@ -1343,12 +1356,23 @@ export function scoreBio(input: BioStockInput): ScoredResult {
     details.push({ item: "엑싯 시그널", basis: exitLabels[input.exit_signal], score: s, max: 4, cat: 3 });
   }
 
-  // 현금 런웨이 (3점)
+  // 현금 런웨이 (5점)
   {
     const y = input.cash_runway_years;
-    const s = y == null ? 1 : y >= 2 ? 3 : y >= 1 ? 2 : 0;
+    const s = y == null ? 1 : y >= 3 ? 5 : y >= 2 ? 4 : y >= 1 ? 2 : 0;
     cat3 += s;
-    details.push({ item: "현금 런웨이", basis: y != null ? `${y.toFixed(1)}년` : "미확인", score: s, max: 3, cat: 3 });
+    details.push({ item: "현금 런웨이", basis: y != null ? `${y.toFixed(1)}년` : "미확인", score: s, max: 5, cat: 3 });
+  }
+
+  // 투자 자금 질 (3점)
+  {
+    const fq = input.fund_quality;
+    const s = fq === "longterm_bio" ? 3 : fq === "mixed" ? 2 : fq === "shortterm_speculative" ? 0 : fq === "unknown" ? 1 : 1;
+    const labels: Record<string, string> = {
+      longterm_bio: "바이오 전문 장기투자", mixed: "혼합", shortterm_speculative: "단기 투기성", unknown: "불명",
+    };
+    cat3 += s;
+    details.push({ item: "투자 자금 질", basis: fq ? labels[fq] : "미확인", score: s, max: 3, cat: 3 });
   }
 
   // ── 감점/보너스 ──
@@ -1364,11 +1388,24 @@ export function scoreBio(input: BioStockInput): ScoredResult {
     details.push({ item: "감점: 고희석 + 자금 부족", basis: `희석 ${input.dilution_3yr_pct.toFixed(1)}% & 런웨이 ${input.cash_runway_years.toFixed(1)}년`, score: -5, max: 0, cat: 0 });
   }
 
-  if ((input.highest_phase === "phase3" || input.highest_phase === "approved") && (input.license_out_tier === "top20" || input.license_out_tier === "global")) {
+  // 임상 중단/철회 감점 — 중단 이력 있으면서 완료+결과공개 0건
+  if (input.withdrawn_terminated_count > 0 && input.successful_completion_count === 0) {
+    score -= 3;
+    details.push({ item: "감점: 임상 중단/철회", basis: `중단 ${input.withdrawn_terminated_count}건, 완료 0건`, score: -3, max: 0, cat: 0 });
+  }
+
+  // 임상 과대포장 감점 (수동 플래그)
+  if (input.clinical_hype === true) {
+    score -= 3;
+    details.push({ item: "감점: 임상 과대포장", basis: "수동 플래그", score: -3, max: 0, cat: 0 });
+  }
+
+  // 보너스: 3상 이상 + Top 20 빅파마 계약 (기술 이중 검증)
+  if ((input.highest_phase === "phase3" || input.highest_phase === "approved") && input.license_out_tier === "top20") {
     const bonus = Math.min(5, 100 - score);
     if (bonus > 0) {
       score += bonus;
-      details.push({ item: "보너스: 3상+ & 빅파마 계약", basis: "기술 이중 검증", score: bonus, max: 5, cat: 0 });
+      details.push({ item: "보너스: 3상+ & Top20 빅파마", basis: "기술 이중 검증", score: bonus, max: 5, cat: 0 });
     }
   }
 
