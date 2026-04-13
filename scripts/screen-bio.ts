@@ -581,14 +581,22 @@ async function fetchCashRunway(code: string): Promise<number | null> {
     if (!latest) return null;
 
     const getVal = (title: string) => parseNum(rows.find((r: { title: string }) => r.title === title)?.columns[latest.key]?.value);
-    const cash = getVal("현금및현금성자산");
-    const opExpense = Math.abs(getVal("영업이익")); // 적자면 절대값 = 연간 소진액
-    const sellAdmin = getVal("판매비와관리비");
+    const opProfit = getVal("영업이익");
+    const debtRatio = getVal("부채비율");
+    const currentRatio = getVal("당좌비율"); // 당좌비율 100% 이상 = 단기부채 상환 여유
 
-    const annualBurn = opExpense > 0 && getVal("영업이익") < 0 ? opExpense : sellAdmin;
-    if (annualBurn <= 0 || cash <= 0) return null;
+    // 간이 런웨이 추정:
+    // - 영업흑자 + 당좌비율 100%+ → 2년+
+    // - 영업흑자 + 당좌비율 낮음 → 1년+
+    // - 영업적자 + 당좌비율 100%+ → 1년+
+    // - 영업적자 + 당좌비율 낮음 → 1년 미만
+    let runway: number;
+    if (opProfit > 0) {
+      runway = currentRatio >= 100 ? 3 : 1.5;
+    } else {
+      runway = currentRatio >= 100 ? 1.5 : 0.5;
+    }
 
-    const runway = cash / annualBurn;
     setCache(code, "cash_runway", runway);
     return runway;
   } catch {
@@ -651,6 +659,55 @@ async function fetchTechDetail(pipeline: PipelineInfo): Promise<TechDetail> {
   return detail;
 }
 
+// ── DART corp_code + 영문명 매핑 ──
+
+import { inflateRawSync } from "zlib";
+
+async function loadCorpEngNameMap(): Promise<Map<string, string>> {
+  console.log("📦 DART 영문 회사명 매핑 다운로드 중...");
+  const url = `${DART_API}/corpCode.xml?crtfc_key=${DART_API_KEY}`;
+  const res = await fetch(url);
+  if (!res.ok) { console.warn("  ⚠ corpCode.xml 다운로드 실패"); return new Map(); }
+
+  const buf = Buffer.from(await res.arrayBuffer());
+  // ZIP 파싱 (EOCD → central directory → local file → inflate)
+  const eocdIdx = buf.lastIndexOf(Buffer.from([0x50, 0x4b, 0x05, 0x06]));
+  if (eocdIdx < 0) { console.warn("  ⚠ ZIP EOCD not found"); return new Map(); }
+  const cdOffset = buf.readUInt32LE(eocdIdx + 16);
+  let pos = cdOffset;
+  let xml = "";
+  while (pos < eocdIdx) {
+    const sig = buf.readUInt32LE(pos);
+    if (sig !== 0x02014b50) break;
+    const nameLen = buf.readUInt16LE(pos + 28);
+    const extraLen = buf.readUInt16LE(pos + 30);
+    const commentLen = buf.readUInt16LE(pos + 32);
+    const localOff = buf.readUInt32LE(pos + 42);
+    const compSize = buf.readUInt32LE(pos + 20);
+    const method = buf.readUInt16LE(pos + 10);
+    const lnLen = buf.readUInt16LE(localOff + 26);
+    const leLen = buf.readUInt16LE(localOff + 28);
+    const dataStart = localOff + 30 + lnLen + leLen;
+    const raw = buf.subarray(dataStart, dataStart + compSize);
+    xml = method === 8 ? inflateRawSync(raw).toString("utf-8") : raw.toString("utf-8");
+    pos += 46 + nameLen + extraLen + commentLen;
+  }
+
+  const map = new Map<string, string>(); // stockCode → engName
+  const listRegex = /<list>([\s\S]*?)<\/list>/g;
+  let match: RegExpExecArray | null;
+  while ((match = listRegex.exec(xml)) !== null) {
+    const block = match[1];
+    const stockCode = block.match(/<stock_code>([\d\s]*)<\/stock_code>/)?.[1]?.trim();
+    const engName = block.match(/<corp_eng_name>([^<]+)<\/corp_eng_name>/)?.[1]?.trim();
+    if (stockCode && stockCode.length === 6 && engName && engName.length > 1) {
+      map.set(stockCode, engName);
+    }
+  }
+  console.log(`  ✓ ${map.size}개 영문명 매핑 완료`);
+  return map;
+}
+
 // ── 메인 실행 ──
 
 async function main() {
@@ -663,14 +720,16 @@ async function main() {
   const overrides = loadOverrides();
   const aliases = loadAliases();
 
-  // DART corp_code 매핑
+  // DART corp_code 매핑 + 영문명 매핑
   const corpMap = await loadCorpCodeMap();
+  const engNameMap = await loadCorpEngNameMap();
 
-  // 영문명 매핑 (DART XML에서 추출하기 어려우므로 간이 매핑)
-  // aliases 파일에 없으면 한글 이름을 그대로 사용
+  // 영문명: aliases > DART 영문명 > 한글명 fallback
   function getEnglishName(code: string, name: string): string {
     if (aliases[code]?.names_en?.[0]) return aliases[code].names_en[0];
-    return name; // fallback
+    const dartEng = engNameMap.get(code);
+    if (dartEng) return dartEng;
+    return name;
   }
 
   // Phase 1: 바이오 종목 목록
