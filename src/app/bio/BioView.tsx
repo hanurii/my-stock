@@ -76,18 +76,9 @@ function buildSteps(pl: Pipeline): StepResult[] {
     ? `관련 특허 ${q.patent_matched_count}건`
     : "관련 특허 없음";
 
-  // 논문 존재
+  // 논문 (프로세스 바에서는 존재 여부만, 상세는 세부 검증에서)
   const paperExistSignal: Signal = q.pubmed_count > 0 ? "good" : "bad";
   const paperExistDetail = q.pubmed_count > 0 ? `논문 ${q.pubmed_count}편` : "논문 없음";
-
-  // 논문 인용수
-  const citLevel = q.total_citations >= 1000 ? "매우높음" : q.total_citations >= 300 ? "높음" : q.total_citations >= 50 ? "중간" : q.total_citations > 0 ? "낮음" : "";
-  const citSignal: Signal = q.total_citations >= 300 ? "good" : q.total_citations >= 50 ? "none" : q.total_citations > 0 ? "none" : q.pubmed_count > 0 ? "bad" : "bad";
-  const citDetail = q.total_citations > 0 ? `피인용 ${q.total_citations.toLocaleString()}회 (${citLevel})` : q.pubmed_count > 0 ? "인용 실적 없음" : "논문 없음";
-
-  // 고영향 저널
-  const ifSignal: Signal = q.high_if_papers > 0 ? "star" : q.pubmed_count > 0 ? "bad" : "bad";
-  const ifDetail = q.high_if_papers > 0 ? `IF≥10 저널 ${q.high_if_papers}편 게재` : "고영향 저널 게재 없음";
 
   // 학회
   const confSignal: Signal = q.conference_level === "oral_top4" ? "star"
@@ -133,9 +124,7 @@ function buildSteps(pl: Pipeline): StepResult[] {
 
   return [
     { label: "특허", reached: true, current: false, signal: patentSignal, detail: patentDetail },
-    { label: "논문", reached: true, current: false, signal: paperExistSignal, detail: paperExistDetail },
-    { label: "인용", reached: q.total_citations > 0, current: false, signal: citSignal, detail: citDetail },
-    { label: "저널", reached: q.high_if_papers > 0, current: false, signal: ifSignal, detail: ifDetail },
+    { label: "논문", reached: q.pubmed_count > 0, current: false, signal: paperExistSignal, detail: paperExistDetail },
     { label: "학회", reached: true, current: false, signal: confSignal, detail: confDetail },
     { label: "1상", reached: true, current: false, signal: p1Signal, detail: p1Detail },
     { label: "2상", reached: true, current: isPhase2, signal: p2Signal, detail: p2Detail },
@@ -225,6 +214,19 @@ function PipelineCard({ pipeline: pl, briefing }: { pipeline: Pipeline; briefing
           {steps.map((step) => (
             step.detail && <DetailRow key={step.label} label={step.label} signal={step.signal} detail={step.detail} />
           ))}
+
+          {/* 논문 상세 (3개 필드) */}
+          <DetailRow label="논문 존재"
+            signal={q.pubmed_count > 0 ? "good" : "bad"}
+            detail={q.pubmed_count > 0 ? `논문 ${q.pubmed_count}편` : "논문 없음"} />
+          <DetailRow label="인용수"
+            signal={q.total_citations >= 300 ? "good" : q.total_citations > 0 ? "none" : "bad"}
+            detail={q.total_citations > 0
+              ? `피인용 ${q.total_citations.toLocaleString()}회 (${q.total_citations >= 1000 ? "매우높음" : q.total_citations >= 300 ? "높음" : q.total_citations >= 50 ? "중간" : "낮음"})`
+              : "인용 실적 없음"} />
+          <DetailRow label="고영향 저널"
+            signal={q.high_if_papers > 0 ? "star" : "bad"}
+            detail={q.high_if_papers > 0 ? `IF≥10 저널 ${q.high_if_papers}편 게재` : "고영향 저널 게재 없음"} />
 
           {/* 경영진 (프로세스 바 밖의 항목) */}
           <DetailRow label="경영진"
