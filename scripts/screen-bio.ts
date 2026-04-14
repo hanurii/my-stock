@@ -1673,6 +1673,11 @@ async function main() {
     return a.disease_category.localeCompare(b.disease_category);
   });
 
+  // 전체 바이오 기업 목록 (MD 생성 등에 활용)
+  const companies = bioStocks
+    .sort((a, b) => a.market.localeCompare(b.market) || a.name.localeCompare(b.name))
+    .map(s => ({ code: s.code, name: s.name, market: s.market }));
+
   const output = {
     scanned_at: today(),
     total_scanned: bioStocks.length,
@@ -1684,6 +1689,7 @@ async function main() {
       clinical: stats.clinical,
       dart: stats.dart,
     },
+    companies,
     pipelines: outputPipelines,
     bigpharma_deals: bigpharmaDeals,
   };
