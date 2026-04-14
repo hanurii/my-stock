@@ -15,6 +15,8 @@ import {
 } from "@/lib/scoring";
 import { GrowthScoringCriteria } from "@/components/ScoringCriteria";
 import { formatScoredAt } from "@/lib/format";
+import { getStockTrend, type RankHistory } from "@/lib/rank-history";
+import { RankTrendSparkline } from "@/components/RankTrendSparkline";
 
 
 type GrowthStock = GrowthStockInput;
@@ -150,6 +152,12 @@ function getTierLabel(tier?: string): string | null {
 export default async function GrowthPage() {
   const data = await getGrowthData();
   const framework = GROWTH_FRAMEWORK;
+
+  let rankHistory: RankHistory | null = null;
+  try {
+    const histPath = path.join(process.cwd(), "public", "data", "rank-history-growth.json");
+    rankHistory = JSON.parse(await fs.readFile(histPath, "utf-8"));
+  } catch { /* 히스토리 파일 없으면 무시 */ }
 
   if (!data || data.stocks.length === 0) {
     return (
@@ -329,6 +337,7 @@ export default async function GrowthPage() {
               <tr className="text-xs uppercase tracking-wider text-on-surface-variant/50">
                 <th className="text-center px-3 pb-3 font-normal w-10">#</th>
                 <th className="text-left px-3 pb-3 font-normal">종목</th>
+                <th className="text-center px-2 pb-3 font-normal hidden sm:table-cell">추세</th>
                 <th className="text-left px-3 pb-3 font-normal">섹터</th>
                 <th className="text-center px-3 pb-3 font-normal">등급</th>
                 <th className="text-right px-3 pb-3 font-normal">점수</th>
@@ -389,6 +398,9 @@ export default async function GrowthPage() {
                           previousRank={stock.previous_rank}
                         />
                       </span>
+                    </td>
+                    <td className="text-center px-2 py-2.5 hidden sm:table-cell">
+                      <RankTrendSparkline trend={getStockTrend(rankHistory, stock.code)} stockName={stock.name} totalStocks={visibleStocks.length} />
                     </td>
                     <td className="px-3 py-2.5 text-on-surface-variant">
                       {stock.sector}

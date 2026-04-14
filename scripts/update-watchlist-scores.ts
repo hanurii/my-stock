@@ -806,6 +806,47 @@ function buildChangeReason(
   return parts.join(", ");
 }
 
+// ── 순위 히스토리 스냅샷 ──
+
+const MAX_RANK_SNAPSHOTS = 60; // ~30일 (하루 2회)
+
+function appendRankSnapshot(
+  historyFileName: string,
+  stocks: { code: string }[],
+  scoredAll: ScoredAll,
+  scoredAt: string,
+) {
+  const historyPath = path.join(process.cwd(), "public", "data", historyFileName);
+
+  let history: { updated_at: string; snapshots: { t: string; ranks: Record<string, [number, number]> }[] };
+  try {
+    history = JSON.parse(fs.readFileSync(historyPath, "utf-8"));
+  } catch {
+    history = { updated_at: "", snapshots: [] };
+  }
+
+  // 같은 타임스탬프 중복 방지 (재실행 시 마지막 스냅샷 교체)
+  if (history.snapshots.length > 0 && history.snapshots[history.snapshots.length - 1].t === scoredAt) {
+    history.snapshots.pop();
+  }
+
+  const ranks: Record<string, [number, number]> = {};
+  for (let i = 0; i < stocks.length; i++) {
+    ranks[stocks[i].code] = [scoredAll.ranks[i], scoredAll.scores[i]];
+  }
+
+  history.snapshots.push({ t: scoredAt, ranks });
+
+  // 보존 한도 초과 시 오래된 것 제거
+  if (history.snapshots.length > MAX_RANK_SNAPSHOTS) {
+    history.snapshots = history.snapshots.slice(-MAX_RANK_SNAPSHOTS);
+  }
+
+  history.updated_at = scoredAt;
+  fs.writeFileSync(historyPath, JSON.stringify(history) + "\n", "utf-8");
+  console.log(`  📈 순위 히스토리 저장: ${historyFileName} (${history.snapshots.length}개 스냅샷)`);
+}
+
 // ── 공통 업데이트 로직 ──
 
 interface UpdateResult {
@@ -814,6 +855,7 @@ interface UpdateResult {
   scoreChanges: number;
   gradeChanges: number;
   rankChanges: number;
+  scoredAll: ScoredAll;
 }
 
 async function updateStocks(
@@ -979,7 +1021,7 @@ async function updateStocks(
     if (prevRank !== after.ranks[i]) rankChanges++;
   }
 
-  return { updated, skipped, scoreChanges, gradeChanges, rankChanges };
+  return { updated, skipped, scoreChanges, gradeChanges, rankChanges, scoredAll: after };
 }
 
 function printSummary(label: string, r: UpdateResult) {
@@ -1035,6 +1077,7 @@ async function main() {
   );
 
   fs.writeFileSync(watchlistPath, JSON.stringify(watchlistData, null, 2) + "\n", "utf-8");
+  appendRankSnapshot("rank-history-watchlist.json", watchlistData.stocks, watchlistResult.scoredAll, scoredAt);
   console.log("\n" + "─".repeat(65));
   printSummary("워치리스트", watchlistResult);
 
@@ -1124,6 +1167,11 @@ async function main() {
   }
 
   fs.writeFileSync(growthPath, JSON.stringify(growthData, null, 2) + "\n", "utf-8");
+  if ((growthData.stocks as StockBase[]).length > 0) {
+    const growthScoreFn = makeScoreAllGrowth(growthData.base_rate ?? 2.75);
+    const growthScoredAll = growthScoreFn(growthData.stocks as StockBase[]);
+    appendRankSnapshot("rank-history-growth.json", growthData.stocks, growthScoredAll, scoredAt);
+  }
 
   // ─── 3. 오일전문가 포트폴리오 ───
   const oilPath = path.join(process.cwd(), "public", "data", "oil-expert-watchlist.json");
@@ -1166,9 +1214,11 @@ async function main() {
 
     console.log("\n" + "─".repeat(65));
     printSummary("오일전문가 해외", oilOverseasResult);
+    appendRankSnapshot("rank-history-oil-overseas.json", oilData.overseas as StockBase[], oilOverseasResult.scoredAll, scoredAt);
   }
 
   fs.writeFileSync(oilPath, JSON.stringify(oilData, null, 2) + "\n", "utf-8");
+  appendRankSnapshot("rank-history-oil-domestic.json", oilData.domestic, oilDomesticResult.scoredAll, scoredAt);
 
   // ─── 4. 성장주 스크리닝 종가 갱신 ───
   const screenPath = path.join(process.cwd(), "public", "data", "growth-candidates.json");
@@ -1294,6 +1344,16 @@ async function main() {
 
       screenData.scanned_at = today;
       fs.writeFileSync(screenPath, JSON.stringify(screenData, null, 2), "utf-8");
+
+      // 순위 히스토리 스냅샷 (재정렬 후 순위 = 배열 인덱스 + 1)
+      const screenScoredAll: ScoredAll = {
+        scores: candidates.map((c) => c.score),
+        ranks: candidates.map((_, i) => i + 1),
+        grades: candidates.map((c) => c.grade),
+        details: candidates.map((c) => c.details as ScoredResult["details"]),
+      };
+      appendRankSnapshot("rank-history-growth-screen.json", candidates, screenScoredAll, scoredAt);
+
       console.log(`\n💾 성장주 스크리닝: ${screenUpdated}개 종가 갱신`);
       if (isDisclosureMonth) {
         console.log(`  📋 실적 갱신: ${fundamentalsUpdated}개 완료, ${fundamentalsSkipped}개 스킵 (이미 갱신됨)`);

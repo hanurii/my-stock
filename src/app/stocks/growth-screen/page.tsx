@@ -3,6 +3,8 @@ import path from "path";
 import { getGradeColor } from "@/lib/scoring";
 import { Collapsible } from "@/components/Collapsible";
 import { RankChange, GradeChangeBadge, ScoreChangeComment } from "@/components/RankChange";
+import { getStockTrend, type RankHistory } from "@/lib/rank-history";
+import { RankTrendSparkline } from "@/components/RankTrendSparkline";
 
 
 // ── 타입 ──
@@ -85,6 +87,12 @@ function fmtGrowth(latest: number, prev: number): string {
 
 export default async function GrowthScreenPage() {
   const data = await getData();
+
+  let rankHistory: RankHistory | null = null;
+  try {
+    const histPath = path.join(process.cwd(), "public", "data", "rank-history-growth-screen.json");
+    rankHistory = JSON.parse(await fs.readFile(histPath, "utf-8"));
+  } catch { /* */ }
 
   if (!data || data.candidates.length === 0) {
     return (
@@ -244,6 +252,7 @@ export default async function GrowthScreenPage() {
                 <tr className="text-xs uppercase tracking-wider text-on-surface-variant/50">
                   <th className="text-center px-2 pb-2 font-normal">순위</th>
                   <th className="text-left px-2 pb-2 font-normal">종목</th>
+                  <th className="text-center px-2 pb-2 font-normal hidden sm:table-cell">추세</th>
                   <th className="text-center px-2 pb-2 font-normal">등급</th>
                   <th className="text-right px-2 pb-2 font-normal">점수</th>
                   <th className="text-right px-2 pb-2 font-normal hidden sm:table-cell">시총</th>
@@ -262,6 +271,9 @@ export default async function GrowthScreenPage() {
                       <td className="px-2 py-2">
                         <span className="text-on-surface">{stock.name}</span>
                         <span className="text-xs text-on-surface-variant/50 ml-1.5">{stock.market}</span>
+                      </td>
+                      <td className="text-center px-2 py-2 hidden sm:table-cell">
+                        <RankTrendSparkline trend={getStockTrend(rankHistory, stock.code)} stockName={stock.name} totalStocks={data.candidates.length} />
                       </td>
                       <td className="text-center px-2 py-2">
                         <span className="text-xs px-1.5 py-0.5 rounded font-bold" style={{ backgroundColor: `${color}20`, color }}>

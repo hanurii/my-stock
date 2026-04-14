@@ -17,6 +17,8 @@ import { ScoreDetails } from "@/components/ScoreDetails";
 import { Collapsible } from "@/components/Collapsible";
 import { RankChange, ScoreChangeComment } from "@/components/RankChange";
 import { SectorPieChart } from "@/components/SectorPieChart";
+import { getStockTrend, type RankHistory } from "@/lib/rank-history";
+import { RankTrendSparkline } from "@/components/RankTrendSparkline";
 
 
 type ScoredDomestic = DomesticStockInput & ScoredResult;
@@ -51,12 +53,14 @@ async function getData(): Promise<{ domestic: ScoredDomestic[]; overseas: Scored
 
 type AnyScored = (ScoredDomestic | ScoredOverseas) & { country?: string };
 
-function StockTable({ stocks, framework, showCountry }: {
+function StockTable({ stocks, framework, showCountry, rankHistory }: {
   stocks: AnyScored[];
   framework: typeof DOMESTIC_FRAMEWORK | typeof OVERSEAS_FRAMEWORK;
   showCountry?: boolean;
+  rankHistory: RankHistory | null;
 }) {
   const hiddenCount = stocks.filter(s => s.score < 45).length;
+  const visibleStocks = stocks.filter(s => s.score >= 45);
   return (
     <div>
       {hiddenCount > 0 && (
@@ -70,6 +74,7 @@ function StockTable({ stocks, framework, showCountry }: {
             <tr className="text-xs uppercase tracking-wider text-on-surface-variant/50">
               <th className="text-center px-3 pb-3 font-normal w-10">#</th>
               <th className="text-left px-3 pb-3 font-normal">종목</th>
+              <th className="text-center px-2 pb-3 font-normal hidden sm:table-cell">추세</th>
               {showCountry && <th className="text-left px-3 pb-3 font-normal hidden md:table-cell">국가</th>}
               <th className="text-left px-3 pb-3 font-normal">섹터</th>
               <th className="text-center px-3 pb-3 font-normal">등급</th>
@@ -84,7 +89,7 @@ function StockTable({ stocks, framework, showCountry }: {
             </tr>
           </thead>
           <tbody>
-            {stocks.filter(s => s.score >= 45).map((stock, i) => {
+            {visibleStocks.map((stock, i) => {
               const color = getGradeColor(stock.grade);
               const rank = i + 1;
               return (
@@ -96,6 +101,9 @@ function StockTable({ stocks, framework, showCountry }: {
                       {stock.estimated && <span className="text-[10px] text-on-surface-variant/40">~</span>}
                       <RankChange currentRank={rank} previousRank={stock.previous_rank} />
                     </span>
+                  </td>
+                  <td className="text-center px-2 py-2.5 hidden sm:table-cell">
+                    <RankTrendSparkline trend={getStockTrend(rankHistory, stock.code)} stockName={stock.name} totalStocks={visibleStocks.length} />
                   </td>
                   {showCountry && <td className="px-3 py-2.5 text-on-surface-variant hidden md:table-cell">{stock.country}</td>}
                   <td className="px-3 py-2.5 text-on-surface-variant">{stock.sector}</td>
@@ -251,6 +259,15 @@ function buildSectorData(stocks: AnyScored[]) {
 export default async function OilExpertPage() {
   const data = await getData();
 
+  let rankHistoryDomestic: RankHistory | null = null;
+  let rankHistoryOverseas: RankHistory | null = null;
+  try {
+    rankHistoryDomestic = JSON.parse(await fs.readFile(path.join(process.cwd(), "public", "data", "rank-history-oil-domestic.json"), "utf-8"));
+  } catch { /* */ }
+  try {
+    rankHistoryOverseas = JSON.parse(await fs.readFile(path.join(process.cwd(), "public", "data", "rank-history-oil-overseas.json"), "utf-8"));
+  } catch { /* */ }
+
   if (!data) {
     return (
       <div className="py-20 text-center">
@@ -357,7 +374,7 @@ export default async function OilExpertPage() {
           <div className="p-6 pb-3">
             <h3 className="text-base font-serif text-on-surface">국내 전체 종목</h3>
           </div>
-          <StockTable stocks={domestic} framework={DOMESTIC_FRAMEWORK} />
+          <StockTable stocks={domestic} framework={DOMESTIC_FRAMEWORK} rankHistory={rankHistoryDomestic} />
         </div>
 
         {/* Domestic A/B Cards */}
@@ -436,7 +453,7 @@ export default async function OilExpertPage() {
           <div className="p-6 pb-3">
             <h3 className="text-base font-serif text-on-surface">해외 전체 종목</h3>
           </div>
-          <StockTable stocks={overseas} framework={OVERSEAS_FRAMEWORK} showCountry />
+          <StockTable stocks={overseas} framework={OVERSEAS_FRAMEWORK} showCountry rankHistory={rankHistoryOverseas} />
         </div>
 
         {overseasAB.length > 0 && (
