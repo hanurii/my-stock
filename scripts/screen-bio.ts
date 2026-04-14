@@ -1293,6 +1293,7 @@ async function main() {
     quality: {
       patent_matched_count: number;
       patent_search_keywords: string[];
+      pubmed_count: number;
       high_if_papers: number;
       total_citations: number;
       conference_level: string | null;
@@ -1331,6 +1332,7 @@ async function main() {
       quality: {
         patent_matched_count: patentMatchedCount,
         patent_search_keywords: patentKeywords,
+        pubmed_count: s.pubmed_count,
         high_if_papers: s.high_if_papers,
         total_citations: s.total_citations,
         conference_level: s.conference_level,
