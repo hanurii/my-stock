@@ -53,6 +53,12 @@ function fmtNum(n: number): string {
 }
 
 const phaseLabel: Record<string, string> = { PHASE3: "3상", PHASE2: "2상" };
+const statusLabel: Record<string, string> = {
+  RECRUITING: "모집 중",
+  ACTIVE_NOT_RECRUITING: "진행 중 (모집 완료)",
+  NOT_YET_RECRUITING: "모집 예정",
+  ENROLLING_BY_INVITATION: "초청만 참여 가능",
+};
 
 // ── 프로세스 단계 정의 ──
 
@@ -240,7 +246,7 @@ function PipelineCard({ pipeline: pl, briefing }: { pipeline: Pipeline; briefing
             backgroundColor: pl.phase === "PHASE3" ? "#95d3ba20" : "#6ea8fe20",
             color: pl.phase === "PHASE3" ? "#95d3ba" : "#6ea8fe",
           }}>{phaseLabel[pl.phase] || pl.phase}</span>
-          <span className="text-xs text-on-surface-variant/50">{pl.status.replace(/_/g, " ")}</span>
+          <span className="text-xs text-on-surface-variant/50">{statusLabel[pl.status] || pl.status.replace(/_/g, " ")}</span>
           <BigPharmaBadge deal={q.bigpharma_deal} />
         </div>
         <h4 className="text-sm font-medium text-on-surface leading-snug mb-1">
@@ -277,7 +283,7 @@ function PipelineCard({ pipeline: pl, briefing }: { pipeline: Pipeline; briefing
             step.detail && <React.Fragment key={step.label}>
               <DetailRow label={step.label} signal={step.signal} detail={step.detail} />
               {step.label === "논문" && (
-                <>
+                <div className="ml-[60px] space-y-1.5 py-1">
                   <DetailRow label="인용수"
                     signal={q.total_citations >= 300 ? "good" : q.total_citations > 0 ? "none" : "bad"}
                     detail={q.total_citations > 0
@@ -288,7 +294,7 @@ function PipelineCard({ pipeline: pl, briefing }: { pipeline: Pipeline; briefing
                     detail={q.notable_journals?.length > 0
                       ? `게재 (${q.notable_journals.join(", ")})`
                       : "저명 저널 게재 없음"} />
-                </>
+                </div>
               )}
             </React.Fragment>
           ))}
