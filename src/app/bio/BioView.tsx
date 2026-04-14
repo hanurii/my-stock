@@ -257,6 +257,9 @@ function PipelineCard({ pipeline: pl, briefing }: { pipeline: Pipeline; briefing
           {q.bigpharma_deal.terminated && (
             <span className="ml-1" style={{ color: "#ffb4ab", fontSize: "10px" }}>과거 빅파마 계약 파기 이력</span>
           )}
+          {q.bigpharma_deal.tier !== "top20" && q.bigpharma_deal.tier !== "global" && (
+            <span className="ml-1 text-on-surface-variant/30" style={{ fontSize: "10px" }}>· 빅파마 계약 없음</span>
+          )}
         </p>
       </div>
 
@@ -277,52 +280,61 @@ function PipelineCard({ pipeline: pl, briefing }: { pipeline: Pipeline; briefing
           <span className="material-symbols-outlined text-sm group-open:rotate-90 transition-transform">chevron_right</span>
           기술 질적 검증 상세
         </summary>
-        <div className="mt-3 space-y-2">
-          {/* 프로세스 단계별 상세 + 논문 관련 필드 그룹화 */}
-          {steps.map((step) => (
-            step.detail && <React.Fragment key={step.label}>
-              <DetailRow label={step.label} signal={step.signal} detail={step.detail} />
-              {step.label === "논문" && (
-                <div className="ml-[60px] space-y-1.5 py-1">
-                  <DetailRow label="인용수"
-                    signal={q.total_citations >= 300 ? "good" : q.total_citations > 0 ? "none" : "bad"}
-                    detail={q.total_citations > 0
-                      ? `피인용 ${q.total_citations.toLocaleString()}회 (${q.total_citations >= 1000 ? "매우높음" : q.total_citations >= 300 ? "높음" : q.total_citations >= 50 ? "중간" : "낮음"})`
-                      : "인용 실적 없음"} />
-                  <DetailRow label="저명 저널"
-                    signal={q.notable_journals?.length > 0 ? "star" : "bad"}
-                    detail={q.notable_journals?.length > 0
-                      ? `게재 (${q.notable_journals.join(", ")})`
-                      : "저명 저널 게재 없음"} />
-                </div>
-              )}
-            </React.Fragment>
-          ))}
+        <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {/* Box 1: 특허 */}
+          <DetailBox title="특허">
+            <DetailRow label="특허" signal={steps.find(s => s.label === "특허")!.signal} detail={steps.find(s => s.label === "특허")!.detail} />
+            {q.patent_search_keywords?.length > 0 && (
+              <p className="text-[10px] text-on-surface-variant/40 mt-1">키워드: {q.patent_search_keywords.join(", ")}</p>
+            )}
+          </DetailBox>
 
-          {/* 경영진 (프로세스 바 밖의 항목) */}
-          <DetailRow label="경영진"
-            signal={q.ceo_background === "scientist" ? "good" : q.ceo_background === "cto_scientist" ? "good" : "bad"}
-            detail={q.ceo_background === "scientist" ? "박사/연구원 출신 CEO"
-              : q.ceo_background === "cto_scientist" ? "기술자 CTO 보유"
-              : q.ceo_background === "professional" ? "경영 전문가(금융/경영) — 기술자 부재"
-              : "경영진 기술 전문성 확인 불가"} />
+          {/* Box 2: 논문 · 학회 */}
+          <DetailBox title="논문 · 학회">
+            <DetailRow label="논문" signal={steps.find(s => s.label === "논문")!.signal} detail={steps.find(s => s.label === "논문")!.detail} />
+            <DetailRow label="인용수"
+              signal={q.total_citations >= 300 ? "good" : q.total_citations > 0 ? "none" : "bad"}
+              detail={q.total_citations > 0
+                ? `피인용 ${q.total_citations.toLocaleString()}회 (${q.total_citations >= 1000 ? "매우높음" : q.total_citations >= 300 ? "높음" : q.total_citations >= 50 ? "중간" : "낮음"})`
+                : "인용 실적 없음"} />
+            <DetailRow label="저명 저널"
+              signal={q.notable_journals?.length > 0 ? "star" : "bad"}
+              detail={q.notable_journals?.length > 0
+                ? `게재 (${q.notable_journals.join(", ")})`
+                : "저명 저널 게재 없음"} />
+            <DetailRow label="학회발표" signal={steps.find(s => s.label === "학회발표")!.signal} detail={steps.find(s => s.label === "학회발표")!.detail} />
+          </DetailBox>
 
-          {/* 계약 구조 */}
-          {q.contract_structure && (
-            <DetailRow label="계약 구조"
-              signal={q.contract_structure === "no_return" ? "good" : q.contract_structure === "returnable" ? "bad" : "none"}
-              detail={q.contract_structure === "no_return" ? "반환의무 없음"
-                : q.contract_structure === "returnable" ? "반환의무 있음 — 기술 가치 의문"
-                : "불명"} />
-          )}
+          {/* Box 3: 임상 진행 */}
+          <DetailBox title="임상 진행">
+            {steps.filter(s => ["1상", "2상", "3상"].includes(s.label)).map(step => (
+              step.detail && <DetailRow key={step.label} label={step.label} signal={step.signal} detail={step.detail} />
+            ))}
+          </DetailBox>
 
-          {q.milestone_ratio != null && q.milestone_ratio > 50 && (
-            <DetailRow label="마일스톤" signal="bad"
-              detail={`마일스톤 비중 ${q.milestone_ratio}% — 확정 수령 아님`} />
-          )}
+          {/* Box 4: 경영 · 계약 */}
+          <DetailBox title="경영 · 계약">
+            <DetailRow label="경영진"
+              signal={q.ceo_background === "scientist" ? "good" : q.ceo_background === "cto_scientist" ? "good" : "bad"}
+              detail={q.ceo_background === "scientist" ? "박사/연구원 출신 CEO"
+                : q.ceo_background === "cto_scientist" ? "기술자 CTO 보유"
+                : q.ceo_background === "professional" ? "경영 전문가(금융/경영) — 기술자 부재"
+                : "경영진 기술 전문성 확인 불가"} />
+            {q.contract_structure && (
+              <DetailRow label="계약 구조"
+                signal={q.contract_structure === "no_return" ? "good" : q.contract_structure === "returnable" ? "bad" : "none"}
+                detail={q.contract_structure === "no_return" ? "반환의무 없음"
+                  : q.contract_structure === "returnable" ? "반환의무 있음 — 기술 가치 의문"
+                  : "불명"} />
+            )}
+            {q.milestone_ratio != null && q.milestone_ratio > 50 && (
+              <DetailRow label="마일스톤" signal="bad"
+                detail={`마일스톤 비중 ${q.milestone_ratio}% — 확정 수령 아님`} />
+            )}
+          </DetailBox>
 
           {/* 메타 정보 */}
-          <div className="flex flex-wrap gap-3 text-xs text-on-surface-variant/50 pt-2 mt-1 border-t border-on-surface-variant/10">
+          <div className="sm:col-span-2 flex flex-wrap gap-3 text-xs text-on-surface-variant/50 pt-2 mt-1 border-t border-on-surface-variant/10">
             <span>NCT: {pl.nct_id}</span>
             <span>적응증: {pl.indication}</span>
             {pl.competing_phase3_count > 0 && <span>3상 경쟁: {pl.competing_phase3_count}개</span>}
@@ -355,12 +367,8 @@ function BigPharmaBadge({ deal }: { deal: { tier: string; terminated: boolean } 
       </span>
     );
   }
-  // domestic 또는 none — 비활성화 칭호
-  return (
-    <span className="text-[10px] px-1.5 py-0.5 rounded text-on-surface-variant/30 border border-on-surface-variant/10">
-      빅파마 계약 없음
-    </span>
-  );
+  // domestic 또는 none — 회사명 옆에 표시하므로 여기선 생략
+  return null;
 }
 
 const SIGNAL_COLORS: Record<Signal, string> = {
@@ -451,6 +459,17 @@ function ProcessBar({ steps }: { steps: StepResult[] }) {
           );
         })}
       </div>
+    </div>
+  );
+}
+
+// ── 상세 검증 박스 ──
+
+function DetailBox({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="rounded-lg border border-on-surface-variant/10 px-3 py-2.5 space-y-1.5">
+      <span className="text-[10px] text-on-surface-variant/40 font-medium">{title}</span>
+      {children}
     </div>
   );
 }
