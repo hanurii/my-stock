@@ -110,7 +110,6 @@ function buildSteps(pl: Pipeline): StepResult[] {
   const pharmaDetail = q.bigpharma_deal.terminated ? "계약 파기 이력"
     : q.bigpharma_deal.tier === "top20" ? "Top20 빅파마 계약"
     : q.bigpharma_deal.tier === "global" ? "글로벌 빅파마 계약"
-    : q.bigpharma_deal.tier === "domestic" ? "국내 기술이전"
     : "빅파마 계약 없음";
 
   // 경영진 (프로세스 바 밖, 상시 체크)
@@ -123,7 +122,6 @@ function buildSteps(pl: Pipeline): StepResult[] {
     { label: "1상", reached: true, current: false, signal: p1Signal, detail: p1Detail },
     { label: "2상", reached: true, current: isPhase2, signal: p2Signal, detail: p2Detail },
     { label: "3상", reached: isPhase3, current: isPhase3, signal: p3Signal, detail: p3Detail },
-    { label: "빅파마", reached: q.bigpharma_deal.tier !== "none" || q.bigpharma_deal.terminated, current: false, signal: pharmaSignal, detail: pharmaDetail },
     { label: "허가", reached: false, current: false, signal: "none", detail: "" },
   ];
 }
@@ -168,12 +166,13 @@ function PipelineCard({ pipeline: pl, briefing }: { pipeline: Pipeline; briefing
     <div className="bg-surface-container-low rounded-xl ghost-border p-4 sm:p-5">
       {/* 헤더 */}
       <div className="mb-4">
-        <div className="flex items-center gap-2 mb-1">
+        <div className="flex items-center gap-2 mb-1 flex-wrap">
           <span className="text-xs px-2 py-0.5 rounded font-bold" style={{
             backgroundColor: pl.phase === "PHASE3" ? "#95d3ba20" : "#6ea8fe20",
             color: pl.phase === "PHASE3" ? "#95d3ba" : "#6ea8fe",
           }}>{phaseLabel[pl.phase] || pl.phase}</span>
           <span className="text-xs text-on-surface-variant/50">{pl.status.replace(/_/g, " ")}</span>
+          <BigPharmaBadge deal={q.bigpharma_deal} />
         </div>
         <h4 className="text-sm font-medium text-on-surface leading-snug mb-1">
           {briefing?.tech_kr || pl.trial_name}
@@ -243,6 +242,38 @@ function PipelineCard({ pipeline: pl, briefing }: { pipeline: Pipeline; briefing
 }
 
 // ── 프로세스 바 ──
+
+// ── 빅파마 칭호 뱃지 ──
+
+function BigPharmaBadge({ deal }: { deal: { tier: string; terminated: boolean } }) {
+  if (deal.terminated) {
+    return (
+      <span className="text-[10px] px-1.5 py-0.5 rounded line-through" style={{ backgroundColor: "#ffb4ab20", color: "#ffb4ab" }}>
+        빅파마 계약 파기
+      </span>
+    );
+  }
+  if (deal.tier === "top20") {
+    return (
+      <span className="text-[10px] px-1.5 py-0.5 rounded font-bold" style={{ backgroundColor: "#e9c17630", color: "#e9c176" }}>
+        ★ Top20 빅파마
+      </span>
+    );
+  }
+  if (deal.tier === "global") {
+    return (
+      <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ backgroundColor: "#95d3ba20", color: "#95d3ba" }}>
+        글로벌 빅파마
+      </span>
+    );
+  }
+  // domestic 또는 none — 비활성화 칭호
+  return (
+    <span className="text-[10px] px-1.5 py-0.5 rounded text-on-surface-variant/30 border border-on-surface-variant/10">
+      빅파마 계약 없음
+    </span>
+  );
+}
 
 const SIGNAL_COLORS: Record<Signal, string> = {
   star: "#e9c176",
