@@ -56,7 +56,7 @@ const phaseLabel: Record<string, string> = { PHASE3: "3상", PHASE2: "2상" };
 
 // ── 프로세스 단계 정의 ──
 
-type Signal = "good" | "star" | "bad" | "none";
+type Signal = "good" | "star" | "star2" | "bad" | "none";
 
 interface StepResult {
   label: string;
@@ -82,12 +82,14 @@ function buildSteps(pl: Pipeline): StepResult[] {
   const paperExistDetail = q.pubmed_count > 0 ? `논문 ${q.pubmed_count}편` : "논문 없음";
 
   // 학회
-  const confSignal: Signal = q.conference_level === "oral_top4" ? "star"
+  // 학회: 저명학회 구두=별2, 일반 구두=별1, 포스터/기타=뱃지없음, 없음=경고
+  const confSignal: Signal = q.conference_level === "oral_top4" ? "star2"
     : q.conference_level === "poster_top4" || q.conference_level === "other_intl" ? "none"
     : "bad";
-  const confDetail = q.conference_level === "oral_top4" ? "ASCO/ASH/AACR/ESMO 구두 초청"
-    : q.conference_level ? "포스터/기타 발표"
-    : "주요 학회 발표 없음";
+  const confDetail = q.conference_level === "oral_top4" ? "ASCO/ASH/AACR/ESMO 구두 발표"
+    : q.conference_level === "poster_top4" ? "포스터 발표"
+    : q.conference_level === "other_intl" ? "기타 학회 발표"
+    : "발표 없음";
 
   // 1상
   const p1Signal: Signal = "none"; // 2상/3상이면 반드시 통과
@@ -126,7 +128,7 @@ function buildSteps(pl: Pipeline): StepResult[] {
   return [
     { label: "특허", reached: true, current: false, signal: patentSignal, detail: patentDetail },
     { label: "논문", reached: q.pubmed_count > 0, current: false, signal: paperExistSignal, detail: paperExistDetail },
-    { label: "학회", reached: true, current: false, signal: confSignal, detail: confDetail },
+    { label: "학회", reached: q.conference_level != null, current: false, signal: confSignal, detail: confDetail },
     { label: "1상", reached: true, current: false, signal: p1Signal, detail: p1Detail },
     { label: "2상", reached: true, current: isPhase2, signal: p2Signal, detail: p2Detail },
     { label: "3상", reached: isPhase3, current: isPhase3, signal: p3Signal, detail: p3Detail },
@@ -296,6 +298,7 @@ function BigPharmaBadge({ deal }: { deal: { tier: string; terminated: boolean } 
 }
 
 const SIGNAL_COLORS: Record<Signal, string> = {
+  star2: "#e9c176",
   star: "#e9c176",
   good: "#95d3ba",
   bad: "#ffb4ab",
@@ -303,6 +306,7 @@ const SIGNAL_COLORS: Record<Signal, string> = {
 };
 
 const SIGNAL_ICON: Record<Signal, string> = {
+  star2: "★★",
   star: "★",
   good: "✓",
   bad: "✕",
@@ -385,14 +389,14 @@ function ProcessBar({ steps }: { steps: StepResult[] }) {
 // ── 상세 검증 행 ──
 
 function DetailRow({ label, signal, detail }: { label: string; signal: Signal; detail: string }) {
-  const icon = signal === "star" ? "★" : signal === "good" ? "✓" : signal === "bad" ? "✕" : "—";
+  const icon = SIGNAL_ICON[signal] || "—";
   const color = SIGNAL_COLORS[signal] || "rgba(255,255,255,0.3)";
 
   return (
     <div className="flex items-start gap-2 text-xs">
       <span className="shrink-0 w-[52px] text-on-surface-variant/60">{label}</span>
       <span className="shrink-0" style={{ color }}>{icon}</span>
-      <span style={{ color: signal === "bad" ? "#ffb4ab" : signal === "star" ? "#e9c176" : undefined }}>
+      <span style={{ color: signal === "bad" ? "#ffb4ab" : signal === "star" || signal === "star2" ? "#e9c176" : undefined }}>
         {detail}
       </span>
     </div>
