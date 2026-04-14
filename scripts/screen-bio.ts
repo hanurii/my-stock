@@ -12,7 +12,6 @@
  */
 import fs from "fs";
 import path from "path";
-import { scoreBio, getGrade, type BioStockInput, type ScoredResult, type ScoreDetail } from "../src/lib/scoring";
 import type {
   ConferenceLevel, HighestPhase, LicenseOutTier, TerminationHistory,
   ContractStructure, CeoBackground, ExitSignal, DisclosureHonesty, FundQuality,
@@ -56,6 +55,39 @@ const TOP20_PHARMA = [
 ];
 
 const BIO_SECTOR_KEYWORDS = /바이오|제약|의약|생명과학|셀|젠|팜|메디|진단|항체|세포치료|헬스케어/;
+
+// ── 병명 매핑 ──
+
+const DISEASE_MAP: [RegExp, string][] = [
+  [/cancer|carcinoma|tumor|tumour|neoplasm|leukemia|leukaemia|lymphoma|melanoma|sarcoma|myeloma|glioblastoma|glioma|breast|colon|colorectal|hepatocellular|pancrea|gastric|stomach|bladder|prostate|ovarian|cervical|endometrial|thyroid|esophag|cholangiocarcinoma|mesothelioma|neuroblastoma|non.?small.?cell|small.?cell|nsclc|sclc/i, "암"],
+  [/alzheimer|dementia|cognitive decline/i, "치매"],
+  [/diabetes|diabetic|glycem/i, "당뇨"],
+  [/heart|cardiac|cardiovascular|coronary|atrial|heart failure|hypertension|arrhythmia/i, "심혈관"],
+  [/hepatitis|nash|nafld|liver.?(?:disease|fibrosis|cirrhosis)/i, "간질환"],
+  [/arthritis|osteoarthritis|rheumatoid/i, "관절염"],
+  [/asthma|copd|pulmonary fibrosis|respiratory/i, "호흡기"],
+  [/depression|anxiety|bipolar|schizophrenia|psychiatric|adhd/i, "정신건강"],
+  [/obesity|metabolic syndrome/i, "비만/대사"],
+  [/hiv|covid|influenza|infection|infectious|sepsis|bacterial|viral|fungal/i, "감염병"],
+  [/autoimmune|lupus|crohn|colitis|psoriasis|dermatitis|multiple sclerosis|myasthenia/i, "자가면역"],
+  [/pain|neuropath|migraine|fibromyalgia/i, "통증"],
+  [/eye|ophthalm|macular|retinal|glaucoma/i, "안과"],
+  [/kidney|nephro|dialysis|renal/i, "신장"],
+  [/parkinson|huntington|als|amyotrophic|neurodegen/i, "신경퇴행"],
+  [/stroke|cerebrovascular/i, "뇌혈관"],
+  [/anemia|haemophilia|hemophilia|thrombocytopenia|blood/i, "혈액"],
+  [/allergy|atopic|urticaria/i, "알레르기"],
+  [/lung|pulmonary/i, "폐"],
+];
+
+function mapDiseaseCategory(indication: string): string {
+  for (const [regex, category] of DISEASE_MAP) {
+    if (regex.test(indication)) return category;
+  }
+  return "기타";
+}
+
+const ACTIVE_STATUSES = new Set(["RECRUITING", "ACTIVE_NOT_RECRUITING", "ENROLLING_BY_INVITATION", "NOT_YET_RECRUITING"]);
 
 // ── 유틸 ──
 
@@ -794,237 +826,198 @@ async function main() {
   // 데이터 수집 통계
   const stats = { kipris: { ok: 0, fail: 0 }, papers: { ok: 0, fail: 0 }, clinical: { ok: 0, fail: 0 }, dart: { ok: 0, fail: 0 }, naver: { ok: 0, fail: 0 } };
 
-  // Phase 2: 외부 API 수집 + Phase 4: 스코어링
-  console.log("\n📊 Phase 2-4: 데이터 수집 + 스코어링");
+  // Phase 2: 외부 API 수집
+  console.log("\n📊 Phase 2: 데이터 수집");
 
-  interface ScoredBio extends BioStockInput {
-    scored: ScoredResult;
+  interface CollectedBio {
+    code: string; name: string; market: string; marketCap: number; price: number;
+    patent_domestic: number; patent_pct: number;
+    pubmed_count: number; high_if_papers: number; total_citations: number;
+    conference_level: ConferenceLevel | null;
+    license_out_tier: LicenseOutTier; termination_history: TerminationHistory;
+    contract_structure: ContractStructure | null; milestone_ratio: number | null;
+    ceo_background: CeoBackground;
     pipelines: PipelineInfo[];
-    data_confidence: "high" | "medium" | "low";
   }
 
-  const scored: ScoredBio[] = [];
-  const BATCH_SIZE = 5; // 5개 종목 동시 처리 (S2는 순차이므로 안전)
+  const collected: CollectedBio[] = [];
+  const BATCH_SIZE = 5;
 
-  async function processStock(stock: BioStock, idx: number): Promise<ScoredBio> {
+  async function processStock(stock: BioStock, idx: number): Promise<CollectedBio> {
     const corpCode = corpMap.get(stock.code) || "";
     const nameEn = getEnglishName(stock.code, stock.name);
     const override = overrides[stock.code] || {};
 
-    // 7개 API 동시 호출 (PubMed+S2 제외 — S2는 Rate Limit이 엄격하여 별도 수집)
-    const [patents, clinical, deals, mgmt, runway, conferenceFromNews, hasFund] = await Promise.all([
+    const [patents, clinical, deals, mgmt, , conferenceFromNews] = await Promise.all([
       fetchPatents(stock.name, stock.code),
       fetchClinicalTrials(nameEn, stock.code),
       fetchDartDeals(corpCode, stock.code),
       fetchManagement(corpCode, stock.code),
       fetchCashRunway(stock.code),
       fetchConferenceLevel(stock.name, stock.code),
-      detectFundPresence(corpCode, stock.code),
     ]);
-    // papers는 Phase 2.5에서 순차 수집 (여기선 빈 값)
-    const papers: PaperData = { pubmed_count: 0, high_if_papers: 0, total_citations: 0 };
 
-    // 통계 업데이트
-    patents.domestic > 0 ? stats.kipris.ok++ : stats.kipris.fail++;
-    papers.pubmed_count > 0 ? stats.papers.ok++ : stats.papers.fail++;
-    clinical.pipeline_count > 0 ? stats.clinical.ok++ : stats.clinical.fail++;
-    deals.license_out_tier !== "none" ? stats.dart.ok++ : stats.dart.fail++;
-    runway != null ? stats.naver.ok++ : stats.naver.fail++;
-
-    // 수동 보정 머지 (수동 > 뉴스 크롤링 > null)
     const conferenceLevel: ConferenceLevel | null = override.conference_level ?? conferenceFromNews ?? null;
-    const contractStructure: ContractStructure | null = override.contract_structure ?? null;
     const ceoBg: CeoBackground = override.ceo_background ?? mgmt.ceo_background;
 
-    // 데이터 신뢰도 계산
-    let dataPoints = 0;
-    if (patents.domestic > 0) dataPoints++;
-    if (papers.pubmed_count > 0) dataPoints++;
-    if (clinical.pipeline_count > 0) dataPoints++;
-    if (deals.license_out_tier !== "none") dataPoints++;
-    if (ceoBg !== "unknown") dataPoints++;
-    if (runway != null) dataPoints++;
-    const confidence: "high" | "medium" | "low" = dataPoints >= 4 ? "high" : dataPoints >= 2 ? "medium" : "low";
+    // 통계
+    patents.domestic > 0 ? stats.kipris.ok++ : stats.kipris.fail++;
+    clinical.pipeline_count > 0 ? stats.clinical.ok++ : stats.clinical.fail++;
+    deals.license_out_tier !== "none" ? stats.dart.ok++ : stats.dart.fail++;
 
-    const input: BioStockInput = {
-      code: stock.code,
-      name: stock.name,
-      market: stock.market,
-      patent_domestic: patents.domestic,
-      patent_pct: patents.pct,
-      pubmed_count: papers.pubmed_count,
-      high_if_papers: papers.high_if_papers,
-      total_citations: papers.total_citations,
+    console.log(`  [${idx}/${bioStocks.length}] ${stock.name} — 파이프라인 ${clinical.pipeline_count}개`);
+
+    return {
+      code: stock.code, name: stock.name, market: stock.market,
+      marketCap: stock.marketCap, price: stock.price,
+      patent_domestic: patents.domestic, patent_pct: patents.pct,
+      pubmed_count: 0, high_if_papers: 0, total_citations: 0, // Phase 2.5에서 채움
       conference_level: conferenceLevel,
-      highest_phase: clinical.highest_phase,
-      pipeline_count: clinical.pipeline_count,
-      results_transparency: clinical.results_transparency,
-      license_out_tier: deals.license_out_tier,
-      termination_history: deals.termination_history,
-      contract_structure: contractStructure,
+      license_out_tier: deals.license_out_tier, termination_history: deals.termination_history,
+      contract_structure: override.contract_structure ?? null,
       milestone_ratio: override.milestone_ratio ?? null,
-      disclosure_honesty: override.disclosure_honesty ?? null,
       ceo_background: ceoBg,
-      dilution_3yr_pct: mgmt.dilution_3yr_pct,
-      exit_signal: mgmt.exit_signal,
-      cash_runway_years: runway,
-      fund_quality: override.fund_quality ?? (hasFund ? "mixed" : "unknown"),
-      withdrawn_terminated_count: clinical.withdrawn_terminated_count,
-      successful_completion_count: clinical.successful_completion_count,
-      clinical_hype: override.clinical_hype ?? null,
-      market_cap: stock.marketCap,
-      current_price: stock.price,
+      pipelines: clinical.pipelines,
     };
-
-    const result = scoreBio(input);
-    console.log(`  [${idx}/${bioStocks.length}] ${stock.name} → ${result.grade} (${result.score}점)`);
-
-    return { ...input, scored: result, pipelines: clinical.pipelines, data_confidence: confidence };
   }
 
-  // 배치 병렬 실행: BATCH_SIZE개씩 동시 처리
+  // 배치 병렬 실행
   for (let i = 0; i < bioStocks.length; i += BATCH_SIZE) {
     const batch = bioStocks.slice(i, i + BATCH_SIZE);
     const results = await Promise.all(
       batch.map((stock, bi) => processStock(stock, i + bi + 1))
     );
-    scored.push(...results);
+    collected.push(...results);
     if (i + BATCH_SIZE < bioStocks.length) await sleep(500);
   }
 
-  // Phase 2.5: PubMed + Semantic Scholar 순차 수집 (S2 Rate Limit 보호)
-  console.log("\n📄 Phase 2.5: 논문 데이터 순차 수집 (PubMed + Semantic Scholar)");
-  for (let i = 0; i < scored.length; i++) {
-    const s = scored[i];
+  // Phase 3: 임상 2상/3상 진행 중인 파이프라인만 선별
+  console.log("\n🔬 Phase 3: 임상 2상/3상 진행 중 파이프라인 선별");
+
+  interface ActivePipeline {
+    company: CollectedBio;
+    pipeline: PipelineInfo;
+  }
+
+  const activePipelines: ActivePipeline[] = [];
+  for (const s of collected) {
+    for (const pl of s.pipelines) {
+      const isPhase23 = pl.phase === "PHASE2" || pl.phase === "PHASE3";
+      const isActive = ACTIVE_STATUSES.has(pl.status);
+      if (isPhase23 && isActive) {
+        activePipelines.push({ company: s, pipeline: pl });
+      }
+    }
+  }
+
+  console.log(`  2상/3상 진행 중: ${activePipelines.length}건 (${new Set(activePipelines.map(a => a.company.code)).size}개 기업)`);
+
+  // Phase 3.5: 선별된 파이프라인의 기업에 대해 논문 데이터 수집
+  const companiesWithPipelines = [...new Set(activePipelines.map(a => a.company.code))];
+  console.log(`\n📄 Phase 3.5: 논문 데이터 순차 수집 (${companiesWithPipelines.length}개 기업)`);
+
+  for (const code of companiesWithPipelines) {
+    const s = collected.find(c => c.code === code)!;
     const nameEn = getEnglishName(s.code, s.name);
     const papers = await fetchPapers(nameEn, s.code);
     s.pubmed_count = papers.pubmed_count;
     s.high_if_papers = papers.high_if_papers;
     s.total_citations = papers.total_citations;
     papers.pubmed_count > 0 ? stats.papers.ok++ : stats.papers.fail++;
-    // 점수 재계산
-    s.scored = scoreBio(s);
-    if ((i + 1) % 20 === 0) console.log(`  ${i + 1}/${scored.length} 완료`);
-    await sleep(1500); // S2 Rate Limit: 5분당 100건 → 3초 간격
+    await sleep(1500);
+  }
+
+  // Phase 4: 기술 상세 조사 + 경쟁 분석
+  console.log("\n🔍 Phase 4: 기술 상세 조사");
+
+  interface OutputPipeline {
+    nct_id: string;
+    company: { code: string; name: string; market: string; market_cap: number };
+    trial_name: string;
+    indication: string;
+    disease_category: string;
+    phase: string;
+    status: string;
+    start_date: string;
+    est_completion: string;
+    tech_summary_en: string;
+    competing_phase3_count: number;
+    quality: {
+      has_patent: boolean;
+      patent_domestic: number;
+      patent_pct: number;
+      high_if_papers: number;
+      total_citations: number;
+      conference_level: string | null;
+      has_results_posted: boolean;
+      bigpharma_deal: { tier: string; terminated: boolean };
+      contract_structure: string | null;
+      milestone_ratio: number | null;
+      ceo_background: string;
+      phase1_cleared: boolean;
+    };
+  }
+
+  const outputPipelines: OutputPipeline[] = [];
+  for (const { company: s, pipeline: pl } of activePipelines) {
+    console.log(`  ${s.name} — ${pl.title.slice(0, 50)}...`);
+    const techDetail = await fetchTechDetail(pl);
+
+    outputPipelines.push({
+      nct_id: pl.nctId,
+      company: { code: s.code, name: s.name, market: s.market, market_cap: s.marketCap },
+      trial_name: pl.title,
+      indication: pl.indication,
+      disease_category: mapDiseaseCategory(pl.indication),
+      phase: pl.phase,
+      status: pl.status,
+      start_date: pl.startDate,
+      est_completion: pl.completionDate,
+      tech_summary_en: techDetail.tech_summary,
+      competing_phase3_count: techDetail.global_exclusivity.competing_trials,
+      quality: {
+        has_patent: s.patent_domestic > 0 || s.patent_pct > 0,
+        patent_domestic: s.patent_domestic,
+        patent_pct: s.patent_pct,
+        high_if_papers: s.high_if_papers,
+        total_citations: s.total_citations,
+        conference_level: s.conference_level,
+        has_results_posted: pl.hasResults,
+        bigpharma_deal: { tier: s.license_out_tier, terminated: s.termination_history === "terminated" },
+        contract_structure: s.contract_structure,
+        milestone_ratio: s.milestone_ratio,
+        ceo_background: s.ceo_background,
+        phase1_cleared: true, // 2상/3상이면 1상 통과
+      },
+    });
+    await sleep(500);
   }
 
   // 캐시 저장
   saveCache();
 
-  // Phase 5: 트랙 분류
-  console.log("\n🏷️  Phase 5: 트랙 분류");
+  // Phase 5: 출력
+  console.log("\n💾 Phase 5: 결과 저장");
 
-  // A 트랙: 점수순 상위 20개
-  const trackA = scored
-    .sort((a, b) => b.scored.score - a.scored.score)
-    .slice(0, 20)
-    .map(s => ({
-      code: s.code, name: s.name, market: s.market,
-      score: s.scored.score, grade: s.scored.grade,
-      cat1: s.scored.cat1, cat2: s.scored.cat2, cat3: s.scored.cat3,
-      details: s.scored.details,
-      data_confidence: s.data_confidence,
-      market_cap: s.market_cap, current_price: s.current_price,
-      highest_phase: s.highest_phase, pipeline_count: s.pipeline_count,
-      has_bigpharma_deal: s.license_out_tier === "top20" || s.license_out_tier === "global",
-    }));
-
-  console.log(`  A 트랙 (안정형): ${trackA.length}개`);
-
-  // B 트랙: 3개 조건 중 2개+ 충족 (임상 3상+)
-  const trackBCandidates = scored.filter(s => {
-    let met = 0;
-    // 조건 1: 임상 3상 이상
-    if (s.highest_phase === "phase3" || s.highest_phase === "approved") met++;
-    // 조건 2: 빅파마 L/O 또는 학회 구두 발표
-    if (s.license_out_tier === "top20" || s.license_out_tier === "global" || s.conference_level === "oral_top4") met++;
-    // 조건 3: 고영향 논문
-    if (s.high_if_papers >= 1 || s.total_citations >= 100) met++;
-    return met >= 2;
+  // 3상 우선, 같은 단계면 병명 알파벳순
+  outputPipelines.sort((a, b) => {
+    const phaseOrder: Record<string, number> = { PHASE3: 0, PHASE2: 1 };
+    const pDiff = (phaseOrder[a.phase] ?? 9) - (phaseOrder[b.phase] ?? 9);
+    if (pDiff !== 0) return pDiff;
+    return a.disease_category.localeCompare(b.disease_category);
   });
-
-  // 출시 임박 순 정렬
-  const phaseOrder: Record<string, number> = { approved: 0, phase3: 1, phase2: 2, phase1: 3, preclinical: 4, none: 5 };
-  trackBCandidates.sort((a, b) => (phaseOrder[a.highest_phase] ?? 5) - (phaseOrder[b.highest_phase] ?? 5));
-
-  console.log(`  B 트랙 (유망형): ${trackBCandidates.length}개`);
-
-  // Phase 6: B 트랙 기술 상세 조사
-  console.log("\n🔍 Phase 6: B 트랙 기술 상세 조사");
-
-  const trackB = [];
-  for (const s of trackBCandidates) {
-    // 3상 이상 파이프라인만 선별
-    const phase3Pipelines = s.pipelines.filter(p =>
-      p.phase === "PHASE3" || p.phase === "PHASE4" || p.status === "APPROVED"
-    );
-
-    const enrichedPipelines = [];
-    for (const pl of phase3Pipelines.slice(0, 3)) { // 최대 3개
-      console.log(`  ${s.name} — ${pl.title.slice(0, 50)}...`);
-      const techDetail = await fetchTechDetail(pl);
-      enrichedPipelines.push({
-        name: pl.title,
-        indication: pl.indication,
-        phase: pl.phase,
-        phase_status: pl.status,
-        start_date: pl.startDate,
-        est_completion: pl.completionDate,
-        milestones: {
-          patent: s.patent_domestic > 0 || s.patent_pct > 0,
-          publication: s.pubmed_count > 0,
-          preclinical: true,
-          phase1: true,
-          phase2: true,
-          phase3: pl.phase === "PHASE3" || pl.phase === "PHASE4" ? (pl.status === "COMPLETED" ? true : "in_progress") : false,
-          nda: pl.status === "APPROVED" ? true : false,
-          approved: s.highest_phase === "approved",
-        },
-        external_validation: [
-          ...(s.license_out_tier === "top20" || s.license_out_tier === "global" ? ["bigpharma_lo"] : []),
-          ...(s.conference_level === "oral_top4" ? ["asco_oral"] : []),
-        ],
-        filter_met: (() => { let m = 0; if (s.highest_phase === "phase3" || s.highest_phase === "approved") m++; if (s.license_out_tier === "top20" || s.license_out_tier === "global" || s.conference_level === "oral_top4") m++; if (s.high_if_papers >= 1 || s.total_citations >= 100) m++; return m; })(),
-        tech_summary: techDetail.tech_summary,
-        tech_detail: techDetail.tech_detail,
-        market_impact: techDetail.market_impact,
-        global_exclusivity: techDetail.global_exclusivity,
-      });
-      await sleep(500);
-    }
-
-    trackB.push({
-      code: s.code, name: s.name, market: s.market,
-      score: s.scored.score, grade: s.scored.grade,
-      cat1: s.scored.cat1, cat2: s.scored.cat2, cat3: s.scored.cat3,
-      details: s.scored.details,
-      data_confidence: s.data_confidence,
-      market_cap: s.market_cap, current_price: s.current_price,
-      pipelines: enrichedPipelines,
-    });
-  }
-
-  // Phase 7: 출력
-  console.log("\n💾 Phase 7: 결과 저장");
 
   const output = {
     scanned_at: today(),
     total_scanned: bioStocks.length,
+    active_pipeline_count: outputPipelines.length,
     data_sources: {
       kipris: stats.kipris,
       papers: stats.papers,
       clinical: stats.clinical,
       dart: stats.dart,
-      naver: stats.naver,
     },
-    track_a: {
-      count: trackA.length,
-      candidates: trackA,
-    },
-    track_b: {
-      count: trackB.length,
-      candidates: trackB,
-    },
+    pipelines: outputPipelines,
   };
 
   fs.writeFileSync(OUTPUT_FILE, JSON.stringify(output, null, 2));
@@ -1032,8 +1025,8 @@ async function main() {
 
   console.log("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
   console.log("✅ 스크리닝 완료");
-  console.log(`  A 트랙: ${trackA.length}개 (점수 상위)`);
-  console.log(`  B 트랙: ${trackB.length}개 (유망 파이프라인)`);
+  console.log(`  전체 스캔: ${bioStocks.length}개`);
+  console.log(`  2상/3상 진행 중: ${outputPipelines.length}건`);
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 }
 
