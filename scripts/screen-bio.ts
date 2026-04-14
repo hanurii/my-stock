@@ -294,6 +294,8 @@ const TOP4_CONFERENCES = /ASCO|ASH|AACR|ESMO/i;
 
 const NAVER_CLIENT_ID = process.env.NAVER_CLIENT_ID ?? "";
 const NAVER_CLIENT_SECRET = process.env.NAVER_CLIENT_SECRET ?? "";
+const OPENALEX_API_KEY = process.env.OPENALEX_API_KEY ?? "";
+const OPENALEX_PARAMS = OPENALEX_API_KEY ? `&api_key=${OPENALEX_API_KEY}` : "&mailto=hanul@example.com";
 
 // OpenAlex 학회 저널 소스 ID (보충판에 학회 초록 색인)
 const OPENALEX_CONFERENCES: { name: string; sourceId: string; issuePattern: string }[] = [
@@ -311,7 +313,7 @@ async function fetchConferenceLevel(name: string, code: string): Promise<Confere
   // 1차: OpenAlex — ASCO/ASH/AACR 학회 초록 검색 (ESMO 미지원)
   try {
     for (const conf of OPENALEX_CONFERENCES) {
-      const url = `https://api.openalex.org/works?filter=primary_location.source.id:${conf.sourceId},raw_affiliation_strings.search:${encodeURIComponent(name)}&per_page=1&mailto=hanul@example.com`;
+      const url = `https://api.openalex.org/works?filter=primary_location.source.id:${conf.sourceId},raw_affiliation_strings.search:${encodeURIComponent(name)}&per_page=1${OPENALEX_PARAMS}`;
       const res = await fetchWithRetry(url);
       if (res.ok) {
         const json = await res.json();
@@ -529,7 +531,7 @@ async function fetchPapers(nameEn: string, code: string): Promise<PaperData> {
   const notable_journals: string[] = [];
 
   try {
-    const url = `https://api.openalex.org/works?filter=raw_affiliation_strings.search:${encodeURIComponent(nameEn)}&per_page=50&sort=cited_by_count:desc&mailto=hanul@example.com`;
+    const url = `https://api.openalex.org/works?filter=raw_affiliation_strings.search:${encodeURIComponent(nameEn)}&per_page=50&sort=cited_by_count:desc${OPENALEX_PARAMS}`;
     const res = await fetchWithRetry(url);
     if (res.ok) {
       const json = await res.json();
