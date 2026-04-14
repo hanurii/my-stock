@@ -10,6 +10,7 @@ interface PipelineQuality {
   pubmed_count: number;
   high_if_papers: number;
   total_citations: number;
+  notable_journals: string[];
   conference_level: string | null;
   has_results_posted: boolean;
   bigpharma_deal: { tier: string; terminated: boolean };
@@ -224,9 +225,11 @@ function PipelineCard({ pipeline: pl, briefing }: { pipeline: Pipeline; briefing
             detail={q.total_citations > 0
               ? `피인용 ${q.total_citations.toLocaleString()}회 (${q.total_citations >= 1000 ? "매우높음" : q.total_citations >= 300 ? "높음" : q.total_citations >= 50 ? "중간" : "낮음"})`
               : "인용 실적 없음"} />
-          <DetailRow label="고영향 저널"
-            signal={q.high_if_papers > 0 ? "star" : "bad"}
-            detail={q.high_if_papers > 0 ? `IF≥10 저널 ${q.high_if_papers}편 게재` : "고영향 저널 게재 없음"} />
+          <DetailRow label="저명 저널"
+            signal={q.notable_journals?.length > 0 ? "star" : "bad"}
+            detail={q.notable_journals?.length > 0
+              ? `게재 (${q.notable_journals.join(", ")})`
+              : "저명 저널 게재 없음"} />
 
           {/* 경영진 (프로세스 바 밖의 항목) */}
           <DetailRow label="경영진"

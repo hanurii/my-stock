@@ -509,44 +509,54 @@ function extractPatentKeywords(trialName: string, indication: string): string[] 
 
 // ── Phase 2b: PubMed + Semantic Scholar ──
 
-interface PaperData { pubmed_count: number; high_if_papers: number; total_citations: number; }
+interface PaperData { pubmed_count: number; high_if_papers: number; total_citations: number; notable_journals: string[]; }
+
+const NOTABLE_JOURNALS = [
+  "nature", "science", "cell", "lancet", "new england journal", "nejm",
+  "jama", "bmj", "journal of clinical oncology", "jco", "blood",
+  "annals of oncology", "cancer discovery", "cancer cell",
+  "journal of clinical investigation", "jci", "nature medicine",
+  "nature biotechnology", "nature reviews", "nature communications",
+  "annals of the rheumatic diseases", "gastroenterology", "hepatology",
+  "circulation", "european heart journal", "gut",
+];
 
 async function fetchPapers(nameEn: string, code: string): Promise<PaperData> {
   const cached = getCached<PaperData>(code, "papers");
   if (cached) return cached;
 
   let pubmed_count = 0, high_if_papers = 0, total_citations = 0;
+  const notable_journals: string[] = [];
 
-  // PubMed 검색
   try {
-    const query = encodeURIComponent(`"${nameEn}"[Affiliation]`);
-    const url = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=${query}&retmax=0&retmode=json&api_key=${NCBI_API_KEY}`;
+    const url = `https://api.openalex.org/works?filter=raw_affiliation_strings.search:${encodeURIComponent(nameEn)}&per_page=50&sort=cited_by_count:desc&mailto=hanul@example.com`;
     const res = await fetchWithRetry(url);
     if (res.ok) {
       const json = await res.json();
-      pubmed_count = parseInt(json.esearchresult?.count || "0");
+      pubmed_count = json.meta?.count ?? 0;
+
+      for (const work of json.results || []) {
+        total_citations += work.cited_by_count || 0;
+        const journalName = work.primary_location?.source?.display_name || "";
+        const journalLower = journalName.toLowerCase();
+        if (NOTABLE_JOURNALS.some(nj => journalLower.includes(nj))) {
+          high_if_papers++;
+          if (!notable_journals.includes(journalName)) {
+            notable_journals.push(journalName);
+          }
+        }
+      }
     }
   } catch (e) {
-    console.warn(`  ⚠ PubMed 실패 (${nameEn}):`, (e as Error).message);
+    console.warn(`  ⚠ OpenAlex 논문 실패 (${nameEn}):`, (e as Error).message);
   }
 
-  // Semantic Scholar는 Rate Limit이 매우 엄격하여 일시 비활성화
-  // TODO: API 키 발급 후 재활성화 (https://www.semanticscholar.org/product/api#api-key)
-  // await sleep(3000);
-  // try { ... } catch { ... }
-
-  const result = { pubmed_count, high_if_papers, total_citations };
-  setCache(code, "papers", result);
+  const result: PaperData = { pubmed_count, high_if_papers, total_citations, notable_journals };
+  if (pubmed_count > 0) {
+    setCache(code, "papers", result);
+  }
   return result;
 }
-
-const HIGH_IF_JOURNALS = [
-  "nature", "science", "cell", "lancet", "new england journal", "nejm",
-  "jama", "bmj", "journal of clinical oncology", "jco", "blood",
-  "annals of oncology", "cancer discovery", "cancer cell",
-  "journal of clinical investigation", "jci", "nature medicine",
-  "nature biotechnology", "nature reviews",
-];
 
 // ── Phase 2c: ClinicalTrials.gov 임상 ──
 
@@ -1117,7 +1127,7 @@ async function main() {
   interface CollectedBio {
     code: string; name: string; market: string; marketCap: number; price: number;
     patent_domestic: number; patent_pct: number;
-    pubmed_count: number; high_if_papers: number; total_citations: number;
+    pubmed_count: number; high_if_papers: number; total_citations: number; notable_journals: string[];
     conference_level: ConferenceLevel | null;
     license_out_tier: LicenseOutTier; termination_history: TerminationHistory;
     contract_structure: ContractStructure | null; milestone_ratio: number | null;
@@ -1156,7 +1166,7 @@ async function main() {
       code: stock.code, name: stock.name, market: stock.market,
       marketCap: stock.marketCap, price: stock.price,
       patent_domestic: patents.domestic, patent_pct: patents.pct,
-      pubmed_count: 0, high_if_papers: 0, total_citations: 0, // Phase 2.5에서 채움
+      pubmed_count: 0, high_if_papers: 0, total_citations: 0, notable_journals: [], // Phase 2.5에서 채움
       conference_level: conferenceLevel,
       license_out_tier: deals.license_out_tier, termination_history: deals.termination_history,
       contract_structure: override.contract_structure ?? null,
@@ -1232,7 +1242,7 @@ async function main() {
         code: ct.company.code, name: ct.company.name, market: ct.company.market,
         marketCap: ct.company.market_cap, price: 0,
         patent_domestic: 0, patent_pct: 0,
-        pubmed_count: 0, high_if_papers: 0, total_citations: 0,
+        pubmed_count: 0, high_if_papers: 0, total_citations: 0, notable_journals: [],
         conference_level: null,
         license_out_tier: "none" as LicenseOutTier, termination_history: "none" as TerminationHistory,
         contract_structure: null, milestone_ratio: null,
@@ -1257,8 +1267,9 @@ async function main() {
     s.pubmed_count = papers.pubmed_count;
     s.high_if_papers = papers.high_if_papers;
     s.total_citations = papers.total_citations;
+    s.notable_journals = papers.notable_journals;
     papers.pubmed_count > 0 ? stats.papers.ok++ : stats.papers.fail++;
-    await sleep(1500);
+    await sleep(500); // OpenAlex는 rate limit 여유로움
   }
 
   // Phase 3.7: 파이프라인 기업의 특허 제목 수집 (키워드 매칭용)
@@ -1296,6 +1307,7 @@ async function main() {
       pubmed_count: number;
       high_if_papers: number;
       total_citations: number;
+      notable_journals: string[];
       conference_level: string | null;
       has_results_posted: boolean;
       bigpharma_deal: { tier: string; terminated: boolean };
@@ -1335,6 +1347,7 @@ async function main() {
         pubmed_count: s.pubmed_count,
         high_if_papers: s.high_if_papers,
         total_citations: s.total_citations,
+        notable_journals: s.notable_journals || [],
         conference_level: s.conference_level,
         has_results_posted: pl.hasResults,
         bigpharma_deal: { tier: s.license_out_tier, terminated: s.termination_history === "terminated" },
