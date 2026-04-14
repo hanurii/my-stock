@@ -179,6 +179,9 @@ function PipelineCard({ pipeline: pl, briefing }: { pipeline: Pipeline; briefing
         </h4>
         <p className="text-xs text-on-surface-variant">
           {pl.company.name} · {pl.company.market} · 시총 {fmtNum(pl.company.market_cap)}
+          {q.bigpharma_deal.terminated && (
+            <span className="ml-1" style={{ color: "#ffb4ab", fontSize: "10px" }}>과거 빅파마 계약 파기 이력</span>
+          )}
         </p>
       </div>
 
@@ -246,13 +249,7 @@ function PipelineCard({ pipeline: pl, briefing }: { pipeline: Pipeline; briefing
 // ── 빅파마 칭호 뱃지 ──
 
 function BigPharmaBadge({ deal }: { deal: { tier: string; terminated: boolean } }) {
-  if (deal.terminated) {
-    return (
-      <span className="text-[10px] px-1.5 py-0.5 rounded line-through" style={{ backgroundColor: "#ffb4ab20", color: "#ffb4ab" }}>
-        빅파마 계약 파기
-      </span>
-    );
-  }
+  // 계약 파기는 회사명 옆에 별도 표시하므로 여기서는 현재 상태만
   if (deal.tier === "top20") {
     return (
       <span className="text-[10px] px-1.5 py-0.5 rounded font-bold" style={{ backgroundColor: "#e9c17630", color: "#e9c176" }}>

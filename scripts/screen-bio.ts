@@ -292,44 +292,74 @@ const CONFERENCE_ORAL_KEYWORDS = /oral presentation|구두 발표|구두발표|l
 const CONFERENCE_POSTER_KEYWORDS = /poster presentation|포스터 발표|포스터발표|e-poster/i;
 const TOP4_CONFERENCES = /ASCO|ASH|AACR|ESMO/i;
 
+const NAVER_CLIENT_ID = process.env.NAVER_CLIENT_ID ?? "";
+const NAVER_CLIENT_SECRET = process.env.NAVER_CLIENT_SECRET ?? "";
+
+// OpenAlex 학회 저널 소스 ID (보충판에 학회 초록 색인)
+const OPENALEX_CONFERENCES: { name: string; sourceId: string; issuePattern: string }[] = [
+  { name: "ASCO", sourceId: "S15137598", issuePattern: "16_suppl" },      // JCO
+  { name: "ASH", sourceId: "S200071133", issuePattern: "Supplement 1" },   // Blood
+  { name: "AACR", sourceId: "S168522863", issuePattern: "7_Supplement" },  // Cancer Research
+];
+
 async function fetchConferenceLevel(name: string, code: string): Promise<ConferenceLevel | null> {
   const cached = getCached<ConferenceLevel | null>(code, "conference");
   if (cached !== null && cached !== undefined) return cached;
 
   let result = null as ConferenceLevel | null;
 
+  // 1차: OpenAlex — ASCO/ASH/AACR 학회 초록 검색 (ESMO 미지원)
   try {
-    // 네이버 뉴스 검색: "{종목명} ASCO OR ASH OR AACR OR ESMO 발표"
-    const query = encodeURIComponent(`${name} ASCO ASH AACR ESMO 발표`);
-    const url = `https://openapi.naver.com/v1/search/news.json?query=${query}&display=20&sort=date`;
-    const res = await fetchWithRetry(url, {
-      headers: {
-        "X-Naver-Client-Id": "KbJFMYqVbbMjVnMRPGt4",
-        "X-Naver-Client-Secret": "e4hnA3_kMz",
-      },
-    });
+    for (const conf of OPENALEX_CONFERENCES) {
+      const url = `https://api.openalex.org/works?filter=primary_location.source.id:${conf.sourceId},raw_affiliation_strings.search:${encodeURIComponent(name)}&per_page=1&mailto=hanul@example.com`;
+      const res = await fetchWithRetry(url);
+      if (res.ok) {
+        const json = await res.json();
+        const count = json.meta?.count ?? 0;
+        if (count > 0) {
+          // OpenAlex에서는 구두/포스터 구분이 어려우므로 "other_intl"로 시작
+          // 뉴스에서 구두 발표 여부를 보완
+          result = "other_intl" as ConferenceLevel;
+          break;
+        }
+      }
+      await sleep(200);
+    }
+  } catch (e) {
+    console.warn(`  ⚠ OpenAlex 실패 (${name}):`, (e as Error).message);
+  }
 
-    if (res.ok) {
-      const json = await res.json();
-      const items = json.items || [];
+  // 2차: 네이버 뉴스 — 구두/포스터 구분 + ESMO 커버
+  if (NAVER_CLIENT_ID) {
+    try {
+      const query = encodeURIComponent(`${name} ASCO ASH AACR ESMO 발표`);
+      const url = `https://openapi.naver.com/v1/search/news.json?query=${query}&display=20&sort=date`;
+      const res = await fetchWithRetry(url, {
+        headers: {
+          "X-Naver-Client-Id": NAVER_CLIENT_ID,
+          "X-Naver-Client-Secret": NAVER_CLIENT_SECRET,
+        },
+      });
 
-      for (const item of items) {
-        const text = `${item.title} ${item.description}`.replace(/<[^>]+>/g, "");
-
-        if (TOP4_CONFERENCES.test(text)) {
-          if (CONFERENCE_ORAL_KEYWORDS.test(text)) {
-            result = "oral_top4" as ConferenceLevel;
-            break;
-          } else if (CONFERENCE_POSTER_KEYWORDS.test(text) && result !== "oral_top4") {
-            result = "poster_top4" as ConferenceLevel;
-          } else if (!result) {
-            result = "other_intl" as ConferenceLevel;
+      if (res.ok) {
+        const json = await res.json();
+        for (const item of json.items || []) {
+          const text = `${item.title} ${item.description}`.replace(/<[^>]+>/g, "");
+          if (TOP4_CONFERENCES.test(text)) {
+            if (CONFERENCE_ORAL_KEYWORDS.test(text)) {
+              result = "oral_top4" as ConferenceLevel;
+              break;
+            } else if (CONFERENCE_POSTER_KEYWORDS.test(text) && result !== "oral_top4") {
+              result = "poster_top4" as ConferenceLevel;
+            } else if (!result) {
+              result = "other_intl" as ConferenceLevel;
+            }
           }
         }
       }
+    } catch (e) {
+      console.warn(`  ⚠ 네이버 뉴스 실패 (${name}):`, (e as Error).message);
     }
-  } catch (e) {
-    console.warn(`  ⚠ 학회 뉴스 검색 실패 (${name}):`, (e as Error).message);
   }
 
   setCache(code, "conference", result);
