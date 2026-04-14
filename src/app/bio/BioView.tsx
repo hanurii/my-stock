@@ -93,9 +93,10 @@ function buildSteps(pl: Pipeline): StepResult[] {
   const p1Signal: Signal = "none"; // 2상/3상이면 반드시 통과
   const p1Detail = "안전성 통과";
 
-  // 2상
-  const p2Signal: Signal = q.has_results_posted ? "good" : "bad";
-  const p2Detail = q.has_results_posted ? "결과 데이터 공개됨" : "결과 미공개 — 의심";
+  // 2상 — 진행 중이면 결과 없는 게 정상, 완료 후 미공개만 경고
+  const isActive = ["RECRUITING", "ACTIVE_NOT_RECRUITING", "ENROLLING_BY_INVITATION", "NOT_YET_RECRUITING", "대상자 모집 중", "대상자 모집 전", "예정"].includes(pl.status);
+  const p2Signal: Signal = q.has_results_posted ? "good" : isActive ? "none" : "bad";
+  const p2Detail = q.has_results_posted ? "결과 데이터 공개됨" : isActive ? "진행 중 — 결과 대기" : "완료 후 결과 미공개 — 의심";
 
   // 3상
   const p3Signal: Signal = "none";
