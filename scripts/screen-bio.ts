@@ -358,7 +358,10 @@ async function fetchPatents(name: string, code: string): Promise<PatentData> {
   }
 
   const result = { domestic, pct };
-  setCache(code, "kipris", result);
+  // 실패(0건)일 때는 캐시하지 않음 — 다음 실행에서 재시도
+  if (domestic > 0 || pct > 0) {
+    setCache(code, "kipris", result);
+  }
   return result;
 }
 

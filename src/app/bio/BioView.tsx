@@ -53,10 +53,84 @@ function fmtNum(n: number): string {
 
 const phaseLabel: Record<string, string> = { PHASE3: "3상", PHASE2: "2상" };
 
+// ── 프로세스 단계 정의 ──
+
+type Signal = "good" | "star" | "bad" | "none";
+
+interface StepResult {
+  label: string;
+  reached: boolean;   // 이 단계를 통과/진행 중인지
+  current: boolean;    // 현재 진행 중인 단계인지
+  signal: Signal;      // 질적 시그널
+  detail: string;      // 시그널 사유
+}
+
+function buildSteps(pl: Pipeline): StepResult[] {
+  const q = pl.quality;
+  const isPhase2 = pl.phase === "PHASE2";
+  const isPhase3 = pl.phase === "PHASE3";
+
+  // 특허
+  const patentSignal: Signal = q.has_patent ? "good" : "bad";
+  const patentDetail = q.has_patent
+    ? `국내 ${q.patent_domestic}건, PCT ${q.patent_pct}건`
+    : "특허 없음 — 기술 독점 불가";
+
+  // 논문
+  const paperSignal: Signal = q.high_if_papers > 0 ? "good" : "bad";
+  const paperDetail = q.high_if_papers > 0
+    ? `IF≥10 저널 ${q.high_if_papers}편, 피인용 ${q.total_citations.toLocaleString()}회`
+    : "고영향 저널 논문 없음";
+
+  // 학회
+  const confSignal: Signal = q.conference_level === "oral_top4" ? "star"
+    : q.conference_level === "poster_top4" || q.conference_level === "other_intl" ? "none"
+    : "bad";
+  const confDetail = q.conference_level === "oral_top4" ? "ASCO/ASH/AACR/ESMO 구두 초청"
+    : q.conference_level ? "포스터/기타 발표"
+    : "주요 학회 발표 없음";
+
+  // 1상
+  const p1Signal: Signal = "none"; // 2상/3상이면 반드시 통과
+  const p1Detail = "안전성 통과";
+
+  // 2상
+  const p2Signal: Signal = q.has_results_posted ? "good" : "bad";
+  const p2Detail = q.has_results_posted ? "결과 데이터 공개됨" : "결과 미공개 — 의심";
+
+  // 3상
+  const p3Signal: Signal = "none";
+  const p3Detail = isPhase3 ? "진행 중" : "";
+
+  // 빅파마
+  const pharmaSignal: Signal = q.bigpharma_deal.terminated ? "bad"
+    : q.bigpharma_deal.tier === "top20" ? "star"
+    : q.bigpharma_deal.tier === "global" ? "good"
+    : "none";
+  const pharmaDetail = q.bigpharma_deal.terminated ? "계약 파기 이력"
+    : q.bigpharma_deal.tier === "top20" ? "Top20 빅파마 계약"
+    : q.bigpharma_deal.tier === "global" ? "글로벌 빅파마 계약"
+    : q.bigpharma_deal.tier === "domestic" ? "국내 기술이전"
+    : "빅파마 계약 없음";
+
+  // 경영진 (프로세스 바 밖, 상시 체크)
+  // → 세부 검증에서만 표시
+
+  return [
+    { label: "특허", reached: true, current: false, signal: patentSignal, detail: patentDetail },
+    { label: "논문", reached: true, current: false, signal: paperSignal, detail: paperDetail },
+    { label: "학회", reached: true, current: false, signal: confSignal, detail: confDetail },
+    { label: "1상", reached: true, current: false, signal: p1Signal, detail: p1Detail },
+    { label: "2상", reached: true, current: isPhase2, signal: p2Signal, detail: p2Detail },
+    { label: "3상", reached: isPhase3, current: isPhase3, signal: p3Signal, detail: p3Detail },
+    { label: "빅파마", reached: q.bigpharma_deal.tier !== "none" || q.bigpharma_deal.terminated, current: false, signal: pharmaSignal, detail: pharmaDetail },
+    { label: "허가", reached: false, current: false, signal: "none", detail: "" },
+  ];
+}
+
 // ── 메인 컴포넌트 ──
 
 export function BioView({ pipelines, briefings }: BioViewProps) {
-  // 병명별 그룹핑
   const groups = new Map<string, Pipeline[]>();
   for (const pl of pipelines) {
     const cat = pl.disease_category;
@@ -66,26 +140,10 @@ export function BioView({ pipelines, briefings }: BioViewProps) {
   const sortedGroups = [...groups.entries()].sort((a, b) => b[1].length - a[1].length);
 
   return (
-    <div className="space-y-6">
-      {/* 수동 입력 가이드 */}
-      <Details summary="수동 입력 가이드 (bio-manual-overrides.json)">
-        <div className="space-y-3 mt-2 text-sm text-on-surface-variant">
-          <p className="text-xs text-on-surface-variant/60 mb-2">아래 항목은 자동 수집이 불가하여 수동 입력이 필요합니다. DART 전자공시시스템(dart.fss.or.kr)에서 확인 후 JSON 파일에 입력하세요.</p>
-          <div>
-            <p className="font-medium text-on-surface">contract_structure <span className="text-xs font-normal text-on-surface-variant">&quot;no_return&quot; | &quot;returnable&quot; | &quot;unknown&quot;</span></p>
-            <p>DART → 주요사항보고서 → 기술이전 계약 공시문 → &quot;반환&quot; / &quot;해지 시 원상회복&quot; 조항 확인</p>
-          </div>
-          <div>
-            <p className="font-medium text-on-surface">milestone_ratio <span className="text-xs font-normal text-on-surface-variant">0~100 (숫자)</span></p>
-            <p>동일 공시문에서 계약금·마일스톤·로열티 금액 확인 → 마일스톤이 총 계약금에서 차지하는 비중(%)을 계산하여 입력</p>
-          </div>
-        </div>
-      </Details>
-
-      {/* 병명별 그룹 */}
+    <div className="space-y-8">
       {sortedGroups.map(([category, pls]) => (
         <div key={category}>
-          <h3 className="text-lg font-bold font-serif text-primary mb-3 flex items-center gap-2">
+          <h3 className="text-lg font-bold font-serif text-primary mb-4 flex items-center gap-2">
             {category}
             <span className="text-xs font-normal text-on-surface-variant">({pls.length}건)</span>
           </h3>
@@ -104,11 +162,12 @@ export function BioView({ pipelines, briefings }: BioViewProps) {
 
 function PipelineCard({ pipeline: pl, briefing }: { pipeline: Pipeline; briefing?: Briefing }) {
   const q = pl.quality;
+  const steps = buildSteps(pl);
 
   return (
     <div className="bg-surface-container-low rounded-xl ghost-border p-4 sm:p-5">
-      {/* 헤더: 기술명 크게, 기업명 작게 */}
-      <div className="mb-3">
+      {/* 헤더 */}
+      <div className="mb-4">
         <div className="flex items-center gap-2 mb-1">
           <span className="text-xs px-2 py-0.5 rounded font-bold" style={{
             backgroundColor: pl.phase === "PHASE3" ? "#95d3ba20" : "#6ea8fe20",
@@ -122,165 +181,169 @@ function PipelineCard({ pipeline: pl, briefing }: { pipeline: Pipeline; briefing
         <p className="text-xs text-on-surface-variant">
           {pl.company.name} · {pl.company.market} · 시총 {fmtNum(pl.company.market_cap)}
         </p>
-        <p className="text-xs text-on-surface-variant/50 mt-0.5">
-          적응증: {pl.indication} · NCT: {pl.nct_id}
-        </p>
       </div>
+
+      {/* 프로세스 바 */}
+      <ProcessBar steps={steps} />
 
       {/* AI 시장 브리핑 */}
       {briefing?.market_briefing && (
-        <div className="bg-primary/5 rounded-lg p-3 mb-3 border border-primary/10">
+        <div className="bg-primary/5 rounded-lg p-3 mt-4 border border-primary/10">
           <p className="text-xs font-medium text-primary mb-1">시장 분석</p>
           <p className="text-sm text-on-surface leading-relaxed">{briefing.market_briefing}</p>
         </div>
       )}
 
-      {/* 질적 검증 체크리스트 */}
-      <div className="mb-3">
-        <p className="text-xs font-medium text-on-surface-variant mb-2">기술 질적 검증</p>
-        <div className="space-y-1.5">
-          <CheckItem status={q.has_patent ? "good" : "bad"}
-            good={`특허 보유 (국내 ${q.patent_domestic}건, PCT ${q.patent_pct}건)`}
-            bad="특허 없음 — 기술 독점 불가" />
+      {/* 세부 질적 검증 (접이식, 기본 접힘) */}
+      <details className="mt-3 group">
+        <summary className="cursor-pointer text-xs text-on-surface-variant/60 hover:text-on-surface-variant flex items-center gap-1">
+          <span className="material-symbols-outlined text-sm group-open:rotate-90 transition-transform">chevron_right</span>
+          기술 질적 검증 상세
+        </summary>
+        <div className="mt-3 space-y-2">
+          {/* 프로세스 단계별 상세 */}
+          {steps.map((step) => (
+            step.detail && <DetailRow key={step.label} label={step.label} signal={step.signal} detail={step.detail} />
+          ))}
 
-          <CheckItem
-            status={q.high_if_papers > 0 ? "good" : "bad"}
-            good={`고영향 저널(IF≥10) ${q.high_if_papers}편, 피인용 ${q.total_citations.toLocaleString()}회`}
-            bad="고영향 저널 논문 없음" />
+          {/* 경영진 (프로세스 바 밖의 항목) */}
+          <DetailRow label="경영진"
+            signal={q.ceo_background === "scientist" ? "good" : q.ceo_background === "cto_scientist" ? "good" : "bad"}
+            detail={q.ceo_background === "scientist" ? "박사/연구원 출신 CEO"
+              : q.ceo_background === "cto_scientist" ? "기술자 CTO 보유"
+              : q.ceo_background === "professional" ? "경영 전문가(금융/경영) — 기술자 부재"
+              : "경영진 기술 전문성 확인 불가"} />
 
-          <CheckItem
-            status={q.conference_level === "oral_top4" ? "star" : q.conference_level === "poster_top4" || q.conference_level === "other_intl" ? "neutral" : "bad"}
-            good={q.conference_level === "oral_top4" ? "ASCO/ASH/AACR/ESMO 구두 초청 발표" : `학회 발표 이력 (${q.conference_level})`}
-            bad="주요 학회 발표 이력 없음" />
+          {/* 계약 구조 */}
+          {q.contract_structure && (
+            <DetailRow label="계약 구조"
+              signal={q.contract_structure === "no_return" ? "good" : q.contract_structure === "returnable" ? "bad" : "none"}
+              detail={q.contract_structure === "no_return" ? "반환의무 없음"
+                : q.contract_structure === "returnable" ? "반환의무 있음 — 기술 가치 의문"
+                : "불명"} />
+          )}
 
-          <CheckItem status="good" good="임상 1상 안전성 통과" bad="" />
+          {q.milestone_ratio != null && q.milestone_ratio > 50 && (
+            <DetailRow label="마일스톤" signal="bad"
+              detail={`마일스톤 비중 ${q.milestone_ratio}% — 확정 수령 아님`} />
+          )}
 
-          <CheckItem
-            status={q.has_results_posted ? "good" : "bad"}
-            good="임상 결과 데이터 공개됨"
-            bad="결과 미공개 — 자신 없는 기술 의심" />
-
-          <BigPharmaCheck deal={q.bigpharma_deal} />
-
-          <ContractCheck structure={q.contract_structure} milestoneRatio={q.milestone_ratio} />
-
-          <CheckItem
-            status={q.ceo_background === "scientist" ? "good" : q.ceo_background === "cto_scientist" ? "good" : "bad"}
-            good={q.ceo_background === "scientist" ? "박사/연구원 출신 CEO" : "기술자 CTO 보유"}
-            bad={q.ceo_background === "professional" ? "경영 전문가(금융/경영) — 기술자 부재" : "경영진 기술 전문성 확인 불가"} />
+          {/* 메타 정보 */}
+          <div className="flex flex-wrap gap-3 text-xs text-on-surface-variant/50 pt-2 mt-1 border-t border-on-surface-variant/10">
+            <span>NCT: {pl.nct_id}</span>
+            <span>적응증: {pl.indication}</span>
+            {pl.competing_phase3_count > 0 && <span>3상 경쟁: {pl.competing_phase3_count}개</span>}
+            {pl.est_completion && <span>예상 완료: {pl.est_completion}</span>}
+            {pl.start_date && <span>시작: {pl.start_date}</span>}
+          </div>
         </div>
-      </div>
+      </details>
+    </div>
+  );
+}
 
-      {/* 하단 메타 */}
-      <div className="flex flex-wrap gap-3 text-xs text-on-surface-variant/60 pt-2 border-t border-on-surface-variant/10">
-        {pl.competing_phase3_count > 0 && <span>3상 경쟁: {pl.competing_phase3_count}개</span>}
-        {pl.est_completion && <span>예상 완료: {pl.est_completion}</span>}
-        {pl.start_date && <span>시작: {pl.start_date}</span>}
+// ── 프로세스 바 ──
+
+const SIGNAL_COLORS: Record<Signal, string> = {
+  star: "#e9c176",
+  good: "#95d3ba",
+  bad: "#ffb4ab",
+  none: "",
+};
+
+const SIGNAL_ICON: Record<Signal, string> = {
+  star: "★",
+  good: "✓",
+  bad: "✕",
+  none: "",
+};
+
+function ProcessBar({ steps }: { steps: StepResult[] }) {
+  return (
+    <div className="overflow-x-auto">
+      <div className="flex items-start gap-0 min-w-[560px]">
+        {steps.map((step, i) => {
+          const reached = step.reached;
+          const current = step.current;
+          const hasSignal = step.signal !== "none";
+
+          // 원 색상
+          const circleBg = current ? "#6ea8fe" : reached ? "#95d3ba" : "transparent";
+          const circleBorder = current ? "#6ea8fe" : reached ? "#95d3ba" : "rgba(255,255,255,0.12)";
+          const iconColor = reached || current ? "#1a1a1a" : "rgba(255,255,255,0.2)";
+
+          // 연결선
+          const lineDone = reached && i < steps.length - 1 && steps[i + 1].reached;
+
+          return (
+            <div key={step.label} className="flex items-start">
+              <div className="flex flex-col items-center" style={{ minWidth: 68 }}>
+                {/* 원 */}
+                <div className="relative">
+                  <div
+                    className="w-8 h-8 rounded-full flex items-center justify-center border-2"
+                    style={{ backgroundColor: circleBg, borderColor: circleBorder }}
+                  >
+                    {current ? (
+                      <span className="material-symbols-outlined text-sm" style={{ color: iconColor }}>pending</span>
+                    ) : reached ? (
+                      <span className="material-symbols-outlined text-sm" style={{ color: iconColor }}>check</span>
+                    ) : (
+                      <span className="text-[10px]" style={{ color: iconColor }}>{i + 1}</span>
+                    )}
+                  </div>
+                  {/* 시그널 뱃지 */}
+                  {hasSignal && (
+                    <span
+                      className="absolute -top-1.5 -right-1.5 text-xs font-bold w-4 h-4 flex items-center justify-center rounded-full"
+                      style={{
+                        color: SIGNAL_COLORS[step.signal],
+                        backgroundColor: `${SIGNAL_COLORS[step.signal]}18`,
+                        fontSize: "10px",
+                      }}
+                    >
+                      {SIGNAL_ICON[step.signal]}
+                    </span>
+                  )}
+                </div>
+                {/* 라벨 */}
+                <span className={`text-[10px] mt-1 ${reached || current ? "text-on-surface" : "text-on-surface-variant/30"}`}>
+                  {step.label}
+                </span>
+                {/* 시그널 사유 (짧게) */}
+                {hasSignal && (
+                  <span className="text-[9px] mt-0.5 max-w-[64px] text-center leading-tight" style={{ color: SIGNAL_COLORS[step.signal] }}>
+                    {step.detail.length > 12 ? step.detail.slice(0, 12) + "…" : step.detail}
+                  </span>
+                )}
+              </div>
+              {/* 연결선 */}
+              {i < steps.length - 1 && (
+                <div className="w-3 h-0.5 mt-4" style={{
+                  backgroundColor: lineDone ? "#95d3ba" : "rgba(255,255,255,0.08)",
+                }} />
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
 }
 
-// ── 체크 아이템 ──
+// ── 상세 검증 행 ──
 
-function CheckItem({ status, good, bad }: { status: "good" | "bad" | "star" | "neutral"; good: string; bad: string }) {
-  if (status === "star") {
-    return (
-      <div className="flex items-start gap-2 text-sm">
-        <span className="shrink-0 text-xs mt-0.5" style={{ color: "#e9c176" }}>★</span>
-        <span className="text-on-surface font-medium" style={{ color: "#e9c176" }}>{good}</span>
-      </div>
-    );
-  }
-  if (status === "good") {
-    return (
-      <div className="flex items-start gap-2 text-sm">
-        <span className="shrink-0 text-xs mt-0.5" style={{ color: "#95d3ba" }}>✓</span>
-        <span className="text-on-surface-variant">{good}</span>
-      </div>
-    );
-  }
-  if (status === "neutral") {
-    return (
-      <div className="flex items-start gap-2 text-sm">
-        <span className="shrink-0 text-xs mt-0.5 text-on-surface-variant/40">—</span>
-        <span className="text-on-surface-variant/60">{good}</span>
-      </div>
-    );
-  }
-  // bad
+function DetailRow({ label, signal, detail }: { label: string; signal: Signal; detail: string }) {
+  const icon = signal === "star" ? "★" : signal === "good" ? "✓" : signal === "bad" ? "✕" : "—";
+  const color = SIGNAL_COLORS[signal] || "rgba(255,255,255,0.3)";
+
   return (
-    <div className="flex items-start gap-2 text-sm">
-      <span className="shrink-0 text-xs mt-0.5" style={{ color: "#ffb4ab" }}>✕</span>
-      <span style={{ color: "#ffb4ab" }}>{bad}</span>
+    <div className="flex items-start gap-2 text-xs">
+      <span className="shrink-0 w-[52px] text-on-surface-variant/60">{label}</span>
+      <span className="shrink-0" style={{ color }}>{icon}</span>
+      <span style={{ color: signal === "bad" ? "#ffb4ab" : signal === "star" ? "#e9c176" : undefined }}>
+        {detail}
+      </span>
     </div>
-  );
-}
-
-function BigPharmaCheck({ deal }: { deal: { tier: string; terminated: boolean } }) {
-  if (deal.terminated) {
-    return <CheckItem status="bad" good="" bad="빅파마 계약 파기 이력 — 기술 신뢰도 훼손" />;
-  }
-  if (deal.tier === "top20") {
-    return (
-      <div className="flex items-start gap-2 text-sm">
-        <span className="shrink-0 text-xs mt-0.5" style={{ color: "#e9c176" }}>★</span>
-        <span className="text-on-surface font-medium" style={{ color: "#e9c176" }}>Top20 빅파마 계약, 파기 없음</span>
-      </div>
-    );
-  }
-  if (deal.tier === "global") {
-    return <CheckItem status="good" good="글로벌 빅파마 계약, 파기 없음" bad="" />;
-  }
-  if (deal.tier === "domestic") {
-    return <CheckItem status="neutral" good="국내 기술이전 계약" bad="" />;
-  }
-  return (
-    <div className="flex items-start gap-2 text-sm">
-      <span className="shrink-0 text-xs mt-0.5 text-on-surface-variant/40">—</span>
-      <span className="text-on-surface-variant/60">빅파마 계약 없음</span>
-    </div>
-  );
-}
-
-function ContractCheck({ structure, milestoneRatio }: { structure: string | null; milestoneRatio: number | null }) {
-  const items: React.ReactNode[] = [];
-
-  if (structure === "no_return") {
-    items.push(<CheckItem key="cs" status="good" good="반환의무 없음" bad="" />);
-  } else if (structure === "returnable") {
-    items.push(<CheckItem key="cs" status="bad" good="" bad="반환의무 있음 — 기술 가치 의문" />);
-  } else {
-    items.push(
-      <div key="cs" className="flex items-start gap-2 text-sm">
-        <span className="shrink-0 text-xs mt-0.5 text-on-surface-variant/40">—</span>
-        <span className="text-on-surface-variant/60">계약 구조 불명</span>
-      </div>
-    );
-  }
-
-  if (milestoneRatio != null && milestoneRatio > 50) {
-    items.push(
-      <div key="ms" className="flex items-start gap-2 text-sm">
-        <span className="shrink-0 text-xs mt-0.5" style={{ color: "#e9c176" }}>!</span>
-        <span style={{ color: "#e9c176" }}>마일스톤 비중 {milestoneRatio}% — 확정 수령 아님</span>
-      </div>
-    );
-  }
-
-  return <>{items}</>;
-}
-
-// ── Details 컴포넌트 ──
-
-function Details({ summary, children }: { summary: string; children: React.ReactNode }) {
-  return (
-    <details className="group">
-      <summary className="cursor-pointer text-xs text-on-surface-variant/60 hover:text-on-surface-variant flex items-center gap-1">
-        <span className="material-symbols-outlined text-sm group-open:rotate-90 transition-transform">chevron_right</span>
-        {summary}
-      </summary>
-      {children}
-    </details>
   );
 }
