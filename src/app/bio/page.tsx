@@ -27,7 +27,7 @@ export default async function BioPage() {
     <div className="max-w-6xl mx-auto">
       <header className="mb-8">
         <h2 className="text-2xl font-bold font-serif text-primary tracking-tight">
-          기대 바이오주
+          바이오주 모니터링
         </h2>
         <p className="text-xs text-on-surface-variant mt-2">
           한국 상장 바이오주 중 임상 2상/3상이 진행 중인 기술을 질적으로 검증합니다.
