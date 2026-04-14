@@ -126,9 +126,9 @@ function buildSteps(pl: Pipeline): StepResult[] {
   // → 세부 검증에서만 표시
 
   return [
-    { label: "특허", reached: true, current: false, signal: patentSignal, detail: patentDetail },
+    { label: "특허", reached: q.patent_matched_count > 0, current: false, signal: patentSignal, detail: patentDetail },
     { label: "논문", reached: q.pubmed_count > 0, current: false, signal: paperExistSignal, detail: paperExistDetail },
-    { label: "학회", reached: q.conference_level != null, current: false, signal: confSignal, detail: confDetail },
+    { label: "학회발표", reached: q.conference_level != null, current: false, signal: confSignal, detail: confDetail },
     { label: "1상", reached: true, current: false, signal: p1Signal, detail: p1Detail },
     { label: "2상", reached: true, current: isPhase2, signal: p2Signal, detail: p2Detail },
     { label: "3상", reached: isPhase3, current: isPhase3, signal: p3Signal, detail: p3Detail },
@@ -322,10 +322,11 @@ function ProcessBar({ steps }: { steps: StepResult[] }) {
           const current = step.current;
           const hasSignal = step.signal !== "none";
 
-          // 원 색상
-          const circleBg = current ? "#6ea8fe" : reached ? "#95d3ba" : "transparent";
-          const circleBorder = current ? "#6ea8fe" : reached ? "#95d3ba" : "rgba(255,255,255,0.12)";
-          const iconColor = reached || current ? "#1a1a1a" : "rgba(255,255,255,0.2)";
+          // 원 색상: bad 시그널이면 빨간 테두리
+          const isBad = step.signal === "bad";
+          const circleBg = current ? "#6ea8fe" : reached ? "#95d3ba" : isBad ? "transparent" : "transparent";
+          const circleBorder = current ? "#6ea8fe" : reached ? "#95d3ba" : isBad ? "#ffb4ab" : "rgba(255,255,255,0.12)";
+          const iconColor = reached || current ? "#1a1a1a" : isBad ? "#ffb4ab" : "rgba(255,255,255,0.2)";
 
           // 연결선
           const lineDone = reached && i < steps.length - 1 && steps[i + 1].reached;
@@ -343,6 +344,8 @@ function ProcessBar({ steps }: { steps: StepResult[] }) {
                       <span className="material-symbols-outlined text-sm" style={{ color: iconColor }}>pending</span>
                     ) : reached ? (
                       <span className="material-symbols-outlined text-sm" style={{ color: iconColor }}>check</span>
+                    ) : isBad ? (
+                      <span className="text-sm font-bold" style={{ color: iconColor }}>✕</span>
                     ) : (
                       <span className="text-[10px]" style={{ color: iconColor }}>{i + 1}</span>
                     )}
