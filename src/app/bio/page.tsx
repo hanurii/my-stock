@@ -1,7 +1,6 @@
 import fs from "fs/promises";
 import path from "path";
 import { BioPageTabs } from "./BioPageTabs";
-import { CompanyResearch } from "./CompanyResearch";
 
 // ── 데이터 로드 ──
 
@@ -19,11 +18,10 @@ async function loadJSON(filename: string) {
 export default async function BioPage() {
   const data = await loadJSON("bio-watchlist.json");
   const briefings = (await loadJSON("bio-briefings.json")) || {};
-  const research = (await loadJSON("bio-research.json")) || {};
   const pipelines = data?.pipelines || [];
   const bigpharmaDeals = data?.bigpharma_deals || [];
 
-  const hasData = pipelines.length > 0 || bigpharmaDeals.length > 0 || Object.keys(research).length > 0;
+  const hasData = pipelines.length > 0 || bigpharmaDeals.length > 0;
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -60,11 +58,6 @@ export default async function BioPage() {
             briefings={briefings}
             bigpharmaDeals={bigpharmaDeals}
           />
-          {Object.keys(research).length > 0 && (
-            <div className="mt-10">
-              <CompanyResearch research={research} />
-            </div>
-          )}
         </>
       )}
     </div>

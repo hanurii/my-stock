@@ -50,25 +50,27 @@ const CHECK_LABELS: Record<string, string> = {
 
 // ── 컴포넌트 ──
 
+function countGood(data: CompanyResearchData): number {
+  return Object.values(data.quality_checks).filter((c) => c.signal === "good").length;
+}
+
 export function CompanyResearch({ research }: CompanyResearchProps) {
   const entries = Object.entries(research);
   if (entries.length === 0) return null;
 
+  const sorted = [...entries].sort(([, a], [, b]) => countGood(b) - countGood(a));
+
   return (
     <div className="space-y-6">
-      <h3 className="text-lg font-bold font-serif text-primary flex items-center gap-2">
-        기업 심층 분석
-        <span className="text-xs font-normal text-on-surface-variant">({entries.length}건)</span>
-      </h3>
-
-      {entries.map(([code, data]) => (
-        <ResearchCard key={code} code={code} data={data} />
+      {sorted.map(([code, data]) => (
+        <ResearchCard key={code} code={code} data={data} goodCount={countGood(data)} />
       ))}
     </div>
   );
 }
 
-function ResearchCard({ code, data }: { code: string; data: CompanyResearchData }) {
+function ResearchCard({ code, data, goodCount }: { code: string; data: CompanyResearchData; goodCount: number }) {
+  const total = Object.keys(data.quality_checks).length;
   return (
     <div className="bg-surface-container-low rounded-xl ghost-border p-4 sm:p-5">
       {/* 헤더 */}
@@ -76,6 +78,9 @@ function ResearchCard({ code, data }: { code: string; data: CompanyResearchData 
         <div className="flex items-center gap-2 mb-1">
           <span className="text-xs px-2 py-0.5 rounded font-bold" style={{ backgroundColor: "#e9c17620", color: "#e9c176" }}>
             심층 분석
+          </span>
+          <span className="text-xs px-2 py-0.5 rounded font-bold" style={{ backgroundColor: goodCount >= 5 ? "#95d3ba20" : goodCount >= 3 ? "#e9c17620" : "#ffb4ab20", color: goodCount >= 5 ? "#95d3ba" : goodCount >= 3 ? "#e9c176" : "#ffb4ab" }}>
+            ✓ {goodCount}/{total}
           </span>
           <span className="text-xs text-on-surface-variant/50">{data.market} · {code}</span>
           <span className="text-xs text-on-surface-variant/50">업데이트: {data.updated_at}</span>
