@@ -35,6 +35,7 @@ const SIGNAL_STYLE: Record<string, { icon: string; color: string }> = {
   good: { icon: "✓", color: "#95d3ba" },
   bad: { icon: "✕", color: "#ffb4ab" },
   warn: { icon: "!", color: "#e9c176" },
+  na: { icon: "—", color: "#8e8e8e" },
 };
 
 const CHECK_LABELS: Record<string, string> = {
