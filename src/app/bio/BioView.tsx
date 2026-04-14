@@ -136,6 +136,61 @@ function buildSteps(pl: Pipeline): StepResult[] {
   ];
 }
 
+// ── 대시보드 카드 ──
+
+function DashboardCards({ groups }: { groups: [string, Pipeline[]][] }) {
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+      {groups.map(([category, pls]) => {
+        const phase3 = pls.filter(p => p.phase === "PHASE3").length;
+        const phase2 = pls.filter(p => p.phase === "PHASE2").length;
+
+        // 주요 기업 (중복 제거, 최대 3개)
+        const companies = [...new Set(pls.map(p => p.company.name))];
+        const companyText = companies.length <= 3
+          ? companies.join(", ")
+          : `${companies.slice(0, 3).join(", ")} 외 ${companies.length - 3}`;
+
+        // 질적 지표 집계
+        const withPatent = pls.filter(p => p.quality.patent_matched_count > 0).length;
+        const withJournal = pls.filter(p => p.quality.notable_journals?.length > 0).length;
+        const withConf = pls.filter(p => p.quality.conference_level === "oral_top4").length;
+        const withBigpharma = pls.filter(p => p.quality.bigpharma_deal.tier === "top20" || p.quality.bigpharma_deal.tier === "global").length;
+
+        return (
+          <a
+            key={category}
+            href={`#cat-${category}`}
+            className="bg-surface-container-low rounded-xl ghost-border p-3 hover:bg-surface-container transition-colors cursor-pointer block"
+          >
+            <div className="flex items-baseline justify-between mb-2">
+              <h4 className="text-sm font-bold text-on-surface">{category}</h4>
+              <span className="text-xs text-on-surface-variant">{pls.length}건</span>
+            </div>
+
+            {/* 단계 비율 */}
+            <div className="flex gap-2 mb-2 text-xs">
+              {phase3 > 0 && <span style={{ color: "#95d3ba" }}>3상 {phase3}</span>}
+              {phase2 > 0 && <span style={{ color: "#6ea8fe" }}>2상 {phase2}</span>}
+            </div>
+
+            {/* 기업 */}
+            <p className="text-xs text-on-surface-variant/60 mb-2 truncate">{companyText}</p>
+
+            {/* 질적 지표 */}
+            <div className="flex flex-wrap gap-x-2 gap-y-0.5 text-[10px] text-on-surface-variant/50">
+              {withConf > 0 && <span style={{ color: "#e9c176" }}>★★ 학회 {withConf}</span>}
+              {withBigpharma > 0 && <span style={{ color: "#e9c176" }}>빅파마 {withBigpharma}</span>}
+              {withPatent > 0 && <span>특허 {withPatent}</span>}
+              {withJournal > 0 && <span>저널 {withJournal}</span>}
+            </div>
+          </a>
+        );
+      })}
+    </div>
+  );
+}
+
 // ── 메인 컴포넌트 ──
 
 export function BioView({ pipelines, briefings }: BioViewProps) {
@@ -149,8 +204,12 @@ export function BioView({ pipelines, briefings }: BioViewProps) {
 
   return (
     <div className="space-y-8">
+      {/* 대시보드 카드 */}
+      <DashboardCards groups={sortedGroups} />
+
+      {/* 병명별 상세 */}
       {sortedGroups.map(([category, pls]) => (
-        <div key={category}>
+        <div key={category} id={`cat-${category}`}>
           <h3 className="text-lg font-bold font-serif text-primary mb-4 flex items-center gap-2">
             {category}
             <span className="text-xs font-normal text-on-surface-variant">({pls.length}건)</span>
@@ -213,25 +272,26 @@ function PipelineCard({ pipeline: pl, briefing }: { pipeline: Pipeline; briefing
           기술 질적 검증 상세
         </summary>
         <div className="mt-3 space-y-2">
-          {/* 프로세스 단계별 상세 */}
+          {/* 프로세스 단계별 상세 + 논문 관련 필드 그룹화 */}
           {steps.map((step) => (
-            step.detail && <DetailRow key={step.label} label={step.label} signal={step.signal} detail={step.detail} />
+            step.detail && <React.Fragment key={step.label}>
+              <DetailRow label={step.label} signal={step.signal} detail={step.detail} />
+              {step.label === "논문" && (
+                <>
+                  <DetailRow label="인용수"
+                    signal={q.total_citations >= 300 ? "good" : q.total_citations > 0 ? "none" : "bad"}
+                    detail={q.total_citations > 0
+                      ? `피인용 ${q.total_citations.toLocaleString()}회 (${q.total_citations >= 1000 ? "매우높음" : q.total_citations >= 300 ? "높음" : q.total_citations >= 50 ? "중간" : "낮음"})`
+                      : "인용 실적 없음"} />
+                  <DetailRow label="저명 저널"
+                    signal={q.notable_journals?.length > 0 ? "star" : "bad"}
+                    detail={q.notable_journals?.length > 0
+                      ? `게재 (${q.notable_journals.join(", ")})`
+                      : "저명 저널 게재 없음"} />
+                </>
+              )}
+            </React.Fragment>
           ))}
-
-          {/* 논문 상세 (3개 필드) */}
-          <DetailRow label="논문 존재"
-            signal={q.pubmed_count > 0 ? "good" : "bad"}
-            detail={q.pubmed_count > 0 ? `논문 ${q.pubmed_count}편` : "논문 없음"} />
-          <DetailRow label="인용수"
-            signal={q.total_citations >= 300 ? "good" : q.total_citations > 0 ? "none" : "bad"}
-            detail={q.total_citations > 0
-              ? `피인용 ${q.total_citations.toLocaleString()}회 (${q.total_citations >= 1000 ? "매우높음" : q.total_citations >= 300 ? "높음" : q.total_citations >= 50 ? "중간" : "낮음"})`
-              : "인용 실적 없음"} />
-          <DetailRow label="저명 저널"
-            signal={q.notable_journals?.length > 0 ? "star" : "bad"}
-            detail={q.notable_journals?.length > 0
-              ? `게재 (${q.notable_journals.join(", ")})`
-              : "저명 저널 게재 없음"} />
 
           {/* 경영진 (프로세스 바 밖의 항목) */}
           <DetailRow label="경영진"
