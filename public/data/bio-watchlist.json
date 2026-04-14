@@ -1,15 +1,15 @@
 {
   "scanned_at": "2026-04-14",
   "total_scanned": 320,
-  "active_pipeline_count": 14,
+  "active_pipeline_count": 71,
   "data_sources": {
     "kipris": {
-      "ok": 285,
-      "fail": 35
+      "ok": 284,
+      "fail": 36
     },
     "papers": {
-      "ok": 5,
-      "fail": 0
+      "ok": 11,
+      "fail": 8
     },
     "clinical": {
       "ok": 14,
@@ -23,11 +23,12 @@
   "pipelines": [
     {
       "nct_id": "NCT06152991",
+      "data_source": "ct.gov",
       "company": {
         "code": "068270",
         "name": "셀트리온",
         "market": "KOSPI",
-        "market_cap": 443877
+        "market_cap": 446096
       },
       "trial_name": "Clinical Trial Assessing Godex Carnitine Orotate Complex in Nonalcoholic Fatty Liver Disease Patients for Efficacy",
       "indication": "Non-Alcoholic Fatty Liver Disease",
@@ -39,12 +40,36 @@
       "tech_summary_en": "the purpose of this clinical trial is to assess the efficacy and safety of Orotic Acid Carnitine Complex Capsules (Godex®) in comparison to a placebo control group in patients with Non-Alcoholic Fatty Liver Disease (NAFLD).",
       "competing_phase3_count": 0,
       "quality": {
-        "has_patent": true,
-        "patent_domestic": 237,
-        "patent_pct": 0,
-        "high_if_papers": 0,
-        "total_citations": 0,
-        "conference_level": null,
+        "patent_matched_count": 43,
+        "patent_search_keywords": [
+          "카르니틴",
+          "carnitine",
+          "오로트산",
+          "고덱스",
+          "지방간",
+          "간",
+          "liver"
+        ],
+        "pubmed_count": 415,
+        "high_if_papers": 22,
+        "total_citations": 6666,
+        "notable_journals": [
+          "Annals of the Rheumatic Diseases",
+          "Science",
+          "Nature Communications",
+          "Gastroenterology",
+          "The Lancet",
+          "Gut",
+          "Journal of Pediatric Gastroenterology and Nutrition",
+          "The American Journal of Gastroenterology",
+          "The Lancet Oncology",
+          "Expert Review of Gastroenterology & Hepatology",
+          "Molecules and Cells",
+          "The Lancet Haematology",
+          "Journal of Pharmaceutical Sciences",
+          "BMC Gastroenterology"
+        ],
+        "conference_level": "other_intl",
         "has_results_posted": false,
         "bigpharma_deal": {
           "tier": "domestic",
@@ -58,6 +83,7 @@
     },
     {
       "nct_id": "NCT06399042",
+      "data_source": "ct.gov",
       "company": {
         "code": "215600",
         "name": "신라젠",
@@ -74,12 +100,22 @@
       "tech_summary_en": "This is a randomized, double-blind, multicenter, Active Controlled, pivotal clinical trial to assess the efficacy and safety of the novel hexamethylenediamine (HMDA) cross-linked hyaluronate intra-articular injection (SP5M002) compared with an active comparator, the 1,4-butanediol diglycidyl ether (BDDE) cross-linked hyaluronate (Synovian) in patients with knee osteoarthritis.",
       "competing_phase3_count": 0,
       "quality": {
-        "has_patent": true,
-        "patent_domestic": 31,
-        "patent_pct": 0,
-        "high_if_papers": 15,
-        "total_citations": 7240,
-        "conference_level": null,
+        "patent_matched_count": 0,
+        "patent_search_keywords": [
+          "골관절염",
+          "관절"
+        ],
+        "pubmed_count": 29,
+        "high_if_papers": 6,
+        "total_citations": 1202,
+        "notable_journals": [
+          "The Lancet",
+          "New England Journal of Medicine",
+          "The Lancet Infectious Diseases",
+          "The Lancet Microbe",
+          "International Journal of Molecular Sciences"
+        ],
+        "conference_level": "oral_top4",
         "has_results_posted": false,
         "bigpharma_deal": {
           "tier": "none",
@@ -93,6 +129,7 @@
     },
     {
       "nct_id": "NCT06660719",
+      "data_source": "ct.gov",
       "company": {
         "code": "215600",
         "name": "신라젠",
@@ -109,11 +146,65 @@
       "tech_summary_en": "This clinical study is designed to evaluate the efficacy and safety of the combination therapy of SP-8203 (otaplimastat) and thrombolytic standard of care in acute ischemic stroke patient.\n\nAs a standard of care, thrombolytic therapy (for instance, recombinant tissue plasminogen activator) will be administered. When reperfusion is not achieved in spite of thrombolytic therapy, endovascular therapy can be performed.",
       "competing_phase3_count": 0,
       "quality": {
-        "has_patent": true,
-        "patent_domestic": 31,
-        "patent_pct": 0,
-        "high_if_papers": 15,
-        "total_citations": 7240,
+        "patent_matched_count": 0,
+        "patent_search_keywords": [
+          "sp-8203",
+          "오타플리마스타트",
+          "otaplimastat",
+          "MMP",
+          "뇌졸중",
+          "stroke"
+        ],
+        "pubmed_count": 29,
+        "high_if_papers": 6,
+        "total_citations": 1202,
+        "notable_journals": [
+          "The Lancet",
+          "New England Journal of Medicine",
+          "The Lancet Infectious Diseases",
+          "The Lancet Microbe",
+          "International Journal of Molecular Sciences"
+        ],
+        "conference_level": "oral_top4",
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": false
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0000574",
+      "data_source": "cris",
+      "company": {
+        "code": "005690",
+        "name": "파미셀",
+        "market": "KOSPI",
+        "market_cap": 10539
+      },
+      "trial_name": "뇌경색증 환자에서 자가혈청배양 자가중간엽 줄기세포를 이용한 세포 이식치료의 임상시험",
+      "indication": "Intravenous Administration of Autoserum-cultured Autologous Mesenchymal Stem Cells in Ischemic Stroke: A Single Center, Randomized, Open Label, Prospective, Phase 3 Study",
+      "disease_category": "뇌혈관",
+      "phase": "PHASE3",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2012-11-07",
+      "est_completion": "2016-02-29",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [
+          "뇌졸중",
+          "stroke"
+        ],
+        "pubmed_count": 0,
+        "high_if_papers": 0,
+        "total_citations": 0,
+        "notable_journals": [],
         "conference_level": null,
         "has_results_posted": false,
         "bigpharma_deal": {
@@ -128,11 +219,12 @@
     },
     {
       "nct_id": "NCT07093476",
+      "data_source": "ct.gov",
       "company": {
         "code": "068270",
         "name": "셀트리온",
         "market": "KOSPI",
-        "market_cap": 443877
+        "market_cap": 446096
       },
       "trial_name": "Efficacy and Safety of Add-On Therapy With Empagliflozin in Patients With Type 2 Diabetes on a Background of Alogliptin and Metformin",
       "indication": "T2DM, Diabete Type 2, DM",
@@ -144,12 +236,34 @@
       "tech_summary_en": "Phase 3 study to assess the Efficacy and Safety of CT-L02-301 in Type 2 Diabetes Patients with Insufficient Glycemic Control with Metformin and Alogliptin Combination Therapy.",
       "competing_phase3_count": 0,
       "quality": {
-        "has_patent": true,
-        "patent_domestic": 237,
-        "patent_pct": 0,
-        "high_if_papers": 0,
-        "total_citations": 0,
-        "conference_level": null,
+        "patent_matched_count": 2,
+        "patent_search_keywords": [
+          "SGLT2",
+          "엠파글리플로진",
+          "empagliflozin",
+          "당뇨",
+          "diabetes"
+        ],
+        "pubmed_count": 415,
+        "high_if_papers": 22,
+        "total_citations": 6666,
+        "notable_journals": [
+          "Annals of the Rheumatic Diseases",
+          "Science",
+          "Nature Communications",
+          "Gastroenterology",
+          "The Lancet",
+          "Gut",
+          "Journal of Pediatric Gastroenterology and Nutrition",
+          "The American Journal of Gastroenterology",
+          "The Lancet Oncology",
+          "Expert Review of Gastroenterology & Hepatology",
+          "Molecules and Cells",
+          "The Lancet Haematology",
+          "Journal of Pharmaceutical Sciences",
+          "BMC Gastroenterology"
+        ],
+        "conference_level": "other_intl",
         "has_results_posted": false,
         "bigpharma_deal": {
           "tier": "domestic",
@@ -163,11 +277,12 @@
     },
     {
       "nct_id": "NCT06571591",
+      "data_source": "ct.gov",
       "company": {
         "code": "068270",
         "name": "셀트리온",
         "market": "KOSPI",
-        "market_cap": 443877
+        "market_cap": 446096
       },
       "trial_name": "Efficacy and Safety of Pioglitazone Combination Therapy in Type 2 Diabetes Patients on a Background of Empagliflozin With Metformin",
       "indication": "T2DM",
@@ -179,12 +294,37 @@
       "tech_summary_en": "Phase 3 study to assess the Efficacy and Safety of CT-L03-301 in Type 2 Diabetes Patients with Insufficient Glycemic Control with Metformin and Empagliflozin Combination Therapy.",
       "competing_phase3_count": 0,
       "quality": {
-        "has_patent": true,
-        "patent_domestic": 237,
-        "patent_pct": 0,
-        "high_if_papers": 0,
-        "total_citations": 0,
-        "conference_level": null,
+        "patent_matched_count": 4,
+        "patent_search_keywords": [
+          "SGLT2",
+          "엠파글리플로진",
+          "empagliflozin",
+          "당뇨",
+          "피오글리타존",
+          "pioglitazone",
+          "인슐린",
+          "diabetes"
+        ],
+        "pubmed_count": 415,
+        "high_if_papers": 22,
+        "total_citations": 6666,
+        "notable_journals": [
+          "Annals of the Rheumatic Diseases",
+          "Science",
+          "Nature Communications",
+          "Gastroenterology",
+          "The Lancet",
+          "Gut",
+          "Journal of Pediatric Gastroenterology and Nutrition",
+          "The American Journal of Gastroenterology",
+          "The Lancet Oncology",
+          "Expert Review of Gastroenterology & Hepatology",
+          "Molecules and Cells",
+          "The Lancet Haematology",
+          "Journal of Pharmaceutical Sciences",
+          "BMC Gastroenterology"
+        ],
+        "conference_level": "other_intl",
         "has_results_posted": false,
         "bigpharma_deal": {
           "tier": "domestic",
@@ -198,11 +338,12 @@
     },
     {
       "nct_id": "NCT06466785",
+      "data_source": "ct.gov",
       "company": {
         "code": "095700",
         "name": "제넥신",
         "market": "KOSDAQ",
-        "market_cap": 2222
+        "market_cap": 2263
       },
       "trial_name": "A Phase 3 Study of Efepoetin Alfa for Treatment of Anemia in Patients With Chronic Kidney Disease on Dialysis",
       "indication": "Anemia of Chronic Kidney Disease",
@@ -214,12 +355,32 @@
       "tech_summary_en": "An investigator-blinded, randomized, multicenter, active-controlled Phase III study for the treatment of anemia in patients with CKD on hemodialysis",
       "competing_phase3_count": 0,
       "quality": {
-        "has_patent": true,
-        "patent_domestic": 77,
-        "patent_pct": 0,
-        "high_if_papers": 0,
-        "total_citations": 0,
-        "conference_level": null,
+        "patent_matched_count": 1,
+        "patent_search_keywords": [
+          "에포에틴",
+          "EPO",
+          "적혈구",
+          "빈혈",
+          "에리스로포이에틴",
+          "신장",
+          "kidney",
+          "신부전"
+        ],
+        "pubmed_count": 92,
+        "high_if_papers": 9,
+        "total_citations": 2182,
+        "notable_journals": [
+          "Nature Communications",
+          "The Lancet Oncology",
+          "Gut",
+          "The Lancet Microbe",
+          "Clinical and Translational Science",
+          "Blood",
+          "Cell Reports Medicine",
+          "Journal of Clinical Oncology",
+          "Molecules and Cells"
+        ],
+        "conference_level": "other_intl",
         "has_results_posted": false,
         "bigpharma_deal": {
           "tier": "domestic",
@@ -232,12 +393,56 @@
       }
     },
     {
+      "nct_id": "KCT0000390",
+      "data_source": "cris",
+      "company": {
+        "code": "003850",
+        "name": "보령",
+        "market": "KOSPI",
+        "market_cap": 8467
+      },
+      "trial_name": "경·중등도의 본태성 고혈압 환자에서 Fimasartan(BR-A-657·K) 30mg의 혈압 강하 효과와 안전성을 위약과 비교하기 위한 무작위 배정, 양측눈가림, 다기관 임상시험(제3상)",
+      "indication": "A Randomized, Double-Blind, Multicenter, phase III Study to Evaluate the Antihypertensive Efficacy and Safety of Fimasartan (BR-A-657·K) 30mg Compared to Placebo in Patients with Mild to Moderate Essential Hypertension",
+      "disease_category": "심혈관",
+      "phase": "PHASE3",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2012-03-30",
+      "est_completion": "",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [
+          "a-657",
+          "고혈압",
+          "hypertension"
+        ],
+        "pubmed_count": 2,
+        "high_if_papers": 1,
+        "total_citations": 3,
+        "notable_journals": [
+          "Journal of Clinical Oncology"
+        ],
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": true
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
       "nct_id": "NCT06952478",
+      "data_source": "ct.gov",
       "company": {
         "code": "068270",
         "name": "셀트리온",
         "market": "KOSPI",
-        "market_cap": 443877
+        "market_cap": 446096
       },
       "trial_name": "A Study to Compare Pharmacokinetics, Efficacy and Safety of Subcutaneous CT-P44 and Darzalex Faspro in Combination With Lenalidomide and Dexamethasone in Patients With Refractory or Relapsed Multiple Myeloma",
       "indication": "Refractory or Relapsed Multiple Myeloma",
@@ -249,12 +454,35 @@
       "tech_summary_en": "This study is a phase 1/3 study to Compare Pharmacokinetics, Efficacy and Safety of Subcutaneous CT-P44 and Darzalex Faspro in Combination with Lenalidomide and Dexamethasone in Patients with Refractory or Relapsed Multiple Myeloma",
       "competing_phase3_count": 0,
       "quality": {
-        "has_patent": true,
-        "patent_domestic": 237,
-        "patent_pct": 0,
-        "high_if_papers": 0,
-        "total_citations": 0,
-        "conference_level": null,
+        "patent_matched_count": 0,
+        "patent_search_keywords": [
+          "ct-p44",
+          "CD38",
+          "다라투무맙",
+          "daratumumab",
+          "골수종",
+          "myeloma"
+        ],
+        "pubmed_count": 415,
+        "high_if_papers": 22,
+        "total_citations": 6666,
+        "notable_journals": [
+          "Annals of the Rheumatic Diseases",
+          "Science",
+          "Nature Communications",
+          "Gastroenterology",
+          "The Lancet",
+          "Gut",
+          "Journal of Pediatric Gastroenterology and Nutrition",
+          "The American Journal of Gastroenterology",
+          "The Lancet Oncology",
+          "Expert Review of Gastroenterology & Hepatology",
+          "Molecules and Cells",
+          "The Lancet Haematology",
+          "Journal of Pharmaceutical Sciences",
+          "BMC Gastroenterology"
+        ],
+        "conference_level": "other_intl",
         "has_results_posted": false,
         "bigpharma_deal": {
           "tier": "domestic",
@@ -268,11 +496,12 @@
     },
     {
       "nct_id": "NCT06939595",
+      "data_source": "ct.gov",
       "company": {
         "code": "068270",
         "name": "셀트리온",
         "market": "KOSPI",
-        "market_cap": 443877
+        "market_cap": 446096
       },
       "trial_name": "A Study to Compare Effects and Safety of CT-P51 and Keytruda in Patients With Previously Untreated Metastatic Lung Cancer",
       "indication": "Non Squamous Non Small Cell Lung Cancer",
@@ -284,12 +513,37 @@
       "tech_summary_en": "The goal of this Phase 3 clinical trial is to compare efficacy and safety of CT-P51 and European Union (EU) approved Keytruda in combination with platinum pemetrexed chemotherapy in patients with previously untreated metastatic nsNSCLC.",
       "competing_phase3_count": 0,
       "quality": {
-        "has_patent": true,
-        "patent_domestic": 237,
-        "patent_pct": 0,
-        "high_if_papers": 0,
-        "total_citations": 0,
-        "conference_level": null,
+        "patent_matched_count": 0,
+        "patent_search_keywords": [
+          "ct-p51",
+          "PD-1",
+          "PD1",
+          "펨브롤리주맙",
+          "면역관문",
+          "pembrolizumab",
+          "폐암",
+          "lung cancer"
+        ],
+        "pubmed_count": 415,
+        "high_if_papers": 22,
+        "total_citations": 6666,
+        "notable_journals": [
+          "Annals of the Rheumatic Diseases",
+          "Science",
+          "Nature Communications",
+          "Gastroenterology",
+          "The Lancet",
+          "Gut",
+          "Journal of Pediatric Gastroenterology and Nutrition",
+          "The American Journal of Gastroenterology",
+          "The Lancet Oncology",
+          "Expert Review of Gastroenterology & Hepatology",
+          "Molecules and Cells",
+          "The Lancet Haematology",
+          "Journal of Pharmaceutical Sciences",
+          "BMC Gastroenterology"
+        ],
+        "conference_level": "other_intl",
         "has_results_posted": false,
         "bigpharma_deal": {
           "tier": "domestic",
@@ -303,11 +557,12 @@
     },
     {
       "nct_id": "NCT04229979",
+      "data_source": "ct.gov",
       "company": {
         "code": "108860",
         "name": "셀바스AI",
         "market": "KOSDAQ",
-        "market_cap": 3574
+        "market_cap": 3585
       },
       "trial_name": "Galinpepimut-S Versus Investigator's Choice of Best Available Therapy for Maintenance in AML CR2/CRp2",
       "indication": "Acute Myeloid Leukemia",
@@ -319,11 +574,23 @@
       "tech_summary_en": "To assess the safety and efficacy of galinpepimut-S (GPS) compared with investigator's choice of best available therapy (BAT) on overall survival (OS) in subjects with acute myeloid leukemia (AML) who are in second or later complete remission (CR2) or second or later complete remission with incomplete platelet recovery (CRp2).",
       "competing_phase3_count": 0,
       "quality": {
-        "has_patent": false,
-        "patent_domestic": 0,
-        "patent_pct": 0,
-        "high_if_papers": 0,
-        "total_citations": 0,
+        "patent_matched_count": 0,
+        "patent_search_keywords": [
+          "WT1",
+          "galinpepimut",
+          "GPS",
+          "백혈병",
+          "면역",
+          "leukemia"
+        ],
+        "pubmed_count": 13,
+        "high_if_papers": 7,
+        "total_citations": 63,
+        "notable_journals": [
+          "JCO Clinical Cancer Informatics",
+          "Journal of Clinical Oncology",
+          "Annals of Oncology"
+        ],
         "conference_level": null,
         "has_results_posted": false,
         "bigpharma_deal": {
@@ -337,12 +604,205 @@
       }
     },
     {
+      "nct_id": "KCT0010325",
+      "data_source": "cris",
+      "company": {
+        "code": "003850",
+        "name": "보령",
+        "market": "KOSPI",
+        "market_cap": 8467
+      },
+      "trial_name": "근치적 절제된 국소 진행성 식도 편평세포암 환자를 대상으로 한 순환 종양 DNA 미세잔존암 (MRD) 기반 보조항암요법에 대한 다기관, 무작위 배정, 3상 임상시험",
+      "indication": "Multi-center, Randomized, Phase III Trial of Circulating Tumor DNA MRD-Guided Adjuvant Therapy for Curatively Resected Locally Advanced Esophageal Squamous Cell Carcinoma (MRD2START)",
+      "disease_category": "암",
+      "phase": "PHASE3",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2025-10-01",
+      "est_completion": "2034-05-30",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [],
+        "pubmed_count": 2,
+        "high_if_papers": 1,
+        "total_citations": 3,
+        "notable_journals": [
+          "Journal of Clinical Oncology"
+        ],
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": true
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0005056",
+      "data_source": "cris",
+      "company": {
+        "code": "249420",
+        "name": "일동제약",
+        "market": "KOSPI",
+        "market_cap": 9064
+      },
+      "trial_name": "담도암에서 근치적 목적의 수술적 절제 후 Gemcitabine, Capecitabine 병용 화학요법을 Capecitabine 단독 화학요법과 비교하는 다기관, 무작위 배정,  제 3상 연구",
+      "indication": "A Randomized, Multi-center Phase III Trial of Adjuvant Chemotherapy with Gemcitabine and Capecitabine Compared to Capecitabine Alone in Curatively Resected Biliary Tract Cancer",
+      "disease_category": "암",
+      "phase": "PHASE3",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2020-08-01",
+      "est_completion": "2025-03-30",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [],
+        "pubmed_count": 0,
+        "high_if_papers": 0,
+        "total_citations": 0,
+        "notable_journals": [],
+        "conference_level": "other_intl",
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": false
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "professional",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0004548",
+      "data_source": "cris",
+      "company": {
+        "code": "003850",
+        "name": "보령",
+        "market": "KOSPI",
+        "market_cap": 8467
+      },
+      "trial_name": "고용량 무기 셀레늄의 백금 민감성 재발성 난소암, 나팔관암, 및 일차성 복막암의 치료에서 안전성 및 항암 유도 말초 신경병증 보호 효과에 대한 제 3 상 무작위 배정 임상 시험",
+      "indication": "Safety and Efficacy of high dose inorganic seLenium for preventing chemotherapy induced pEripheral Neuropathy in platINUM sensitive recurrent ovarian, fallopian, primary peritoneal cancer: phase III randomized controlled trial (SELENIUM trial)",
+      "disease_category": "암",
+      "phase": "PHASE3",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2019-12-24",
+      "est_completion": "2024-12-16",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [],
+        "pubmed_count": 2,
+        "high_if_papers": 1,
+        "total_citations": 3,
+        "notable_journals": [
+          "Journal of Clinical Oncology"
+        ],
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": true
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0009110",
+      "data_source": "cris",
+      "company": {
+        "code": "185750",
+        "name": "종근당",
+        "market": "KOSPI",
+        "market_cap": 12105
+      },
+      "trial_name": "복막 전이를 동반한 진행성 또는 재발성 위암 및 위식도경계부암 환자에서 전신 항암요법과 함께한 복강 내 Paclitaxel 요법과 단독 전신 항암요법에 대한 다기관, 무작위, 공개 라벨 제 3상 연구 (PIPS-GC 003)",
+      "indication": "Intraperitoneal Paclitaxel Plus Systemic Chemotherapy Versus Systemic Chemotherapy Alone for Advanced or Recurrent Gastric,\r\nGastro-oesophageal Junction Adenocarcinoma with Peritoneal Metastasis a multicenter, randomized, open-label, phase 3 trial (PIPS-GC 003)\r\n",
+      "disease_category": "암",
+      "phase": "PHASE3",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2024-02-29",
+      "est_completion": "2028-02-23",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [],
+        "pubmed_count": 18,
+        "high_if_papers": 2,
+        "total_citations": 186,
+        "notable_journals": [
+          "Journal of Cellular Biochemistry",
+          "NEJM Evidence"
+        ],
+        "conference_level": "other_intl",
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "domestic",
+          "terminated": true
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "cto_scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0006893",
+      "data_source": "cris",
+      "company": {
+        "code": "019170",
+        "name": "신풍제약",
+        "market": "KOSPI",
+        "market_cap": 5797
+      },
+      "trial_name": "자궁경부암의 수술 후 보조 항암화학요법과 방사선치료의 비교: 3상 임상시험 ",
+      "indication": "Adjuvant Chemotherapy Versus Radiotherapy For Postoperative Cervical Cancer (AFTER): A Phase 3 Trial",
+      "disease_category": "암",
+      "phase": "PHASE3",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2022-02-01",
+      "est_completion": "2031-12-31",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [],
+        "pubmed_count": 0,
+        "high_if_papers": 0,
+        "total_citations": 0,
+        "notable_journals": [],
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": true
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
       "nct_id": "NCT05906992",
+      "data_source": "ct.gov",
       "company": {
         "code": "068270",
         "name": "셀트리온",
         "market": "KOSPI",
-        "market_cap": 443877
+        "market_cap": 446096
       },
       "trial_name": "A Study to Compare Efficacy, Pharmacokinetics, Pharmacodynamics and Safety of CT-P53 and Ocrevus in Patients With Relapsing-remitting Multiple Sclerosis",
       "indication": "Relapsing-remitting Multiple Sclerosis",
@@ -354,12 +814,35 @@
       "tech_summary_en": "This is a double-blind, randomized, active-controlled, parallel group, Phase 1/3 study to compare efficacy, PK, PD and overall safety of CT-P53 with Ocrevus in patients with Relapsing-remitting Multiple Sclerosis.",
       "competing_phase3_count": 0,
       "quality": {
-        "has_patent": true,
-        "patent_domestic": 237,
-        "patent_pct": 0,
-        "high_if_papers": 0,
-        "total_citations": 0,
-        "conference_level": null,
+        "patent_matched_count": 0,
+        "patent_search_keywords": [
+          "ct-p53",
+          "CD20",
+          "오크렐리주맙",
+          "다발성경화",
+          "ocrelizumab",
+          "sclerosis"
+        ],
+        "pubmed_count": 415,
+        "high_if_papers": 22,
+        "total_citations": 6666,
+        "notable_journals": [
+          "Annals of the Rheumatic Diseases",
+          "Science",
+          "Nature Communications",
+          "Gastroenterology",
+          "The Lancet",
+          "Gut",
+          "Journal of Pediatric Gastroenterology and Nutrition",
+          "The American Journal of Gastroenterology",
+          "The Lancet Oncology",
+          "Expert Review of Gastroenterology & Hepatology",
+          "Molecules and Cells",
+          "The Lancet Haematology",
+          "Journal of Pharmaceutical Sciences",
+          "BMC Gastroenterology"
+        ],
+        "conference_level": "other_intl",
         "has_results_posted": false,
         "bigpharma_deal": {
           "tier": "domestic",
@@ -372,7 +855,337 @@
       }
     },
     {
+      "nct_id": "KCT0011508",
+      "data_source": "cris",
+      "company": {
+        "code": "317450",
+        "name": "명인제약",
+        "market": "KOSPI",
+        "market_cap": 8234
+      },
+      "trial_name": "항정신병 약물(들)의 안정적인 치료 용량으로 적절하게 조절되지 않는 치료 저항성 조현병 시험대상자에서 추가 치료(Add-on)로서 Evenamide 고정 용량 15 mg 및 30 mg BID 의 유효성, 안전성 및 내약성 평가를 위한 12 주 시점의 1 차 유효성 평가를 포함한 52 주, 전향적, 무작위배정, 이중눈가림, 위약대조, 평행군, 다기관, 제 3 상 임상시험",
+      "indication": "A PHASE III, 52-WEEK, PROSPECTIVE, RANDOMIZED, DOUBLE-BLIND, PLACEBO-CONTROLLED, PARALLEL-GROUP, MULTI-CENTER STUDY, WITH A PRIMARY EFFICACY ENDPOINT AT 12 WEEKS, TO DETERMINE THE EFFICACY, SAFETY, AND TOLERABILITY OF FIXED DOSES OF 15 MG BID AND 30 MG BID OF EVENAMIDE AS ADD-ON IN PATIENTS WITH DOCUMENTED TREATMENT-RESISTANT SCHIZOPHRENIA, WHICH IS NOT ADEQUATELY CONTROLLED BY A STABLE THERAPEUTIC DOSE OF THE PATIENT’S CURRENT ANTIPSYCHOTIC MEDICATION(S)",
+      "disease_category": "정신건강",
+      "phase": "PHASE3",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2026-03-16",
+      "est_completion": "2028-03-31",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [],
+        "pubmed_count": 0,
+        "high_if_papers": 0,
+        "total_citations": 0,
+        "notable_journals": [],
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": false
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "cto_scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0011646",
+      "data_source": "cris",
+      "company": {
+        "code": "003850",
+        "name": "보령",
+        "market": "KOSPI",
+        "market_cap": 8467
+      },
+      "trial_name": "Child-Pugh B 간세포암 환자에서 1차 면역관문억제제 기반 병용요법 실패 후 2차 치료로서 레고라페닙에 대한 제2상 연구",
+      "indication": "Regorafenib after Failure of First-Line Immune Checkpoint Inhibitor-Based Combination Therapy in Child-Pugh B Patients with HCC: A Phase 2 RECOMEND trial",
+      "disease_category": "기타",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2026-03-01",
+      "est_completion": "2028-06-30",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [],
+        "pubmed_count": 2,
+        "high_if_papers": 1,
+        "total_citations": 3,
+        "notable_journals": [
+          "Journal of Clinical Oncology"
+        ],
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": true
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0011611",
+      "data_source": "cris",
+      "company": {
+        "code": "003850",
+        "name": "보령",
+        "market": "KOSPI",
+        "market_cap": 8467
+      },
+      "trial_name": "절제 불가능한 렌바티닙 실패 간세포암 환자에서 레고라페닙에 대한 다기관 단일군 제2상 연구",
+      "indication": "Regorafenib after Failure of Lenvatinib in Patients with Unresectable HCC: A Phase 2, Multicenter, Single-Arm Trial REVELANT trial",
+      "disease_category": "기타",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2026-03-01",
+      "est_completion": "2028-05-31",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [],
+        "pubmed_count": 2,
+        "high_if_papers": 1,
+        "total_citations": 3,
+        "notable_journals": [
+          "Journal of Clinical Oncology"
+        ],
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": true
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0011269",
+      "data_source": "cris",
+      "company": {
+        "code": "003850",
+        "name": "보령",
+        "market": "KOSPI",
+        "market_cap": 8467
+      },
+      "trial_name": "근치적 치료가 불가능한 Child-Pugh B 간세포암 환자에서 1차 치료로서 렌바티닙에 대한 제2상 연구 ",
+      "indication": "First-Line Lenvatinib in Child-Pugh B Patients with HCC Unsuitable for Curative Treatment: A Phase 2 FINELAND Trial",
+      "disease_category": "기타",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2026-02-02",
+      "est_completion": "2028-06-30",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [],
+        "pubmed_count": 2,
+        "high_if_papers": 1,
+        "total_citations": 3,
+        "notable_journals": [
+          "Journal of Clinical Oncology"
+        ],
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": true
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0011099",
+      "data_source": "cris",
+      "company": {
+        "code": "003850",
+        "name": "보령",
+        "market": "KOSPI",
+        "market_cap": 8467
+      },
+      "trial_name": "이전에 한가지 요법으로 치료받은 lenalidomide 불응성 다발골수종 환자에서 pomalidomide와 bortezomib, dexamethasone 병합요법의 효과 및 안전성에 대한 다기관 전향 제 2상 연구 (KMM 2405 연구)",
+      "indication": "Efficacy and safety of pomalidomidewith bortezomiband dexamethasone in lenalidomide-refractory patients after one prior line of therapy: prospective multicenter phase 2 study (KMM 2405 trial)",
+      "disease_category": "기타",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2025-10-01",
+      "est_completion": "2029-04-30",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [],
+        "pubmed_count": 2,
+        "high_if_papers": 1,
+        "total_citations": 3,
+        "notable_journals": [
+          "Journal of Clinical Oncology"
+        ],
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": true
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0006331",
+      "data_source": "cris",
+      "company": {
+        "code": "068270",
+        "name": "셀트리온",
+        "market": "KOSPI",
+        "market_cap": 446096
+      },
+      "trial_name": "만성이식편대숙주병에 대한 리툭시맙 바이오시밀러(트룩시마) 기반 초기치료의 안전성 및 효능에 관한 제2상, 단일기관 연구",
+      "indication": "A Phase 2 , single center, Safety and efficacy of rituximab biosimilar(Truxima®)-based first line treatment of chronic graft-versus-host disease",
+      "disease_category": "기타",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2021-06-30",
+      "est_completion": "2026-05-31",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [],
+        "pubmed_count": 415,
+        "high_if_papers": 22,
+        "total_citations": 6666,
+        "notable_journals": [
+          "Annals of the Rheumatic Diseases",
+          "Science",
+          "Nature Communications",
+          "Gastroenterology",
+          "The Lancet",
+          "Gut",
+          "Journal of Pediatric Gastroenterology and Nutrition",
+          "The American Journal of Gastroenterology",
+          "The Lancet Oncology",
+          "Expert Review of Gastroenterology & Hepatology",
+          "Molecules and Cells",
+          "The Lancet Haematology",
+          "Journal of Pharmaceutical Sciences",
+          "BMC Gastroenterology"
+        ],
+        "conference_level": "other_intl",
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "domestic",
+          "terminated": false
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0001704",
+      "data_source": "cris",
+      "company": {
+        "code": "000100",
+        "name": "유한양행",
+        "market": "KOSPI",
+        "market_cap": 74670
+      },
+      "trial_name": "기능성 소화불량증(functional dyspepsia) 환자를 대상으로 YH12852 경구 투여 시 최적의 유효성과 안전성을 갖는 용량 탐색을 위한 무작위배정, 이중눈가림, 위약대조, 다기관 제2상 임상시험",
+      "indication": "A Multicenter, Randomized, Double-blind, Placebo-controlled Dose-finding Phase 2 Trial to Evaluate the Efficacy and Safety of YH12852 in Patients with Functional Dyspepsia ",
+      "disease_category": "기타",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2015-12-31",
+      "est_completion": "2016-11-30",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [
+          "yh12852"
+        ],
+        "pubmed_count": 751,
+        "high_if_papers": 8,
+        "total_citations": 6454,
+        "notable_journals": [
+          "The American Journal of Gastroenterology",
+          "The Lancet Oncology",
+          "Journal of Clinical Oncology",
+          "Asian-Australasian Journal of Animal Sciences",
+          "Molecular Biology of the Cell",
+          "Nature Chemical Biology",
+          "Nature"
+        ],
+        "conference_level": "other_intl",
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": true
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0009438",
+      "data_source": "cris",
+      "company": {
+        "code": "067080",
+        "name": "대화제약",
+        "market": "KOSDAQ",
+        "market_cap": 2662
+      },
+      "trial_name": "Imatinib, sunitinib과 regorafenib 치료에 모두 실패한 P-glycoprotein 발현이 낮은 전이성 또는 진행성 위장관 기질종양(GIST) 환자를 대상으로 한 oral paclitaxel (Liporaxel)의 제 II상 임상시험",
+      "indication": "A phase II study of oral paclitaxel (Liporaxel) in GIST patients with a low P-glycoprotein expression after failure with imatinib, sunitinib and regorafenib",
+      "disease_category": "기타",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2024-06-01",
+      "est_completion": "2027-03-31",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [],
+        "pubmed_count": 0,
+        "high_if_papers": 0,
+        "total_citations": 0,
+        "notable_journals": [],
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": true
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "cto_scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
       "nct_id": "NCT07064525",
+      "data_source": "ct.gov",
       "company": {
         "code": "215600",
         "name": "신라젠",
@@ -389,12 +1202,23 @@
       "tech_summary_en": "\\- Objective: This study aims to evaluate the safety and efficacy of the fixed-dose triple combination therapy (SPC1001 Low) of candesartan, amlodipine, and indapamide in adult patients with essential hypertension compared to dual-component therapies of each ingredient for 8 weeks. Additionally, it seeks to confirm the contribution of each component at low doses.\n\n\\- Inclusion Criteria: Men and women aged 19 to 75 years whose blood pressure measured at the screening visit meets the following criteria.\n\n\\- Exclusion Criteria: Patients whose blood pressure measured at the screening and randomization visits meets the criteria of MSSBP ≥180 mmHg or MSDBP ≥110 mmHg, among other conditions.\n\n\\- Methods: This study is a multicenter, randomized, double-blind, parallel-group, phase 2b clinical trial to evaluate the safety and efficacy of the investigational drug after 8 weeks of administration.\n\nScreening assessments will be conducted within 4 weeks prior to randomization, and patients who meet the inclusion and exclusion criteria at the screening visit will be enrolled in the study after providing informed consent. These participants will undergo a 2-week run-in period during which they will take a placebo and participate in a lifestyle modification program.",
       "competing_phase3_count": 0,
       "quality": {
-        "has_patent": true,
-        "patent_domestic": 31,
-        "patent_pct": 0,
-        "high_if_papers": 15,
-        "total_citations": 7240,
-        "conference_level": null,
+        "patent_matched_count": 0,
+        "patent_search_keywords": [
+          "spc1001",
+          "고혈압",
+          "hypertension"
+        ],
+        "pubmed_count": 29,
+        "high_if_papers": 6,
+        "total_citations": 1202,
+        "notable_journals": [
+          "The Lancet",
+          "New England Journal of Medicine",
+          "The Lancet Infectious Diseases",
+          "The Lancet Microbe",
+          "International Journal of Molecular Sciences"
+        ],
+        "conference_level": "oral_top4",
         "has_results_posted": false,
         "bigpharma_deal": {
           "tier": "none",
@@ -408,6 +1232,7 @@
     },
     {
       "nct_id": "NCT06826872",
+      "data_source": "ct.gov",
       "company": {
         "code": "215600",
         "name": "신라젠",
@@ -424,12 +1249,23 @@
       "tech_summary_en": "\\- Objective: This study aims to evaluate the safety and efficacy of the fixed-dose triple combination therapy (SPC1001) of candesartan, amlodipine, and indapamide in adult patients with essential hypertension compared to dual-component therapies of each ingredient for 8 weeks. Additionally, it seeks to confirm the contribution of each component at low doses.\n\n\\- Inclusion Criteria: Men and women aged 19 to 75 years whose blood pressure measured at the screening visit meets the following criteria.\n\n\\- Exclusion Criteria: Patients whose blood pressure measured at the screening and randomization visits meets the criteria of MSSBP ≥180 mmHg or MSDBP ≥110 mmHg, among other conditions.\n\n\\- Methods: This study is a multicenter, randomized, double-blind, parallel-group, phase 2b clinical trial to evaluate the safety and efficacy of the investigational drug after 8 weeks of administration.\n\nScreening assessments will be conducted within 4 weeks prior to randomization, and patients who meet the inclusion and exclusion criteria at the screening visit will be enrolled in the study after providing informed consent. These participants will undergo a 2-week run-in period during which they will take a placebo and participate in a lifestyle modification program.",
       "competing_phase3_count": 0,
       "quality": {
-        "has_patent": true,
-        "patent_domestic": 31,
-        "patent_pct": 0,
-        "high_if_papers": 15,
-        "total_citations": 7240,
-        "conference_level": null,
+        "patent_matched_count": 0,
+        "patent_search_keywords": [
+          "spc1001",
+          "고혈압",
+          "hypertension"
+        ],
+        "pubmed_count": 29,
+        "high_if_papers": 6,
+        "total_citations": 1202,
+        "notable_journals": [
+          "The Lancet",
+          "New England Journal of Medicine",
+          "The Lancet Infectious Diseases",
+          "The Lancet Microbe",
+          "International Journal of Molecular Sciences"
+        ],
+        "conference_level": "oral_top4",
         "has_results_posted": false,
         "bigpharma_deal": {
           "tier": "none",
@@ -443,11 +1279,12 @@
     },
     {
       "nct_id": "NCT05469022",
+      "data_source": "ct.gov",
       "company": {
         "code": "000100",
         "name": "유한양행",
         "market": "KOSPI",
-        "market_cap": 74232
+        "market_cap": 74670
       },
       "trial_name": "Neoadjuvant Lazertinib Therapy in EGFR-Mutation Positive Lung Adenocarcinoma Detected by BALF Liquid Biopsy",
       "indication": "Non Small Cell Lung Cancer",
@@ -459,12 +1296,28 @@
       "tech_summary_en": "Complete surgical resection is the standard treatment in early-stage lung cancer. However, the patients with early resected Epidermal Growth Factor Receptor(EGFR)-mutated lung cancers have high recurrence rate. The efficacy of neoadjuvant treatment by first-generation EGFR-Tyrosine Kinase Inhibitor(TKI) has been demonstrated, however, that of the third-generation EGFR-TKI(lazertinib) has not yet been fully investigated. The aim of this study is to evaluate the efficacy of neoadjuvant Lazertinib in resectable EGFR mutation-positive NSCLC and clinical application of extracellular vesicles(EVs) based BALF liquid biopsy to identify EGFR mutation without invasive tissue biopsy.",
       "competing_phase3_count": 0,
       "quality": {
-        "has_patent": true,
-        "patent_domestic": 356,
-        "patent_pct": 0,
-        "high_if_papers": 0,
-        "total_citations": 0,
-        "conference_level": null,
+        "patent_matched_count": 11,
+        "patent_search_keywords": [
+          "EGFR",
+          "레이저티닙",
+          "lazertinib",
+          "티로신키나제",
+          "폐암",
+          "lung cancer"
+        ],
+        "pubmed_count": 751,
+        "high_if_papers": 8,
+        "total_citations": 6454,
+        "notable_journals": [
+          "The American Journal of Gastroenterology",
+          "The Lancet Oncology",
+          "Journal of Clinical Oncology",
+          "Asian-Australasian Journal of Animal Sciences",
+          "Molecular Biology of the Cell",
+          "Nature Chemical Biology",
+          "Nature"
+        ],
+        "conference_level": "other_intl",
         "has_results_posted": false,
         "bigpharma_deal": {
           "tier": "none",
@@ -478,11 +1331,12 @@
     },
     {
       "nct_id": "NCT05286060",
+      "data_source": "ct.gov",
       "company": {
         "code": "095700",
         "name": "제넥신",
         "market": "KOSDAQ",
-        "market_cap": 2222
+        "market_cap": 2263
       },
       "trial_name": "Trial of the Combination of GX-188E Vaccination, GX-I7 and Pembrolizumab in Patients With Advanced, Resectable HPV Type 16 and/or 18 Positive Head and Neck Cancer",
       "indication": "Head and Neck Squamous Cell Carcinoma",
@@ -494,16 +1348,1821 @@
       "tech_summary_en": "The study is open label, phase II clinical trial for the Combination of GX-188E HPV DNA Vaccine with GX-I7 or Pembrolizumab OR the Triple Combination of GX-188E HPV DNA Vaccine, GX-I7, and Pembrolizumab in Patients With Advanced, Resectable HPV Type 16 or 18 Positive Head and Neck Cancer.",
       "competing_phase3_count": 0,
       "quality": {
-        "has_patent": true,
-        "patent_domestic": 77,
-        "patent_pct": 0,
-        "high_if_papers": 0,
-        "total_citations": 0,
-        "conference_level": null,
+        "patent_matched_count": 1,
+        "patent_search_keywords": [
+          "gx-188e",
+          "PD-1",
+          "PD1",
+          "펨브롤리주맙",
+          "면역관문",
+          "pembrolizumab",
+          "두경부",
+          "head and neck"
+        ],
+        "pubmed_count": 92,
+        "high_if_papers": 9,
+        "total_citations": 2182,
+        "notable_journals": [
+          "Nature Communications",
+          "The Lancet Oncology",
+          "Gut",
+          "The Lancet Microbe",
+          "Clinical and Translational Science",
+          "Blood",
+          "Cell Reports Medicine",
+          "Journal of Clinical Oncology",
+          "Molecules and Cells"
+        ],
+        "conference_level": "other_intl",
         "has_results_posted": false,
         "bigpharma_deal": {
           "tier": "domestic",
           "terminated": false
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0011148",
+      "data_source": "cris",
+      "company": {
+        "code": "003850",
+        "name": "보령",
+        "market": "KOSPI",
+        "market_cap": 8467
+      },
+      "trial_name": "1차 면역항암제 병합치료에 실패한 진행성 간세포암 환자를 대상으로 한 렌바티닙 또는 레고라페닙의 2상 연구",
+      "indication": "A phase 2 study of lenvatinib or regorafenib in patients with unresectable or metastatic hepatocellular carcinoma who progressed on first-line immunotherapy-based combination therapy",
+      "disease_category": "암",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2025-12-01",
+      "est_completion": "2028-06-30",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 10,
+        "patent_search_keywords": [
+          "간",
+          "liver",
+          "지방간"
+        ],
+        "pubmed_count": 2,
+        "high_if_papers": 1,
+        "total_citations": 3,
+        "notable_journals": [
+          "Journal of Clinical Oncology"
+        ],
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": true
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0010455",
+      "data_source": "cris",
+      "company": {
+        "code": "003850",
+        "name": "보령",
+        "market": "KOSPI",
+        "market_cap": 8467
+      },
+      "trial_name": "성인 재발/불응성 T-세포 림프모구백혈병/림프종에서 베네토클락 스와 데시타빈의 치료효과를 평가하는 2상 임상시험",
+      "indication": "A phase 2 clinical trial to evaluate the efficacy of VEnetoclax and Decitabine in relapsed/refractory adult T-acute lymphoblastic Leukemia/lymphoma ",
+      "disease_category": "암",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2025-05-07",
+      "est_completion": "2028-12-31",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [
+          "백혈병",
+          "leukemia"
+        ],
+        "pubmed_count": 2,
+        "high_if_papers": 1,
+        "total_citations": 3,
+        "notable_journals": [
+          "Journal of Clinical Oncology"
+        ],
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": true
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0009931",
+      "data_source": "cris",
+      "company": {
+        "code": "003850",
+        "name": "보령",
+        "market": "KOSPI",
+        "market_cap": 8467
+      },
+      "trial_name": "고등급 췌장 신경내분비 종양 환자를 위한 2차 항암치료에서의 Lurbinectedin의 역할에 대한 단일군, 공개 라벨, 2상 임상 시험",
+      "indication": "Lurbinectedin as second-line treatment for patients with high-grade pancreatic neuroendocrine tumors: a single-arm, open-label, phase 2 trial",
+      "disease_category": "암",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2025-01-01",
+      "est_completion": "2029-12-31",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [],
+        "pubmed_count": 2,
+        "high_if_papers": 1,
+        "total_citations": 3,
+        "notable_journals": [
+          "Journal of Clinical Oncology"
+        ],
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": true
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0008799",
+      "data_source": "cris",
+      "company": {
+        "code": "358570",
+        "name": "지아이이노베이션",
+        "market": "KOSDAQ",
+        "market_cap": 8910
+      },
+      "trial_name": "전이성거세저항성전립선암(metastatic castration-resistant prostate cancer, mCRPC) 환자를 대상으로 GI-101A과 SL-T10 병용요법의 안전성, 내약성과 예비유효성을 평가하기 위한 2 상, 다기관, 공개, 임상시험",
+      "indication": "A phase 2, multi-center, open-label study to evaluate the safety, tolerability and efficacy of combination regimen of GI-101A and SL-T10 in patients with metastatic castration-resistant prostate cancer (mCRPC)",
+      "disease_category": "암",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2023-10-01",
+      "est_completion": "2026-07-31",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [
+          "gi-101a",
+          "sl-t10"
+        ],
+        "pubmed_count": 47,
+        "high_if_papers": 14,
+        "total_citations": 784,
+        "notable_journals": [
+          "Cancer Discovery",
+          "World Journal of Gastroenterology",
+          "Frontiers in Cellular and Infection Microbiology",
+          "Cells",
+          "Nature Communications",
+          "Cell Reports",
+          "Annals of Oncology",
+          "Journal of Clinical Oncology"
+        ],
+        "conference_level": "other_intl",
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": false
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0007214",
+      "data_source": "cris",
+      "company": {
+        "code": "000100",
+        "name": "유한양행",
+        "market": "KOSPI",
+        "market_cap": 74670
+      },
+      "trial_name": "기관지폐포세척액 액상생검으로 검출된 절제 가능한 EGFR 유전자변이 양성 폐선암 환자에게 레이저티닙 선행항암요법 효과에 관한 전향적, 단일군 2상 임상 연구 ",
+      "indication": "A Phase 2, Single Center, Single Arm, Prospective Study of Neoadjuvant Lazertinib Therapy in Resectable EGFR-Mutation Positive Lung Adenocarcinoma Patients Detected by Bronchoalveolar lavage fluid(BALF) Liquid Biopsy (NeolaBAL)",
+      "disease_category": "암",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2022-06-01",
+      "est_completion": "2027-06-01",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 11,
+        "patent_search_keywords": [
+          "EGFR",
+          "레이저티닙",
+          "lazertinib",
+          "티로신키나제"
+        ],
+        "pubmed_count": 751,
+        "high_if_papers": 8,
+        "total_citations": 6454,
+        "notable_journals": [
+          "The American Journal of Gastroenterology",
+          "The Lancet Oncology",
+          "Journal of Clinical Oncology",
+          "Asian-Australasian Journal of Animal Sciences",
+          "Molecular Biology of the Cell",
+          "Nature Chemical Biology",
+          "Nature"
+        ],
+        "conference_level": "other_intl",
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": true
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0006077",
+      "data_source": "cris",
+      "company": {
+        "code": "0120G0",
+        "name": "삼양바이오팜",
+        "market": "KOSPI",
+        "market_cap": 5607
+      },
+      "trial_name": "백금 기반 항암화학요법 후 진행한 국소 진행성 또는 전이성 요로상피세포암종 환자들에서 제넥솔피엠 (GENEXOL-PM) 및 아테졸리주맙 (ATEZOLIZUMAB) 병용요법의 유효성과 안전성을 평가하는 공개, 다기관, 제 2상 임상시험",
+      "indication": "An open-label multi-center phase 2 study of Genexol-PM and atezolizumab in patients with locally advanced and metastatic urothelial carcinoma who have progressed following treatment with platinum-based chemotherapy",
+      "disease_category": "암",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2021-04-15",
+      "est_completion": "2026-10-22",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [],
+        "pubmed_count": 0,
+        "high_if_papers": 0,
+        "total_citations": 0,
+        "notable_journals": [],
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": false
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "unknown",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0011783",
+      "data_source": "cris",
+      "company": {
+        "code": "068270",
+        "name": "셀트리온",
+        "market": "KOSPI",
+        "market_cap": 446096
+      },
+      "trial_name": "진행성 간세포암 환자에서 아테졸리주맙, 베바시주맙, 토실리주맙 병합요법의 안정성과 유효성 평가를 위한 다기관, 제2상 임상시험",
+      "indication": "A Multicenter Phase II Trial Investigating the Safety and Efficacy of Atezolizumab Plus Bevacizumab Combined with Tocilizumab in Patients with Advanced Hepatocellular Carcinoma",
+      "disease_category": "암",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2026-05-01",
+      "est_completion": "2029-05-31",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 33,
+        "patent_search_keywords": [
+          "간",
+          "liver",
+          "지방간"
+        ],
+        "pubmed_count": 415,
+        "high_if_papers": 22,
+        "total_citations": 6666,
+        "notable_journals": [
+          "Annals of the Rheumatic Diseases",
+          "Science",
+          "Nature Communications",
+          "Gastroenterology",
+          "The Lancet",
+          "Gut",
+          "Journal of Pediatric Gastroenterology and Nutrition",
+          "The American Journal of Gastroenterology",
+          "The Lancet Oncology",
+          "Expert Review of Gastroenterology & Hepatology",
+          "Molecules and Cells",
+          "The Lancet Haematology",
+          "Journal of Pharmaceutical Sciences",
+          "BMC Gastroenterology"
+        ],
+        "conference_level": "other_intl",
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "domestic",
+          "terminated": false
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0011734",
+      "data_source": "cris",
+      "company": {
+        "code": "0120G0",
+        "name": "삼양바이오팜",
+        "market": "KOSPI",
+        "market_cap": 5607
+      },
+      "trial_name": "난치성 혈관내피종 또는 ISSVA 그룹 1 또는 2 혈관 기형 및 신생물에서의 everolimus 유효성 안전성 평가",
+      "indication": "Non-randomized, phase II, open-label study for efficacy and safety of everolimus in relapsed or refractory hemangioendothelioma and other ISSVA group I or II vascular malformation and neoplasms",
+      "disease_category": "암",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2026-04-01",
+      "est_completion": "2030-10-25",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [],
+        "pubmed_count": 0,
+        "high_if_papers": 0,
+        "total_citations": 0,
+        "notable_journals": [],
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": false
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "unknown",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0011405",
+      "data_source": "cris",
+      "company": {
+        "code": "003850",
+        "name": "보령",
+        "market": "KOSPI",
+        "market_cap": 8467
+      },
+      "trial_name": "이전 치료에 진행된 확장기 소세포폐암 환자에서 Lurbinectedin 과 Paclitaxel의 병합 요법과 Paclitaxel monotherapy를 비교하는 무작위 배정, 다기관 개방형 2상 임상시험(LUPINE)\r\n",
+      "indication": "Lurbinectedin in combination with paclitaxel versus paclitaxel for patients with previously treated small cell lung cancer: randomized, phase II, open-label, multi-center, prospective trial(LUPINE)",
+      "disease_category": "암",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2026-03-02",
+      "est_completion": "2029-02-28",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [
+          "폐암",
+          "lung cancer"
+        ],
+        "pubmed_count": 2,
+        "high_if_papers": 1,
+        "total_citations": 3,
+        "notable_journals": [
+          "Journal of Clinical Oncology"
+        ],
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": true
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0011179",
+      "data_source": "cris",
+      "company": {
+        "code": "003850",
+        "name": "보령",
+        "market": "KOSPI",
+        "market_cap": 8467
+      },
+      "trial_name": "백금계 항암제 치료 후 재발한 자궁내막암 환자에서 메트로노믹 카페시타빈과 풀베스트란트 병합 요법의 유효성 및 안전성을 평가하기 위한 2상 임상시험",
+      "indication": "A Phase II study to evaluate the efficacy and safety of metronomic Capecitabine and Fulvestrant in patients with recurrent endometrial cancer who have treated with platinum-based chemotherapy",
+      "disease_category": "암",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2026-01-02",
+      "est_completion": "2029-02-28",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [],
+        "pubmed_count": 2,
+        "high_if_papers": 1,
+        "total_citations": 3,
+        "notable_journals": [
+          "Journal of Clinical Oncology"
+        ],
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": true
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0010995",
+      "data_source": "cris",
+      "company": {
+        "code": "003850",
+        "name": "보령",
+        "market": "KOSPI",
+        "market_cap": 8467
+      },
+      "trial_name": "표준 항암치료 혹은 방사선 치료 후 병이 진행한 IDH-mutant glioma 환자에서 Gamma knife radiosurgery 후 bevacizumab erlotinib 병용요법에 대한 2상 연구",
+      "indication": "Phase II study of Gamma knife radiosurgery followed by bevacizumab plus erlotinib in patients with IDH mutant glioma",
+      "disease_category": "암",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2025-10-01",
+      "est_completion": "2028-10-01",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [],
+        "pubmed_count": 2,
+        "high_if_papers": 1,
+        "total_citations": 3,
+        "notable_journals": [
+          "Journal of Clinical Oncology"
+        ],
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": true
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0010931",
+      "data_source": "cris",
+      "company": {
+        "code": "003090",
+        "name": "대웅",
+        "market": "KOSPI",
+        "market_cap": 12966
+      },
+      "trial_name": "재발 또는 불응성 다발골수종에 대한 ixazomib, pomalidomide 및 dexamethasone 의 2상, 다기관 연구",
+      "indication": "Phase II, multi-center study of ixazomib, pomalidomide, and dexamethasone for relapsed or refractory multiple myeloma",
+      "disease_category": "암",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2025-09-01",
+      "est_completion": "2030-05-31",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [
+          "골수종",
+          "myeloma"
+        ],
+        "pubmed_count": 0,
+        "high_if_papers": 0,
+        "total_citations": 0,
+        "notable_journals": [],
+        "conference_level": "other_intl",
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": true
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "professional",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0010825",
+      "data_source": "cris",
+      "company": {
+        "code": "003850",
+        "name": "보령",
+        "market": "KOSPI",
+        "market_cap": 8467
+      },
+      "trial_name": "상부 요로상피암 환자에서 Gemcitabine 과 Cisplatin을 이용한 선행 항암 요법과 표준 치료를 비교하는 무작위배정 2상 임상시험",
+      "indication": "Randomized Two-arm Phase II trial of Neoadjuvant chemotherapy with Cisplatin and Gemcitabine versus Upfront Surgery for Upper Tract Urothelial Carcinoma",
+      "disease_category": "암",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2025-09-01",
+      "est_completion": "",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [],
+        "pubmed_count": 2,
+        "high_if_papers": 1,
+        "total_citations": 3,
+        "notable_journals": [
+          "Journal of Clinical Oncology"
+        ],
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": true
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0010810",
+      "data_source": "cris",
+      "company": {
+        "code": "003850",
+        "name": "보령",
+        "market": "KOSPI",
+        "market_cap": 8467
+      },
+      "trial_name": "이마티닙, 수니티닙, 레고라페닙 치료에 실패한 진행성 위장관기질종양 환자에서 렌바티닙의 유효성 및 안전성 평가를 위한 단일 기관, 단일군 2상 연구",
+      "indication": "A Single-Center, Single-Arm Phase II Study Evaluating the Efficacy and Safety of Lenvatinib in Patients with Advanced Gastrointestinal Stromal Tumors Refractory to Imatinib, Sunitinib, and Regorafenib",
+      "disease_category": "암",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2025-09-30",
+      "est_completion": "2027-12-31",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [],
+        "pubmed_count": 2,
+        "high_if_papers": 1,
+        "total_citations": 3,
+        "notable_journals": [
+          "Journal of Clinical Oncology"
+        ],
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": true
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0010540",
+      "data_source": "cris",
+      "company": {
+        "code": "185750",
+        "name": "종근당",
+        "market": "KOSPI",
+        "market_cap": 12105
+      },
+      "trial_name": "재발 고위험 간세포암의 근치적 절제술 후 everolimus(써티로벨®정)의 간세포암 재발 예방 효과 연구",
+      "indication": "A Phase II Study of EVEerolimus as Adjuvant Therapy after Surgical Resection for Hepatocellular cArcinoma at High Risk of RecurreNCE ",
+      "disease_category": "암",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2025-07-01",
+      "est_completion": "2030-07-30",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 26,
+        "patent_search_keywords": [
+          "간",
+          "liver",
+          "지방간"
+        ],
+        "pubmed_count": 18,
+        "high_if_papers": 2,
+        "total_citations": 186,
+        "notable_journals": [
+          "Journal of Cellular Biochemistry",
+          "NEJM Evidence"
+        ],
+        "conference_level": "other_intl",
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "domestic",
+          "terminated": true
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "cto_scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0010326",
+      "data_source": "cris",
+      "company": {
+        "code": "003850",
+        "name": "보령",
+        "market": "KOSPI",
+        "market_cap": 8467
+      },
+      "trial_name": "진행성 담도암에서 2차 치료로서 교대 mFOLFOX/mFOLFIRI 화학요법의 효과를 평가하기 위한 무작위 2상 임상 시험",
+      "indication": "A Randomized phase II clinical trial to evaluate the efficacy alternating mFOLFOX/mFOLFIRI chemotherapy regimen\r\nas a second-line treatment for advanced biliary tract cancer",
+      "disease_category": "암",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2025-05-06",
+      "est_completion": "2028-02-09",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [],
+        "pubmed_count": 2,
+        "high_if_papers": 1,
+        "total_citations": 3,
+        "notable_journals": [
+          "Journal of Clinical Oncology"
+        ],
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": true
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0009965",
+      "data_source": "cris",
+      "company": {
+        "code": "128940",
+        "name": "한미약품",
+        "market": "KOSPI",
+        "market_cap": 65208
+      },
+      "trial_name": "국소진행성/전이성 췌장암 환자에서 FOLFIRINOX or modified FOLFIRINOX 항암화학요법시 eflapegrastim 일차 예방의 다기관 제 2 상 연구진입을 위한 파일럿 연구",
+      "indication": "A pilot study to enter a multicenter phase II Trial of Primary Prophylaxis of Eflapegrastim during FOLFIRINOX or Modified FOLFIRINOX Chemotherapy in Locally Advanced or Metastatic Pancreatic Cancer Patients",
+      "disease_category": "암",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2024-12-09",
+      "est_completion": "2027-12-31",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [],
+        "pubmed_count": 308,
+        "high_if_papers": 7,
+        "total_citations": 3415,
+        "notable_journals": [
+          "Nature Medicine",
+          "European Journal of Pharmaceutical Sciences",
+          "Journal of Clinical Oncology",
+          "JAMA Network Open",
+          "Annals of the Rheumatic Diseases",
+          "Cell Death and Disease"
+        ],
+        "conference_level": "other_intl",
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": false
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0009337",
+      "data_source": "cris",
+      "company": {
+        "code": "003850",
+        "name": "보령",
+        "market": "KOSPI",
+        "market_cap": 8467
+      },
+      "trial_name": "1차 치료에 실패한 전이성 신경내분비암종 환자 대상 2차 항암 요법 modified FOLFIRINOX 요법의 효과에 관한 단일군 2상 임상 시험",
+      "indication": "A Phase II, open-label, single-arm study of mFOLFIRINOX in patients with metastatic neuroendocrine carcinoma",
+      "disease_category": "암",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2024-06-06",
+      "est_completion": "2029-12-31",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [],
+        "pubmed_count": 2,
+        "high_if_papers": 1,
+        "total_citations": 3,
+        "notable_journals": [
+          "Journal of Clinical Oncology"
+        ],
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": true
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0009313",
+      "data_source": "cris",
+      "company": {
+        "code": "000100",
+        "name": "유한양행",
+        "market": "KOSPI",
+        "market_cap": 74670
+      },
+      "trial_name": "절제 가능한 EGFR-돌연변이 비편평 비소세포폐암 환자를 대상으로 수술 전/후 요법으로 세포 독성 항암 화학 요법과 병용하거나 병용하지 않은 Lazertinib을 평가하는 제 II상, 무작위배정, 다기관 임상시험",
+      "indication": "Neoadjuvant lazertinib with or without chemotherapy for patients with EGFR-mutated resectable non-small cell lung cancer (NeoLazer): a phase II, randomized, multi-center study",
+      "disease_category": "암",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2024-03-18",
+      "est_completion": "2026-06-30",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 11,
+        "patent_search_keywords": [
+          "EGFR",
+          "레이저티닙",
+          "lazertinib",
+          "티로신키나제",
+          "폐암",
+          "lung cancer"
+        ],
+        "pubmed_count": 751,
+        "high_if_papers": 8,
+        "total_citations": 6454,
+        "notable_journals": [
+          "The American Journal of Gastroenterology",
+          "The Lancet Oncology",
+          "Journal of Clinical Oncology",
+          "Asian-Australasian Journal of Animal Sciences",
+          "Molecular Biology of the Cell",
+          "Nature Chemical Biology",
+          "Nature"
+        ],
+        "conference_level": "other_intl",
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": true
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0009217",
+      "data_source": "cris",
+      "company": {
+        "code": "000100",
+        "name": "유한양행",
+        "market": "KOSPI",
+        "market_cap": 74670
+      },
+      "trial_name": "뇌 연수막 전이가 동반된 EGFR 돌연변이 양성 비소세포 폐암 환자에서 레이저티닙의 유효성을 확인하기 위한 2상 임상 연구",
+      "indication": "A phase II pragmatic study of lazertinib for EGFR-mutant NSCLC with leptomeningeal seeding",
+      "disease_category": "암",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2024-03-04",
+      "est_completion": "2026-06-30",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 11,
+        "patent_search_keywords": [
+          "EGFR",
+          "레이저티닙",
+          "lazertinib",
+          "티로신키나제",
+          "폐암",
+          "lung cancer"
+        ],
+        "pubmed_count": 751,
+        "high_if_papers": 8,
+        "total_citations": 6454,
+        "notable_journals": [
+          "The American Journal of Gastroenterology",
+          "The Lancet Oncology",
+          "Journal of Clinical Oncology",
+          "Asian-Australasian Journal of Animal Sciences",
+          "Molecular Biology of the Cell",
+          "Nature Chemical Biology",
+          "Nature"
+        ],
+        "conference_level": "other_intl",
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": true
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0008662",
+      "data_source": "cris",
+      "company": {
+        "code": "185750",
+        "name": "종근당",
+        "market": "KOSPI",
+        "market_cap": 12105
+      },
+      "trial_name": "PARP 저해제 유지치료 중 재발한 난소암 환자에서 이차종양감축술에 대한 무작위배정 2상 임상시험",
+      "indication": "A randomized phase II study of secondary cytoreductive surgery in patients with relapsed ovarian cancer who have progressed on PARP inhibitor maintenance",
+      "disease_category": "암",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2023-08-01",
+      "est_completion": "2029-07-31",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [],
+        "pubmed_count": 18,
+        "high_if_papers": 2,
+        "total_citations": 186,
+        "notable_journals": [
+          "Journal of Cellular Biochemistry",
+          "NEJM Evidence"
+        ],
+        "conference_level": "other_intl",
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "domestic",
+          "terminated": true
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "cto_scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0008608",
+      "data_source": "cris",
+      "company": {
+        "code": "185750",
+        "name": "종근당",
+        "market": "KOSPI",
+        "market_cap": 12105
+      },
+      "trial_name": "젬시타빈과 시스플라틴을 포함한 1차치료에 실패한 담도암 환자에서 페메트렉세드와 옥살리플라틴 병용 요법의 2상 임상시험",
+      "indication": "A phase II clinical trial of PemetRexed plus Oxaliplatin in patients with advanced biliary tract cancer after failure of 1st line geMcitabine plus cisPlaTin based chemotherapy",
+      "disease_category": "암",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2023-07-17",
+      "est_completion": "2025-12-31",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [],
+        "pubmed_count": 18,
+        "high_if_papers": 2,
+        "total_citations": 186,
+        "notable_journals": [
+          "Journal of Cellular Biochemistry",
+          "NEJM Evidence"
+        ],
+        "conference_level": "other_intl",
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "domestic",
+          "terminated": true
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "cto_scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0008450",
+      "data_source": "cris",
+      "company": {
+        "code": "203400",
+        "name": "에이비온",
+        "market": "KOSDAQ",
+        "market_cap": 2316
+      },
+      "trial_name": "c-MET 유전자 변이를 동반한 난치성 고형 종양이 있는 환자들에게 ABN401의 2상 바구니 임상시험 (KOSMOS-II 연구의 일부)\r\n",
+      "indication": "A phase II study of ABN401 in advanced solid tumors with c-MET gene aberration (Part of KOrean Precision Medicine Networking Group Study of MOlecular profiling guided therapy based on genomic alterations in advanced Solid tumors [KOSMOS]-II)",
+      "disease_category": "암",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2023-05-30",
+      "est_completion": "2026-03-21",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [
+          "abn401"
+        ],
+        "pubmed_count": 61,
+        "high_if_papers": 9,
+        "total_citations": 699,
+        "notable_journals": [
+          "International Journal of Molecular Sciences",
+          "European Journal of Pharmaceutical Sciences",
+          "Journal of Clinical Oncology",
+          "Annals of Oncology"
+        ],
+        "conference_level": "oral_top4",
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "domestic",
+          "terminated": true
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0007840",
+      "data_source": "cris",
+      "company": {
+        "code": "003850",
+        "name": "보령",
+        "market": "KOSPI",
+        "market_cap": 8467
+      },
+      "trial_name": "크렙스 회로와 관련된 유전자 변이를 가진 암종에서 bevacizumab과 erlotinib 병용 요법의 효과를 확인하기 위한 2상 임상시험(BRISK)",
+      "indication": "\tA phase II clinical trial of Bevacizumab plus eRlotinIb in patientS with advanced cancer having genetic alterations in Krebs cycle (BRISK)",
+      "disease_category": "암",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2023-01-01",
+      "est_completion": "2026-03-31",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [],
+        "pubmed_count": 2,
+        "high_if_papers": 1,
+        "total_citations": 3,
+        "notable_journals": [
+          "Journal of Clinical Oncology"
+        ],
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": true
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0007442",
+      "data_source": "cris",
+      "company": {
+        "code": "000100",
+        "name": "유한양행",
+        "market": "KOSPI",
+        "market_cap": 74670
+      },
+      "trial_name": "새로이 진단된 T세포 림프종 환자에서 메트폴민과 표준항암화학요법의 임상적 효과와 AMP-activated protein kinase (AMPK)의 역할에 관한 전향적, 다기관, 공개, 제 2상 임상시험 ",
+      "indication": "Prospective, multicenter, open-labeled, phase II study of clinical effect of the combination of metformin and standard chemotherapy in patient with newly diagnosed with T-cell lymphoma and the role of AMP-activated protein kinase (AMPK)",
+      "disease_category": "암",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2022-08-01",
+      "est_completion": "",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [],
+        "pubmed_count": 751,
+        "high_if_papers": 8,
+        "total_citations": 6454,
+        "notable_journals": [
+          "The American Journal of Gastroenterology",
+          "The Lancet Oncology",
+          "Journal of Clinical Oncology",
+          "Asian-Australasian Journal of Animal Sciences",
+          "Molecular Biology of the Cell",
+          "Nature Chemical Biology",
+          "Nature"
+        ],
+        "conference_level": "other_intl",
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": true
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0007197",
+      "data_source": "cris",
+      "company": {
+        "code": "003850",
+        "name": "보령",
+        "market": "KOSPI",
+        "market_cap": 8467
+      },
+      "trial_name": "국소 진행성 두경부암에서 선행보조요법 으로서 paclitaxel/carboplatin 투약 후 수술에 대한 2 상 임상 시험 (NEOS)",
+      "indication": "Phase II trial of neoadjuvant therapy with paclitaxel and carboplatin in operable locally advanced head and neck cancer patients (NEOS)",
+      "disease_category": "암",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2022-05-01",
+      "est_completion": "2028-03-22",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [
+          "두경부",
+          "head and neck"
+        ],
+        "pubmed_count": 2,
+        "high_if_papers": 1,
+        "total_citations": 3,
+        "notable_journals": [
+          "Journal of Clinical Oncology"
+        ],
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": true
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0007015",
+      "data_source": "cris",
+      "company": {
+        "code": "0120G0",
+        "name": "삼양바이오팜",
+        "market": "KOSPI",
+        "market_cap": 5607
+      },
+      "trial_name": "원발성 중추 신경계 림프종 환자에서 고용량 methotrexate 기반 면역화학요법 후 레날리도마이드 유지요법 효능평가를 위한 제 2상 임상시험",
+      "indication": "Phase II trial of lenalidomide maintenance after high–dose methotrexate-based immunochemotherapy in patients with primary central nervous system lymphoma",
+      "disease_category": "암",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2022-04-01",
+      "est_completion": "2026-07-31",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [],
+        "pubmed_count": 0,
+        "high_if_papers": 0,
+        "total_citations": 0,
+        "notable_journals": [],
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": false
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "unknown",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0006951",
+      "data_source": "cris",
+      "company": {
+        "code": "000100",
+        "name": "유한양행",
+        "market": "KOSPI",
+        "market_cap": 74670
+      },
+      "trial_name": "뇌전이가 있는 치료받지 않은 EGFR 돌연변이 양성 비소세포폐암 환자에서 레이저티닙의 유효성을 평가하는 단일군, 단일기관, 2상 임상시험",
+      "indication": "A Phase II, Single-center, Single-arm trial to evaluate the efficacy of lazertinib in treatment-naive patients for EGFR mutated non-small cell lung cancer with symptomatic or asymptomatic brain metastasis",
+      "disease_category": "암",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2022-03-07",
+      "est_completion": "",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 11,
+        "patent_search_keywords": [
+          "EGFR",
+          "레이저티닙",
+          "lazertinib",
+          "티로신키나제",
+          "폐암",
+          "lung cancer"
+        ],
+        "pubmed_count": 751,
+        "high_if_papers": 8,
+        "total_citations": 6454,
+        "notable_journals": [
+          "The American Journal of Gastroenterology",
+          "The Lancet Oncology",
+          "Journal of Clinical Oncology",
+          "Asian-Australasian Journal of Animal Sciences",
+          "Molecular Biology of the Cell",
+          "Nature Chemical Biology",
+          "Nature"
+        ],
+        "conference_level": "other_intl",
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": true
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0006154",
+      "data_source": "cris",
+      "company": {
+        "code": "068270",
+        "name": "셀트리온",
+        "market": "KOSPI",
+        "market_cap": 446096
+      },
+      "trial_name": "수술이 가능한 HER2 음성 조기 유방암에서 PAM50 검사로 스크리닝한 HER2-enriched 아형에 대한 항-HER2 선행화학요법에 대한 유효성 평가를 위한 다기관, single arm, 2상 연구",
+      "indication": "Phase II trial of anti-HER2 treatment in HER2-enriched early breast cancer identified by PAM50, HER2E-PAM, PAMILIA study)",
+      "disease_category": "암",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2021-04-05",
+      "est_completion": "",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [
+          "pam50"
+        ],
+        "pubmed_count": 415,
+        "high_if_papers": 22,
+        "total_citations": 6666,
+        "notable_journals": [
+          "Annals of the Rheumatic Diseases",
+          "Science",
+          "Nature Communications",
+          "Gastroenterology",
+          "The Lancet",
+          "Gut",
+          "Journal of Pediatric Gastroenterology and Nutrition",
+          "The American Journal of Gastroenterology",
+          "The Lancet Oncology",
+          "Expert Review of Gastroenterology & Hepatology",
+          "Molecules and Cells",
+          "The Lancet Haematology",
+          "Journal of Pharmaceutical Sciences",
+          "BMC Gastroenterology"
+        ],
+        "conference_level": "other_intl",
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "domestic",
+          "terminated": false
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0006102",
+      "data_source": "cris",
+      "company": {
+        "code": "003850",
+        "name": "보령",
+        "market": "KOSPI",
+        "market_cap": 8467
+      },
+      "trial_name": "절제 불가능한 대장암의 간전이 환자에서 HAI oxaliplatin + Systemic FOLFIRI와 Systemic FOLFIRI 치료시 절제 가능한 상태로의 전환율 비교를 위한 공개, 단일기관, 무작위 배정, 2상 연구",
+      "indication": "A randomized, open-label, single-center phase II study comparing conversion rate to surgery with hepatic aterial infusion chemotherapy to systemic chemotherapy in patients with non resectable liver-only colorectal metastases",
+      "disease_category": "암",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2021-04-15",
+      "est_completion": "2025-03-03",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 10,
+        "patent_search_keywords": [
+          "간",
+          "liver",
+          "지방간"
+        ],
+        "pubmed_count": 2,
+        "high_if_papers": 1,
+        "total_citations": 3,
+        "notable_journals": [
+          "Journal of Clinical Oncology"
+        ],
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": true
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0005750",
+      "data_source": "cris",
+      "company": {
+        "code": "0120G0",
+        "name": "삼양바이오팜",
+        "market": "KOSPI",
+        "market_cap": 5607
+      },
+      "trial_name": "복막전이로 진단된 진행성 위암 환자에서 복강 내 파클리탁셀 투여와 전신 카페시타빈 및 옥살리플라틴 병용요법후 전환수술의 효과와 안전성을 평가하기 위한 제 II 상 임상시험",
+      "indication": "A phase II study evaluating the efficacy and safety of conversion surgery after intraperitoneal paclitaxel in combination with systemic capecitabine and oxaliplatin chemotherapy in advanced gastric cancer patients diagnosed with peritoneal dissemination",
+      "disease_category": "암",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2021-01-11",
+      "est_completion": "",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [],
+        "pubmed_count": 0,
+        "high_if_papers": 0,
+        "total_citations": 0,
+        "notable_journals": [],
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": false
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "unknown",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0005576",
+      "data_source": "cris",
+      "company": {
+        "code": "0120G0",
+        "name": "삼양바이오팜",
+        "market": "KOSPI",
+        "market_cap": 5607
+      },
+      "trial_name": "절제 가능한 식도암 환자에서 양성자를 이용한 선행 동시 방사선항암요법을 평가하는 제 2상 임상 연구",
+      "indication": "A phase II study of neoadjuvant chemoradiotherapy with protons for resectable esophageal cancer",
+      "disease_category": "암",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2020-11-17",
+      "est_completion": "2024-12-31",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [],
+        "pubmed_count": 0,
+        "high_if_papers": 0,
+        "total_citations": 0,
+        "notable_journals": [],
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": false
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "unknown",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0005551",
+      "data_source": "cris",
+      "company": {
+        "code": "006280",
+        "name": "녹십자",
+        "market": "KOSPI",
+        "market_cap": 16829
+      },
+      "trial_name": "이전 치료 병력이 없는 진행성 요막관암에서 modified FOLFIRINOX의 전향적 다기관 2상 임상 연구",
+      "indication": "A Multicenter Prospective Phase II Study of modified FOLFIRINOX for 1st line treatment for advanced urachus cancer",
+      "disease_category": "암",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2020-12-01",
+      "est_completion": "2024-03-31",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [],
+        "pubmed_count": 420,
+        "high_if_papers": 12,
+        "total_citations": 5867,
+        "notable_journals": [
+          "Nature Medicine",
+          "The Lancet Oncology",
+          "Blood",
+          "Bioscience Biotechnology and Biochemistry",
+          "Nature",
+          "Life Sciences",
+          "Science Translational Medicine",
+          "BMJ Open",
+          "Cells"
+        ],
+        "conference_level": "other_intl",
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": false
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0005165",
+      "data_source": "cris",
+      "company": {
+        "code": "0120G0",
+        "name": "삼양바이오팜",
+        "market": "KOSPI",
+        "market_cap": 5607
+      },
+      "trial_name": "이전에 치료받지 않은 중추신경계 재발 고위험군 광범위 큰 B세포 림프종이 있는 시험대상자에서 레날리도마이드 + R-CHOP 화학요법(Lenalidomide-R-CHOP)의 안전성 및 유효성을 평가하기 위한 제2상 다기관 임상시험",
+      "indication": "Phase II study of lenalidomide-R-CHOP for patients with diffuse large B cell lymphoma who are at high risk of central nervous system relapse",
+      "disease_category": "암",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2020-07-01",
+      "est_completion": "2024-09-30",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [],
+        "pubmed_count": 0,
+        "high_if_papers": 0,
+        "total_citations": 0,
+        "notable_journals": [],
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": false
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "unknown",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0004946",
+      "data_source": "cris",
+      "company": {
+        "code": "068270",
+        "name": "셀트리온",
+        "market": "KOSPI",
+        "market_cap": 446096
+      },
+      "trial_name": "처음 진단된 이식이 불가능한 원발성 중추신경계 림프종 환자에서 표준치료 후 lenalidomide/rituximab유지요법에 대한 제 2상 임상시험",
+      "indication": "Phase II study of lenalidomide/rituximab maintenance for transplatation ineligible patients with primary CNS diffuse large B-cell lymphoma",
+      "disease_category": "암",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2020-04-22",
+      "est_completion": "2024-03-01",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [],
+        "pubmed_count": 415,
+        "high_if_papers": 22,
+        "total_citations": 6666,
+        "notable_journals": [
+          "Annals of the Rheumatic Diseases",
+          "Science",
+          "Nature Communications",
+          "Gastroenterology",
+          "The Lancet",
+          "Gut",
+          "Journal of Pediatric Gastroenterology and Nutrition",
+          "The American Journal of Gastroenterology",
+          "The Lancet Oncology",
+          "Expert Review of Gastroenterology & Hepatology",
+          "Molecules and Cells",
+          "The Lancet Haematology",
+          "Journal of Pharmaceutical Sciences",
+          "BMC Gastroenterology"
+        ],
+        "conference_level": "other_intl",
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "domestic",
+          "terminated": false
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0004569",
+      "data_source": "cris",
+      "company": {
+        "code": "003850",
+        "name": "보령",
+        "market": "KOSPI",
+        "market_cap": 8467
+      },
+      "trial_name": "추가 집중 관해유도 항암화학요법이 부적합한 재발불응 급성골수성백혈병 환자에서 azacitidine 단독요법에 대한 제2상 임상시험",
+      "indication": "Single agent azacitidine for pre-treated acute myeloid leukemia patients not expecting help of further intensive re-induction chemotherapy: a phase II trial",
+      "disease_category": "암",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2020-02-10",
+      "est_completion": "2023-12-31",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [
+          "백혈병",
+          "leukemia"
+        ],
+        "pubmed_count": 2,
+        "high_if_papers": 1,
+        "total_citations": 3,
+        "notable_journals": [
+          "Journal of Clinical Oncology"
+        ],
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": true
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0004282",
+      "data_source": "cris",
+      "company": {
+        "code": "003090",
+        "name": "대웅",
+        "market": "KOSPI",
+        "market_cap": 12966
+      },
+      "trial_name": "HER2 발현 절제불가능 국소진행성 또는 전이성 암환자에서의 Herceptin biosimilar (Samfenet®)와 임상의가 선정한 약제와의 병용요법의 안전성, 유효성 평가를 위한 공개, 전향적, 제 2상 시험",
+      "indication": "Open label, prospective phase II study to investigate the efficacy and safety of Trastuzumab biosimilar (Samfenet®) plus treatment of physician’s choice (TPC) in patients with HER2-positive unresectable locally advanced or metastatic solid tumor",
+      "disease_category": "암",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2019-09-24",
+      "est_completion": "2022-07-31",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [],
+        "pubmed_count": 0,
+        "high_if_papers": 0,
+        "total_citations": 0,
+        "notable_journals": [],
+        "conference_level": "other_intl",
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": true
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "professional",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0004248",
+      "data_source": "cris",
+      "company": {
+        "code": "003090",
+        "name": "대웅",
+        "market": "KOSPI",
+        "market_cap": 12966
+      },
+      "trial_name": "이전에 두가지 이상의 HER2 표적 치료를 받았던 HER2 양성 재발성 혹은 전이성 유방암 환자에서 에리불린 단독요법과 에리불린 + SB3 (트라스투주맙 바이오시밀러) 병용요법을 비교하는 무작위배정 제 2상 임상 연구",
+      "indication": "Randomized, Open label, Multi-Center, Phase II Trial of Eribulin with or without SB3 (Trastuzumab-biosimilar) in Patients With HER2-overexpressed Recurrent or Stage IV Breast Cancer Who Have Received at Least 2 Prior HER2-directed Regimens",
+      "disease_category": "암",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2019-10-01",
+      "est_completion": "",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [],
+        "pubmed_count": 0,
+        "high_if_papers": 0,
+        "total_citations": 0,
+        "notable_journals": [],
+        "conference_level": "other_intl",
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": true
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "professional",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0004180",
+      "data_source": "cris",
+      "company": {
+        "code": "0120G0",
+        "name": "삼양바이오팜",
+        "market": "KOSPI",
+        "market_cap": 5607
+      },
+      "trial_name": "백금 기반 치료 후 진행한 진행성 흉선상피종양의 치료로서 페메트렉시드를 평가하는 제II상 임상시험",
+      "indication": "A phase II study of Pemetrexed after progression of platinum-based treatment for advanced thymic epithelial tumors",
+      "disease_category": "암",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2019-09-03",
+      "est_completion": "2021-12-31",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [],
+        "pubmed_count": 0,
+        "high_if_papers": 0,
+        "total_citations": 0,
+        "notable_journals": [],
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": false
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "unknown",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0003377",
+      "data_source": "cris",
+      "company": {
+        "code": "006280",
+        "name": "녹십자",
+        "market": "KOSPI",
+        "market_cap": 16829
+      },
+      "trial_name": "절제불가능한 국소진행성 비강/부비동암에서 docetaxel/5-FU/cisplatin 선행항암화학요법과 예방적 pegteograstim을 병용하는 다기관2상 임상시험",
+      "indication": "A phase II trial of neoadjuvant docetaxel/5-FU/cisplatin in combination with prophylactic Pegteograstim in unresectable, locally advanced nasal cavity/paranasal squamous cell carcinoma (SCC)",
+      "disease_category": "암",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2019-01-02",
+      "est_completion": "2023-12-31",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [],
+        "pubmed_count": 420,
+        "high_if_papers": 12,
+        "total_citations": 5867,
+        "notable_journals": [
+          "Nature Medicine",
+          "The Lancet Oncology",
+          "Blood",
+          "Bioscience Biotechnology and Biochemistry",
+          "Nature",
+          "Life Sciences",
+          "Science Translational Medicine",
+          "BMJ Open",
+          "Cells"
+        ],
+        "conference_level": "other_intl",
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": false
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0011512",
+      "data_source": "cris",
+      "company": {
+        "code": "039200",
+        "name": "오스코텍",
+        "market": "KOSDAQ",
+        "market_cap": 21004
+      },
+      "trial_name": "면역성 혈소판감소증(ITP)의 1차 치료법에 대한 탐색적 2상연구: 1차 표준 치료에 대한 반응 후 ITP 재발 예방을 위한 SKI-O-703 유지 시의 유효성 및 안전성을 평가하기 위한 무작위배정, 이중 눈가림, 위약 대조, 다기관, 연구자주도 임상시험",
+      "indication": "Exploratory Phase 2 Study of First Line Treatment for Newly Diagnosed Immune Thrombocytopenia (ITP): A Randomized, Double-blind, Placebo-controlled, Multicenter, Investigator-initiated Trial to Evaluate the Efficacy and Safety of SKI-O-703 Maintenance after Response to First-line Standard Treatment for the Prevention of ITP Recurrences",
+      "disease_category": "혈액",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2026-03-01",
+      "est_completion": "",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [
+          "o-703"
+        ],
+        "pubmed_count": 0,
+        "high_if_papers": 0,
+        "total_citations": 0,
+        "notable_journals": [],
+        "conference_level": "other_intl",
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "domestic",
+          "terminated": false
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "KCT0007758",
+      "data_source": "cris",
+      "company": {
+        "code": "003850",
+        "name": "보령",
+        "market": "KOSPI",
+        "market_cap": 8467
+      },
+      "trial_name": "재발/불응성 면역혈소판감소증 환자를 대상으로 보르테조밉 (벨킨®)의 효과와 내약성을 평가하는  제2상 임상시험",
+      "indication": "A phase 2 study to investigate efficacy and safety evaluation of bortezomib in patients with relapsed/refractory immune thrombocytopenia  (BORRELIA)",
+      "disease_category": "혈액",
+      "phase": "PHASE2",
+      "status": "NOT_YET_RECRUITING",
+      "start_date": "2022-10-31",
+      "est_completion": "2026-11-30",
+      "tech_summary_en": "",
+      "competing_phase3_count": 0,
+      "quality": {
+        "patent_matched_count": 0,
+        "patent_search_keywords": [],
+        "pubmed_count": 2,
+        "high_if_papers": 1,
+        "total_citations": 3,
+        "notable_journals": [
+          "Journal of Clinical Oncology"
+        ],
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": true
         },
         "contract_structure": null,
         "milestone_ratio": null,
