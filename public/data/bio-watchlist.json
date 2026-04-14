@@ -1,3083 +1,515 @@
 {
   "scanned_at": "2026-04-14",
-  "total_scanned": 320,
+  "total_scanned": 319,
+  "active_pipeline_count": 14,
   "data_sources": {
     "kipris": {
       "ok": 0,
-      "fail": 320
+      "fail": 319
     },
     "papers": {
-      "ok": 38,
-      "fail": 602
+      "ok": 5,
+      "fail": 0
     },
     "clinical": {
       "ok": 14,
-      "fail": 306
+      "fail": 305
     },
     "dart": {
       "ok": 37,
-      "fail": 283
-    },
-    "naver": {
-      "ok": 0,
-      "fail": 320
+      "fail": 282
     }
   },
-  "track_a": {
-    "count": 20,
-    "candidates": [
-      {
+  "pipelines": [
+    {
+      "nct_id": "NCT06152991",
+      "company": {
         "code": "068270",
         "name": "셀트리온",
         "market": "KOSPI",
-        "score": 56,
-        "grade": "C",
-        "cat1": 5,
-        "cat2": 33,
-        "cat3": 18,
-        "details": [
-          {
-            "item": "국내 특허 건수",
-            "basis": "0건",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "PCT/해외 특허",
-            "basis": "0건",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "PubMed 논문 수",
-            "basis": "203편",
-            "score": 5,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "고영향 저널 (IF≥10)",
-            "basis": "0편",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "논문 피인용 수",
-            "basis": "총 0회",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "주요 학회 발표",
-            "basis": "미확인",
-            "score": 0,
-            "max": 10,
-            "cat": 1
-          },
-          {
-            "item": "최고 임상 단계",
-            "basis": "허가/출시",
-            "score": 15,
-            "max": 15,
-            "cat": 2
-          },
-          {
-            "item": "임상 파이프라인 수",
-            "basis": "50개",
-            "score": 5,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "임상 결과 투명성",
-            "basis": "결과 공개 26%",
-            "score": 3,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "빅파마 L/O 계약",
-            "basis": "국내 L/O",
-            "score": 3,
-            "max": 10,
-            "cat": 2
-          },
-          {
-            "item": "계약 파기 이력",
-            "basis": "파기 이력 없음",
-            "score": 5,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "계약 구조 건전성",
-            "basis": "미확인",
-            "score": 2,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "CEO/CTO 기술 전문성",
-            "basis": "박사/연구원 출신 CEO",
-            "score": 6,
-            "max": 6,
-            "cat": 3
-          },
-          {
-            "item": "최근 3년 희석률",
-            "basis": "0.0%",
-            "score": 7,
-            "max": 7,
-            "cat": 3
-          },
-          {
-            "item": "엑싯 시그널",
-            "basis": "대표이사 매도 없음",
-            "score": 4,
-            "max": 4,
-            "cat": 3
-          },
-          {
-            "item": "현금 런웨이",
-            "basis": "미확인",
-            "score": 1,
-            "max": 3,
-            "cat": 3
-          }
-        ],
-        "data_confidence": "medium",
-        "market_cap": 433223,
-        "current_price": 195200,
-        "highest_phase": "approved",
-        "pipeline_count": 50,
-        "has_bigpharma_deal": false
+        "market_cap": 443877
       },
-      {
+      "trial_name": "Clinical Trial Assessing Godex Carnitine Orotate Complex in Nonalcoholic Fatty Liver Disease Patients for Efficacy",
+      "indication": "Non-Alcoholic Fatty Liver Disease",
+      "disease_category": "간질환",
+      "phase": "PHASE3",
+      "status": "ENROLLING_BY_INVITATION",
+      "start_date": "2023-09-25",
+      "est_completion": "2027-02-26",
+      "tech_summary_en": "the purpose of this clinical trial is to assess the efficacy and safety of Orotic Acid Carnitine Complex Capsules (Godex®) in comparison to a placebo control group in patients with Non-Alcoholic Fatty Liver Disease (NAFLD).",
+      "competing_phase3_count": 0,
+      "quality": {
+        "has_patent": false,
+        "patent_domestic": 0,
+        "patent_pct": 0,
+        "high_if_papers": 0,
+        "total_citations": 0,
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "domestic",
+          "terminated": false
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "NCT06399042",
+      "company": {
         "code": "215600",
         "name": "신라젠",
         "market": "KOSDAQ",
-        "score": 50,
-        "grade": "C",
-        "cat1": 11,
-        "cat2": 28,
-        "cat3": 11,
-        "details": [
-          {
-            "item": "국내 특허 건수",
-            "basis": "0건",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "PCT/해외 특허",
-            "basis": "0건",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "PubMed 논문 수",
-            "basis": "8편",
-            "score": 1,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "고영향 저널 (IF≥10)",
-            "basis": "15편",
-            "score": 5,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "논문 피인용 수",
-            "basis": "총 7,240회",
-            "score": 5,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "주요 학회 발표",
-            "basis": "미확인",
-            "score": 0,
-            "max": 10,
-            "cat": 1
-          },
-          {
-            "item": "최고 임상 단계",
-            "basis": "허가/출시",
-            "score": 15,
-            "max": 15,
-            "cat": 2
-          },
-          {
-            "item": "임상 파이프라인 수",
-            "basis": "29개",
-            "score": 5,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "임상 결과 투명성",
-            "basis": "결과 공개 10%",
-            "score": 1,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "빅파마 L/O 계약",
-            "basis": "없음",
-            "score": 0,
-            "max": 10,
-            "cat": 2
-          },
-          {
-            "item": "계약 파기 이력",
-            "basis": "파기 이력 없음",
-            "score": 5,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "계약 구조 건전성",
-            "basis": "미확인",
-            "score": 2,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "CEO/CTO 기술 전문성",
-            "basis": "박사/연구원 출신 CEO",
-            "score": 6,
-            "max": 6,
-            "cat": 3
-          },
-          {
-            "item": "최근 3년 희석률",
-            "basis": "64.0%",
-            "score": 0,
-            "max": 7,
-            "cat": 3
-          },
-          {
-            "item": "엑싯 시그널",
-            "basis": "대표이사 매도 없음",
-            "score": 4,
-            "max": 4,
-            "cat": 3
-          },
-          {
-            "item": "현금 런웨이",
-            "basis": "미확인",
-            "score": 1,
-            "max": 3,
-            "cat": 3
-          }
-        ],
-        "data_confidence": "medium",
-        "market_cap": 5069,
-        "current_price": 3670,
-        "highest_phase": "approved",
-        "pipeline_count": 29,
-        "has_bigpharma_deal": false
+        "market_cap": 5183
       },
-      {
+      "trial_name": "Pivotal Study to Evaluate Efficacy and Safety of SP5M002 Inj. as Compared to Synovian Inj. in Patients With Mild to Moderate Knee Osteoarthritis",
+      "indication": "Osteoarthritis",
+      "disease_category": "관절염",
+      "phase": "PHASE3",
+      "status": "ACTIVE_NOT_RECRUITING",
+      "start_date": "2023-06-14",
+      "est_completion": "2024-09",
+      "tech_summary_en": "This is a randomized, double-blind, multicenter, Active Controlled, pivotal clinical trial to assess the efficacy and safety of the novel hexamethylenediamine (HMDA) cross-linked hyaluronate intra-articular injection (SP5M002) compared with an active comparator, the 1,4-butanediol diglycidyl ether (BDDE) cross-linked hyaluronate (Synovian) in patients with knee osteoarthritis.",
+      "competing_phase3_count": 0,
+      "quality": {
+        "has_patent": false,
+        "patent_domestic": 0,
+        "patent_pct": 0,
+        "high_if_papers": 15,
+        "total_citations": 7240,
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": false
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "NCT07093476",
+      "company": {
+        "code": "068270",
+        "name": "셀트리온",
+        "market": "KOSPI",
+        "market_cap": 443877
+      },
+      "trial_name": "Efficacy and Safety of Add-On Therapy With Empagliflozin in Patients With Type 2 Diabetes on a Background of Alogliptin and Metformin",
+      "indication": "T2DM, Diabete Type 2, DM",
+      "disease_category": "기타",
+      "phase": "PHASE3",
+      "status": "RECRUITING",
+      "start_date": "2025-07-18",
+      "est_completion": "2027-04",
+      "tech_summary_en": "Phase 3 study to assess the Efficacy and Safety of CT-L02-301 in Type 2 Diabetes Patients with Insufficient Glycemic Control with Metformin and Alogliptin Combination Therapy.",
+      "competing_phase3_count": 0,
+      "quality": {
+        "has_patent": false,
+        "patent_domestic": 0,
+        "patent_pct": 0,
+        "high_if_papers": 0,
+        "total_citations": 0,
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "domestic",
+          "terminated": false
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "NCT06571591",
+      "company": {
+        "code": "068270",
+        "name": "셀트리온",
+        "market": "KOSPI",
+        "market_cap": 443877
+      },
+      "trial_name": "Efficacy and Safety of Pioglitazone Combination Therapy in Type 2 Diabetes Patients on a Background of Empagliflozin With Metformin",
+      "indication": "T2DM",
+      "disease_category": "기타",
+      "phase": "PHASE3",
+      "status": "ACTIVE_NOT_RECRUITING",
+      "start_date": "2024-08-27",
+      "est_completion": "2026-05",
+      "tech_summary_en": "Phase 3 study to assess the Efficacy and Safety of CT-L03-301 in Type 2 Diabetes Patients with Insufficient Glycemic Control with Metformin and Empagliflozin Combination Therapy.",
+      "competing_phase3_count": 0,
+      "quality": {
+        "has_patent": false,
+        "patent_domestic": 0,
+        "patent_pct": 0,
+        "high_if_papers": 0,
+        "total_citations": 0,
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "domestic",
+          "terminated": false
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "NCT06660719",
+      "company": {
+        "code": "215600",
+        "name": "신라젠",
+        "market": "KOSDAQ",
+        "market_cap": 5183
+      },
+      "trial_name": "Efficacy and Safety of SP-8203 (Otaplimastat) in Patients With Acute Ischemic Stroke Receiving Thrombolytic Standard of Care",
+      "indication": "Ischemic Stroke",
+      "disease_category": "뇌혈관",
+      "phase": "PHASE3",
+      "status": "RECRUITING",
+      "start_date": "2025-02-14",
+      "est_completion": "2027-03-30",
+      "tech_summary_en": "This clinical study is designed to evaluate the efficacy and safety of the combination therapy of SP-8203 (otaplimastat) and thrombolytic standard of care in acute ischemic stroke patient.\n\nAs a standard of care, thrombolytic therapy (for instance, recombinant tissue plasminogen activator) will be administered. When reperfusion is not achieved in spite of thrombolytic therapy, endovascular therapy can be performed.",
+      "competing_phase3_count": 0,
+      "quality": {
+        "has_patent": false,
+        "patent_domestic": 0,
+        "patent_pct": 0,
+        "high_if_papers": 15,
+        "total_citations": 7240,
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": false
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "NCT06466785",
+      "company": {
         "code": "095700",
         "name": "제넥신",
         "market": "KOSDAQ",
-        "score": 47,
-        "grade": "D",
-        "cat1": 5,
-        "cat2": 28,
-        "cat3": 14,
-        "details": [
-          {
-            "item": "국내 특허 건수",
-            "basis": "0건",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "PCT/해외 특허",
-            "basis": "0건",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "PubMed 논문 수",
-            "basis": "46편",
-            "score": 5,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "고영향 저널 (IF≥10)",
-            "basis": "0편",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "논문 피인용 수",
-            "basis": "총 0회",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "주요 학회 발표",
-            "basis": "미확인",
-            "score": 0,
-            "max": 10,
-            "cat": 1
-          },
-          {
-            "item": "최고 임상 단계",
-            "basis": "임상 3상",
-            "score": 12,
-            "max": 15,
-            "cat": 2
-          },
-          {
-            "item": "임상 파이프라인 수",
-            "basis": "40개",
-            "score": 5,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "임상 결과 투명성",
-            "basis": "결과 공개 3%",
-            "score": 1,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "빅파마 L/O 계약",
-            "basis": "국내 L/O",
-            "score": 3,
-            "max": 10,
-            "cat": 2
-          },
-          {
-            "item": "계약 파기 이력",
-            "basis": "파기 이력 없음",
-            "score": 5,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "계약 구조 건전성",
-            "basis": "미확인",
-            "score": 2,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "CEO/CTO 기술 전문성",
-            "basis": "박사/연구원 출신 CEO",
-            "score": 6,
-            "max": 6,
-            "cat": 3
-          },
-          {
-            "item": "최근 3년 희석률",
-            "basis": "16.0%",
-            "score": 3,
-            "max": 7,
-            "cat": 3
-          },
-          {
-            "item": "엑싯 시그널",
-            "basis": "대표이사 매도 없음",
-            "score": 4,
-            "max": 4,
-            "cat": 3
-          },
-          {
-            "item": "현금 런웨이",
-            "basis": "미확인",
-            "score": 1,
-            "max": 3,
-            "cat": 3
-          }
-        ],
-        "data_confidence": "medium",
-        "market_cap": 2220,
-        "current_price": 4875,
-        "highest_phase": "phase3",
-        "pipeline_count": 40,
-        "has_bigpharma_deal": false
+        "market_cap": 2243
       },
-      {
-        "code": "314130",
-        "name": "지놈앤컴퍼니",
-        "market": "KOSDAQ",
-        "score": 44,
-        "grade": "D",
-        "cat1": 1,
-        "cat2": 32,
-        "cat3": 11,
-        "details": [
-          {
-            "item": "국내 특허 건수",
-            "basis": "0건",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "PCT/해외 특허",
-            "basis": "0건",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "PubMed 논문 수",
-            "basis": "8편",
-            "score": 1,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "고영향 저널 (IF≥10)",
-            "basis": "0편",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "논문 피인용 수",
-            "basis": "총 0회",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "주요 학회 발표",
-            "basis": "미확인",
-            "score": 0,
-            "max": 10,
-            "cat": 1
-          },
-          {
-            "item": "최고 임상 단계",
-            "basis": "허가/출시",
-            "score": 15,
-            "max": 15,
-            "cat": 2
-          },
-          {
-            "item": "임상 파이프라인 수",
-            "basis": "19개",
-            "score": 5,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "임상 결과 투명성",
-            "basis": "결과 공개 53%",
-            "score": 5,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "빅파마 L/O 계약",
-            "basis": "없음",
-            "score": 0,
-            "max": 10,
-            "cat": 2
-          },
-          {
-            "item": "계약 파기 이력",
-            "basis": "파기 이력 없음",
-            "score": 5,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "계약 구조 건전성",
-            "basis": "미확인",
-            "score": 2,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "CEO/CTO 기술 전문성",
-            "basis": "박사/연구원 출신 CEO",
-            "score": 6,
-            "max": 6,
-            "cat": 3
-          },
-          {
-            "item": "최근 3년 희석률",
-            "basis": "64.0%",
-            "score": 0,
-            "max": 7,
-            "cat": 3
-          },
-          {
-            "item": "엑싯 시그널",
-            "basis": "대표이사 매도 없음",
-            "score": 4,
-            "max": 4,
-            "cat": 3
-          },
-          {
-            "item": "현금 런웨이",
-            "basis": "미확인",
-            "score": 1,
-            "max": 3,
-            "cat": 3
-          }
-        ],
-        "data_confidence": "medium",
-        "market_cap": 2272,
-        "current_price": 6510,
-        "highest_phase": "approved",
-        "pipeline_count": 19,
-        "has_bigpharma_deal": false
-      },
-      {
-        "code": "086900",
-        "name": "메디톡스",
-        "market": "KOSDAQ",
-        "score": 43,
-        "grade": "D",
-        "cat1": 5,
-        "cat2": 22,
-        "cat3": 16,
-        "details": [
-          {
-            "item": "국내 특허 건수",
-            "basis": "0건",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "PCT/해외 특허",
-            "basis": "0건",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "PubMed 논문 수",
-            "basis": "47편",
-            "score": 5,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "고영향 저널 (IF≥10)",
-            "basis": "0편",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "논문 피인용 수",
-            "basis": "총 0회",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "주요 학회 발표",
-            "basis": "미확인",
-            "score": 0,
-            "max": 10,
-            "cat": 1
-          },
-          {
-            "item": "최고 임상 단계",
-            "basis": "임상 3상",
-            "score": 12,
-            "max": 15,
-            "cat": 2
-          },
-          {
-            "item": "임상 파이프라인 수",
-            "basis": "3개",
-            "score": 3,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "임상 결과 투명성",
-            "basis": "결과 공개 0%",
-            "score": 0,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "빅파마 L/O 계약",
-            "basis": "없음",
-            "score": 0,
-            "max": 10,
-            "cat": 2
-          },
-          {
-            "item": "계약 파기 이력",
-            "basis": "파기 이력 없음",
-            "score": 5,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "계약 구조 건전성",
-            "basis": "미확인",
-            "score": 2,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "CEO/CTO 기술 전문성",
-            "basis": "기술자 CTO 보유",
-            "score": 4,
-            "max": 6,
-            "cat": 3
-          },
-          {
-            "item": "최근 3년 희석률",
-            "basis": "0.0%",
-            "score": 7,
-            "max": 7,
-            "cat": 3
-          },
-          {
-            "item": "엑싯 시그널",
-            "basis": "대표이사 매도 없음",
-            "score": 4,
-            "max": 4,
-            "cat": 3
-          },
-          {
-            "item": "현금 런웨이",
-            "basis": "미확인",
-            "score": 1,
-            "max": 3,
-            "cat": 3
-          }
-        ],
-        "data_confidence": "medium",
-        "market_cap": 7313,
-        "current_price": 100200,
-        "highest_phase": "phase3",
-        "pipeline_count": 3,
-        "has_bigpharma_deal": false
-      },
-      {
-        "code": "145020",
-        "name": "휴젤",
-        "market": "KOSDAQ",
-        "score": 43,
-        "grade": "D",
-        "cat1": 13,
-        "cat2": 23,
-        "cat3": 12,
-        "details": [
-          {
-            "item": "국내 특허 건수",
-            "basis": "0건",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "PCT/해외 특허",
-            "basis": "0건",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "PubMed 논문 수",
-            "basis": "199편",
-            "score": 5,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "고영향 저널 (IF≥10)",
-            "basis": "2편",
-            "score": 3,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "논문 피인용 수",
-            "basis": "총 6,256회",
-            "score": 5,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "주요 학회 발표",
-            "basis": "미확인",
-            "score": 0,
-            "max": 10,
-            "cat": 1
-          },
-          {
-            "item": "최고 임상 단계",
-            "basis": "허가/출시",
-            "score": 15,
-            "max": 15,
-            "cat": 2
-          },
-          {
-            "item": "임상 파이프라인 수",
-            "basis": "17개",
-            "score": 5,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "임상 결과 투명성",
-            "basis": "결과 공개 6%",
-            "score": 1,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "빅파마 L/O 계약",
-            "basis": "없음",
-            "score": 0,
-            "max": 10,
-            "cat": 2
-          },
-          {
-            "item": "계약 파기 이력",
-            "basis": "파기 이력 있음",
-            "score": 0,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "계약 구조 건전성",
-            "basis": "미확인",
-            "score": 2,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "CEO/CTO 기술 전문성",
-            "basis": "경영 전문가",
-            "score": 2,
-            "max": 6,
-            "cat": 3
-          },
-          {
-            "item": "최근 3년 희석률",
-            "basis": "8.0%",
-            "score": 5,
-            "max": 7,
-            "cat": 3
-          },
-          {
-            "item": "엑싯 시그널",
-            "basis": "대표이사 매도 없음",
-            "score": 4,
-            "max": 4,
-            "cat": 3
-          },
-          {
-            "item": "현금 런웨이",
-            "basis": "미확인",
-            "score": 1,
-            "max": 3,
-            "cat": 3
-          },
-          {
-            "item": "감점: 계약파기 + L/O 없음",
-            "basis": "기술 신뢰도 훼손",
-            "score": -5,
-            "max": 0,
-            "cat": 0
-          }
-        ],
-        "data_confidence": "medium",
-        "market_cap": 31498,
-        "current_price": 256000,
-        "highest_phase": "approved",
-        "pipeline_count": 17,
-        "has_bigpharma_deal": false
-      },
-      {
-        "code": "000100",
-        "name": "유한양행",
+      "trial_name": "A Phase 3 Study of Efepoetin Alfa for Treatment of Anemia in Patients With Chronic Kidney Disease on Dialysis",
+      "indication": "Anemia of Chronic Kidney Disease",
+      "disease_category": "신장",
+      "phase": "PHASE3",
+      "status": "RECRUITING",
+      "start_date": "2024-01-25",
+      "est_completion": "2027-09",
+      "tech_summary_en": "An investigator-blinded, randomized, multicenter, active-controlled Phase III study for the treatment of anemia in patients with CKD on hemodialysis",
+      "competing_phase3_count": 0,
+      "quality": {
+        "has_patent": false,
+        "patent_domestic": 0,
+        "patent_pct": 0,
+        "high_if_papers": 0,
+        "total_citations": 0,
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "domestic",
+          "terminated": false
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "NCT06952478",
+      "company": {
+        "code": "068270",
+        "name": "셀트리온",
         "market": "KOSPI",
-        "score": 41,
-        "grade": "D",
-        "cat1": 5,
-        "cat2": 23,
-        "cat3": 18,
-        "details": [
-          {
-            "item": "국내 특허 건수",
-            "basis": "0건",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "PCT/해외 특허",
-            "basis": "0건",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "PubMed 논문 수",
-            "basis": "213편",
-            "score": 5,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "고영향 저널 (IF≥10)",
-            "basis": "0편",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "논문 피인용 수",
-            "basis": "총 0회",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "주요 학회 발표",
-            "basis": "미확인",
-            "score": 0,
-            "max": 10,
-            "cat": 1
-          },
-          {
-            "item": "최고 임상 단계",
-            "basis": "허가/출시",
-            "score": 15,
-            "max": 15,
-            "cat": 2
-          },
-          {
-            "item": "임상 파이프라인 수",
-            "basis": "50개",
-            "score": 5,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "임상 결과 투명성",
-            "basis": "결과 공개 4%",
-            "score": 1,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "빅파마 L/O 계약",
-            "basis": "없음",
-            "score": 0,
-            "max": 10,
-            "cat": 2
-          },
-          {
-            "item": "계약 파기 이력",
-            "basis": "파기 이력 있음",
-            "score": 0,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "계약 구조 건전성",
-            "basis": "미확인",
-            "score": 2,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "CEO/CTO 기술 전문성",
-            "basis": "박사/연구원 출신 CEO",
-            "score": 6,
-            "max": 6,
-            "cat": 3
-          },
-          {
-            "item": "최근 3년 희석률",
-            "basis": "0.0%",
-            "score": 7,
-            "max": 7,
-            "cat": 3
-          },
-          {
-            "item": "엑싯 시그널",
-            "basis": "대표이사 매도 없음",
-            "score": 4,
-            "max": 4,
-            "cat": 3
-          },
-          {
-            "item": "현금 런웨이",
-            "basis": "미확인",
-            "score": 1,
-            "max": 3,
-            "cat": 3
-          },
-          {
-            "item": "감점: 계약파기 + L/O 없음",
-            "basis": "기술 신뢰도 훼손",
-            "score": -5,
-            "max": 0,
-            "cat": 0
-          }
-        ],
-        "data_confidence": "medium",
-        "market_cap": 73355,
-        "current_price": 92100,
-        "highest_phase": "approved",
-        "pipeline_count": 50,
-        "has_bigpharma_deal": false
+        "market_cap": 443877
       },
-      {
-        "code": "128940",
-        "name": "한미약품",
+      "trial_name": "A Study to Compare Pharmacokinetics, Efficacy and Safety of Subcutaneous CT-P44 and Darzalex Faspro in Combination With Lenalidomide and Dexamethasone in Patients With Refractory or Relapsed Multiple Myeloma",
+      "indication": "Refractory or Relapsed Multiple Myeloma",
+      "disease_category": "암",
+      "phase": "PHASE3",
+      "status": "RECRUITING",
+      "start_date": "2025-08-12",
+      "est_completion": "2029-06-25",
+      "tech_summary_en": "This study is a phase 1/3 study to Compare Pharmacokinetics, Efficacy and Safety of Subcutaneous CT-P44 and Darzalex Faspro in Combination with Lenalidomide and Dexamethasone in Patients with Refractory or Relapsed Multiple Myeloma",
+      "competing_phase3_count": 0,
+      "quality": {
+        "has_patent": false,
+        "patent_domestic": 0,
+        "patent_pct": 0,
+        "high_if_papers": 0,
+        "total_citations": 0,
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "domestic",
+          "terminated": false
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "NCT06939595",
+      "company": {
+        "code": "068270",
+        "name": "셀트리온",
         "market": "KOSPI",
-        "score": 40,
-        "grade": "D",
-        "cat1": 15,
-        "cat2": 7,
-        "cat3": 18,
-        "details": [
-          {
-            "item": "국내 특허 건수",
-            "basis": "0건",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "PCT/해외 특허",
-            "basis": "0건",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "PubMed 논문 수",
-            "basis": "197편",
-            "score": 5,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "고영향 저널 (IF≥10)",
-            "basis": "6편",
-            "score": 5,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "논문 피인용 수",
-            "basis": "총 11,923회",
-            "score": 5,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "주요 학회 발표",
-            "basis": "미확인",
-            "score": 0,
-            "max": 10,
-            "cat": 1
-          },
-          {
-            "item": "최고 임상 단계",
-            "basis": "없음",
-            "score": 0,
-            "max": 15,
-            "cat": 2
-          },
-          {
-            "item": "임상 파이프라인 수",
-            "basis": "0개",
-            "score": 0,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "임상 결과 투명성",
-            "basis": "결과 공개 0%",
-            "score": 0,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "빅파마 L/O 계약",
-            "basis": "없음",
-            "score": 0,
-            "max": 10,
-            "cat": 2
-          },
-          {
-            "item": "계약 파기 이력",
-            "basis": "파기 이력 없음",
-            "score": 5,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "계약 구조 건전성",
-            "basis": "미확인",
-            "score": 2,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "CEO/CTO 기술 전문성",
-            "basis": "박사/연구원 출신 CEO",
-            "score": 6,
-            "max": 6,
-            "cat": 3
-          },
-          {
-            "item": "최근 3년 희석률",
-            "basis": "0.0%",
-            "score": 7,
-            "max": 7,
-            "cat": 3
-          },
-          {
-            "item": "엑싯 시그널",
-            "basis": "대표이사 매도 없음",
-            "score": 4,
-            "max": 4,
-            "cat": 3
-          },
-          {
-            "item": "현금 런웨이",
-            "basis": "미확인",
-            "score": 1,
-            "max": 3,
-            "cat": 3
-          }
-        ],
-        "data_confidence": "low",
-        "market_cap": 65336,
-        "current_price": 510000,
-        "highest_phase": "none",
-        "pipeline_count": 0,
-        "has_bigpharma_deal": false
+        "market_cap": 443877
       },
-      {
-        "code": "235980",
-        "name": "메드팩토",
-        "market": "KOSDAQ",
-        "score": 38,
-        "grade": "D",
-        "cat1": 5,
-        "cat2": 21,
-        "cat3": 12,
-        "details": [
-          {
-            "item": "국내 특허 건수",
-            "basis": "0건",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "PCT/해외 특허",
-            "basis": "0건",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "PubMed 논문 수",
-            "basis": "46편",
-            "score": 5,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "고영향 저널 (IF≥10)",
-            "basis": "0편",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "논문 피인용 수",
-            "basis": "총 0회",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "주요 학회 발표",
-            "basis": "미확인",
-            "score": 0,
-            "max": 10,
-            "cat": 1
-          },
-          {
-            "item": "최고 임상 단계",
-            "basis": "임상 2상",
-            "score": 8,
-            "max": 15,
-            "cat": 2
-          },
-          {
-            "item": "임상 파이프라인 수",
-            "basis": "11개",
-            "score": 5,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "임상 결과 투명성",
-            "basis": "결과 공개 9%",
-            "score": 1,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "빅파마 L/O 계약",
-            "basis": "없음",
-            "score": 0,
-            "max": 10,
-            "cat": 2
-          },
-          {
-            "item": "계약 파기 이력",
-            "basis": "파기 이력 없음",
-            "score": 5,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "계약 구조 건전성",
-            "basis": "미확인",
-            "score": 2,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "CEO/CTO 기술 전문성",
-            "basis": "박사/연구원 출신 CEO",
-            "score": 6,
-            "max": 6,
-            "cat": 3
-          },
-          {
-            "item": "최근 3년 희석률",
-            "basis": "24.0%",
-            "score": 1,
-            "max": 7,
-            "cat": 3
-          },
-          {
-            "item": "엑싯 시그널",
-            "basis": "대표이사 매도 없음",
-            "score": 4,
-            "max": 4,
-            "cat": 3
-          },
-          {
-            "item": "현금 런웨이",
-            "basis": "미확인",
-            "score": 1,
-            "max": 3,
-            "cat": 3
-          }
-        ],
-        "data_confidence": "medium",
-        "market_cap": 1810,
-        "current_price": 5280,
-        "highest_phase": "phase2",
-        "pipeline_count": 11,
-        "has_bigpharma_deal": false
-      },
-      {
+      "trial_name": "A Study to Compare Effects and Safety of CT-P51 and Keytruda in Patients With Previously Untreated Metastatic Lung Cancer",
+      "indication": "Non Squamous Non Small Cell Lung Cancer",
+      "disease_category": "암",
+      "phase": "PHASE3",
+      "status": "RECRUITING",
+      "start_date": "2025-01-30",
+      "est_completion": "2028-07",
+      "tech_summary_en": "The goal of this Phase 3 clinical trial is to compare efficacy and safety of CT-P51 and European Union (EU) approved Keytruda in combination with platinum pemetrexed chemotherapy in patients with previously untreated metastatic nsNSCLC.",
+      "competing_phase3_count": 0,
+      "quality": {
+        "has_patent": false,
+        "patent_domestic": 0,
+        "patent_pct": 0,
+        "high_if_papers": 0,
+        "total_citations": 0,
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "domestic",
+          "terminated": false
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "NCT04229979",
+      "company": {
         "code": "108860",
         "name": "셀바스AI",
         "market": "KOSDAQ",
-        "score": 37,
-        "grade": "D",
-        "cat1": 1,
-        "cat2": 29,
-        "cat3": 7,
-        "details": [
-          {
-            "item": "국내 특허 건수",
-            "basis": "0건",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "PCT/해외 특허",
-            "basis": "0건",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "PubMed 논문 수",
-            "basis": "4편",
-            "score": 1,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "고영향 저널 (IF≥10)",
-            "basis": "0편",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "논문 피인용 수",
-            "basis": "총 0회",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "주요 학회 발표",
-            "basis": "미확인",
-            "score": 0,
-            "max": 10,
-            "cat": 1
-          },
-          {
-            "item": "최고 임상 단계",
-            "basis": "임상 3상",
-            "score": 12,
-            "max": 15,
-            "cat": 2
-          },
-          {
-            "item": "임상 파이프라인 수",
-            "basis": "9개",
-            "score": 5,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "임상 결과 투명성",
-            "basis": "결과 공개 67%",
-            "score": 5,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "빅파마 L/O 계약",
-            "basis": "없음",
-            "score": 0,
-            "max": 10,
-            "cat": 2
-          },
-          {
-            "item": "계약 파기 이력",
-            "basis": "파기 이력 없음",
-            "score": 5,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "계약 구조 건전성",
-            "basis": "미확인",
-            "score": 2,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "CEO/CTO 기술 전문성",
-            "basis": "경영 전문가",
-            "score": 2,
-            "max": 6,
-            "cat": 3
-          },
-          {
-            "item": "최근 3년 희석률",
-            "basis": "32.0%",
-            "score": 0,
-            "max": 7,
-            "cat": 3
-          },
-          {
-            "item": "엑싯 시그널",
-            "basis": "대표이사 매도 없음",
-            "score": 4,
-            "max": 4,
-            "cat": 3
-          },
-          {
-            "item": "현금 런웨이",
-            "basis": "미확인",
-            "score": 1,
-            "max": 3,
-            "cat": 3
-          }
-        ],
-        "data_confidence": "medium",
-        "market_cap": 3537,
-        "current_price": 13140,
-        "highest_phase": "phase3",
-        "pipeline_count": 9,
-        "has_bigpharma_deal": false
+        "market_cap": 3585
       },
-      {
-        "code": "298380",
-        "name": "에이비엘바이오",
-        "market": "KOSDAQ",
-        "score": 34,
-        "grade": "D",
-        "cat1": 5,
-        "cat2": 18,
-        "cat3": 11,
-        "details": [
-          {
-            "item": "국내 특허 건수",
-            "basis": "0건",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "PCT/해외 특허",
-            "basis": "0건",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "PubMed 논문 수",
-            "basis": "26편",
-            "score": 5,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "고영향 저널 (IF≥10)",
-            "basis": "0편",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "논문 피인용 수",
-            "basis": "총 0회",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "주요 학회 발표",
-            "basis": "미확인",
-            "score": 0,
-            "max": 10,
-            "cat": 1
-          },
-          {
-            "item": "최고 임상 단계",
-            "basis": "임상 2상",
-            "score": 8,
-            "max": 15,
-            "cat": 2
-          },
-          {
-            "item": "임상 파이프라인 수",
-            "basis": "7개",
-            "score": 5,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "임상 결과 투명성",
-            "basis": "결과 공개 0%",
-            "score": 0,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "빅파마 L/O 계약",
-            "basis": "국내 L/O",
-            "score": 3,
-            "max": 10,
-            "cat": 2
-          },
-          {
-            "item": "계약 파기 이력",
-            "basis": "파기 이력 있음",
-            "score": 0,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "계약 구조 건전성",
-            "basis": "미확인",
-            "score": 2,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "CEO/CTO 기술 전문성",
-            "basis": "박사/연구원 출신 CEO",
-            "score": 6,
-            "max": 6,
-            "cat": 3
-          },
-          {
-            "item": "최근 3년 희석률",
-            "basis": "40.0%",
-            "score": 0,
-            "max": 7,
-            "cat": 3
-          },
-          {
-            "item": "엑싯 시그널",
-            "basis": "대표이사 매도 없음",
-            "score": 4,
-            "max": 4,
-            "cat": 3
-          },
-          {
-            "item": "현금 런웨이",
-            "basis": "미확인",
-            "score": 1,
-            "max": 3,
-            "cat": 3
-          }
-        ],
-        "data_confidence": "medium",
-        "market_cap": 86781,
-        "current_price": 155000,
-        "highest_phase": "phase2",
-        "pipeline_count": 7,
-        "has_bigpharma_deal": false
-      },
-      {
-        "code": "311690",
-        "name": "CJ 바이오사이언스",
-        "market": "KOSDAQ",
-        "score": 33,
-        "grade": "D",
-        "cat1": 15,
-        "cat2": 7,
-        "cat3": 11,
-        "details": [
-          {
-            "item": "국내 특허 건수",
-            "basis": "0건",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "PCT/해외 특허",
-            "basis": "0건",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "PubMed 논문 수",
-            "basis": "2777편",
-            "score": 5,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "고영향 저널 (IF≥10)",
-            "basis": "9편",
-            "score": 5,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "논문 피인용 수",
-            "basis": "총 21,222회",
-            "score": 5,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "주요 학회 발표",
-            "basis": "미확인",
-            "score": 0,
-            "max": 10,
-            "cat": 1
-          },
-          {
-            "item": "최고 임상 단계",
-            "basis": "없음",
-            "score": 0,
-            "max": 15,
-            "cat": 2
-          },
-          {
-            "item": "임상 파이프라인 수",
-            "basis": "0개",
-            "score": 0,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "임상 결과 투명성",
-            "basis": "결과 공개 0%",
-            "score": 0,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "빅파마 L/O 계약",
-            "basis": "없음",
-            "score": 0,
-            "max": 10,
-            "cat": 2
-          },
-          {
-            "item": "계약 파기 이력",
-            "basis": "파기 이력 없음",
-            "score": 5,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "계약 구조 건전성",
-            "basis": "미확인",
-            "score": 2,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "CEO/CTO 기술 전문성",
-            "basis": "박사/연구원 출신 CEO",
-            "score": 6,
-            "max": 6,
-            "cat": 3
-          },
-          {
-            "item": "최근 3년 희석률",
-            "basis": "32.0%",
-            "score": 0,
-            "max": 7,
-            "cat": 3
-          },
-          {
-            "item": "엑싯 시그널",
-            "basis": "대표이사 매도 없음",
-            "score": 4,
-            "max": 4,
-            "cat": 3
-          },
-          {
-            "item": "현금 런웨이",
-            "basis": "미확인",
-            "score": 1,
-            "max": 3,
-            "cat": 3
-          }
-        ],
-        "data_confidence": "low",
-        "market_cap": 1002,
-        "current_price": 7670,
-        "highest_phase": "none",
-        "pipeline_count": 0,
-        "has_bigpharma_deal": false
-      },
-      {
-        "code": "196170",
-        "name": "알테오젠",
-        "market": "KOSDAQ",
-        "score": 32,
-        "grade": "D",
-        "cat1": 1,
-        "cat2": 15,
-        "cat3": 16,
-        "details": [
-          {
-            "item": "국내 특허 건수",
-            "basis": "0건",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "PCT/해외 특허",
-            "basis": "0건",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "PubMed 논문 수",
-            "basis": "8편",
-            "score": 1,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "고영향 저널 (IF≥10)",
-            "basis": "0편",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "논문 피인용 수",
-            "basis": "총 0회",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "주요 학회 발표",
-            "basis": "미확인",
-            "score": 0,
-            "max": 10,
-            "cat": 1
-          },
-          {
-            "item": "최고 임상 단계",
-            "basis": "임상 1상",
-            "score": 4,
-            "max": 15,
-            "cat": 2
-          },
-          {
-            "item": "임상 파이프라인 수",
-            "basis": "4개",
-            "score": 3,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "임상 결과 투명성",
-            "basis": "결과 공개 25%",
-            "score": 3,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "빅파마 L/O 계약",
-            "basis": "국내 L/O",
-            "score": 3,
-            "max": 10,
-            "cat": 2
-          },
-          {
-            "item": "계약 파기 이력",
-            "basis": "파기 이력 있음",
-            "score": 0,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "계약 구조 건전성",
-            "basis": "미확인",
-            "score": 2,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "CEO/CTO 기술 전문성",
-            "basis": "박사/연구원 출신 CEO",
-            "score": 6,
-            "max": 6,
-            "cat": 3
-          },
-          {
-            "item": "최근 3년 희석률",
-            "basis": "8.0%",
-            "score": 5,
-            "max": 7,
-            "cat": 3
-          },
-          {
-            "item": "엑싯 시그널",
-            "basis": "대표이사 매도 없음",
-            "score": 4,
-            "max": 4,
-            "cat": 3
-          },
-          {
-            "item": "현금 런웨이",
-            "basis": "미확인",
-            "score": 1,
-            "max": 3,
-            "cat": 3
-          }
-        ],
-        "data_confidence": "medium",
-        "market_cap": 189242,
-        "current_price": 353500,
-        "highest_phase": "phase1",
-        "pipeline_count": 4,
-        "has_bigpharma_deal": false
-      },
-      {
-        "code": "326030",
-        "name": "SK바이오팜",
-        "market": "KOSPI",
-        "score": 31,
-        "grade": "D",
-        "cat1": 5,
-        "cat2": 10,
-        "cat3": 16,
-        "details": [
-          {
-            "item": "국내 특허 건수",
-            "basis": "0건",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "PCT/해외 특허",
-            "basis": "0건",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "PubMed 논문 수",
-            "basis": "29편",
-            "score": 5,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "고영향 저널 (IF≥10)",
-            "basis": "0편",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "논문 피인용 수",
-            "basis": "총 0회",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "주요 학회 발표",
-            "basis": "미확인",
-            "score": 0,
-            "max": 10,
-            "cat": 1
-          },
-          {
-            "item": "최고 임상 단계",
-            "basis": "없음",
-            "score": 0,
-            "max": 15,
-            "cat": 2
-          },
-          {
-            "item": "임상 파이프라인 수",
-            "basis": "0개",
-            "score": 0,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "임상 결과 투명성",
-            "basis": "결과 공개 0%",
-            "score": 0,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "빅파마 L/O 계약",
-            "basis": "국내 L/O",
-            "score": 3,
-            "max": 10,
-            "cat": 2
-          },
-          {
-            "item": "계약 파기 이력",
-            "basis": "파기 이력 없음",
-            "score": 5,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "계약 구조 건전성",
-            "basis": "미확인",
-            "score": 2,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "CEO/CTO 기술 전문성",
-            "basis": "기술자 CTO 보유",
-            "score": 4,
-            "max": 6,
-            "cat": 3
-          },
-          {
-            "item": "최근 3년 희석률",
-            "basis": "0.0%",
-            "score": 7,
-            "max": 7,
-            "cat": 3
-          },
-          {
-            "item": "엑싯 시그널",
-            "basis": "대표이사 매도 없음",
-            "score": 4,
-            "max": 4,
-            "cat": 3
-          },
-          {
-            "item": "현금 런웨이",
-            "basis": "미확인",
-            "score": 1,
-            "max": 3,
-            "cat": 3
-          }
-        ],
-        "data_confidence": "medium",
-        "market_cap": 77295,
-        "current_price": 98700,
-        "highest_phase": "none",
-        "pipeline_count": 0,
-        "has_bigpharma_deal": false
-      },
-      {
-        "code": "950160",
-        "name": "코오롱티슈진",
-        "market": "KOSDAQ",
-        "score": 31,
-        "grade": "D",
-        "cat1": 10,
-        "cat2": 10,
-        "cat3": 11,
-        "details": [
-          {
-            "item": "국내 특허 건수",
-            "basis": "0건",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "PCT/해외 특허",
-            "basis": "0건",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "PubMed 논문 수",
-            "basis": "0편",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "고영향 저널 (IF≥10)",
-            "basis": "17편",
-            "score": 5,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "논문 피인용 수",
-            "basis": "총 5,318회",
-            "score": 5,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "주요 학회 발표",
-            "basis": "미확인",
-            "score": 0,
-            "max": 10,
-            "cat": 1
-          },
-          {
-            "item": "최고 임상 단계",
-            "basis": "없음",
-            "score": 0,
-            "max": 15,
-            "cat": 2
-          },
-          {
-            "item": "임상 파이프라인 수",
-            "basis": "0개",
-            "score": 0,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "임상 결과 투명성",
-            "basis": "결과 공개 0%",
-            "score": 0,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "빅파마 L/O 계약",
-            "basis": "국내 L/O",
-            "score": 3,
-            "max": 10,
-            "cat": 2
-          },
-          {
-            "item": "계약 파기 이력",
-            "basis": "파기 이력 없음",
-            "score": 5,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "계약 구조 건전성",
-            "basis": "미확인",
-            "score": 2,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "CEO/CTO 기술 전문성",
-            "basis": "박사/연구원 출신 CEO",
-            "score": 6,
-            "max": 6,
-            "cat": 3
-          },
-          {
-            "item": "최근 3년 희석률",
-            "basis": "56.0%",
-            "score": 0,
-            "max": 7,
-            "cat": 3
-          },
-          {
-            "item": "엑싯 시그널",
-            "basis": "대표이사 매도 없음",
-            "score": 4,
-            "max": 4,
-            "cat": 3
-          },
-          {
-            "item": "현금 런웨이",
-            "basis": "미확인",
-            "score": 1,
-            "max": 3,
-            "cat": 3
-          }
-        ],
-        "data_confidence": "medium",
-        "market_cap": 78845,
-        "current_price": 93700,
-        "highest_phase": "none",
-        "pipeline_count": 0,
-        "has_bigpharma_deal": false
-      },
-      {
-        "code": "288330",
-        "name": "파라택시스코리아",
-        "market": "KOSDAQ",
-        "score": 31,
-        "grade": "D",
-        "cat1": 1,
-        "cat2": 23,
-        "cat3": 7,
-        "details": [
-          {
-            "item": "국내 특허 건수",
-            "basis": "0건",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "PCT/해외 특허",
-            "basis": "0건",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "PubMed 논문 수",
-            "basis": "5편",
-            "score": 1,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "고영향 저널 (IF≥10)",
-            "basis": "0편",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "논문 피인용 수",
-            "basis": "총 0회",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "주요 학회 발표",
-            "basis": "미확인",
-            "score": 0,
-            "max": 10,
-            "cat": 1
-          },
-          {
-            "item": "최고 임상 단계",
-            "basis": "임상 2상",
-            "score": 8,
-            "max": 15,
-            "cat": 2
-          },
-          {
-            "item": "임상 파이프라인 수",
-            "basis": "10개",
-            "score": 5,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "임상 결과 투명성",
-            "basis": "결과 공개 30%",
-            "score": 3,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "빅파마 L/O 계약",
-            "basis": "없음",
-            "score": 0,
-            "max": 10,
-            "cat": 2
-          },
-          {
-            "item": "계약 파기 이력",
-            "basis": "파기 이력 없음",
-            "score": 5,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "계약 구조 건전성",
-            "basis": "미확인",
-            "score": 2,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "CEO/CTO 기술 전문성",
-            "basis": "경영 전문가",
-            "score": 2,
-            "max": 6,
-            "cat": 3
-          },
-          {
-            "item": "최근 3년 희석률",
-            "basis": "72.0%",
-            "score": 0,
-            "max": 7,
-            "cat": 3
-          },
-          {
-            "item": "엑싯 시그널",
-            "basis": "대표이사 매도 없음",
-            "score": 4,
-            "max": 4,
-            "cat": 3
-          },
-          {
-            "item": "현금 런웨이",
-            "basis": "미확인",
-            "score": 1,
-            "max": 3,
-            "cat": 3
-          }
-        ],
-        "data_confidence": "medium",
-        "market_cap": 441,
-        "current_price": 416,
-        "highest_phase": "phase2",
-        "pipeline_count": 10,
-        "has_bigpharma_deal": false
-      },
-      {
-        "code": "001060",
-        "name": "JW중외제약",
-        "market": "KOSPI",
-        "score": 30,
-        "grade": "D",
-        "cat1": 5,
-        "cat2": 7,
-        "cat3": 18,
-        "details": [
-          {
-            "item": "국내 특허 건수",
-            "basis": "0건",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "PCT/해외 특허",
-            "basis": "0건",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "PubMed 논문 수",
-            "basis": "1698편",
-            "score": 5,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "고영향 저널 (IF≥10)",
-            "basis": "0편",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "논문 피인용 수",
-            "basis": "총 0회",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "주요 학회 발표",
-            "basis": "미확인",
-            "score": 0,
-            "max": 10,
-            "cat": 1
-          },
-          {
-            "item": "최고 임상 단계",
-            "basis": "없음",
-            "score": 0,
-            "max": 15,
-            "cat": 2
-          },
-          {
-            "item": "임상 파이프라인 수",
-            "basis": "0개",
-            "score": 0,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "임상 결과 투명성",
-            "basis": "결과 공개 0%",
-            "score": 0,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "빅파마 L/O 계약",
-            "basis": "없음",
-            "score": 0,
-            "max": 10,
-            "cat": 2
-          },
-          {
-            "item": "계약 파기 이력",
-            "basis": "파기 이력 없음",
-            "score": 5,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "계약 구조 건전성",
-            "basis": "미확인",
-            "score": 2,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "CEO/CTO 기술 전문성",
-            "basis": "박사/연구원 출신 CEO",
-            "score": 6,
-            "max": 6,
-            "cat": 3
-          },
-          {
-            "item": "최근 3년 희석률",
-            "basis": "0.0%",
-            "score": 7,
-            "max": 7,
-            "cat": 3
-          },
-          {
-            "item": "엑싯 시그널",
-            "basis": "대표이사 매도 없음",
-            "score": 4,
-            "max": 4,
-            "cat": 3
-          },
-          {
-            "item": "현금 런웨이",
-            "basis": "미확인",
-            "score": 1,
-            "max": 3,
-            "cat": 3
-          }
-        ],
-        "data_confidence": "low",
-        "market_cap": 7300,
-        "current_price": 31350,
-        "highest_phase": "none",
-        "pipeline_count": 0,
-        "has_bigpharma_deal": false
-      },
-      {
-        "code": "234080",
-        "name": "JW생명과학",
-        "market": "KOSPI",
-        "score": 30,
-        "grade": "D",
-        "cat1": 5,
-        "cat2": 7,
-        "cat3": 18,
-        "details": [
-          {
-            "item": "국내 특허 건수",
-            "basis": "0건",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "PCT/해외 특허",
-            "basis": "0건",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "PubMed 논문 수",
-            "basis": "1698편",
-            "score": 5,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "고영향 저널 (IF≥10)",
-            "basis": "0편",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "논문 피인용 수",
-            "basis": "총 0회",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "주요 학회 발표",
-            "basis": "미확인",
-            "score": 0,
-            "max": 10,
-            "cat": 1
-          },
-          {
-            "item": "최고 임상 단계",
-            "basis": "없음",
-            "score": 0,
-            "max": 15,
-            "cat": 2
-          },
-          {
-            "item": "임상 파이프라인 수",
-            "basis": "0개",
-            "score": 0,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "임상 결과 투명성",
-            "basis": "결과 공개 0%",
-            "score": 0,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "빅파마 L/O 계약",
-            "basis": "없음",
-            "score": 0,
-            "max": 10,
-            "cat": 2
-          },
-          {
-            "item": "계약 파기 이력",
-            "basis": "파기 이력 없음",
-            "score": 5,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "계약 구조 건전성",
-            "basis": "미확인",
-            "score": 2,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "CEO/CTO 기술 전문성",
-            "basis": "박사/연구원 출신 CEO",
-            "score": 6,
-            "max": 6,
-            "cat": 3
-          },
-          {
-            "item": "최근 3년 희석률",
-            "basis": "0.0%",
-            "score": 7,
-            "max": 7,
-            "cat": 3
-          },
-          {
-            "item": "엑싯 시그널",
-            "basis": "대표이사 매도 없음",
-            "score": 4,
-            "max": 4,
-            "cat": 3
-          },
-          {
-            "item": "현금 런웨이",
-            "basis": "미확인",
-            "score": 1,
-            "max": 3,
-            "cat": 3
-          }
-        ],
-        "data_confidence": "low",
-        "market_cap": 2011,
-        "current_price": 12700,
-        "highest_phase": "none",
-        "pipeline_count": 0,
-        "has_bigpharma_deal": false
-      },
-      {
-        "code": "096760",
-        "name": "JW홀딩스",
-        "market": "KOSPI",
-        "score": 30,
-        "grade": "D",
-        "cat1": 5,
-        "cat2": 7,
-        "cat3": 18,
-        "details": [
-          {
-            "item": "국내 특허 건수",
-            "basis": "0건",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "PCT/해외 특허",
-            "basis": "0건",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "PubMed 논문 수",
-            "basis": "1698편",
-            "score": 5,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "고영향 저널 (IF≥10)",
-            "basis": "0편",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "논문 피인용 수",
-            "basis": "총 0회",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "주요 학회 발표",
-            "basis": "미확인",
-            "score": 0,
-            "max": 10,
-            "cat": 1
-          },
-          {
-            "item": "최고 임상 단계",
-            "basis": "없음",
-            "score": 0,
-            "max": 15,
-            "cat": 2
-          },
-          {
-            "item": "임상 파이프라인 수",
-            "basis": "0개",
-            "score": 0,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "임상 결과 투명성",
-            "basis": "결과 공개 0%",
-            "score": 0,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "빅파마 L/O 계약",
-            "basis": "없음",
-            "score": 0,
-            "max": 10,
-            "cat": 2
-          },
-          {
-            "item": "계약 파기 이력",
-            "basis": "파기 이력 없음",
-            "score": 5,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "계약 구조 건전성",
-            "basis": "미확인",
-            "score": 2,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "CEO/CTO 기술 전문성",
-            "basis": "박사/연구원 출신 CEO",
-            "score": 6,
-            "max": 6,
-            "cat": 3
-          },
-          {
-            "item": "최근 3년 희석률",
-            "basis": "0.0%",
-            "score": 7,
-            "max": 7,
-            "cat": 3
-          },
-          {
-            "item": "엑싯 시그널",
-            "basis": "대표이사 매도 없음",
-            "score": 4,
-            "max": 4,
-            "cat": 3
-          },
-          {
-            "item": "현금 런웨이",
-            "basis": "미확인",
-            "score": 1,
-            "max": 3,
-            "cat": 3
-          }
-        ],
-        "data_confidence": "low",
-        "market_cap": 3131,
-        "current_price": 4235,
-        "highest_phase": "none",
-        "pipeline_count": 0,
-        "has_bigpharma_deal": false
-      },
-      {
-        "code": "302440",
-        "name": "SK바이오사이언스",
-        "market": "KOSPI",
-        "score": 29,
-        "grade": "D",
-        "cat1": 5,
-        "cat2": 10,
-        "cat3": 14,
-        "details": [
-          {
-            "item": "국내 특허 건수",
-            "basis": "0건",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "PCT/해외 특허",
-            "basis": "0건",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "PubMed 논문 수",
-            "basis": "28110편",
-            "score": 5,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "고영향 저널 (IF≥10)",
-            "basis": "0편",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "논문 피인용 수",
-            "basis": "총 0회",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "주요 학회 발표",
-            "basis": "미확인",
-            "score": 0,
-            "max": 10,
-            "cat": 1
-          },
-          {
-            "item": "최고 임상 단계",
-            "basis": "없음",
-            "score": 0,
-            "max": 15,
-            "cat": 2
-          },
-          {
-            "item": "임상 파이프라인 수",
-            "basis": "0개",
-            "score": 0,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "임상 결과 투명성",
-            "basis": "결과 공개 0%",
-            "score": 0,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "빅파마 L/O 계약",
-            "basis": "국내 L/O",
-            "score": 3,
-            "max": 10,
-            "cat": 2
-          },
-          {
-            "item": "계약 파기 이력",
-            "basis": "파기 이력 없음",
-            "score": 5,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "계약 구조 건전성",
-            "basis": "미확인",
-            "score": 2,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "CEO/CTO 기술 전문성",
-            "basis": "박사/연구원 출신 CEO",
-            "score": 6,
-            "max": 6,
-            "cat": 3
-          },
-          {
-            "item": "최근 3년 희석률",
-            "basis": "16.0%",
-            "score": 3,
-            "max": 7,
-            "cat": 3
-          },
-          {
-            "item": "엑싯 시그널",
-            "basis": "대표이사 매도 없음",
-            "score": 4,
-            "max": 4,
-            "cat": 3
-          },
-          {
-            "item": "현금 런웨이",
-            "basis": "미확인",
-            "score": 1,
-            "max": 3,
-            "cat": 3
-          }
-        ],
-        "data_confidence": "medium",
-        "market_cap": 32677,
-        "current_price": 41650,
-        "highest_phase": "none",
-        "pipeline_count": 0,
-        "has_bigpharma_deal": false
+      "trial_name": "Galinpepimut-S Versus Investigator's Choice of Best Available Therapy for Maintenance in AML CR2/CRp2",
+      "indication": "Acute Myeloid Leukemia",
+      "disease_category": "암",
+      "phase": "PHASE3",
+      "status": "ACTIVE_NOT_RECRUITING",
+      "start_date": "2021-02-08",
+      "est_completion": "2026-12",
+      "tech_summary_en": "To assess the safety and efficacy of galinpepimut-S (GPS) compared with investigator's choice of best available therapy (BAT) on overall survival (OS) in subjects with acute myeloid leukemia (AML) who are in second or later complete remission (CR2) or second or later complete remission with incomplete platelet recovery (CRp2).",
+      "competing_phase3_count": 0,
+      "quality": {
+        "has_patent": false,
+        "patent_domestic": 0,
+        "patent_pct": 0,
+        "high_if_papers": 0,
+        "total_citations": 0,
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": false
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "professional",
+        "phase1_cleared": true
       }
-    ]
-  },
-  "track_b": {
-    "count": 2,
-    "candidates": [
-      {
+    },
+    {
+      "nct_id": "NCT05906992",
+      "company": {
+        "code": "068270",
+        "name": "셀트리온",
+        "market": "KOSPI",
+        "market_cap": 443877
+      },
+      "trial_name": "A Study to Compare Efficacy, Pharmacokinetics, Pharmacodynamics and Safety of CT-P53 and Ocrevus in Patients With Relapsing-remitting Multiple Sclerosis",
+      "indication": "Relapsing-remitting Multiple Sclerosis",
+      "disease_category": "자가면역",
+      "phase": "PHASE3",
+      "status": "RECRUITING",
+      "start_date": "2024-01-11",
+      "est_completion": "2029-01",
+      "tech_summary_en": "This is a double-blind, randomized, active-controlled, parallel group, Phase 1/3 study to compare efficacy, PK, PD and overall safety of CT-P53 with Ocrevus in patients with Relapsing-remitting Multiple Sclerosis.",
+      "competing_phase3_count": 0,
+      "quality": {
+        "has_patent": false,
+        "patent_domestic": 0,
+        "patent_pct": 0,
+        "high_if_papers": 0,
+        "total_citations": 0,
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "domestic",
+          "terminated": false
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "NCT07064525",
+      "company": {
         "code": "215600",
         "name": "신라젠",
         "market": "KOSDAQ",
-        "score": 50,
-        "grade": "C",
-        "cat1": 11,
-        "cat2": 28,
-        "cat3": 11,
-        "details": [
-          {
-            "item": "국내 특허 건수",
-            "basis": "0건",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "PCT/해외 특허",
-            "basis": "0건",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "PubMed 논문 수",
-            "basis": "8편",
-            "score": 1,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "고영향 저널 (IF≥10)",
-            "basis": "15편",
-            "score": 5,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "논문 피인용 수",
-            "basis": "총 7,240회",
-            "score": 5,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "주요 학회 발표",
-            "basis": "미확인",
-            "score": 0,
-            "max": 10,
-            "cat": 1
-          },
-          {
-            "item": "최고 임상 단계",
-            "basis": "허가/출시",
-            "score": 15,
-            "max": 15,
-            "cat": 2
-          },
-          {
-            "item": "임상 파이프라인 수",
-            "basis": "29개",
-            "score": 5,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "임상 결과 투명성",
-            "basis": "결과 공개 10%",
-            "score": 1,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "빅파마 L/O 계약",
-            "basis": "없음",
-            "score": 0,
-            "max": 10,
-            "cat": 2
-          },
-          {
-            "item": "계약 파기 이력",
-            "basis": "파기 이력 없음",
-            "score": 5,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "계약 구조 건전성",
-            "basis": "미확인",
-            "score": 2,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "CEO/CTO 기술 전문성",
-            "basis": "박사/연구원 출신 CEO",
-            "score": 6,
-            "max": 6,
-            "cat": 3
-          },
-          {
-            "item": "최근 3년 희석률",
-            "basis": "64.0%",
-            "score": 0,
-            "max": 7,
-            "cat": 3
-          },
-          {
-            "item": "엑싯 시그널",
-            "basis": "대표이사 매도 없음",
-            "score": 4,
-            "max": 4,
-            "cat": 3
-          },
-          {
-            "item": "현금 런웨이",
-            "basis": "미확인",
-            "score": 1,
-            "max": 3,
-            "cat": 3
-          }
-        ],
-        "data_confidence": "medium",
-        "market_cap": 5069,
-        "current_price": 3670,
-        "pipelines": [
-          {
-            "name": "Pivotal Study to Evaluate Efficacy and Safety of SP5M001 Inj. as Compared to Synovian Inj. in Patients With Mild to Moderate Knee Osteoarthritis",
-            "indication": "Osteoarthritis Thumb",
-            "phase": "PHASE3",
-            "phase_status": "COMPLETED",
-            "start_date": "2021-04-14",
-            "est_completion": "2022-10-25",
-            "milestones": {
-              "patent": false,
-              "publication": true,
-              "preclinical": true,
-              "phase1": true,
-              "phase2": true,
-              "phase3": true,
-              "nda": false,
-              "approved": true
-            },
-            "external_validation": [],
-            "filter_met": 2,
-            "tech_summary": "This is a randomized, double-blind, multicenter, non-inferiority, pivotal clinical trial to assess the efficacy and safety of the novel hexamethylenediamine (HMDA) cross-linked hyaluronate intra-articular injection (SP5M001) compared with an active comparator, the 1,4-butanediol diglycidyl ether (BDDE) cross-linked hyaluronate (Synovian) in patients with knee osteoarthritis.",
-            "tech_detail": "",
-            "market_impact": "적응증: Osteoarthritis Thumb",
-            "global_exclusivity": {
-              "competing_trials": 0,
-              "patent_scope": "",
-              "uniqueness": ""
-            }
-          },
-          {
-            "name": "The Efficacy and Safety of Combination Therapy of Rosuvastatin and Ezetimibe and Rosuvastatin Monotherapy in Patients With Primary Hypercholesterolemia",
-            "indication": "Hypercholesterolemia",
-            "phase": "PHASE3",
-            "phase_status": "COMPLETED",
-            "start_date": "2014-10-13",
-            "est_completion": "2015-11-19",
-            "milestones": {
-              "patent": false,
-              "publication": true,
-              "preclinical": true,
-              "phase1": true,
-              "phase2": true,
-              "phase3": true,
-              "nda": false,
-              "approved": true
-            },
-            "external_validation": [],
-            "filter_met": 2,
-            "tech_summary": "A Multi-center, Randomized, Double-blind, Phase III Clinical Trial to Evaluate the Efficacy and Safety of Combination Therapy of Rosuvastatin and Ezetimibe and Rosuvastatin Monotherapy in Patients with Primary Hypercholesterolemia",
-            "tech_detail": "",
-            "market_impact": "적응증: Hypercholesterolemia",
-            "global_exclusivity": {
-              "competing_trials": 0,
-              "patent_scope": "",
-              "uniqueness": ""
-            }
-          },
-          {
-            "name": "The Efficacy and Safety of Pyramax in Mild to Moderate COVID-19 Patients (Phase3)",
-            "indication": "COVID-19",
-            "phase": "PHASE3",
-            "phase_status": "COMPLETED",
-            "start_date": "2021-10-18",
-            "est_completion": "2023-03-24",
-            "milestones": {
-              "patent": false,
-              "publication": true,
-              "preclinical": true,
-              "phase1": true,
-              "phase2": true,
-              "phase3": true,
-              "nda": false,
-              "approved": true
-            },
-            "external_validation": [],
-            "filter_met": 2,
-            "tech_summary": "This study is a multi-center, randomized, double-blind, parallel, placebo-controlled, phase III clinical trial to evaluate efficacy and safety of pyramax in mild to moderate COVID-19 patients.",
-            "tech_detail": "",
-            "market_impact": "적응증: COVID-19",
-            "global_exclusivity": {
-              "competing_trials": 0,
-              "patent_scope": "",
-              "uniqueness": ""
-            }
-          }
-        ]
+        "market_cap": 5183
       },
-      {
-        "code": "145020",
-        "name": "휴젤",
-        "market": "KOSDAQ",
-        "score": 43,
-        "grade": "D",
-        "cat1": 13,
-        "cat2": 23,
-        "cat3": 12,
-        "details": [
-          {
-            "item": "국내 특허 건수",
-            "basis": "0건",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "PCT/해외 특허",
-            "basis": "0건",
-            "score": 0,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "PubMed 논문 수",
-            "basis": "199편",
-            "score": 5,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "고영향 저널 (IF≥10)",
-            "basis": "2편",
-            "score": 3,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "논문 피인용 수",
-            "basis": "총 6,256회",
-            "score": 5,
-            "max": 5,
-            "cat": 1
-          },
-          {
-            "item": "주요 학회 발표",
-            "basis": "미확인",
-            "score": 0,
-            "max": 10,
-            "cat": 1
-          },
-          {
-            "item": "최고 임상 단계",
-            "basis": "허가/출시",
-            "score": 15,
-            "max": 15,
-            "cat": 2
-          },
-          {
-            "item": "임상 파이프라인 수",
-            "basis": "17개",
-            "score": 5,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "임상 결과 투명성",
-            "basis": "결과 공개 6%",
-            "score": 1,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "빅파마 L/O 계약",
-            "basis": "없음",
-            "score": 0,
-            "max": 10,
-            "cat": 2
-          },
-          {
-            "item": "계약 파기 이력",
-            "basis": "파기 이력 있음",
-            "score": 0,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "계약 구조 건전성",
-            "basis": "미확인",
-            "score": 2,
-            "max": 5,
-            "cat": 2
-          },
-          {
-            "item": "CEO/CTO 기술 전문성",
-            "basis": "경영 전문가",
-            "score": 2,
-            "max": 6,
-            "cat": 3
-          },
-          {
-            "item": "최근 3년 희석률",
-            "basis": "8.0%",
-            "score": 5,
-            "max": 7,
-            "cat": 3
-          },
-          {
-            "item": "엑싯 시그널",
-            "basis": "대표이사 매도 없음",
-            "score": 4,
-            "max": 4,
-            "cat": 3
-          },
-          {
-            "item": "현금 런웨이",
-            "basis": "미확인",
-            "score": 1,
-            "max": 3,
-            "cat": 3
-          },
-          {
-            "item": "감점: 계약파기 + L/O 없음",
-            "basis": "기술 신뢰도 훼손",
-            "score": -5,
-            "max": 0,
-            "cat": 0
-          }
-        ],
-        "data_confidence": "medium",
-        "market_cap": 31498,
-        "current_price": 256000,
-        "pipelines": [
-          {
-            "name": "A Multi-center, Randomized, Subject Blind, Active Controlled Design Clinical Study to Evaluate the Efficacy and Safety of Volus as Compared to PowerFill® for Temporary Penile Enhancement",
-            "indication": "Penile Enhancement",
-            "phase": "PHASE3",
-            "phase_status": "COMPLETED",
-            "start_date": "2015-06",
-            "est_completion": "2017-06",
-            "milestones": {
-              "patent": false,
-              "publication": true,
-              "preclinical": true,
-              "phase1": true,
-              "phase2": true,
-              "phase3": true,
-              "nda": false,
-              "approved": true
-            },
-            "external_validation": [],
-            "filter_met": 2,
-            "tech_summary": "The purpose of this study is to evaluate non-inferial study of the after using Volus application, compared to the powerfill.",
-            "tech_detail": "",
-            "market_impact": "적응증: Penile Enhancement",
-            "global_exclusivity": {
-              "competing_trials": 0,
-              "patent_scope": "",
-              "uniqueness": ""
-            }
-          },
-          {
-            "name": "Evaluate the Safety and Efficacy of Botulax® as Compared to Botox® in Subject With Moderate to Severe Crow's Feet Lines",
-            "indication": "Crow's Feet Lines",
-            "phase": "PHASE3",
-            "phase_status": "COMPLETED",
-            "start_date": "2018-01-17",
-            "est_completion": "2019-06-07",
-            "milestones": {
-              "patent": false,
-              "publication": true,
-              "preclinical": true,
-              "phase1": true,
-              "phase2": true,
-              "phase3": true,
-              "nda": false,
-              "approved": true
-            },
-            "external_validation": [],
-            "filter_met": 2,
-            "tech_summary": "To determine the efficacy and safety of Botulax® in treatment of crow's feet line",
-            "tech_detail": "1. Allocation: Randomized\n2. Masking: Double Blind",
-            "market_impact": "적응증: Crow's Feet Lines",
-            "global_exclusivity": {
-              "competing_trials": 0,
-              "patent_scope": "",
-              "uniqueness": ""
-            }
-          },
-          {
-            "name": "Phase III Clinical Trial of \"Botulax®\" to Treat Children With Cerebral Palsy",
-            "indication": "Other Infantile Cerebral Palsy",
-            "phase": "PHASE3",
-            "phase_status": "COMPLETED",
-            "start_date": "2012-03",
-            "est_completion": "2014-08",
-            "milestones": {
-              "patent": false,
-              "publication": true,
-              "preclinical": true,
-              "phase1": true,
-              "phase2": true,
-              "phase3": true,
-              "nda": false,
-              "approved": true
-            },
-            "external_validation": [],
-            "filter_met": 2,
-            "tech_summary": "To compare the safety and efficacy of Botulax Inj.®(Botulinum toxin type A, Hugel, South Korea) with Botox Inj.® (Botulinum toxin type A, Allergan, USA) in the treatment of cerebral palsy in children.",
-            "tech_detail": "",
-            "market_impact": "적응증: Other Infantile Cerebral Palsy",
-            "global_exclusivity": {
-              "competing_trials": 0,
-              "patent_scope": "",
-              "uniqueness": ""
-            }
-          }
-        ]
+      "trial_name": "Evaluate the Efficacy and Safety of SPC1001 Low in Patients With Essential Hypertension",
+      "indication": "Hypertension (HTN), NYHA Class III Heart Failure, NYHA Class IV Heart Failure, Diabete Mellitus",
+      "disease_category": "심혈관",
+      "phase": "PHASE2",
+      "status": "ENROLLING_BY_INVITATION",
+      "start_date": "2024-12-05",
+      "est_completion": "2026-02-28",
+      "tech_summary_en": "\\- Objective: This study aims to evaluate the safety and efficacy of the fixed-dose triple combination therapy (SPC1001 Low) of candesartan, amlodipine, and indapamide in adult patients with essential hypertension compared to dual-component therapies of each ingredient for 8 weeks. Additionally, it seeks to confirm the contribution of each component at low doses.\n\n\\- Inclusion Criteria: Men and women aged 19 to 75 years whose blood pressure measured at the screening visit meets the following criteria.\n\n\\- Exclusion Criteria: Patients whose blood pressure measured at the screening and randomization visits meets the criteria of MSSBP ≥180 mmHg or MSDBP ≥110 mmHg, among other conditions.\n\n\\- Methods: This study is a multicenter, randomized, double-blind, parallel-group, phase 2b clinical trial to evaluate the safety and efficacy of the investigational drug after 8 weeks of administration.\n\nScreening assessments will be conducted within 4 weeks prior to randomization, and patients who meet the inclusion and exclusion criteria at the screening visit will be enrolled in the study after providing informed consent. These participants will undergo a 2-week run-in period during which they will take a placebo and participate in a lifestyle modification program.",
+      "competing_phase3_count": 0,
+      "quality": {
+        "has_patent": false,
+        "patent_domestic": 0,
+        "patent_pct": 0,
+        "high_if_papers": 15,
+        "total_citations": 7240,
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": false
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
       }
-    ]
-  }
+    },
+    {
+      "nct_id": "NCT06826872",
+      "company": {
+        "code": "215600",
+        "name": "신라젠",
+        "market": "KOSDAQ",
+        "market_cap": 5183
+      },
+      "trial_name": "Efficacy and Safety of SPC1001 in Patients With Essential Hypertension",
+      "indication": "Hypertension, Essential, Cardiovascular Diseases, Cardiology",
+      "disease_category": "심혈관",
+      "phase": "PHASE2",
+      "status": "RECRUITING",
+      "start_date": "2024-06-12",
+      "est_completion": "2025-12-30",
+      "tech_summary_en": "\\- Objective: This study aims to evaluate the safety and efficacy of the fixed-dose triple combination therapy (SPC1001) of candesartan, amlodipine, and indapamide in adult patients with essential hypertension compared to dual-component therapies of each ingredient for 8 weeks. Additionally, it seeks to confirm the contribution of each component at low doses.\n\n\\- Inclusion Criteria: Men and women aged 19 to 75 years whose blood pressure measured at the screening visit meets the following criteria.\n\n\\- Exclusion Criteria: Patients whose blood pressure measured at the screening and randomization visits meets the criteria of MSSBP ≥180 mmHg or MSDBP ≥110 mmHg, among other conditions.\n\n\\- Methods: This study is a multicenter, randomized, double-blind, parallel-group, phase 2b clinical trial to evaluate the safety and efficacy of the investigational drug after 8 weeks of administration.\n\nScreening assessments will be conducted within 4 weeks prior to randomization, and patients who meet the inclusion and exclusion criteria at the screening visit will be enrolled in the study after providing informed consent. These participants will undergo a 2-week run-in period during which they will take a placebo and participate in a lifestyle modification program.",
+      "competing_phase3_count": 0,
+      "quality": {
+        "has_patent": false,
+        "patent_domestic": 0,
+        "patent_pct": 0,
+        "high_if_papers": 15,
+        "total_citations": 7240,
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": false
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "NCT05469022",
+      "company": {
+        "code": "000100",
+        "name": "유한양행",
+        "market": "KOSPI",
+        "market_cap": 74311
+      },
+      "trial_name": "Neoadjuvant Lazertinib Therapy in EGFR-Mutation Positive Lung Adenocarcinoma Detected by BALF Liquid Biopsy",
+      "indication": "Non Small Cell Lung Cancer",
+      "disease_category": "암",
+      "phase": "PHASE2",
+      "status": "RECRUITING",
+      "start_date": "2022-05-19",
+      "est_completion": "2027-05-19",
+      "tech_summary_en": "Complete surgical resection is the standard treatment in early-stage lung cancer. However, the patients with early resected Epidermal Growth Factor Receptor(EGFR)-mutated lung cancers have high recurrence rate. The efficacy of neoadjuvant treatment by first-generation EGFR-Tyrosine Kinase Inhibitor(TKI) has been demonstrated, however, that of the third-generation EGFR-TKI(lazertinib) has not yet been fully investigated. The aim of this study is to evaluate the efficacy of neoadjuvant Lazertinib in resectable EGFR mutation-positive NSCLC and clinical application of extracellular vesicles(EVs) based BALF liquid biopsy to identify EGFR mutation without invasive tissue biopsy.",
+      "competing_phase3_count": 0,
+      "quality": {
+        "has_patent": false,
+        "patent_domestic": 0,
+        "patent_pct": 0,
+        "high_if_papers": 0,
+        "total_citations": 0,
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "none",
+          "terminated": true
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    },
+    {
+      "nct_id": "NCT05286060",
+      "company": {
+        "code": "095700",
+        "name": "제넥신",
+        "market": "KOSDAQ",
+        "market_cap": 2243
+      },
+      "trial_name": "Trial of the Combination of GX-188E Vaccination, GX-I7 and Pembrolizumab in Patients With Advanced, Resectable HPV Type 16 and/or 18 Positive Head and Neck Cancer",
+      "indication": "Head and Neck Squamous Cell Carcinoma",
+      "disease_category": "암",
+      "phase": "PHASE2",
+      "status": "ACTIVE_NOT_RECRUITING",
+      "start_date": "2022-03-01",
+      "est_completion": "2026-12",
+      "tech_summary_en": "The study is open label, phase II clinical trial for the Combination of GX-188E HPV DNA Vaccine with GX-I7 or Pembrolizumab OR the Triple Combination of GX-188E HPV DNA Vaccine, GX-I7, and Pembrolizumab in Patients With Advanced, Resectable HPV Type 16 or 18 Positive Head and Neck Cancer.",
+      "competing_phase3_count": 0,
+      "quality": {
+        "has_patent": false,
+        "patent_domestic": 0,
+        "patent_pct": 0,
+        "high_if_papers": 0,
+        "total_citations": 0,
+        "conference_level": null,
+        "has_results_posted": false,
+        "bigpharma_deal": {
+          "tier": "domestic",
+          "terminated": false
+        },
+        "contract_structure": null,
+        "milestone_ratio": null,
+        "ceo_background": "scientist",
+        "phase1_cleared": true
+      }
+    }
+  ]
 }

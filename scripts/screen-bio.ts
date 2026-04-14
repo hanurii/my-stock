@@ -61,7 +61,7 @@ const BIO_SECTOR_KEYWORDS = /바이오|제약|의약|생명과학|셀|젠|팜|�
 const DISEASE_MAP: [RegExp, string][] = [
   [/cancer|carcinoma|tumor|tumour|neoplasm|leukemia|leukaemia|lymphoma|melanoma|sarcoma|myeloma|glioblastoma|glioma|breast|colon|colorectal|hepatocellular|pancrea|gastric|stomach|bladder|prostate|ovarian|cervical|endometrial|thyroid|esophag|cholangiocarcinoma|mesothelioma|neuroblastoma|non.?small.?cell|small.?cell|nsclc|sclc/i, "암"],
   [/alzheimer|dementia|cognitive decline/i, "치매"],
-  [/diabetes|diabetic|glycem/i, "당뇨"],
+  [/diabetes|diabetic|glycem|t2dm|type.?2.?d/i, "당뇨"],
   [/heart|cardiac|cardiovascular|coronary|atrial|heart failure|hypertension|arrhythmia/i, "심혈관"],
   [/hepatitis|nash|nafld|liver.?(?:disease|fibrosis|cirrhosis)/i, "간질환"],
   [/arthritis|osteoarthritis|rheumatoid/i, "관절염"],
