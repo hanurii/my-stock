@@ -29,6 +29,10 @@ const HEADERS = { "User-Agent": UA };
 const DART_API_KEY = process.env.DART_API_KEY ?? "";
 const KIPRIS_API_KEY = process.env.KIPRIS_API_KEY ?? "";
 const NCBI_API_KEY = process.env.NCBI_API_KEY ?? "";
+const CRIS_API_KEY = process.env.CRIS_API_KEY ?? "";
+const CRIS_API_KEY_ENCODED = "fXJ6ry%2FJVib9COG4WZcL35kCAeiVb%2BPJa%2FTswKpwh4NxBNU6MF35DBBtnjc00TVRDY9hb%2BnubRWuIMrrdpFX2w%3D%3D";
+const CRIS_LIST = "https://apis.data.go.kr/1352159/crisinfodataview/list";
+const CRIS_DETAIL = "https://apis.data.go.kr/1352159/crisinfodataview/detail";
 
 const DATA_DIR = path.resolve("public/data");
 const OUTPUT_FILE = path.join(DATA_DIR, "bio-watchlist.json");
@@ -334,15 +338,16 @@ async function fetchConferenceLevel(name: string, code: string): Promise<Confere
 
 // ── Phase 2a: KIPRIS 특허 검색 ──
 
-interface PatentData { domestic: number; pct: number; }
+interface PatentData { domestic: number; pct: number; titles: string[]; }
 
 async function fetchPatents(name: string, code: string): Promise<PatentData> {
   const cached = getCached<PatentData>(code, "kipris");
   if (cached) return cached;
 
   let domestic = 0, pct = 0;
+  const titles: string[] = [];
   try {
-    // KIPRIS 데이터 서비스 API — 특허·실용 공개·등록공보 (numOfRows=1로 건수만 조회)
+    // 1페이지로 전체 건수 확인
     const url = `http://plus.kipris.or.kr/kipo-api/kipi/patUtiModInfoSearchSevice/getAdvancedSearch?ServiceKey=${encodeURIComponent(KIPRIS_API_KEY)}&applicant=${encodeURIComponent(name)}&numOfRows=1&pageNo=1`;
     const res = await fetchWithRetry(url);
     if (res.ok) {
@@ -352,17 +357,124 @@ async function fetchPatents(name: string, code: string): Promise<PatentData> {
         domestic = totalMatch ? parseInt(totalMatch[1]) : 0;
       }
     }
-    // PCT 건수는 특허 패밀리 API로 추후 확인 (현재는 0)
   } catch (e) {
     console.warn(`  ⚠ KIPRIS 실패 (${name}):`, (e as Error).message);
   }
 
-  const result = { domestic, pct };
-  // 실패(0건)일 때는 캐시하지 않음 — 다음 실행에서 재시도
+  const result: PatentData = { domestic, pct, titles };
   if (domestic > 0 || pct > 0) {
     setCache(code, "kipris", result);
   }
   return result;
+}
+
+// 2상/3상 파이프라인이 있는 기업만 전체 특허 제목 수집 (키워드 매칭용)
+async function fetchPatentTitles(name: string, code: string): Promise<string[]> {
+  // 이미 titles가 캐시에 있으면 재사용
+  const cached = getCached<PatentData>(code, "kipris");
+  if (cached?.titles && cached.titles.length > 0) return cached.titles;
+
+  const titles: string[] = [];
+  try {
+    let pageNo = 1;
+    let totalPages = 1;
+    while (pageNo <= totalPages && pageNo <= 10) { // 최대 500건
+      const url = `http://plus.kipris.or.kr/kipo-api/kipi/patUtiModInfoSearchSevice/getAdvancedSearch?ServiceKey=${encodeURIComponent(KIPRIS_API_KEY)}&applicant=${encodeURIComponent(name)}&numOfRows=50&pageNo=${pageNo}`;
+      const res = await fetchWithRetry(url);
+      if (!res.ok) break;
+      const text = await res.text();
+      if (!text.includes("<resultCode>00</resultCode>")) break;
+
+      // 전체 건수에서 페이지 수 계산
+      if (pageNo === 1) {
+        const totalMatch = text.match(/<totalCount>(\d+)<\/totalCount>/);
+        const total = totalMatch ? parseInt(totalMatch[1]) : 0;
+        totalPages = Math.ceil(total / 50);
+      }
+
+      // 제목 추출
+      const re = /<inventionTitle>([^<]+)<\/inventionTitle>/g;
+      let m: RegExpExecArray | null;
+      while ((m = re.exec(text)) !== null) titles.push(m[1]);
+
+      pageNo++;
+      await sleep(300);
+    }
+  } catch (e) {
+    console.warn(`  ⚠ KIPRIS 제목 수집 실패 (${name}):`, (e as Error).message);
+  }
+
+  // 캐시 업데이트
+  if (titles.length > 0) {
+    const existing = getCached<PatentData>(code, "kipris");
+    setCache(code, "kipris", { domestic: existing?.domestic ?? titles.length, pct: existing?.pct ?? 0, titles });
+  }
+
+  return titles;
+}
+
+// 파이프라인 기술 키워드로 특허 제목 매칭
+function matchPatentsByKeywords(titles: string[], keywords: string[]): number {
+  if (titles.length === 0 || keywords.length === 0) return 0;
+  const lowerKeywords = keywords.map(k => k.toLowerCase());
+  return titles.filter(t => {
+    const lt = t.toLowerCase();
+    return lowerKeywords.some(k => lt.includes(k));
+  }).length;
+}
+
+// 임상시험 제목+적응증에서 특허 검색 키워드 추출
+function extractPatentKeywords(trialName: string, indication: string): string[] {
+  const keywords: string[] = [];
+  const combined = `${trialName} ${indication}`.toLowerCase();
+
+  // 약물 코드명 (CT-P44, SP-8203, GX-188E 등)
+  const codeMatch = combined.match(/\b([a-z]{1,4}[-]?[a-z]?\d{2,5}[a-z]?)\b/gi);
+  if (codeMatch) keywords.push(...codeMatch);
+
+  // 성분명 매핑 (흔한 바이오 의약품)
+  const DRUG_KEYWORDS: [RegExp, string[]][] = [
+    [/daratumumab|darzalex/i, ["CD38", "다라투무맙", "daratumumab", "골수종"]],
+    [/pembrolizumab|keytruda/i, ["PD-1", "PD1", "펨브롤리주맙", "면역관문", "pembrolizumab"]],
+    [/ocrelizumab|ocrevus/i, ["CD20", "오크렐리주맙", "다발성경화", "ocrelizumab"]],
+    [/lazertinib/i, ["EGFR", "레이저티닙", "lazertinib", "티로신키나제"]],
+    [/empagliflozin/i, ["SGLT2", "엠파글리플로진", "empagliflozin", "당뇨"]],
+    [/pioglitazone/i, ["피오글리타존", "pioglitazone", "인슐린", "당뇨"]],
+    [/hyaluron/i, ["히알루론", "hyaluron", "관절"]],
+    [/otaplimastat/i, ["오타플리마스타트", "otaplimastat", "MMP", "뇌졸중"]],
+    [/candesartan|amlodipine|indapamide/i, ["칸데사르탄", "암로디핀", "고혈압"]],
+    [/carnitine|godex/i, ["카르니틴", "carnitine", "오로트산", "고덱스", "지방간"]],
+    [/galinpepimut|gps|wt1/i, ["WT1", "galinpepimut", "GPS", "백혈병", "면역"]],
+    [/efepoetin|epo/i, ["에포에틴", "EPO", "적혈구", "빈혈", "에리스로포이에틴"]],
+    [/vaccine|백신/i, ["백신", "vaccine", "면역"]],
+    [/antibody|항체/i, ["항체", "antibody"]],
+  ];
+
+  for (const [pattern, kws] of DRUG_KEYWORDS) {
+    if (pattern.test(combined)) keywords.push(...kws);
+  }
+
+  // 적응증에서 핵심 질환명 추출
+  const DISEASE_KW: [RegExp, string[]][] = [
+    [/myeloma/i, ["골수종", "myeloma"]],
+    [/lung.?cancer|nsclc/i, ["폐암", "lung cancer"]],
+    [/leukemia|leukaemia/i, ["백혈병", "leukemia"]],
+    [/multiple.?sclerosis/i, ["다발성경화", "sclerosis"]],
+    [/stroke/i, ["뇌졸중", "stroke"]],
+    [/kidney|renal|ckd/i, ["신장", "kidney", "신부전"]],
+    [/liver|hepat|nafld/i, ["간", "liver", "지방간"]],
+    [/head.?and.?neck|hnscc/i, ["두경부", "head and neck"]],
+    [/osteoarthritis/i, ["골관절염", "관절"]],
+    [/hypertension/i, ["고혈압", "hypertension"]],
+    [/diabetes|t2dm/i, ["당뇨", "diabetes"]],
+  ];
+
+  for (const [pattern, kws] of DISEASE_KW) {
+    if (pattern.test(combined)) keywords.push(...kws);
+  }
+
+  // 중복 제거
+  return [...new Set(keywords)];
 }
 
 // ── Phase 2b: PubMed + Semantic Scholar ──
@@ -695,6 +807,146 @@ async function detectFundPresence(corpCode: string, code: string): Promise<boole
   return false;
 }
 
+// ── CRIS 임상연구정보서비스 수집 ──
+
+interface CrisListItem {
+  trial_id: string;
+  source_name_kr: string;
+  primary_sponsor_kr: string;
+  scientific_title_kr: string;
+  scientific_title_en: string;
+  type_enrolment_kr: string;
+  date_enrolment: string;
+  results_date_completed: string;
+  phase_kr: string;
+  study_type_kr: string;
+  i_freetext_kr: string;
+}
+
+const CRIS_ACTIVE_STATUSES = new Set(["대상자 모집 중", "대상자 모집 전", "예정"]);
+
+function extractPhaseFromTitle(titleEn: string): "PHASE2" | "PHASE3" | null {
+  if (/phase\s*(3|iii)\b/i.test(titleEn)) return "PHASE3";
+  if (/phase\s*(2|ii)\b/i.test(titleEn)) return "PHASE2";
+  return null;
+}
+
+async function fetchCrisTrials(bioCompanyNames: Map<string, { code: string; name: string; market: string; marketCap: number }>): Promise<{
+  trial_id: string;
+  company: { code: string; name: string; market: string; market_cap: number };
+  title_kr: string;
+  title_en: string;
+  indication_kr: string;
+  phase: "PHASE2" | "PHASE3";
+  status: string;
+  start_date: string;
+  est_completion: string;
+  data_source: "cris";
+}[]> {
+  if (!CRIS_API_KEY) {
+    console.log("  ⚠ CRIS_API_KEY 미설정 — CRIS 수집 건너뜀");
+    return [];
+  }
+
+  const searches = ["Phase 2", "Phase II", "Phase 3", "Phase III"];
+  const seen = new Set<string>(); // trial_id 중복 제거
+  const matched: CrisListItem[] = [];
+
+  for (const query of searches) {
+    let pageNo = 1;
+    let totalPages = 1;
+
+    while (pageNo <= totalPages) {
+      try {
+        const url = `${CRIS_LIST}?serviceKey=${encodeURIComponent(CRIS_API_KEY)}&resultType=JSON&numOfRows=50&pageNo=${pageNo}&srchWord=${encodeURIComponent(query)}`;
+        const res = await fetchWithRetry(url);
+        if (!res.ok) break;
+        const json = await res.json();
+        if (json.resultCode !== "00") break;
+
+        const total = json.totalCount || 0;
+        totalPages = Math.ceil(total / 50);
+        const items: CrisListItem[] = json.items || [];
+
+        for (const item of items) {
+          if (seen.has(item.trial_id)) continue;
+          seen.add(item.trial_id);
+
+          // 바이오 기업 매칭 (source_name_kr 또는 primary_sponsor_kr)
+          const src = (item.source_name_kr || "") + "|" + (item.primary_sponsor_kr || "");
+          for (const [companyName] of bioCompanyNames) {
+            if (src.includes(companyName)) {
+              matched.push(item);
+              break;
+            }
+          }
+        }
+      } catch (e) {
+        console.warn(`  ⚠ CRIS list 실패 (${query} p${pageNo}):`, (e as Error).message);
+      }
+      pageNo++;
+      await sleep(300);
+    }
+    console.log(`  CRIS "${query}": ${seen.size}건 수집`);
+  }
+
+  console.log(`  CRIS 바이오 기업 매칭: ${matched.length}건`);
+
+  // detail API로 상세 조회 (모집상태, 적응증 등)
+  const results: Awaited<ReturnType<typeof fetchCrisTrials>> = [];
+
+  for (const item of matched) {
+    const phase = extractPhaseFromTitle(item.scientific_title_en);
+    if (!phase) continue;
+
+    try {
+      const detailUrl = `${CRIS_DETAIL}?serviceKey=${CRIS_API_KEY_ENCODED}&resultType=JSON&crisNumber=${item.trial_id}`;
+      const res = await fetchWithRetry(detailUrl);
+      if (!res.ok) continue;
+      const detail = await res.json();
+
+      const recruitmentStatus = detail.recruitment_status_kr || "";
+      // 진행 중인 것만
+      if (!CRIS_ACTIVE_STATUSES.has(recruitmentStatus) && recruitmentStatus !== "실제등록") continue;
+
+      // 펀딩 기업에서 매칭된 기업 찾기
+      const fundingNames = (detail.funding_items || []).map((f: { source_name_kr?: string }) => f.source_name_kr || "");
+      const sponsorNames = (detail.sponsor_items || []).map((s: { primary_sponsor_kr?: string }) => s.primary_sponsor_kr || "");
+      const allNames = [...fundingNames, ...sponsorNames].join("|");
+
+      let matchedCompany: { code: string; name: string; market: string; market_cap: number } | null = null;
+      for (const [companyName, info] of bioCompanyNames) {
+        if (allNames.includes(companyName)) {
+          matchedCompany = { code: info.code, name: info.name, market: info.market, market_cap: info.marketCap };
+          break;
+        }
+      }
+      if (!matchedCompany) continue;
+
+      // 적응증 추출
+      const condition = detail.hc_freetext_kr || detail.health_condition_kr || "";
+
+      results.push({
+        trial_id: item.trial_id,
+        company: matchedCompany,
+        title_kr: item.scientific_title_kr || "",
+        title_en: item.scientific_title_en || "",
+        indication_kr: condition,
+        phase,
+        status: recruitmentStatus,
+        start_date: item.date_enrolment || "",
+        est_completion: item.results_date_completed || "",
+        data_source: "cris",
+      });
+    } catch (e) {
+      console.warn(`  ⚠ CRIS detail 실패 (${item.trial_id}):`, (e as Error).message);
+    }
+    await sleep(300);
+  }
+
+  return results;
+}
+
 // ── Phase 6: B 트랙 기술 상세 조사 ──
 
 interface TechDetail {
@@ -913,7 +1165,56 @@ async function main() {
     }
   }
 
-  console.log(`  2상/3상 진행 중: ${activePipelines.length}건 (${new Set(activePipelines.map(a => a.company.code)).size}개 기업)`);
+  console.log(`  CT.gov 2상/3상 진행 중: ${activePipelines.length}건 (${new Set(activePipelines.map(a => a.company.code)).size}개 기업)`);
+
+  // Phase 3-CRIS: CRIS 임상연구정보서비스에서 추가 수집
+  console.log("\n🇰🇷 Phase 3-CRIS: 한국 임상연구정보서비스 수집");
+
+  // 바이오 기업 이름 → 정보 매핑 (CRIS에서 기업명 매칭용)
+  const bioCompanyMap = new Map<string, { code: string; name: string; market: string; marketCap: number }>();
+  for (const s of bioStocks) {
+    bioCompanyMap.set(s.name, { code: s.code, name: s.name, market: s.market, marketCap: s.marketCap });
+  }
+
+  const crisTrials = await fetchCrisTrials(bioCompanyMap);
+  console.log(`  CRIS 2상/3상 진행 중: ${crisTrials.length}건`);
+
+  // CRIS 결과를 activePipelines와 동일한 형태로 병합
+  // CRIS에서 온 기업의 기존 collected 데이터를 찾거나 빈 데이터 생성
+  for (const ct of crisTrials) {
+    const existing = collected.find(c => c.code === ct.company.code);
+    const pl: PipelineInfo = {
+      nctId: ct.trial_id, // KCT 번호
+      title: ct.title_kr || ct.title_en,
+      indication: ct.indication_kr || ct.title_en,
+      phase: ct.phase,
+      status: ct.status === "대상자 모집 중" ? "RECRUITING" : ct.status === "실제등록" ? "ACTIVE_NOT_RECRUITING" : "NOT_YET_RECRUITING",
+      startDate: ct.start_date,
+      completionDate: ct.est_completion,
+      hasResults: false,
+    };
+
+    if (existing) {
+      activePipelines.push({ company: existing, pipeline: pl });
+    } else {
+      // collected에 없는 기업은 빈 데이터로 추가
+      const stub: CollectedBio = {
+        code: ct.company.code, name: ct.company.name, market: ct.company.market,
+        marketCap: ct.company.market_cap, price: 0,
+        patent_domestic: 0, patent_pct: 0,
+        pubmed_count: 0, high_if_papers: 0, total_citations: 0,
+        conference_level: null,
+        license_out_tier: "none" as LicenseOutTier, termination_history: "none" as TerminationHistory,
+        contract_structure: null, milestone_ratio: null,
+        ceo_background: "unknown" as CeoBackground,
+        pipelines: [],
+      };
+      collected.push(stub);
+      activePipelines.push({ company: stub, pipeline: pl });
+    }
+  }
+
+  console.log(`  통합 2상/3상: ${activePipelines.length}건 (${new Set(activePipelines.map(a => a.company.code)).size}개 기업)`);
 
   // Phase 3.5: 선별된 파이프라인의 기업에 대해 논문 데이터 수집
   const companiesWithPipelines = [...new Set(activePipelines.map(a => a.company.code))];
@@ -930,11 +1231,25 @@ async function main() {
     await sleep(1500);
   }
 
+  // Phase 3.7: 파이프라인 기업의 특허 제목 수집 (키워드 매칭용)
+  const pipelineCompanyCodes = [...new Set(activePipelines.map(a => a.company.code))];
+  console.log(`\n📜 Phase 3.7: 특허 제목 수집 (${pipelineCompanyCodes.length}개 기업)`);
+
+  const patentTitlesMap = new Map<string, string[]>();
+  for (const code of pipelineCompanyCodes) {
+    const s = collected.find(c => c.code === code);
+    if (!s) continue;
+    const titles = await fetchPatentTitles(s.name, s.code);
+    patentTitlesMap.set(code, titles);
+    console.log(`  ${s.name}: ${titles.length}건 제목 수집`);
+  }
+
   // Phase 4: 기술 상세 조사 + 경쟁 분석
   console.log("\n🔍 Phase 4: 기술 상세 조사");
 
   interface OutputPipeline {
     nct_id: string;
+    data_source: "ct.gov" | "cris";
     company: { code: string; name: string; market: string; market_cap: number };
     trial_name: string;
     indication: string;
@@ -946,9 +1261,8 @@ async function main() {
     tech_summary_en: string;
     competing_phase3_count: number;
     quality: {
-      has_patent: boolean;
-      patent_domestic: number;
-      patent_pct: number;
+      patent_matched_count: number;
+      patent_search_keywords: string[];
       high_if_papers: number;
       total_citations: number;
       conference_level: string | null;
@@ -963,11 +1277,17 @@ async function main() {
 
   const outputPipelines: OutputPipeline[] = [];
   for (const { company: s, pipeline: pl } of activePipelines) {
-    console.log(`  ${s.name} — ${pl.title.slice(0, 50)}...`);
-    const techDetail = await fetchTechDetail(pl);
+    const isCris = pl.nctId.startsWith("KCT");
+    console.log(`  ${isCris ? "🇰🇷" : "🌐"} ${s.name} — ${pl.title.slice(0, 50)}...`);
+    const techDetail = isCris ? { tech_summary: "", tech_detail: "", market_impact: "", global_exclusivity: { competing_trials: 0, patent_scope: "", uniqueness: "" } } : await fetchTechDetail(pl);
+
+    const patentTitles = patentTitlesMap.get(s.code) || [];
+    const patentKeywords = extractPatentKeywords(pl.title, pl.indication);
+    const patentMatchedCount = matchPatentsByKeywords(patentTitles, patentKeywords);
 
     outputPipelines.push({
       nct_id: pl.nctId,
+      data_source: isCris ? "cris" : "ct.gov",
       company: { code: s.code, name: s.name, market: s.market, market_cap: s.marketCap },
       trial_name: pl.title,
       indication: pl.indication,
@@ -979,9 +1299,8 @@ async function main() {
       tech_summary_en: techDetail.tech_summary,
       competing_phase3_count: techDetail.global_exclusivity.competing_trials,
       quality: {
-        has_patent: s.patent_domestic > 0 || s.patent_pct > 0,
-        patent_domestic: s.patent_domestic,
-        patent_pct: s.patent_pct,
+        patent_matched_count: patentMatchedCount,
+        patent_search_keywords: patentKeywords,
         high_if_papers: s.high_if_papers,
         total_citations: s.total_citations,
         conference_level: s.conference_level,

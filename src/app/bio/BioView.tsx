@@ -5,9 +5,8 @@ import React from "react";
 // ── 타입 ──
 
 interface PipelineQuality {
-  has_patent: boolean;
-  patent_domestic: number;
-  patent_pct: number;
+  patent_matched_count: number;
+  patent_search_keywords: string[];
   high_if_papers: number;
   total_citations: number;
   conference_level: string | null;
@@ -70,11 +69,11 @@ function buildSteps(pl: Pipeline): StepResult[] {
   const isPhase2 = pl.phase === "PHASE2";
   const isPhase3 = pl.phase === "PHASE3";
 
-  // 특허
-  const patentSignal: Signal = q.has_patent ? "good" : "bad";
-  const patentDetail = q.has_patent
-    ? `국내 ${q.patent_domestic}건, PCT ${q.patent_pct}건`
-    : "특허 없음 — 기술 독점 불가";
+  // 특허 (기술별 키워드 매칭)
+  const patentSignal: Signal = q.patent_matched_count > 0 ? "good" : "bad";
+  const patentDetail = q.patent_matched_count > 0
+    ? `관련 특허 ${q.patent_matched_count}건`
+    : "관련 특허 없음";
 
   // 논문
   const paperSignal: Signal = q.high_if_papers > 0 ? "good" : "bad";
