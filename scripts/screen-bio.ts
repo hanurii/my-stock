@@ -509,9 +509,18 @@ function extractPatentKeywords(trialName: string, indication: string): string[] 
   return [...new Set(keywords)];
 }
 
-// ── Phase 2b: PubMed + Semantic Scholar ──
+// ── Phase 2b: OpenAlex 논문 수집 ──
 
-interface PaperData { pubmed_count: number; high_if_papers: number; total_citations: number; notable_journals: string[]; }
+interface OpenAlexWork {
+  title: string;
+  cited_by_count: number;
+  journal: string;
+}
+
+interface CompanyPapers {
+  total_count: number;
+  works: OpenAlexWork[];
+}
 
 const NOTABLE_JOURNALS = [
   "nature", "science", "cell", "lancet", "new england journal", "nejm",
@@ -523,41 +532,73 @@ const NOTABLE_JOURNALS = [
   "circulation", "european heart journal", "gut",
 ];
 
-async function fetchPapers(nameEn: string, code: string): Promise<PaperData> {
-  const cached = getCached<PaperData>(code, "papers");
+// 기업 전체 논문 목록 수집 (상위 200편, 인용순)
+async function fetchCompanyPapers(nameEn: string, code: string): Promise<CompanyPapers> {
+  const cached = getCached<CompanyPapers>(code, "papers_v2");
   if (cached) return cached;
 
-  let pubmed_count = 0, high_if_papers = 0, total_citations = 0;
-  const notable_journals: string[] = [];
+  const works: OpenAlexWork[] = [];
+  let totalCount = 0;
 
   try {
-    const url = `https://api.openalex.org/works?filter=raw_affiliation_strings.search:${encodeURIComponent(nameEn)}&per_page=50&sort=cited_by_count:desc${OPENALEX_PARAMS}`;
-    const res = await fetchWithRetry(url);
-    if (res.ok) {
+    // 최대 4페이지 (200편)
+    for (let page = 1; page <= 4; page++) {
+      const url = `https://api.openalex.org/works?filter=raw_affiliation_strings.search:${encodeURIComponent(nameEn)}&per_page=50&page=${page}&sort=cited_by_count:desc${OPENALEX_PARAMS}`;
+      const res = await fetchWithRetry(url);
+      if (!res.ok) break;
       const json = await res.json();
-      pubmed_count = json.meta?.count ?? 0;
 
-      for (const work of json.results || []) {
-        total_citations += work.cited_by_count || 0;
-        const journalName = work.primary_location?.source?.display_name || "";
-        const journalLower = journalName.toLowerCase();
-        if (NOTABLE_JOURNALS.some(nj => journalLower.includes(nj))) {
-          high_if_papers++;
-          if (!notable_journals.includes(journalName)) {
-            notable_journals.push(journalName);
-          }
-        }
+      if (page === 1) totalCount = json.meta?.count ?? 0;
+      const results = json.results || [];
+      if (results.length === 0) break;
+
+      for (const work of results) {
+        works.push({
+          title: (work.title || "").toLowerCase(),
+          cited_by_count: work.cited_by_count || 0,
+          journal: work.primary_location?.source?.display_name || "",
+        });
       }
+      await sleep(200);
     }
   } catch (e) {
     console.warn(`  ⚠ OpenAlex 논문 실패 (${nameEn}):`, (e as Error).message);
   }
 
-  const result: PaperData = { pubmed_count, high_if_papers, total_citations, notable_journals };
-  if (pubmed_count > 0) {
-    setCache(code, "papers", result);
+  const result: CompanyPapers = { total_count: totalCount, works };
+  if (works.length > 0) {
+    setCache(code, "papers_v2", result);
   }
   return result;
+}
+
+// 기술 키워드로 기업 논문 필터링
+interface PaperData { pubmed_count: number; high_if_papers: number; total_citations: number; notable_journals: string[]; }
+
+function matchPapersByKeywords(papers: CompanyPapers, keywords: string[]): PaperData {
+  if (papers.works.length === 0 || keywords.length === 0) {
+    return { pubmed_count: 0, high_if_papers: 0, total_citations: 0, notable_journals: [] };
+  }
+
+  const lowerKeywords = keywords.map(k => k.toLowerCase());
+  const matched = papers.works.filter(w => lowerKeywords.some(k => w.title.includes(k)));
+
+  let total_citations = 0;
+  let high_if_papers = 0;
+  const notable_journals: string[] = [];
+
+  for (const work of matched) {
+    total_citations += work.cited_by_count;
+    const journalLower = work.journal.toLowerCase();
+    if (NOTABLE_JOURNALS.some(nj => journalLower.includes(nj))) {
+      high_if_papers++;
+      if (!notable_journals.includes(work.journal)) {
+        notable_journals.push(work.journal);
+      }
+    }
+  }
+
+  return { pubmed_count: matched.length, high_if_papers, total_citations, notable_journals };
 }
 
 // ── Phase 2c: ClinicalTrials.gov 임상 ──
@@ -1258,20 +1299,18 @@ async function main() {
 
   console.log(`  통합 2상/3상: ${activePipelines.length}건 (${new Set(activePipelines.map(a => a.company.code)).size}개 기업)`);
 
-  // Phase 3.5: 선별된 파이프라인의 기업에 대해 논문 데이터 수집
+  // Phase 3.5: 선별된 파이프라인의 기업에 대해 논문 목록 수집 (기술별 매칭은 Phase 4에서)
   const companiesWithPipelines = [...new Set(activePipelines.map(a => a.company.code))];
-  console.log(`\n📄 Phase 3.5: 논문 데이터 순차 수집 (${companiesWithPipelines.length}개 기업)`);
+  console.log(`\n📄 Phase 3.5: 기업별 논문 목록 수집 (${companiesWithPipelines.length}개 기업)`);
 
+  const companyPapersMap = new Map<string, CompanyPapers>();
   for (const code of companiesWithPipelines) {
     const s = collected.find(c => c.code === code)!;
     const nameEn = getEnglishName(s.code, s.name);
-    const papers = await fetchPapers(nameEn, s.code);
-    s.pubmed_count = papers.pubmed_count;
-    s.high_if_papers = papers.high_if_papers;
-    s.total_citations = papers.total_citations;
-    s.notable_journals = papers.notable_journals;
-    papers.pubmed_count > 0 ? stats.papers.ok++ : stats.papers.fail++;
-    await sleep(500); // OpenAlex는 rate limit 여유로움
+    const papers = await fetchCompanyPapers(nameEn, s.code);
+    companyPapersMap.set(code, papers);
+    console.log(`  ${s.name}: ${papers.total_count}편 (상위 ${papers.works.length}편 수집)`);
+    papers.total_count > 0 ? stats.papers.ok++ : stats.papers.fail++;
   }
 
   // Phase 3.7: 파이프라인 기업의 특허 제목 수집 (키워드 매칭용)
@@ -1326,9 +1365,12 @@ async function main() {
     console.log(`  ${isCris ? "🇰🇷" : "🌐"} ${s.name} — ${pl.title.slice(0, 50)}...`);
     const techDetail = isCris ? { tech_summary: "", tech_detail: "", market_impact: "", global_exclusivity: { competing_trials: 0, patent_scope: "", uniqueness: "" } } : await fetchTechDetail(pl);
 
+    // 기술별 키워드 매칭 (특허 + 논문)
+    const techKeywords = extractPatentKeywords(pl.title, pl.indication);
     const patentTitles = patentTitlesMap.get(s.code) || [];
-    const patentKeywords = extractPatentKeywords(pl.title, pl.indication);
-    const patentMatchedCount = matchPatentsByKeywords(patentTitles, patentKeywords);
+    const patentMatchedCount = matchPatentsByKeywords(patentTitles, techKeywords);
+    const companyPapers = companyPapersMap.get(s.code) || { total_count: 0, works: [] };
+    const paperData = matchPapersByKeywords(companyPapers, techKeywords);
 
     outputPipelines.push({
       nct_id: pl.nctId,
@@ -1345,11 +1387,11 @@ async function main() {
       competing_phase3_count: techDetail.global_exclusivity.competing_trials,
       quality: {
         patent_matched_count: patentMatchedCount,
-        patent_search_keywords: patentKeywords,
-        pubmed_count: s.pubmed_count,
-        high_if_papers: s.high_if_papers,
-        total_citations: s.total_citations,
-        notable_journals: s.notable_journals || [],
+        patent_search_keywords: techKeywords,
+        pubmed_count: paperData.pubmed_count,
+        high_if_papers: paperData.high_if_papers,
+        total_citations: paperData.total_citations,
+        notable_journals: paperData.notable_journals,
         conference_level: s.conference_level,
         has_results_posted: pl.hasResults,
         bigpharma_deal: { tier: s.license_out_tier, terminated: s.termination_history === "terminated" },
