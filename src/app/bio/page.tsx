@@ -1,6 +1,6 @@
 import fs from "fs/promises";
 import path from "path";
-import { BioView } from "./BioView";
+import { BioPageTabs } from "./BioPageTabs";
 
 // ── 데이터 로드 ──
 
@@ -19,6 +19,9 @@ export default async function BioPage() {
   const data = await loadJSON("bio-watchlist.json");
   const briefings = (await loadJSON("bio-briefings.json")) || {};
   const pipelines = data?.pipelines || [];
+  const bigpharmaDeals = data?.bigpharma_deals || [];
+
+  const hasData = pipelines.length > 0 || bigpharmaDeals.length > 0;
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -31,12 +34,12 @@ export default async function BioPage() {
         </p>
         {data?.scanned_at && (
           <p className="text-xs text-on-surface-variant/50 mt-1">
-            스캔일: {data.scanned_at} · 전체 {data.total_scanned?.toLocaleString()}종목 스캔 · 2상/3상 진행 중 {pipelines.length}건
+            스캔일: {data.scanned_at} · 전체 {data.total_scanned?.toLocaleString()}종목 스캔 · 2상/3상 {pipelines.length}건 · 빅파마 딜 {bigpharmaDeals.length}건
           </p>
         )}
       </header>
 
-      {pipelines.length === 0 ? (
+      {!hasData ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <span className="material-symbols-outlined text-5xl text-primary-dim/30 mb-4">
             biotech
@@ -49,7 +52,11 @@ export default async function BioPage() {
           </p>
         </div>
       ) : (
-        <BioView pipelines={pipelines} briefings={briefings} />
+        <BioPageTabs
+          pipelines={pipelines}
+          briefings={briefings}
+          bigpharmaDeals={bigpharmaDeals}
+        />
       )}
     </div>
   );

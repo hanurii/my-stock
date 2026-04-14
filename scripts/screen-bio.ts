@@ -1362,6 +1362,225 @@ async function main() {
     await sleep(500);
   }
 
+  // Phase 4.5: 빅파마 딜 수집 (DART 공시 본문 파싱)
+  console.log("\n🤝 Phase 4.5: 빅파마 딜 수집");
+
+  interface BigPharmaDeal {
+    id: string;
+    company: { code: string; name: string; market: string; market_cap: number };
+    bigpharma: { name: string; tier: "top20" | "global" };
+    deal: {
+      type: string;
+      title: string;
+      rcept_no: string;
+      disclosure_date: string;
+      total_amount: string | null;
+      contract_details: string | null;
+      returnable: boolean | null;
+      terminated: boolean;
+      honest_disclosure: "honest" | "hype" | "unknown";
+    };
+    technology: {
+      name: string | null;
+      indication: string | null;
+      disease_category: string;
+      nct_id: string | null;
+      phase: string | null;
+    };
+    quality: {
+      patent_matched_count: number;
+      pubmed_count: number;
+      high_if_papers: number;
+      total_citations: number;
+      notable_journals: string[];
+      conference_level: string | null;
+      has_results_posted: boolean;
+      bigpharma_deal: { tier: string; terminated: boolean };
+      contract_structure: string | null;
+      milestone_ratio: number | null;
+      ceo_background: string;
+      phase1_cleared: boolean;
+      patent_search_keywords: string[];
+    };
+    news_summary: string | null;
+  }
+
+  const bigpharmaDeals: BigPharmaDeal[] = [];
+
+  // 빅파마명 → 표준명 매핑
+  const pharmaNameMap: Record<string, string> = {
+    "pfizer": "Pfizer", "화이자": "Pfizer",
+    "roche": "Roche", "로슈": "Roche", "genentech": "Roche/Genentech", "제넨텍": "Roche/Genentech",
+    "novartis": "Novartis", "노바티스": "Novartis",
+    "merck": "Merck", "msd": "Merck", "머크": "Merck",
+    "j&j": "J&J/Janssen", "janssen": "J&J/Janssen", "johnson": "J&J/Janssen", "얀센": "J&J/Janssen", "존슨앤존슨": "J&J/Janssen", "존슨앤드존슨": "J&J/Janssen",
+    "abbvie": "AbbVie", "애브비": "AbbVie",
+    "sanofi": "Sanofi", "사노피": "Sanofi",
+    "astrazeneca": "AstraZeneca", "아스트라제네카": "AstraZeneca",
+    "gsk": "GSK", "glaxo": "GSK", "글락소": "GSK",
+    "bristol-myers": "BMS", "bms": "BMS", "브리스톨": "BMS",
+    "eli lilly": "Eli Lilly", "lilly": "Eli Lilly", "일라이릴리": "Eli Lilly", "릴리": "Eli Lilly",
+    "amgen": "Amgen", "암젠": "Amgen",
+    "gilead": "Gilead", "길리어드": "Gilead",
+    "bayer": "Bayer", "바이엘": "Bayer",
+    "takeda": "Takeda", "다케다": "Takeda",
+    "novo nordisk": "Novo Nordisk", "노보노디스크": "Novo Nordisk",
+    "boehringer": "Boehringer Ingelheim", "베링거": "Boehringer Ingelheim",
+    "biogen": "Biogen", "바이오젠": "Biogen",
+    "regeneron": "Regeneron", "리제네론": "Regeneron",
+    "moderna": "Moderna", "모더나": "Moderna",
+    "vertex": "Vertex", "버텍스": "Vertex",
+  };
+
+  // 전 종목에서 5년치 DART 공시를 검색하여 빅파마 딜 추출
+  const fiveYearsAgo = `${new Date().getFullYear() - 5}0101`;
+  const dealKeywords = /기술이전|라이선스|라이센스|license|기술수출|공동개발|공동연구|투자계약|지분투자/;
+  let dealSearchCount = 0;
+
+  for (const stock of bioStocks) {
+    const corpCode = corpMap.get(stock.code);
+    if (!corpCode) continue;
+
+    // 캐시 확인
+    const cachedDeals = getCached<BigPharmaDeal[]>(stock.code, "bigpharma_deals_v2");
+    if (cachedDeals) {
+      bigpharmaDeals.push(...cachedDeals);
+      continue;
+    }
+
+    try {
+      const url = `${DART_API}/list.json?crtfc_key=${DART_API_KEY}&corp_code=${corpCode}&bgn_de=${fiveYearsAgo}&page_count=100`;
+      const res = await fetchWithRetry(url);
+      if (!res.ok) continue;
+      const json = await res.json();
+      if (json.status !== "000" || !json.list) continue;
+
+      const stockDeals: BigPharmaDeal[] = [];
+      const reports: { report_nm: string; rcept_no: string; rcept_dt: string }[] = json.list;
+
+      for (const r of reports) {
+        const title = r.report_nm.toLowerCase();
+        if (!dealKeywords.test(title)) continue;
+
+        // 빅파마명 매칭
+        let matchedPharma: string | null = null;
+        for (const p of TOP20_PHARMA) {
+          if (title.includes(p)) {
+            matchedPharma = pharmaNameMap[p] || p;
+            break;
+          }
+        }
+        if (!matchedPharma) continue;
+
+        dealSearchCount++;
+
+        // DART 공시 본문 조회
+        let totalAmount: string | null = null;
+        let contractDetails: string | null = null;
+        let returnable: boolean | null = null;
+        let techName: string | null = null;
+
+        try {
+          const docUrl = `${DART_API}/document.xml?crtfc_key=${DART_API_KEY}&rcept_no=${r.rcept_no}`;
+          const docRes = await fetchWithRetry(docUrl);
+          if (docRes.ok) {
+            const docText = await docRes.text();
+            // HTML 태그 제거
+            const plainText = docText.replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ");
+
+            // 계약 금액 추출
+            const amountMatch = plainText.match(/계약\s*금액[^0-9]*?([\d,]+\s*(?:억\s*원|백만\s*달러|백만\s*불|만\s*달러|USD|원))/);
+            if (amountMatch) totalAmount = amountMatch[1].trim();
+
+            // 반환의무 확인
+            if (/반환\s*의무\s*없|반환\s*불요|non.?refundable/i.test(plainText)) {
+              returnable = false;
+            } else if (/반환|원상\s*회복|해제\s*시.*반환|refundable/i.test(plainText)) {
+              returnable = true;
+            }
+
+            // 기술명 추출
+            const techMatch = plainText.match(/기술[의\s]*명[칭\s]*[:：]\s*([^\n,]{3,50})/);
+            if (techMatch) techName = techMatch[1].trim();
+
+            // 계약 세부사항 요약 (200자)
+            const detailMatch = plainText.match(/계약\s*(?:내용|조건|개요)[^]*?(?=\d+\.\s|$)/);
+            if (detailMatch) contractDetails = detailMatch[0].slice(0, 200).trim();
+          }
+          await sleep(300);
+        } catch { /* 본문 파싱 실패 시 무시 */ }
+
+        // 해지 여부 확인
+        const terminated = reports.some(r2 => {
+          const t2 = r2.report_nm.toLowerCase();
+          return /해지|반환|파기|종료|해제/.test(t2) && /계약|기술|라이/.test(t2) && t2.includes(matchedPharma!.toLowerCase().split("/")[0]);
+        });
+
+        // 공시 성실성 판단 (간이)
+        const titleUpper = r.report_nm;
+        const hypeWords = /혁신적|획기적|세계 최초|글로벌 최초|게임 체인저|판도/;
+        const honesty: "honest" | "hype" | "unknown" = hypeWords.test(titleUpper) ? "hype" : "unknown";
+
+        // 기존 수집된 quality 데이터 매칭
+        const existingPipeline = outputPipelines.find(p => p.company.code === stock.code);
+
+        // 해당 기술의 임상시험 연결 (있으면)
+        let nctId: string | null = null;
+        let phase: string | null = null;
+        if (existingPipeline) {
+          nctId = existingPipeline.nct_id;
+          phase = existingPipeline.phase;
+        }
+
+        const indication = techName || existingPipeline?.indication || null;
+        const diseaseCat = indication ? mapDiseaseCategory(indication) : "기타";
+
+        stockDeals.push({
+          id: `${stock.code}_${r.rcept_no}`,
+          company: { code: stock.code, name: stock.name, market: stock.market, market_cap: stock.marketCap },
+          bigpharma: { name: matchedPharma, tier: "top20" },
+          deal: {
+            type: /공동개발|공동연구/.test(title) ? "공동개발" : /투자/.test(title) ? "투자" : "기술이전",
+            title: r.report_nm,
+            rcept_no: r.rcept_no,
+            disclosure_date: r.rcept_dt,
+            total_amount: totalAmount,
+            contract_details: contractDetails,
+            returnable,
+            terminated,
+            honest_disclosure: honesty,
+          },
+          technology: {
+            name: techName,
+            indication,
+            disease_category: diseaseCat,
+            nct_id: nctId,
+            phase,
+          },
+          quality: existingPipeline?.quality || {
+            patent_matched_count: 0, pubmed_count: 0, high_if_papers: 0,
+            total_citations: 0, notable_journals: [], conference_level: null,
+            has_results_posted: false,
+            bigpharma_deal: { tier: "top20", terminated },
+            contract_structure: returnable === false ? "no_return" : returnable === true ? "returnable" : null,
+            milestone_ratio: null, ceo_background: "unknown", phase1_cleared: false,
+            patent_search_keywords: [],
+          },
+          news_summary: null,
+        });
+      }
+
+      setCache(stock.code, "bigpharma_deals_v2", stockDeals);
+      bigpharmaDeals.push(...stockDeals);
+    } catch (e) {
+      console.warn(`  ⚠ 빅파마 딜 검색 실패 (${stock.name}):`, (e as Error).message);
+    }
+  }
+
+  // 빅파마별 그룹 정렬 (딜 수 내림차순)
+  bigpharmaDeals.sort((a, b) => a.bigpharma.name.localeCompare(b.bigpharma.name));
+  console.log(`  ✓ 빅파마 딜 ${bigpharmaDeals.length}건 수집 (본문 조회 ${dealSearchCount}건)`);
+
   // 캐시 저장
   saveCache();
 
@@ -1380,6 +1599,7 @@ async function main() {
     scanned_at: today(),
     total_scanned: bioStocks.length,
     active_pipeline_count: outputPipelines.length,
+    bigpharma_deal_count: bigpharmaDeals.length,
     data_sources: {
       kipris: stats.kipris,
       papers: stats.papers,
@@ -1387,6 +1607,7 @@ async function main() {
       dart: stats.dart,
     },
     pipelines: outputPipelines,
+    bigpharma_deals: bigpharmaDeals,
   };
 
   fs.writeFileSync(OUTPUT_FILE, JSON.stringify(output, null, 2));
@@ -1396,6 +1617,7 @@ async function main() {
   console.log("✅ 스크리닝 완료");
   console.log(`  전체 스캔: ${bioStocks.length}개`);
   console.log(`  2상/3상 진행 중: ${outputPipelines.length}건`);
+  console.log(`  빅파마 딜: ${bigpharmaDeals.length}건`);
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 }
 
