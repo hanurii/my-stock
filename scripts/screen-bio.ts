@@ -1186,16 +1186,14 @@ async function main() {
     const nameEn = getEnglishName(stock.code, stock.name);
     const override = overrides[stock.code] || {};
 
-    const [patents, clinical, deals, mgmt, , conferenceFromNews] = await Promise.all([
+    const [patents, clinical, deals, mgmt] = await Promise.all([
       fetchPatents(stock.name, stock.code),
       fetchClinicalTrials(nameEn, stock.code),
       fetchDartDeals(corpCode, stock.code),
       fetchManagement(corpCode, stock.code),
-      fetchCashRunway(stock.code),
-      fetchConferenceLevel(stock.name, stock.code),
     ]);
 
-    const conferenceLevel: ConferenceLevel | null = override.conference_level ?? conferenceFromNews ?? null;
+    const conferenceLevel: ConferenceLevel | null = override.conference_level ?? null; // 학회는 Phase 3.6에서 파이프라인 기업만 수집
     const ceoBg: CeoBackground = override.ceo_background ?? mgmt.ceo_background;
 
     // 통계
@@ -1311,6 +1309,17 @@ async function main() {
     companyPapersMap.set(code, papers);
     console.log(`  ${s.name}: ${papers.total_count}편 (상위 ${papers.works.length}편 수집)`);
     papers.total_count > 0 ? stats.papers.ok++ : stats.papers.fail++;
+  }
+
+  // Phase 3.6: 파이프라인 기업만 학회 발표 검색 (OpenAlex + 네이버)
+  console.log(`\n🎤 Phase 3.6: 학회 발표 검색 (${companiesWithPipelines.length}개 기업)`);
+
+  for (const code of companiesWithPipelines) {
+    const s = collected.find(c => c.code === code)!;
+    if (s.conference_level) continue; // 수동 보정 있으면 건너뜀
+    const conf = await fetchConferenceLevel(s.name, s.code);
+    s.conference_level = conf;
+    console.log(`  ${s.name}: ${conf || "없음"}`);
   }
 
   // Phase 3.7: 파이프라인 기업의 특허 제목 수집 (키워드 매칭용)
@@ -1504,7 +1513,9 @@ async function main() {
         const title = r.report_nm.toLowerCase();
         if (!dealKeywords.test(title)) continue;
 
-        // 빅파마명 매칭
+        dealSearchCount++;
+
+        // Step 1: 제목에서 빅파마명 매칭 시도
         let matchedPharma: string | null = null;
         for (const p of TOP20_PHARMA) {
           if (title.includes(p)) {
@@ -1512,23 +1523,31 @@ async function main() {
             break;
           }
         }
-        if (!matchedPharma) continue;
 
-        dealSearchCount++;
-
-        // DART 공시 본문 조회
+        // Step 2: 공시 본문 조회 (제목 매칭 여부와 무관하게 모든 딜 공시)
         let totalAmount: string | null = null;
         let contractDetails: string | null = null;
         let returnable: boolean | null = null;
         let techName: string | null = null;
+        let plainText = "";
 
         try {
           const docUrl = `${DART_API}/document.xml?crtfc_key=${DART_API_KEY}&rcept_no=${r.rcept_no}`;
           const docRes = await fetchWithRetry(docUrl);
           if (docRes.ok) {
             const docText = await docRes.text();
-            // HTML 태그 제거
-            const plainText = docText.replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ");
+            plainText = docText.replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ");
+
+            // Step 2a: 제목에서 못 찾았으면 본문에서 빅파마명 매칭
+            if (!matchedPharma) {
+              const lowerBody = plainText.toLowerCase();
+              for (const p of TOP20_PHARMA) {
+                if (lowerBody.includes(p)) {
+                  matchedPharma = pharmaNameMap[p] || p;
+                  break;
+                }
+              }
+            }
 
             // 계약 금액 추출
             const amountMatch = plainText.match(/계약\s*금액[^0-9]*?([\d,]+\s*(?:억\s*원|백만\s*달러|백만\s*불|만\s*달러|USD|원))/);
@@ -1551,6 +1570,9 @@ async function main() {
           }
           await sleep(300);
         } catch { /* 본문 파싱 실패 시 무시 */ }
+
+        // 빅파마 매칭 안 되면 스킵
+        if (!matchedPharma) continue;
 
         // 해지 여부 확인
         const terminated = reports.some(r2 => {
@@ -1619,9 +1641,21 @@ async function main() {
     }
   }
 
-  // 빅파마별 그룹 정렬 (딜 수 내림차순)
+  // 중복 제거: 같은 회사+빅파마 조합에서 최신 공시만 남김
+  const deduped = new Map<string, BigPharmaDeal>();
+  for (const d of bigpharmaDeals) {
+    const key = `${d.company.code}_${d.bigpharma.name}`;
+    const existing = deduped.get(key);
+    if (!existing || d.deal.disclosure_date > existing.deal.disclosure_date) {
+      deduped.set(key, d);
+    }
+  }
+  const uniqueDeals = [...deduped.values()];
+  bigpharmaDeals.length = 0;
+  bigpharmaDeals.push(...uniqueDeals);
+
   bigpharmaDeals.sort((a, b) => a.bigpharma.name.localeCompare(b.bigpharma.name));
-  console.log(`  ✓ 빅파마 딜 ${bigpharmaDeals.length}건 수집 (본문 조회 ${dealSearchCount}건)`);
+  console.log(`  ✓ 빅파마 딜 ${bigpharmaDeals.length}건 수집 (본문 조회 ${dealSearchCount}건, 중복 제거 후)`);
 
   // 캐시 저장
   saveCache();
