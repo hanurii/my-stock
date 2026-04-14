@@ -41,9 +41,9 @@ const OVERRIDES_FILE = path.join(DATA_DIR, "bio-manual-overrides.json");
 const ALIASES_FILE = path.join(DATA_DIR, "bio-company-aliases.json");
 
 const FORCE = process.argv.includes("--force");
-const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24시간 (기본: DART공시, Naver재무 등 자주 변하는 데이터)
-const CACHE_TTL_15D_MS = 15 * 24 * 60 * 60 * 1000; // 15일 (ClinicalTrials, PubMed 등 중간 빈도)
-const CACHE_TTL_30D_MS = 30 * 24 * 60 * 60 * 1000; // 30일 (KIPRIS 특허 — 월 1000건 제한, 거의 안 변함)
+const CACHE_TTL_MS = 24 * 60 * 60 * 1000;          // 24시간 (DART공시, Naver재무 등 수시 변동)
+const CACHE_TTL_7D_MS = 7 * 24 * 60 * 60 * 1000;   // 7일 (임상 모집 상태 등 중빈도)
+const CACHE_PERMANENT = Infinity;                     // 영구 보존 (특허, 논문, 학회 등 정적 데이터)
 
 const TOP20_PHARMA = [
   // 영문명
@@ -151,20 +151,22 @@ function saveCache() {
 }
 
 const CACHE_TTL_MAP: Record<string, number> = {
-  kipris: CACHE_TTL_30D_MS,       // 특허: 30일 (거의 안 변함, 월 1000건 제한)
-  papers: CACHE_TTL_15D_MS,       // 논문: 15일
-  clinical: CACHE_TTL_15D_MS,     // 임상: 15일
-  conference: CACHE_TTL_15D_MS,   // 학회: 15일
-  dart_deals: CACHE_TTL_MS,       // DART 공시: 24시간 (수시 공시)
-  management: CACHE_TTL_15D_MS,   // 임원/지분: 15일
-  cash_runway: CACHE_TTL_MS,      // 재무: 24시간
+  kipris: CACHE_PERMANENT,          // 특허: 영구 (거의 안 변함)
+  papers_v2: CACHE_PERMANENT,       // 논문 목록: 영구 (과거 논문은 안 변함)
+  conference: CACHE_PERMANENT,      // 학회 발표: 영구 (과거 발표 이력)
+  clinical: CACHE_TTL_7D_MS,        // 임상: 7일 (모집 상태 변동 가능)
+  dart_deals: CACHE_TTL_7D_MS,      // DART 공시: 7일 (새 공시 반영)
+  management: CACHE_TTL_7D_MS,      // 임원/지분: 7일
+  fund_detect: CACHE_TTL_7D_MS,     // 펀드 감지: 7일
+  cash_runway: CACHE_TTL_MS,        // 재무: 24시간 (시세 연동)
 };
 
 function getCached<T>(code: string, source: string): T | null {
-  if (FORCE) return null;
   const entry = cache[code]?.[source];
   if (!entry) return null;
   const ttl = CACHE_TTL_MAP[source] ?? CACHE_TTL_MS;
+  // --force: 영구 캐시는 유지, 동적 캐시만 갱신
+  if (FORCE && ttl !== CACHE_PERMANENT) return null;
   if (Date.now() - entry.fetched_at > ttl) return null;
   return entry.data as T;
 }
