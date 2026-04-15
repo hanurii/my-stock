@@ -41,6 +41,12 @@ const OVERRIDES_FILE = path.join(DATA_DIR, "bio-manual-overrides.json");
 const ALIASES_FILE = path.join(DATA_DIR, "bio-company-aliases.json");
 
 const FORCE = process.argv.includes("--force");
+const WATCHLIST_MODE = process.argv.includes("--watchlist");
+const WATCHLIST_CODES: Record<string, { name: string; market: string }> = {
+  "347850": { name: "디앤디파마텍", market: "KOSDAQ" },
+  "196170": { name: "알테오젠", market: "KOSDAQ" },
+  "298380": { name: "에이비엘바이오", market: "KOSDAQ" },
+};
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;          // 24시간 (DART공시, Naver재무 등 수시 변동)
 const CACHE_TTL_7D_MS = 7 * 24 * 60 * 60 * 1000;   // 7일 (임상 모집 상태 등 중빈도)
 const CACHE_PERMANENT = Infinity;                     // 영구 보존 (특허, 논문, 학회 등 정적 데이터)
@@ -178,8 +184,22 @@ function setCache(code: string, source: string, data: unknown) {
 
 // ── 수동 보정 & 영문명 매핑 ──
 
+interface ClinicalAssessment {
+  verdict: "good" | "caution" | "danger";
+  design: string;
+  sample_size: string;
+  primary_endpoint: string;
+  p_value: string;
+  details: { signal: "good" | "warn" | "bad"; text: string }[];
+  conclusion: string;
+  sources: string[];
+}
+
 interface ManualOverride {
   conference_level?: ConferenceLevel;
+  pipeline_conferences?: Record<string, ConferenceLevel | null>;
+  pipeline_results_posted?: Record<string, boolean>;
+  pipeline_assessments?: Record<string, ClinicalAssessment>;
   contract_structure?: ContractStructure;
   ceo_background?: CeoBackground;
   milestone_ratio?: number;
@@ -192,6 +212,7 @@ interface ManualOverride {
 interface CompanyAlias {
   names_en: string[];
   pipeline_keywords?: string[];
+  tech_keywords?: Record<string, string[]>;
 }
 
 function loadOverrides(): Record<string, ManualOverride> {
@@ -292,7 +313,7 @@ async function collectBioStocks(): Promise<BioStock[]> {
 
 const CONFERENCE_ORAL_KEYWORDS = /oral presentation|구두 발표|구두발표|late.?breaking|keynote|초청 연사|초청연사|plenary/i;
 const CONFERENCE_POSTER_KEYWORDS = /poster presentation|포스터 발표|포스터발표|e-poster/i;
-const TOP4_CONFERENCES = /ASCO|ASH|AACR|ESMO/i;
+const TOP4_CONFERENCES = /ASCO|ASH|AACR|ESMO|AASLD/i;
 
 const NAVER_CLIENT_ID = process.env.NAVER_CLIENT_ID ?? "";
 const NAVER_CLIENT_SECRET = process.env.NAVER_CLIENT_SECRET ?? "";
@@ -333,36 +354,41 @@ async function fetchConferenceLevel(name: string, code: string): Promise<Confere
     console.warn(`  ⚠ OpenAlex 실패 (${name}):`, (e as Error).message);
   }
 
-  // 2차: 네이버 뉴스 — 구두/포스터 구분 + ESMO 커버
+  // 2차: 네이버 뉴스 — 학회별 개별 검색으로 구두/포스터 정밀 판별
   if (NAVER_CLIENT_ID) {
-    try {
-      const query = encodeURIComponent(`${name} ASCO ASH AACR ESMO 발표`);
-      const url = `https://openapi.naver.com/v1/search/news.json?query=${query}&display=20&sort=date`;
-      const res = await fetchWithRetry(url, {
-        headers: {
-          "X-Naver-Client-Id": NAVER_CLIENT_ID,
-          "X-Naver-Client-Secret": NAVER_CLIENT_SECRET,
-        },
-      });
+    const conferences = ["ASCO", "ASH", "AACR", "ESMO", "AASLD"];
+    const searchQueries = [
+      ...conferences.map(c => `${name} ${c} 구두발표`),
+      ...conferences.map(c => `${name} ${c} oral`),
+      ...conferences.map(c => `${name} ${c} late-breaking`),
+      ...conferences.map(c => `${name} ${c} 포스터`),
+      ...conferences.map(c => `${name} ${c} poster`),
+      ...conferences.map(c => `${name} ${c} 발표`),
+    ];
 
-      if (res.ok) {
+    for (const q of searchQueries) {
+      if (result === "oral_top4") break; // 최고 등급 이미 확인
+      try {
+        const url = `https://openapi.naver.com/v1/search/news.json?query=${encodeURIComponent(q)}&display=10&sort=sim`;
+        const res = await fetchWithRetry(url, {
+          headers: { "X-Naver-Client-Id": NAVER_CLIENT_ID, "X-Naver-Client-Secret": NAVER_CLIENT_SECRET },
+        });
+        if (!res.ok) continue;
         const json = await res.json();
         for (const item of json.items || []) {
           const text = `${item.title} ${item.description}`.replace(/<[^>]+>/g, "");
-          if (TOP4_CONFERENCES.test(text)) {
-            if (CONFERENCE_ORAL_KEYWORDS.test(text)) {
-              result = "oral_top4" as ConferenceLevel;
-              break;
-            } else if (CONFERENCE_POSTER_KEYWORDS.test(text) && result !== "oral_top4") {
-              result = "poster_top4" as ConferenceLevel;
-            } else if (!result) {
-              result = "other_intl" as ConferenceLevel;
-            }
+          if (!TOP4_CONFERENCES.test(text)) continue;
+          if (CONFERENCE_ORAL_KEYWORDS.test(text)) {
+            result = "oral_top4" as ConferenceLevel;
+            break;
+          } else if (CONFERENCE_POSTER_KEYWORDS.test(text) && result !== "oral_top4") {
+            result = "poster_top4" as ConferenceLevel;
+          } else if (!result) {
+            result = "other_intl" as ConferenceLevel;
           }
         }
-      }
-    } catch (e) {
-      console.warn(`  ⚠ 네이버 뉴스 실패 (${name}):`, (e as Error).message);
+      } catch { /* skip */ }
+      await sleep(100);
     }
   }
 
@@ -636,58 +662,75 @@ function toHighestPhase(phases: string[]): HighestPhase {
   return "preclinical";
 }
 
-async function fetchClinicalTrials(nameEn: string, code: string): Promise<ClinicalData> {
+async function fetchClinicalTrials(nameEn: string, code: string, pipelineKeywords?: string[]): Promise<ClinicalData> {
   const cached = getCached<ClinicalData>(code, "clinical");
   if (cached) return cached;
 
   const result: ClinicalData = { highest_phase: "none", pipeline_count: 0, results_transparency: 0, pipelines: [], withdrawn_terminated_count: 0, successful_completion_count: 0 };
+  const seenNctIds = new Set<string>();
 
-  try {
-    const query = encodeURIComponent(nameEn);
-    const url = `https://clinicaltrials.gov/api/v2/studies?query.spons=${query}&pageSize=50&fields=protocolSection.identificationModule|protocolSection.statusModule|protocolSection.designModule|protocolSection.conditionsModule|hasResults`;
-    const res = await fetchWithRetry(url);
-    if (res.ok) {
+  // 스폰서명 검색 + pipeline_keywords 검색 (파트너사 명의 임상 포함)
+  const queries: { url: string; label: string }[] = [];
+
+  // 1) 기본: 스폰서명 검색
+  const sponsQuery = encodeURIComponent(nameEn);
+  queries.push({
+    url: `https://clinicaltrials.gov/api/v2/studies?query.spons=${sponsQuery}&pageSize=50&fields=protocolSection.identificationModule|protocolSection.statusModule|protocolSection.designModule|protocolSection.conditionsModule|hasResults`,
+    label: `sponsor:${nameEn}`,
+  });
+
+  // 2) pipeline_keywords로 추가 검색 (약물명/기술명)
+  if (pipelineKeywords) {
+    for (const kw of pipelineKeywords) {
+      queries.push({
+        url: `https://clinicaltrials.gov/api/v2/studies?query.intr=${encodeURIComponent(kw)}&pageSize=20&fields=protocolSection.identificationModule|protocolSection.statusModule|protocolSection.designModule|protocolSection.conditionsModule|hasResults`,
+        label: `intervention:${kw}`,
+      });
+    }
+  }
+
+  for (const q of queries) {
+    try {
+      const res = await fetchWithRetry(q.url);
+      if (!res.ok) continue;
       const json = await res.json();
       const studies = json.studies || [];
-      const allPhases: string[] = [];
-      let hasResultsCount = 0;
 
       for (const s of studies) {
         const proto = s.protocolSection || {};
         const id = proto.identificationModule || {};
+        const nctId = id.nctId || "";
+        if (seenNctIds.has(nctId)) continue;
+        seenNctIds.add(nctId);
+
         const status = proto.statusModule || {};
         const design = proto.designModule || {};
         const conditions = proto.conditionsModule || {};
         const phases: string[] = design.phases || [];
-        allPhases.push(...phases);
-
-        if (s.hasResults) hasResultsCount++;
 
         result.pipelines.push({
-          nctId: id.nctId || "",
+          nctId,
           title: id.briefTitle || "",
           indication: (conditions.conditions || []).join(", "),
-          phase: phases[0] || "N/A",
+          phase: phases.includes("PHASE3") ? "PHASE3" : phases.includes("PHASE2") ? "PHASE2" : phases[0] || "N/A",
           status: status.overallStatus || "",
           startDate: status.startDateStruct?.date || "",
           completionDate: status.completionDateStruct?.date || "",
           hasResults: !!s.hasResults,
         });
       }
-
-      result.pipeline_count = studies.length;
-      result.highest_phase = studies.length > 0 ? toHighestPhase(allPhases) : "none";
-      result.results_transparency = studies.length > 0 ? Math.round((hasResultsCount / studies.length) * 100) : 0;
-      result.withdrawn_terminated_count = result.pipelines.filter(
-        p => p.status === "WITHDRAWN" || p.status === "TERMINATED"
-      ).length;
-      result.successful_completion_count = result.pipelines.filter(
-        p => p.status === "COMPLETED" && p.hasResults
-      ).length;
+    } catch (e) {
+      console.warn(`  ⚠ ClinicalTrials.gov 실패 (${q.label}):`, (e as Error).message);
     }
-  } catch (e) {
-    console.warn(`  ⚠ ClinicalTrials.gov 실패 (${nameEn}):`, (e as Error).message);
   }
+
+  const allPhases = result.pipelines.flatMap(p => p.phase ? [p.phase] : []);
+  const hasResultsCount = result.pipelines.filter(p => p.hasResults).length;
+  result.pipeline_count = result.pipelines.length;
+  result.highest_phase = result.pipelines.length > 0 ? toHighestPhase(allPhases) : "none";
+  result.results_transparency = result.pipelines.length > 0 ? Math.round((hasResultsCount / result.pipelines.length) * 100) : 0;
+  result.withdrawn_terminated_count = result.pipelines.filter(p => p.status === "WITHDRAWN" || p.status === "TERMINATED").length;
+  result.successful_completion_count = result.pipelines.filter(p => p.status === "COMPLETED" && p.hasResults).length;
 
   setCache(code, "clinical", result);
   return result;
@@ -1161,7 +1204,34 @@ async function main() {
   }
 
   // Phase 1: 바이오 종목 목록
-  const bioStocks = await collectBioStocks();
+  let bioStocks: BioStock[];
+  if (WATCHLIST_MODE) {
+    console.log("\n🎯 Phase 1: 관심 기업 목록 (Watchlist 모드)");
+    bioStocks = [];
+    for (const [code, info] of Object.entries(WATCHLIST_CODES)) {
+      try {
+        const res = await fetch(`${NAVER_API}/${code}/integration`, { headers: HEADERS });
+        if (res.ok) {
+          const json = await res.json();
+          // totalInfos에서 시총과 종가 추출
+          const totalInfos: { code: string; value: string }[] = json.totalInfos || [];
+          const capEntry = totalInfos.find((i: { code: string }) => i.code === "marketValue");
+          const cap = capEntry ? parseMarketCap(capEntry.value) : 0;
+          const price = parseNum(json.closePrice);
+          bioStocks.push({ code, name: info.name, market: info.market, marketCap: cap, price, sector: "" });
+          console.log(`  ✓ ${info.name} (${code}) — 시총 ${cap.toLocaleString()}억`);
+        } else {
+          bioStocks.push({ code, name: info.name, market: info.market, marketCap: 0, price: 0, sector: "" });
+          console.warn(`  ⚠ ${info.name} (${code}) — 시세 조회 실패, 기본값 사용`);
+        }
+      } catch {
+        bioStocks.push({ code, name: info.name, market: info.market, marketCap: 0, price: 0, sector: "" });
+      }
+    }
+    console.log(`  ✓ ${bioStocks.length}개 관심 기업 로드 완료`);
+  } else {
+    bioStocks = await collectBioStocks();
+  }
 
   // 데이터 수집 통계
   const stats = { kipris: { ok: 0, fail: 0 }, papers: { ok: 0, fail: 0 }, clinical: { ok: 0, fail: 0 }, dart: { ok: 0, fail: 0 }, naver: { ok: 0, fail: 0 } };
@@ -1188,9 +1258,10 @@ async function main() {
     const nameEn = getEnglishName(stock.code, stock.name);
     const override = overrides[stock.code] || {};
 
+    const pipelineKeywords = aliases[stock.code]?.pipeline_keywords;
     const [patents, clinical, deals, mgmt] = await Promise.all([
       fetchPatents(stock.name, stock.code),
-      fetchClinicalTrials(nameEn, stock.code),
+      fetchClinicalTrials(nameEn, stock.code, pipelineKeywords),
       fetchDartDeals(corpCode, stock.code),
       fetchManagement(corpCode, stock.code),
     ]);
@@ -1229,26 +1300,36 @@ async function main() {
     if (i + BATCH_SIZE < bioStocks.length) await sleep(500);
   }
 
-  // Phase 3: 임상 2상/3상 진행 중인 파이프라인만 선별
-  console.log("\n🔬 Phase 3: 임상 2상/3상 진행 중 파이프라인 선별");
-
+  // Phase 3: 파이프라인 선별
   interface ActivePipeline {
     company: CollectedBio;
     pipeline: PipelineInfo;
   }
 
   const activePipelines: ActivePipeline[] = [];
-  for (const s of collected) {
-    for (const pl of s.pipelines) {
-      const isPhase23 = pl.phase === "PHASE2" || pl.phase === "PHASE3";
-      const isActive = ACTIVE_STATUSES.has(pl.status);
-      if (isPhase23 && isActive) {
+  if (WATCHLIST_MODE) {
+    // Watchlist 모드: 전체 파이프라인 포함 (필터 없음)
+    console.log("\n🔬 Phase 3: 관심 기업 전체 파이프라인 수집");
+    for (const s of collected) {
+      for (const pl of s.pipelines) {
         activePipelines.push({ company: s, pipeline: pl });
       }
     }
+    console.log(`  CT.gov 전체: ${activePipelines.length}건 (${new Set(activePipelines.map(a => a.company.code)).size}개 기업)`);
+  } else {
+    // 일반 모드: 기존 2상/3상 진행 중 필터 유지
+    console.log("\n🔬 Phase 3: 임상 2상/3상 진행 중 파이프라인 선별");
+    for (const s of collected) {
+      for (const pl of s.pipelines) {
+        const isPhase23 = pl.phase === "PHASE2" || pl.phase === "PHASE3";
+        const isActive = ACTIVE_STATUSES.has(pl.status);
+        if (isPhase23 && isActive) {
+          activePipelines.push({ company: s, pipeline: pl });
+        }
+      }
+    }
+    console.log(`  CT.gov 2상/3상 진행 중: ${activePipelines.length}건 (${new Set(activePipelines.map(a => a.company.code)).size}개 기업)`);
   }
-
-  console.log(`  CT.gov 2상/3상 진행 중: ${activePipelines.length}건 (${new Set(activePipelines.map(a => a.company.code)).size}개 기업)`);
 
   // Phase 3-CRIS: CRIS 임상연구정보서비스에서 추가 수집
   console.log("\n🇰🇷 Phase 3-CRIS: 한국 임상연구정보서비스 수집");
@@ -1368,6 +1449,7 @@ async function main() {
       ceo_background: string;
       phase1_cleared: boolean;
     };
+    clinical_assessment?: ClinicalAssessment;
   }
 
   const outputPipelines: OutputPipeline[] = [];
@@ -1378,10 +1460,21 @@ async function main() {
 
     // 기술별 키워드 매칭 (특허 + 논문)
     const techKeywords = extractPatentKeywords(pl.title, pl.indication);
+    // tech_keywords 보강: 제품코드 → 기술 용어 매핑
+    const companyTechKw = aliases[s.code]?.tech_keywords;
+    if (companyTechKw) {
+      for (const [productCode, kws] of Object.entries(companyTechKw)) {
+        if (pl.title.toLowerCase().includes(productCode.toLowerCase()) ||
+            techKeywords.some(k => k.toLowerCase() === productCode.toLowerCase())) {
+          techKeywords.push(...kws);
+        }
+      }
+    }
+    const uniqueKeywords = [...new Set(techKeywords)];
     const patentTitles = patentTitlesMap.get(s.code) || [];
-    const patentMatchedCount = matchPatentsByKeywords(patentTitles, techKeywords);
+    const patentMatchedCount = matchPatentsByKeywords(patentTitles, uniqueKeywords);
     const companyPapers = companyPapersMap.get(s.code) || { total_count: 0, works: [] };
-    const paperData = matchPapersByKeywords(companyPapers, techKeywords);
+    const paperData = matchPapersByKeywords(companyPapers, uniqueKeywords);
 
     outputPipelines.push({
       nct_id: pl.nctId,
@@ -1398,19 +1491,52 @@ async function main() {
       competing_phase3_count: techDetail.global_exclusivity.competing_trials,
       quality: {
         patent_matched_count: patentMatchedCount,
-        patent_search_keywords: techKeywords,
+        patent_search_keywords: uniqueKeywords,
         pubmed_count: paperData.pubmed_count,
         high_if_papers: paperData.high_if_papers,
         total_citations: paperData.total_citations,
         notable_journals: paperData.notable_journals,
-        conference_level: s.conference_level,
-        has_results_posted: pl.hasResults,
+        conference_level: (() => {
+          // 파이프라인별 학회 등급 (manual override 우선)
+          const pipeConf = overrides[s.code]?.pipeline_conferences;
+          if (pipeConf) {
+            const titleLower = pl.title.toLowerCase();
+            for (const [productCode, level] of Object.entries(pipeConf)) {
+              if (titleLower.includes(productCode.toLowerCase())) {
+                return level; // null이면 해당 기술은 학회 발표 없음
+              }
+            }
+          }
+          // 기존 회사 단위 conference_level fallback (override.conference_level 또는 자동 수집)
+          return overrides[s.code]?.conference_level ?? s.conference_level;
+        })(),
+        has_results_posted: (() => {
+          if (pl.hasResults) return true;
+          // 수동 보정: CT.gov 미게시이나 실제 결과 발표된 경우
+          const resultsOverride = overrides[s.code]?.pipeline_results_posted;
+          if (resultsOverride) {
+            const titleLower = pl.title.toLowerCase();
+            for (const [keyword, posted] of Object.entries(resultsOverride)) {
+              if (titleLower.includes(keyword.toLowerCase()) && posted) return true;
+            }
+          }
+          return false;
+        })(),
         bigpharma_deal: { tier: s.license_out_tier, terminated: s.termination_history === "terminated" },
         contract_structure: s.contract_structure,
         milestone_ratio: s.milestone_ratio,
         ceo_background: s.ceo_background,
         phase1_cleared: true, // 2상/3상이면 1상 통과
       },
+      clinical_assessment: (() => {
+        const assessments = overrides[s.code]?.pipeline_assessments;
+        if (!assessments) return undefined;
+        const titleLower = pl.title.toLowerCase();
+        for (const [keyword, assessment] of Object.entries(assessments)) {
+          if (titleLower.includes(keyword.toLowerCase())) return assessment;
+        }
+        return undefined;
+      })(),
     });
     await sleep(500);
   }

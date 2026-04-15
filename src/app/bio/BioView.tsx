@@ -20,6 +20,22 @@ interface PipelineQuality {
   phase1_cleared: boolean;
 }
 
+interface ClinicalAssessmentDetail {
+  signal: "good" | "warn" | "bad";
+  text: string;
+}
+
+interface ClinicalAssessment {
+  verdict: "good" | "caution" | "danger";
+  design: string;
+  sample_size: string;
+  primary_endpoint: string;
+  p_value: string;
+  details: ClinicalAssessmentDetail[];
+  conclusion: string;
+  sources: string[];
+}
+
 interface Pipeline {
   nct_id: string;
   company: { code: string; name: string; market: string; market_cap: number };
@@ -33,6 +49,7 @@ interface Pipeline {
   tech_summary_en: string;
   competing_phase3_count: number;
   quality: PipelineQuality;
+  clinical_assessment?: ClinicalAssessment;
 }
 
 interface Briefing {
@@ -40,9 +57,20 @@ interface Briefing {
   market_briefing: string;
 }
 
+interface QualityCheck {
+  signal: "good" | "bad" | "warn";
+  detail: string;
+}
+
+interface ResearchData {
+  company: string;
+  quality_checks: Record<string, QualityCheck>;
+}
+
 interface BioViewProps {
   pipelines: Pipeline[];
   briefings: Record<string, Briefing>;
+  research: Record<string, ResearchData>;
 }
 
 // ── 유틸 ──
@@ -52,12 +80,15 @@ function fmtNum(n: number): string {
   return `${n.toLocaleString()}억`;
 }
 
-const phaseLabel: Record<string, string> = { PHASE3: "3상", PHASE2: "2상" };
+const phaseLabel: Record<string, string> = { PHASE3: "3상", PHASE2: "2상", PHASE1: "1상", "N/A": "전임상" };
 const statusLabel: Record<string, string> = {
   RECRUITING: "모집 중",
   ACTIVE_NOT_RECRUITING: "진행 중 (모집 완료)",
   NOT_YET_RECRUITING: "모집 예정",
   ENROLLING_BY_INVITATION: "초청만 참여 가능",
+  COMPLETED: "완료",
+  TERMINATED: "종료",
+  WITHDRAWN: "철회",
 };
 
 // ── 프로세스 단계 정의 ──
@@ -74,8 +105,11 @@ interface StepResult {
 
 function buildSteps(pl: Pipeline): StepResult[] {
   const q = pl.quality;
+  const isPhase1 = pl.phase === "PHASE1";
   const isPhase2 = pl.phase === "PHASE2";
   const isPhase3 = pl.phase === "PHASE3";
+  const isCompleted = pl.status === "COMPLETED";
+  const isTerminated = pl.status === "TERMINATED" || pl.status === "WITHDRAWN";
 
   // 특허 (기술별 키워드 매칭)
   const patentSignal: Signal = q.patent_matched_count > 0 ? "good" : "bad";
@@ -87,8 +121,7 @@ function buildSteps(pl: Pipeline): StepResult[] {
   const paperExistSignal: Signal = q.pubmed_count > 0 ? "good" : "bad";
   const paperExistDetail = q.pubmed_count > 0 ? `논문 ${q.pubmed_count}편` : "논문 없음";
 
-  // 학회
-  // 학회: 저명학회 구두=별2, 일반 구두=별1, 포스터/기타=뱃지없음, 없음=경고
+  // 학회: 저명학회 구두=별2, 포스터/기타=뱃지없음, 없음=경고
   const confSignal: Signal = q.conference_level === "oral_top4" ? "star2"
     : q.conference_level === "poster_top4" || q.conference_level === "other_intl" ? "none"
     : "bad";
@@ -98,25 +131,43 @@ function buildSteps(pl: Pipeline): StepResult[] {
     : "발표 없음";
 
   // 1상
-  const p1Signal: Signal = "none"; // 2상/3상이면 반드시 통과
-  const p1Detail = "안전성 통과";
+  const p1Reached = isPhase1 || isPhase2 || isPhase3;
+  const p1Current = isPhase1 && !isCompleted && !isTerminated;
+  const p1Signal: Signal = isPhase1 && isTerminated ? "bad" : "none";
+  const p1Detail = isPhase1 && isCompleted ? "1상 완료"
+    : isPhase1 && isTerminated ? "종료/철회"
+    : p1Reached && !isPhase1 ? "안전성 통과"
+    : "진행 중";
 
   // 2상
+  const p2Reached = isPhase2 || isPhase3;
+  const p2Current = isPhase2 && !isCompleted && !isTerminated;
   let p2Signal: Signal;
   let p2Detail: string;
   if (isPhase3) {
-    // 3상 진행 중 → 2상은 이미 완료된 상태
     p2Signal = q.has_results_posted ? "good" : "bad";
-    p2Detail = q.has_results_posted ? "2상 완료, 결과 공개됨" : "2상 완료, 결과 미공개 — 의심";
-  } else {
-    // 2상 진행 중 → 현재 단계
+    p2Detail = q.has_results_posted ? "2상 완료, 결과 공개됨" : "2상 완료, 결과 미공개";
+  } else if (isPhase2 && isCompleted) {
+    p2Signal = q.has_results_posted ? "good" : "none";
+    p2Detail = q.has_results_posted ? "2상 완료, 결과 공개됨" : "2상 완료";
+  } else if (isPhase2 && isTerminated) {
+    p2Signal = "bad";
+    p2Detail = "종료/철회";
+  } else if (isPhase2) {
     p2Signal = "none";
     p2Detail = "진행 중";
+  } else {
+    p2Signal = "none";
+    p2Detail = "";
   }
 
   // 3상
-  const p3Signal: Signal = "none";
-  const p3Detail = isPhase3 ? "진행 중" : "";
+  const p3Current = isPhase3 && !isCompleted && !isTerminated;
+  let p3Signal: Signal = "none";
+  let p3Detail = "";
+  if (isPhase3 && isCompleted) { p3Signal = "good"; p3Detail = "3상 완료"; }
+  else if (isPhase3 && isTerminated) { p3Signal = "bad"; p3Detail = "종료/철회"; }
+  else if (isPhase3) { p3Detail = "진행 중"; }
 
   // 빅파마
   const pharmaSignal: Signal = q.bigpharma_deal.terminated ? "bad"
@@ -128,105 +179,105 @@ function buildSteps(pl: Pipeline): StepResult[] {
     : q.bigpharma_deal.tier === "global" ? "글로벌 빅파마 계약"
     : "빅파마 계약 없음";
 
-  // 경영진 (프로세스 바 밖, 상시 체크)
-  // → 세부 검증에서만 표시
-
   return [
     { label: "특허", reached: q.patent_matched_count > 0, current: false, signal: patentSignal, detail: patentDetail },
     { label: "논문", reached: q.pubmed_count > 0, current: false, signal: paperExistSignal, detail: paperExistDetail },
     { label: "학회발표", reached: q.conference_level != null, current: false, signal: confSignal, detail: confDetail },
-    { label: "1상", reached: true, current: false, signal: p1Signal, detail: p1Detail },
-    { label: "2상", reached: true, current: isPhase2, signal: p2Signal, detail: p2Detail },
-    { label: "3상", reached: isPhase3, current: isPhase3, signal: p3Signal, detail: p3Detail },
+    { label: "1상", reached: p1Reached, current: p1Current, signal: p1Signal, detail: p1Detail },
+    { label: "2상", reached: p2Reached, current: p2Current, signal: p2Signal, detail: p2Detail },
+    { label: "3상", reached: isPhase3, current: p3Current, signal: p3Signal, detail: p3Detail },
     { label: "허가", reached: false, current: false, signal: "none", detail: "" },
   ];
 }
 
-// ── 대시보드 카드 ──
+// ── 빅파마 관심도 점수 (파이프라인 정렬용) ──
 
-function DashboardCards({ groups }: { groups: [string, Pipeline[]][] }) {
-  return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-      {groups.map(([category, pls]) => {
-        const phase3 = pls.filter(p => p.phase === "PHASE3").length;
-        const phase2 = pls.filter(p => p.phase === "PHASE2").length;
+const PHARMA_TIER_SCORE: Record<string, number> = { top20: 3, global: 2, domestic: 1, none: 0 };
 
-        // 주요 기업 (중복 제거, 최대 3개)
-        const companies = [...new Set(pls.map(p => p.company.name))];
-        const companyText = companies.length <= 3
-          ? companies.join(", ")
-          : `${companies.slice(0, 3).join(", ")} 외 ${companies.length - 3}`;
+function bigpharmaScore(pl: Pipeline): number {
+  const q = pl.quality;
+  let score = PHARMA_TIER_SCORE[q.bigpharma_deal.tier] || 0;
+  if (q.bigpharma_deal.terminated) score -= 1;
+  return score;
+}
 
-        // 질적 지표 집계
-        const withPatent = pls.filter(p => p.quality.patent_matched_count > 0).length;
-        const withJournal = pls.filter(p => p.quality.notable_journals?.length > 0).length;
-        const withConf = pls.filter(p => p.quality.conference_level === "oral_top4").length;
-        const withBigpharma = pls.filter(p => p.quality.bigpharma_deal.tier === "top20" || p.quality.bigpharma_deal.tier === "global").length;
+// ── research good 갯수 ──
 
-        return (
-          <a
-            key={category}
-            href={`#cat-${category}`}
-            className="bg-surface-container-low rounded-xl ghost-border p-3 hover:bg-surface-container transition-colors cursor-pointer block"
-          >
-            <div className="flex items-baseline justify-between mb-2">
-              <h4 className="text-sm font-bold text-on-surface">{category}</h4>
-              <span className="text-xs text-on-surface-variant">{pls.length}건</span>
-            </div>
-
-            {/* 단계 비율 */}
-            <div className="flex gap-2 mb-2 text-xs">
-              {phase3 > 0 && <span style={{ color: "#95d3ba" }}>3상 {phase3}</span>}
-              {phase2 > 0 && <span style={{ color: "#6ea8fe" }}>2상 {phase2}</span>}
-            </div>
-
-            {/* 기업 */}
-            <p className="text-xs text-on-surface-variant/60 mb-2 truncate">{companyText}</p>
-
-            {/* 질적 지표 */}
-            <div className="flex flex-wrap gap-x-2 gap-y-0.5 text-[10px] text-on-surface-variant/50">
-              {withConf > 0 && <span style={{ color: "#e9c176" }}>★★ 학회 {withConf}</span>}
-              {withBigpharma > 0 && <span style={{ color: "#e9c176" }}>빅파마 {withBigpharma}</span>}
-              {withPatent > 0 && <span>특허 {withPatent}</span>}
-              {withJournal > 0 && <span>저널 {withJournal}</span>}
-            </div>
-          </a>
-        );
-      })}
-    </div>
-  );
+function countGood(r?: ResearchData): number {
+  if (!r?.quality_checks) return 0;
+  return Object.values(r.quality_checks).filter(c => c.signal === "good").length;
 }
 
 // ── 메인 컴포넌트 ──
 
-export function BioView({ pipelines, briefings }: BioViewProps) {
+export function BioView({ pipelines, briefings, research }: BioViewProps) {
+  // 기업별 그룹핑
   const groups = new Map<string, Pipeline[]>();
   for (const pl of pipelines) {
-    const cat = pl.disease_category;
-    if (!groups.has(cat)) groups.set(cat, []);
-    groups.get(cat)!.push(pl);
+    const key = pl.company.code;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key)!.push(pl);
   }
-  const sortedGroups = [...groups.entries()].sort((a, b) => b[1].length - a[1].length);
+
+  // 기업별 정렬: research의 good 갯수 내림차순
+  const sortedGroups = [...groups.entries()].sort((a, b) => {
+    const aGood = countGood(research[a[0]]);
+    const bGood = countGood(research[b[0]]);
+    return bGood - aGood;
+  });
+
+  // 각 기업 내 파이프라인 정렬: 빅파마 관심도 내림차순
+  for (const [, pls] of sortedGroups) {
+    pls.sort((a, b) => bigpharmaScore(b) - bigpharmaScore(a));
+  }
 
   return (
     <div className="space-y-8">
-      {/* 대시보드 카드 */}
-      <DashboardCards groups={sortedGroups} />
+      {/* 기업별 상세 */}
+      {sortedGroups.map(([companyCode, pls]) => {
+        const company = pls[0].company;
+        const r = research[companyCode];
+        const goodCnt = countGood(r);
+        const totalChecks = r?.quality_checks ? Object.keys(r.quality_checks).length : 0;
 
-      {/* 병명별 상세 */}
-      {sortedGroups.map(([category, pls]) => (
-        <div key={category} id={`cat-${category}`}>
-          <h3 className="text-lg font-bold font-serif text-primary mb-4 flex items-center gap-2">
-            {category}
-            <span className="text-xs font-normal text-on-surface-variant">({pls.length}건)</span>
-          </h3>
-          <div className="space-y-4">
-            {pls.map((pl) => (
-              <PipelineCard key={pl.nct_id} pipeline={pl} briefing={briefings[pl.nct_id]} />
-            ))}
+        return (
+          <div key={companyCode} id={`company-${companyCode}`}>
+            <h3 className="text-lg font-bold font-serif text-primary mb-1 flex items-center gap-2">
+              {company.name}
+              <span className="text-xs font-normal text-on-surface-variant">
+                {company.market} · {companyCode} · 시총 {fmtNum(company.market_cap)}
+              </span>
+              {totalChecks > 0 && (
+                <span className="text-xs px-2 py-0.5 rounded font-bold" style={{
+                  backgroundColor: goodCnt >= 5 ? "#95d3ba20" : goodCnt >= 3 ? "#e9c17620" : "#ffb4ab20",
+                  color: goodCnt >= 5 ? "#95d3ba" : goodCnt >= 3 ? "#e9c176" : "#ffb4ab",
+                }}>
+                  7대 기준 ✓ {goodCnt}/{totalChecks}
+                </span>
+              )}
+            </h3>
+            {/* 빅파마 / 계약 요약 */}
+            {r?.quality_checks?.bigpharma && (
+              <div className="mt-2 mb-1 flex items-start gap-2 text-xs">
+                <span className="shrink-0 font-medium" style={{ color: "#e9c176" }}>빅파마</span>
+                <span className="text-on-surface-variant">{r.quality_checks.bigpharma.detail}</span>
+              </div>
+            )}
+            {r?.quality_checks?.contract && (
+              <div className="mb-1 flex items-start gap-2 text-xs">
+                <span className="shrink-0 font-medium text-on-surface-variant/60">계약</span>
+                <span className="text-on-surface-variant">{r.quality_checks.contract.detail}</span>
+              </div>
+            )}
+            <p className="text-xs text-on-surface-variant/50 mb-4 mt-2">{pls.length}건의 파이프라인</p>
+            <div className="space-y-4">
+              {pls.map((pl) => (
+                <PipelineCard key={pl.nct_id} pipeline={pl} briefing={briefings[pl.nct_id]} />
+              ))}
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
@@ -332,6 +383,11 @@ function PipelineCard({ pipeline: pl, briefing }: { pipeline: Pipeline; briefing
                 detail={`마일스톤 비중 ${q.milestone_ratio}% — 확정 수령 아님`} />
             )}
           </DetailBox>
+
+          {/* Box 5: 임상 데이터 평가 (있을 때만) */}
+          {pl.clinical_assessment && (
+            <AssessmentBox assessment={pl.clinical_assessment} />
+          )}
 
           {/* 메타 정보 */}
           <div className="sm:col-span-2 flex flex-wrap gap-3 text-xs text-on-surface-variant/50 pt-2 mt-1 border-t border-on-surface-variant/10">
@@ -470,6 +526,60 @@ function DetailBox({ title, children }: { title: string; children: React.ReactNo
     <div className="rounded-lg border border-on-surface-variant/10 px-3 py-2.5 space-y-1.5">
       <span className="text-[10px] text-on-surface-variant/40 font-medium">{title}</span>
       {children}
+    </div>
+  );
+}
+
+// ── 임상 데이터 평가 박스 ──
+
+const VERDICT_STYLE: Record<string, { icon: string; label: string; color: string }> = {
+  good: { icon: "✅", label: "긍정", color: "#95d3ba" },
+  caution: { icon: "⚠️", label: "경계", color: "#c4a882" },
+  danger: { icon: "🚨", label: "위험", color: "#ffb4ab" },
+};
+
+function AssessmentBox({ assessment: a }: { assessment: ClinicalAssessment }) {
+  const v = VERDICT_STYLE[a.verdict] || VERDICT_STYLE.caution;
+  return (
+    <div className="sm:col-span-2 rounded-lg border border-on-surface-variant/10 px-3 py-2.5 space-y-2">
+      <div className="flex items-center gap-2">
+        <span className="text-[10px] text-on-surface-variant/40 font-medium">임상 데이터 평가</span>
+        <span className="text-[10px] font-bold" style={{ color: v.color }}>{v.icon} {v.label}</span>
+      </div>
+
+      {/* 설계 요약 */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+        <div><span className="text-on-surface-variant/50">설계</span><p className="text-on-surface-variant mt-0.5">{a.design}</p></div>
+        <div><span className="text-on-surface-variant/50">샘플</span><p className="text-on-surface-variant mt-0.5">{a.sample_size}</p></div>
+        <div><span className="text-on-surface-variant/50">1차 변수</span><p className="text-on-surface-variant mt-0.5">{a.primary_endpoint}</p></div>
+        <div><span className="text-on-surface-variant/50">p-value</span><p className="text-on-surface-variant mt-0.5 font-mono">{a.p_value}</p></div>
+      </div>
+
+      {/* 상세 판단 */}
+      <div className="space-y-1">
+        {a.details.map((d, i) => (
+          <div key={i} className="flex items-start gap-1.5 text-xs">
+            <span className="shrink-0 mt-0.5" style={{ color: d.signal === "good" ? "#95d3ba" : d.signal === "warn" ? "#c4a882" : "#ffb4ab" }}>
+              {d.signal === "good" ? "✓" : d.signal === "warn" ? "!" : "✕"}
+            </span>
+            <span style={{ color: d.signal === "bad" ? "#ffb4ab" : d.signal === "warn" ? "#c4a882" : undefined }}>{d.text}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* 결론 */}
+      <p className="text-xs text-on-surface-variant/60 leading-relaxed pt-1 border-t border-on-surface-variant/10">{a.conclusion}</p>
+
+      {/* 출처 */}
+      {a.sources.length > 0 && (
+        <div className="flex flex-wrap gap-2 text-[10px] text-on-surface-variant/40">
+          {a.sources.map((src, i) => (
+            <a key={i} href={src} target="_blank" rel="noopener noreferrer" className="hover:text-on-surface-variant underline">
+              출처 {i + 1}
+            </a>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

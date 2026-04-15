@@ -8,9 +8,10 @@ interface BioPageTabsProps {
   pipelines: unknown[];
   briefings: Record<string, unknown>;
   bigpharmaDeals: unknown[];
+  research: Record<string, unknown>;
 }
 
-export function BioPageTabs({ pipelines, briefings, bigpharmaDeals }: BioPageTabsProps) {
+export function BioPageTabs({ pipelines, briefings, bigpharmaDeals, research }: BioPageTabsProps) {
   const [tab, setTab] = useState<"pipeline" | "bigpharma">("pipeline");
 
   return (
@@ -37,7 +38,7 @@ export function BioPageTabs({ pipelines, briefings, bigpharmaDeals }: BioPageTab
       </div>
 
       {tab === "pipeline" ? (
-        <BioView pipelines={pipelines as never[]} briefings={briefings as never} />
+        <BioView pipelines={pipelines as never[]} briefings={briefings as never} research={research as never} />
       ) : (
         <BigPharmaView deals={bigpharmaDeals as never[]} />
       )}

@@ -18,6 +18,7 @@ async function loadJSON(filename: string) {
 export default async function BioPage() {
   const data = await loadJSON("bio-watchlist.json");
   const briefings = (await loadJSON("bio-briefings.json")) || {};
+  const research = (await loadJSON("bio-research.json")) || {};
   const pipelines = data?.pipelines || [];
   const bigpharmaDeals = data?.bigpharma_deals || [];
 
@@ -30,11 +31,11 @@ export default async function BioPage() {
           바이오주 모니터링
         </h2>
         <p className="text-xs text-on-surface-variant mt-2">
-          한국 상장 바이오주 중 임상 2상/3상이 진행 중인 기술을 질적으로 검증합니다.
+          관심 바이오 기업의 임상 파이프라인을 추적합니다.
         </p>
         {data?.scanned_at && (
           <p className="text-xs text-on-surface-variant/50 mt-1">
-            스캔일: {data.scanned_at} · 전체 {data.total_scanned?.toLocaleString()}종목 스캔 · 2상/3상 {pipelines.length}건 · 빅파마 딜 {bigpharmaDeals.length}건
+            스캔일: {data.scanned_at} · {data.total_scanned?.toLocaleString()}개 기업 · 파이프라인 {pipelines.length}건 · 빅파마 딜 {bigpharmaDeals.length}건
           </p>
         )}
       </header>
@@ -57,6 +58,7 @@ export default async function BioPage() {
             pipelines={pipelines}
             briefings={briefings}
             bigpharmaDeals={bigpharmaDeals}
+            research={research}
           />
         </>
       )}
