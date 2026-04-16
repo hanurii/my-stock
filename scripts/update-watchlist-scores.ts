@@ -1426,8 +1426,11 @@ async function main() {
     journalData.summary.total_current_value = totalEval;
     journalData.summary.total_assets = totalEval + journalData.summary.cash;
 
-    // 순수익 = 매매차익 + 보유평가손익 - 비용
-    const netProfit = journalData.summary.gross_profit + holdingsProfit - journalData.summary.total_cost;
+    // gross_profit = 실현 매매차익 + 보유평가손익 (비용 차감 전)
+    journalData.summary.gross_profit = journalData.summary.realized_profit + holdingsProfit;
+
+    // 순수익 = gross_profit - 비용 (비용 차감 후)
+    const netProfit = journalData.summary.gross_profit - journalData.summary.total_cost;
     journalData.summary.net_profit = netProfit;
     journalData.summary.net_profit_pct = parseFloat(
       ((netProfit / journalData.summary.total_invested) * 100).toFixed(1),

@@ -58,6 +58,7 @@ interface JournalData {
     total_current_value: number;
     cash?: number;
     total_assets?: number;
+    realized_profit?: number;
     gross_profit?: number;
     total_fees?: number;
     total_tax?: number;
