@@ -25,6 +25,18 @@ export interface ResearchDetail {
   updated_at: string;
   thesis: string;
   verdict: { label: string; tone: Tone; summary?: string };
+  entry_timing?: {
+    label: string;
+    tone: Tone;
+    headline: string;
+    reasons: { tone: Tone; text: string }[];
+  };
+  investment_thesis?: {
+    label: string;
+    tone: Tone;
+    headline: string;
+    reasons: { tone: Tone; text: string }[];
+  };
   snapshot?: {
     current_price?: number;
     market_cap_billion?: number;
