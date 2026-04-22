@@ -43,6 +43,13 @@ function SectionHeader({ icon, title }: { icon: string; title: string }) {
   );
 }
 
+const TONE_LIGHT_LABEL: Record<Tone, string> = {
+  good: "GO",
+  warn: "CAUTION",
+  bad: "STOP",
+  neutral: "HOLD",
+};
+
 function VerdictCard({
   icon,
   caption,
@@ -63,52 +70,98 @@ function VerdictCard({
   const color = TONE_COLOR[tone];
   return (
     <div
-      className="rounded-xl p-6 border"
+      className="relative rounded-2xl overflow-hidden border-2"
       style={{
-        borderColor: `${color}40`,
-        background: `linear-gradient(135deg, ${color}0d 0%, ${color}03 100%)`,
+        borderColor: `${color}55`,
+        background: `linear-gradient(155deg, ${color}18 0%, ${color}06 45%, transparent 100%)`,
+        boxShadow: `0 0 0 1px ${color}15, 0 8px 32px -8px ${color}30`,
       }}
     >
-      <div className="flex items-center gap-2 mb-4">
-        <span className="material-symbols-outlined text-lg" style={{ color }}>
-          {icon}
-        </span>
-        <div>
-          <p className="text-xs font-medium" style={{ color }}>
-            {caption}
-          </p>
-          <p className="text-[10px] uppercase tracking-[0.15em] text-on-surface-variant/50">
-            {captionEn}
-          </p>
-        </div>
-      </div>
+      {/* Top accent stripe */}
+      <div
+        className="h-1.5 w-full"
+        style={{
+          background: `linear-gradient(90deg, ${color} 0%, ${color}50 100%)`,
+        }}
+      />
 
-      <div className="flex items-center gap-2 mb-3">
-        <span
-          className="material-symbols-outlined text-2xl"
+      <div className="p-6 sm:p-7">
+        {/* Caption */}
+        <div className="flex items-center gap-2.5 mb-5">
+          <span
+            className="flex items-center justify-center w-10 h-10 rounded-full shrink-0"
+            style={{
+              backgroundColor: `${color}20`,
+              border: `1px solid ${color}40`,
+            }}
+          >
+            <span className="material-symbols-outlined text-xl" style={{ color }}>
+              {icon}
+            </span>
+          </span>
+          <div>
+            <p className="text-sm font-serif font-medium text-on-surface">
+              {caption}
+            </p>
+            <p className="text-[10px] uppercase tracking-[0.2em] text-on-surface-variant/50">
+              {captionEn}
+            </p>
+          </div>
+        </div>
+
+        {/* Traffic-light status */}
+        <div className="flex items-center gap-3 mb-4">
+          <span
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase"
+            style={{
+              backgroundColor: `${color}25`,
+              color,
+              border: `1px solid ${color}50`,
+            }}
+          >
+            <span
+              className="w-1.5 h-1.5 rounded-full"
+              style={{
+                backgroundColor: color,
+                boxShadow: `0 0 8px ${color}`,
+              }}
+            />
+            {TONE_LIGHT_LABEL[tone]}
+          </span>
+        </div>
+
+        {/* Big label */}
+        <p
+          className="text-2xl sm:text-3xl font-serif font-bold leading-tight mb-4"
           style={{ color }}
         >
-          {TONE_ICON[tone]}
-        </span>
-        <p className="text-2xl font-serif font-bold" style={{ color }}>
           {label}
         </p>
-      </div>
 
-      <p className="text-sm text-on-surface leading-relaxed mb-4">{headline}</p>
+        {/* Headline */}
+        <p className="text-sm text-on-surface/90 leading-relaxed mb-5">
+          {headline}
+        </p>
 
-      <div className="space-y-1.5 pt-3 border-t" style={{ borderColor: `${color}20` }}>
-        {reasons.map((r, i) => (
-          <div key={i} className="flex items-start gap-2 text-xs">
-            <span
-              className="material-symbols-outlined text-sm shrink-0 mt-0.5"
-              style={{ color: TONE_COLOR[r.tone] }}
-            >
-              {TONE_ICON[r.tone]}
-            </span>
-            <span className="text-on-surface-variant leading-relaxed">{r.text}</span>
-          </div>
-        ))}
+        {/* Reasons */}
+        <div
+          className="space-y-2 pt-4 border-t"
+          style={{ borderColor: `${color}25` }}
+        >
+          {reasons.map((r, i) => (
+            <div key={i} className="flex items-start gap-2 text-xs">
+              <span
+                className="material-symbols-outlined text-base shrink-0"
+                style={{ color: TONE_COLOR[r.tone] }}
+              >
+                {TONE_ICON[r.tone]}
+              </span>
+              <span className="text-on-surface-variant leading-relaxed">
+                {r.text}
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -159,31 +212,50 @@ export default async function ResearchDetailPage({
         <p className="text-sm text-on-surface-variant mt-1">{data.sector}</p>
       </section>
 
-      {/* Dual Verdict: 매수 타이밍 + 투자 가치 */}
-      {(data.entry_timing || data.investment_thesis) && (
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {data.entry_timing && (
-            <VerdictCard
-              icon="schedule"
-              caption="매수 타이밍"
-              captionEn="Entry Timing"
-              label={data.entry_timing.label}
-              tone={data.entry_timing.tone}
-              headline={data.entry_timing.headline}
-              reasons={data.entry_timing.reasons}
-            />
-          )}
-          {data.investment_thesis && (
-            <VerdictCard
-              icon="foundation"
-              caption="투자 가치"
-              captionEn="Investment Thesis"
-              label={data.investment_thesis.label}
-              tone={data.investment_thesis.tone}
-              headline={data.investment_thesis.headline}
-              reasons={data.investment_thesis.reasons}
-            />
-          )}
+      {/* Triple Verdict: 매수 타이밍 · 투자 가치 · 매도 타이밍 */}
+      {(data.entry_timing || data.investment_thesis || data.exit_timing) && (
+        <section>
+          <div className="flex items-baseline gap-3 mb-5">
+            <p className="text-[10px] uppercase tracking-[0.25em] text-primary-dim/60">
+              Key Verdicts
+            </p>
+            <span className="h-px flex-1 bg-gradient-to-r from-primary/30 to-transparent" />
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-5">
+            {data.entry_timing && (
+              <VerdictCard
+                icon="login"
+                caption="매수 타이밍"
+                captionEn="Entry Timing"
+                label={data.entry_timing.label}
+                tone={data.entry_timing.tone}
+                headline={data.entry_timing.headline}
+                reasons={data.entry_timing.reasons}
+              />
+            )}
+            {data.investment_thesis && (
+              <VerdictCard
+                icon="foundation"
+                caption="투자 가치"
+                captionEn="Investment Thesis"
+                label={data.investment_thesis.label}
+                tone={data.investment_thesis.tone}
+                headline={data.investment_thesis.headline}
+                reasons={data.investment_thesis.reasons}
+              />
+            )}
+            {data.exit_timing && (
+              <VerdictCard
+                icon="logout"
+                caption="매도 타이밍"
+                captionEn="Exit Timing"
+                label={data.exit_timing.label}
+                tone={data.exit_timing.tone}
+                headline={data.exit_timing.headline}
+                reasons={data.exit_timing.reasons}
+              />
+            )}
+          </div>
         </section>
       )}
 
