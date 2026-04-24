@@ -216,45 +216,71 @@ async function fetchLatestReport(): Promise<{ rcept_no: string; report_nm: strin
   return { rcept_no: target.rcept_no, report_nm: target.report_nm.trim(), text: extractText(main.data.toString("utf-8")) };
 }
 
-/** 특수관계자 거래 주석에서 대명ENG 매입액 + 전체 매출액 추출.
- *  실패 시 기존 JSON 값 유지. */
-function parseDaemyeng(text: string): { year: number | null; purchase: number | null; revenue: number | null } {
-  // "(주)대명ENG" 주변 "재화의 매입" 테이블 찾기
-  // 사업보고서 주석 표 형식: "재화의 매입, 특수관계자거래 ... 합계"
-  // 간단 휴리스틱: 패턴 매칭으로 대명ENG와 가장 가까운 금액(원 단위) 추출
-  const result = { year: null as number | null, purchase: null as number | null, revenue: null as number | null };
+/** "재화의 매입" 행의 숫자들에서 합계 열을 식별하고, 대명ENG 개별값을 반환.
+ *  규칙: 행 마지막 숫자가 합계(= 앞 숫자들의 합과 일치)이면 제거 후 나머지 중 비영 최대값을 대명ENG로 간주.
+ *  아바코 특수관계자 5사(슈미드·아바텍·대명ENG·대명FA·옵티브) 중 2025년 기준 "재화의 매입"이 유의미한 곳은 대명ENG·대명FA뿐이고 대명ENG가 항상 최대.
+ */
+function parseDaemyengPurchase(text: string): number | null {
+  // "재화의 매입, 특수관계자거래" 뒤의 숫자 시퀀스 — 최대 12개 숫자까지 허용
+  // (주의: "\s+" 로 콤마 포함 숫자 토큰을 분리)
+  const m = text.match(/재화의\s*매입[,、\s]*특수관계자거래[\s]*((?:[0-9,]+\s+){2,12}[0-9,]+)/);
+  if (!m) return null;
+  const nums = m[1]
+    .trim()
+    .split(/\s+/)
+    .map((s) => Number(s.replace(/,/g, "")))
+    .filter((n) => !isNaN(n));
+  if (nums.length < 3) return null;
 
-  // 매출액: "매출액" 또는 "수익(매출액)" 다음 큰 숫자
-  const revMatch = text.match(/매출액[^0-9]*?([0-9,]{9,})/);
-  if (revMatch) {
-    const v = Number(revMatch[1].replace(/,/g, ""));
-    if (v > 1e10) result.revenue = v; // 100억 이상이면 유효
+  // 마지막이 합계인지 검증 (오차 1% 허용 — 반올림 흡수)
+  const last = nums[nums.length - 1];
+  const rest = nums.slice(0, -1);
+  const sumRest = rest.reduce((a, b) => a + b, 0);
+  let candidates: number[];
+  if (last > 0 && Math.abs(sumRest - last) / Math.max(last, 1) < 0.01) {
+    candidates = rest;
+  } else {
+    candidates = nums;
   }
+  // 0 제외 최댓값 = 대명ENG (아바코 경우 유효)
+  const nonZero = candidates.filter((n) => n > 0);
+  if (!nonZero.length) return null;
+  return Math.max(...nonZero);
+}
 
-  // 대명ENG 매입: "대명ENG" 검색 후 주변 2000자 내 "재화의 매입" 관련 가장 가까운 큰 숫자
-  const idx = text.indexOf("대명ENG");
-  if (idx > 0) {
-    const window = text.slice(Math.max(0, idx - 500), Math.min(text.length, idx + 2000));
-    // "재화의 매입" 패턴 주변 숫자
-    const buyIdx = window.indexOf("재화의 매입");
-    if (buyIdx >= 0) {
-      // 대명ENG가 다른 특수관계자들과 한 줄에 있을 수 있음. 순서 기반 추출은 난이도 높음.
-      // 간략 버전: window 안에서 "대명ENG" 앞뒤 숫자 중 100억 이상 값 수집
-      const nums = Array.from(window.matchAll(/([0-9]{1,3}(?:,[0-9]{3}){2,})/g))
-        .map((m) => Number(m[1].replace(/,/g, "")))
-        .filter((n) => n > 1e10 && n < 1e13); // 100억 ~ 10조
-      if (nums.length) {
-        // 가장 큰 값(대체로 매입액) 선택 — 2025년 대명ENG 31,183,549,200원 예상
-        result.purchase = Math.max(...nums);
-      }
+/** 연결 재무제표 주요계정에서 매출액 조회 (당기). 실패 시 null. */
+async function fetchRevenueFromDart(bsnsYear: number): Promise<number | null> {
+  const list = await dartGet<{ account_nm: string; thstrm_amount: string; sj_div: string }>(
+    "fnlttSinglAcntAll",
+    {
+      corp_code: CORP_CODE,
+      bsns_year: String(bsnsYear),
+      reprt_code: "11011",
+      fs_div: "CFS", // 연결
+    },
+  );
+  if (!list) return null;
+  // IS(손익계산서) 또는 CIS(포괄손익계산서)에서 매출액
+  for (const row of list) {
+    if (row.sj_div !== "IS" && row.sj_div !== "CIS") continue;
+    const name = row.account_nm?.trim() ?? "";
+    if (name === "매출액" || name === "수익(매출액)" || name === "영업수익" || name === "매출") {
+      const v = Number(String(row.thstrm_amount).replace(/,/g, ""));
+      if (v > 1e10) return v;
     }
   }
+  return null;
+}
 
-  // 보고기준연도 추출 — 사업보고서 제목 or 기준일
-  const yearMatch = text.match(/(2024|2025|2026)년\s*12월\s*31일/);
-  if (yearMatch) result.year = Number(yearMatch[1]);
-
-  return result;
+/** 주석에서 보고 기준 연도 추출. */
+function parseReportYear(text: string): number | null {
+  // 우선 "2025년 12월 31일" 류
+  const byDate = text.match(/(20\d{2})년\s*12월\s*31일/);
+  if (byDate) return Number(byDate[1]);
+  // 보고서 제목 안의 "제N기 ... 2025.12" 같은 패턴
+  const byBsns = text.match(/(20\d{2})\.12/);
+  if (byBsns) return Number(byBsns[1]);
+  return null;
 }
 
 // ── 4) 뉴스 모니터링 (Google News RSS) ──
@@ -342,14 +368,27 @@ async function main() {
   const report = await fetchLatestReport();
   await sleep(300);
   if (report) {
-    const parsed = parseDaemyeng(report.text);
-    if (parsed.year && parsed.purchase && parsed.revenue) {
-      console.log(`  • 보고서 ${report.rcept_no}(${report.report_nm}) 파싱 성공: ${parsed.year}년 대명ENG ${(parsed.purchase / 1e8).toFixed(1)}억 / 매출 ${(parsed.revenue / 1e8).toFixed(1)}억`);
-      daemyengYear = parsed.year;
-      daemyengPurchase = parsed.purchase;
-      daemyengRevenue = parsed.revenue;
+    const year = parseReportYear(report.text);
+    const purchase = parseDaemyengPurchase(report.text);
+    // 매출은 주석 파싱 대신 DART API로 직접 조회 (훨씬 정확)
+    const revenue = year ? await fetchRevenueFromDart(year) : null;
+    await sleep(300);
+
+    const parts: string[] = [];
+    if (year) parts.push(`year=${year}`);
+    else parts.push("year=미확인");
+    if (purchase) parts.push(`대명ENG=${(purchase / 1e8).toFixed(1)}억`);
+    else parts.push("대명ENG=파싱실패");
+    if (revenue) parts.push(`매출=${(revenue / 1e8).toFixed(1)}억`);
+    else parts.push("매출=API실패");
+
+    if (year && purchase && revenue) {
+      console.log(`  • 보고서 ${report.rcept_no}(${report.report_nm}) 파싱 성공: ${parts.join(", ")}`);
+      daemyengYear = year;
+      daemyengPurchase = purchase;
+      daemyengRevenue = revenue;
     } else {
-      console.log(`  • 보고서 ${report.rcept_no}(${report.report_nm}) 파싱 불완전 — 기존 값 유지`);
+      console.log(`  • 보고서 ${report.rcept_no}(${report.report_nm}) 파싱 불완전 (${parts.join(", ")}) — 기존 값 유지`);
     }
   }
   const daemyengRatio = (daemyengPurchase / daemyengRevenue) * 100;
