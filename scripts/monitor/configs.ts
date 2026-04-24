@@ -260,4 +260,163 @@ export const CONFIGS: MonitorConfig[] = [
       "삼성생명 삼성전자 지분 매각",
     ],
   },
+
+  // ───── SNT에너지 (100840) ─────
+  // research/100840.json exit_timing 5개 중 4개 자동화:
+  // 1. 영업이익률 ≤ 10% (구조적 개선 반전)
+  // 2. 수주 공시 공백 ≥ 180일 (6개월, 중동 수주 감소)
+  // 3. SNT홀딩스 특수관계인 지분 ≤ 50% (경영권 마지노선)
+  // 4. SNT홀딩스(00225159) EB 신규 발행 공시 (외부법인 추적)
+  // 5. 뉴스: 방산·원전·중동 프로젝트
+  // (주가 +50% 급등 + 외국인 변화는 평단 참조 복잡 — 생략)
+  {
+    code: "100840",
+    name: "SNT에너지",
+    corp_code: "00648721",
+    triggers: [
+      {
+        id: "op_margin",
+        label: "분기 영업이익률",
+        source: "op_margin.op_margin_pct",
+        threshold: { lte: 10 },
+        threshold_label: "10% 이하",
+        suffix: "%",
+        precision: 1,
+        warn_threshold: 12,
+      },
+      {
+        id: "supply_gap",
+        label: "수주 공백",
+        source: "supply_gap.days_ago",
+        threshold: { gte: 180 },
+        threshold_label: "180일 경과",
+        suffix: "일",
+        warn_threshold: 120,
+      },
+      {
+        id: "snt_holdings_ratio",
+        label: "SNT홀딩스 지분 비율",
+        source: "major_shareholder.end_ratio",
+        threshold: { lte: 50 },
+        threshold_label: "50% 이하로 감소",
+        suffix: "%",
+        precision: 2,
+        warn_threshold: 51,
+      },
+      {
+        id: "snt_holdings_eb",
+        label: "SNT홀딩스 EB 발행 공시 (90일)",
+        source: "external_corp_disclosures.count",
+        threshold: { gte: 1 },
+        threshold_label: "EB 발행 공시 1건+",
+        suffix: "건",
+      },
+    ],
+    major_shareholder_name: "SNT홀딩스",
+    external_corp_code: "00225159", // SNT홀딩스 (구 SNT모터스)
+    external_corp_keywords: [
+      "교환사채권발행결정",
+      "교환사채",
+      "주요사항보고서(교환사채권",
+    ],
+    news_keywords: [
+      "SNT에너지 중동 수주",
+      "SNT에너지 원전 플랜트",
+      "SNT홀딩스 교환사채",
+      "SNT홀딩스 EB",
+      "SNT에너지 방산 수주",
+    ],
+  },
+
+  // ───── 비에이치아이 (083650) ─────
+  // research/083650.json exit_timing 6개 중 5개 자동화:
+  // 1. 영업이익률 한자릿수 초반 후퇴 (≤ 7%, warn ≤ 10%)
+  // 2. 수주 공시 공백 ≥ 90일 (3개월)
+  // 3. 박은미 최대주주 지분 감소 (hyslrSttus)
+  // 4. 우종인·박은미 매도 (insider_family_trades)
+  // 5. 비에이치아이건설(01081622) 관련 공시 (외부법인 추적)
+  // + 뉴스: 원전/발전 수주, 주식담보제공, 자금대여
+  {
+    code: "083650",
+    name: "비에이치아이",
+    corp_code: "00409788",
+    triggers: [
+      {
+        id: "op_margin",
+        label: "분기 영업이익률",
+        source: "op_margin.op_margin_pct",
+        threshold: { lte: 7 },
+        threshold_label: "7% 이하",
+        suffix: "%",
+        precision: 1,
+        warn_threshold: 10,
+      },
+      {
+        id: "supply_gap",
+        label: "수주 공백",
+        source: "supply_gap.days_ago",
+        threshold: { gte: 90 },
+        threshold_label: "90일 경과",
+        suffix: "일",
+        warn_threshold: 60,
+      },
+      {
+        id: "park_eun_mi_ratio",
+        label: "박은미 지분 비율",
+        source: "major_shareholder.end_ratio",
+        threshold: { lte: 15 },
+        threshold_label: "15% 이하로 감소",
+        suffix: "%",
+        precision: 2,
+        warn_threshold: 16,
+      },
+      {
+        id: "owner_sell_count",
+        label: "오너 일가 매도 공시 (90일)",
+        source: "insider_family_trades.trades.count",
+        threshold: { gte: 1 },
+        threshold_label: "매도 건수 1건+",
+        suffix: "건",
+      },
+      {
+        id: "owner_sell_shares",
+        label: "오너 일가 누적 매도",
+        source: "insider_family_trades.total_shares_sold",
+        threshold: { gte: 500000 },
+        threshold_label: "50만주 이상",
+        suffix: "주",
+        warn_threshold: 100000,
+      },
+      {
+        id: "bhi_construction_disclosure",
+        label: "비에이치아이건설 공시 (90일)",
+        source: "external_corp_disclosures.count",
+        threshold: { gte: 1 },
+        threshold_label: "공시 1건+",
+        suffix: "건",
+      },
+    ],
+    major_shareholder_name: "박은미",
+    family_member_names: ["우종인", "박은미", "이가현", "차미림"],
+    external_corp_code: "01081622", // 비에이치아이건설 (비상장, 오너 가족회사)
+    // 비상장사라 정기 감사보고서가 매년 3~4월 나옴 — 이건 매도 트리거 아님.
+    // 매도 신호로 유의미한 공시만 필터: 주요사항보고서(자금대여·타법인출자·채무보증 등)
+    external_corp_keywords: [
+      "주요사항보고서",
+      "금전대여",
+      "자금대여",
+      "타법인주식",
+      "채무보증",
+      "자산양수도",
+      "자금지원",
+    ],
+    news_keywords: [
+      "비에이치아이 원전 수주",
+      "비에이치아이 HRSG",
+      "우종인 주식담보",
+      "비에이치아이건설 자금",
+      "비에이치아이 블록딜",
+      "비에이치아이 금전대여",
+    ],
+  },
 ];

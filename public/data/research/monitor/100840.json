@@ -1,0 +1,66 @@
+{
+  "code": "100840",
+  "name": "SNT에너지",
+  "last_checked": "2026-04-24T23:42:49.720+09:00",
+  "metrics": [
+    {
+      "id": "op_margin",
+      "label": "분기 영업이익률 (2025)",
+      "value": 18.36,
+      "display": "18.4%",
+      "threshold": "10% 이하",
+      "hit": false,
+      "tone": "good"
+    },
+    {
+      "id": "supply_gap",
+      "label": "수주 공백",
+      "value": 57,
+      "display": "57일",
+      "threshold": "180일 경과",
+      "hit": false,
+      "tone": "good"
+    },
+    {
+      "id": "snt_holdings_ratio",
+      "label": "SNT홀딩스 지분 비율",
+      "value": 54.36,
+      "display": "54.36%",
+      "threshold": "50% 이하로 감소",
+      "hit": false,
+      "tone": "good"
+    },
+    {
+      "id": "snt_holdings_eb",
+      "label": "SNT홀딩스 EB 발행 공시 (90일)",
+      "value": 0,
+      "display": "0건",
+      "threshold": "EB 발행 공시 1건+",
+      "hit": false,
+      "tone": "good"
+    }
+  ],
+  "alerts": [
+    {
+      "severity": "info",
+      "type": "all_clear",
+      "title": "모든 매도 트리거 범위 내",
+      "message": "현재 지표·공시·뉴스 기준 즉각 매도 사유 없음. 보유 유지."
+    }
+  ],
+  "news_hits": [],
+  "sources": [
+    {
+      "label": "최근 공급계약 공시",
+      "ref": "DART 20260226801031"
+    },
+    {
+      "label": "분기 영업이익률 (2025)",
+      "ref": "DART 20260220002472"
+    },
+    {
+      "label": "(주)SNT홀딩스 보유 비율 (2025)",
+      "ref": "DART 20260220002472 (hyslrSttus)"
+    }
+  ]
+}
