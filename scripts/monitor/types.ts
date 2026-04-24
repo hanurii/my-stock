@@ -41,6 +41,8 @@ export interface MonitorConfig {
   insider_keywords?: string[];
   /** 뉴스 RSS 키워드 */
   news_keywords?: string[];
+  /** 최대주주 보유 비율 추적 시 대상 이름 (예: "SK스퀘어") */
+  major_shareholder_name?: string;
 }
 
 /** 메트릭 평가 결과 (monitor JSON에 저장됨) */
@@ -73,6 +75,10 @@ export interface NewsHit {
   date: string;
   title: string;
   url: string;
+  /** 제목의 부정 시그널 분류 결과 */
+  severity?: "info" | "warn" | "bad";
+  /** 감지된 부정 키워드 목록 ("하락", "추격" 등) */
+  signals?: string[];
 }
 
 /** 출처 항목 */
@@ -130,6 +136,22 @@ export interface CollectorBundle {
     transaction_count: number;
     period_days: number;
     rcept_nos: string[];
+    /** 전년 동기 비율 (%) — 비교 기간은 current의 직전 period_days */
+    previous_ratio_pct: number | null;
+    /** 전년 동기 총 거래 (백만원) */
+    previous_total_million: number | null;
+    /** 전년 대비 비율 변화 (%p) */
+    yoy_change_pp: number | null;
+    /** 전년 대비 거래금액 증가율 (%) */
+    yoy_change_pct: number | null;
+  } | null;
+  major_shareholder: {
+    shareholder_name: string;
+    year: number | null;
+    start_ratio: number | null;
+    end_ratio: number | null;
+    change_pp: number | null;
+    rcept_no: string | null;
   } | null;
   insider_trades: Array<{ date: string; title: string; rcept_no: string }>;
   major_holder_changes: Array<{ date: string; title: string; rcept_no: string }>;

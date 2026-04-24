@@ -507,19 +507,22 @@ async function fetchDocumentText(rcept_no: string): Promise<string | null> {
   return extractText(main.data.toString("utf-8"));
 }
 
-/** 직전 N일 동안 corp_code의 '특수관계인 내부거래' + '동일인등 출자계열회사 상품용역거래' 공시 합계 / 매출 비율.
- *  단위는 모두 백만원. 같은 분기 정정공시 중복 위험은 본 단순 누적 모델에서는 감수(공시 갯수와 함께 표시).
- */
-export async function collectAffiliateTransactionRatio(
+/** 내부 함수 — 지정 기간 [start, end] 동안 계열사 거래 합계·매출 비율 계산 */
+async function fetchAffiliateTransactionsPeriod(
   corp_code: string,
-  lookback_days: number,
-): Promise<CollectorBundle["affiliate_transactions"]> {
-  const today = new Date();
-  const since = new Date(today.getTime() - lookback_days * 86400_000);
+  start: Date,
+  end: Date,
+): Promise<{
+  ratio_pct: number | null;
+  total_million: number;
+  revenue_million: number | null;
+  transaction_count: number;
+  rcept_nos: string[];
+} | null> {
   const list = await dartGet<DartListItem>("list", {
     corp_code,
-    bgn_de: fmtYmd(since),
-    end_de: fmtYmd(today),
+    bgn_de: fmtYmd(start),
+    end_de: fmtYmd(end),
     page_count: "100",
   });
   if (!list) return null;
@@ -555,7 +558,6 @@ export async function collectAffiliateTransactionRatio(
       total_million: 0,
       revenue_million: null,
       transaction_count: 0,
-      period_days: lookback_days,
       rcept_nos: [],
     };
   }
@@ -620,8 +622,100 @@ export async function collectAffiliateTransactionRatio(
     total_million: totalMillion,
     revenue_million: revenueMillion || null,
     transaction_count: usedRceptNos.length,
-    period_days: lookback_days,
     rcept_nos: usedRceptNos,
+  };
+}
+
+/** 공용 래퍼 — 현재 기간 + 전년 동기 비교로 YoY 증가율까지 반환 */
+export async function collectAffiliateTransactionRatio(
+  corp_code: string,
+  lookback_days: number,
+): Promise<CollectorBundle["affiliate_transactions"]> {
+  const today = new Date();
+  const currentStart = new Date(today.getTime() - lookback_days * 86400_000);
+  const prevEnd = new Date(currentStart.getTime() - 1);
+  const prevStart = new Date(prevEnd.getTime() - lookback_days * 86400_000);
+
+  const [current, previous] = await Promise.all([
+    fetchAffiliateTransactionsPeriod(corp_code, currentStart, today),
+    fetchAffiliateTransactionsPeriod(corp_code, prevStart, prevEnd),
+  ]);
+  if (!current) return null;
+
+  const yoy_change_pp =
+    current.ratio_pct != null && previous?.ratio_pct != null
+      ? Number((current.ratio_pct - previous.ratio_pct).toFixed(3))
+      : null;
+  const yoy_change_pct =
+    current.total_million > 0 && previous && previous.total_million > 0
+      ? Number(
+          (
+            ((current.total_million - previous.total_million) / previous.total_million) *
+            100
+          ).toFixed(2),
+        )
+      : null;
+
+  return {
+    ratio_pct: current.ratio_pct,
+    total_million: current.total_million,
+    revenue_million: current.revenue_million,
+    transaction_count: current.transaction_count,
+    period_days: lookback_days,
+    rcept_nos: current.rcept_nos,
+    previous_ratio_pct: previous?.ratio_pct ?? null,
+    previous_total_million: previous?.total_million ?? null,
+    yoy_change_pp,
+    yoy_change_pct,
+  };
+}
+
+// ── 9-2) 최대주주·특수관계인 보유 비율 추적 ──
+/** 가장 최근 정기보고서의 최대주주 현황에서 shareholder_name의 보유 비율 조회.
+ *  분기·반기·사업보고서 갱신 시점에만 변동 감지 가능(실시간 X).
+ */
+export async function collectMajorShareholderRatio(
+  corp_code: string,
+  shareholder_name: string,
+): Promise<CollectorBundle["major_shareholder"]> {
+  const report = await fetchLatestPeriodicReport(corp_code);
+  if (!report) return null;
+  const list = await dartGet<{
+    nm: string;
+    bsis_posesn_stock_qota_rt: string;
+    trmend_posesn_stock_qota_rt: string;
+    relate: string;
+  }>("hyslrSttus", {
+    corp_code,
+    bsns_year: String(report.bsns_year),
+    reprt_code: report.reprt_code,
+  });
+  if (!list) return null;
+  // shareholder_name 또는 relate='최대주주'인 행 우선
+  const target =
+    list.find((r) => r.nm?.includes(shareholder_name)) ??
+    list.find((r) => r.relate?.includes("최대주주") && !r.relate?.includes("특수관계"));
+  if (!target) {
+    return {
+      shareholder_name,
+      year: report.bsns_year,
+      start_ratio: null,
+      end_ratio: null,
+      change_pp: null,
+      rcept_no: report.rcept_no,
+    };
+  }
+  const start = Number(String(target.bsis_posesn_stock_qota_rt).replace(/,/g, ""));
+  const end = Number(String(target.trmend_posesn_stock_qota_rt).replace(/,/g, ""));
+  const change_pp =
+    !isNaN(start) && !isNaN(end) ? Number((end - start).toFixed(3)) : null;
+  return {
+    shareholder_name: target.nm?.trim() ?? shareholder_name,
+    year: report.bsns_year,
+    start_ratio: isNaN(start) ? null : start,
+    end_ratio: isNaN(end) ? null : end,
+    change_pp,
+    rcept_no: report.rcept_no,
   };
 }
 
@@ -655,12 +749,57 @@ export async function collectExternalCorpDisclosures(
   return out;
 }
 
-// ── 10) Google News RSS ──
+// ── 10) Google News RSS + 헤드라인 시그널 분류 ──
+/** 헤드라인의 부정 시그널 키워드 매핑. 현재 관찰 대상 종목에 광범위 적용. */
+const HEADLINE_SIGNALS = {
+  // 강한 부정: 확정적 사건·실행 완료 — 매도 트리거에 근접
+  bad: [
+    "공급 중단", "거래 중단", "수주 취소", "수주 실패", "공급 실패",
+    "퀄 실패", "양산 실패", "라인 폐쇄", "점유율 역전",
+    "블록딜 완료", "매각 완료", "분사 결정", "분사 확정",
+    "계약 해지", "공장 폐쇄", "급락", "폭락",
+  ],
+  // 약한 부정: 진행 중·우려 신호
+  warn: [
+    "추격", "역전", "감소", "하락", "축소", "둔화", "약세", "부진",
+    "이탈", "우려", "차질", "연기", "지연", "후퇴", "밀림", "경쟁 격화",
+    "규제", "제재", "보조금 축소", "투자 축소", "투자 연기",
+    "실망", "엇갈", "혼조", "불투명",
+  ],
+};
+
+function classifyHeadline(title: string): {
+  severity: "info" | "warn" | "bad";
+  signals: string[];
+} {
+  const bad = HEADLINE_SIGNALS.bad.filter((k) => title.includes(k));
+  if (bad.length > 0) return { severity: "bad", signals: bad };
+  const warn = HEADLINE_SIGNALS.warn.filter((k) => title.includes(k));
+  if (warn.length > 0) return { severity: "warn", signals: warn };
+  return { severity: "info", signals: [] };
+}
+
 export async function collectNewsHits(
   keywords: string[],
   lookback_days: number,
-): Promise<Array<{ keyword: string; date: string; title: string; url: string }>> {
-  const hits: Array<{ keyword: string; date: string; title: string; url: string }> = [];
+): Promise<
+  Array<{
+    keyword: string;
+    date: string;
+    title: string;
+    url: string;
+    severity: "info" | "warn" | "bad";
+    signals: string[];
+  }>
+> {
+  const hits: Array<{
+    keyword: string;
+    date: string;
+    title: string;
+    url: string;
+    severity: "info" | "warn" | "bad";
+    signals: string[];
+  }> = [];
   const cutoff = new Date(Date.now() - lookback_days * 86400_000);
   for (const kw of keywords) {
     const url = `https://news.google.com/rss/search?q=${encodeURIComponent(kw)}&hl=ko&gl=KR&ceid=KR:ko`;
@@ -677,11 +816,14 @@ export async function collectNewsHits(
         if (!title || !pub) continue;
         const pubDate = new Date(pub);
         if (isNaN(pubDate.getTime()) || pubDate < cutoff) continue;
+        const { severity, signals } = classifyHeadline(title);
         hits.push({
           keyword: kw,
           date: pubDate.toISOString().slice(0, 10),
           title,
           url: link ?? "",
+          severity,
+          signals,
         });
       }
     } catch (e) {

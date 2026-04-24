@@ -52,6 +52,8 @@ export const CONFIGS: MonitorConfig[] = [
       },
     ],
     related_party_partner: "대명ENG",
+    // 아바코는 affiliate_transactions collector를 사용하지 않음(관계사 1개만 추적)
+    // → YoY 메트릭 추가는 SK하이닉스부터 적용
     news_keywords: [
       "중국 디스플레이 장비 수출 규제",
       "중국 OLED 보조금",
@@ -89,10 +91,9 @@ export const CONFIGS: MonitorConfig[] = [
         warn_threshold: 40,
       },
       {
-        // 사용자 trigger 원문은 '1% 초과'였으나 SK에코플랜트(EPC, M16·M18 메모리 공장 건설사)
-        // 정상 거래만으로 2025년 약 4.84조(5.575%) 발생. 임계 7%로 상향해 EPC 정상 거래는 통과,
-        // SK이노/SK㈜ 운영비 급증·신규 우회 거래 등 +1.3%p 이상 변동 시에만 신호.
-        // 추후 '전년 대비 증가율' 메트릭 보강 예정.
+        // 사용자 trigger 원문 '1% 초과'는 SK이노/SK㈜ 운영비(0.07~0.4%)만 본 것.
+        // SK에코플랜트(EPC, M16·M18 메모리 공장 건설) 정상 거래로 5.6% 수준은 일상.
+        // 절대값은 정보 표시용(임계 7%), 실제 매도 신호는 YoY 증가율로 포착.
         id: "affiliate_ratio",
         label: "계열사 거래 매출 비율 (1년)",
         source: "affiliate_transactions.ratio_pct",
@@ -103,6 +104,17 @@ export const CONFIGS: MonitorConfig[] = [
         warn_threshold: 6,
       },
       {
+        // 사용자 원문 '급격히 확대' 의도에 가장 가까운 메트릭 — 전년 동기 대비 변화
+        id: "affiliate_yoy_pp",
+        label: "계열사 거래 비율 YoY 변화",
+        source: "affiliate_transactions.yoy_change_pp",
+        threshold: { gte: 2 },
+        threshold_label: "+2%p 이상 급증",
+        suffix: "%p",
+        precision: 2,
+        warn_threshold: 1,
+      },
+      {
         id: "sk_square_disposal",
         label: "SK스퀘어 처분·매각 공시 (90일)",
         source: "external_corp_disclosures.count",
@@ -110,7 +122,30 @@ export const CONFIGS: MonitorConfig[] = [
         threshold_label: "처분 공시 1건+",
         suffix: "건",
       },
+      {
+        // hyslrSttus 기반 SK스퀘어 보유 비율 — 분기보고서 갱신 시에만 변화 감지 가능.
+        // 공시 감지와 병용하여 2중 안전망.
+        id: "sk_square_ratio",
+        label: "SK스퀘어 보유 비율",
+        source: "major_shareholder.end_ratio",
+        threshold: { lte: 19 },
+        threshold_label: "19% 이하로 감소",
+        suffix: "%",
+        precision: 2,
+        warn_threshold: 19.5,
+      },
+      {
+        id: "sk_square_change_pp",
+        label: "SK스퀘어 기초→기말 변화",
+        source: "major_shareholder.change_pp",
+        threshold: { lte: -0.1 },
+        threshold_label: "-0.1%p 이상 감소",
+        suffix: "%p",
+        precision: 2,
+        warn_threshold: -0.01,
+      },
     ],
+    major_shareholder_name: "SK스퀘어",
     external_corp_code: "01596425", // SK스퀘어
     // SK스퀘어가 보유한 SK하이닉스 매각 시 발생하는 공시만 정확히 잡기 위함:
     // - "타법인주식 및 출자증권의 처분결정" (SK스퀘어가 SK하이닉스 주식을 처분하는 결정)

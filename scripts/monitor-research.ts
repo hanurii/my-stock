@@ -85,6 +85,7 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
     op_margin,
     related_party,
     affiliate_transactions,
+    major_shareholder,
     insider_trades,
     major_holder_changes,
     stock_buyback_events,
@@ -104,6 +105,9 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
       : Promise.resolve(null),
     sourceSet.has("affiliate_transactions")
       ? col.collectAffiliateTransactionRatio(config.corp_code, 365)
+      : Promise.resolve(null),
+    sourceSet.has("major_shareholder") && config.major_shareholder_name
+      ? col.collectMajorShareholderRatio(config.corp_code, config.major_shareholder_name)
       : Promise.resolve(null),
     sourceSet.has("insider_trades")
       ? col.collectInsiderTrades(config.corp_code, 90, config.insider_keywords ?? [])
@@ -135,6 +139,7 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
     op_margin,
     related_party,
     affiliate_transactions,
+    major_shareholder,
     insider_trades,
     major_holder_changes,
     stock_buyback_events,
@@ -195,10 +200,20 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
     }
   }
   if (newsHits.length > 0) {
+    const sevCount = { bad: 0, warn: 0, info: 0 };
+    for (const h of newsHits) sevCount[h.severity ?? "info"]++;
+    const maxSev: "info" | "warn" | "bad" =
+      sevCount.bad > 0 ? "bad" : sevCount.warn > 0 ? "warn" : "info";
+    const sevLabel =
+      maxSev === "bad"
+        ? `부정 시그널 ${sevCount.bad}건 포함`
+        : maxSev === "warn"
+          ? `관찰 신호 ${sevCount.warn}건 포함`
+          : "중립 헤드라인";
     alerts.push({
-      severity: "info",
+      severity: maxSev,
       type: "news_keyword_hit",
-      title: `규제·매크로 키워드 뉴스 ${newsHits.length}건`,
+      title: `규제·매크로 키워드 뉴스 ${newsHits.length}건 (${sevLabel})`,
       message: `최근 7일 매칭. 상세는 하단 리스트 확인.`,
     });
   }
@@ -230,6 +245,11 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
     sources.push({
       label: `계열사 거래 비율 (${affiliate_transactions.period_days}일 누적, ${affiliate_transactions.transaction_count}건)`,
       ref: `DART 특수관계인내부거래·출자계열사거래 ${affiliate_transactions.rcept_nos.slice(0, 3).join(", ")}${affiliate_transactions.rcept_nos.length > 3 ? " 외" : ""}`,
+    });
+  if (major_shareholder?.rcept_no)
+    sources.push({
+      label: `${major_shareholder.shareholder_name} 보유 비율 (${major_shareholder.year})`,
+      ref: `DART ${major_shareholder.rcept_no} (hyslrSttus)`,
     });
   if (external_corp_disclosures.length > 0)
     sources.push({

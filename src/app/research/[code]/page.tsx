@@ -33,7 +33,14 @@ interface MonitorData {
     title: string;
     message: string;
   }>;
-  news_hits: Array<{ keyword: string; date: string; title: string; url: string }>;
+  news_hits: Array<{
+    keyword: string;
+    date: string;
+    title: string;
+    url: string;
+    severity?: "info" | "warn" | "bad";
+    signals?: string[];
+  }>;
   sources: Array<{ label: string; ref: string }>;
 }
 
@@ -187,21 +194,41 @@ function MonitorPanel({ data }: { data: MonitorData }) {
               규제·매크로 키워드 매칭 (최근 7일)
             </p>
             <ul className="space-y-1.5">
-              {data.news_hits.slice(0, 6).map((h, i) => (
-                <li key={i} className="flex items-start gap-2 text-xs">
-                  <span className="text-on-surface-variant/50 shrink-0 font-mono">
-                    {h.date}
-                  </span>
-                  <a
-                    href={h.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-on-surface-variant hover:text-primary leading-relaxed line-clamp-2"
-                  >
-                    {h.title}
-                  </a>
-                </li>
-              ))}
+              {data.news_hits.slice(0, 6).map((h, i) => {
+                const sev = h.severity ?? "info";
+                const dotColor = SEVERITY_COLOR[sev];
+                return (
+                  <li key={i} className="flex items-start gap-2 text-xs">
+                    <span
+                      className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0"
+                      style={{
+                        backgroundColor: dotColor,
+                        boxShadow: sev !== "info" ? `0 0 6px ${dotColor}` : undefined,
+                      }}
+                      title={sev}
+                    />
+                    <span className="text-on-surface-variant/50 shrink-0 font-mono">
+                      {h.date}
+                    </span>
+                    <a
+                      href={h.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-on-surface-variant hover:text-primary leading-relaxed line-clamp-2"
+                    >
+                      {h.title}
+                      {h.signals && h.signals.length > 0 && (
+                        <span
+                          className="ml-1 text-[10px] font-medium"
+                          style={{ color: dotColor }}
+                        >
+                          [{h.signals.slice(0, 2).join("·")}]
+                        </span>
+                      )}
+                    </a>
+                  </li>
+                );
+              })}
             </ul>
           </div>
         )}
