@@ -760,6 +760,108 @@ export async function collectBuybackCancellationGap(
   };
 }
 
+// ── 9-4) 오너 일가 매도 탐지 ('최대주주등소유주식변동신고서' 본문 파싱) ──
+/** 본문에서 특정 성명 섹션의 시간외매매·장내매도 감소 행을 추출 */
+function parseFamilyTrades(
+  text: string,
+  familyNames: string[],
+): Array<{ name: string; date: string; kind: string; prev: number; diff: number; post: number }> {
+  const out: Array<{ name: string; date: string; kind: string; prev: number; diff: number; post: number }> = [];
+  for (const name of familyNames) {
+    // "성명 NAME 생년월일" 또는 "NAME 생년월일" (최대주주변동 신고서 표 내 구조 가변)
+    const anchor = new RegExp(`(?:성명\\s+)?${name}\\s+생년월일`);
+    const match = anchor.exec(text);
+    if (!match) continue;
+    const start = match.index;
+    // 다음 인물 성명까지 또는 2500자
+    const rest = text.slice(start + name.length);
+    const nextIdx = rest.search(/(?:성명\s+)?[가-힣]{2,4}\s+생년월일/);
+    const section = text.slice(
+      start,
+      start + name.length + (nextIdx > 50 ? nextIdx : 2500),
+    );
+    // 매도 행 패턴: "2026-04-13 시간외매매(-)|장내매도(-) 보통주식|종류주식 <전> -<diff> <후>"
+    const tradeRe =
+      /(\d{4}-\d{2}-\d{2})\s+(시간외매매\([-−]\)|장내매도\([-−]\)|장내매도|시간외매매|시간외처분|증여\([-−]\)|상속\([-−]\))\s+(?:보통주식|종류주식|주식)?\s*([\d,]+)\s+(-[\d,]+)\s+([\d,]+)/g;
+    for (const m of section.matchAll(tradeRe)) {
+      const diff = Number(m[4].replace(/,/g, ""));
+      if (diff >= 0) continue; // 매도만
+      out.push({
+        name,
+        date: m[1],
+        kind: m[2].trim(),
+        prev: Number(m[3].replace(/,/g, "")),
+        diff,
+        post: Number(m[5].replace(/,/g, "")),
+      });
+    }
+  }
+  return out;
+}
+
+export async function collectInsiderFamilyTrades(
+  corp_code: string,
+  lookback_days: number,
+  family_names: string[],
+): Promise<CollectorBundle["insider_family_trades"]> {
+  const today = new Date();
+  const since = new Date(today.getTime() - lookback_days * 86400_000);
+  const list = await dartGet<DartListItem>("list", {
+    corp_code,
+    bgn_de: fmtYmd(since),
+    end_de: fmtYmd(today),
+    page_count: "100",
+  });
+  if (!list) return null;
+  // 최대주주등소유주식변동신고서 + 임원·주요주주특정증권등소유상황보고서 (본문에 일가 이름 포함된 것만)
+  const relevant = list.filter((x) => {
+    const nm = x.report_nm ?? "";
+    return nm.includes("최대주주등소유주식") || nm.includes("임원ㆍ주요주주");
+  });
+
+  const trades: Array<{
+    date: string;
+    name: string;
+    kind: string;
+    prev_shares: number;
+    diff_shares: number;
+    post_shares: number;
+    rcept_no: string;
+  }> = [];
+  const seen = new Set<string>(); // (name + date + diff) 중복 방지
+
+  for (const item of relevant) {
+    const text = await fetchDocumentText(item.rcept_no);
+    await sleep(250);
+    if (!text) continue;
+    // 본문에 일가 이름 하나라도 나오지 않으면 스킵
+    if (!family_names.some((n) => text.includes(n))) continue;
+    const parsed = parseFamilyTrades(text, family_names);
+    for (const t of parsed) {
+      const key = `${t.name}_${t.date}_${t.diff}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      trades.push({
+        date: t.date,
+        name: t.name,
+        kind: t.kind,
+        prev_shares: t.prev,
+        diff_shares: t.diff,
+        post_shares: t.post,
+        rcept_no: item.rcept_no,
+      });
+    }
+  }
+
+  const total_shares_sold = trades.reduce((s, t) => s + Math.abs(t.diff_shares), 0);
+  return {
+    lookback_days,
+    total_shares_sold,
+    total_amount_estimate: null, // 가격 정보 없음 — 향후 확장 가능
+    trades: trades.sort((a, b) => (a.date < b.date ? 1 : -1)), // 최신순
+  };
+}
+
 // ── 9) 외부 법인(모회사 등) 공시 추적 ──
 export async function collectExternalCorpDisclosures(
   external_corp_code: string,

@@ -43,6 +43,8 @@ export interface MonitorConfig {
   news_keywords?: string[];
   /** 최대주주 보유 비율 추적 시 대상 이름 (예: "SK스퀘어") */
   major_shareholder_name?: string;
+  /** 오너 일가 매도 추적 시 인물 이름 목록 (예: ["홍라희", "이재용", "이부진", "이서현"]) */
+  family_member_names?: string[];
 }
 
 /** 메트릭 평가 결과 (monitor JSON에 저장됨) */
@@ -159,6 +161,21 @@ export interface CollectorBundle {
     last_title: string | null;
     days_ago: number | null;
     rcept_no: string | null;
+  } | null;
+  /** 오너 일가 매도 내역 ('최대주주등소유주식변동신고서' 본문 파싱 기반) */
+  insider_family_trades: {
+    lookback_days: number;
+    total_shares_sold: number;
+    total_amount_estimate: number | null;
+    trades: Array<{
+      date: string;
+      name: string;
+      kind: string;
+      prev_shares: number;
+      diff_shares: number;
+      post_shares: number;
+      rcept_no: string;
+    }>;
   } | null;
   insider_trades: Array<{ date: string; title: string; rcept_no: string }>;
   major_holder_changes: Array<{ date: string; title: string; rcept_no: string }>;

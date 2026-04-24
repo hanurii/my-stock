@@ -1,7 +1,7 @@
 {
   "code": "005930",
   "name": "삼성전자",
-  "last_checked": "2026-04-24T23:18:42.577+09:00",
+  "last_checked": "2026-04-24T23:29:57.132+09:00",
   "metrics": [
     {
       "id": "per",
@@ -47,6 +47,24 @@
       "threshold": "-0.1%p 이상 감소",
       "hit": false,
       "tone": "good"
+    },
+    {
+      "id": "family_sell_count",
+      "label": "일가 매도 공시 (90일)",
+      "value": 2,
+      "display": "2건",
+      "threshold": "매도 건수 1건+",
+      "hit": true,
+      "tone": "bad"
+    },
+    {
+      "id": "family_sell_shares",
+      "label": "일가 누적 매도 주식수 (90일)",
+      "value": 15206633,
+      "display": "15206633주",
+      "threshold": "500만주 이상",
+      "hit": true,
+      "tone": "bad"
     }
   ],
   "alerts": [
@@ -57,9 +75,21 @@
       "message": "현재 33.23배 (임계 35배 돌파)"
     },
     {
-      "severity": "info",
+      "severity": "bad",
+      "type": "family_sell_count",
+      "title": "일가 매도 공시 (90일) 매도 건수 1건+",
+      "message": "현재 2건 — 매도 트리거 도달"
+    },
+    {
+      "severity": "bad",
+      "type": "family_sell_shares",
+      "title": "일가 누적 매도 주식수 (90일) 500만주 이상",
+      "message": "현재 15206633주 — 매도 트리거 도달"
+    },
+    {
+      "severity": "warn",
       "type": "news_keyword_hit",
-      "title": "규제·매크로 키워드 뉴스 7건 (중립 헤드라인)",
+      "title": "규제·매크로 키워드 뉴스 8건 (관찰 신호 1건 포함)",
       "message": "최근 7일 매칭. 상세는 하단 리스트 확인."
     }
   ],
@@ -119,6 +149,16 @@
       "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE41ZV91LS1JeEFqYXRJVUhFN1JIdGlaSFFRUmJmazdsYXNVN1kyaXJ4OFNzTkdPdUwxOXNkU29lcVVhb0UtM25oSFdtVGFheXFPc19VSEN2LW4yQVhwWFFKZg?oc=5",
       "severity": "info",
       "signals": []
+    },
+    {
+      "keyword": "삼성생명 삼성전자 지분 매각",
+      "date": "2026-04-19",
+      "title": "수익성 대비 낮은 PBR·ROE…삼성생명 주주가치 훼손 우려 - 스마트투데이",
+      "url": "https://news.google.com/rss/articles/CBMiX0FVX3lxTE5HMENMQjNzSTRVeUFyT3BKV1JFeEdPcVFsQ0pRQkNCWFFsTlI0TzNzZVNLM0hfY1djNWZwcl9pV0RFaWtLN3FTQjBwbHo5OEdXLVJscGJqdjN1WTh3Y3FV?oc=5",
+      "severity": "warn",
+      "signals": [
+        "우려"
+      ]
     }
   ],
   "sources": [
@@ -133,6 +173,10 @@
     {
       "label": "최근 자사주 소각 공시 (2026-03-31)",
       "ref": "DART 20260331800004"
+    },
+    {
+      "label": "일가 매도 2건 총 15,206,633주 (최대: 홍라희 2026-04-13 -15,000,000주 시간외매매(-))",
+      "ref": "DART 최대주주등소유주식변동신고서 20260413800802"
     },
     {
       "label": "뉴스 RSS",

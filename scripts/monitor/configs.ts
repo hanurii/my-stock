@@ -223,8 +223,27 @@ export const CONFIGS: MonitorConfig[] = [
         precision: 2,
         warn_threshold: -0.01,
       },
+      {
+        // 실시간 일가 매도 감지 (최대주주등소유주식변동신고서 본문 파싱)
+        id: "family_sell_count",
+        label: "일가 매도 공시 (90일)",
+        source: "insider_family_trades.trades.count",
+        threshold: { gte: 1 },
+        threshold_label: "매도 건수 1건+",
+        suffix: "건",
+      },
+      {
+        id: "family_sell_shares",
+        label: "일가 누적 매도 주식수 (90일)",
+        source: "insider_family_trades.total_shares_sold",
+        threshold: { gte: 5000000 },
+        threshold_label: "500만주 이상",
+        suffix: "주",
+        warn_threshold: 1000000,
+      },
     ],
     external_corp_code: "00126256", // 삼성생명
+    family_member_names: ["홍라희", "이재용", "이부진", "이서현", "이건희"],
     external_corp_keywords: [
       "타법인주식 및 출자증권의 처분",
       "타법인주식및출자증권의처분",

@@ -87,6 +87,7 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
     affiliate_transactions,
     major_shareholder,
     buyback_cancellation_gap,
+    insider_family_trades,
     insider_trades,
     major_holder_changes,
     stock_buyback_events,
@@ -112,6 +113,9 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
       : Promise.resolve(null),
     sourceSet.has("buyback_cancellation_gap")
       ? col.collectBuybackCancellationGap(config.corp_code, 365)
+      : Promise.resolve(null),
+    sourceSet.has("insider_family_trades") && config.family_member_names
+      ? col.collectInsiderFamilyTrades(config.corp_code, 90, config.family_member_names)
       : Promise.resolve(null),
     sourceSet.has("insider_trades")
       ? col.collectInsiderTrades(config.corp_code, 90, config.insider_keywords ?? [])
@@ -145,6 +149,7 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
     affiliate_transactions,
     major_shareholder,
     buyback_cancellation_gap,
+    insider_family_trades,
     insider_trades,
     major_holder_changes,
     stock_buyback_events,
@@ -261,6 +266,16 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
       label: `최근 자사주 소각 공시 (${buyback_cancellation_gap.last_date})`,
       ref: `DART ${buyback_cancellation_gap.rcept_no}`,
     });
+  if (insider_family_trades && insider_family_trades.trades.length > 0) {
+    // 최대 건 (절대값 기준) 을 source 라벨로 — 최신보다 임팩트 큰 건이 대표
+    const biggest = insider_family_trades.trades.reduce((a, b) =>
+      Math.abs(a.diff_shares) >= Math.abs(b.diff_shares) ? a : b,
+    );
+    sources.push({
+      label: `일가 매도 ${insider_family_trades.trades.length}건 총 ${insider_family_trades.total_shares_sold.toLocaleString()}주 (최대: ${biggest.name} ${biggest.date} -${Math.abs(biggest.diff_shares).toLocaleString()}주 ${biggest.kind})`,
+      ref: `DART 최대주주등소유주식변동신고서 ${biggest.rcept_no}`,
+    });
+  }
   if (external_corp_disclosures.length > 0)
     sources.push({
       label: `외부법인 공시 ${external_corp_disclosures.length}건`,
