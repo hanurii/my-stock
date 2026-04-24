@@ -67,7 +67,15 @@ function evaluateWarn(value: unknown, trig: TriggerDef): boolean {
 function formatDisplay(value: unknown, suffix?: string, precision = 2): string {
   if (value == null) return "—";
   if (typeof value === "number") {
-    const s = Number.isInteger(value) ? String(value) : value.toFixed(precision);
+    // 주식수 단위는 만·억으로 자동 축약하여 한 줄에 들어가게
+    if (suffix === "주" && Math.abs(value) >= 10000) {
+      const abs = Math.abs(value);
+      const sign = value < 0 ? "-" : "";
+      if (abs >= 100_000_000) return `${sign}${(abs / 100_000_000).toFixed(1)}억주`;
+      const man = Math.round(abs / 10_000);
+      return `${sign}${man.toLocaleString()}만주`;
+    }
+    const s = Number.isInteger(value) ? value.toLocaleString() : value.toFixed(precision);
     return suffix ? `${s}${suffix}` : s;
   }
   return String(value);

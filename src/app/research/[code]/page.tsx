@@ -72,32 +72,38 @@ function MonitorMetric({ metric }: { metric: MetricResult }) {
   const emphasized = metric.tone === "bad" || metric.tone === "warn";
   return (
     <div
-      className="rounded-xl p-4 backdrop-blur-sm"
+      className="rounded-xl p-3 sm:p-4 backdrop-blur-sm flex flex-col min-w-0"
       style={{
         backgroundColor: emphasized ? `${color}15` : "rgba(255,255,255,0.02)",
         border: `1px solid ${emphasized ? `${color}40` : "rgba(255,255,255,0.06)"}`,
       }}
     >
-      <p className="text-[10px] uppercase tracking-[0.18em] text-on-surface-variant/60 mb-2 line-clamp-1">
+      <p className="text-[10px] uppercase tracking-[0.15em] text-on-surface-variant/60 mb-2 line-clamp-2 leading-snug break-keep">
         {metric.label}
       </p>
-      <p className="text-2xl font-serif font-bold leading-none" style={{ color }}>
+      <p
+        className="text-xl sm:text-2xl font-serif font-bold leading-none break-all"
+        style={{ color }}
+      >
         {metric.display}
       </p>
-      <p className="text-[10px] text-on-surface-variant/50 mt-2 line-clamp-1">
+      <p className="text-[10px] text-on-surface-variant/50 mt-auto pt-2 line-clamp-2 leading-snug break-keep">
         임계 {metric.threshold}
       </p>
     </div>
   );
 }
 
+// 메트릭 개수별 그리드 — 한 행 최대 4열로 제한, 초과분은 다음 줄 자연 배치
 const METRIC_GRID_COLS: Record<number, string> = {
   1: "grid-cols-1",
   2: "grid-cols-2",
   3: "grid-cols-2 sm:grid-cols-3",
   4: "grid-cols-2 sm:grid-cols-4",
   5: "grid-cols-2 sm:grid-cols-3 lg:grid-cols-5",
-  6: "grid-cols-2 sm:grid-cols-3 lg:grid-cols-6",
+  6: "grid-cols-2 sm:grid-cols-3 lg:grid-cols-3",
+  7: "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4",
+  8: "grid-cols-2 sm:grid-cols-4",
 };
 
 function MonitorPanel({ data }: { data: MonitorData }) {
