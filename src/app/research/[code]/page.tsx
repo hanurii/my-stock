@@ -11,33 +11,29 @@ import {
   type Tone,
 } from "@/lib/research";
 
+interface MetricResult {
+  id: string;
+  label: string;
+  value: number | string | null;
+  display: string;
+  threshold: string;
+  hit: boolean;
+  tone: Tone;
+  detail?: string;
+}
+
 interface MonitorData {
   code: string;
   name: string;
   last_checked: string;
-  metrics: {
-    current_price: number;
-    per: number;
-    peg: number;
-    per_threshold: { hit: boolean; value: number; threshold: number };
-    peg_threshold: { hit: boolean; value: number; threshold: number };
-    last_order_date: string | null;
-    last_order_title: string | null;
-    last_order_days_ago: number | null;
-    order_silence_threshold: { hit: boolean; days: number | null; threshold: number };
-    daemyeng_year: number;
-    daemyeng_purchase_billion: number;
-    daemyeng_revenue_billion: number;
-    daemyeng_revenue_ratio_pct: number;
-    daemyeng_threshold: { hit: boolean; value: number; threshold: number };
-    news_hits: Array<{ keyword: string; date: string; title: string; url: string }>;
-  };
+  metrics: MetricResult[];
   alerts: Array<{
     severity: "info" | "warn" | "bad";
     type: string;
     title: string;
     message: string;
   }>;
+  news_hits: Array<{ keyword: string; date: string; title: string; url: string }>;
   sources: Array<{ label: string; ref: string }>;
 }
 
@@ -64,42 +60,40 @@ const SEVERITY_ICON: Record<MonitorData["alerts"][number]["severity"], string> =
   bad: "cancel",
 };
 
-function MonitorMetric({
-  label,
-  value,
-  threshold,
-  hit,
-  suffix,
-}: {
-  label: string;
-  value: string | number;
-  threshold: string;
-  hit: boolean;
-  suffix?: string;
-}) {
-  const color = hit ? TONE_COLOR.bad : TONE_COLOR.good;
+function MonitorMetric({ metric }: { metric: MetricResult }) {
+  const color = TONE_COLOR[metric.tone];
+  const emphasized = metric.tone === "bad" || metric.tone === "warn";
   return (
     <div
       className="rounded-xl p-4 backdrop-blur-sm"
       style={{
-        backgroundColor: hit ? `${TONE_COLOR.bad}15` : "rgba(255,255,255,0.02)",
-        border: `1px solid ${hit ? `${TONE_COLOR.bad}40` : "rgba(255,255,255,0.06)"}`,
+        backgroundColor: emphasized ? `${color}15` : "rgba(255,255,255,0.02)",
+        border: `1px solid ${emphasized ? `${color}40` : "rgba(255,255,255,0.06)"}`,
       }}
     >
-      <p className="text-[10px] uppercase tracking-[0.18em] text-on-surface-variant/60 mb-2">
-        {label}
+      <p className="text-[10px] uppercase tracking-[0.18em] text-on-surface-variant/60 mb-2 line-clamp-1">
+        {metric.label}
       </p>
       <p className="text-2xl font-serif font-bold leading-none" style={{ color }}>
-        {value}
-        {suffix && <span className="text-sm ml-1 opacity-70">{suffix}</span>}
+        {metric.display}
       </p>
-      <p className="text-[10px] text-on-surface-variant/50 mt-2">임계 {threshold}</p>
+      <p className="text-[10px] text-on-surface-variant/50 mt-2 line-clamp-1">
+        임계 {metric.threshold}
+      </p>
     </div>
   );
 }
 
+const METRIC_GRID_COLS: Record<number, string> = {
+  1: "grid-cols-1",
+  2: "grid-cols-2",
+  3: "grid-cols-2 sm:grid-cols-3",
+  4: "grid-cols-2 sm:grid-cols-4",
+  5: "grid-cols-2 sm:grid-cols-3 lg:grid-cols-5",
+  6: "grid-cols-2 sm:grid-cols-3 lg:grid-cols-6",
+};
+
 function MonitorPanel({ data }: { data: MonitorData }) {
-  const m = data.metrics;
   const hasBad = data.alerts.some((a) => a.severity === "bad");
   const hasWarn = data.alerts.some((a) => a.severity === "warn");
   const overallTone: "good" | "warn" | "bad" = hasBad ? "bad" : hasWarn ? "warn" : "good";
@@ -147,36 +141,16 @@ function MonitorPanel({ data }: { data: MonitorData }) {
           </p>
         </div>
 
-        {/* Metric grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-4">
-          <MonitorMetric
-            label="PER"
-            value={m.per.toFixed(2)}
-            suffix="배"
-            threshold={`${m.per_threshold.threshold}배 돌파`}
-            hit={m.per_threshold.hit}
-          />
-          <MonitorMetric
-            label="PEG"
-            value={m.peg.toFixed(2)}
-            threshold={`${m.peg_threshold.threshold} 돌파`}
-            hit={m.peg_threshold.hit}
-          />
-          <MonitorMetric
-            label="수주 공백"
-            value={m.last_order_days_ago ?? "—"}
-            suffix="일"
-            threshold={`${m.order_silence_threshold.threshold}일 경과`}
-            hit={m.order_silence_threshold.hit}
-          />
-          <MonitorMetric
-            label={`대명ENG 매입 (${m.daemyeng_year})`}
-            value={m.daemyeng_revenue_ratio_pct.toFixed(2)}
-            suffix="%"
-            threshold={`매출의 ${m.daemyeng_threshold.threshold}% 초과`}
-            hit={m.daemyeng_threshold.hit}
-          />
-        </div>
+        {/* Metric grid (메트릭 개수에 따라 자동 적응) */}
+        {data.metrics.length > 0 && (
+          <div
+            className={`grid ${METRIC_GRID_COLS[Math.min(data.metrics.length, 6)] ?? "grid-cols-2"} gap-2 sm:gap-3 mb-4`}
+          >
+            {data.metrics.map((metric) => (
+              <MonitorMetric key={metric.id} metric={metric} />
+            ))}
+          </div>
+        )}
 
         {/* Alerts */}
         <div className="space-y-2">
@@ -207,13 +181,13 @@ function MonitorPanel({ data }: { data: MonitorData }) {
         </div>
 
         {/* News hits */}
-        {m.news_hits.length > 0 && (
+        {data.news_hits.length > 0 && (
           <div className="mt-4 pt-4" style={{ borderTop: `1px solid ${accent}20` }}>
             <p className="text-[10px] uppercase tracking-[0.2em] text-on-surface-variant/60 mb-2">
-              규제·투자 축소 키워드 매칭 (최근 7일)
+              규제·매크로 키워드 매칭 (최근 7일)
             </p>
             <ul className="space-y-1.5">
-              {m.news_hits.slice(0, 6).map((h, i) => (
+              {data.news_hits.slice(0, 6).map((h, i) => (
                 <li key={i} className="flex items-start gap-2 text-xs">
                   <span className="text-on-surface-variant/50 shrink-0 font-mono">
                     {h.date}

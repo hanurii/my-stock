@@ -1,0 +1,44 @@
+{
+  "code": "000660",
+  "name": "SK하이닉스",
+  "last_checked": "2026-04-24T19:27:20.244+09:00",
+  "metrics": [
+    {
+      "id": "pbr",
+      "label": "PBR",
+      "value": 7.37,
+      "display": "7.37배",
+      "threshold": "8배 돌파",
+      "hit": false,
+      "tone": "good"
+    },
+    {
+      "id": "op_margin",
+      "label": "분기 영업이익률 (2025)",
+      "value": 48.59,
+      "display": "48.6%",
+      "threshold": "30% 이하",
+      "hit": false,
+      "tone": "good"
+    }
+  ],
+  "alerts": [
+    {
+      "severity": "info",
+      "type": "all_clear",
+      "title": "모든 매도 트리거 범위 내",
+      "message": "현재 지표·공시·뉴스 기준 즉각 매도 사유 없음. 보유 유지."
+    }
+  ],
+  "news_hits": [],
+  "sources": [
+    {
+      "label": "PER/PEG/PBR 스코어",
+      "ref": "public/data/growth-watchlist.json"
+    },
+    {
+      "label": "분기 영업이익률 (2025)",
+      "ref": "DART 20260317000635"
+    }
+  ]
+}

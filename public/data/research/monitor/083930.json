@@ -1,40 +1,45 @@
 {
   "code": "083930",
   "name": "아바코",
-  "last_checked": "2026-04-24T18:27:01.013+09:00",
-  "metrics": {
-    "current_price": 16300,
-    "per": 8.2,
-    "peg": 0.31,
-    "per_threshold": {
+  "last_checked": "2026-04-24T19:26:13.222+09:00",
+  "metrics": [
+    {
+      "id": "per",
+      "label": "PER",
+      "value": 8.43,
+      "display": "8.43배",
+      "threshold": "15배 돌파",
       "hit": false,
-      "value": 8.2,
-      "threshold": 15
+      "tone": "good"
     },
-    "peg_threshold": {
-      "hit": false,
+    {
+      "id": "peg",
+      "label": "PEG",
       "value": 0.31,
-      "threshold": 0.7
-    },
-    "last_order_date": "2026-02-19",
-    "last_order_title": "단일판매ㆍ공급계약체결",
-    "last_order_days_ago": 64,
-    "order_silence_threshold": {
+      "display": "0.31",
+      "threshold": "0.7 돌파",
       "hit": false,
-      "days": 64,
-      "threshold": 90
+      "tone": "good"
     },
-    "daemyeng_year": 2025,
-    "daemyeng_purchase_billion": 311.8,
-    "daemyeng_revenue_billion": 3929,
-    "daemyeng_revenue_ratio_pct": 7.94,
-    "daemyeng_threshold": {
+    {
+      "id": "supply_gap",
+      "label": "수주 공백",
+      "value": 64,
+      "display": "64일",
+      "threshold": "90일 경과",
       "hit": false,
+      "tone": "good"
+    },
+    {
+      "id": "related_party",
+      "label": "대명ENG 매입 (2025)",
       "value": 7.94,
-      "threshold": 10
-    },
-    "news_hits": []
-  },
+      "display": "7.94%",
+      "threshold": "매출의 10% 초과",
+      "hit": false,
+      "tone": "good"
+    }
+  ],
   "alerts": [
     {
       "severity": "info",
@@ -43,22 +48,19 @@
       "message": "현재 지표·공시·뉴스 기준 즉각 매도 사유 없음. 보유 유지."
     }
   ],
+  "news_hits": [],
   "sources": [
     {
-      "label": "PER/PEG 스코어",
+      "label": "PER/PEG/PBR 스코어",
       "ref": "public/data/growth-watchlist.json"
     },
     {
-      "label": "단일판매·공급계약 공시",
-      "ref": "DART list API (corp_code 00442145)"
+      "label": "최근 공급계약 공시",
+      "ref": "DART 20260219900327"
     },
     {
       "label": "대명ENG 매입 비율",
       "ref": "DART 20260319001344 (사업보고서 (2025.12))"
-    },
-    {
-      "label": "뉴스 RSS",
-      "ref": "news.google.com/rss/search (3 키워드)"
     }
   ]
 }
