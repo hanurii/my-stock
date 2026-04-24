@@ -1,0 +1,142 @@
+{
+  "code": "005930",
+  "name": "삼성전자",
+  "last_checked": "2026-04-24T23:18:42.577+09:00",
+  "metrics": [
+    {
+      "id": "per",
+      "label": "PER",
+      "value": 33.23,
+      "display": "33.23배",
+      "threshold": "35배 돌파",
+      "hit": false,
+      "tone": "warn"
+    },
+    {
+      "id": "buyback_gap",
+      "label": "자사주 소각 공시 공백",
+      "value": 24,
+      "display": "24일",
+      "threshold": "180일 경과",
+      "hit": false,
+      "tone": "good"
+    },
+    {
+      "id": "samsung_life_disposal",
+      "label": "삼성생명 처분 공시 (90일)",
+      "value": 0,
+      "display": "0건",
+      "threshold": "처분 공시 1건+",
+      "hit": false,
+      "tone": "good"
+    },
+    {
+      "id": "lee_jae_yong_ratio",
+      "label": "이재용 지분 비율",
+      "value": 1.65,
+      "display": "1.65%",
+      "threshold": "1.4% 이하로 감소",
+      "hit": false,
+      "tone": "good"
+    },
+    {
+      "id": "lee_jae_yong_change_pp",
+      "label": "이재용 기초→기말 변화",
+      "value": 0.02,
+      "display": "0.02%p",
+      "threshold": "-0.1%p 이상 감소",
+      "hit": false,
+      "tone": "good"
+    }
+  ],
+  "alerts": [
+    {
+      "severity": "warn",
+      "type": "per",
+      "title": "PER 임계 근접",
+      "message": "현재 33.23배 (임계 35배 돌파)"
+    },
+    {
+      "severity": "info",
+      "type": "news_keyword_hit",
+      "title": "규제·매크로 키워드 뉴스 7건 (중립 헤드라인)",
+      "message": "최근 7일 매칭. 상세는 하단 리스트 확인."
+    }
+  ],
+  "news_hits": [
+    {
+      "keyword": "삼성 HBM4 엔비디아 공급",
+      "date": "2026-04-24",
+      "title": "하이닉스는 '적시공급' 서두르는데…삼성전자, 'HBM4' 경쟁서 파업 돌발변수 타격입나 - 뉴시스",
+      "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE9Ecl9RVDhlNFhBRldwNklvc1BRSTlrb3MxTEo4ZzRkc2xFNDhMY1RlRkpobFNNVkZSaWt0bVhyZUlSckdza2pzUXRId1dHeWVHV3BPLUJscTZxamZaYTNmR9IBeEFVX3lxTE5RWXlwc3NzM3o5bkFGdExBWWdVczI3SlZBSnh5MS01N2hOd2dQaUpPWGpoSU5EM01nOEdQaVd3RFRvT3pVLU1qU1FSMmJaNHBZTlNkVmlqUDd6cTNlRldsZjZXTjR6ZHFabW1xWDNZQ1lzOTQ1LTV6cw?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "삼성 HBM4 엔비디아 공급",
+      "date": "2026-04-21",
+      "title": "엔비디아 '러브콜' 삼성 HBM4… 판 흔드는 '4nm PMBIST'의 위력 - 글로벌이코노믹",
+      "url": "https://news.google.com/rss/articles/CBMihwFBVV95cUxNODdjQnpINHJfaktrZlg5b0daNVMxQU43VFhvdUE4SGNDREdnemZ5OWtNWDlqMWUyUmFWUzJoV042cjJSMmFCc0lVbHJjemtYQjc0eUF0MlJhdzBfYkJPMXBJWE10ZVY5ZVUwVGxIV0RJX3NRdTJyQklqVFV2MGpKdWFZcEJEcGs?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "삼성전자 자사주 소각",
+      "date": "2026-04-24",
+      "title": "삼성전자, 7.2조 규모 자사주 취득 완료…평균 매입가 19.6만원 - 뉴스1",
+      "url": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE5EakhrVXEzY2MxNTJ0bEZkaWRRT3hOVk1VeF9Xa0NJbUxTN28tRF9lN1dVeHdSemFBQUxUZFFOUmFicEV0OU1tOWVtcF9WdUVRSTM3RWtrc0FBdWZhVDAwRUViUHc?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "삼성전자 자사주 소각",
+      "date": "2026-04-21",
+      "title": "상법 3차 개정 자사주소각 의무화...삼성전자 최대주주 지배력 20% 붕괴 - 국제신문",
+      "url": "https://news.google.com/rss/articles/CBMijgFBVV95cUxNWHVvUlp6QXRrRFFOQXl5aS1XUXRyOEFWQVFtUWlWX0tzZndsNUlZQ01yN3V6c0Z6aVJCTnpMenBnN1pqY3JjOUMzM3BtMnNCYTNZQkYzWEtiY1dvenRwYlpianVlUU5uQ0stRVptVDZuejhPWXNneTUtVUhCMy14VGx5X3lXeXRzOUx6eS1R?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "삼성전자 자사주 소각",
+      "date": "2026-04-21",
+      "title": "삼성전자·SK하이닉스, 자사주 소각 27조…전체 64% 차지 - 아이뉴스24",
+      "url": "https://news.google.com/rss/articles/CBMiTEFVX3lxTE9YbUtvVENBNlBWWFlGVU41T0hWVVZwcEJVaGtNUEViZGRnX0UxNkt0dkt5TGdaTTJnT2oyaVVQUXFIQ19tTWVsOVVfX0I?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "삼성전자 자사주 소각",
+      "date": "2026-04-21",
+      "title": "“개미들 웃을까?” 삼성전자 ‘지배력 20%’ 깨졌다 - 한경매거진&amp;북",
+      "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE1JVFBZb0tDMWhmZnpBb3NhSy0wRWlqeGRBS1hHUHVwY2llMEYwNDFlbDRaSGNKN1hBS1ZhaV9Nd1NFRFpRbmNRV0hRdWNSdC1oam9PUk8xTG45dFZwYmctQWQ5Zmdwd3A2SUNaeQ?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "삼성전자 자사주 소각",
+      "date": "2026-04-20",
+      "title": "대기업 3개월 만에 자사주 43조 소각…삼성전자 지배력 20%선 하회 - 아시아경제",
+      "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE41ZV91LS1JeEFqYXRJVUhFN1JIdGlaSFFRUmJmazdsYXNVN1kyaXJ4OFNzTkdPdUwxOXNkU29lcVVhb0UtM25oSFdtVGFheXFPc19VSEN2LW4yQVhwWFFKZg?oc=5",
+      "severity": "info",
+      "signals": []
+    }
+  ],
+  "sources": [
+    {
+      "label": "PER/PEG/PBR 스코어",
+      "ref": "public/data/watchlist.json"
+    },
+    {
+      "label": "이재용 보유 비율 (2025)",
+      "ref": "DART 20260310002820 (hyslrSttus)"
+    },
+    {
+      "label": "최근 자사주 소각 공시 (2026-03-31)",
+      "ref": "DART 20260331800004"
+    },
+    {
+      "label": "뉴스 RSS",
+      "ref": "news.google.com/rss (7일)"
+    }
+  ]
+}

@@ -719,6 +719,47 @@ export async function collectMajorShareholderRatio(
   };
 }
 
+// ── 9-3) 자사주 소각 공시 공백 (최근 N일 내 '주식소각결정' 가장 최근 건) ──
+export async function collectBuybackCancellationGap(
+  corp_code: string,
+  lookback_days: number,
+): Promise<CollectorBundle["buyback_cancellation_gap"]> {
+  const today = new Date();
+  const since = new Date(today.getTime() - lookback_days * 86400_000);
+  const list = await dartGet<DartListItem>("list", {
+    corp_code,
+    bgn_de: fmtYmd(since),
+    end_de: fmtYmd(today),
+    page_count: "100",
+  });
+  if (!list) return null;
+  for (const item of list) {
+    const nm = item.report_nm ?? "";
+    // '주식소각결정' 또는 '자기주식소각결정' 또는 '주요사항보고서(주식소각결정)' 매칭
+    if (
+      nm.includes("주식소각결정") ||
+      nm.includes("자기주식소각") ||
+      (nm.includes("주요사항보고서") && nm.includes("소각"))
+    ) {
+      const d = item.rcept_dt;
+      const iso = `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}`;
+      return {
+        last_date: iso,
+        last_title: nm.trim(),
+        days_ago: daysBetween(new Date(iso), today),
+        rcept_no: item.rcept_no,
+      };
+    }
+  }
+  // lookback_days 내 소각 공시 없음 → 공백 = lookback_days
+  return {
+    last_date: null,
+    last_title: null,
+    days_ago: lookback_days,
+    rcept_no: null,
+  };
+}
+
 // ── 9) 외부 법인(모회사 등) 공시 추적 ──
 export async function collectExternalCorpDisclosures(
   external_corp_code: string,

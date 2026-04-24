@@ -153,6 +153,13 @@ export interface CollectorBundle {
     change_pp: number | null;
     rcept_no: string | null;
   } | null;
+  /** 가장 최근 자사주 소각(주식소각결정) 공시 이후 경과일 */
+  buyback_cancellation_gap: {
+    last_date: string | null;
+    last_title: string | null;
+    days_ago: number | null;
+    rcept_no: string | null;
+  } | null;
   insider_trades: Array<{ date: string; title: string; rcept_no: string }>;
   major_holder_changes: Array<{ date: string; title: string; rcept_no: string }>;
   stock_buyback_events: Array<{ date: string; title: string; rcept_no: string; type: string }>;

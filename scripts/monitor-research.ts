@@ -86,6 +86,7 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
     related_party,
     affiliate_transactions,
     major_shareholder,
+    buyback_cancellation_gap,
     insider_trades,
     major_holder_changes,
     stock_buyback_events,
@@ -108,6 +109,9 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
       : Promise.resolve(null),
     sourceSet.has("major_shareholder") && config.major_shareholder_name
       ? col.collectMajorShareholderRatio(config.corp_code, config.major_shareholder_name)
+      : Promise.resolve(null),
+    sourceSet.has("buyback_cancellation_gap")
+      ? col.collectBuybackCancellationGap(config.corp_code, 365)
       : Promise.resolve(null),
     sourceSet.has("insider_trades")
       ? col.collectInsiderTrades(config.corp_code, 90, config.insider_keywords ?? [])
@@ -140,6 +144,7 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
     related_party,
     affiliate_transactions,
     major_shareholder,
+    buyback_cancellation_gap,
     insider_trades,
     major_holder_changes,
     stock_buyback_events,
@@ -250,6 +255,11 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
     sources.push({
       label: `${major_shareholder.shareholder_name} 보유 비율 (${major_shareholder.year})`,
       ref: `DART ${major_shareholder.rcept_no} (hyslrSttus)`,
+    });
+  if (buyback_cancellation_gap?.rcept_no)
+    sources.push({
+      label: `최근 자사주 소각 공시 (${buyback_cancellation_gap.last_date})`,
+      ref: `DART ${buyback_cancellation_gap.rcept_no}`,
     });
   if (external_corp_disclosures.length > 0)
     sources.push({

@@ -163,4 +163,82 @@ export const CONFIGS: MonitorConfig[] = [
       "SK스퀘어 SK하이닉스 블록딜",
     ],
   },
+
+  // ───── 삼성전자 (005930) ─────
+  // research/005930.json exit_timing 6개 트리거 자동화:
+  // 1. PER ≥ 35배
+  // 2. 자사주 소각 공시 공백 (2026.03.31 2차 소각 이후 후속 발표 부재 감지 — 180일 임계)
+  // 3. 삼성생명(00126256) 타법인주식 처분 공시 (보험업법 개정 등으로 매도 시)
+  // 4. 이재용 회장 지분 변동 (hyslrSttus 기준, 분기보고서 갱신 시 감지)
+  // 5. 뉴스: 파운드리 분사·매각, HBM4 엔비디아 공급 성공/실패
+  {
+    code: "005930",
+    name: "삼성전자",
+    corp_code: "00126380",
+    triggers: [
+      {
+        id: "per",
+        label: "PER",
+        source: "valuation.per",
+        threshold: { gte: 35 },
+        threshold_label: "35배 돌파",
+        suffix: "배",
+        precision: 2,
+        warn_threshold: 33,
+      },
+      {
+        id: "buyback_gap",
+        label: "자사주 소각 공시 공백",
+        source: "buyback_cancellation_gap.days_ago",
+        threshold: { gte: 180 },
+        threshold_label: "180일 경과",
+        suffix: "일",
+        warn_threshold: 120,
+      },
+      {
+        id: "samsung_life_disposal",
+        label: "삼성생명 처분 공시 (90일)",
+        source: "external_corp_disclosures.count",
+        threshold: { gte: 1 },
+        threshold_label: "처분 공시 1건+",
+        suffix: "건",
+      },
+      {
+        id: "lee_jae_yong_ratio",
+        label: "이재용 지분 비율",
+        source: "major_shareholder.end_ratio",
+        threshold: { lte: 1.4 },
+        threshold_label: "1.4% 이하로 감소",
+        suffix: "%",
+        precision: 2,
+        warn_threshold: 1.55,
+      },
+      {
+        id: "lee_jae_yong_change_pp",
+        label: "이재용 기초→기말 변화",
+        source: "major_shareholder.change_pp",
+        threshold: { lte: -0.1 },
+        threshold_label: "-0.1%p 이상 감소",
+        suffix: "%p",
+        precision: 2,
+        warn_threshold: -0.01,
+      },
+    ],
+    external_corp_code: "00126256", // 삼성생명
+    external_corp_keywords: [
+      "타법인주식 및 출자증권의 처분",
+      "타법인주식및출자증권의처분",
+      "타법인 주식 및 출자증권 처분",
+    ],
+    major_shareholder_name: "이재용",
+    news_keywords: [
+      "삼성전자 파운드리 분사",
+      "삼성전자 파운드리 매각",
+      "삼성 HBM4 엔비디아 공급",
+      "삼성 HBM4 엔비디아 계약",
+      "삼성전자 자사주 소각",
+      "삼성 일가 블록딜",
+      "삼성생명 삼성전자 지분 매각",
+    ],
+  },
 ];
