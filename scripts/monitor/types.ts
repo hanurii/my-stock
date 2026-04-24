@@ -123,6 +123,14 @@ export interface CollectorBundle {
     rcept_no: string | null;
     report_nm: string | null;
   } | null;
+  affiliate_transactions: {
+    ratio_pct: number | null;
+    total_million: number | null;
+    revenue_million: number | null;
+    transaction_count: number;
+    period_days: number;
+    rcept_nos: string[];
+  } | null;
   insider_trades: Array<{ date: string; title: string; rcept_no: string }>;
   major_holder_changes: Array<{ date: string; title: string; rcept_no: string }>;
   stock_buyback_events: Array<{ date: string; title: string; rcept_no: string; type: string }>;

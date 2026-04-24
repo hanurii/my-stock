@@ -488,6 +488,143 @@ export async function collectRelatedPartyPurchase(
   };
 }
 
+// ── 9-1) 계열사 거래 매출 비율 (SK하이닉스 등 대기업 모니터링용) ──
+async function fetchDocumentText(rcept_no: string): Promise<string | null> {
+  const KEY = process.env.DART_API_KEY ?? "";
+  if (!KEY) return null;
+  const url = `${DART_API}/document.xml?crtfc_key=${KEY}&rcept_no=${rcept_no}`;
+  const res = await fetch(url);
+  if (!res.ok) return null;
+  const buf = Buffer.from(await res.arrayBuffer());
+  const entries = parseZip(buf);
+  if (!entries.length) return null;
+  // 가장 큰 파일이 본문
+  const main = entries.reduce(
+    (max, e) => (e.data.length > (max?.data.length || 0) ? e : max),
+    null as null | { name: string; data: Buffer },
+  );
+  if (!main) return null;
+  return extractText(main.data.toString("utf-8"));
+}
+
+/** 직전 N일 동안 corp_code의 '특수관계인 내부거래' + '동일인등 출자계열회사 상품용역거래' 공시 합계 / 매출 비율.
+ *  단위는 모두 백만원. 같은 분기 정정공시 중복 위험은 본 단순 누적 모델에서는 감수(공시 갯수와 함께 표시).
+ */
+export async function collectAffiliateTransactionRatio(
+  corp_code: string,
+  lookback_days: number,
+): Promise<CollectorBundle["affiliate_transactions"]> {
+  const today = new Date();
+  const since = new Date(today.getTime() - lookback_days * 86400_000);
+  const list = await dartGet<DartListItem>("list", {
+    corp_code,
+    bgn_de: fmtYmd(since),
+    end_de: fmtYmd(today),
+    page_count: "100",
+  });
+  if (!list) return null;
+
+  // 정정공시는 동일 거래라 중복 — 정정의 원공시 제외 후 가장 최신본만 채택
+  // 1) 동일 corp/거래기간 그룹의 가장 최근 공시만 사용. 단순화: '[기재정정]'·'정정'·'변경' 표기는 신규 공시로 취급하되
+  //    같은 날(rcept_dt) 같은 종류의 비-정정 공시가 있으면 정정본만 사용.
+  const sameDayOriginal = new Set<string>(); // 같은 날 정정·원본이 동시에 있을 때 원본 제외용
+  const candidates = list.filter(
+    (item) =>
+      (item.report_nm.includes("특수관계인") && item.report_nm.includes("내부거래")) ||
+      item.report_nm.includes("동일인등출자계열회사") ||
+      item.report_nm.includes("동일인 등 출자 계열회사"),
+  );
+  for (const item of candidates) {
+    if (item.report_nm.includes("[기재정정]") || item.report_nm.includes("정정")) {
+      // 같은 날 같은 거래 종류의 원본 공시는 제외
+      const baseType = item.report_nm.includes("내부거래")
+        ? "internal"
+        : "affiliate";
+      sameDayOriginal.add(`${item.rcept_dt}_${baseType}`);
+    }
+  }
+  const targets = candidates.filter((item) => {
+    if (item.report_nm.includes("[기재정정]") || item.report_nm.includes("정정")) return true;
+    const baseType = item.report_nm.includes("내부거래") ? "internal" : "affiliate";
+    return !sameDayOriginal.has(`${item.rcept_dt}_${baseType}`);
+  });
+
+  if (targets.length === 0) {
+    return {
+      ratio_pct: 0,
+      total_million: 0,
+      revenue_million: null,
+      transaction_count: 0,
+      period_days: lookback_days,
+      rcept_nos: [],
+    };
+  }
+
+  let totalMillion = 0;
+  let revenueMillion = 0;
+  const usedRceptNos: string[] = [];
+
+  for (const item of targets) {
+    const text = await fetchDocumentText(item.rcept_no);
+    await sleep(300);
+    if (!text) continue;
+
+    // 매출액(A) 추출 — "직전사업연도매출액(A) 86,852,117"
+    const revMatch = text.match(/직전사업연도매출액[^0-9]*([0-9,]{6,})/);
+    if (revMatch) {
+      const rev = Number(revMatch[1].replace(/,/g, ""));
+      if (rev > revenueMillion) revenueMillion = rev;
+    }
+
+    // 패턴 ① 특수관계인 내부거래: "3. 총거래금액 <숫자>"
+    const totalMatch = text.match(/3\.\s*총거래금액\s*([\d,]+)/);
+    if (totalMatch) {
+      const v = Number(totalMatch[1].replace(/,/g, ""));
+      if (v > 0) {
+        totalMillion += v;
+        usedRceptNos.push(item.rcept_no);
+        continue;
+      }
+    }
+
+    // 패턴 ② 출자계열사 거래변경: "동일인 등 출자 계열회사와의 상품ㆍ용역 거래금액 ... 합계액(D=B+C) 매출액대비(D/A, %) <회사명> [매출] [매입] [합계] [%]"
+    // 매출(B)+매입(C)=합계(D) 행을 찾아 매출+매입 합산. 정확한 행만 가져오기 위해 [%] 직후 수치를 검증
+    const tableSection = text.match(
+      /매출액\(B\)\s*매입액\(C\)\s*합계액\(D=B\+C\)\s*매출액대비\(D\/A,\s*%\)([\s\S]{0,500})/,
+    );
+    if (tableSection) {
+      // 행 패턴: "회사명 [숫자/-] [숫자/-] [숫자] [퍼센트]%"
+      const rows = Array.from(
+        tableSection[1].matchAll(/([가-힣ㆍ\s\(\)\.\-A-Za-z0-9]+?)\s+([\d,\-]+)\s+([\d,\-]+)\s+([\d,]+)\s+([\d.]+)%/g),
+      );
+      let captured = false;
+      for (const m of rows) {
+        const sumStr = m[4].replace(/[,]/g, "");
+        const sum = Number(sumStr);
+        const pct = Number(m[5]);
+        if (sum > 0 && pct > 0 && pct < 100) {
+          totalMillion += sum;
+          captured = true;
+        }
+      }
+      if (captured) {
+        usedRceptNos.push(item.rcept_no);
+        continue;
+      }
+    }
+    // fallback 패턴 제거 — 매출액 자체를 거래금액으로 오인하는 false-positive 방지
+  }
+
+  return {
+    ratio_pct: revenueMillion > 0 ? Number(((totalMillion / revenueMillion) * 100).toFixed(3)) : null,
+    total_million: totalMillion,
+    revenue_million: revenueMillion || null,
+    transaction_count: usedRceptNos.length,
+    period_days: lookback_days,
+    rcept_nos: usedRceptNos,
+  };
+}
+
 // ── 9) 외부 법인(모회사 등) 공시 추적 ──
 export async function collectExternalCorpDisclosures(
   external_corp_code: string,

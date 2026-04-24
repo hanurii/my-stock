@@ -84,6 +84,7 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
     supply_gap,
     op_margin,
     related_party,
+    affiliate_transactions,
     insider_trades,
     major_holder_changes,
     stock_buyback_events,
@@ -100,6 +101,9 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
       : Promise.resolve(null),
     sourceSet.has("related_party") && config.related_party_partner
       ? col.collectRelatedPartyPurchase(config.corp_code, config.related_party_partner)
+      : Promise.resolve(null),
+    sourceSet.has("affiliate_transactions")
+      ? col.collectAffiliateTransactionRatio(config.corp_code, 365)
       : Promise.resolve(null),
     sourceSet.has("insider_trades")
       ? col.collectInsiderTrades(config.corp_code, 90, config.insider_keywords ?? [])
@@ -130,6 +134,7 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
     supply_gap,
     op_margin,
     related_party,
+    affiliate_transactions,
     insider_trades,
     major_holder_changes,
     stock_buyback_events,
@@ -220,6 +225,16 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
     sources.push({
       label: `${config.related_party_partner ?? "특수관계자"} 매입 비율`,
       ref: `DART ${related_party.rcept_no} (${related_party.report_nm})`,
+    });
+  if (affiliate_transactions && affiliate_transactions.transaction_count > 0)
+    sources.push({
+      label: `계열사 거래 비율 (${affiliate_transactions.period_days}일 누적, ${affiliate_transactions.transaction_count}건)`,
+      ref: `DART 특수관계인내부거래·출자계열사거래 ${affiliate_transactions.rcept_nos.slice(0, 3).join(", ")}${affiliate_transactions.rcept_nos.length > 3 ? " 외" : ""}`,
+    });
+  if (external_corp_disclosures.length > 0)
+    sources.push({
+      label: `외부법인 공시 ${external_corp_disclosures.length}건`,
+      ref: `DART (${config.external_corp_code})`,
     });
   if (major_holder_changes.length > 0)
     sources.push({

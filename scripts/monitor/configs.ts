@@ -60,9 +60,9 @@ export const CONFIGS: MonitorConfig[] = [
   },
 
   // ───── SK하이닉스 (000660) ─────
-  // 주의: '최대주주 지분 변동'은 일반 5% 대주주(BlackRock 등) 공시까지 포함되어 false-positive 잦음.
-  // SK스퀘어 보유분 직접 추적은 hyslrSttus API 분기 갱신만 가능 → 분기보고서 시즌에만 의미.
-  // 1차 버전은 정량 트리거 2개 + 뉴스 키워드만 운영.
+  // 정량: PBR + 영업이익률 + 계열사 거래 비율
+  // 공시 감지: SK스퀘어(corp_code 01596425) 처분·매각 공시
+  // 뉴스: 삼성 HBM 점유율 추격 / DRAM 가격 / 엔비디아 Capex
   {
     code: "000660",
     name: "SK하이닉스",
@@ -88,11 +88,44 @@ export const CONFIGS: MonitorConfig[] = [
         precision: 1,
         warn_threshold: 40,
       },
+      {
+        // 사용자 trigger 원문은 '1% 초과'였으나 SK에코플랜트(EPC, M16·M18 메모리 공장 건설사)
+        // 정상 거래만으로 2025년 약 4.84조(5.575%) 발생. 임계 7%로 상향해 EPC 정상 거래는 통과,
+        // SK이노/SK㈜ 운영비 급증·신규 우회 거래 등 +1.3%p 이상 변동 시에만 신호.
+        // 추후 '전년 대비 증가율' 메트릭 보강 예정.
+        id: "affiliate_ratio",
+        label: "계열사 거래 매출 비율 (1년)",
+        source: "affiliate_transactions.ratio_pct",
+        threshold: { gte: 7 },
+        threshold_label: "매출의 7% 초과",
+        suffix: "%",
+        precision: 3,
+        warn_threshold: 6,
+      },
+      {
+        id: "sk_square_disposal",
+        label: "SK스퀘어 처분·매각 공시 (90일)",
+        source: "external_corp_disclosures.count",
+        threshold: { gte: 1 },
+        threshold_label: "처분 공시 1건+",
+        suffix: "건",
+      },
+    ],
+    external_corp_code: "01596425", // SK스퀘어
+    // SK스퀘어가 보유한 SK하이닉스 매각 시 발생하는 공시만 정확히 잡기 위함:
+    // - "타법인주식 및 출자증권의 처분결정" (SK스퀘어가 SK하이닉스 주식을 처분하는 결정)
+    // - 자회사 자사주 처분 공시는 false-positive이므로 제외
+    external_corp_keywords: [
+      "타법인주식 및 출자증권의 처분",
+      "타법인주식및출자증권의처분",
+      "타법인 주식 및 출자증권 처분",
     ],
     news_keywords: [
-      "삼성 HBM3E 엔비디아 공급",
-      "DRAM 가격 하락",
-      "엔비디아 Capex 감소",
+      "삼성 HBM3E 엔비디아 점유율",
+      "삼성 HBM4 엔비디아 공급",
+      "DRAM 고정거래가 하락",
+      "엔비디아 Capex 가이던스",
+      "SK스퀘어 SK하이닉스 블록딜",
     ],
   },
 ];
