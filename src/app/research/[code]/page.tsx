@@ -11,6 +11,237 @@ import {
   type Tone,
 } from "@/lib/research";
 
+interface MonitorData {
+  code: string;
+  name: string;
+  last_checked: string;
+  metrics: {
+    current_price: number;
+    per: number;
+    peg: number;
+    per_threshold: { hit: boolean; value: number; threshold: number };
+    peg_threshold: { hit: boolean; value: number; threshold: number };
+    last_order_date: string | null;
+    last_order_title: string | null;
+    last_order_days_ago: number | null;
+    order_silence_threshold: { hit: boolean; days: number | null; threshold: number };
+    daemyeng_year: number;
+    daemyeng_purchase_billion: number;
+    daemyeng_revenue_billion: number;
+    daemyeng_revenue_ratio_pct: number;
+    daemyeng_threshold: { hit: boolean; value: number; threshold: number };
+    news_hits: Array<{ keyword: string; date: string; title: string; url: string }>;
+  };
+  alerts: Array<{
+    severity: "info" | "warn" | "bad";
+    type: string;
+    title: string;
+    message: string;
+  }>;
+  sources: Array<{ label: string; ref: string }>;
+}
+
+async function loadMonitor(code: string): Promise<MonitorData | null> {
+  try {
+    const raw = await fs.readFile(
+      path.join(process.cwd(), "public", "data", "research", "monitor", `${code}.json`),
+      "utf-8",
+    );
+    return JSON.parse(raw) as MonitorData;
+  } catch {
+    return null;
+  }
+}
+
+const SEVERITY_COLOR: Record<MonitorData["alerts"][number]["severity"], string> = {
+  info: TONE_COLOR.neutral,
+  warn: TONE_COLOR.warn,
+  bad: TONE_COLOR.bad,
+};
+const SEVERITY_ICON: Record<MonitorData["alerts"][number]["severity"], string> = {
+  info: "check_circle",
+  warn: "warning",
+  bad: "cancel",
+};
+
+function MonitorMetric({
+  label,
+  value,
+  threshold,
+  hit,
+  suffix,
+}: {
+  label: string;
+  value: string | number;
+  threshold: string;
+  hit: boolean;
+  suffix?: string;
+}) {
+  const color = hit ? TONE_COLOR.bad : TONE_COLOR.good;
+  return (
+    <div
+      className="rounded-xl p-4 backdrop-blur-sm"
+      style={{
+        backgroundColor: hit ? `${TONE_COLOR.bad}15` : "rgba(255,255,255,0.02)",
+        border: `1px solid ${hit ? `${TONE_COLOR.bad}40` : "rgba(255,255,255,0.06)"}`,
+      }}
+    >
+      <p className="text-[10px] uppercase tracking-[0.18em] text-on-surface-variant/60 mb-2">
+        {label}
+      </p>
+      <p className="text-2xl font-serif font-bold leading-none" style={{ color }}>
+        {value}
+        {suffix && <span className="text-sm ml-1 opacity-70">{suffix}</span>}
+      </p>
+      <p className="text-[10px] text-on-surface-variant/50 mt-2">임계 {threshold}</p>
+    </div>
+  );
+}
+
+function MonitorPanel({ data }: { data: MonitorData }) {
+  const m = data.metrics;
+  const hasBad = data.alerts.some((a) => a.severity === "bad");
+  const hasWarn = data.alerts.some((a) => a.severity === "warn");
+  const overallTone: "good" | "warn" | "bad" = hasBad ? "bad" : hasWarn ? "warn" : "good";
+  const accent = TONE_COLOR[overallTone];
+
+  const checkedKst = new Date(data.last_checked).toLocaleString("ko-KR", {
+    timeZone: "Asia/Seoul",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  return (
+    <section
+      className="relative rounded-2xl overflow-hidden"
+      style={{
+        background: `linear-gradient(155deg, ${accent}12 0%, ${accent}04 50%, transparent 100%)`,
+        boxShadow: `0 0 0 1px ${accent}25, 0 8px 32px -12px ${accent}30`,
+      }}
+    >
+      <div
+        className="h-1 w-full"
+        style={{ background: `linear-gradient(90deg, ${accent} 0%, ${accent}40 100%)` }}
+      />
+      <div className="p-5 sm:p-6">
+        {/* Header */}
+        <div className="flex items-center justify-between gap-3 mb-4">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-xl" style={{ color: accent }}>
+              radar
+            </span>
+            <div>
+              <p className="text-sm font-serif font-medium text-on-surface">
+                매도 트리거 자동 모니터링
+              </p>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-on-surface-variant/50">
+                Daily Sell-Trigger Watch
+              </p>
+            </div>
+          </div>
+          <p className="text-[10px] text-on-surface-variant/50">
+            최근 확인 {checkedKst} KST
+          </p>
+        </div>
+
+        {/* Metric grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-4">
+          <MonitorMetric
+            label="PER"
+            value={m.per.toFixed(2)}
+            suffix="배"
+            threshold={`${m.per_threshold.threshold}배 돌파`}
+            hit={m.per_threshold.hit}
+          />
+          <MonitorMetric
+            label="PEG"
+            value={m.peg.toFixed(2)}
+            threshold={`${m.peg_threshold.threshold} 돌파`}
+            hit={m.peg_threshold.hit}
+          />
+          <MonitorMetric
+            label="수주 공백"
+            value={m.last_order_days_ago ?? "—"}
+            suffix="일"
+            threshold={`${m.order_silence_threshold.threshold}일 경과`}
+            hit={m.order_silence_threshold.hit}
+          />
+          <MonitorMetric
+            label={`대명ENG 매입 (${m.daemyeng_year})`}
+            value={m.daemyeng_revenue_ratio_pct.toFixed(2)}
+            suffix="%"
+            threshold={`매출의 ${m.daemyeng_threshold.threshold}% 초과`}
+            hit={m.daemyeng_threshold.hit}
+          />
+        </div>
+
+        {/* Alerts */}
+        <div className="space-y-2">
+          {data.alerts.map((a, i) => {
+            const color = SEVERITY_COLOR[a.severity];
+            return (
+              <div
+                key={i}
+                className="flex items-start gap-2.5 rounded-lg p-3"
+                style={{
+                  backgroundColor: `${color}10`,
+                  border: `1px solid ${color}25`,
+                }}
+              >
+                <span
+                  className="material-symbols-outlined text-base shrink-0 mt-0.5"
+                  style={{ color }}
+                >
+                  {SEVERITY_ICON[a.severity]}
+                </span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-on-surface">{a.title}</p>
+                  <p className="text-xs text-on-surface-variant mt-0.5">{a.message}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* News hits */}
+        {m.news_hits.length > 0 && (
+          <div className="mt-4 pt-4" style={{ borderTop: `1px solid ${accent}20` }}>
+            <p className="text-[10px] uppercase tracking-[0.2em] text-on-surface-variant/60 mb-2">
+              규제·투자 축소 키워드 매칭 (최근 7일)
+            </p>
+            <ul className="space-y-1.5">
+              {m.news_hits.slice(0, 6).map((h, i) => (
+                <li key={i} className="flex items-start gap-2 text-xs">
+                  <span className="text-on-surface-variant/50 shrink-0 font-mono">
+                    {h.date}
+                  </span>
+                  <a
+                    href={h.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-on-surface-variant hover:text-primary leading-relaxed line-clamp-2"
+                  >
+                    {h.title}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Footer sources */}
+        <p className="text-[10px] text-on-surface-variant/40 mt-4">
+          자동 업데이트: GitHub Actions (평일 17:30 KST) · 출처:{" "}
+          {data.sources.map((s) => s.label).join(" · ")}
+        </p>
+      </div>
+    </section>
+  );
+}
+
 export async function generateStaticParams() {
   try {
     const dir = path.join(process.cwd(), "public", "data", "research");
@@ -173,7 +404,10 @@ export default async function ResearchDetailPage({
   params: Promise<{ code: string }>;
 }) {
   const { code } = await params;
-  const data = await loadResearchDetail(code);
+  const [data, monitor] = await Promise.all([
+    loadResearchDetail(code),
+    loadMonitor(code),
+  ]);
   if (!data) notFound();
 
   return (
@@ -186,6 +420,9 @@ export default async function ResearchDetailPage({
         <span className="material-symbols-outlined text-sm">arrow_back</span>
         심층 분석 목록
       </Link>
+
+      {/* Monitor panel (상단 우선 노출) */}
+      {monitor && <MonitorPanel data={monitor} />}
 
       {/* Header */}
       <section>

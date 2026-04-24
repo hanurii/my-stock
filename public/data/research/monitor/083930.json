@@ -1,0 +1,64 @@
+{
+  "code": "083930",
+  "name": "아바코",
+  "last_checked": "2026-04-24T10:17:24.939+09:00",
+  "metrics": {
+    "current_price": 16300,
+    "per": 8.2,
+    "peg": 0.31,
+    "per_threshold": {
+      "hit": false,
+      "value": 8.2,
+      "threshold": 15
+    },
+    "peg_threshold": {
+      "hit": false,
+      "value": 0.31,
+      "threshold": 0.7
+    },
+    "last_order_date": "2026-02-19",
+    "last_order_title": "단일판매ㆍ공급계약체결",
+    "last_order_days_ago": 64,
+    "order_silence_threshold": {
+      "hit": false,
+      "days": 64,
+      "threshold": 90
+    },
+    "daemyeng_year": 2025,
+    "daemyeng_purchase_billion": 311.8,
+    "daemyeng_revenue_billion": 3981,
+    "daemyeng_revenue_ratio_pct": 7.83,
+    "daemyeng_threshold": {
+      "hit": false,
+      "value": 7.83,
+      "threshold": 10
+    },
+    "news_hits": []
+  },
+  "alerts": [
+    {
+      "severity": "info",
+      "type": "all_clear",
+      "title": "모든 매도 트리거 범위 내",
+      "message": "현재 지표·공시·뉴스 기준 즉각 매도 사유 없음. 보유 유지."
+    }
+  ],
+  "sources": [
+    {
+      "label": "PER/PEG 스코어",
+      "ref": "public/data/growth-watchlist.json"
+    },
+    {
+      "label": "단일판매·공급계약 공시",
+      "ref": "DART list API (corp_code 00442145)"
+    },
+    {
+      "label": "대명ENG 매입 비율",
+      "ref": "DART 20260319001344 (사업보고서 (2025.12))"
+    },
+    {
+      "label": "뉴스 RSS",
+      "ref": "news.google.com/rss/search (3 키워드)"
+    }
+  ]
+}
