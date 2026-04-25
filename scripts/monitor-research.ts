@@ -111,6 +111,7 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
     debt_guarantee_events,
     disclosure_keyword_hits,
     crude_oil_price,
+    clinical_pipeline,
     newsHits,
   ] = await Promise.all([
     sourceSet.has("valuation") ? col.collectValuation(config.code) : Promise.resolve(null),
@@ -192,6 +193,11 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
     sourceSet.has("crude_oil_price")
       ? col.collectCrudeOilPrice()
       : Promise.resolve(null),
+    sourceSet.has("clinical_pipeline") &&
+    config.clinical_sponsor_keywords &&
+    config.clinical_sponsor_keywords.length > 0
+      ? col.collectClinicalPipelineStatus(config.code, config.clinical_sponsor_keywords)
+      : Promise.resolve(null),
     config.news_keywords && config.news_keywords.length > 0
       ? col.collectNewsHits(config.news_keywords, 7)
       : Promise.resolve([]),
@@ -221,6 +227,7 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
     debt_guarantee_events,
     disclosure_keyword_hits,
     crude_oil_price,
+    clinical_pipeline,
   };
 
   // 메트릭 평가
@@ -228,8 +235,13 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
     const value = resolveSource(trig.source, bundle);
     const hit = evaluateThreshold(value, trig.threshold);
     const warn = !hit && evaluateWarn(value, trig);
-    const tone: Tone =
-      hit ? trig.tone_on_hit ?? "bad" : warn ? "warn" : value == null ? "neutral" : "good";
+    const tone: Tone = hit
+      ? trig.tone_on_hit ?? "bad"
+      : warn
+        ? "warn"
+        : value == null
+          ? "neutral"
+          : trig.tone_on_miss ?? "good";
     // label 동적 치환 — 예: "대명ENG 매입 비율 ({year})"
     let label = trig.label;
     if (trig.id === "related_party" && related_party?.year) {
@@ -388,6 +400,13 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
       label: `최대주주 지분 변동 ${major_holder_changes.length}건`,
       ref: "DART 주식등의대량보유 / 최대주주등소유주식변동",
     });
+  if (capital_issuance.length > 0) {
+    const recent = capital_issuance[0];
+    sources.push({
+      label: `자본조달 공시 ${capital_issuance.length}건 (최근: ${recent.date} ${recent.title})`,
+      ref: `DART ${recent.rcept_no}`,
+    });
+  }
   if (peer_pbr_premium && peer_pbr_premium.peers_used.length > 0) {
     sources.push({
       label: `4대 지주 평균 PBR 비교 (${peer_pbr_premium.peers_used.length}종목)`,
@@ -441,6 +460,16 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
       label: `Brent 원유 종가 ${crude_oil_price.latest_close} USD (${crude_oil_price.latest_date}, 7일 평균 ${crude_oil_price.avg_7d})`,
       ref: `Yahoo Finance ${crude_oil_price.symbol}`,
     });
+  if (clinical_pipeline) {
+    const recent = clinical_pipeline.recent_changes_30d.changes[0];
+    const recentLabel = recent
+      ? ` · 최근: ${recent.nct_id} ${recent.from_status} → ${recent.to_status} (${recent.date})`
+      : "";
+    sources.push({
+      label: `ClinicalTrials.gov 임상 ${clinical_pipeline.count}건 (30일 status 변경 ${clinical_pipeline.recent_changes_30d.count}건${recentLabel})`,
+      ref: `query.spons: ${clinical_pipeline.sponsor_keywords.join(", ")}`,
+    });
+  }
   if (newsHits.length > 0)
     sources.push({ label: "뉴스 RSS", ref: "news.google.com/rss (7일)" });
 

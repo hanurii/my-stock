@@ -24,6 +24,10 @@ export interface TriggerDef {
   precision?: number;
   /** hit 시 톤을 강제로 지정 (긍정 시그널 — 예: GS 자사주 취득결정 공시는 hit이지만 'good') */
   tone_on_hit?: Tone;
+  /** miss(hit=false, value 존재) 시 톤을 강제로 지정.
+   *  default는 "good" — 매도 트리거가 발동 안 했으면 안전 신호.
+   *  단, 긍정 시그널 트리거(예: GS buyback_acquisition)는 miss=현 상태이므로 "neutral" 사용. */
+  tone_on_miss?: Tone;
 }
 
 /** 종목별 모니터 설정 */
@@ -60,6 +64,8 @@ export interface MonitorConfig {
     /** report_nm 부분 일치 키워드 */
     keywords: string[];
   }>;
+  /** ClinicalTrials.gov sponsor 검색용 키워드 (바이오 종목 임상 단계 변경 감지) */
+  clinical_sponsor_keywords?: string[];
 }
 
 /** 메트릭 평가 결과 (monitor JSON에 저장됨) */
@@ -295,6 +301,32 @@ export interface CollectorBundle {
     avg_7d: number | null;
     /** 최근 7거래일 종가 시퀀스 (가장 오래된 → 최신) */
     series: Array<{ date: string; close: number }>;
+  } | null;
+  /** ClinicalTrials.gov 임상 파이프라인 status 추적 (바이오 종목 임상 단계 변경 감지).
+   *  source path 예: `clinical_pipeline.recent_changes_30d.count` (gte 1로 매도 신호).
+   *  캐시 파일(`.cache/clinical-pipeline-{code}.json`)과 비교해 status 변경분만 감지.
+   */
+  clinical_pipeline: {
+    sponsor_keywords: string[];
+    trials: Array<{
+      nct_id: string;
+      title: string;
+      indication: string;
+      phase: string;
+      status: string;
+      last_update_date: string;
+    }>;
+    count: number;
+    recent_changes_30d: {
+      count: number;
+      changes: Array<{
+        nct_id: string;
+        title: string;
+        from_status: string;
+        to_status: string;
+        date: string;
+      }>;
+    };
   } | null;
 }
 

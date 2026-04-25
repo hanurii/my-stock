@@ -703,6 +703,8 @@ export const CONFIGS: MonitorConfig[] = [
         suffix: "건",
       },
       {
+        // 긍정 시그널 트리거 — hit이면 "good"(매수 보강), miss이면 "neutral"(현 상태 유지, 약점 미해소).
+        // 다른 매도 트리거는 miss=good(안전)이지만 이건 정책 부재가 GS의 약점이므로 의미가 다름.
         id: "buyback_acquisition",
         label: "자사주 취득결정 공시 (90일·긍정)",
         source: "stock_buyback_events.count",
@@ -710,6 +712,7 @@ export const CONFIGS: MonitorConfig[] = [
         threshold_label: "공시 1건+ (재평가 신호)",
         suffix: "건",
         tone_on_hit: "good",
+        tone_on_miss: "neutral",
       },
       {
         id: "oil_price_brent",
@@ -735,6 +738,82 @@ export const CONFIGS: MonitorConfig[] = [
       "GS 자사주 매입",
       "GS 자사주 소각",
       "GS 배당성향",
+    ],
+  },
+
+  // ───── 디앤디파마텍 (347850) ─────
+  // research/347850.json exit_timing 3개 트리거 자동화 + 자본구조·밸류에이션 보강:
+  // 1. 48주 1차 평가변수 미달 — DART 공시 부재라 뉴스 RSS + ClinicalTrials.gov status 변경으로 간접 감지
+  // 2. 안전성 중대 이상반응 — 동일 (뉴스 RSS만)
+  // 3. ORALINK 라이선스 축소·반환 — 디앤디 자체 capital_issuance 공시 + Pfizer/Metsera 뉴스
+  // + 자본구조: PBR 50배(극고평가), CEO 지분 10%(경영권), 신규 자본조달, 분기 영업이익률(적자 폭 악화)
+  // (Metsera는 미국 법인 — DART corp_code 부재로 external_corp_disclosures 미적용)
+  {
+    code: "347850",
+    name: "디앤디파마텍",
+    corp_code: "01376715",
+    triggers: [
+      {
+        id: "pbr",
+        label: "PBR (극고평가)",
+        source: "valuation.pbr",
+        threshold: { gte: 50 },
+        threshold_label: "50배 돌파",
+        suffix: "배",
+        precision: 2,
+        warn_threshold: 45,
+      },
+      {
+        id: "ceo_founder_ratio",
+        label: "이슬기 CEO 지분 비율",
+        source: "major_shareholder.end_ratio",
+        threshold: { lte: 10 },
+        threshold_label: "10% 이하로 감소",
+        suffix: "%",
+        precision: 2,
+        warn_threshold: 11,
+      },
+      {
+        id: "capital_issuance",
+        label: "신규 자본조달 (CB/BW/EB/유증) 90일",
+        source: "capital_issuance.count",
+        threshold: { gte: 1 },
+        threshold_label: "발행 공시 1건+",
+        suffix: "건",
+      },
+      {
+        // 매출 0에 가까운 적자 바이오라 op_margin_pct는 항상 -수백% 수준.
+        // 매도 신호보다 '정보 표시'에 가까움 → tone_on_miss: neutral로 항시 정보용.
+        // 매출이 정말 크게 줄어 -2000% 아래로 가면 그때만 bad.
+        id: "op_margin",
+        label: "분기 영업이익률 (정보용)",
+        source: "op_margin.op_margin_pct",
+        threshold: { lte: -2000 },
+        threshold_label: "-2000% 이하 악화 (이례적)",
+        suffix: "%",
+        precision: 1,
+        warn_threshold: -1500,
+        tone_on_miss: "neutral",
+      },
+      {
+        id: "clinical_status_change",
+        label: "임상 단계 status 변경 (30일)",
+        source: "clinical_pipeline.recent_changes_30d.count",
+        threshold: { gte: 1 },
+        threshold_label: "status 변경 1건+",
+        suffix: "건",
+      },
+    ],
+    major_shareholder_name: "이슬기",
+    clinical_sponsor_keywords: ["D&D Pharmatech", "Neuraly"],
+    news_keywords: [
+      "디앤디파마텍 DD01 48주",       // 핵심 카탈리스트 (2026.05~06)
+      "디앤디파마텍 DD01 임상",
+      "디앤디파마텍 FDA",
+      "디앤디파마텍 Pfizer",
+      "디앤디파마텍 라이선스",
+      "ORALINK 라이선스",
+      "Metsera Pfizer 통합",
     ],
   },
 ];

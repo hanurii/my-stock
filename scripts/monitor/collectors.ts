@@ -1638,6 +1638,162 @@ function classifyHeadline(title: string): {
   return { severity: "info", signals: [] };
 }
 
+// ── ClinicalTrials.gov 임상 파이프라인 status 추적 ──
+//
+// 종목별 캐시(`.cache/clinical-pipeline-{code}.json`)에 마지막 조회 결과 보존.
+// 신규 조회 시 NCT ID별 status diff → 최근 30일 누적 변경분만 카운트.
+//
+// 기존 screen-bio.ts:fetchClinicalTrials() 패턴을 따르되, 캐시 비교 + 변경분
+// 누적이라는 모니터 목적에 맞게 단순화.
+export async function collectClinicalPipelineStatus(
+  stock_code: string,
+  sponsor_keywords: string[],
+): Promise<CollectorBundle["clinical_pipeline"]> {
+  if (!sponsor_keywords || sponsor_keywords.length === 0) return null;
+
+  const cacheDir = path.resolve(".cache");
+  const cachePath = path.join(cacheDir, `clinical-pipeline-${stock_code}.json`);
+  if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });
+
+  // 1. 이전 캐시 로드 (status 비교 + 30일 윈도우 변경분 누적)
+  type CacheTrial = {
+    nct_id: string;
+    title: string;
+    indication: string;
+    phase: string;
+    status: string;
+    last_update_date: string;
+  };
+  type CacheChange = {
+    nct_id: string;
+    title: string;
+    from_status: string;
+    to_status: string;
+    date: string;
+  };
+  type CachePayload = { trials: CacheTrial[]; changes: CacheChange[] };
+  let prev: CachePayload | null = null;
+  try {
+    if (fs.existsSync(cachePath)) {
+      prev = JSON.parse(fs.readFileSync(cachePath, "utf-8")) as CachePayload;
+    }
+  } catch {
+    prev = null;
+  }
+
+  // 2. ClinicalTrials.gov v2 API 조회 (스폰서 키워드별)
+  const seen = new Set<string>();
+  const trials: CacheTrial[] = [];
+  const today = new Date().toISOString().slice(0, 10);
+
+  for (const kw of sponsor_keywords) {
+    const url = `https://clinicaltrials.gov/api/v2/studies?query.spons=${encodeURIComponent(
+      kw,
+    )}&pageSize=50&fields=protocolSection.identificationModule|protocolSection.statusModule|protocolSection.designModule|protocolSection.conditionsModule`;
+    try {
+      const res = await fetch(url);
+      if (!res.ok) {
+        console.warn(`  ⚠ ClinicalTrials.gov 조회 실패 (${kw}): ${res.status}`);
+        continue;
+      }
+      const json = (await res.json()) as { studies?: unknown[] };
+      const studies = (json.studies ?? []) as Array<{
+        protocolSection?: {
+          identificationModule?: { nctId?: string; briefTitle?: string };
+          statusModule?: {
+            overallStatus?: string;
+            lastUpdatePostDateStruct?: { date?: string };
+          };
+          designModule?: { phases?: string[] };
+          conditionsModule?: { conditions?: string[] };
+        };
+      }>;
+      for (const s of studies) {
+        const proto = s.protocolSection ?? {};
+        const id = proto.identificationModule ?? {};
+        const status = proto.statusModule ?? {};
+        const design = proto.designModule ?? {};
+        const conditions = proto.conditionsModule ?? {};
+        const nctId = id.nctId ?? "";
+        if (!nctId || seen.has(nctId)) continue;
+        seen.add(nctId);
+        const phases = design.phases ?? [];
+        const phase = phases.includes("PHASE3")
+          ? "PHASE3"
+          : phases.includes("PHASE2")
+            ? "PHASE2"
+            : phases[0] ?? "N/A";
+        trials.push({
+          nct_id: nctId,
+          title: id.briefTitle ?? "",
+          indication: (conditions.conditions ?? []).join(", "),
+          phase,
+          status: status.overallStatus ?? "",
+          last_update_date: status.lastUpdatePostDateStruct?.date ?? "",
+        });
+      }
+    } catch (e) {
+      console.warn(`  ⚠ ClinicalTrials.gov 예외 (${kw}):`, (e as Error).message);
+    }
+    await sleep(500);
+  }
+
+  // 3. 이전 캐시와 status 비교 → 신규 변경분 추출
+  const newChanges: CacheChange[] = [];
+  if (prev?.trials) {
+    const prevMap = new Map(prev.trials.map((t) => [t.nct_id, t]));
+    for (const t of trials) {
+      const before = prevMap.get(t.nct_id);
+      if (before && before.status && t.status && before.status !== t.status) {
+        newChanges.push({
+          nct_id: t.nct_id,
+          title: t.title,
+          from_status: before.status,
+          to_status: t.status,
+          date: today,
+        });
+      }
+    }
+  }
+
+  // 4. 30일 윈도우로 변경 이력 통합
+  const cutoff = new Date(Date.now() - 30 * 86400_000);
+  const allChanges = [...(prev?.changes ?? []), ...newChanges].filter((c) => {
+    const d = new Date(c.date);
+    return !isNaN(d.getTime()) && d >= cutoff;
+  });
+  // 동일 nct_id+from→to 중복 제거 (오래된 것 우선)
+  const seenChange = new Set<string>();
+  const dedupedChanges: CacheChange[] = [];
+  for (const c of allChanges) {
+    const key = `${c.nct_id}|${c.from_status}|${c.to_status}`;
+    if (seenChange.has(key)) continue;
+    seenChange.add(key);
+    dedupedChanges.push(c);
+  }
+
+  // 5. 캐시 저장 (다음 실행 비교용)
+  try {
+    fs.writeFileSync(
+      cachePath,
+      JSON.stringify({ trials, changes: dedupedChanges, updated_at: today }, null, 2),
+      "utf-8",
+    );
+  } catch (e) {
+    console.warn(`  ⚠ 캐시 저장 실패 (${cachePath}):`, (e as Error).message);
+  }
+
+  return {
+    sponsor_keywords,
+    trials,
+    count: trials.length,
+    recent_changes_30d: {
+      count: dedupedChanges.length,
+      changes: dedupedChanges,
+    },
+  };
+}
+
 export async function collectNewsHits(
   keywords: string[],
   lookback_days: number,

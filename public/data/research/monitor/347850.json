@@ -1,0 +1,270 @@
+{
+  "code": "347850",
+  "name": "디앤디파마텍",
+  "last_checked": "2026-04-25T22:38:56.278+09:00",
+  "metrics": [
+    {
+      "id": "pbr",
+      "label": "PBR (극고평가)",
+      "value": 44.8,
+      "display": "44.80배",
+      "threshold": "50배 돌파",
+      "hit": false,
+      "tone": "good"
+    },
+    {
+      "id": "ceo_founder_ratio",
+      "label": "이슬기 CEO 지분 비율",
+      "value": 12.99,
+      "display": "12.99%",
+      "threshold": "10% 이하로 감소",
+      "hit": false,
+      "tone": "good"
+    },
+    {
+      "id": "capital_issuance",
+      "label": "신규 자본조달 (CB/BW/EB/유증) 90일",
+      "value": 2,
+      "display": "2건",
+      "threshold": "발행 공시 1건+",
+      "hit": true,
+      "tone": "bad"
+    },
+    {
+      "id": "op_margin",
+      "label": "분기 영업이익률 (2025)",
+      "value": -790.97,
+      "display": "-791.0%",
+      "threshold": "-2000% 이하 악화 (이례적)",
+      "hit": false,
+      "tone": "neutral"
+    },
+    {
+      "id": "clinical_status_change",
+      "label": "임상 단계 status 변경 (30일)",
+      "value": 0,
+      "display": "0건",
+      "threshold": "status 변경 1건+",
+      "hit": false,
+      "tone": "good"
+    }
+  ],
+  "alerts": [
+    {
+      "severity": "bad",
+      "type": "capital_issuance",
+      "title": "신규 자본조달 (CB/BW/EB/유증) 90일 발행 공시 1건+",
+      "message": "현재 2건 — 매도 트리거 도달"
+    },
+    {
+      "severity": "info",
+      "type": "news_keyword_hit",
+      "title": "규제·매크로 키워드 뉴스 22건 (중립 헤드라인)",
+      "message": "최근 7일 매칭. 상세는 하단 리스트 확인."
+    }
+  ],
+  "news_hits": [
+    {
+      "keyword": "디앤디파마텍 DD01 48주",
+      "date": "2026-04-22",
+      "title": "디앤디파마텍, MASH 치료제 ‘DD01’ 임상 2상 48주 DB락 완료…EASL서 첫 공개 - 바이오타임즈",
+      "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE12RUh6UkgxQkpBSElIU3FMS3djRVFYSkFiZE1rMTZpbEl5VGJHYjVyV2VaNUozMVJWVU9RVVd5eHM1WjlmcExybndtX2VWeE5UN0xtTVNYWGRPMnlOXzNWX1FBdE5UNE9VeU4xeg?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "디앤디파마텍 DD01 48주",
+      "date": "2026-04-22",
+      "title": "디앤디파마텍, MASH 치료 후보 ‘DD01’ 임상2상 48주 데이터베이스 락 완료 - 더바이오",
+      "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE9HeUIzOTVHcE5vUjlheDZzV0JlTUpwQUpyTld3NTlVN3FoUlVyTzRoWjh2THQxR2hBRmhsYjhUd1h2bXFJUlhHSTdhRnhqM2FSczRDWTZpcXJWd0tXMHROYzNLbGRKQXhERWJ4bdIBcEFVX3lxTE56U2Z4QlZBYktSSEU1MXdGdGNNblJlZGlIODJUM2RManhqSW5fNUZtN3p4bWItYXVoXzVsTm1NSkVFUmVoRVpYYTZfQUU0dTVXTTBkN1RhNTRiUkdMRkJ1M1Ewd0pzZ3plVHdxVlFESm8?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "디앤디파마텍 DD01 48주",
+      "date": "2026-04-20",
+      "title": "디앤디파마텍, MASH 치료제 48주 2상 데이터 EASL서 발표 - 히트뉴스",
+      "url": "https://news.google.com/rss/articles/CBMia0FVX3lxTE5sTWZySzNXSWZ1UGZySk5MXzQzSDBnQjZxd0Q5bDFrQ0xXc3RBckNWbm40OS1DNnJxWUg1MDg2WWdNeGhoOWNRckF5aVlhV3BZZWRtWmxGU002bl9ZUmNWWmpJRy1ONENNUk9F?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "디앤디파마텍 DD01 48주",
+      "date": "2026-04-22",
+      "title": "디앤디파마텍, MASH 치료제 ‘DD01’ 2상 48주 데이터 “유럽간학회서 공개” - 서울경제",
+      "url": "https://news.google.com/rss/articles/CBMiUkFVX3lxTE1pS1oybDBnZzE0bks3MjQweWFWYkZhVllsZGpic1ltcWJPSUtVRVJ0TDhXUURpTGU2MFV3VzQyRG9wZURiV1NXWGloOV9EOGFRS2fSAVNBVV95cUxOdDVkMkJ6NXBBVmlic3h1ZGswWjFSdlhLWk81TnpmV3hxVEVpWWJqWWQ0anpvZmxxcGxrMEZDakhaU2tVNmFzbUFiS0NGcmJSRVFKNA?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "디앤디파마텍 DD01 48주",
+      "date": "2026-04-22",
+      "title": "디앤디파마텍 \"간염치료제 48주 임상결과 내달 발표\" - 뉴시스",
+      "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE0wbWhrTndyTnBmN0E1a2t3RTFmeEFVQ01XeWNLMEJGUWVVdzh2eS01TU9SOWZST0liNWZ6ai1yUGZ3SjFlWFQteGxrUjlUVkg4dW1taV9JSC1pa1dBcE5tSNIBeEFVX3lxTFAxQW1VeUJLREVuU0xnbUVVMURublVId1VyYTdHeTh4SkF1Y2pMVkMtTjliSkprZzdjSmprVGVyaHlnMjhhM0pLT3lrajZ4V3h0WEdjVVhzbWN3aUpackwzSTdobVVWNEx4Yl9WN2VrM3dFelRBMzE1Sg?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "디앤디파마텍 DD01 48주",
+      "date": "2026-04-20",
+      "title": "디앤디파마텍 'DD01', EASL 'Late-Breaking Abstract' 선정 - 메디파나뉴스",
+      "url": "https://news.google.com/rss/articles/CBMia0FVX3lxTE9uZnNmQmZiRVJnVHNoV2c5U2hkSzR6ZXpvdHJxUjdNR1BVQ2VhT0xMT0hPWElkc054N214Mlk0QTN4Y2hMdHozWEZKOFdZamdJNm5sX3UybGlUWjc3eGNnMFlmalNLUWRHbVAw?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "디앤디파마텍 DD01 48주",
+      "date": "2026-04-22",
+      "title": "디앤디파마텍, MASH 치료제 DD01 임상 2상 데이터 확보 - 메디컬투데이",
+      "url": "https://news.google.com/rss/articles/CBMiXEFVX3lxTFA5a2JPYTlMal9pVF9Ya0tNYVdhamo3U2RNcHBIbWNCYm1YZWctY2tWeWRPM3ViUEY1VzNaV2VoRWJYVVRqWExXV0RXbnBaWVROUEhOcXZRTFlFcDNH0gFsQVVfeXFMTnpYSDJpZy1EOFZZd0pFdGR1VVM2M3JYdnRRMHlEVVRLMmw0UVBmb3YtYnJFUkN6RUM5N3hhRmc5U2d2OUlxQWJhZ2NLXzlXeGl3WHpaTzM5UTVTZDZ3UHlMcXc4TEFQeS1FNTdQ?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "디앤디파마텍 DD01 48주",
+      "date": "2026-04-22",
+      "title": "디앤디파마텍, MASH 신약 'DD01' 임상 2상 결과 도출 절차 착수 - 머니투데이 - 머니투데이",
+      "url": "https://news.google.com/rss/articles/CBMiakFVX3lxTE9Gd0ViOEVNQklHT24wUVdUTE45dFNpUTZDX1g2MEZPWnRjMG1OdUxBT1VkSXNna0xOQzBZdXBDZGtlN2tUeGpESzZSOVlaT2FibXhiaDdYQkpNaERnNjYwVW1sX2p4QzlzM2fSAW9BVV95cUxONi1iVWlDTVJyQkVCWTB4TlJfcnM0VFR2czFQSUY2eklDbHJqYzMxZXRrOWloTTNNVkdzU3BfbEw3aFZyeHNfRHBoNGdqd0RnTmY1UHdacm9UWnlRa21QYlRDRnh0MnlhNFQ5VThTeUE?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "디앤디파마텍 DD01 48주",
+      "date": "2026-04-20",
+      "title": "디앤디파마텍, MASH 치료제 ‘DD01’ 유럽간학회 ‘Late-Breaking’ 선정 - 바이오타임즈",
+      "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE8tblY5UUxINUtSQWVrQ21lWnB2R3NDUGhBTVI3eEZTVUNGcE5Cek9uVVJxNkdVN1pyNXFqWUZfUXZkV004QTdqVWx3SkE5YklDM2FzUXpRSGlPd21XZ3BibVFWeE1vQ3BLeTR5cw?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "디앤디파마텍 DD01 임상",
+      "date": "2026-04-22",
+      "title": "디앤디파마텍 DD01 임상2상, 유럽간학회서 최초 공개 - v.daum.net",
+      "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTFBPWTR5ZjlXYU1uNEtrNFFzSjdqUTlYLXRBbWJVREVRN3k5WmcyYTZBbEs4cHVLbUptckZMdzB0S01VbUxCamNzbzJGb1pzZlU?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "디앤디파마텍 DD01 임상",
+      "date": "2026-04-22",
+      "title": "디앤디파마텍, MASH 치료제 ‘DD01’ 임상 2상 48주 DB락 완료…EASL서 첫 공개 - 바이오타임즈",
+      "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE12RUh6UkgxQkpBSElIU3FMS3djRVFYSkFiZE1rMTZpbEl5VGJHYjVyV2VaNUozMVJWVU9RVVd5eHM1WjlmcExybndtX2VWeE5UN0xtTVNYWGRPMnlOXzNWX1FBdE5UNE9VeU4xeg?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "디앤디파마텍 DD01 임상",
+      "date": "2026-04-24",
+      "title": "디앤디파마텍,'MASH 치료제 DD01 개발' 국책과제 선정 - 약업신문",
+      "url": "https://news.google.com/rss/articles/CBMitgFBVV95cUxNLTJXZFlTdTZ2VmJBbWZObVJnamg1Sm94bW9ONUdlUHduSU1kaW5jR0VDLTNKZF95a3A4ejBscUxJYy16VnBZLS1jT01Id1hDeFhnQjJmM1h4alI4YVZSbm5aX2Fad0pDcC1seWRxcnFtMjhPTEZJdGE2dHBlSmN3N3NIT2NOS1B1WDdTel9VM1NGTWpyNUd6OWNZcUN6RTI5alh4U0p2Umd3M2w5Nl9IVUVweHFtZw?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "디앤디파마텍 DD01 임상",
+      "date": "2026-04-20",
+      "title": "디앤디파마텍, MASH 치료제 48주 2상 데이터 EASL서 발표 - 히트뉴스",
+      "url": "https://news.google.com/rss/articles/CBMia0FVX3lxTE5sTWZySzNXSWZ1UGZySk5MXzQzSDBnQjZxd0Q5bDFrQ0xXc3RBckNWbm40OS1DNnJxWUg1MDg2WWdNeGhoOWNRckF5aVlhV3BZZWRtWmxGU002bl9ZUmNWWmpJRy1ONENNUk9F?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "디앤디파마텍 DD01 임상",
+      "date": "2026-04-22",
+      "title": "디앤디파마텍, MASH 치료제 DD01 임상 2상 데이터 확보 - 메디컬투데이",
+      "url": "https://news.google.com/rss/articles/CBMiXEFVX3lxTFA5a2JPYTlMal9pVF9Ya0tNYVdhamo3U2RNcHBIbWNCYm1YZWctY2tWeWRPM3ViUEY1VzNaV2VoRWJYVVRqWExXV0RXbnBaWVROUEhOcXZRTFlFcDNH0gFsQVVfeXFMTnpYSDJpZy1EOFZZd0pFdGR1VVM2M3JYdnRRMHlEVVRLMmw0UVBmb3YtYnJFUkN6RUM5N3hhRmc5U2d2OUlxQWJhZ2NLXzlXeGl3WHpaTzM5UTVTZDZ3UHlMcXc4TEFQeS1FNTdQ?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "디앤디파마텍 DD01 임상",
+      "date": "2026-04-22",
+      "title": "디앤디파마텍, MASH 치료제 ‘DD01’ 2상 48주 데이터 “유럽간학회서 공개” - 서울경제",
+      "url": "https://news.google.com/rss/articles/CBMiUkFVX3lxTE1pS1oybDBnZzE0bks3MjQweWFWYkZhVllsZGpic1ltcWJPSUtVRVJ0TDhXUURpTGU2MFV3VzQyRG9wZURiV1NXWGloOV9EOGFRS2fSAVNBVV95cUxOdDVkMkJ6NXBBVmlic3h1ZGswWjFSdlhLWk81TnpmV3hxVEVpWWJqWWQ0anpvZmxxcGxrMEZDakhaU2tVNmFzbUFiS0NGcmJSRVFKNA?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "디앤디파마텍 DD01 임상",
+      "date": "2026-04-22",
+      "title": "디앤디파마텍, MASH 신약 'DD01' 임상 2상 결과 도출 절차 착수 - 머니투데이 - 머니투데이",
+      "url": "https://news.google.com/rss/articles/CBMiakFVX3lxTE9Gd0ViOEVNQklHT24wUVdUTE45dFNpUTZDX1g2MEZPWnRjMG1OdUxBT1VkSXNna0xOQzBZdXBDZGtlN2tUeGpESzZSOVlaT2FibXhiaDdYQkpNaERnNjYwVW1sX2p4QzlzM2fSAW9BVV95cUxONi1iVWlDTVJyQkVCWTB4TlJfcnM0VFR2czFQSUY2eklDbHJqYzMxZXRrOWloTTNNVkdzU3BfbEw3aFZyeHNfRHBoNGdqd0RnTmY1UHdacm9UWnlRa21QYlRDRnh0MnlhNFQ5VThTeUE?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "디앤디파마텍 DD01 임상",
+      "date": "2026-04-20",
+      "title": "디앤디파마텍, MASH 치료제 'DD01' 임상2상 연구 '유럽간학회 LBA' 선정 - 팍스경제TV",
+      "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE9WdHJBTVhoUlhxOENoQTFJRWkxZE9sMmtpNUhRd3VXTVpHb1RSOXVwTnhVTllleUllOVQ2eEtSbUlwMmhWSWI5NEV5Vnp3bzRsbUFXRUhWUnV0QXhBZHNwMUlOc0tCcm5L?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "디앤디파마텍 DD01 임상",
+      "date": "2026-04-22",
+      "title": "디앤디파마텍 \"간염치료제 48주 임상결과 내달 발표\" - 뉴시스",
+      "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE0wbWhrTndyTnBmN0E1a2t3RTFmeEFVQ01XeWNLMEJGUWVVdzh2eS01TU9SOWZST0liNWZ6ai1yUGZ3SjFlWFQteGxrUjlUVkg4dW1taV9JSC1pa1dBcE5tSNIBeEFVX3lxTFAxQW1VeUJLREVuU0xnbUVVMURublVId1VyYTdHeTh4SkF1Y2pMVkMtTjliSkprZzdjSmprVGVyaHlnMjhhM0pLT3lrajZ4V3h0WEdjVVhzbWN3aUpackwzSTdobVVWNEx4Yl9WN2VrM3dFelRBMzE1Sg?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "디앤디파마텍 DD01 임상",
+      "date": "2026-04-20",
+      "title": "디앤디파마텍, MASH 치료제 ‘DD01’ 유럽간학회 ‘Late-Breaking’ 선정 - 바이오타임즈",
+      "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE8tblY5UUxINUtSQWVrQ21lWnB2R3NDUGhBTVI3eEZTVUNGcE5Cek9uVVJxNkdVN1pyNXFqWUZfUXZkV004QTdqVWx3SkE5YklDM2FzUXpRSGlPd21XZ3BibVFWeE1vQ3BLeTR5cw?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "디앤디파마텍 Pfizer",
+      "date": "2026-04-19",
+      "title": "비만치료제, 이중 작용제·제형 싸움...화이자는 또 디앤디파마텍 선택했다 - 팜이데일리",
+      "url": "https://news.google.com/rss/articles/CBMibkFVX3lxTE11RlIxRmt1TWJ5bFg3akJTNmxXZHJuS2Z0WUJZRTR4N0ROQ0I2NnlkRV9Od2djTUZVM3lrQlZrZTFtdnpGYkp5SEtKOG1lbF9fTnNkd3ZmQzRDdlRJTm5LSUhNVFl1c2N2TnBzUm5R?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "디앤디파마텍 Pfizer",
+      "date": "2026-04-23",
+      "title": "[공시분석:제약,바이오",
+      "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE1WLVFraXNoMHhkX0VUNFF2U3Jxc0Z1QUF0VFpFSlZjMDR2Ml9sR3dhSk1FRjhDV0toX2x2dGQ3X0p6WVhtclN3dzdVeTUxOHpfX3VUbmQ0bEc4b3Y3RjZLYTFWTDhmalBrVDlja9IBbEFVX3lxTE1WLVFraXNoMHhkX0VUNFF2U3Jxc0Z1QUF0VFpFSlZjMDR2Ml9sR3dhSk1FRjhDV0toX2x2dGQ3X0p6WVhtclN3dzdVeTUxOHpfX3VUbmQ0bEc4b3Y3RjZLYTFWTDhmalBrVDljaw?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "디앤디파마텍 Pfizer",
+      "date": "2026-04-21",
+      "title": "디앤디파마텍, '화이자' 연구용역 이어 유럽간학회 'LBA' 선정...5월 리레이팅 분수령 - 녹색경제신문",
+      "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE05Mk5vWWdvTHR5Q3hWRTVKeURxUDFBOW1xelpINWRBY2NfMEp5NWhhQlFiUk83bDd3eUkwYmp6SG9jSmx5YVU0QXlFOUdxdFVCU2ZTYk5pdHg0dmNGcjRGeEpvOTZ0THJv?oc=5",
+      "severity": "info",
+      "signals": []
+    }
+  ],
+  "sources": [
+    {
+      "label": "PER/PEG/PBR 스코어",
+      "ref": "public/data/naver-m-stock.json"
+    },
+    {
+      "label": "분기 영업이익률 (2025)",
+      "ref": "DART 20260320001088"
+    },
+    {
+      "label": "이슬기 보유 비율 (2025)",
+      "ref": "DART 20260320001088 (hyslrSttus)"
+    },
+    {
+      "label": "자본조달 공시 2건 (최근: 2026-04-22 [첨부정정]주요사항보고서(전환사채권발행결정))",
+      "ref": "DART 20260422000145"
+    },
+    {
+      "label": "ClinicalTrials.gov 임상 5건 (30일 status 변경 0건)",
+      "ref": "query.spons: D&D Pharmatech, Neuraly"
+    },
+    {
+      "label": "뉴스 RSS",
+      "ref": "news.google.com/rss (7일)"
+    }
+  ]
+}
