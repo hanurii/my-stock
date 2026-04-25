@@ -28,6 +28,9 @@ export interface TriggerDef {
    *  default는 "good" — 매도 트리거가 발동 안 했으면 안전 신호.
    *  단, 긍정 시그널 트리거(예: GS buyback_acquisition)는 miss=현 상태이므로 "neutral" 사용. */
   tone_on_miss?: Tone;
+  /** true이면 metric 카드는 표시하되 alerts에는 추가하지 않음.
+   *  추출 정확도가 미검증인 V2 지표(KB금융 NIM·NPL·ROE 본문 파싱)에 사용. */
+  silent_alert?: boolean;
 }
 
 /** 종목별 모니터 설정 */
@@ -66,6 +69,8 @@ export interface MonitorConfig {
   }>;
   /** ClinicalTrials.gov sponsor 검색용 키워드 (바이오 종목 임상 단계 변경 감지) */
   clinical_sponsor_keywords?: string[];
+  /** 자회사(은행 등) 별도 corp_code — NIM·NPL 본문 파싱 + 5% 대량보유 변동 추적용 */
+  bank_corp_code?: string;
 }
 
 /** 메트릭 평가 결과 (monitor JSON에 저장됨) */
@@ -302,6 +307,42 @@ export interface CollectorBundle {
     /** 최근 7거래일 종가 시퀀스 (가장 오래된 → 최신) */
     series: Array<{ date: string; close: number }>;
   } | null;
+  /** 금융사(은행지주) 분기 NIM. DART 분기·사업보고서 본문 정규식 추출.
+   *  source path 예: `net_interest_margin.group_nim_pct` (lte 1.7로 매도 신호).
+   */
+  net_interest_margin: {
+    /** 그룹(연결) NIM (%) */
+    group_nim_pct: number | null;
+    /** 은행 단독 NIM (%) — bank_corp_code의 보고서 본문에서 추출 */
+    bank_nim_pct: number | null;
+    period: string | null;
+    rcept_no: string | null;
+    /** 추출에 사용된 본문 컨텍스트 (디버깅·정규식 보강용) */
+    source_text: string | null;
+  } | null;
+  /** 금융사 NPL 비율·연체율·CCR (대손충당금전입비율). 본문 정규식 추출.
+   *  source path 예: `npl_ratio.npl_ratio_pct` (gte 0.5로 매도 신호).
+   */
+  npl_ratio: {
+    npl_ratio_pct: number | null;
+    delinquency_pct: number | null;
+    ccr_pct: number | null;
+    period: string | null;
+    rcept_no: string | null;
+    source_text: string | null;
+  } | null;
+  /** 분기 ROE (연환산). 분기 순이익 × 4 / 자기자본.
+   *  source path 예: `roe.annualized_roe_pct` (lte 10으로 매도 신호).
+   */
+  roe: {
+    annualized_roe_pct: number | null;
+    quarterly_net_income_million: number | null;
+    total_equity_million: number | null;
+    period: string | null;
+    rcept_no: string | null;
+  } | null;
+  /** 자회사(은행) 단독 공시 (5% 대량보유 변동 등). bank_corp_code 사용. */
+  bank_corp_disclosures: Array<{ date: string; title: string; rcept_no: string }>;
   /** ClinicalTrials.gov 임상 파이프라인 status 추적 (바이오 종목 임상 단계 변경 감지).
    *  source path 예: `clinical_pipeline.recent_changes_30d.count` (gte 1로 매도 신호).
    *  캐시 파일(`.cache/clinical-pipeline-{code}.json`)과 비교해 status 변경분만 감지.

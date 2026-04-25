@@ -564,6 +564,139 @@ export const CONFIGS: MonitorConfig[] = [
     ],
   },
 
+  // ───── KB금융지주 (105560) ─────
+  // research/105560.json exit_timing 6개 자동화 매핑:
+  // 1. PBR 1.1 돌파 + 4대 금융지주 평균 대비 프리미엄 (peer_pbr_premium)
+  // 2. 그룹 NIM 1.7% / 은행 NIM 1.6% 이탈 — V2 net_interest_margin (본문 정규식 추출)
+  // 3. NPL 0.5% / CCR 0.20% 진입 — V2 npl_ratio (본문 정규식 추출)
+  // 4. 자사주 소각 정책 중단 (365일 후속 부재) + 분기배당 동결·삭감 (QoQ ≤ 0%)
+  // 5. 분기 ROE 10% 미만 — V2 roe (자기자본+분기순이익 표준필드 → 연환산)
+  // 6. 국민연금 지분 처분 — bank_corp_disclosures (KB국민은행 5% 변동 보고) + 뉴스 키워드
+  {
+    code: "105560",
+    name: "KB금융",
+    corp_code: "00688996",      // KB금융지주 (DART) — 첫 dry-run에서 회사명 일치 검증
+    bank_corp_code: "00103403", // KB국민은행 (자회사 NIM 보강·5% 변동 추적) — 첫 dry-run 검증
+    triggers: [
+      // 1차 metric 7개 (하나금융 패턴 차용)
+      {
+        id: "pbr",
+        label: "PBR",
+        source: "valuation.pbr",
+        threshold: { gte: 1.1 },
+        threshold_label: "1.1배 돌파",
+        suffix: "배",
+        precision: 2,
+        warn_threshold: 1.05,
+      },
+      {
+        id: "pbr_premium_pp",
+        label: "4대 지주 평균 대비 PBR 프리미엄",
+        source: "peer_pbr_premium.premium_pp",
+        threshold: { gte: 0.10 },
+        threshold_label: "+0.10pp 이상",
+        suffix: "pp",
+        precision: 3,
+        warn_threshold: 0.05,
+      },
+      {
+        id: "foreign_ratio",
+        label: "외국인 지분율",
+        source: "valuation.foreign_ratio",
+        threshold: { lte: 70 },
+        threshold_label: "70% 이하",
+        suffix: "%",
+        precision: 2,
+        warn_threshold: 72,
+      },
+      {
+        id: "foreign_net_buy_4w",
+        label: "최근 20거래일 외국인 순매수",
+        source: "foreign_net_buy.cumulative_20d_shares",
+        threshold: { lte: 0 },
+        threshold_label: "순매도 전환",
+        suffix: "주",
+      },
+      {
+        id: "dividend_qoq_change",
+        label: "분기배당 QoQ 변화율",
+        source: "dividend_trend.qoq_change_pct",
+        threshold: { lte: 0 },
+        threshold_label: "동결 또는 감소",
+        suffix: "%",
+        precision: 1,
+      },
+      {
+        id: "buyback_cancellation_gap",
+        label: "자사주 소각결정 후 경과일",
+        source: "buyback_cancellation_gap.days_ago",
+        threshold: { gte: 365 },
+        threshold_label: "365일 후속 부재",
+        suffix: "일",
+        warn_threshold: 270,
+      },
+      {
+        id: "quarterly_net_income",
+        label: "최근 분기 순이익",
+        source: "quarterly_net_income.net_income_billion",
+        threshold: { lte: 13000 },
+        threshold_label: "1.3조 이하 (Q1’26 1.89조 대비 -30%)",
+        suffix: "억",
+        precision: 0,
+        warn_threshold: 15000,
+      },
+      // V2 metric 3개 (금융사 특화 지표 — 신규 collector)
+      // silent_alert: 본문 정규식 추출의 정확도 검증 전이므로 metric만 표시,
+      // alerts에는 추가하지 않음. 분기보고서 갱신 시점에 정확도 재검증 후 활성화.
+      {
+        id: "group_nim",
+        label: "그룹 NIM",
+        source: "net_interest_margin.group_nim_pct",
+        threshold: { lte: 1.7 },
+        threshold_label: "1.7% 이하",
+        suffix: "%",
+        precision: 2,
+        warn_threshold: 1.85,
+        silent_alert: true,
+      },
+      {
+        id: "npl_ratio",
+        label: "NPL 비율",
+        source: "npl_ratio.npl_ratio_pct",
+        threshold: { gte: 0.5 },
+        threshold_label: "0.5% 돌파",
+        suffix: "%",
+        precision: 2,
+        warn_threshold: 0.45,
+        silent_alert: true,
+      },
+      {
+        id: "quarterly_roe",
+        label: "ROE (사업보고서 기준 연환산)",
+        source: "roe.annualized_roe_pct",
+        threshold: { lte: 10 },
+        threshold_label: "10% 이하",
+        suffix: "%",
+        precision: 2,
+        warn_threshold: 12,
+        silent_alert: true,
+      },
+      // bank_corp_disclosures는 metric화하지 않고 sources/news 영역에만 노출
+      // (단순 카운트로 매도 신호 단정 불가 — 보고사유 분류 필요. 후속 plan에서 별도 metric화)
+    ],
+    peer_codes: ["055550", "086790", "316140"], // 신한지주·하나금융·우리금융 (KB 자기 제외)
+    // major_shareholder_name 미설정 — KB는 1대주주 부재 분산구조 (국민연금 5%대)
+    news_keywords: [
+      "KB금융 자사주 소각",
+      "KB금융 분기배당",
+      "KB금융 NIM 압축",
+      "KB금융 부동산 PF 부실",
+      "KB금융 충당금 적립",
+      "국민연금 KB금융 지분 매각",
+      "한국은행 기준금리 인하",
+    ],
+  },
+
   // ───── 현대차2우B (005387) ─────
   // research/005387.json exit_timing 6개 중 5개 자동화:
   // 1. 부분익절 ① — 가격 320,000 돌파 + PER 9배 (price + per 트리거)

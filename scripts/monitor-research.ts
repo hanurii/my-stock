@@ -112,6 +112,10 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
     disclosure_keyword_hits,
     crude_oil_price,
     clinical_pipeline,
+    net_interest_margin,
+    npl_ratio,
+    roe,
+    bank_corp_disclosures,
     newsHits,
   ] = await Promise.all([
     sourceSet.has("valuation") ? col.collectValuation(config.code) : Promise.resolve(null),
@@ -198,6 +202,23 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
     config.clinical_sponsor_keywords.length > 0
       ? col.collectClinicalPipelineStatus(config.code, config.clinical_sponsor_keywords)
       : Promise.resolve(null),
+    sourceSet.has("net_interest_margin")
+      ? col.collectNetInterestMargin(config.corp_code, config.bank_corp_code)
+      : Promise.resolve(null),
+    sourceSet.has("npl_ratio")
+      ? col.collectNplRatio(config.corp_code)
+      : Promise.resolve(null),
+    sourceSet.has("roe")
+      ? col.collectRoe(config.corp_code)
+      : Promise.resolve(null),
+    sourceSet.has("bank_corp_disclosures") && config.bank_corp_code
+      ? col.collectExternalCorpDisclosures(config.bank_corp_code, 90, [
+          "주식등의대량보유",
+          "주식 등의 대량보유",
+          "최대주주 변경",
+          "최대주주변경",
+        ])
+      : Promise.resolve([]),
     config.news_keywords && config.news_keywords.length > 0
       ? col.collectNewsHits(config.news_keywords, 7)
       : Promise.resolve([]),
@@ -228,6 +249,10 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
     disclosure_keyword_hits,
     crude_oil_price,
     clinical_pipeline,
+    net_interest_margin,
+    npl_ratio,
+    roe,
+    bank_corp_disclosures,
   };
 
   // 메트릭 평가
@@ -281,7 +306,12 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
 
   // 알림 생성
   const alerts: MonitorAlert[] = [];
+  // silent_alert 트리거는 alert에서 제외 (metric 카드는 표시됨)
+  const silentIds = new Set(
+    config.triggers.filter((t) => t.silent_alert).map((t) => t.id),
+  );
   for (const m of metrics) {
+    if (silentIds.has(m.id)) continue;
     if (m.hit) {
       // 긍정 시그널 트리거(tone="good")는 매도 알림이 아니라 재평가 신호로 표시
       const isPositive = m.tone === "good";
@@ -468,6 +498,39 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
     sources.push({
       label: `ClinicalTrials.gov 임상 ${clinical_pipeline.count}건 (30일 status 변경 ${clinical_pipeline.recent_changes_30d.count}건${recentLabel})`,
       ref: `query.spons: ${clinical_pipeline.sponsor_keywords.join(", ")}`,
+    });
+  }
+  if (net_interest_margin?.rcept_no) {
+    const parts: string[] = [];
+    if (net_interest_margin.group_nim_pct != null)
+      parts.push(`그룹 ${net_interest_margin.group_nim_pct}%`);
+    if (net_interest_margin.bank_nim_pct != null)
+      parts.push(`은행 ${net_interest_margin.bank_nim_pct}%`);
+    sources.push({
+      label: `NIM (${net_interest_margin.period ?? ""}${parts.length ? ` · ${parts.join("·")}` : ""})`,
+      ref: `DART ${net_interest_margin.rcept_no} (본문 정규식 추출)`,
+    });
+  }
+  if (npl_ratio?.rcept_no) {
+    const parts: string[] = [];
+    if (npl_ratio.npl_ratio_pct != null) parts.push(`NPL ${npl_ratio.npl_ratio_pct}%`);
+    if (npl_ratio.delinquency_pct != null) parts.push(`연체 ${npl_ratio.delinquency_pct}%`);
+    if (npl_ratio.ccr_pct != null) parts.push(`CCR ${npl_ratio.ccr_pct}%`);
+    sources.push({
+      label: `여신 건전성 (${npl_ratio.period ?? ""}${parts.length ? ` · ${parts.join("·")}` : ""})`,
+      ref: `DART ${npl_ratio.rcept_no} (본문 정규식 추출)`,
+    });
+  }
+  if (roe?.rcept_no && roe.annualized_roe_pct != null) {
+    sources.push({
+      label: `분기 ROE 연환산 (${roe.period ?? ""} · ${roe.annualized_roe_pct}%)`,
+      ref: `DART ${roe.rcept_no} (fnlttSinglAcntAll: 자본총계+분기순이익)`,
+    });
+  }
+  if (bank_corp_disclosures.length > 0) {
+    sources.push({
+      label: `자회사(은행) 5% 변동·최대주주 공시 ${bank_corp_disclosures.length}건`,
+      ref: `DART (${config.bank_corp_code})`,
     });
   }
   if (newsHits.length > 0)

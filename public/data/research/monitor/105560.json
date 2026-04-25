@@ -1,0 +1,345 @@
+{
+  "code": "105560",
+  "name": "KB금융",
+  "last_checked": "2026-04-25T23:37:04.909+09:00",
+  "metrics": [
+    {
+      "id": "pbr",
+      "label": "PBR",
+      "value": 0.99,
+      "display": "0.99배",
+      "threshold": "1.1배 돌파",
+      "hit": false,
+      "tone": "good"
+    },
+    {
+      "id": "pbr_premium_pp",
+      "label": "4대 지주 평균 대비 PBR 프리미엄",
+      "value": 0.247,
+      "display": "0.247pp",
+      "threshold": "+0.10pp 이상",
+      "hit": true,
+      "tone": "bad"
+    },
+    {
+      "id": "foreign_ratio",
+      "label": "외국인 지분율",
+      "value": 75.72,
+      "display": "75.72%",
+      "threshold": "70% 이하",
+      "hit": false,
+      "tone": "good"
+    },
+    {
+      "id": "foreign_net_buy_4w",
+      "label": "최근 20거래일 외국인 순매수",
+      "value": null,
+      "display": "—",
+      "threshold": "순매도 전환",
+      "hit": false,
+      "tone": "neutral"
+    },
+    {
+      "id": "dividend_qoq_change",
+      "label": "분기배당 QoQ 변화율",
+      "value": 37.59,
+      "display": "37.6%",
+      "threshold": "동결 또는 감소",
+      "hit": false,
+      "tone": "good"
+    },
+    {
+      "id": "buyback_cancellation_gap",
+      "label": "자사주 소각결정 후 경과일",
+      "value": 2,
+      "display": "2일",
+      "threshold": "365일 후속 부재",
+      "hit": false,
+      "tone": "good"
+    },
+    {
+      "id": "quarterly_net_income",
+      "label": "최근 분기 순이익",
+      "value": 58407,
+      "display": "58,407억",
+      "threshold": "1.3조 이하 (Q1’26 1.89조 대비 -30%)",
+      "hit": false,
+      "tone": "good"
+    },
+    {
+      "id": "group_nim",
+      "label": "그룹 NIM",
+      "value": null,
+      "display": "—",
+      "threshold": "1.7% 이하",
+      "hit": false,
+      "tone": "neutral"
+    },
+    {
+      "id": "npl_ratio",
+      "label": "NPL 비율",
+      "value": 0.99,
+      "display": "0.99%",
+      "threshold": "0.5% 돌파",
+      "hit": true,
+      "tone": "bad"
+    },
+    {
+      "id": "quarterly_roe",
+      "label": "ROE (사업보고서 기준 연환산)",
+      "value": 9.6,
+      "display": "9.60%",
+      "threshold": "10% 이하",
+      "hit": true,
+      "tone": "bad"
+    }
+  ],
+  "alerts": [
+    {
+      "severity": "bad",
+      "type": "pbr_premium_pp",
+      "title": "4대 지주 평균 대비 PBR 프리미엄 +0.10pp 이상",
+      "message": "현재 0.247pp — 매도 트리거 도달"
+    },
+    {
+      "severity": "info",
+      "type": "foreign_net_buy_4w_warmup",
+      "title": "최근 20거래일 외국인 순매수 누적 중",
+      "message": "현재 5거래일 누적 (20일 이상 시 메트릭 평가 시작)."
+    },
+    {
+      "severity": "info",
+      "type": "news_keyword_hit",
+      "title": "규제·매크로 키워드 뉴스 23건 (중립 헤드라인)",
+      "message": "최근 7일 매칭. 상세는 하단 리스트 확인."
+    }
+  ],
+  "news_hits": [
+    {
+      "keyword": "KB금융 자사주 소각",
+      "date": "2026-04-23",
+      "title": "KB금융, 2조3천억 자사주 전량 소각 결정…업계 최대 규모 | - 연합인포맥스",
+      "url": "https://news.google.com/rss/articles/CBMidEFVX3lxTE90RFFvejR0eUp4T2ZZOXB6UGtCVFhzMFhiVGZvUFlydzJqdXBBRjJrTWtIb3JtQV93VnRadXAxRUVzbFoxZUF0SlRzVXEtU0xUUTkwbDg4dXc2WHE4VzNjaVlXYUhmcVhTMkxRYUFPUk1RaWdn?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "KB금융 자사주 소각",
+      "date": "2026-04-23",
+      "title": "KB금융, 자사주 2조2000억 모두 소각한다 - 한국경제",
+      "url": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE5YTXBTRVNseW9HRDhoRk9WMXJTUFYtMnpSYjQzd0xTYVhiWVYyeFdBN0VjbFdiVnlHd1lqM2FaZkNjdE40aG95MUJhRmRfU21ybWk1dmNoNDNXd9IBVEFVX3lxTE9ISi1lcU05TG9rLVgwX215aW43S0xETkozTFJUSVhpcmdPSXFYb3J1bFhNdndaY1ZROTRUZ3FOWDROUzdtSWpfSE9KSU56TzVhZGpMWg?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "KB금융 자사주 소각",
+      "date": "2026-04-24",
+      "title": "[컨콜",
+      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE5panBad0ZMVGN5YmhIUHF2bi1wbzRsc2UzSXhSb2FxSEdIRmtITThNcjM3eEh6RXU4UnIzRE1oZnpzQ1ozbW5MeWMxdXJHWTM0TjgzRWV6dVRVS29oOUpodnRlRVFGUXU4LW16ZmVmMVDSAXBBVV95cUxOaWpwWndGTFRjeWJoSFBxdm4tcG80bHNlM0l4Um9hcUhHSEZrSE04TXIzN3hIekV1OFJyM0RNaGZ6c0NaM21uTHljMXVyR1kzNE44M0VlenVUVUtvaDlKaHZ0ZUVRRlF1OC1temZlZjFQ?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "KB금융 자사주 소각",
+      "date": "2026-04-23",
+      "title": "KB금융, 자사주 2조2000억 모두 소각한다 - 블루밍비트",
+      "url": "https://news.google.com/rss/articles/CBMiUEFVX3lxTE14Zkd3Y1dMbmVxRlZFMXJSRDk0aDhkalVfY1NTWE9HMzBGblRxeXE3TWF2N3Fhd1hyOGpib2c1VjNVSlVER1VMWTJTVkFoQU13?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "KB금융 자사주 소각",
+      "date": "2026-04-24",
+      "title": "KB금융, 2.3조 규모 자사주 전량 소각 - 문화일보",
+      "url": "https://news.google.com/rss/articles/CBMiUEFVX3lxTE50bzdfTGdMZnY1c3FtSndTZ1FBeFFTcE03Wi1WREZpMVdYMU9oRG5ad1ZQWFRpX0pUdTkzQV9pLXY3WnVVWFFFZ1FreUkyT0dP?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "KB금융 자사주 소각",
+      "date": "2026-04-23",
+      "title": "KB·신한금융, 1분기 또 역대 최대 실적...자사주 소각 등 주주환원 나선다 - v.daum.net",
+      "url": "https://news.google.com/rss/articles/CBMiVEFVX3lxTE1HZWp3MXIyNEJROXdtcUhvb3FqWF9JSEdvQVZqWlVfSlNIdTRYLVhlNlFUd21QRnh4RUFMa1NCTzkxV21XeVI1UHQxekh1M19aMk1SdQ?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "KB금융 자사주 소각",
+      "date": "2026-04-23",
+      "title": "KB금융지주 역대급 실적에 자사주 소각 '선물 보따리', 양종희 연임 '파란불' - 비즈니스포스트",
+      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE9FeGZaUE9FdFV3Ni1mU1B1dlM4YVlzMjJ5RVJfTFRNTkc0RFJTZ0JWeE9tRGRYSTRaU2FtSE40MkdES2Y0b1lMSlZXYmRCWmI4ODVIYm8tV1FmOTdnRUMyZ0RmSDFISVBzdkkyN250cld4YjQ?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "KB금융 자사주 소각",
+      "date": "2026-04-23",
+      "title": "KB금융, 1분기 순익 1.9조 '역대 최대'…내달 2.9조 자사주 소각(종합) - 뉴시스",
+      "url": "https://news.google.com/rss/articles/CBMieEFVX3lxTE4yVUEtMVBhNkpFa3BlN2ZXekNZSDNFX1h2U2FaaUtWd1FXVU1QemhSb01idlNFbGpVMGl0WnJndUdYNy1xSU1IalJEZXhZZERTZV9YUnlmVmZ2SmsteWZTaVVEcHppeV84WHFDdWZ2UDFTTV9TeExiN9IBeEFVX3lxTE4yVUEtMVBhNkpFa3BlN2ZXekNZSDNFX1h2U2FaaUtWd1FXVU1QemhSb01idlNFbGpVMGl0WnJndUdYNy1xSU1IalJEZXhZZERTZV9YUnlmVmZ2SmsteWZTaVVEcHppeV84WHFDdWZ2UDFTTV9TeExiNw?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "KB금융 자사주 소각",
+      "date": "2026-04-24",
+      "title": "국민연금 지분율 스스로 높인 KB금융…지배구조 '자신감' | - 연합인포맥스",
+      "url": "https://news.google.com/rss/articles/CBMidEFVX3lxTFB3bTFRY054WnN6R2FnN1FURHRMQmRwSmVmWk9ESUdHZ3o2ZmZ1QUltWXJWMTNIQWt6T2p1ZGxBYzRzM1BYVlVCUHFDR0FvYkJhWTdwZDdGd3YxNG1IMG9jTFVXbnpfMFp6Q2J6VFRfY2twS19s?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "KB금융 자사주 소각",
+      "date": "2026-04-23",
+      "title": "KB금융 1.89조 '분기 최대 실적'...업계 최대 규모 자사주 소각 나서 - v.daum.net",
+      "url": "https://news.google.com/rss/articles/CBMiS0FVX3lxTE9PYV9UbEx5TlQyM2Z5cy1rNHVfd0lzdENaLVNLYWEtNFYyRWgzbFN6ck12N1ZKT25JS3A2SU9xWm82T1l4bjRwaVZqQQ?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "KB금융 분기배당",
+      "date": "2026-04-23",
+      "title": "KB금융·신한지주 분기배당…시가배당률 0.7% - 중기이코노미",
+      "url": "https://news.google.com/rss/articles/CBMiakFVX3lxTE5BQzQ2eFdyajhmRklNZ28wWS1MWWJNSXVQWjd6TDJYVWt1NWxGUG51VGpNWGtjczJuQ1pLYzhsZWxIZjFyalhxUHprNy1vaFZZZFNvOVY5aExuRW5IN2hqZkdtWFp2Q1JOZ2c?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "KB금융 분기배당",
+      "date": "2026-04-24",
+      "title": "\"1분기 보면 답 나온다\"…4대 금융지주 '배당 5조 시대' 예고 - 딜사이트",
+      "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTFA4U0FKUElzVVMxaVVDVUwwSDlmbFF3ZEFmb2FmNjgtQzdpd1lhQm5QQjJXYXVuYkhmcGF2SFh1WGVQRThpWUNYbmJTZzB3Tkk?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "KB금융 분기배당",
+      "date": "2026-04-23",
+      "title": "KB금융 4054억 규모 분기 배당 실시... 주당 1143원 현금 지급 확정 - 데이터투자",
+      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE9nT0JZbUVKX2dQVE5vb196RUFlOW50NEdTTzI5ak9yMmctUVVnMThyS281dGJuci1GMTZjZkVOZTdQTENNOVl0a0xwQmhNR0hUMnlKWjFLM2djT1Bycmk4VVN3a29fVzg3SFRxampvSmt4Z0k?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "KB금융 분기배당",
+      "date": "2026-04-23",
+      "title": "KB금융, 1분기 1.9조 순익 신기록…배당 확대에 2.3조 자사주 소각 - 베타뉴스",
+      "url": "https://news.google.com/rss/articles/CBMiZEFVX3lxTFB4LVNJNk5qem5wSHAza3VTZzVOby1QZXpNc2JfTl9EM1V6SU9qRndnVkxjaGV4R05wSmpmQWxxMnZxSGhlVTZLRFF6WEN0NEpQSzdmN1FuMFNseXZUQmRFSXdGdHQ?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "KB금융 분기배당",
+      "date": "2026-04-23",
+      "title": "KB금융, 1,426만주 자기주식 소각 및 1분기 경영실적 발표 - 이슈투데이",
+      "url": "https://news.google.com/rss/articles/CBMiZkFVX3lxTE1VRngyQ1Y1U2RmOGhoVERBZWpZY3lFeDBiVkhQbU9vcG9Nb2pXZTU4Y0lmdUx6eW9KenlzZ3lsSzY0bUtQY0xlRnczMVN6YjFmWEFFVXVHRHVLSUUtemxvdTF0MmNwdw?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "KB금융 분기배당",
+      "date": "2026-04-23",
+      "title": "KB금융, 1분기 순이익 1.9조원 '역대 최대'···'리딩금융' 수성 - 서울파이낸스",
+      "url": "https://news.google.com/rss/articles/CBMiakFVX3lxTFBWVWpJREVLWDNlTXhvcXMtTE9sSmdSSFZ1RjdQWDNyRlBCZEszU0M5aV9uRldEUC0wV1Y4SmNSLWptUDZJQTRZaE1VWnhqNVdtZ3dPbERQaE9OeXlSemEwRGpJMHktaTZxVlE?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "KB금융 분기배당",
+      "date": "2026-04-23",
+      "title": "KB금융 1분기 순익 1.9조원 '역대최대' 2.3조 자사주 소각…주당 1143원 배당 - 중소기업신문",
+      "url": "https://news.google.com/rss/articles/CBMibkFVX3lxTFBGSWRVRUtnbHFUSmdrc2UtWHNaMzYwWEIyempPN0NYSl8xMFd0anFva1hILWdyQm1LWlRWb1dBaHVtTTFMNHJydlAyd3ZZSnREcFQ2cGduUm9OSk1HcE5XLXJTWDRHT2Z0THU5MTBB?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "KB금융 분기배당",
+      "date": "2026-04-23",
+      "title": "[금융 Pick",
+      "url": "https://news.google.com/rss/articles/CBMia0FVX3lxTE1PNmw0SUU3czNaVGdwRXdhRGtZRVFES1dGOUJEeUEzTGd4S29uallneVp1ZXJYdFZFREFfNVR6VjlTUXRkOENsaUdtQWxkOG50N0ZTQnJzd1dzbTVVYTM0eGxvRjVqQzlra0pF?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "KB금융 분기배당",
+      "date": "2026-04-24",
+      "title": "5대 금융지주 1분기 순익 ‘역대 최대’…우리금융 또 ‘뒷걸음’ - 조세일보",
+      "url": "https://news.google.com/rss/articles/CBMidEFVX3lxTE9ZaEJyQ3I0dlI1ZmxUWVB4RW1XTUFmZ0YzTWhmbjBGejlFRExTb1dQUF9SWUpDYmk5VGFfbVU3bkF5SXZkOGxjWlpNRXZzOUo2MzZQT0xBMk5YWHFWYlJ1WGxUSkFPRWZQNHhSMTZGQWZtcnpT?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "국민연금 KB금융 지분 매각",
+      "date": "2026-04-21",
+      "title": "국민연금, 신한지주 주식 69만주 처분… 보유지분 '9%대 턱걸이' - 뉴스W",
+      "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE5hdmVmVGxXTzk2UUVHS3AyQTVSUklNZERnMEVtbjhKdXVPa3V4VFdpOTNSeWJrd29rS0x4cE5vbGFCdEpRRGJJRkxaYUpnODZPcjBlQjlyM2puS2hydDFxYlVIOEhld2Fu0gFsQVVfeXFMUFRlQU9YQl95WDduT29OeXZIdmR5c2Vtai1OejJOZXo0eFktRDVYVVY0N1JqOWRhOVpLQzRMUEJkemNuSE9hbE5udmpiMFZ6U2ZISWF4U0NYU3oxa191WnRvTXN4OVR4dGduOFVi?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "국민연금 KB금융 지분 매각",
+      "date": "2026-04-22",
+      "title": "\"은행들 다 잘 번다는데\" … 국민연금, KB만 담았다 - 뉴데일리 경제",
+      "url": "https://news.google.com/rss/articles/CBMiekFVX3lxTE41d1JhTnBNbDA0MHpQUlktTVlGY3RxalFFX3lxRHAzSmxRVUFwWkJNaGI4MlhNTHlEcnBMb3hUMEFKZFhidnUtM1FJa0g0cXJYdVF1cTdqSnRibWNKVkFmbGEtYVVWYzZ3WEo4cERfelBVYWRNakJxS0tn?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "한국은행 기준금리 인하",
+      "date": "2026-04-24",
+      "title": "휴전협상만 바라봐야 하는 한국은행, 연내 동결기조 유지 - KB Think",
+      "url": "https://news.google.com/rss/articles/CBMiY0FVX3lxTE56ZWRrNEM2R0dHTzM0M3hhSTZid1JKQVdMQ3Nya2NqZW00blJ1aER1ajNLek43ZUlwa1N5UktaR2luUk5SUzROaVNOb01yNjBHeEVfWVBIU0dvM3o2LTJBV1FNaw?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "한국은행 기준금리 인하",
+      "date": "2026-04-21",
+      "title": "중동발 물가충격 현실로…9월까지 미국 금리인하 없다는 IB들 - 매일경제",
+      "url": "https://news.google.com/rss/articles/CBMiVEFVX3lxTE9kUktoU3dqUE0xa0ZMVDNsZTJsNkdOMkk1VjZ3SHl6Qm5yYzlkZmcwa1RIa0ZaWXFrOWxnc1lKSmgyRXpNTUJabnJKclVubkhrWUl0bw?oc=5",
+      "severity": "info",
+      "signals": []
+    }
+  ],
+  "sources": [
+    {
+      "label": "PER/PEG/PBR 스코어",
+      "ref": "public/data/watchlist.json"
+    },
+    {
+      "label": "최근 자사주 소각 공시 (2026-04-23)",
+      "ref": "DART 20260423800583"
+    },
+    {
+      "label": "4대 지주 평균 PBR 비교 (3종목)",
+      "ref": "peers: 086790, 316140, 055550 / avg 0.743"
+    },
+    {
+      "label": "분기 배당 결정 ([기재정정]사업보고서 (2025.12))",
+      "ref": "DART 20260324000835 (alotMatter)"
+    },
+    {
+      "label": "외국인 순매수 누적 (5일)",
+      "ref": "네이버 dealTrendInfos / history 2026-04-24"
+    },
+    {
+      "label": "최근 분기 순이익 (2025-FY)",
+      "ref": "DART 20260324000835 (fnlttSinglAcntAll)"
+    },
+    {
+      "label": "NIM (2025-FY)",
+      "ref": "DART 20260324000835 (본문 정규식 추출)"
+    },
+    {
+      "label": "여신 건전성 (2025-FY · NPL 0.99%·연체 0.59%)",
+      "ref": "DART 20260324000835 (본문 정규식 추출)"
+    },
+    {
+      "label": "분기 ROE 연환산 (2025-FY · 9.6%)",
+      "ref": "DART 20260324000835 (fnlttSinglAcntAll: 자본총계+분기순이익)"
+    },
+    {
+      "label": "뉴스 RSS",
+      "ref": "news.google.com/rss (7일)"
+    }
+  ]
+}

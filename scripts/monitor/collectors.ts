@@ -1848,3 +1848,283 @@ export async function collectNewsHits(
   }
   return hits;
 }
+
+// ── 금융사 특화 지표 (NIM·NPL·ROE) ──
+//
+// KB금융지주 등 은행지주의 분기·사업보고서 본문(HTML)에서 NIM/NPL/연체율/CCR을
+// 정규식으로 추출. DART fnlttSinglAcntAll에 표준필드가 없는 지표라 본문 파싱이 필수.
+//
+// 주의:
+// - 본문 형식은 회사·연도별로 미세하게 달라질 수 있어 정규식이 깨질 위험 있음.
+// - 추출 실패 시 모든 값 null 반환 → metric value=null → tone="neutral"로 자동 강등.
+// - source_text(매칭 컨텍스트 100자)를 항상 저장해 사후 진단 용이.
+
+/** 그룹/은행 NIM 추출 — 키워드 주변 첫 매칭 사용.
+ *  KB금융 본문 표기 형식 다양: "그룹 NIM 1.99%", "순이자마진(NIM) 1.99%",
+ *  "그룹 순이자마진은 1.99%", "NIM(순이자마진): 1.99%" 등을 모두 허용. */
+function extractNim(text: string): {
+  group_nim_pct: number | null;
+  bank_nim_pct: number | null;
+  source_text: string | null;
+} {
+  // 패턴 ① (그룹·연결): NIM 또는 순이자마진 키워드 + 그룹·연결·지주 수식어
+  const groupPatterns: RegExp[] = [
+    /(?:그룹|연결|지주)\s*(?:은\s*)?NIM[^\d%]{0,20}([0-9]\.[0-9]{1,2})\s*%/,
+    /(?:그룹|연결|지주)\s*순이자마진[^\d%]{0,30}([0-9]\.[0-9]{1,2})\s*%/,
+    /순이자마진\s*\(NIM\)\s*[은는]?\s*([0-9]\.[0-9]{1,2})\s*%/,
+    /NIM\s*\(순이자마진\)\s*[은는:]?\s*([0-9]\.[0-9]{1,2})\s*%/,
+  ];
+  // 패턴 ② (은행 단독): "은행 NIM" / "국민은행 순이자마진"
+  const bankPatterns: RegExp[] = [
+    /(?:국민은행|은행)\s*(?:은\s*)?NIM[^\d%]{0,20}([0-9]\.[0-9]{1,2})\s*%/,
+    /(?:국민은행|은행)\s*순이자마진[^\d%]{0,30}([0-9]\.[0-9]{1,2})\s*%/,
+  ];
+  let groupMatch: RegExpMatchArray | null = null;
+  for (const re of groupPatterns) {
+    groupMatch = text.match(re);
+    if (groupMatch) break;
+  }
+  let bankMatch: RegExpMatchArray | null = null;
+  for (const re of bankPatterns) {
+    bankMatch = text.match(re);
+    if (bankMatch) break;
+  }
+  // source_text — 우선순위: 그룹 매칭 컨텍스트, 없으면 은행 매칭 컨텍스트
+  let sourceText: string | null = null;
+  if (groupMatch && groupMatch.index !== undefined) {
+    const start = Math.max(0, groupMatch.index - 30);
+    sourceText = text.slice(start, start + 130).trim();
+  } else if (bankMatch && bankMatch.index !== undefined) {
+    const start = Math.max(0, bankMatch.index - 30);
+    sourceText = text.slice(start, start + 130).trim();
+  }
+  return {
+    group_nim_pct: groupMatch ? Number(groupMatch[1]) : null,
+    bank_nim_pct: bankMatch ? Number(bankMatch[1]) : null,
+    source_text: sourceText,
+  };
+}
+
+/** NPL/연체율/CCR 추출 */
+function extractNplCcr(text: string): {
+  npl_ratio_pct: number | null;
+  delinquency_pct: number | null;
+  ccr_pct: number | null;
+  source_text: string | null;
+} {
+  const nplRe = /(?:NPL\s*비율|고정이하여신비율)[^\d%]{0,20}([0-9]\.[0-9]{1,2})\s*%/;
+  const delinquencyRe = /연체율[^\d%]{0,20}([0-9]\.[0-9]{1,2})\s*%/;
+  const ccrRe =
+    /(?:CCR|대손충당금전입비율|대손비용률)[^\d%]{0,20}([0-9]\.[0-9]{1,2})\s*%/;
+  const nplMatch = text.match(nplRe);
+  const delMatch = text.match(delinquencyRe);
+  const ccrMatch = text.match(ccrRe);
+  let sourceText: string | null = null;
+  const firstMatch = nplMatch ?? delMatch ?? ccrMatch;
+  if (firstMatch && firstMatch.index !== undefined) {
+    const start = Math.max(0, firstMatch.index - 30);
+    sourceText = text.slice(start, start + 130).trim();
+  }
+  return {
+    npl_ratio_pct: nplMatch ? Number(nplMatch[1]) : null,
+    delinquency_pct: delMatch ? Number(delMatch[1]) : null,
+    ccr_pct: ccrMatch ? Number(ccrMatch[1]) : null,
+    source_text: sourceText,
+  };
+}
+
+/** 그룹 NIM + 은행 NIM (지주 본문이 우선, 누락분은 bank_corp_code 본문에서 보강) */
+export async function collectNetInterestMargin(
+  corp_code: string,
+  bank_corp_code?: string,
+): Promise<CollectorBundle["net_interest_margin"]> {
+  const report = await fetchLatestPeriodicReport(corp_code);
+  if (!report) return null;
+  const text = await fetchDocumentText(report.rcept_no);
+  if (!text) return null;
+  const groupResult = extractNim(text);
+
+  let bankNim = groupResult.bank_nim_pct;
+  let bankSource: string | null = null;
+
+  // 그룹 본문에 은행 NIM이 빠져있으면 자회사 본문에서 보강
+  if (bankNim == null && bank_corp_code) {
+    const bankReport = await fetchLatestPeriodicReport(bank_corp_code);
+    if (bankReport) {
+      const bankText = await fetchDocumentText(bankReport.rcept_no);
+      if (bankText) {
+        const bankResult = extractNim(bankText);
+        bankNim = bankResult.bank_nim_pct ?? bankResult.group_nim_pct; // 은행 본문은 NIM이 그냥 "NIM"으로 적힐 수 있음
+        bankSource = bankResult.source_text;
+      }
+    }
+  }
+
+  const period = `${report.bsns_year}-${
+    report.reprt_code === "11013"
+      ? "Q1"
+      : report.reprt_code === "11012"
+        ? "H1"
+        : report.reprt_code === "11014"
+          ? "Q3"
+          : "FY"
+  }`;
+  return {
+    group_nim_pct: groupResult.group_nim_pct,
+    bank_nim_pct: bankNim,
+    period,
+    rcept_no: report.rcept_no,
+    source_text: groupResult.source_text ?? bankSource,
+  };
+}
+
+/** NPL 비율·연체율·CCR (지주 본문에서 추출) */
+export async function collectNplRatio(
+  corp_code: string,
+): Promise<CollectorBundle["npl_ratio"]> {
+  const report = await fetchLatestPeriodicReport(corp_code);
+  if (!report) return null;
+  const text = await fetchDocumentText(report.rcept_no);
+  if (!text) return null;
+  const result = extractNplCcr(text);
+  const period = `${report.bsns_year}-${
+    report.reprt_code === "11013"
+      ? "Q1"
+      : report.reprt_code === "11012"
+        ? "H1"
+        : report.reprt_code === "11014"
+          ? "Q3"
+          : "FY"
+  }`;
+  return {
+    ...result,
+    period,
+    rcept_no: report.rcept_no,
+  };
+}
+
+/** 분기 ROE (연환산) — 분기 순이익 × 4 / 자기자본 */
+export async function collectRoe(
+  corp_code: string,
+): Promise<CollectorBundle["roe"]> {
+  const report = await fetchLatestPeriodicReport(corp_code);
+  if (!report) return null;
+  const list = await dartGet<{
+    account_nm: string;
+    account_id?: string;
+    thstrm_amount: string;
+    sj_div: string;
+  }>("fnlttSinglAcntAll", {
+    corp_code,
+    bsns_year: String(report.bsns_year),
+    reprt_code: report.reprt_code,
+    fs_div: "CFS",
+  });
+  if (!list) return null;
+
+  // 자기자본 (BS) — ifrs-full_Equity 또는 "자본총계"
+  let total_equity: number | null = null;
+  for (const row of list) {
+    if (row.sj_div !== "BS") continue;
+    if (row.account_id === "ifrs-full_Equity") {
+      const v = Number(String(row.thstrm_amount).replace(/,/g, ""));
+      if (!isNaN(v)) {
+        total_equity = v;
+        break;
+      }
+    }
+  }
+  if (total_equity == null) {
+    for (const row of list) {
+      if (row.sj_div !== "BS") continue;
+      const name = row.account_nm?.trim() ?? "";
+      if (name === "자본총계" || name === "자본 총계") {
+        const v = Number(String(row.thstrm_amount).replace(/,/g, ""));
+        if (!isNaN(v)) {
+          total_equity = v;
+          break;
+        }
+      }
+    }
+  }
+
+  // 분기 순이익 (IS/CIS) — collectQuarterlyNetIncome과 동일 우선순위
+  let net_income: number | null = null;
+  for (const row of list) {
+    if (row.sj_div !== "IS" && row.sj_div !== "CIS") continue;
+    if (row.account_id === "ifrs-full_ProfitLoss") {
+      const v = Number(String(row.thstrm_amount).replace(/,/g, ""));
+      if (!isNaN(v)) {
+        net_income = v;
+        break;
+      }
+    }
+  }
+  if (net_income == null) {
+    const targets = [
+      "당기순이익",
+      "당기순이익(손실)",
+      "분기순이익",
+      "분기순이익(손실)",
+      "반기순이익",
+      "반기순이익(손실)",
+      "연결당기순이익",
+      "연결분기순이익",
+      "연결반기순이익",
+    ];
+    for (const row of list) {
+      if (row.sj_div !== "IS" && row.sj_div !== "CIS") continue;
+      const name = row.account_nm?.trim() ?? "";
+      if (targets.includes(name)) {
+        const v = Number(String(row.thstrm_amount).replace(/,/g, ""));
+        if (!isNaN(v)) {
+          net_income = v;
+          break;
+        }
+      }
+    }
+  }
+
+  if (total_equity == null || net_income == null) {
+    return {
+      annualized_roe_pct: null,
+      quarterly_net_income_million: net_income != null ? Math.round(net_income / 1e6) : null,
+      total_equity_million: total_equity != null ? Math.round(total_equity / 1e6) : null,
+      period: null,
+      rcept_no: report.rcept_no,
+    };
+  }
+
+  // 보고서 종류에 따라 누적 vs 단일 분기 처리
+  // - reprt_code 11013 (1Q): thstrm_amount는 1분기 단일 → ×4 연환산
+  // - reprt_code 11012 (반기): 누적 6개월 → ×2 연환산
+  // - reprt_code 11014 (3Q): 누적 9개월 → ×4/3 연환산
+  // - reprt_code 11011 (사업): 12개월 누적 → ×1
+  const annualMultiplier =
+    report.reprt_code === "11013"
+      ? 4
+      : report.reprt_code === "11012"
+        ? 2
+        : report.reprt_code === "11014"
+          ? 4 / 3
+          : 1;
+  const annualized = (net_income * annualMultiplier) / total_equity * 100;
+
+  const period = `${report.bsns_year}-${
+    report.reprt_code === "11013"
+      ? "Q1"
+      : report.reprt_code === "11012"
+        ? "H1"
+        : report.reprt_code === "11014"
+          ? "Q3"
+          : "FY"
+  }`;
+
+  return {
+    annualized_roe_pct: Number(annualized.toFixed(2)),
+    quarterly_net_income_million: Math.round(net_income / 1e6),
+    total_equity_million: Math.round(total_equity / 1e6),
+    period,
+    rcept_no: report.rcept_no,
+  };
+}
