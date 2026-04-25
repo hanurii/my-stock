@@ -1,0 +1,530 @@
+{
+  "code": "086790",
+  "name": "하나금융지주",
+  "last_checked": "2026-04-25T21:59:11.216+09:00",
+  "metrics": [
+    {
+      "id": "pbr",
+      "label": "PBR",
+      "value": 0.75,
+      "display": "0.75배",
+      "threshold": "1.0 돌파",
+      "hit": false,
+      "tone": "good"
+    },
+    {
+      "id": "pbr_premium_pp",
+      "label": "4대 지주 평균 대비 PBR 프리미엄",
+      "value": -0.073,
+      "display": "-0.073pp",
+      "threshold": "+0.10pp 이상",
+      "hit": false,
+      "tone": "good"
+    },
+    {
+      "id": "foreign_ratio",
+      "label": "외국인 지분율",
+      "value": 67.89,
+      "display": "67.89%",
+      "threshold": "65% 이하",
+      "hit": false,
+      "tone": "good"
+    },
+    {
+      "id": "foreign_net_buy_4w",
+      "label": "최근 20거래일 외국인 순매수",
+      "value": null,
+      "display": "—",
+      "threshold": "순매도 전환",
+      "hit": false,
+      "tone": "neutral"
+    },
+    {
+      "id": "dividend_qoq_change",
+      "label": "분기배당 QoQ 변화율",
+      "value": 14.03,
+      "display": "14.0%",
+      "threshold": "동결 또는 감소",
+      "hit": false,
+      "tone": "good"
+    },
+    {
+      "id": "buyback_acquisition_gap",
+      "label": "자사주 취득결정 후 경과일",
+      "value": 1,
+      "display": "1일",
+      "threshold": "90일 후속 부재",
+      "hit": false,
+      "tone": "good"
+    },
+    {
+      "id": "quarterly_net_income",
+      "label": "최근 분기 순이익",
+      "value": 40366,
+      "display": "40,366억",
+      "threshold": "분기 적자 전환",
+      "hit": false,
+      "tone": "good"
+    }
+  ],
+  "alerts": [
+    {
+      "severity": "info",
+      "type": "foreign_net_buy_4w_warmup",
+      "title": "최근 20거래일 외국인 순매수 누적 중",
+      "message": "현재 5거래일 누적 (20일 이상 시 메트릭 평가 시작)."
+    },
+    {
+      "severity": "warn",
+      "type": "news_keyword_hit",
+      "title": "규제·매크로 키워드 뉴스 49건 (관찰 신호 11건 포함)",
+      "message": "최근 7일 매칭. 상세는 하단 리스트 확인."
+    }
+  ],
+  "news_hits": [
+    {
+      "keyword": "하나금융 분기배당",
+      "date": "2026-04-24",
+      "title": "하나금융 \"상반기 중 추가 주주환원 발표…배당 확대 집중\" | - 연합인포맥스",
+      "url": "https://news.google.com/rss/articles/CBMidEFVX3lxTFAtQzRFSndNSHhIX05mY2ZILWRSR1p6RExGUUdrOHFPNGp3N3pWOTVYV3YyVFZtNUllUm91bUNoZXhWeFlPcWxDRXM0U05xSmtvRXRsSVVEdzJCckhCSFhrRmZvWHlQLTY1OE42dGZ2bmE4WDhD?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "하나금융 분기배당",
+      "date": "2026-04-24",
+      "title": "\"1분기 보면 답 나온다\"…4대 금융지주 '배당 5조 시대' 예고 - 딜사이트",
+      "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTFA4U0FKUElzVVMxaVVDVUwwSDlmbFF3ZEFmb2FmNjgtQzdpd1lhQm5QQjJXYXVuYkhmcGF2SFh1WGVQRThpWUNYbmJTZzB3Tkk?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "하나금융 분기배당",
+      "date": "2026-04-24",
+      "title": "하나금융, 1분기 순익 1조2100억원...배당 분리과세로 주주환원 강화 - 전자신문",
+      "url": "https://news.google.com/rss/articles/CBMiTkFVX3lxTE9qRTA4UXBjTzNodFhPdGJxd0ctLXU0ZFRrX0o2eWpPdlZscUU4RmktaEpxWGxDXzBaS0Z6Ykl4d0UzZGJ5RkhLOWUtUmMxQQ?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "하나금융 분기배당",
+      "date": "2026-04-24",
+      "title": "하나금융 1Q 실적 견조…증권 ‘상대적 아쉬움’ - 스트레이트뉴스",
+      "url": "https://news.google.com/rss/articles/CBMid0FVX3lxTFAwVlBBRzhSbGxaVzFXQXBJR093N0h1djRJYXkxb2dxZW5ueF9JYXJDaTNPR2lobVBaSXVLVGNJS0VoYURVenY4b1BCcXFxUTJOYTcxenJDRGVVVWttSjJNSmtkUXpJSXFpelJ2dUl1ckhwR0xDSkZv0gF3QVVfeXFMUDBWUEFHOFJsbFpXMVdBcElHT3c3SHV2NElheTFvZ3Flbm54X0lhckNpM09HaWhtUFpJdUtUY0lLRWhhRFV6djhvUEJxcXFRMk5hNzF6ckNEZVVVa21KMk1Ka2RReklJcWl6UnZ1SXVySHBHTENKRm8?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "하나금융 분기배당",
+      "date": "2026-04-24",
+      "title": "하나금융, 1분기 당기순익 1조 2100억원…1145원 현금배당 결의 - 지디넷코리아",
+      "url": "https://news.google.com/rss/articles/CBMiVkFVX3lxTFBVblFTa0huY19jdnlnMUZwWDNldHFoX1hrUVN5UVB1VE55ek80ZDdiMENZeXlEaExPWkJ6T1VIbDFCa0tUMlU1UWRJZU9YMmJsX242MHp3?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "하나금융 분기배당",
+      "date": "2026-04-24",
+      "title": "하나금융, 1분기 순이익 1조2100억원...전년 대비 7.3%↑ - 데일리e뉴스",
+      "url": "https://news.google.com/rss/articles/CBMib0FVX3lxTE5TUFFvNVNGVEZIaTUzaXEtNUlJaGdQQTBQZ2pCc0t1MFpqSlp2a0Jya1RrZkVuOG9DdkVTTGgxVnk0OVp6Zk5pWGN4TEtDRTl5eEYtaVYzSzZjUF9NbHhxTkYyb19Fc0YyWlM1SjltWQ?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "하나금융 분기배당",
+      "date": "2026-04-24",
+      "title": "하나금융 1분기 순이익 1조2100억으로 7.3% 증가, 분기배당 주당 1145원 - 비즈니스포스트",
+      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTFBMdUtCcG1SVUFlX1J6eVN3N3VVcTJLRW5xRG5IWkVMZzhqQnY5RWlySGY5WVBWRDlmeXZZSTVZMldCdHZpaG5vQUVWU3M1NUg2N3phbmxCVnlmNkpHdHlxbjdwanRVTGx5YzkxWDRoVEdEZkk?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "하나금융 분기배당",
+      "date": "2026-04-25",
+      "title": "[인싸잇",
+      "url": "https://news.google.com/rss/articles/CBMiY0FVX3lxTE9UZVZGRXZUdEIyODB4WEFsMndXdVo0UWVjWXpjclZmYjhFQnNIRW43TlRzUENzVmJ2V3BwZVJRMVdSTkVmVThIWnFoQ3BJM0k3QzREaFZVbElBYkNrUHgxRTEzOA?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "하나금융 분기배당",
+      "date": "2026-04-24",
+      "title": "'분기배당 크게 올린다'…하나금융, 펀더멘탈 기반으로 주주환원 속도 'UP' - 테크M",
+      "url": "https://news.google.com/rss/articles/CBMiakFVX3lxTE1FOG5BcGt3UURLdHBncEdaZlFwOGZfM0RrazFNRm5XOXNBRmxmLTVRTXhWRnh1dzJsbzZWT1h0TUJDYTkyT0FFN21KY3oxOE9lbXNHd1VmLXB2Zm9jOXFBcEROVVVmSGk5THfSAWpBVV95cUxNRThuQXBrd1FES3RwZ3BHWmZRcDhmXzNEa2sxTUZuVzlzQUZsZi01UU14VkZ4dXcybG82Vk9YdE1CQ2E5Mk9BRTdtSmN6MThPZW1zR3dVZi1wdmZvYzlxQXBETlVVZkhpOUx3?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "하나금융 분기배당",
+      "date": "2026-04-24",
+      "title": "하나금융그룹, 1분기 당기순이익 1조 2,100억원 시현 - 한국경제",
+      "url": "https://news.google.com/rss/articles/CBMiWkFVX3lxTFBQSXhSZHdvc0Z3UkttNnBFUHBnZ3RNbXU3bUpueXg2c1RHdjdPSFVjUlBQTzh2RDZ5eXdtVWtrVHdnNDB2NWZsSjlHQlBpTGRzblZjS3NuX1AzUdIBVEFVX3lxTFBSMHJpcE93MDRrdjNvOXVwOG5pUUdlSzF0OTF0UVhUTktnTlFmVlJjUmNhcXBUT3lJTHlzVmJxcmtNM25SS0sxV0hxV2ViTGJWbF9GTw?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "하나금융 자사주",
+      "date": "2026-04-24",
+      "title": "하나금융, 1Q 순익 1.2조…자사주 2000억 소각 - 딜사이트",
+      "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE5LSGFuUzROYTEwcE5CbGk3YTA0OFR5aHZDc3UtSjNjdk95WExBeFpLSkd1c29kbHRZbHRELTJYOXV3NktrMDFrVlBwODNkaEk?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "하나금융 자사주",
+      "date": "2026-04-24",
+      "title": "하나금융, 새 밸류업…자사주 소각→현금배당 확대 - sisaon.co.kr",
+      "url": "https://news.google.com/rss/articles/CBMia0FVX3lxTFBPQTQ3TENhYnBkT3I3NVBrbU9ERm1IUTdYX0xDOHRkcmNxdlhDa0NLQndSbGkxRmFodVhfTXRuUlpwMkJGUFdNRG5KZFhPck5yZmwzOHYtWVlyVUp2U2d2aVFFNkt0VUoyQk1z?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "하나금융 자사주",
+      "date": "2026-04-24",
+      "title": "하나금융, 자사주 2000억원 매입·소각 결정…상반기 총 4000억원 규모 - 주주경제신문",
+      "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE14U1N0UmdYcGllRGIwOEQyOU01SWF1ekU2RnQyeHNMcUJURzFqNmdzX3ZKX1NLSU5USFVjcXZ2cXQySFMycHhpNmwtT0puMmFvcjNVbFZMRzdkRmktZURsRXR6eHM2SlVp?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "하나금융 자사주",
+      "date": "2026-04-24",
+      "title": "하나금융, 1분기 실적 '역대 최대'…\"자사주 매입·소각\" - v.daum.net",
+      "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE8zM1FLbVFXeEtPdk00SUN2Ynhzal80VFlGWHJpNXZBTGpSVUZyVXJGX29fT0MyWUVJSnJXSG4zam00d2gycDViN3pPeDZwQUU?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "하나금융 자사주",
+      "date": "2026-04-24",
+      "title": "\"배당 늘리고 자사주 소각\"…하나금융, 주주환원 '실행력' 승부수 - 굿모닝경제",
+      "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE9KU1h1a3M4MUY2QzI0VUtWTDBmdzlWOEMzbE1kanNNUmd0MVA0TDZNeVNkcHU4c2FWWFVoZTZZWDZVVWxqbWRWTzJtMC1pX1I4SUhuWEx6TlUtUl9GMFJsQ3J2eTZaWlhaQzJFSA?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "하나금융 자사주",
+      "date": "2026-04-24",
+      "title": "“개인주주 끌어모은다”...하나금융 주주환원, 자사주에서 배당으로 - 에너지경제신문",
+      "url": "https://news.google.com/rss/articles/CBMiW0FVX3lxTFBYUGZBMDBkUVY3cUQ3VHZRWEtoX0tWZFk5OXJDU0ZQcFBnM1dRZTdrcU1wbjVSeUtMRW44d3JDcDBSaUU5UVZNU1hTbER1ZzQyREVOTU5nNXBSWTQ?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "하나금융 자사주",
+      "date": "2026-04-24",
+      "title": "하나금융, 1분기 순이익 1조2100억…자사주 2000억 매입·소각 결의 - 서남투데이",
+      "url": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE5pX19JUnNXT3lSNXRlMHk3U2NyUXdEVmdRN3FZU1F0WWd4bHJwOHFGRUtJZXEzOXdIME1fakJ0WTlITTB3c2JMRktjam9zVXgwbEM0T0Y1b2lyQQ?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "하나금융 자사주",
+      "date": "2026-04-24",
+      "title": "하나금융지주, 2000억원 규모 자사주 매입 결정... 주주환원 및 기업가치 제고 목적 - 데이터투자",
+      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE9adm9Zamg0ZThreXV4NHhQS1BtR3RPZ2o3TlZaRmFyUTNxS1g5cTFlQUlpTEFjVlktUC1zd2tqZjZTbmJobFNQT2haVlVVbkhaLTFKMzZoQkRodk1xZGxWeEVwYV8zNnlzN3JUenR0Y1JIT2c?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "하나금융 자사주",
+      "date": "2026-04-24",
+      "title": "하나금융지주, 자사주 2,000억 원 매입 결정...주주환원 강화 - Investing.com 한국어",
+      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE5WMG1PbWZGb0xyMEZza2N4SWM3VDVfWjhzS1RKTWdubWFFZUlWVDB5c1R6UWFaUUtDUS0wMDdSNEtqdmlVSW5tczg4cWgyUzNLTlQ3a0Nva2RlUXdjZmNFdjFWaXJwNHJMTUNhVm9GZkEtQTA?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "하나금융 자사주",
+      "date": "2026-04-24",
+      "title": "하나금융, 1Q 순익 1조2100억원…2000억원 규모 자사주 매입·소각 결의 - ceodaily.co.kr",
+      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTFBVXzV0WVZ5SGpiRHVtNm5hWWhFektZODNER3ZJZzQ1dDl2VXV5a2llYXFmY2lkQzZja0FvbFlRUW1HLUloTFNwbnFtYUttd1R3ZENsTFZfcGxwaU45bGlWVUx4OXpzbi1zOHViT2dscTPSAXBBVV95cUxQVV81dFlWeUhqYkR1bTZuYVloRXpLWTgzREd2SWc0NXQ5dlV1eWtpZWFxZmNpZEM2Y2tBb2xZUVFtRy1JaExTcG5xbWFLbXdUd2RDbExWX3BscGlOOWxpVlVMeDl6c24tczh1Yk9nbHEz?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "하나금융 주주환원",
+      "date": "2026-04-24",
+      "title": "하나금융 \"상반기 중 추가 주주환원 발표…배당 확대 집중\" | - 연합인포맥스",
+      "url": "https://news.google.com/rss/articles/CBMidEFVX3lxTFAtQzRFSndNSHhIX05mY2ZILWRSR1p6RExGUUdrOHFPNGp3N3pWOTVYV3YyVFZtNUllUm91bUNoZXhWeFlPcWxDRXM0U05xSmtvRXRsSVVEdzJCckhCSFhrRmZvWHlQLTY1OE42dGZ2bmE4WDhD?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "하나금융 주주환원",
+      "date": "2026-04-24",
+      "title": "“개인주주 끌어모은다”...하나금융 주주환원, 자사주에서 배당으로 - 에너지경제신문",
+      "url": "https://news.google.com/rss/articles/CBMiW0FVX3lxTFBYUGZBMDBkUVY3cUQ3VHZRWEtoX0tWZFk5OXJDU0ZQcFBnM1dRZTdrcU1wbjVSeUtMRW44d3JDcDBSaUU5UVZNU1hTbER1ZzQyREVOTU5nNXBSWTQ?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "하나금융 주주환원",
+      "date": "2026-04-24",
+      "title": "[컨콜-하나금융",
+      "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTFBZVDhjVkZYZkxac1R1MUctbmtDcmpiaEdJTXdYZk4wMlFQWHlXc3MzNm81d1JCeU1xMnR4ZlpwV2NoQjhMaTdzOUJiY2kyWDNjeTB3ZU1XVDRsc01hSFFWdXdhNVpldlN5?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "하나금융 주주환원",
+      "date": "2026-04-24",
+      "title": "하나금융, 호실적에 CET1 13% 사수…주주환원 50% 가시화 - v.daum.net",
+      "url": "https://news.google.com/rss/articles/CBMiS0FVX3lxTE9MT0FTeW55NDhiWXh5djJzX3BoYmRqcHlSVGVTaEVYbWV0enp0MDB6NTFNUWdRUFJiY1lTOW1oam5zeVd1N3BtWHl2OA?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "하나금융 주주환원",
+      "date": "2026-04-24",
+      "title": "\"배당 늘리고 자사주 소각\"…하나금융, 주주환원 '실행력' 승부수 - 굿모닝경제",
+      "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE9KU1h1a3M4MUY2QzI0VUtWTDBmdzlWOEMzbE1kanNNUmd0MVA0TDZNeVNkcHU4c2FWWFVoZTZZWDZVVWxqbWRWTzJtMC1pX1I4SUhuWEx6TlUtUl9GMFJsQ3J2eTZaWlhaQzJFSA?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "하나금융 주주환원",
+      "date": "2026-04-24",
+      "title": "하나금융 '증권' 앞세워 '4조 클럽' 안착 시동, 함영주 환율 우려 넘기고 주주환원도 이상무 - 비즈니스포스트",
+      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE4wT0ljcHo1YUxld0pEWTk0TEZtNDhkVmJwd2VUWUpWVWJtOFdha3FDc2xoR1JmTVNpMFFVMTZDMEo0VkRvc3Z0OEljQnRGYk84UmhhdEVlaC1BMFFBX2Zad05DdDJ1S3FzYXRMakpleVZQRzg?oc=5",
+      "severity": "warn",
+      "signals": [
+        "우려"
+      ]
+    },
+    {
+      "keyword": "하나금융 주주환원",
+      "date": "2026-04-24",
+      "title": "하나금융지주, 2000억원 규모 자사주 매입 결정... 주주환원 및 기업가치 제고 목적 - 데이터투자",
+      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE9adm9Zamg0ZThreXV4NHhQS1BtR3RPZ2o3TlZaRmFyUTNxS1g5cTFlQUlpTEFjVlktUC1zd2tqZjZTbmJobFNQT2haVlVVbkhaLTFKMzZoQkRodk1xZGxWeEVwYV8zNnlzN3JUenR0Y1JIT2c?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "하나금융 주주환원",
+      "date": "2026-04-24",
+      "title": "하나금융지주 \"주주환원, 자사주 소각 집중서 현금배당 비중 확대 전환\" - 뉴스핌",
+      "url": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE03b21ycWYwdmFEVzNLUTFCOUttZExNU19lQ1dyNjc2cUtsdkZCRDR6MlJSVFREWUU5UURJM3BqVVE3bWNIYUV0dGZ4c1dxN2NUOGQ4SG5FVHJPLU5r?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "하나금융 주주환원",
+      "date": "2026-04-24",
+      "title": "하나금융지주, 자사주 2,000억 원 매입 결정...주주환원 강화 - Investing.com 한국어",
+      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE5WMG1PbWZGb0xyMEZza2N4SWM3VDVfWjhzS1RKTWdubWFFZUlWVDB5c1R6UWFaUUtDUS0wMDdSNEtqdmlVSW5tczg4cWgyUzNLTlQ3a0Nva2RlUXdjZmNFdjFWaXJwNHJMTUNhVm9GZkEtQTA?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "하나금융 주주환원",
+      "date": "2026-04-24",
+      "title": "하나금융, 2000억원 자사주 매입…주주환원·밸류업 동시 겨냥 - ER 이코노믹리뷰",
+      "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE1rLV84cUNqQ2NIMGdwYmpUc2hYdzh6TEJJeVVGQVg0aXNKOXMzQzZJaUF6SG5IVnMwcmoxaTZQaDJzTHlqNW53WkllV05ZdjZqNXJSWENfeTNmeXFzVTFjRk1VSlhHRVAweEUyNw?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "금융당국 자본규제",
+      "date": "2026-04-23",
+      "title": "생산적금융 자본규제 완화해놓고 \"정부 정책사업 우선 강요\" - 뉴스토마토",
+      "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE1Lc1R2X2NWWndjZk1iVkFnZlpEOGxkM2tSTVVzZ3dIdkJQbzBmcC1hdWw4ekozbThHZ0FyQ0kxa0FKdGJXMjQydnV2Yzg2M2otLUJkcGNQSUpXWnpSYlBLeQ?oc=5",
+      "severity": "warn",
+      "signals": [
+        "규제"
+      ]
+    },
+    {
+      "keyword": "금융당국 자본규제",
+      "date": "2026-04-22",
+      "title": "'손톱 밑 가시' 뺐다…자본규제 손질, 돈 흐름 바꾼다[성장엔진 금융",
+      "url": "https://news.google.com/rss/articles/CBMiYkFVX3lxTFBVcFotS2lkMXNVSGxVYkp0VUVMd3pLTzJjcEd6N255eEhnYjlhcDlsa3A0UnZ6M1Ric2RkSTdfSnZhYmp2UFVEcVU5NkVCNUdDcnNoSEV1dEUtcks3OExKTVlB?oc=5",
+      "severity": "warn",
+      "signals": [
+        "규제"
+      ]
+    },
+    {
+      "keyword": "금융당국 자본규제",
+      "date": "2026-04-23",
+      "title": "자본규제 완화에도 '온도차'…금융지주별 영향 갈렸다 - 딜사이트",
+      "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE9BbU5uZFRyOC15Z1MzQUgzMC13N3dkRTBualEyc29sV2dfZVhLWjZ4cFB2d1lubngtVDB5enVDOWdKRnZNUkIwQmVOR1NCdzQ?oc=5",
+      "severity": "warn",
+      "signals": [
+        "규제"
+      ]
+    },
+    {
+      "keyword": "금융당국 자본규제",
+      "date": "2026-04-22",
+      "title": "“생산적 금융은 이제부터”...금융지주, 자본비율 숨통트였다 - 에너지경제신문",
+      "url": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE9tYkNzbTExMlk5T1JGSEdWcGFmNlFhaC1laURRZndnUWFJai04QnNuVktodVdrQm1FdjRMTlctdGR1aW1sdUFjNU5xc0MxMEN2emloUW1XLTY5TlE?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "금융당국 자본규제",
+      "date": "2026-04-23",
+      "title": "신한금융 \"자본규제 완화에 CET1 20bp 개선 가능…주주환원율 50~60%\" - 연합인포맥스",
+      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE5JRjhGbWVNVjZnUDRBN3BzYjRQOUdSQm9DVHpWaFNWUHdfZUFzTkhzQWRUMDN0a0RmSHR6Qy10X3N6bmFVZ2wwaWh0VjFYckgwX2RGTGw2UE8zQ3UtdkRoS0RRQXdESjUtUkx5THZaazU?oc=5",
+      "severity": "warn",
+      "signals": [
+        "규제"
+      ]
+    },
+    {
+      "keyword": "금융당국 자본규제",
+      "date": "2026-04-23",
+      "title": "4대 금융지주, 자본 규제 풀리고 실적도 역대급...주주환원 확대 기대감 - 주주경제신문",
+      "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE5qNkgxczBMQnNaNEtIZXlQaW0xaTBFZ1BqMlNDVm56Mm1QZnpVSFE1cFhYaU9fN3BmRWJJd1NlTmxLblRQdERMUHNuWjBrY1NiMVIxcGo0cjk1VXh1YVprbHJIdTg3NHJU?oc=5",
+      "severity": "warn",
+      "signals": [
+        "규제"
+      ]
+    },
+    {
+      "keyword": "금융당국 자본규제",
+      "date": "2026-04-19",
+      "title": "금융당국 은행 자본규제 합리화…NIM 상승 전망 - 파이낸셜투데이",
+      "url": "https://news.google.com/rss/articles/CBMiakFVX3lxTE5tMDBfX3FBNkdJbERMaGd5ZHMtdUx5TkVUWkN3RURWa0h0Z2hZcUlLWV9yQVlNQlFodEJWRzRhS2ZCWEQ3bXNOR2tLY1huNk9yS1htQkxhVTJTdVYxODZiYnNUOW1SQXplbkHSAW5BVV95cUxQTlFWTUxEUzNxcktkOWs4R3JWdy0yX28tNnpJZUJsbTQ4MERlUzlHZHRmQ20yMWN1blAxVVZjdGpNcFUzdUVkejdqVUlDT3JNaExJVGw4R0VMV21DdkZETVpETUpqOTNsc0w3X0cxdw?oc=5",
+      "severity": "warn",
+      "signals": [
+        "규제"
+      ]
+    },
+    {
+      "keyword": "금융당국 자본규제",
+      "date": "2026-04-19",
+      "title": "금융당국, 자본규제 손질로 98조 공급…'생산적 금융' 전환 가속 - 미래경제",
+      "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTFBBVlcycUE0bVNxYmh0QjVSYVZwa1BfbU5KYXY5bGpXdFc0enIzcFZQeUFULWNFTUpaeGdnelotUVg1Tmthenc2dTh6MUxOY0hsdEh2VF90UDRiV095RURQeVU5UDFDUEFvOWc3Zw?oc=5",
+      "severity": "warn",
+      "signals": [
+        "규제"
+      ]
+    },
+    {
+      "keyword": "금융당국 자본규제",
+      "date": "2026-04-24",
+      "title": "하나금융 \"자본규제 완화로 CET1 13.2%까지 상승할 듯\"[컨콜",
+      "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTFBpblFoVTNwN0tOZ2NGVmFRd3VUSUk4eWc3WG11V1AxX0dmMmxFRVo5VFdUM2lCc2EtTGYxZ3FjUDM5c2MxZU1pNEthRFl6cU0?oc=5",
+      "severity": "warn",
+      "signals": [
+        "규제"
+      ]
+    },
+    {
+      "keyword": "은행 주주환원 후퇴",
+      "date": "2026-04-24",
+      "title": "우리금융 자본 비율 끌어올렸지만 순익은 뒷걸음···비은행 성과 시험대 - 여성경제신문",
+      "url": "https://news.google.com/rss/articles/CBMid0FVX3lxTE9NdTRPQV9ZQmF5eU95c3FSU0pOLUhvcnU4UFR0OGZRYU5faEludlpIZjlFeU1SWnFuc2NJYnRKN3RMcDMtVUFSVy1tTGdSdVVES283ckhmZlRvX29lZ3p1RkszQmQ1TjdDM2JqZFVUc1BWVExldzJB0gF3QVVfeXFMT011NE9BX1lCYXl5T3lzcVJTSk4tSG9ydThQVHQ4ZlFhTl9oSW52WkhmOUV5TVJacW5zY0lidEo3dExwMy1VQVJXLW1MZ1J1VURLbzdySGZmVG9fb2VnenVGSzNCZDVON0MzYmpkVVRzUFZUTGV3MkE?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "은행 주주환원 후퇴",
+      "date": "2026-04-24",
+      "title": "기업은행, 1분기 순익 7534억…중기대출 늘렸지만 수익성 '주춤' - 뉴스웍스",
+      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE4tWnlidkE5U2w1ZWYzdGcyXzd1MUZ2Y2JJVzBaQmFqckFHNjBpWDQzZ2Iyd25qUVBGS1lzLVVPMVJwUkl6QUVWSzV3OEJYYzRrWDFEVlJjMTUyaXZzNTZzak51dkVHcU41NUNqSERQWkFORHPSAXNBVV95cUxOLVp5YnZBOVNsNWVmM3RnMl83dTFGdmNiSVcwWkJhanJBRzYwaVg0M2diMndualFQRktZcy1VTzFScFJJekFFVks1dzhCWGM0a1gxRFZSYzE1Mml2czU2c2pOdXZFR3FONTVDakhEUFpBTkRz?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "은행 주주환원 후퇴",
+      "date": "2026-04-24",
+      "title": "IBK기업은행, 1분기 순이익 7,534억…환율 급등·기저효과에 실적 후퇴 - 데일리스포츠한국",
+      "url": "https://news.google.com/rss/articles/CBMie0FVX3lxTE5xNTJHLV9MNU1LZXpabGZ0bU03b0dyTmJXNGh4aTBYS1JqUWJkT1RJSkxfTjFvOGFRMU1Mb3NRREVBd1ZNYjh2RU9Jc29FRXQ1bml5aWlrZzQtVkgwTmVHVXJ0SXRKQWxsMTBqNHRQWUlzVzZaeC02Mmh1SdIBf0FVX3lxTFBFUGxtME9MT1RfUVBTbVBHWTBVSnl6bU95ZnNsbldicVM5ejZmRUxSSGlhbW9NZnFlVklidXhQLUdNWldlWnlFTlkyOHhUTXBQMHFEN1Z0WXBOWjBRU2d1cU5GYmd2d1pYTTBkcGtZMWV4cTJtSWJuXzBnWHVmT0E?oc=5",
+      "severity": "warn",
+      "signals": [
+        "후퇴"
+      ]
+    },
+    {
+      "keyword": "은행 주주환원 후퇴",
+      "date": "2026-04-24",
+      "title": "우리금융, 1분기 순익 6038억… 나홀로 후퇴 - IT조선",
+      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE50LWVPTXJPWVBZMTVEWXFhMFVCNUkydWMzVFVja05wa0ZMaFQxQUY3SVlpR3Z5XzJ6RnJPZ0F1UFJJTVJiRFRzTU9Fb1NtNW42d2k2bXVrckhKUmlKUGtYQTg5VFc2aFJCZ1pVRkZfV2TSAXRBVV95cUxOS2tId0hnS0hoT1VJNW1KQkZibTFZWFlXSFoyQTRQaVhfNXVBUjg5dE5OZDFPQWFTOXNIaGF5bG9LbTV4TU01bWlYNHJmb1Z2OHdoSHhrbC1vXzlZbGFvTXNFazExVkVYZVhMNzhtSFVHVGR5TQ?oc=5",
+      "severity": "warn",
+      "signals": [
+        "후퇴"
+      ]
+    },
+    {
+      "keyword": "함영주 회장",
+      "date": "2026-04-21",
+      "title": "[드림&amp;CEO",
+      "url": "https://news.google.com/rss/articles/CBMia0FVX3lxTE9ldTVIam0zSC0xdkhtVWZrV3VUWHpJSlExZ2JEajFMelM2WHBwUk9BbVFFY1d4ZnNETVdpODlhTW1vdi10ZUViVk9LaE9Kb0pmTXJYQlN4MFk5N0RCNmd1UUFzeHp3a1BXQncw0gFuQVVfeXFMTnlva2oxTUVCSWFxSlRDUlpXUW1nTXlqR3pna2tjUTEwYnpfVkF1NjBmNUhhUWRrQkR2YVpWeENPNmZSbUJ6RENHRDNkZVExNUhma3Y2QWN5cjlhdE5pYzFqVUVzZUdzUENmcXg5alE?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "함영주 회장",
+      "date": "2026-04-20",
+      "title": "함영주 하나금융 회장 “우수 인재 육성이 금융산업 미래경쟁력 좌우\" - 더트래커",
+      "url": "https://news.google.com/rss/articles/CBMiWEFVX3lxTE9iSzNmUXlqdU5ESXFfS3I4MzY3MzY2aTlIOTJXWnpPMURoQUZTQ016dlR3MkhQUzAxdnlidWRSZkJRWk9DOXA4aVVBNExTQURoY3pSdmhSNy0?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "함영주 회장",
+      "date": "2026-04-21",
+      "title": "함영주 하나금융 회장 \"금융산업 미래 경쟁력, 우수 인재 육성·확보 관건\" - seoulwire.com",
+      "url": "https://news.google.com/rss/articles/CBMia0FVX3lxTFAwX0dPT0dMMzl2bHNJSUowZWRhRFAwMEE2SU55Vml3ZTctRG1aZmtvWU9GTmhOV2NOZ3NSRFdHS3hQUkpHb3M1NWJSazFyS0NEU3g1aUVVUlNydFV5NXlNbWMwOWZzcWw0UE1B?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "함영주 회장",
+      "date": "2026-04-21",
+      "title": "하나금융 청년 금융인재 양성…함영주 회장 “혁신리더로 성장 지원” - 인더뉴스",
+      "url": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE4wYXBmXzlGQXVUQkJVNU9GdnpuSVFhSjFzYkFOWmdSYzRZLWRnOWlSelpySllpZGE2OWJCc0x3bEtXbmRSMDRCWXFCTjNnVGJmX2Rqck9BVTNQdno2ZG5TVmxuZXI?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "함영주 회장",
+      "date": "2026-04-21",
+      "title": "함영주 하나금융 회장 \"금융 미래 경쟁력은 인재 확보\" - ER 이코노믹리뷰",
+      "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE5sV3NCcHUyVVAxOHFGMXhZM1hNaDFVa3RZa3JIMFloWFgwZDB0cUFSdllHNDV6UGtvSDRNWkV2aGl4Mi1YNFYxWXJqWUExeXN1QVAxdzZFY3REQWxpUng1UjA0S080SXpka3dQNA?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "함영주 회장",
+      "date": "2026-04-20",
+      "title": "하나금융, 금융감독원과 함께 미래금융 혁신 주도 청년 인재 양성 - 글로벌에픽",
+      "url": "https://news.google.com/rss/articles/CBMifEFVX3lxTE1EcXE3cTZ4ZlVoTlpKZm1rRzlkdjVBRkxjUlVIdHlZWkZxd1JUS3gtd2lzVFd2amxIcnJpLS1ZQ1paaE9ua3hqeG1LVHJ5aHRSRUdtNG9fUS1MaHFtTklfUjdsZVVfRGxxUnkybF9NMEIxZW5MTGJpSkZCWTM?oc=5",
+      "severity": "info",
+      "signals": []
+    }
+  ],
+  "sources": [
+    {
+      "label": "PER/PEG/PBR 스코어",
+      "ref": "public/data/watchlist.json"
+    },
+    {
+      "label": "4대 지주 평균 PBR 비교 (3종목)",
+      "ref": "peers: 316140, 105560, 055550 / avg 0.823"
+    },
+    {
+      "label": "분기 배당 결정 (사업보고서 (2025.12))",
+      "ref": "DART 20260316001292 (alotMatter)"
+    },
+    {
+      "label": "외국인 순매수 누적 (5일)",
+      "ref": "네이버 dealTrendInfos / history 2026-04-24"
+    },
+    {
+      "label": "최근 분기 순이익 (2025-FY)",
+      "ref": "DART 20260316001292 (fnlttSinglAcntAll)"
+    },
+    {
+      "label": "최근 자사주 취득결정 (2026-04-24)",
+      "ref": "DART 20260424000404"
+    },
+    {
+      "label": "뉴스 RSS",
+      "ref": "news.google.com/rss (7일)"
+    }
+  ]
+}

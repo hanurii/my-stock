@@ -45,6 +45,8 @@ export interface MonitorConfig {
   major_shareholder_name?: string;
   /** 오너 일가 매도 추적 시 인물 이름 목록 (예: ["홍라희", "이재용", "이부진", "이서현"]) */
   family_member_names?: string[];
+  /** 동종 그룹 평균 PBR 비교용 종목코드 목록 (예: 4대 금융지주) */
+  peer_codes?: string[];
 }
 
 /** 메트릭 평가 결과 (monitor JSON에 저장됨) */
@@ -182,4 +184,45 @@ export interface CollectorBundle {
   stock_buyback_events: Array<{ date: string; title: string; rcept_no: string; type: string }>;
   capital_issuance: Array<{ date: string; title: string; rcept_no: string }>;
   external_corp_disclosures: Array<{ date: string; title: string; rcept_no: string }>;
+  /** 4대 금융지주 등 동종 그룹 평균 PBR 대비 프리미엄(pp) */
+  peer_pbr_premium: {
+    target_pbr: number | null;
+    peer_avg_pbr: number | null;
+    premium_pp: number | null;
+    peers_used: string[];
+  } | null;
+  /** 분기배당 QoQ 변화율 (DART alotMatter 기반) */
+  dividend_trend: {
+    latest_dps: number | null;
+    prev_dps: number | null;
+    qoq_change_pct: number | null;
+    latest_record_date: string | null;
+    rcept_no: string | null;
+  } | null;
+  /** 외국인 순매수 누적 추적 (네이버 dealTrendInfos 일별 누적) */
+  foreign_net_buy: {
+    cumulative_20d_shares: number | null;
+    days_count: number;
+    latest_date: string | null;
+  } | null;
+  /** 최근 분기 순이익 (분기 적자 전환 감지용) */
+  quarterly_net_income: {
+    period: string | null;
+    net_income_billion: number | null;
+    rcept_no: string | null;
+  } | null;
+  /** 가장 최근 자사주 취득결정 공시 이후 경과일 */
+  buyback_acquisition_gap: {
+    last_date: string | null;
+    last_title: string | null;
+    days_ago: number | null;
+    rcept_no: string | null;
+  } | null;
 }
+
+/** PeerPbrPremium 결과 (export 편의) */
+export type PeerPbrPremiumResult = NonNullable<CollectorBundle["peer_pbr_premium"]>;
+export type DividendTrendResult = NonNullable<CollectorBundle["dividend_trend"]>;
+export type ForeignNetBuyTrendResult = NonNullable<CollectorBundle["foreign_net_buy"]>;
+export type QuarterlyNetIncomeResult = NonNullable<CollectorBundle["quarterly_net_income"]>;
+export type BuybackAcquisitionGapResult = NonNullable<CollectorBundle["buyback_acquisition_gap"]>;

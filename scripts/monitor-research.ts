@@ -101,6 +101,11 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
     stock_buyback_events,
     capital_issuance,
     external_corp_disclosures,
+    peer_pbr_premium,
+    dividend_trend,
+    foreign_net_buy,
+    quarterly_net_income,
+    buyback_acquisition_gap,
     newsHits,
   ] = await Promise.all([
     Promise.resolve(sourceSet.has("valuation") ? col.collectValuation(config.code) : null),
@@ -144,6 +149,23 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
           config.external_corp_keywords ?? [],
         )
       : Promise.resolve([]),
+    Promise.resolve(
+      sourceSet.has("peer_pbr_premium") && config.peer_codes && config.peer_codes.length > 0
+        ? col.collectPeerPbrPremium(config.code, config.peer_codes)
+        : null,
+    ),
+    sourceSet.has("dividend_trend")
+      ? col.collectDividendTrend(config.corp_code)
+      : Promise.resolve(null),
+    sourceSet.has("foreign_net_buy")
+      ? col.collectForeignNetBuyTrend(config.code)
+      : Promise.resolve(null),
+    sourceSet.has("quarterly_net_income")
+      ? col.collectQuarterlyNetIncome(config.corp_code)
+      : Promise.resolve(null),
+    sourceSet.has("buyback_acquisition_gap")
+      ? col.collectBuybackAcquisitionGap(config.corp_code, 365)
+      : Promise.resolve(null),
     config.news_keywords && config.news_keywords.length > 0
       ? col.collectNewsHits(config.news_keywords, 7)
       : Promise.resolve([]),
@@ -163,6 +185,11 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
     stock_buyback_events,
     capital_issuance,
     external_corp_disclosures,
+    peer_pbr_premium,
+    dividend_trend,
+    foreign_net_buy,
+    quarterly_net_income,
+    buyback_acquisition_gap,
   };
 
   // 메트릭 평가
@@ -209,12 +236,26 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
         message: `현재 ${m.display} (임계 ${m.threshold})`,
       });
     } else if (m.value == null) {
-      alerts.push({
-        severity: "warn",
-        type: `${m.id}_missing`,
-        title: `${m.label} 데이터 미수집`,
-        message: "DART/시세 조회 실패 — 다음 실행에서 재시도",
-      });
+      // foreign_net_buy 워밍업 케이스 — 누적 day count가 임계 미만이면 "history 누적 중"
+      const isForeignWarmup =
+        m.id === "foreign_net_buy_4w" &&
+        foreign_net_buy != null &&
+        foreign_net_buy.days_count > 0;
+      if (isForeignWarmup) {
+        alerts.push({
+          severity: "info",
+          type: `${m.id}_warmup`,
+          title: `${m.label} 누적 중`,
+          message: `현재 ${foreign_net_buy!.days_count}거래일 누적 (20일 이상 시 메트릭 평가 시작).`,
+        });
+      } else {
+        alerts.push({
+          severity: "warn",
+          type: `${m.id}_missing`,
+          title: `${m.label} 데이터 미수집`,
+          message: "DART/시세 조회 실패 — 다음 실행에서 재시도",
+        });
+      }
     }
   }
   if (newsHits.length > 0) {
@@ -293,6 +334,32 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
     sources.push({
       label: `최대주주 지분 변동 ${major_holder_changes.length}건`,
       ref: "DART 주식등의대량보유 / 최대주주등소유주식변동",
+    });
+  if (peer_pbr_premium && peer_pbr_premium.peers_used.length > 0) {
+    sources.push({
+      label: `4대 지주 평균 PBR 비교 (${peer_pbr_premium.peers_used.length}종목)`,
+      ref: `peers: ${peer_pbr_premium.peers_used.join(", ")} / avg ${peer_pbr_premium.peer_avg_pbr ?? "—"}`,
+    });
+  }
+  if (dividend_trend?.rcept_no)
+    sources.push({
+      label: `분기 배당 결정 (${dividend_trend.latest_record_date ?? ""})`,
+      ref: `DART ${dividend_trend.rcept_no} (alotMatter)`,
+    });
+  if (foreign_net_buy && foreign_net_buy.days_count > 0)
+    sources.push({
+      label: `외국인 순매수 누적 (${foreign_net_buy.days_count}일)`,
+      ref: `네이버 dealTrendInfos / history ${foreign_net_buy.latest_date ?? ""}`,
+    });
+  if (quarterly_net_income?.rcept_no)
+    sources.push({
+      label: `최근 분기 순이익 (${quarterly_net_income.period ?? ""})`,
+      ref: `DART ${quarterly_net_income.rcept_no} (fnlttSinglAcntAll)`,
+    });
+  if (buyback_acquisition_gap?.rcept_no)
+    sources.push({
+      label: `최근 자사주 취득결정 (${buyback_acquisition_gap.last_date})`,
+      ref: `DART ${buyback_acquisition_gap.rcept_no}`,
     });
   if (newsHits.length > 0)
     sources.push({ label: "뉴스 RSS", ref: "news.google.com/rss (7일)" });

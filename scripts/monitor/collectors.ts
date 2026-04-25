@@ -892,6 +892,307 @@ export async function collectExternalCorpDisclosures(
   return out;
 }
 
+// ── 9-5) 동종 그룹 평균 PBR 대비 프리미엄 (4대 금융지주 비교 등) ──
+export function collectPeerPbrPremium(
+  target_code: string,
+  peer_codes: string[],
+): CollectorBundle["peer_pbr_premium"] {
+  if (!peer_codes.length) return null;
+  const dataDir = path.resolve("public/data");
+  const candidates = ["growth-watchlist.json", "watchlist.json"];
+  let target_pbr: number | null = null;
+  const peerPbrs: Array<{ code: string; pbr: number }> = [];
+  const allCodes = new Set([target_code, ...peer_codes]);
+  const found = new Set<string>();
+  for (const file of candidates) {
+    if (found.size === allCodes.size) break;
+    try {
+      const raw = fs.readFileSync(path.join(dataDir, file), "utf-8");
+      const json = JSON.parse(raw);
+      const list: StockEntry[] = Array.isArray(json) ? json : json.stocks ?? [];
+      for (const s of list) {
+        if (!allCodes.has(s.code) || found.has(s.code)) continue;
+        if (typeof s.pbr !== "number") continue;
+        if (s.code === target_code) target_pbr = s.pbr;
+        else peerPbrs.push({ code: s.code, pbr: s.pbr });
+        found.add(s.code);
+      }
+    } catch {}
+  }
+  if (target_pbr == null || peerPbrs.length === 0) {
+    return {
+      target_pbr,
+      peer_avg_pbr: null,
+      premium_pp: null,
+      peers_used: peerPbrs.map((p) => p.code),
+    };
+  }
+  const peer_avg_pbr = peerPbrs.reduce((s, p) => s + p.pbr, 0) / peerPbrs.length;
+  const premium_pp = Number((target_pbr - peer_avg_pbr).toFixed(3));
+  return {
+    target_pbr,
+    peer_avg_pbr: Number(peer_avg_pbr.toFixed(3)),
+    premium_pp,
+    peers_used: peerPbrs.map((p) => p.code),
+  };
+}
+
+// ── 9-6) 분기배당 QoQ 변화율 (DART alotMatter 기반) ──
+/** 가장 최근 정기보고서의 alotMatter API에서 주당 현금배당금(분기) 추출.
+ *  분기배당 종목용 — 직전 분기 대비 변화율 계산.
+ */
+export async function collectDividendTrend(
+  corp_code: string,
+): Promise<CollectorBundle["dividend_trend"]> {
+  const report = await fetchLatestPeriodicReport(corp_code);
+  if (!report) return null;
+  // 최근 보고서 + 직전 보고서(같은 사업연도 직전 분기 또는 전년도 동분기)
+  const list = await dartGet<{
+    se: string;
+    thstrm: string;
+    frmtrm: string;
+    lwfr: string;
+  }>("alotMatter", {
+    corp_code,
+    bsns_year: String(report.bsns_year),
+    reprt_code: report.reprt_code,
+  });
+  if (!list) return null;
+
+  // se(구분) 행이 다양: "주당 현금배당금(원)", "주당현금배당금(원)", "보통주" 등
+  // 보통주 분기배당 우선 — 행 이름에 "현금배당" + "(원)" + "보통" 또는 "주당" 포함하는 첫 행
+  const dividendRow = list.find((r) => {
+    const se = (r.se ?? "").replace(/\s/g, "");
+    return (
+      (se.includes("주당현금배당금") || se.includes("주당배당금")) &&
+      !se.includes("우선주") &&
+      !se.includes("종류주")
+    );
+  }) ?? list.find((r) => (r.se ?? "").includes("주당") && (r.se ?? "").includes("배당"));
+
+  if (!dividendRow) {
+    return {
+      latest_dps: null,
+      prev_dps: null,
+      qoq_change_pct: null,
+      latest_record_date: null,
+      rcept_no: report.rcept_no,
+    };
+  }
+  const parseAmount = (s: string): number | null => {
+    if (!s) return null;
+    const n = Number(s.replace(/,/g, ""));
+    return isNaN(n) ? null : n;
+  };
+  const latest = parseAmount(dividendRow.thstrm);
+  const prev = parseAmount(dividendRow.frmtrm);
+  const qoq_change_pct =
+    latest != null && prev != null && prev > 0
+      ? Number((((latest - prev) / prev) * 100).toFixed(2))
+      : null;
+  return {
+    latest_dps: latest,
+    prev_dps: prev,
+    qoq_change_pct,
+    latest_record_date: report.report_nm,
+    rcept_no: report.rcept_no,
+  };
+}
+
+// ── 9-7) 외국인 순매수 누적 추적 (네이버 dealTrendInfos 일별 누적) ──
+/** 네이버 모바일 통합 API의 dealTrendInfos(최근 5거래일)를 매 실행마다 history JSON에 누적.
+ *  최근 N(=20) 거래일 외국인 순매수량 합계를 반환.
+ *  history 워밍업 기간(<10일) 동안은 null 반환.
+ */
+interface ForeignHistoryEntry {
+  date: string;
+  net_buy_shares: number;
+  hold_ratio: number | null;
+}
+
+export async function collectForeignNetBuyTrend(
+  code: string,
+  window_days: number = 20,
+  warmup_min: number = 10,
+): Promise<CollectorBundle["foreign_net_buy"]> {
+  const histDir = path.resolve("public/data/research/monitor/_history");
+  if (!fs.existsSync(histDir)) fs.mkdirSync(histDir, { recursive: true });
+  const histPath = path.join(histDir, `${code}-foreign.json`);
+  let history: ForeignHistoryEntry[] = [];
+  try {
+    history = JSON.parse(fs.readFileSync(histPath, "utf-8")) as ForeignHistoryEntry[];
+  } catch {}
+
+  // 네이버 API 호출
+  try {
+    const url = `https://m.stock.naver.com/api/stock/${code}/integration`;
+    const res = await fetch(url, { headers: { "user-agent": "Mozilla/5.0" } });
+    if (res.ok) {
+      const json = (await res.json()) as {
+        dealTrendInfos?: Array<{
+          bizdate: string;
+          foreignerPureBuyQuant: string;
+          foreignerHoldRatio?: string;
+        }>;
+      };
+      for (const row of json.dealTrendInfos ?? []) {
+        const ymd = row.bizdate;
+        if (!/^\d{8}$/.test(ymd)) continue;
+        const iso = `${ymd.slice(0, 4)}-${ymd.slice(4, 6)}-${ymd.slice(6, 8)}`;
+        const sharesRaw = String(row.foreignerPureBuyQuant ?? "").replace(/[+,]/g, "");
+        const shares = Number(sharesRaw);
+        if (isNaN(shares)) continue;
+        const ratio = row.foreignerHoldRatio
+          ? Number(String(row.foreignerHoldRatio).replace(/[%,]/g, ""))
+          : null;
+        const existing = history.find((h) => h.date === iso);
+        if (existing) {
+          existing.net_buy_shares = shares;
+          existing.hold_ratio = ratio;
+        } else {
+          history.push({
+            date: iso,
+            net_buy_shares: shares,
+            hold_ratio: isNaN(ratio as number) ? null : ratio,
+          });
+        }
+      }
+    }
+  } catch (e) {
+    console.warn(`  ⚠ ${code} 네이버 외국인 시세 조회 실패: ${(e as Error).message}`);
+  }
+
+  // 정렬 + 최근 60일 한도 유지
+  history.sort((a, b) => (a.date < b.date ? -1 : 1));
+  if (history.length > 60) history = history.slice(-60);
+  fs.writeFileSync(histPath, JSON.stringify(history, null, 2), "utf-8");
+
+  const recent = history.slice(-window_days);
+  if (recent.length < warmup_min) {
+    return {
+      cumulative_20d_shares: null,
+      days_count: recent.length,
+      latest_date: recent.at(-1)?.date ?? null,
+    };
+  }
+  const cumulative = recent.reduce((s, r) => s + r.net_buy_shares, 0);
+  return {
+    cumulative_20d_shares: cumulative,
+    days_count: recent.length,
+    latest_date: recent.at(-1)?.date ?? null,
+  };
+}
+
+// ── 9-8) 분기 순이익 (분기 적자 전환 감지용) ──
+/** fnlttSinglAcntAll에서 당기순이익 추출. 은행지주 등 매출 개념이 약한 업종용.
+ *  account_id가 ifrs-full_ProfitLoss이면 가장 정확(은행: "연결당기순이익").
+ *  fallback으로 account_nm 키워드 매칭.
+ */
+export async function collectQuarterlyNetIncome(
+  corp_code: string,
+): Promise<CollectorBundle["quarterly_net_income"]> {
+  const report = await fetchLatestPeriodicReport(corp_code);
+  if (!report) return null;
+  const list = await dartGet<{
+    account_nm: string;
+    account_id?: string;
+    thstrm_amount: string;
+    sj_div: string;
+  }>("fnlttSinglAcntAll", {
+    corp_code,
+    bsns_year: String(report.bsns_year),
+    reprt_code: report.reprt_code,
+    fs_div: "CFS",
+  });
+  if (!list) return null;
+  let net_income: number | null = null;
+  // 1순위: account_id == ifrs-full_ProfitLoss
+  for (const row of list) {
+    if (row.sj_div !== "IS" && row.sj_div !== "CIS") continue;
+    if (row.account_id === "ifrs-full_ProfitLoss") {
+      const v = Number(String(row.thstrm_amount).replace(/,/g, ""));
+      if (!isNaN(v)) {
+        net_income = v;
+        break;
+      }
+    }
+  }
+  // 2순위: 계정명 매칭
+  if (net_income == null) {
+    const targets = [
+      "당기순이익",
+      "당기순이익(손실)",
+      "분기순이익",
+      "분기순이익(손실)",
+      "반기순이익",
+      "반기순이익(손실)",
+      "연결당기순이익",
+      "연결분기순이익",
+      "연결반기순이익",
+    ];
+    for (const row of list) {
+      if (row.sj_div !== "IS" && row.sj_div !== "CIS") continue;
+      const name = row.account_nm?.trim() ?? "";
+      if (targets.includes(name)) {
+        const v = Number(String(row.thstrm_amount).replace(/,/g, ""));
+        if (!isNaN(v)) {
+          net_income = v;
+          break;
+        }
+      }
+    }
+  }
+  if (net_income == null) return null;
+  // 단위는 원 — 억원 단위로 환산
+  const period = `${report.bsns_year}-${
+    report.reprt_code === "11013" ? "Q1" : report.reprt_code === "11012" ? "H1" : report.reprt_code === "11014" ? "Q3" : "FY"
+  }`;
+  return {
+    period,
+    net_income_billion: Math.round(net_income / 1e8),
+    rcept_no: report.rcept_no,
+  };
+}
+
+// ── 9-9) 자사주 취득결정 공시 공백 (가장 최근 자기주식취득결정 후 경과일) ──
+export async function collectBuybackAcquisitionGap(
+  corp_code: string,
+  lookback_days: number,
+): Promise<CollectorBundle["buyback_acquisition_gap"]> {
+  const today = new Date();
+  const since = new Date(today.getTime() - lookback_days * 86400_000);
+  const list = await dartGet<DartListItem>("list", {
+    corp_code,
+    bgn_de: fmtYmd(since),
+    end_de: fmtYmd(today),
+    page_count: "100",
+  });
+  if (!list) return null;
+  for (const item of list) {
+    const nm = item.report_nm ?? "";
+    if (
+      nm.includes("자기주식취득") ||
+      nm.includes("자기주식 취득") ||
+      (nm.includes("주요사항보고서") && nm.includes("자기주식") && nm.includes("취득"))
+    ) {
+      const d = item.rcept_dt;
+      const iso = `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}`;
+      return {
+        last_date: iso,
+        last_title: nm.trim(),
+        days_ago: daysBetween(new Date(iso), today),
+        rcept_no: item.rcept_no,
+      };
+    }
+  }
+  return {
+    last_date: null,
+    last_title: null,
+    days_ago: lookback_days,
+    rcept_no: null,
+  };
+}
+
 // ── 10) Google News RSS + 헤드라인 시그널 분류 ──
 /** 헤드라인의 부정 시그널 키워드 매핑. 현재 관찰 대상 종목에 광범위 적용. */
 const HEADLINE_SIGNALS = {

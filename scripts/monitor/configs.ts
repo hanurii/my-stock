@@ -419,4 +419,97 @@ export const CONFIGS: MonitorConfig[] = [
       "비에이치아이 금전대여",
     ],
   },
+
+  // ───── 하나금융지주 (086790) ─────
+  // research/086790.json exit_timing 6개 트리거 자동화:
+  // 1. PBR 1.0 돌파 + 4대 금융지주 평균 대비 프리미엄 (peer_pbr_premium)
+  // 2. 분기배당 동결 (dividend_trend QoQ ≤ 0%) + 자사주 취득결정 후 90일 후속 부재
+  // 3. 외국인 지분율 65% 이하 + 최근 20거래일 외국인 순매도 전환
+  // 4. 분기 적자 전환 (quarterly_net_income ≤ 0)
+  // 5. 자본 규제·주주환원 후퇴 — 뉴스 키워드
+  // 6. 함영주 회장 사법 리스크 — 뉴스 키워드
+  {
+    code: "086790",
+    name: "하나금융지주",
+    corp_code: "00547583",
+    triggers: [
+      {
+        id: "pbr",
+        label: "PBR",
+        source: "valuation.pbr",
+        threshold: { gte: 1.0 },
+        threshold_label: "1.0 돌파",
+        suffix: "배",
+        precision: 2,
+        warn_threshold: 0.95,
+      },
+      {
+        id: "pbr_premium_pp",
+        label: "4대 지주 평균 대비 PBR 프리미엄",
+        source: "peer_pbr_premium.premium_pp",
+        threshold: { gte: 0.10 },
+        threshold_label: "+0.10pp 이상",
+        suffix: "pp",
+        precision: 3,
+        warn_threshold: 0.05,
+      },
+      {
+        id: "foreign_ratio",
+        label: "외국인 지분율",
+        source: "valuation.foreign_ratio",
+        threshold: { lte: 65 },
+        threshold_label: "65% 이하",
+        suffix: "%",
+        precision: 2,
+        warn_threshold: 66.5,
+      },
+      {
+        id: "foreign_net_buy_4w",
+        label: "최근 20거래일 외국인 순매수",
+        source: "foreign_net_buy.cumulative_20d_shares",
+        threshold: { lte: 0 },
+        threshold_label: "순매도 전환",
+        suffix: "주",
+      },
+      {
+        id: "dividend_qoq_change",
+        label: "분기배당 QoQ 변화율",
+        source: "dividend_trend.qoq_change_pct",
+        threshold: { lte: 0 },
+        threshold_label: "동결 또는 감소",
+        suffix: "%",
+        precision: 1,
+        warn_threshold: 1,
+      },
+      {
+        id: "buyback_acquisition_gap",
+        label: "자사주 취득결정 후 경과일",
+        source: "buyback_acquisition_gap.days_ago",
+        threshold: { gte: 90 },
+        threshold_label: "90일 후속 부재",
+        suffix: "일",
+        warn_threshold: 60,
+      },
+      {
+        id: "quarterly_net_income",
+        label: "최근 분기 순이익",
+        source: "quarterly_net_income.net_income_billion",
+        threshold: { lte: 0 },
+        threshold_label: "분기 적자 전환",
+        suffix: "억",
+        precision: 0,
+        warn_threshold: 5000,
+      },
+    ],
+    peer_codes: ["105560", "055550", "316140"], // KB금융, 신한지주, 우리금융지주
+    news_keywords: [
+      "하나금융 분기배당",
+      "하나금융 자사주",
+      "하나금융 주주환원",
+      "금융당국 자본규제",
+      "은행 주주환원 후퇴",
+      "함영주 회장",
+      "하나은행 사법",
+    ],
+  },
 ];
