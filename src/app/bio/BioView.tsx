@@ -52,9 +52,20 @@ interface Pipeline {
   clinical_assessment?: ClinicalAssessment;
 }
 
+interface Milestone {
+  date: string;
+  event: string;
+  location?: string;
+  session?: string;
+  content: string;
+  importance?: "high" | "medium" | "low";
+  source?: { label: string; url: string };
+}
+
 interface Briefing {
   tech_kr: string;
   market_briefing: string;
+  upcoming_milestones?: Milestone[];
 }
 
 interface QualityCheck {
@@ -317,6 +328,15 @@ function PipelineCard({ pipeline: pl, briefing }: { pipeline: Pipeline; briefing
       {/* 프로세스 바 */}
       <ProcessBar steps={steps} />
 
+      {/* 다가오는 마일스톤 */}
+      {briefing?.upcoming_milestones && briefing.upcoming_milestones.length > 0 && (
+        <div className="space-y-2 mt-4">
+          {briefing.upcoming_milestones.map((m, i) => (
+            <UpcomingMilestoneBox key={i} milestone={m} />
+          ))}
+        </div>
+      )}
+
       {/* AI 시장 브리핑 */}
       {briefing?.market_briefing && (
         <div className="bg-primary/5 rounded-lg p-3 mt-4 border border-primary/10">
@@ -514,6 +534,55 @@ function ProcessBar({ steps }: { steps: StepResult[] }) {
             </div>
           );
         })}
+      </div>
+    </div>
+  );
+}
+
+// ── 다가오는 마일스톤 박스 ──
+
+function UpcomingMilestoneBox({ milestone: m }: { milestone: Milestone }) {
+  const accent = m.importance === "high" ? "#e9c176" : m.importance === "low" ? "#bcc7de" : "#95d3ba";
+  return (
+    <div
+      className="rounded-lg p-3 sm:p-4"
+      style={{
+        background: `linear-gradient(155deg, ${accent}15 0%, ${accent}05 60%, transparent 100%)`,
+        border: `1px solid ${accent}30`,
+        boxShadow: `0 0 0 1px ${accent}10`,
+      }}
+    >
+      <div className="flex items-start gap-2.5">
+        <span className="material-symbols-outlined text-base shrink-0 mt-0.5" style={{ color: accent }}>
+          event
+        </span>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-baseline gap-2 flex-wrap mb-1">
+            <span className="text-[10px] uppercase tracking-[0.18em] font-medium" style={{ color: accent }}>
+              다가오는 마일스톤
+            </span>
+            <span className="text-[11px] font-mono" style={{ color: accent }}>{m.date}</span>
+          </div>
+          <p className="text-sm font-medium text-on-surface leading-snug">
+            {m.event}
+            {m.location && <span className="text-on-surface-variant/70 font-normal"> · {m.location}</span>}
+          </p>
+          {m.session && (
+            <p className="text-[11px] mt-0.5" style={{ color: accent }}>{m.session}</p>
+          )}
+          <p className="text-xs text-on-surface-variant leading-relaxed mt-1.5">{m.content}</p>
+          {m.source && (
+            <a
+              href={m.source.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-[10px] text-on-surface-variant/50 hover:text-primary mt-2 transition-colors"
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: "12px" }}>link</span>
+              {m.source.label}
+            </a>
+          )}
+        </div>
       </div>
     </div>
   );
