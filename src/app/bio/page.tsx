@@ -1,6 +1,7 @@
 import fs from "fs/promises";
 import path from "path";
 import { BioPageTabs } from "./BioPageTabs";
+import { UpcomingMilestones } from "./UpcomingMilestones";
 
 // ── 데이터 로드 ──
 
@@ -19,8 +20,10 @@ export default async function BioPage() {
   const data = await loadJSON("bio-watchlist.json");
   const briefings = (await loadJSON("bio-briefings.json")) || {};
   const research = (await loadJSON("bio-research.json")) || {};
+  const milestonesData = (await loadJSON("bio-milestones.json")) || {};
   const pipelines = data?.pipelines || [];
   const bigpharmaDeals = data?.bigpharma_deals || [];
+  const milestones = milestonesData.milestones || [];
 
   const hasData = pipelines.length > 0 || bigpharmaDeals.length > 0;
 
@@ -54,6 +57,7 @@ export default async function BioPage() {
         </div>
       ) : (
         <>
+          <UpcomingMilestones milestones={milestones} />
           <BioPageTabs
             pipelines={pipelines}
             briefings={briefings}
