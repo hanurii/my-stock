@@ -1,7 +1,7 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-04-25T22:07:22.941+09:00",
+  "last_checked": "2026-04-25T22:27:37.727+09:00",
   "metrics": [
     {
       "id": "per",
@@ -54,6 +54,15 @@
       "value": 0,
       "display": "0건",
       "threshold": "공시 1건+ (재평가 신호)",
+      "hit": false,
+      "tone": "good"
+    },
+    {
+      "id": "oil_price_brent",
+      "label": "Brent 7일 평균 (두바이유 대용)",
+      "value": 99.43,
+      "display": "99.43$",
+      "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
     }
@@ -242,6 +251,10 @@
     {
       "label": "PER/PEG/PBR 스코어",
       "ref": "public/data/naver-m-stock.json"
+    },
+    {
+      "label": "Brent 원유 종가 105.33 USD (2026-04-24, 7일 평균 99.43)",
+      "ref": "Yahoo Finance BZ=F"
     },
     {
       "label": "뉴스 RSS",

@@ -640,15 +640,15 @@ export const CONFIGS: MonitorConfig[] = [
   },
 
   // ───── GS (078930) ─────
-  // research/078930.json exit_timing 6개 중 4개 자동화 + 자사주 취득 긍정 신호:
+  // research/078930.json exit_timing 6개 중 5개 자동화 + 자사주 취득 긍정 신호:
   // 1. PER ≥ 10배 (지주사 디스카운트 정상화)
   // 2. 배당수익률 ≤ 3.5% (밸류업 가이던스 4%대 이탈 신호)
   // 3. 주가 85,000원+ (52주 고점 83,000 돌파 익절 영역)
   // 4. 별도 분기 순이익 적자 전환 (지주사 자체 배당 여력 압박, separate_quarterly_income)
   // 5. 자회사 채무보증결정 공시 (debt_guarantee_events, 90일) — v1은 카운트 감지, v2에서 자본 5% 정밀 계산
   // 6. 자사주 취득결정 공시 (긍정 시그널 — PBR 0.49 디스카운트 해소 기대, tone_on_hit="good")
-  // 뉴스: 두바이유·정제마진·이란-미국·자사주·배당성향 후퇴
-  // (외부 데이터 의존 트리거 — 두바이유 70달러 + 정제마진 5달러 — 는 뉴스 키워드만)
+  // 7. 두바이유 70달러 이하 (Brent 7일 평균 대용 — 두바이유 직접 무료 일별 API 부재로 Brent ±2달러 swing 근사)
+  // 정제마진 5달러는 무료 API 부재 — 뉴스 키워드만 (싱가포르 복합정제마진·GS칼텍스 정제마진·크랙 스프레드)
   {
     code: "078930",
     name: "GS",
@@ -711,12 +711,25 @@ export const CONFIGS: MonitorConfig[] = [
         suffix: "건",
         tone_on_hit: "good",
       },
+      {
+        id: "oil_price_brent",
+        label: "Brent 7일 평균 (두바이유 대용)",
+        source: "crude_oil_price.avg_7d",
+        threshold: { lte: 70 },
+        threshold_label: "70달러 이하 (정유 매크로 약화)",
+        suffix: "$",
+        precision: 2,
+        warn_threshold: 78,
+      },
     ],
     news_keywords: [
       "두바이유 70달러",
       "두바이유 하락",
       "정제마진 하락",
+      "싱가포르 복합정제마진",
+      "GS칼텍스 정제마진",
       "GS칼텍스 적자",
+      "크랙 스프레드 하락",
       "이란 미국 합의",
       "중동 긴장 완화",
       "GS 자사주 매입",

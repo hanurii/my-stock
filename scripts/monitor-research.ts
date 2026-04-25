@@ -110,6 +110,7 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
     separate_quarterly_income,
     debt_guarantee_events,
     disclosure_keyword_hits,
+    crude_oil_price,
     newsHits,
   ] = await Promise.all([
     sourceSet.has("valuation") ? col.collectValuation(config.code) : Promise.resolve(null),
@@ -188,6 +189,9 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
           config.disclosure_keyword_groups,
         )
       : Promise.resolve(null),
+    sourceSet.has("crude_oil_price")
+      ? col.collectCrudeOilPrice()
+      : Promise.resolve(null),
     config.news_keywords && config.news_keywords.length > 0
       ? col.collectNewsHits(config.news_keywords, 7)
       : Promise.resolve([]),
@@ -216,6 +220,7 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
     separate_quarterly_income,
     debt_guarantee_events,
     disclosure_keyword_hits,
+    crude_oil_price,
   };
 
   // 메트릭 평가
@@ -430,6 +435,11 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
     sources.push({
       label: `보통주-우선주 디스카운트 (${pref_discount.as_of ?? ""})`,
       ref: `네이버 lastClose ${pref_discount.common_code}/${pref_discount.pref_code}: ${pref_discount.common_price?.toLocaleString()}원/${pref_discount.pref_price?.toLocaleString()}원`,
+    });
+  if (crude_oil_price?.latest_close != null)
+    sources.push({
+      label: `Brent 원유 종가 ${crude_oil_price.latest_close} USD (${crude_oil_price.latest_date}, 7일 평균 ${crude_oil_price.avg_7d})`,
+      ref: `Yahoo Finance ${crude_oil_price.symbol}`,
     });
   if (newsHits.length > 0)
     sources.push({ label: "뉴스 RSS", ref: "news.google.com/rss (7일)" });

@@ -280,6 +280,22 @@ export interface CollectorBundle {
   } | null;
   /** 자체 corp 채무보증결정 공시 (자회사 보증 누적 추적) */
   debt_guarantee_events: Array<{ date: string; title: string; rcept_no: string }>;
+  /** 원유 시세 (Brent 기반 — 두바이유 직접 시리즈는 무료 일별 API 부재로 Brent로 근사.
+   *  정유사 마진은 두바이유와 강한 연동 — Brent 70달러 이하 추세는 정유 매크로 약화 신호.
+   */
+  crude_oil_price: {
+    /** 시세 출처 (Yahoo Finance "BZ=F") */
+    source: string;
+    /** 사용 심볼 */
+    symbol: string;
+    /** 가장 최근 종가 (USD/배럴) */
+    latest_close: number | null;
+    latest_date: string | null;
+    /** 최근 7거래일 평균 (단기 노이즈 필터) */
+    avg_7d: number | null;
+    /** 최근 7거래일 종가 시퀀스 (가장 오래된 → 최신) */
+    series: Array<{ date: string; close: number }>;
+  } | null;
 }
 
 /** PeerPbrPremium 결과 (export 편의) */
@@ -291,3 +307,4 @@ export type BuybackProgramStatusResult = NonNullable<CollectorBundle["buyback_pr
 export type DisclosureKeywordHitsResult = NonNullable<CollectorBundle["disclosure_keyword_hits"]>;
 export type PrefDiscountResult = NonNullable<CollectorBundle["pref_discount"]>;
 export type SeparateQuarterlyIncomeResult = NonNullable<CollectorBundle["separate_quarterly_income"]>;
+export type CrudeOilPriceResult = NonNullable<CollectorBundle["crude_oil_price"]>;

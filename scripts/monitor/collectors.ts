@@ -1527,6 +1527,55 @@ export async function collectSeparateQuarterlyIncome(
   };
 }
 
+// ── 9-13) 원유 시세 (Brent 기반, 정유 매크로 트리거용) ──
+/** Yahoo Finance unofficial chart API에서 Brent (BZ=F) 일별 종가 fetch.
+ *  GS의 두바이유 70달러 트리거를 Brent로 근사 (보통 ±2달러 swing).
+ *  최근 7거래일 평균을 함께 반환해 단발성 swing 노이즈를 완충.
+ */
+export async function collectCrudeOilPrice(): Promise<CollectorBundle["crude_oil_price"]> {
+  try {
+    const url =
+      "https://query1.finance.yahoo.com/v8/finance/chart/BZ=F?range=1mo&interval=1d";
+    const res = await fetch(url, { headers: { "user-agent": "Mozilla/5.0" } });
+    if (!res.ok) return null;
+    const json = (await res.json()) as {
+      chart?: {
+        result?: Array<{
+          meta?: { symbol?: string };
+          timestamp?: number[];
+          indicators?: { quote?: Array<{ close?: Array<number | null> }> };
+        }>;
+      };
+    };
+    const result = json.chart?.result?.[0];
+    if (!result) return null;
+    const ts = result.timestamp ?? [];
+    const closes = result.indicators?.quote?.[0]?.close ?? [];
+    const series: Array<{ date: string; close: number }> = [];
+    for (let i = 0; i < ts.length; i++) {
+      const c = closes[i];
+      if (c == null || isNaN(c)) continue;
+      const date = new Date(ts[i] * 1000).toISOString().slice(0, 10);
+      series.push({ date, close: Number(c.toFixed(2)) });
+    }
+    if (series.length === 0) return null;
+    const last7 = series.slice(-7);
+    const avg_7d = last7.reduce((s, x) => s + x.close, 0) / last7.length;
+    const latest = series.at(-1)!;
+    return {
+      source: "yahoo-finance",
+      symbol: result.meta?.symbol ?? "BZ=F",
+      latest_close: latest.close,
+      latest_date: latest.date,
+      avg_7d: Number(avg_7d.toFixed(2)),
+      series: last7,
+    };
+  } catch (e) {
+    console.warn(`  ⚠ 원유 시세 조회 실패: ${(e as Error).message}`);
+    return null;
+  }
+}
+
 // ── 9-12) 자체 corp 채무보증결정 공시 (자회사 보증 추적) ──
 /** 지주사가 자회사를 위해 발행하는 채무보증결정 공시를 lookback_days 내 카운트.
  *  자회사 부실화 시 모회사 위험 전이 신호.
