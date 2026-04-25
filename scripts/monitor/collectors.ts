@@ -116,7 +116,7 @@ interface StockEntry {
   foreign_ownership?: number | null;
 }
 
-export function collectValuation(code: string): CollectorBundle["valuation"] {
+export async function collectValuation(code: string): Promise<CollectorBundle["valuation"]> {
   const dataDir = path.resolve("public/data");
   const candidates: Array<{ file: string; key: string }> = [
     { file: "growth-watchlist.json", key: "growth-watchlist" },
@@ -136,11 +136,44 @@ export function collectValuation(code: string): CollectorBundle["valuation"] {
           peg: s.peg ?? null,
           pbr: s.pbr ?? null,
           foreign_ratio: s.foreign_ownership ?? null,
+          dividend_yield: null,
         };
       }
     } catch {}
   }
-  return null;
+  // 폴백: 워치리스트 미등재 종목(예: GS) → 네이버 m.stock 직접 조회
+  return fetchValuationFromNaver(code);
+}
+
+async function fetchValuationFromNaver(
+  code: string,
+): Promise<CollectorBundle["valuation"]> {
+  try {
+    const url = `https://m.stock.naver.com/api/stock/${code}/integration`;
+    const res = await fetch(url, { headers: { "user-agent": "Mozilla/5.0" } });
+    if (!res.ok) return null;
+    const json = (await res.json()) as {
+      totalInfos?: Array<{ code: string; value: string }>;
+    };
+    const get = (k: string) => json.totalInfos?.find((t) => t.code === k)?.value ?? "";
+    const num = (s: string): number | null => {
+      const cleaned = s.replace(/[,%원배]/g, "").trim();
+      if (!cleaned) return null;
+      const n = Number(cleaned);
+      return isNaN(n) ? null : n;
+    };
+    return {
+      source: "naver-m-stock",
+      price: num(get("lastClosePrice")),
+      per: num(get("per")),
+      peg: null,
+      pbr: num(get("pbr")),
+      foreign_ratio: num(get("foreignRate")),
+      dividend_yield: num(get("dividendYieldRatio")),
+    };
+  } catch {
+    return null;
+  }
 }
 
 // ── 2) 단일판매·공급계약 공백 ──
@@ -1191,6 +1224,161 @@ export async function collectBuybackAcquisitionGap(
     days_ago: lookback_days,
     rcept_no: null,
   };
+}
+
+// ── 9-10) 보통주-우선주 디스카운트율 (네이버 종가 기반, 우선주 모니터링용) ──
+/** 두 종목의 전일 종가를 네이버 m.stock에서 직접 받아 디스카운트율 계산.
+ *  discount_pct = (1 - pref_price / common_price) * 100 — 양수일수록 우선주가 더 저평가.
+ */
+async function fetchNaverLastClose(
+  code: string,
+): Promise<{ price: number | null; as_of: string | null }> {
+  try {
+    const url = `https://m.stock.naver.com/api/stock/${code}/integration`;
+    const res = await fetch(url, { headers: { "user-agent": "Mozilla/5.0" } });
+    if (!res.ok) return { price: null, as_of: null };
+    const json = (await res.json()) as {
+      totalInfos?: Array<{ code: string; key: string; value: string }>;
+      dealTrendInfos?: Array<{ bizdate: string }>;
+    };
+    const lastClose = (json.totalInfos ?? []).find((t) => t.code === "lastClosePrice");
+    if (!lastClose) return { price: null, as_of: null };
+    const price = Number(String(lastClose.value).replace(/[,\s]/g, ""));
+    const ymd = json.dealTrendInfos?.[0]?.bizdate;
+    const as_of =
+      ymd && /^\d{8}$/.test(ymd) ? `${ymd.slice(0, 4)}-${ymd.slice(4, 6)}-${ymd.slice(6, 8)}` : null;
+    return { price: isNaN(price) ? null : price, as_of };
+  } catch (e) {
+    console.warn(`  ⚠ ${code} 네이버 종가 조회 실패: ${(e as Error).message}`);
+    return { price: null, as_of: null };
+  }
+}
+
+export async function collectPrefDiscount(
+  pref_code: string,
+  common_code: string,
+): Promise<CollectorBundle["pref_discount"]> {
+  const [pref, common] = await Promise.all([
+    fetchNaverLastClose(pref_code),
+    fetchNaverLastClose(common_code),
+  ]);
+  const discount_pct =
+    common.price && pref.price && common.price > 0
+      ? Number((((common.price - pref.price) / common.price) * 100).toFixed(2))
+      : null;
+  return {
+    common_code,
+    pref_code,
+    common_price: common.price,
+    pref_price: pref.price,
+    discount_pct,
+    as_of: pref.as_of ?? common.as_of,
+  };
+}
+
+// ── 9-11) 별도 재무제표 분기 순이익 (지주사 자체 이익 추적) ──
+/** fnlttSinglAcntAll에서 fs_div=OFS(별도)로 당기순이익 추출.
+ *  지주사가 자회사 배당으로 자체 배당 여력을 유지하는지 모니터링하는 용도.
+ *  연결 순이익이 호조여도 별도 순이익이 적자 전환하면 향후 배당 압박 신호.
+ */
+export async function collectSeparateQuarterlyIncome(
+  corp_code: string,
+): Promise<CollectorBundle["separate_quarterly_income"]> {
+  const report = await fetchLatestPeriodicReport(corp_code);
+  if (!report) return null;
+  const list = await dartGet<{
+    account_nm: string;
+    account_id?: string;
+    thstrm_amount: string;
+    sj_div: string;
+  }>("fnlttSinglAcntAll", {
+    corp_code,
+    bsns_year: String(report.bsns_year),
+    reprt_code: report.reprt_code,
+    fs_div: "OFS",
+  });
+  if (!list) return null;
+  let net_income: number | null = null;
+  for (const row of list) {
+    if (row.sj_div !== "IS" && row.sj_div !== "CIS") continue;
+    if (row.account_id === "ifrs-full_ProfitLoss") {
+      const v = Number(String(row.thstrm_amount).replace(/,/g, ""));
+      if (!isNaN(v)) {
+        net_income = v;
+        break;
+      }
+    }
+  }
+  if (net_income == null) {
+    const targets = [
+      "당기순이익",
+      "당기순이익(손실)",
+      "분기순이익",
+      "분기순이익(손실)",
+      "반기순이익",
+      "반기순이익(손실)",
+    ];
+    for (const row of list) {
+      if (row.sj_div !== "IS" && row.sj_div !== "CIS") continue;
+      const name = row.account_nm?.trim() ?? "";
+      if (targets.includes(name)) {
+        const v = Number(String(row.thstrm_amount).replace(/,/g, ""));
+        if (!isNaN(v)) {
+          net_income = v;
+          break;
+        }
+      }
+    }
+  }
+  if (net_income == null) return null;
+  const period = `${report.bsns_year}-${
+    report.reprt_code === "11013"
+      ? "Q1"
+      : report.reprt_code === "11012"
+        ? "H1"
+        : report.reprt_code === "11014"
+          ? "Q3"
+          : "FY"
+  }`;
+  return {
+    year: report.bsns_year,
+    period,
+    net_income,
+    net_income_billion: Math.round(net_income / 1e8),
+    rcept_no: report.rcept_no,
+  };
+}
+
+// ── 9-12) 자체 corp 채무보증결정 공시 (자회사 보증 추적) ──
+/** 지주사가 자회사를 위해 발행하는 채무보증결정 공시를 lookback_days 내 카운트.
+ *  자회사 부실화 시 모회사 위험 전이 신호.
+ */
+export async function collectDebtGuaranteeEvents(
+  corp_code: string,
+  lookback_days: number,
+): Promise<Array<{ date: string; title: string; rcept_no: string }>> {
+  const today = new Date();
+  const since = new Date(today.getTime() - lookback_days * 86400_000);
+  const list = await dartGet<DartListItem>("list", {
+    corp_code,
+    bgn_de: fmtYmd(since),
+    end_de: fmtYmd(today),
+    page_count: "100",
+  });
+  if (!list) return [];
+  const out: Array<{ date: string; title: string; rcept_no: string }> = [];
+  for (const item of list) {
+    const nm = item.report_nm ?? "";
+    if (nm.includes("타인에대한채무보증") || nm.includes("채무보증결정")) {
+      const d = item.rcept_dt;
+      out.push({
+        date: `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}`,
+        title: nm.trim(),
+        rcept_no: item.rcept_no,
+      });
+    }
+  }
+  return out;
 }
 
 // ── 10) Google News RSS + 헤드라인 시그널 분류 ──

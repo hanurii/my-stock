@@ -106,9 +106,12 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
     foreign_net_buy,
     quarterly_net_income,
     buyback_acquisition_gap,
+    pref_discount,
+    separate_quarterly_income,
+    debt_guarantee_events,
     newsHits,
   ] = await Promise.all([
-    Promise.resolve(sourceSet.has("valuation") ? col.collectValuation(config.code) : null),
+    sourceSet.has("valuation") ? col.collectValuation(config.code) : Promise.resolve(null),
     sourceSet.has("supply_gap")
       ? col.collectSupplyContractGap(config.corp_code, 180)
       : Promise.resolve(null),
@@ -166,6 +169,15 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
     sourceSet.has("buyback_acquisition_gap")
       ? col.collectBuybackAcquisitionGap(config.corp_code, 365)
       : Promise.resolve(null),
+    sourceSet.has("pref_discount") && config.common_stock_code
+      ? col.collectPrefDiscount(config.code, config.common_stock_code)
+      : Promise.resolve(null),
+    sourceSet.has("separate_quarterly_income")
+      ? col.collectSeparateQuarterlyIncome(config.corp_code)
+      : Promise.resolve(null),
+    sourceSet.has("debt_guarantee_events")
+      ? col.collectDebtGuaranteeEvents(config.corp_code, 90)
+      : Promise.resolve([]),
     config.news_keywords && config.news_keywords.length > 0
       ? col.collectNewsHits(config.news_keywords, 7)
       : Promise.resolve([]),
@@ -190,6 +202,9 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
     foreign_net_buy,
     quarterly_net_income,
     buyback_acquisition_gap,
+    pref_discount,
+    separate_quarterly_income,
+    debt_guarantee_events,
   };
 
   // 메트릭 평가
@@ -198,7 +213,7 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
     const hit = evaluateThreshold(value, trig.threshold);
     const warn = !hit && evaluateWarn(value, trig);
     const tone: Tone =
-      hit ? "bad" : warn ? "warn" : value == null ? "neutral" : "good";
+      hit ? trig.tone_on_hit ?? "bad" : warn ? "warn" : value == null ? "neutral" : "good";
     // label 동적 치환 — 예: "대명ENG 매입 비율 ({year})"
     let label = trig.label;
     if (trig.id === "related_party" && related_party?.year) {
@@ -222,11 +237,15 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
   const alerts: MonitorAlert[] = [];
   for (const m of metrics) {
     if (m.hit) {
+      // 긍정 시그널 트리거(tone="good")는 매도 알림이 아니라 재평가 신호로 표시
+      const isPositive = m.tone === "good";
       alerts.push({
-        severity: "bad",
+        severity: isPositive ? "info" : "bad",
         type: m.id,
         title: `${m.label} ${m.threshold}`,
-        message: `현재 ${m.display} — 매도 트리거 도달`,
+        message: isPositive
+          ? `현재 ${m.display} — 긍정 시그널 발생 (재평가 검토)`
+          : `현재 ${m.display} — 매도 트리거 도달`,
       });
     } else if (m.tone === "warn") {
       alerts.push({
@@ -360,6 +379,11 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
     sources.push({
       label: `최근 자사주 취득결정 (${buyback_acquisition_gap.last_date})`,
       ref: `DART ${buyback_acquisition_gap.rcept_no}`,
+    });
+  if (pref_discount && pref_discount.discount_pct != null)
+    sources.push({
+      label: `보통주-우선주 디스카운트 (${pref_discount.as_of ?? ""})`,
+      ref: `네이버 lastClose ${pref_discount.common_code}/${pref_discount.pref_code}: ${pref_discount.common_price?.toLocaleString()}원/${pref_discount.pref_price?.toLocaleString()}원`,
     });
   if (newsHits.length > 0)
     sources.push({ label: "뉴스 RSS", ref: "news.google.com/rss (7일)" });

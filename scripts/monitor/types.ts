@@ -22,6 +22,8 @@ export interface TriggerDef {
   warn_threshold?: number;
   /** 표시 자릿수 */
   precision?: number;
+  /** hit 시 톤을 강제로 지정 (긍정 시그널 — 예: GS 자사주 취득결정 공시는 hit이지만 'good') */
+  tone_on_hit?: Tone;
 }
 
 /** 종목별 모니터 설정 */
@@ -47,6 +49,8 @@ export interface MonitorConfig {
   family_member_names?: string[];
   /** 동종 그룹 평균 PBR 비교용 종목코드 목록 (예: 4대 금융지주) */
   peer_codes?: string[];
+  /** 우선주 모니터링 시 보통주 종목코드 — pref_discount collector 활성화 트리거 */
+  common_stock_code?: string;
 }
 
 /** 메트릭 평가 결과 (monitor JSON에 저장됨) */
@@ -111,6 +115,7 @@ export interface CollectorBundle {
     peg: number | null;
     pbr: number | null;
     foreign_ratio: number | null;
+    dividend_yield: number | null;
   } | null;
   supply_gap: {
     last_date: string | null;
@@ -218,6 +223,25 @@ export interface CollectorBundle {
     days_ago: number | null;
     rcept_no: string | null;
   } | null;
+  /** 보통주-우선주 디스카운트율 (우선주 모니터링용, 네이버 종가 기반) */
+  pref_discount: {
+    common_code: string;
+    pref_code: string;
+    common_price: number | null;
+    pref_price: number | null;
+    discount_pct: number | null;
+    as_of: string | null;
+  } | null;
+  /** 별도 재무제표 기준 분기 순이익 (지주사 자체 이익 추적용) */
+  separate_quarterly_income: {
+    year: number | null;
+    period: string | null;
+    net_income: number | null;
+    net_income_billion: number | null;
+    rcept_no: string | null;
+  } | null;
+  /** 자체 corp 채무보증결정 공시 (자회사 보증 누적 추적) */
+  debt_guarantee_events: Array<{ date: string; title: string; rcept_no: string }>;
 }
 
 /** PeerPbrPremium 결과 (export 편의) */
@@ -226,3 +250,5 @@ export type DividendTrendResult = NonNullable<CollectorBundle["dividend_trend"]>
 export type ForeignNetBuyTrendResult = NonNullable<CollectorBundle["foreign_net_buy"]>;
 export type QuarterlyNetIncomeResult = NonNullable<CollectorBundle["quarterly_net_income"]>;
 export type BuybackAcquisitionGapResult = NonNullable<CollectorBundle["buyback_acquisition_gap"]>;
+export type PrefDiscountResult = NonNullable<CollectorBundle["pref_discount"]>;
+export type SeparateQuarterlyIncomeResult = NonNullable<CollectorBundle["separate_quarterly_income"]>;

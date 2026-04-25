@@ -512,4 +512,165 @@ export const CONFIGS: MonitorConfig[] = [
       "하나은행 사법",
     ],
   },
+
+  // ───── 현대차2우B (005387) ─────
+  // research/005387.json exit_timing 6개 중 5개 자동화:
+  // 1. 부분익절 ① — 가격 320,000 돌파 + PER 9배 (price + per 트리거)
+  // 2. 부분익절 ③ — 보통주-우선주 괴리율 30% 이하 (pref_discount, 신규 collector)
+  // 3. 전량매도 ① — 자사주 소각 공시 1년 부재 (buyback_cancellation_gap, 보통주 005380 corp_code 기준)
+  // 4. 전량매도 ② — 분기 영업이익률 4% 미만 (op_margin)
+  // 5. 뉴스: 트럼프 관세·우선주 차별·지배구조 개편
+  // (부분익절 ② DPS 추가 감소는 분기배당 도입 첫해라 baseline 부족 — 2027년 봄 결산 후 dividend_trend 트리거 추가 검토)
+  // (전량매도 ③ 지배구조 개편 시 우선주 차별은 정성 판단 영역 — 뉴스 키워드만 추적)
+  {
+    code: "005387",
+    name: "현대차2우B",
+    corp_code: "00164742",        // 현대자동차 (보통주 발행회사 corp_code)
+    common_stock_code: "005380",  // 보통주 종목코드 (괴리율 collector용)
+    triggers: [
+      {
+        id: "price",
+        label: "우선주 종가",
+        source: "valuation.price",
+        threshold: { gte: 320000 },
+        threshold_label: "320,000원 돌파",
+        suffix: "원",
+        warn_threshold: 290000,
+      },
+      {
+        id: "per",
+        label: "PER",
+        source: "valuation.per",
+        threshold: { gte: 9 },
+        threshold_label: "9배 돌파",
+        suffix: "배",
+        precision: 2,
+        warn_threshold: 8,
+      },
+      {
+        id: "pref_discount",
+        label: "보통주 대비 디스카운트",
+        source: "pref_discount.discount_pct",
+        threshold: { lte: 30 },
+        threshold_label: "30% 이하로 축소",
+        suffix: "%",
+        precision: 1,
+        warn_threshold: 35,
+      },
+      {
+        id: "buyback_gap",
+        label: "자사주 소각 공시 공백",
+        source: "buyback_cancellation_gap.days_ago",
+        threshold: { gte: 365 },
+        threshold_label: "365일 경과",
+        suffix: "일",
+        warn_threshold: 270,
+      },
+      {
+        id: "op_margin",
+        label: "분기 영업이익률",
+        source: "op_margin.op_margin_pct",
+        threshold: { lte: 4 },
+        threshold_label: "4% 미만",
+        suffix: "%",
+        precision: 1,
+        warn_threshold: 7,
+      },
+    ],
+    news_keywords: [
+      "트럼프 자동차 관세",
+      "현대차 미국 관세",
+      "현대차 멕시코 공장",
+      "현대모비스 분할",
+      "현대차 지배구조 개편",
+      "현대차 우선주 차별",
+      "현대차 자사주 소각",
+    ],
+  },
+
+  // ───── GS (078930) ─────
+  // research/078930.json exit_timing 6개 중 4개 자동화 + 자사주 취득 긍정 신호:
+  // 1. PER ≥ 10배 (지주사 디스카운트 정상화)
+  // 2. 배당수익률 ≤ 3.5% (밸류업 가이던스 4%대 이탈 신호)
+  // 3. 주가 85,000원+ (52주 고점 83,000 돌파 익절 영역)
+  // 4. 별도 분기 순이익 적자 전환 (지주사 자체 배당 여력 압박, separate_quarterly_income)
+  // 5. 자회사 채무보증결정 공시 (debt_guarantee_events, 90일) — v1은 카운트 감지, v2에서 자본 5% 정밀 계산
+  // 6. 자사주 취득결정 공시 (긍정 시그널 — PBR 0.49 디스카운트 해소 기대, tone_on_hit="good")
+  // 뉴스: 두바이유·정제마진·이란-미국·자사주·배당성향 후퇴
+  // (외부 데이터 의존 트리거 — 두바이유 70달러 + 정제마진 5달러 — 는 뉴스 키워드만)
+  {
+    code: "078930",
+    name: "GS",
+    corp_code: "00500254",
+    triggers: [
+      {
+        id: "per",
+        label: "PER",
+        source: "valuation.per",
+        threshold: { gte: 10 },
+        threshold_label: "10배 돌파",
+        suffix: "배",
+        precision: 2,
+        warn_threshold: 9.5,
+      },
+      {
+        id: "dividend_yield",
+        label: "배당수익률",
+        source: "valuation.dividend_yield",
+        threshold: { lte: 3.5 },
+        threshold_label: "3.5% 이하",
+        suffix: "%",
+        precision: 2,
+        warn_threshold: 3.7,
+      },
+      {
+        id: "price_high",
+        label: "주가",
+        source: "valuation.price",
+        threshold: { gte: 85000 },
+        threshold_label: "85,000원+ 돌파",
+        suffix: "원",
+        precision: 0,
+        warn_threshold: 82000,
+      },
+      {
+        id: "separate_net_loss",
+        label: "별도 분기 순이익",
+        source: "separate_quarterly_income.net_income_billion",
+        threshold: { lte: 0 },
+        threshold_label: "적자 전환",
+        suffix: "억",
+        precision: 0,
+        warn_threshold: 500,
+      },
+      {
+        id: "debt_guarantee_count",
+        label: "자회사 채무보증결정 공시 (90일)",
+        source: "debt_guarantee_events.count",
+        threshold: { gte: 1 },
+        threshold_label: "공시 1건+",
+        suffix: "건",
+      },
+      {
+        id: "buyback_acquisition",
+        label: "자사주 취득결정 공시 (90일·긍정)",
+        source: "stock_buyback_events.count",
+        threshold: { gte: 1 },
+        threshold_label: "공시 1건+ (재평가 신호)",
+        suffix: "건",
+        tone_on_hit: "good",
+      },
+    ],
+    news_keywords: [
+      "두바이유 70달러",
+      "두바이유 하락",
+      "정제마진 하락",
+      "GS칼텍스 적자",
+      "이란 미국 합의",
+      "중동 긴장 완화",
+      "GS 자사주 매입",
+      "GS 자사주 소각",
+      "GS 배당성향",
+    ],
+  },
 ];
