@@ -1,0 +1,216 @@
+{
+  "code": "005387",
+  "name": "현대차2우B",
+  "last_checked": "2026-04-25T22:11:25.662+09:00",
+  "metrics": [
+    {
+      "id": "price",
+      "label": "우선주 종가",
+      "value": 245000,
+      "display": "245,000원",
+      "threshold": "320,000원 돌파",
+      "hit": false,
+      "tone": "good"
+    },
+    {
+      "id": "per",
+      "label": "PER",
+      "value": 6.47,
+      "display": "6.47배",
+      "threshold": "9배 돌파",
+      "hit": false,
+      "tone": "good"
+    },
+    {
+      "id": "pref_discount",
+      "label": "보통주 대비 디스카운트",
+      "value": 52.63,
+      "display": "52.6%",
+      "threshold": "30% 이하로 축소",
+      "hit": false,
+      "tone": "good"
+    },
+    {
+      "id": "buyback_gap",
+      "label": "자사주 소각 공시 공백",
+      "value": 366,
+      "display": "366일",
+      "threshold": "365일 경과",
+      "hit": true,
+      "tone": "bad"
+    },
+    {
+      "id": "op_margin",
+      "label": "분기 영업이익률 (2025)",
+      "value": 6.16,
+      "display": "6.2%",
+      "threshold": "4% 미만",
+      "hit": false,
+      "tone": "warn"
+    }
+  ],
+  "alerts": [
+    {
+      "severity": "bad",
+      "type": "buyback_gap",
+      "title": "자사주 소각 공시 공백 365일 경과",
+      "message": "현재 366일 — 매도 트리거 도달"
+    },
+    {
+      "severity": "warn",
+      "type": "op_margin",
+      "title": "분기 영업이익률 (2025) 임계 근접",
+      "message": "현재 6.2% (임계 4% 미만)"
+    },
+    {
+      "severity": "warn",
+      "type": "news_keyword_hit",
+      "title": "규제·매크로 키워드 뉴스 14건 (관찰 신호 4건 포함)",
+      "message": "최근 7일 매칭. 상세는 하단 리스트 확인."
+    }
+  ],
+  "news_hits": [
+    {
+      "keyword": "트럼프 자동차 관세",
+      "date": "2026-04-24",
+      "title": "트럼프 관세에 흔들린 현대차·기아…1분기 1.6조원 부담 - v.daum.net",
+      "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE5qQmZnVlBUWERiOU9pMDMwOEliY3BwbmdBSGVkeEl2VWRVdEVLQjBTWlQ3c090NzV6M1hlR3RuUWt0NF9QcWFRRzdaQ3kzSkU?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "트럼프 자동차 관세",
+      "date": "2026-04-24",
+      "title": "'트럼프 관세' 피한 美 우회 수입품 규모 3천억 달러 넘어 - 더구루",
+      "url": "https://news.google.com/rss/articles/CBMiY0FVX3lxTE9wSms0UVBZU28zSTdad2JVT0tqQU9LS2pzR1d5ZjlDT08xZjRza1FNV0V6WU9fUW80UUZGRUhVdmE0bWVhOHp2TU42QWNyYUEzOHNpcmtRbDFRelNUSXNJcDZ5MA?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "현대차 미국 관세",
+      "date": "2026-04-23",
+      "title": "현대차, ‘8600억’ 관세 충격에도···“연간 목표 그대로 간다” - 시사저널e",
+      "url": "https://news.google.com/rss/articles/CBMidkFVX3lxTE5YdXVKT2plYzZVUGE0dlp4WFloc1NNQ0pyNHpPalZEYWotVVA5ZUJMaWNSTFhNZHpkQ0poSXZrazNwVUhaUVhhc1E4T0MtODNjazlPbkJDQnNOWTQxR29WUS1QT2ROTEtwejBfRnpwNHNxaHpOcmfSAXZBVV95cUxOWHV1Sk9qZWM2VVBhNHZaeFhZaHNTTUNKcjR6T2pWRGFqLVVQOWVCTGljUkxYTWR6ZENKaEl2a2szcFVIWlFYYXNROE9DLTgzY2s5T25CQ0JzTlk0MUdvVlEtUE9kTkxLcHowX0Z6cDRzcWh6TnJn?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "현대차 미국 관세",
+      "date": "2026-04-23",
+      "title": "현대차, 1분기 최대 매출에도 영업이익 30.8% 감소…미국 관세·중동 사태 영향 - v.daum.net",
+      "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTFAzV2lYWFByUV9UQ3pwRm5FVjhjTUdEdm5XejIxMk40aVRiNjZyaE5pTUxsN0FlMVk3U2pXdmdaZ256VmsxUjJUY1l5WkJuVWM?oc=5",
+      "severity": "warn",
+      "signals": [
+        "감소"
+      ]
+    },
+    {
+      "keyword": "현대차 미국 관세",
+      "date": "2026-04-23",
+      "title": "현대차, 미국 관세 여파에 1Q 영업이익 31% 감소 - 한국금융신문",
+      "url": "https://news.google.com/rss/articles/CBMifEFVX3lxTE5FbkJfUHZSaldNTWhHY2Z5YUYxaE42dXkyUjVwQmNfVVJpMW11UTZXRHk1VUtTdldnbHd3dUx3dnRSTXJqMVJjdVRlWkd4R0lyenJxMlhYUHRBcWpHb3pQa2NDTkNXaVRPcUdJUVJyWGp2bkxyZjdPOU5JZHE?oc=5",
+      "severity": "warn",
+      "signals": [
+        "감소"
+      ]
+    },
+    {
+      "keyword": "현대차 미국 관세",
+      "date": "2026-04-24",
+      "title": "자동차업계, 미국 관세로 직격탄 맞자 컨틴전시 플랜 가동 - 우먼타임스",
+      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE9KelVQZ1huczZqZVVOVWRMZDdUWDJwMmRQTUU3Y19YNm9LdllBMG5DV2NGX2x6SFpNVnVnNC10TTVER1dDMWtjODd3YnY0VHFyam1QdXl1N0ZCbG9xU0xUdUExeWJGOWRlRF9iVVNiaWTSAXRBVV95cUxPWng4ZERDSGctQmcyYkF2ZUJlNzVWWnFybElGaDVCcmpLRXdqcjhHd2gyTHVBQU9wbUZYR2hjVUxWOWk5a2doTzVRSUJMcjVPc2kwVV9QaG83Ty13elkwdXFvNXRFU3pQanloa3FINDlfMG50Rg?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "현대차 미국 관세",
+      "date": "2026-04-23",
+      "title": "현대차 1분기 기준 역대 최대 매출, 미국 관세·이란 전쟁에 영업이익 2.5조로 30.8% 감소 - 비즈니스포스트",
+      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE9HbEdWa1hhVEhqcjZtM245V1hWUTUwNE5CYXZJVWRnMVRnc1l2WGZaeWtvOWlQMzhSNnppUVUtRDMyLXVYUnVTODZMUEczY25xaFJhV0dTTXZsS0lYSEJTYVE4MHhCdFlzWWM5QWtrVlFIMnc?oc=5",
+      "severity": "warn",
+      "signals": [
+        "감소"
+      ]
+    },
+    {
+      "keyword": "현대차 미국 관세",
+      "date": "2026-04-21",
+      "title": "[김훈기 칼럼",
+      "url": "https://news.google.com/rss/articles/CBMickFVX3lxTE03eUxncm8yc1REbkI5Z3l4aUQ2VkVlTnBuMTV3cThSU1BvSzB4TElESnZQUS1rM0wxZHQ0N2xWMEZRcXpVWGkxbjVRUkg3ZzVieVowWFNvcFg1cFhVeThuVGpuRUQzSlJLdC1DV0JFWEkwUQ?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "현대차 미국 관세",
+      "date": "2026-04-24",
+      "title": "관세·전쟁 이중 부담…현대차·기아 영업이익 동반 감소 - 매일경제TV",
+      "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTFBsMzB4WmZPNEhXdUI3TnZfUkJPT2NhRWNVTmIycHJYdHpaZ1VSNGlHZXRoaHpWamNRcjZUNXo4UnFVTmVETkF6alc1cmVQMXhIM205VnFyRXBQQ1VkVFp1dkZZQlJKRFlW?oc=5",
+      "severity": "warn",
+      "signals": [
+        "감소"
+      ]
+    },
+    {
+      "keyword": "현대차 미국 관세",
+      "date": "2026-04-24",
+      "title": "현대차·기아 매출 호조에도 관세로 1.6조 날려... 해법은? - seoulwire.com",
+      "url": "https://news.google.com/rss/articles/CBMia0FVX3lxTE9mcGdlMm90VkpjQ2twZXo1OEphbnhjUDFMemxZWU9Xb25DLThubzdxdEQtS0VGUzF4MTNTa0dPMjBEZ1pfSmRSWjFQS1hILTM1RjN3SzZETTB5UjlmR0lXLWZUb3pSYnNReG5j?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "현대차 미국 관세",
+      "date": "2026-04-23",
+      "title": "현대차 미국 관세 비용 8600억 탓에 1분기 영업이익 작년보다 30% 줄어 : 고부가가치 차종 판매 확대는 고무적이다 - 허프포스트코리아",
+      "url": "https://news.google.com/rss/articles/CBMiV0FVX3lxTFBVMlFsZUlTZDlWdWhmb2VLWm10RnNGSlllMXhUbzRYUmFoNnFVZlRsM0tzUEUzbmdhUjk1Qkxoc2lLcVN1bUVEcVR5OTQ2R2dVWjJhalJvZw?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "현대차 미국 관세",
+      "date": "2026-04-20",
+      "title": "현대차, 美에 '중복 관세' 반대 의견 제출…\"미국 경제에 부정적\" - 뉴스1",
+      "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE9TbFpZeGxOVzlCZnBHWjVROEIxMXFLNVRwSGN4czRqdE1ZZ3Nzbm1lZTdjTHBTZVpYOTR6NTBIb3ZmTXZJYW9NMnRhaG5iSENidDA2UkVUQTRZSFBRU3JURg?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "현대차 지배구조 개편",
+      "date": "2026-04-24",
+      "title": "현대건설 주가 '질주'에···정의선, 지배구조 재편 카드 흔들리나 - 현대경제신문",
+      "url": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE5NSmQyRnB2QWVldXZ3RmF0WFpnZ3FNQTVsQ2hHekRjcmU3VWNXMTlrS2RwM0w4d0sxaFdNUWJYNE9aREJtaWg2NmZIeWl1SVF2alI0Njh6eVR1ZHdRWjZJRVBkM1RKUVXSAWtBVV95cUxOckx6a2JWZGptcHJhdEM5eVFGSUhqdzFrVm5KZWYxRTl4LWpHVXZ1ZExSOHJDTzh5TmhuUzhNZ19yT3BWZENYR1l4M1BzZTZLa2UwMU9WUUZMUk9DTkpGVXJNNG1WVlItWXV1WQ?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "현대차 자사주 소각",
+      "date": "2026-04-19",
+      "title": "현대차·기아 ‘주주환원’…‘정의선 승계’ 함께 해결? - 한국금융신문",
+      "url": "https://news.google.com/rss/articles/CBMifEFVX3lxTE9CYzliTlJqNjJpdEphMHdrWV9sbkRQUGp6YlRXT3V4WGREUzEtR2cyT3ZVR1pFVVZqdmxSTDdiYmxibW41aUFiWXR6LWNLNVk4RUVVeWdZQi1XQm5QVjFDaG9wcnRrT0ItaEdPRlVvSEUzeWMyWEVEVW9peTg?oc=5",
+      "severity": "info",
+      "signals": []
+    }
+  ],
+  "sources": [
+    {
+      "label": "PER/PEG/PBR 스코어",
+      "ref": "public/data/watchlist.json"
+    },
+    {
+      "label": "분기 영업이익률 (2025)",
+      "ref": "DART 20260318001394"
+    },
+    {
+      "label": "최근 자사주 소각 공시 (2025-04-24)",
+      "ref": "DART 20250424800336"
+    },
+    {
+      "label": "보통주-우선주 디스카운트 (2026-04-24)",
+      "ref": "네이버 lastClose 005380/005387: 532,000원/252,000원"
+    },
+    {
+      "label": "뉴스 RSS",
+      "ref": "news.google.com/rss (7일)"
+    }
+  ]
+}

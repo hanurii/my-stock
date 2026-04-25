@@ -51,6 +51,15 @@ export interface MonitorConfig {
   peer_codes?: string[];
   /** 우선주 모니터링 시 보통주 종목코드 — pref_discount collector 활성화 트리거 */
   common_stock_code?: string;
+  /** 자사 corp_code DART 공시 키워드 매칭 그룹 (PF 손실·자본 규제 후퇴 등 정성 신호 감지) */
+  disclosure_keyword_groups?: Array<{
+    /** group key — source path에서 사용 (snake_case 권장) */
+    name: string;
+    /** UI 라벨 */
+    label: string;
+    /** report_nm 부분 일치 키워드 */
+    keywords: string[];
+  }>;
 }
 
 /** 메트릭 평가 결과 (monitor JSON에 저장됨) */
@@ -216,12 +225,41 @@ export interface CollectorBundle {
     net_income_billion: number | null;
     rcept_no: string | null;
   } | null;
-  /** 가장 최근 자사주 취득결정 공시 이후 경과일 */
-  buyback_acquisition_gap: {
+  /** 자사주 매입 프로그램 종합 상태 — 취득결정·취득결과보고·소각결정 3종 공시를
+   *  통합 추적. 가장 최근 활동일 기준 경과일 + 단계별 상태(active/cooldown/post_cooldown/abandoned).
+   */
+  buyback_program_status: {
     last_date: string | null;
     last_title: string | null;
+    /** 마지막 공시 종류: "acquire" (취득결정), "result" (취득결과보고), "cancel" (소각결정) */
+    last_kind: "acquire" | "result" | "cancel" | null;
     days_ago: number | null;
+    /** active=취득 진행 중 / cooldown=완료 직후 정상 / post_cooldown=후속 발표 지연 / abandoned=프로그램 사실상 중단 */
+    status: "active" | "cooldown" | "post_cooldown" | "abandoned" | null;
     rcept_no: string | null;
+    /** 추적 기간 동안의 단계별 누적 건수 — 운영 모니터링용 */
+    acquire_count: number;
+    result_count: number;
+    cancel_count: number;
+  } | null;
+  /** 자사 corp_code DART 공시 키워드 매칭 결과 (그룹별 dictionary).
+   *  source path 예: `disclosure_keyword_hits.groups.pf_loss.hits.count` (gte 1로 매도 신호).
+   */
+  disclosure_keyword_hits: {
+    period_days: number;
+    groups: Record<
+      string,
+      {
+        label: string;
+        keywords: string[];
+        hits: Array<{
+          date: string;
+          title: string;
+          rcept_no: string;
+          matched: string[];
+        }>;
+      }
+    >;
   } | null;
   /** 보통주-우선주 디스카운트율 (우선주 모니터링용, 네이버 종가 기반) */
   pref_discount: {
@@ -249,6 +287,7 @@ export type PeerPbrPremiumResult = NonNullable<CollectorBundle["peer_pbr_premium
 export type DividendTrendResult = NonNullable<CollectorBundle["dividend_trend"]>;
 export type ForeignNetBuyTrendResult = NonNullable<CollectorBundle["foreign_net_buy"]>;
 export type QuarterlyNetIncomeResult = NonNullable<CollectorBundle["quarterly_net_income"]>;
-export type BuybackAcquisitionGapResult = NonNullable<CollectorBundle["buyback_acquisition_gap"]>;
+export type BuybackProgramStatusResult = NonNullable<CollectorBundle["buyback_program_status"]>;
+export type DisclosureKeywordHitsResult = NonNullable<CollectorBundle["disclosure_keyword_hits"]>;
 export type PrefDiscountResult = NonNullable<CollectorBundle["pref_discount"]>;
 export type SeparateQuarterlyIncomeResult = NonNullable<CollectorBundle["separate_quarterly_income"]>;

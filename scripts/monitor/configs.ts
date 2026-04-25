@@ -482,13 +482,17 @@ export const CONFIGS: MonitorConfig[] = [
         warn_threshold: 1,
       },
       {
-        id: "buyback_acquisition_gap",
-        label: "자사주 취득결정 후 경과일",
-        source: "buyback_acquisition_gap.days_ago",
-        threshold: { gte: 90 },
-        threshold_label: "90일 후속 부재",
+        // 자사주 매입 프로그램 종합 상태 — 취득결정·취득결과·소각결정 3종 통합 추적
+        // days_ago는 마지막 활동(어떤 종류든) 기준 경과일이라 단순 '취득결정 90일'보다 정밀.
+        // 매입은 보통 2~3개월 진행되므로 취득결과보고서가 그 후 30~60일 내 정상 후속.
+        // → 마지막 활동 후 180일+면 프로그램 사실상 중단(abandoned)으로 매도 신호.
+        id: "buyback_program_status",
+        label: "자사주 프로그램 마지막 활동 후 경과일",
+        source: "buyback_program_status.days_ago",
+        threshold: { gte: 180 },
+        threshold_label: "180일+ (프로그램 중단)",
         suffix: "일",
-        warn_threshold: 60,
+        warn_threshold: 90,
       },
       {
         id: "quarterly_net_income",
@@ -500,8 +504,55 @@ export const CONFIGS: MonitorConfig[] = [
         precision: 0,
         warn_threshold: 5000,
       },
+      {
+        // PF 손실·충당금 등 자사 직접 공시 — 뉴스보다 한 단계 더 강한 신호
+        id: "pf_loss_disclosure",
+        label: "PF 손실·충당금 공시 (90일)",
+        source: "disclosure_keyword_hits.groups.pf_loss.hits.count",
+        threshold: { gte: 1 },
+        threshold_label: "1건 이상",
+        suffix: "건",
+      },
+      {
+        // 주주환원 정책 변경·축소 등 자사 직접 공시
+        id: "shareholder_policy_disclosure",
+        label: "주주환원 정책 변경 공시 (90일)",
+        source: "disclosure_keyword_hits.groups.policy_change.hits.count",
+        threshold: { gte: 1 },
+        threshold_label: "1건 이상",
+        suffix: "건",
+      },
     ],
     peer_codes: ["105560", "055550", "316140"], // KB금융, 신한지주, 우리금융지주
+    disclosure_keyword_groups: [
+      {
+        // 은행지주 PF 손실: report_nm에 노출되는 키워드 — 손상차손은 자율 공시이거나
+        // 분기보고서 본문에서만 잡히므로 여기서는 주요사항보고서 수준 키워드만.
+        name: "pf_loss",
+        label: "PF 손실·충당금",
+        keywords: [
+          "충당금 적립",
+          "대규모 손실",
+          "손상차손 인식",
+          "부동산 PF",
+          "프로젝트금융",
+        ],
+      },
+      {
+        // 주주환원 정책 변경/철회: 단순 결정 공시는 긍정·부정 모두 가능하지만
+        // 키워드 자체로 변경 사실은 잡힘 → 사용자가 매뉴얼 검토.
+        name: "policy_change",
+        label: "주주환원 정책 변경",
+        keywords: [
+          "주주환원 정책 변경",
+          "배당정책 변경",
+          "기업가치 제고 계획 변경",
+          "기업가치 제고계획 변경",
+          "자기주식취득 철회",
+          "자기주식취득결정 취소",
+        ],
+      },
+    ],
     news_keywords: [
       "하나금융 분기배당",
       "하나금융 자사주",

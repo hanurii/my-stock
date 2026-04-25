@@ -105,10 +105,11 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
     dividend_trend,
     foreign_net_buy,
     quarterly_net_income,
-    buyback_acquisition_gap,
+    buyback_program_status,
     pref_discount,
     separate_quarterly_income,
     debt_guarantee_events,
+    disclosure_keyword_hits,
     newsHits,
   ] = await Promise.all([
     sourceSet.has("valuation") ? col.collectValuation(config.code) : Promise.resolve(null),
@@ -128,7 +129,7 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
       ? col.collectMajorShareholderRatio(config.corp_code, config.major_shareholder_name)
       : Promise.resolve(null),
     sourceSet.has("buyback_cancellation_gap")
-      ? col.collectBuybackCancellationGap(config.corp_code, 365)
+      ? col.collectBuybackCancellationGap(config.corp_code, 730)
       : Promise.resolve(null),
     sourceSet.has("insider_family_trades") && config.family_member_names
       ? col.collectInsiderFamilyTrades(config.corp_code, 90, config.family_member_names)
@@ -166,8 +167,8 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
     sourceSet.has("quarterly_net_income")
       ? col.collectQuarterlyNetIncome(config.corp_code)
       : Promise.resolve(null),
-    sourceSet.has("buyback_acquisition_gap")
-      ? col.collectBuybackAcquisitionGap(config.corp_code, 365)
+    sourceSet.has("buyback_program_status")
+      ? col.collectBuybackProgramStatus(config.corp_code, 730)
       : Promise.resolve(null),
     sourceSet.has("pref_discount") && config.common_stock_code
       ? col.collectPrefDiscount(config.code, config.common_stock_code)
@@ -178,6 +179,15 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
     sourceSet.has("debt_guarantee_events")
       ? col.collectDebtGuaranteeEvents(config.corp_code, 90)
       : Promise.resolve([]),
+    sourceSet.has("disclosure_keyword_hits") &&
+    config.disclosure_keyword_groups &&
+    config.disclosure_keyword_groups.length > 0
+      ? col.collectDisclosureKeywordHits(
+          config.corp_code,
+          90,
+          config.disclosure_keyword_groups,
+        )
+      : Promise.resolve(null),
     config.news_keywords && config.news_keywords.length > 0
       ? col.collectNewsHits(config.news_keywords, 7)
       : Promise.resolve([]),
@@ -201,10 +211,11 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
     dividend_trend,
     foreign_net_buy,
     quarterly_net_income,
-    buyback_acquisition_gap,
+    buyback_program_status,
     pref_discount,
     separate_quarterly_income,
     debt_guarantee_events,
+    disclosure_keyword_hits,
   };
 
   // 메트릭 평가
@@ -221,6 +232,24 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
     }
     if (trig.id === "op_margin" && op_margin?.year) {
       label = `분기 영업이익률 (${op_margin.year})`;
+    }
+    // 자사주 프로그램 상태 — 마지막 공시 종류와 status 정보로 라벨 보강
+    if (trig.id === "buyback_program_status" && buyback_program_status?.last_kind) {
+      const kindLabel =
+        buyback_program_status.last_kind === "acquire"
+          ? "취득결정"
+          : buyback_program_status.last_kind === "result"
+            ? "취득결과"
+            : "소각결정";
+      const statusLabel =
+        buyback_program_status.status === "active"
+          ? "진행 중"
+          : buyback_program_status.status === "cooldown"
+            ? "후속 대기"
+            : buyback_program_status.status === "post_cooldown"
+              ? "후속 지연"
+              : "사실상 중단";
+      label = `자사주 프로그램 (마지막 ${kindLabel} · ${statusLabel})`;
     }
     return {
       id: trig.id,
@@ -375,11 +404,28 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
       label: `최근 분기 순이익 (${quarterly_net_income.period ?? ""})`,
       ref: `DART ${quarterly_net_income.rcept_no} (fnlttSinglAcntAll)`,
     });
-  if (buyback_acquisition_gap?.rcept_no)
+  if (buyback_program_status?.rcept_no) {
+    const kindLabel =
+      buyback_program_status.last_kind === "acquire"
+        ? "취득결정"
+        : buyback_program_status.last_kind === "result"
+          ? "취득결과보고"
+          : "소각결정";
     sources.push({
-      label: `최근 자사주 취득결정 (${buyback_acquisition_gap.last_date})`,
-      ref: `DART ${buyback_acquisition_gap.rcept_no}`,
+      label: `자사주 프로그램 마지막 활동 (${buyback_program_status.last_date} · ${kindLabel}) — 누적 취득 ${buyback_program_status.acquire_count} / 결과 ${buyback_program_status.result_count} / 소각 ${buyback_program_status.cancel_count}`,
+      ref: `DART ${buyback_program_status.rcept_no}`,
     });
+  }
+  if (disclosure_keyword_hits) {
+    for (const [name, group] of Object.entries(disclosure_keyword_hits.groups)) {
+      if (group.hits.length === 0) continue;
+      const recent = group.hits[0];
+      sources.push({
+        label: `${group.label} 공시 ${group.hits.length}건 (최근: ${recent.date})`,
+        ref: `DART ${recent.rcept_no} — 매칭 키워드: ${recent.matched.join(", ")}`,
+      });
+    }
+  }
   if (pref_discount && pref_discount.discount_pct != null)
     sources.push({
       label: `보통주-우선주 디스카운트 (${pref_discount.as_of ?? ""})`,

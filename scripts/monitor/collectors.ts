@@ -759,30 +759,44 @@ export async function collectBuybackCancellationGap(
 ): Promise<CollectorBundle["buyback_cancellation_gap"]> {
   const today = new Date();
   const since = new Date(today.getTime() - lookback_days * 86400_000);
-  const list = await dartGet<DartListItem>("list", {
-    corp_code,
-    bgn_de: fmtYmd(since),
-    end_de: fmtYmd(today),
-    page_count: "100",
-  });
-  if (!list) return null;
-  for (const item of list) {
-    const nm = item.report_nm ?? "";
-    // '주식소각결정' 또는 '자기주식소각결정' 또는 '주요사항보고서(주식소각결정)' 매칭
-    if (
-      nm.includes("주식소각결정") ||
-      nm.includes("자기주식소각") ||
-      (nm.includes("주요사항보고서") && nm.includes("소각"))
-    ) {
-      const d = item.rcept_dt;
-      const iso = `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}`;
-      return {
-        last_date: iso,
-        last_title: nm.trim(),
-        days_ago: daysBetween(new Date(iso), today),
-        rcept_no: item.rcept_no,
-      };
+  // 공시량이 많은 대기업(예: 현대차 1년 482건)은 page_count=100으로 부족 →
+  // page_no로 순차 조회하면서 매칭 발견 시 즉시 종료. max_pages=10으로 1,000건까지 커버.
+  const KEY = process.env.DART_API_KEY ?? "";
+  const matches = (nm: string) =>
+    nm.includes("주식소각결정") ||
+    nm.includes("자기주식소각") ||
+    (nm.includes("주요사항보고서") && nm.includes("소각"));
+
+  const MAX_PAGES = 10;
+  for (let page = 1; page <= MAX_PAGES; page++) {
+    const url = new URL(`${DART_API}/list.json`);
+    url.searchParams.set("crtfc_key", KEY);
+    url.searchParams.set("corp_code", corp_code);
+    url.searchParams.set("bgn_de", fmtYmd(since));
+    url.searchParams.set("end_de", fmtYmd(today));
+    url.searchParams.set("page_count", "100");
+    url.searchParams.set("page_no", String(page));
+    const res = await fetch(url.toString());
+    if (!res.ok) break;
+    const json = (await res.json()) as {
+      status: string;
+      list?: DartListItem[];
+      total_page?: number;
+    };
+    if (json.status !== "000" || !json.list || json.list.length === 0) break;
+    for (const item of json.list) {
+      if (matches(item.report_nm ?? "")) {
+        const d = item.rcept_dt;
+        const iso = `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}`;
+        return {
+          last_date: iso,
+          last_title: item.report_nm.trim(),
+          days_ago: daysBetween(new Date(iso), today),
+          rcept_no: item.rcept_no,
+        };
+      }
     }
+    if (json.total_page && page >= json.total_page) break;
   }
   // lookback_days 내 소각 공시 없음 → 공백 = lookback_days
   return {
@@ -1187,43 +1201,207 @@ export async function collectQuarterlyNetIncome(
   };
 }
 
-// ── 9-9) 자사주 취득결정 공시 공백 (가장 최근 자기주식취득결정 후 경과일) ──
-export async function collectBuybackAcquisitionGap(
+// ── 9-9) 자사주 매입 프로그램 종합 상태 ──
+/** 취득결정·취득결과보고·소각결정 3종 공시를 통합 추적하여 가장 최근 활동일·상태·gap을 산출.
+ *
+ *  단순 `취득결정 후 경과일`보다 정밀한 이유:
+ *  - 취득결정 공시 후 매입은 보통 2~3개월간 진행되므로 "60일 후속 부재"가 곧바로 매도 신호는 아님.
+ *  - 매입 종료 후 취득결과보고서 또는 소각결정이 정상적으로 따라붙는데, 이 후속이 끊긴 시점이 신호.
+ *  - 따라서 마지막 활동(어떤 종류든) 기준 days_ago + 단계별 status를 조합해 판단해야 함.
+ *
+ *  status 결정 규칙(가장 최근 공시 기준):
+ *  - active: 마지막 공시가 취득결정·결과·소각 중 어떤 것이라도 30일 이내 → 진행 중
+ *  - cooldown: 31~90일 → 정상 후속 대기 구간
+ *  - post_cooldown: 91~180일 → 후속 발표 지연(warn)
+ *  - abandoned: 181일+ → 프로그램 사실상 중단(bad)
+ *
+ *  대기업(공시량 많은 경우)을 위해 페이지네이션 사용 (max 10 페이지 = 1,000건).
+ */
+export async function collectBuybackProgramStatus(
   corp_code: string,
   lookback_days: number,
-): Promise<CollectorBundle["buyback_acquisition_gap"]> {
+): Promise<CollectorBundle["buyback_program_status"]> {
   const today = new Date();
   const since = new Date(today.getTime() - lookback_days * 86400_000);
-  const list = await dartGet<DartListItem>("list", {
-    corp_code,
-    bgn_de: fmtYmd(since),
-    end_de: fmtYmd(today),
-    page_count: "100",
-  });
-  if (!list) return null;
-  for (const item of list) {
-    const nm = item.report_nm ?? "";
+  const KEY = process.env.DART_API_KEY ?? "";
+
+  const classify = (nm: string): "acquire" | "result" | "cancel" | null => {
+    if (nm.includes("주식소각결정") || nm.includes("자기주식소각")) return "cancel";
+    if (nm.includes("주요사항보고서") && nm.includes("소각")) return "cancel";
+    if (nm.includes("자기주식취득결과") || nm.includes("자기주식 취득 결과")) return "result";
+    if (nm.includes("자사주취득결과")) return "result";
     if (
       nm.includes("자기주식취득") ||
       nm.includes("자기주식 취득") ||
       (nm.includes("주요사항보고서") && nm.includes("자기주식") && nm.includes("취득"))
-    ) {
+    )
+      return "acquire";
+    return null;
+  };
+
+  let acquire_count = 0;
+  let result_count = 0;
+  let cancel_count = 0;
+  let latest: {
+    iso: string;
+    title: string;
+    kind: "acquire" | "result" | "cancel";
+    rcept_no: string;
+  } | null = null;
+
+  const MAX_PAGES = 10;
+  for (let page = 1; page <= MAX_PAGES; page++) {
+    const url = new URL(`${DART_API}/list.json`);
+    url.searchParams.set("crtfc_key", KEY);
+    url.searchParams.set("corp_code", corp_code);
+    url.searchParams.set("bgn_de", fmtYmd(since));
+    url.searchParams.set("end_de", fmtYmd(today));
+    url.searchParams.set("page_count", "100");
+    url.searchParams.set("page_no", String(page));
+    const res = await fetch(url.toString());
+    if (!res.ok) break;
+    const json = (await res.json()) as {
+      status: string;
+      list?: DartListItem[];
+      total_page?: number;
+    };
+    if (json.status !== "000" || !json.list || json.list.length === 0) break;
+    for (const item of json.list) {
+      const kind = classify(item.report_nm ?? "");
+      if (!kind) continue;
+      if (kind === "acquire") acquire_count++;
+      else if (kind === "result") result_count++;
+      else if (kind === "cancel") cancel_count++;
       const d = item.rcept_dt;
       const iso = `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}`;
-      return {
-        last_date: iso,
-        last_title: nm.trim(),
-        days_ago: daysBetween(new Date(iso), today),
-        rcept_no: item.rcept_no,
-      };
+      // DART list는 최신순이지만 페이지 간 순서 보장 위해 최신값 비교 유지
+      if (!latest || iso > latest.iso) {
+        latest = {
+          iso,
+          title: (item.report_nm ?? "").trim(),
+          kind,
+          rcept_no: item.rcept_no,
+        };
+      }
     }
+    if (json.total_page && page >= json.total_page) break;
   }
+
+  if (!latest) {
+    return {
+      last_date: null,
+      last_title: null,
+      last_kind: null,
+      days_ago: lookback_days,
+      status: "abandoned",
+      rcept_no: null,
+      acquire_count: 0,
+      result_count: 0,
+      cancel_count: 0,
+    };
+  }
+
+  const days_ago = daysBetween(new Date(latest.iso), today);
+  const status: "active" | "cooldown" | "post_cooldown" | "abandoned" =
+    days_ago <= 30
+      ? "active"
+      : days_ago <= 90
+        ? "cooldown"
+        : days_ago <= 180
+          ? "post_cooldown"
+          : "abandoned";
+
   return {
-    last_date: null,
-    last_title: null,
-    days_ago: lookback_days,
-    rcept_no: null,
+    last_date: latest.iso,
+    last_title: latest.title,
+    last_kind: latest.kind,
+    days_ago,
+    status,
+    rcept_no: latest.rcept_no,
+    acquire_count,
+    result_count,
+    cancel_count,
   };
+}
+
+// ── 9-9b) 자사 corp_code DART 공시 키워드 매칭 ──
+/** 자사 정성 신호(PF 손실·자본 규제 후퇴·주주환원 정책 변경 등) 자동 감지용.
+ *  config의 disclosure_keyword_groups을 그대로 받아 그룹별로 매칭된 공시 리스트 반환.
+ *  external_corp_disclosures와 차이: 외부 법인이 아닌 **자사 corp_code** 기준이며,
+ *  하나의 공시가 여러 그룹 키워드와 매치될 수 있도록 multi-tag 구조.
+ */
+export async function collectDisclosureKeywordHits(
+  corp_code: string,
+  lookback_days: number,
+  groups: Array<{ name: string; label: string; keywords: string[] }>,
+): Promise<CollectorBundle["disclosure_keyword_hits"]> {
+  if (!groups.length) {
+    return { period_days: lookback_days, groups: {} };
+  }
+  const today = new Date();
+  const since = new Date(today.getTime() - lookback_days * 86400_000);
+  const KEY = process.env.DART_API_KEY ?? "";
+
+  // 결과 컨테이너 초기화
+  const out: Record<
+    string,
+    {
+      label: string;
+      keywords: string[];
+      hits: Array<{ date: string; title: string; rcept_no: string; matched: string[] }>;
+    }
+  > = {};
+  for (const g of groups) {
+    out[g.name] = { label: g.label, keywords: g.keywords, hits: [] };
+  }
+
+  const MAX_PAGES = 10;
+  // 동일 rcept_no가 여러 그룹에 매치될 수 있으므로 그룹별 dedup만
+  const seenByGroup: Record<string, Set<string>> = {};
+  for (const g of groups) seenByGroup[g.name] = new Set();
+
+  for (let page = 1; page <= MAX_PAGES; page++) {
+    const url = new URL(`${DART_API}/list.json`);
+    url.searchParams.set("crtfc_key", KEY);
+    url.searchParams.set("corp_code", corp_code);
+    url.searchParams.set("bgn_de", fmtYmd(since));
+    url.searchParams.set("end_de", fmtYmd(today));
+    url.searchParams.set("page_count", "100");
+    url.searchParams.set("page_no", String(page));
+    const res = await fetch(url.toString());
+    if (!res.ok) break;
+    const json = (await res.json()) as {
+      status: string;
+      list?: DartListItem[];
+      total_page?: number;
+    };
+    if (json.status !== "000" || !json.list || json.list.length === 0) break;
+    for (const item of json.list) {
+      const nm = item.report_nm ?? "";
+      const d = item.rcept_dt;
+      const iso = `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}`;
+      for (const g of groups) {
+        const matched = g.keywords.filter((k) => nm.includes(k));
+        if (matched.length === 0) continue;
+        if (seenByGroup[g.name].has(item.rcept_no)) continue;
+        seenByGroup[g.name].add(item.rcept_no);
+        out[g.name].hits.push({
+          date: iso,
+          title: nm.trim(),
+          rcept_no: item.rcept_no,
+          matched,
+        });
+      }
+    }
+    if (json.total_page && page >= json.total_page) break;
+  }
+
+  // 각 그룹 hits을 최신순 정렬
+  for (const name of Object.keys(out)) {
+    out[name].hits.sort((a, b) => (a.date < b.date ? 1 : -1));
+  }
+
+  return { period_days: lookback_days, groups: out };
 }
 
 // ── 9-10) 보통주-우선주 디스카운트율 (네이버 종가 기반, 우선주 모니터링용) ──
