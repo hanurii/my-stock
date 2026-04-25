@@ -590,14 +590,17 @@ export const CONFIGS: MonitorConfig[] = [
         warn_threshold: 1.05,
       },
       {
+        // 임계 0.20pp — KB는 4대 금융지주 1등주로 자연스러운 +0.15~0.25pp 프리미엄을 가진다.
+        // 첫 dry-run(2026-04-25) +0.247pp는 정상 상태. +0.20 돌파는 "1등 프리미엄도 과도한 구간"
+        // (=PBR 1배 돌파 가까이) 신호로 사용.
         id: "pbr_premium_pp",
         label: "4대 지주 평균 대비 PBR 프리미엄",
         source: "peer_pbr_premium.premium_pp",
-        threshold: { gte: 0.10 },
-        threshold_label: "+0.10pp 이상",
+        threshold: { gte: 0.20 },
+        threshold_label: "+0.20pp 이상",
         suffix: "pp",
         precision: 3,
-        warn_threshold: 0.05,
+        warn_threshold: 0.15,
       },
       {
         id: "foreign_ratio",
@@ -646,8 +649,13 @@ export const CONFIGS: MonitorConfig[] = [
         warn_threshold: 15000,
       },
       // V2 metric 3개 (금융사 특화 지표 — 신규 collector)
-      // silent_alert: 본문 정규식 추출의 정확도 검증 전이므로 metric만 표시,
-      // alerts에는 추가하지 않음. 분기보고서 갱신 시점에 정확도 재검증 후 활성화.
+      // silent_alert: 본문 정규식 추출의 정확도 검증 전이므로 metric만 표시.
+      //
+      // 활성화 검증 체크포인트 (2026-05 중순 1Q26 분기보고서 제출 후):
+      //   1. monitor JSON의 group_nim ≈ 1.99% (KB IR 보도자료 1.99% 일치)
+      //   2. monitor JSON의 npl_ratio ≈ 0.34% (1Q26 잠정 0.34% 일치)
+      //   3. monitor JSON의 quarterly_roe ≈ 13.94% (1Q26 IR 13.94% 일치)
+      //   3개 모두 ±0.1%p 이내 일치 시 silent_alert 제거하여 alert 활성화.
       {
         id: "group_nim",
         label: "그룹 NIM",

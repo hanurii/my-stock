@@ -1859,23 +1859,35 @@ export async function collectNewsHits(
 // - 추출 실패 시 모든 값 null 반환 → metric value=null → tone="neutral"로 자동 강등.
 // - source_text(매칭 컨텍스트 100자)를 항상 저장해 사후 진단 용이.
 
-/** 그룹/은행 NIM 추출 — 키워드 주변 첫 매칭 사용.
- *  KB금융 본문 표기 형식 다양: "그룹 NIM 1.99%", "순이자마진(NIM) 1.99%",
- *  "그룹 순이자마진은 1.99%", "NIM(순이자마진): 1.99%" 등을 모두 허용. */
+/** 그룹/은행 NIM 추출 — KB금융 사업·분기보고서 본문 형식에 맞춘 정규식 모음.
+ *  진단(scripts/diagnose-kb-report.ts 2026-04-25) 결과:
+ *  - 그룹 NIM: `NIM(은행+카드) 주2) 2.26 2.37 2.44` 표 형식 (% 부호 없음)
+ *  - 은행 NIM: `명목순이자마진(NIM) 1.74 1.78 1.83` 표 형식 (% 부호 없음)
+ *  - 또한 분기보고서에서는 `그룹 NIM 1.99%` / `은행 NIM 1.77%` 서술형도 등장 가능.
+ *  여러 패턴을 우선순위로 시도, 첫 매칭 사용. */
 function extractNim(text: string): {
   group_nim_pct: number | null;
   bank_nim_pct: number | null;
   source_text: string | null;
 } {
-  // 패턴 ① (그룹·연결): NIM 또는 순이자마진 키워드 + 그룹·연결·지주 수식어
+  // 패턴 ① (그룹·연결): NIM(은행+카드) 표 형식이 KB의 그룹 통합 NIM
   const groupPatterns: RegExp[] = [
+    // 표 형식 우선 — KB 사업보고서: "NIM(은행+카드) 주2) 2.26"
+    // 괄호와 첫 수치 사이에 "주2)" 같은 비숫자+숫자 혼합 토큰이 끼어있어
+    // [^0-9]만으로는 매칭이 끊긴다 → \s+\S+\s+ (공백·비공백·공백 1토큰) 사용.
+    /NIM\s*\((?!순이자마진)[^)]{1,15}\)\s+\S+\s+([0-9]\.[0-9]{1,2})/,
+    // 서술형 + 괄호: "NIM(은행+카드)는 1.99%" 등 lazy match
+    /NIM\s*\((?!순이자마진)[^)]{1,15}\)[\s\S]{0,15}?([0-9]\.[0-9]{1,2})\s*%/,
+    // 그룹/연결 수식어가 NIM 앞에 — KB 분기보고서: "그룹 NIM 1.99%"
     /(?:그룹|연결|지주)\s*(?:은\s*)?NIM[^\d%]{0,20}([0-9]\.[0-9]{1,2})\s*%/,
     /(?:그룹|연결|지주)\s*순이자마진[^\d%]{0,30}([0-9]\.[0-9]{1,2})\s*%/,
     /순이자마진\s*\(NIM\)\s*[은는]?\s*([0-9]\.[0-9]{1,2})\s*%/,
     /NIM\s*\(순이자마진\)\s*[은는:]?\s*([0-9]\.[0-9]{1,2})\s*%/,
   ];
-  // 패턴 ② (은행 단독): "은행 NIM" / "국민은행 순이자마진"
+  // 패턴 ② (은행 단독): 명목순이자마진(NIM) 표 형식이 KB국민은행 NIM
   const bankPatterns: RegExp[] = [
+    // 표 형식 우선 — KB 사업보고서: "명목순이자마진(NIM) 1.74"
+    /명목순이자마진\s*\(\s*NIM\s*\)[^0-9]{0,5}([0-9]\.[0-9]{1,2})/,
     /(?:국민은행|은행)\s*(?:은\s*)?NIM[^\d%]{0,20}([0-9]\.[0-9]{1,2})\s*%/,
     /(?:국민은행|은행)\s*순이자마진[^\d%]{0,30}([0-9]\.[0-9]{1,2})\s*%/,
   ];
@@ -1905,23 +1917,84 @@ function extractNim(text: string): {
   };
 }
 
-/** NPL/연체율/CCR 추출 */
+/** 시장 통계·자회사 수치·변화율(%p) 컨텍스트 — 매칭 주변에 이 키워드가 보이면 skip.
+ *  진단(2026-04-25) 결과 KB 사업보고서 본문에 두 종류의 잘못된 매칭이 발생:
+ *  ① "은행권의 기업대출(원화대출금)연체율은 0.59%" — 시장 평균 통계
+ *  ② "원화대출 연체율은 매분기 0.01%p씩 감소" — 변화율(절대값 아님)
+ *  KB 자체 데이터(표 형식 "0.28 0.29 0.22")가 우선되도록 negative match 적용. */
+const MARKET_STAT_SKIP_KEYWORDS = [
+  "은행권",
+  "은행권의",
+  "기업대출(원화대출금)",
+  "원화대출금)연체율",
+  "시장 평균",
+  "전 은행",
+  "신용카드자산",
+  "원화대출 연체율",
+  "%p",       // 변화율 단위 — 절대 비율 아님
+  "감소",
+  "증가한",
+  "상승한",
+  "하락한",
+];
+
+/** 패턴 배열을 우선순위로 시도하면서, skip context 키워드가 매칭 주변에 보이면 다음 매칭 탐색.
+ *  반환: 첫 "안전한" 매칭 또는 null. */
+function findSafeMatch(
+  text: string,
+  patterns: RegExp[],
+  skipKeywords: string[],
+  contextWindow = 60,
+): RegExpExecArray | null {
+  for (const pattern of patterns) {
+    const flags = pattern.flags.includes("g") ? pattern.flags : pattern.flags + "g";
+    const re = new RegExp(pattern.source, flags);
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(text)) !== null) {
+      const start = Math.max(0, m.index - contextWindow);
+      const ctx = text.slice(start, m.index + m[0].length + 10);
+      if (!skipKeywords.some((k) => ctx.includes(k))) {
+        return m;
+      }
+    }
+  }
+  return null;
+}
+
+/** NPL 비율 / 연체율 / CCR 추출.
+ *  진단(2026-04-25) 결과:
+ *  - NPL은 표 형식 `NPL비율 0.99 1.07 1.01` (% 없음) + 서술형 `0.99%` 모두 등장 — % optional.
+ *  - 연체율은 시장 평균(은행권의 ... 0.59%)이 우선 매칭되는 문제 → skip 로직 적용.
+ *  - CCR은 KB 본문에 직접 등장 안 함 (대손충당금전입액 만 등장 — 비율 아님). 대부분 null. */
 function extractNplCcr(text: string): {
   npl_ratio_pct: number | null;
   delinquency_pct: number | null;
   ccr_pct: number | null;
   source_text: string | null;
 } {
-  const nplRe = /(?:NPL\s*비율|고정이하여신비율)[^\d%]{0,20}([0-9]\.[0-9]{1,2})\s*%/;
-  const delinquencyRe = /연체율[^\d%]{0,20}([0-9]\.[0-9]{1,2})\s*%/;
-  const ccrRe =
-    /(?:CCR|대손충당금전입비율|대손비용률)[^\d%]{0,20}([0-9]\.[0-9]{1,2})\s*%/;
-  const nplMatch = text.match(nplRe);
-  const delMatch = text.match(delinquencyRe);
-  const ccrMatch = text.match(ccrRe);
+  const nplPatterns: RegExp[] = [
+    // 표 형식: "NPL비율 0.99 1.07 1.01" (% 없음, 공백으로 구분)
+    /NPL\s*비율\s+([0-9]\.[0-9]{1,2})(?:\s|$)/,
+    // 서술형: "NPL비율... 0.99%" / "고정이하여신비율 0.99%"
+    /(?:NPL\s*비율|고정이하여신비율)[^\d%]{0,20}([0-9]\.[0-9]{1,2})\s*%/,
+  ];
+  const delinquencyPatterns: RegExp[] = [
+    // 표 형식 우선 — KB 자체 데이터: "연체율 총대출채권기준 0.28 0.29 0.22" (카테고리 강제)
+    /연체율\s+(?:총대출채권기준|기업대출기준|가계대출기준)\s+([0-9]\.[0-9]{1,2})(?:\s|$)/,
+    // 서술형 (% 있음): skip 키워드(원화대출·시장 평균·변화율)에 걸리지 않은 첫 매칭
+    /연체율[^\d%]{0,20}([0-9]\.[0-9]{1,2})\s*%/,
+  ];
+  const ccrPatterns: RegExp[] = [
+    /(?:CCR|대손충당금전입비율|대손비용률)[^\d%]{0,20}([0-9]\.[0-9]{1,2})\s*%/,
+  ];
+
+  const nplMatch = findSafeMatch(text, nplPatterns, MARKET_STAT_SKIP_KEYWORDS);
+  const delMatch = findSafeMatch(text, delinquencyPatterns, MARKET_STAT_SKIP_KEYWORDS);
+  const ccrMatch = findSafeMatch(text, ccrPatterns, MARKET_STAT_SKIP_KEYWORDS);
+
   let sourceText: string | null = null;
   const firstMatch = nplMatch ?? delMatch ?? ccrMatch;
-  if (firstMatch && firstMatch.index !== undefined) {
+  if (firstMatch) {
     const start = Math.max(0, firstMatch.index - 30);
     sourceText = text.slice(start, start + 130).trim();
   }

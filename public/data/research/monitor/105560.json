@@ -1,7 +1,7 @@
 {
   "code": "105560",
   "name": "KB금융",
-  "last_checked": "2026-04-25T23:37:04.909+09:00",
+  "last_checked": "2026-04-26T00:02:44.255+09:00",
   "metrics": [
     {
       "id": "pbr",
@@ -17,7 +17,7 @@
       "label": "4대 지주 평균 대비 PBR 프리미엄",
       "value": 0.247,
       "display": "0.247pp",
-      "threshold": "+0.10pp 이상",
+      "threshold": "+0.20pp 이상",
       "hit": true,
       "tone": "bad"
     },
@@ -69,11 +69,11 @@
     {
       "id": "group_nim",
       "label": "그룹 NIM",
-      "value": null,
-      "display": "—",
+      "value": 2.26,
+      "display": "2.26%",
       "threshold": "1.7% 이하",
       "hit": false,
-      "tone": "neutral"
+      "tone": "good"
     },
     {
       "id": "npl_ratio",
@@ -98,7 +98,7 @@
     {
       "severity": "bad",
       "type": "pbr_premium_pp",
-      "title": "4대 지주 평균 대비 PBR 프리미엄 +0.10pp 이상",
+      "title": "4대 지주 평균 대비 PBR 프리미엄 +0.20pp 이상",
       "message": "현재 0.247pp — 매도 트리거 도달"
     },
     {
@@ -326,11 +326,11 @@
       "ref": "DART 20260324000835 (fnlttSinglAcntAll)"
     },
     {
-      "label": "NIM (2025-FY)",
+      "label": "NIM (2025-FY · 그룹 2.26%·은행 1.74%)",
       "ref": "DART 20260324000835 (본문 정규식 추출)"
     },
     {
-      "label": "여신 건전성 (2025-FY · NPL 0.99%·연체 0.59%)",
+      "label": "여신 건전성 (2025-FY · NPL 0.99%·연체 0.28%)",
       "ref": "DART 20260324000835 (본문 정규식 추출)"
     },
     {
