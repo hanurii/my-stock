@@ -1,0 +1,40 @@
+name: Fetch Foreign Investor Flow
+
+on:
+  schedule:
+    # 평일 17:30 KST = 08:30 UTC (장 마감 17:00 + 30분)
+    - cron: '30 8 * * 1-5'
+    # 다음 영업일 09:00 KST = 00:00 UTC 재시도 (전일 데이터 확정용)
+    - cron: '0 0 * * 2-6'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fetch-foreign-flow:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Fetch foreign investor flow
+        run: npx tsx scripts/fetch-foreign-flow.ts
+        continue-on-error: true
+
+      - name: Commit & push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/data/foreign-flow.json
+          if ! git diff --staged --quiet; then
+            git commit -m "chore: 외인 자본 흐름 업데이트 $(TZ=Asia/Seoul date +%Y-%m-%d)"
+            git pull --rebase origin master
+            git push
+          else
+            echo "변경 사항 없음 — 커밋 생략"
+          fi
