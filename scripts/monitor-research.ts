@@ -363,12 +363,12 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
         ? `부정 시그널 ${sevCount.bad}건 포함`
         : maxSev === "warn"
           ? `관찰 신호 ${sevCount.warn}건 포함`
-          : "중립 헤드라인";
+          : "관찰 신호 0건 — 키워드 단순 매칭만";
     alerts.push({
       severity: maxSev,
       type: "news_keyword_hit",
-      title: `규제·매크로 키워드 뉴스 ${newsHits.length}건 (${sevLabel})`,
-      message: `최근 7일 매칭. 상세는 하단 리스트 확인.`,
+      title: `리스크 키워드 매칭 뉴스 ${newsHits.length}건 (${sevLabel})`,
+      message: `매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요.`,
     });
   }
   // 정규식 정확도 1회성 검증 — target_period 일치 시에만 발동

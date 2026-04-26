@@ -1807,16 +1807,22 @@ export async function collectNewsHits(
     signals: string[];
   }>
 > {
-  const hits: Array<{
+  type Hit = {
     keyword: string;
     date: string;
     title: string;
     url: string;
     severity: "info" | "warn" | "bad";
     signals: string[];
-  }> = [];
+  };
+  const hits: Hit[] = [];
   const cutoff = new Date(Date.now() - lookback_days * 86400_000);
   for (const kw of keywords) {
+    // 키워드를 공백 기준 토큰 분리 — 구글 RSS는 phrase 검색이 아니라 OR 매칭이므로
+    // 제목에 모든 토큰이 포함된 경우만 hit으로 인정. false-positive 차단:
+    //   예) "KB금융 자사주 취소"에 "KB금융, 자사주 전량 소각"(호재)이 매칭되는 문제 회피
+    //       — '취소' 토큰 미포함이라 필터링됨.
+    const tokens = kw.trim().split(/\s+/).filter(Boolean);
     const url = `https://news.google.com/rss/search?q=${encodeURIComponent(kw)}&hl=ko&gl=KR&ceid=KR:ko`;
     try {
       const res = await fetch(url, { headers: { "user-agent": "Mozilla/5.0" } });
@@ -1831,6 +1837,8 @@ export async function collectNewsHits(
         if (!title || !pub) continue;
         const pubDate = new Date(pub);
         if (isNaN(pubDate.getTime()) || pubDate < cutoff) continue;
+        // phrase 검증: 모든 토큰이 제목에 포함되어야 함
+        if (tokens.length > 0 && !tokens.every((t) => title.includes(t))) continue;
         const { severity, signals } = classifyHeadline(title);
         hits.push({
           keyword: kw,
@@ -1846,7 +1854,25 @@ export async function collectNewsHits(
     }
     await sleep(500);
   }
-  return hits;
+  // 제목 기준 중복 제거: 가장 강한 severity 유지, 동일 severity면 가장 긴 키워드(specific) 유지.
+  // 동일 뉴스가 여러 키워드로 중복 표시되어 알림 카운트가 부풀려지는 문제 해결.
+  const sevRank = { bad: 2, warn: 1, info: 0 } as const;
+  const dedup = new Map<string, Hit>();
+  for (const h of hits) {
+    const existing = dedup.get(h.title);
+    if (!existing) {
+      dedup.set(h.title, h);
+      continue;
+    }
+    if (
+      sevRank[h.severity] > sevRank[existing.severity] ||
+      (sevRank[h.severity] === sevRank[existing.severity] &&
+        h.keyword.length > existing.keyword.length)
+    ) {
+      dedup.set(h.title, h);
+    }
+  }
+  return Array.from(dedup.values());
 }
 
 // ── 금융사 특화 지표 (NIM·NPL·ROE) ──
