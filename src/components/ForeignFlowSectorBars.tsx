@@ -6,6 +6,7 @@ import type { SectorCumPoint } from "@/lib/foreign-flow";
 interface Props {
   cum20d: SectorCumPoint[];
   cum60d: SectorCumPoint[];
+  availableDays: number;
 }
 
 type Window = "20d" | "60d";
@@ -18,10 +19,13 @@ function formatBillion(v: number): string {
   return `${sign}${Math.round(abs)}억`;
 }
 
-export function ForeignFlowSectorBars({ cum20d, cum60d }: Props) {
+export function ForeignFlowSectorBars({ cum20d, cum60d, availableDays }: Props) {
   const [win, setWin] = useState<Window>("20d");
 
   const data = win === "20d" ? cum20d : cum60d;
+  const targetDays = win === "20d" ? 20 : 60;
+  const insufficient = availableDays < targetDays;
+  const effectiveDays = Math.min(availableDays, targetDays);
 
   const { buyTop, sellTop, maxAbs } = useMemo(() => {
     const sorted = [...data].sort((a, b) => b.net_buy_billion - a.net_buy_billion);
@@ -40,23 +44,34 @@ export function ForeignFlowSectorBars({ cum20d, cum60d }: Props) {
 
   return (
     <div>
-      <div className="flex items-center justify-end gap-1 rounded-md bg-surface-container-low p-1 mb-5 w-fit ml-auto">
-        {([
-          ["20d", "최근 20일"],
-          ["60d", "최근 60일"],
-        ] as Array<[Window, string]>).map(([w, label]) => (
-          <button
-            key={w}
-            onClick={() => setWin(w)}
-            className={`px-3 py-1.5 text-xs rounded transition-colors ${
-              win === w
-                ? "bg-primary text-on-primary font-semibold"
-                : "text-on-surface-variant hover:text-on-surface"
-            }`}
-          >
-            {label}
-          </button>
-        ))}
+      <div className="flex items-center justify-end gap-3 mb-5">
+        {insufficient ? (
+          <span className="text-[11px] text-on-surface-variant/70">
+            현재 {availableDays}영업일 누적 중 (목표 {targetDays}일) — 두 탭은 같은 데이터를 표시합니다
+          </span>
+        ) : (
+          <span className="text-[11px] text-on-surface-variant/70">
+            {effectiveDays}영업일 합산
+          </span>
+        )}
+        <div className="flex items-center gap-1 rounded-md bg-surface-container-low p-1 w-fit">
+          {([
+            ["20d", "최근 20일"],
+            ["60d", "최근 60일"],
+          ] as Array<[Window, string]>).map(([w, label]) => (
+            <button
+              key={w}
+              onClick={() => setWin(w)}
+              className={`px-3 py-1.5 text-xs rounded transition-colors ${
+                win === w
+                  ? "bg-primary text-on-primary font-semibold"
+                  : "text-on-surface-variant hover:text-on-surface"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {data.length === 0 ? (
