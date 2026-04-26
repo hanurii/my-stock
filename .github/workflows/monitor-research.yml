@@ -4,8 +4,10 @@ on:
   schedule:
     # 평일 08:00 KST = 23:00 UTC (전일, 일~목)
     - cron: '0 23 * * 0-4'
-    # 평일 17:00 KST = 08:00 UTC (월~금)
-    - cron: '0 8 * * 1-5'
+    # 평일 12:00 KST = 03:00 UTC (월~금)
+    - cron: '0 3 * * 1-5'
+    # 평일 15:00 KST = 06:00 UTC (월~금)
+    - cron: '0 6 * * 1-5'
   workflow_dispatch:
 
 permissions:
