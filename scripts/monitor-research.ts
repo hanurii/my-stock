@@ -371,6 +371,45 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
       message: `최근 7일 매칭. 상세는 하단 리스트 확인.`,
     });
   }
+  // 정규식 정확도 1회성 검증 — target_period 일치 시에만 발동
+  if (
+    config.verification &&
+    quarterly_net_income?.period === config.verification.target_period
+  ) {
+    const v = config.verification;
+    const results = Object.entries(v.expected).map(([id, expected]) => {
+      const m = metrics.find((x) => x.id === id);
+      const actual = typeof m?.value === "number" ? m.value : null;
+      const diff = actual != null ? Math.abs(actual - expected) : null;
+      const passed = diff != null && diff <= v.tolerance_pp;
+      return { id, expected, actual, diff, passed };
+    });
+    const allPassed = results.every((r) => r.passed);
+    if (allPassed) {
+      alerts.push({
+        severity: "info",
+        type: "verification_passed",
+        title: `✅ ${v.label} 검증 통과 — silent_alert 해제 가능`,
+        message: `허용 오차 ${v.tolerance_pp}%p 이내 모두 일치: ${results
+          .map((r) => `${r.id} ${r.actual}% (기대 ${r.expected}%)`)
+          .join(" · ")}. configs.ts에서 ${v.unlock_silent_metric_ids.join(", ")} trigger의 silent_alert 줄을 제거하면 alert 활성화됩니다.`,
+      });
+    } else {
+      const fails = results
+        .filter((r) => !r.passed)
+        .map(
+          (r) =>
+            `${r.id} 추출 ${r.actual ?? "null"}% (기대 ${r.expected}%, 차이 ${r.diff?.toFixed(2) ?? "-"}%p)`,
+        )
+        .join(" / ");
+      alerts.push({
+        severity: "warn",
+        type: "verification_failed",
+        title: `⚠️ ${v.label} 검증 실패 — 정규식 보강 필요`,
+        message: `허용 오차 ${v.tolerance_pp}%p 초과: ${fails}`,
+      });
+    }
+  }
   if (alerts.length === 0) {
     alerts.push({
       severity: "info",

@@ -703,6 +703,22 @@ export const CONFIGS: MonitorConfig[] = [
       "국민연금 KB금융 지분 매각",
       "한국은행 기준금리 인하",
     ],
+    // 1Q26 분기보고서가 DART에 올라오면(2026-05 중순 예정) monitor-research.ts가
+    // bundle.quarterly_net_income.period === "2026-Q1"로 잡히는 그 회차에 자동 비교.
+    // expected 값은 KB금융 2026.04.23 1Q26 IR 보도자료 기준.
+    // tolerance 0.1%p 이내로 모든 metric 일치하면 alerts에 "검증 통과" info 표시 →
+    // 사용자는 그 안내 보고 configs.ts에서 silent_alert 3개 줄 제거 요청만 하면 됨.
+    verification: {
+      target_period: "2026-Q1",
+      label: "1Q26 정규식 정확도",
+      tolerance_pp: 0.1,
+      expected: {
+        group_nim: 1.99,
+        npl_ratio: 0.34,
+        quarterly_roe: 13.94,
+      },
+      unlock_silent_metric_ids: ["group_nim", "npl_ratio", "quarterly_roe"],
+    },
   },
 
   // ───── 현대차2우B (005387) ─────

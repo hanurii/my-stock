@@ -71,6 +71,22 @@ export interface MonitorConfig {
   clinical_sponsor_keywords?: string[];
   /** 자회사(은행 등) 별도 corp_code — NIM·NPL 본문 파싱 + 5% 대량보유 변동 추적용 */
   bank_corp_code?: string;
+  /** 정규식 추출 정확도 1회성 검증 — 특정 보고서 기간(target_period)이 잡히면
+   *  metric 값들을 기대값과 비교해 alert에 결과 표시. silent_alert 해제 판단용.
+   *  KB금융 NIM·NPL·ROE 본문 파싱이 1Q26 IR 발표값과 일치하는지 자동 점검.
+   */
+  verification?: {
+    /** 검증 트리거 기간 (예: "2026-Q1"). bundle.quarterly_net_income.period와 일치 시에만 비교 실행 */
+    target_period: string;
+    /** 사용자에게 노출되는 검증 라벨 (예: "1Q26 정규식 정확도") */
+    label: string;
+    /** 허용 오차 (%p) — 모든 metric의 절대값 차이가 이 이하면 통과 */
+    tolerance_pp: number;
+    /** metric id → 기대값 (%) */
+    expected: Record<string, number>;
+    /** 검증 통과 시 안내에 포함할 metric id 목록 (configs.ts에서 silent_alert 제거 대상) */
+    unlock_silent_metric_ids: string[];
+  };
 }
 
 /** 메트릭 평가 결과 (monitor JSON에 저장됨) */
