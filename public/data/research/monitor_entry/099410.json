@@ -1,0 +1,68 @@
+{
+  "code": "099410",
+  "name": "동방선기",
+  "last_checked": "2026-04-26T22:10:20.437+09:00",
+  "metrics": [
+    {
+      "id": "entry_drawdown_10pct",
+      "label": "진입 가격 (현 5,490원 -10%)",
+      "value": 5490,
+      "display": "5,490원",
+      "threshold": "4,941원 이하",
+      "hit": false,
+      "tone": "neutral"
+    },
+    {
+      "id": "q1_op_margin_18",
+      "label": "분기 영업이익률",
+      "value": null,
+      "display": "—",
+      "threshold": "18% 이상 유지",
+      "hit": false,
+      "tone": "neutral"
+    },
+    {
+      "id": "buyback_announcement",
+      "label": "자사주 매입·소각 공시 (90일)",
+      "value": 0,
+      "display": "0건",
+      "threshold": "공시 1건+",
+      "hit": false,
+      "tone": "neutral"
+    }
+  ],
+  "alerts": [
+    {
+      "severity": "warn",
+      "type": "q1_op_margin_18_missing",
+      "title": "분기 영업이익률 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
+    },
+    {
+      "severity": "info",
+      "type": "news_keyword_hit",
+      "title": "매수 시그널 키워드 매칭 뉴스 1건 (관찰 신호 0건 — 키워드 단순 매칭만)",
+      "message": "매수 시그널 모니터링 키워드 기준 최근 7일 매칭. 호재 명시 phrase로 등록되어 있으나 본문 직접 확인 권장."
+    }
+  ],
+  "news_hits": [
+    {
+      "keyword": "조선 슈퍼사이클",
+      "date": "2026-04-22",
+      "title": "\"美 해군 조선 예산 97조 폭증… '트럼프급'이 이끄는 K-방산 슈퍼사이클 온다” - 글로벌이코노믹",
+      "url": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxOYVE5Z1Btd00zMG8tX2xuUE03YjhUZWU4dGs5V0poR1N6YWVIeDVQQW1xcGlTSmlWaGM1NWh3Ykk5ZXp4eC1SaWEtamZGTXNXUVR0cVpYYVpGWDRTbWRuRk52ZkJJLWtHNTJKWlJNaHFGcDNnay0yUFhhQ1NfVTctYS1IUnI1aVRp?oc=5",
+      "severity": "info",
+      "signals": []
+    }
+  ],
+  "sources": [
+    {
+      "label": "PER/PEG/PBR 스코어",
+      "ref": "public/data/growth-watchlist.json"
+    },
+    {
+      "label": "뉴스 RSS",
+      "ref": "news.google.com/rss (7일)"
+    }
+  ]
+}

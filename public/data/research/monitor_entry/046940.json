@@ -1,0 +1,58 @@
+{
+  "code": "046940",
+  "name": "우원개발",
+  "last_checked": "2026-04-26T22:10:18.165+09:00",
+  "metrics": [
+    {
+      "id": "entry_drawdown_10pct",
+      "label": "진입 가격 (현 5,400원 -10%)",
+      "value": 5400,
+      "display": "5,400원",
+      "threshold": "4,860원 이하",
+      "hit": false,
+      "tone": "neutral"
+    },
+    {
+      "id": "correction_disclosure",
+      "label": "사업보고서 정정 공시 (90일)",
+      "value": 0,
+      "display": "0건",
+      "threshold": "정정본 1건+",
+      "hit": false,
+      "tone": "neutral"
+    },
+    {
+      "id": "q1_op_margin_12",
+      "label": "분기 영업이익률",
+      "value": null,
+      "display": "—",
+      "threshold": "12% 이상 유지",
+      "hit": false,
+      "tone": "neutral"
+    },
+    {
+      "id": "new_supply_contract",
+      "label": "신규 단일판매·공급계약 (SOC 수주)",
+      "value": 180,
+      "display": "180일 전",
+      "threshold": "최근 7일 내 신규 공시",
+      "hit": false,
+      "tone": "neutral"
+    }
+  ],
+  "alerts": [
+    {
+      "severity": "warn",
+      "type": "q1_op_margin_12_missing",
+      "title": "분기 영업이익률 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
+    }
+  ],
+  "news_hits": [],
+  "sources": [
+    {
+      "label": "PER/PEG/PBR 스코어",
+      "ref": "public/data/growth-watchlist.json"
+    }
+  ]
+}

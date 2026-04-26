@@ -1,4 +1,4 @@
-name: Monitor Research Sell Triggers
+name: Monitor Research Triggers (Sell + Entry)
 
 on:
   schedule:
@@ -26,8 +26,14 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Run monitor script (all configured stocks)
+      - name: Run sell-trigger monitor (holding/watching stocks)
         run: npx tsx scripts/monitor-research.ts
+        env:
+          DART_API_KEY: ${{ secrets.DART_API_KEY }}
+        continue-on-error: true
+
+      - name: Run entry-trigger monitor (interested stocks)
+        run: npx tsx scripts/monitor-entry.ts
         env:
           DART_API_KEY: ${{ secrets.DART_API_KEY }}
         continue-on-error: true
@@ -36,7 +42,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add public/data/research/monitor/*.json
+          mkdir -p public/data/research/monitor public/data/research/monitor_entry
+          git add public/data/research/monitor/*.json public/data/research/monitor_entry/*.json
           if ! git diff --staged --quiet; then
             git commit -m "chore: research 모니터 자동 갱신 $(TZ=Asia/Seoul date +%Y-%m-%d)"
             git pull --rebase origin master

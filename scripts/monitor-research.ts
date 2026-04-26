@@ -81,8 +81,11 @@ function formatDisplay(value: unknown, suffix?: string, precision = 2): string {
   return String(value);
 }
 
-async function processStock(config: MonitorConfig): Promise<MonitorData> {
-  console.log(`📊 ${config.name}(${config.code}) 모니터 시작 — ${col.kstNow()}`);
+export async function processStock(config: MonitorConfig): Promise<MonitorData> {
+  const purpose = config.purpose ?? "exit";
+  console.log(
+    `📊 ${config.name}(${config.code}) ${purpose === "entry" ? "매수" : "매도"} 모니터 시작 — ${col.kstNow()}`,
+  );
 
   // 트리거가 사용하는 collector만 호출 (불필요한 API 호출 절감)
   const sourceSet = new Set(config.triggers.map((t) => t.source.split(".")[0]));
@@ -313,15 +316,20 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
   for (const m of metrics) {
     if (silentIds.has(m.id)) continue;
     if (m.hit) {
-      // 긍정 시그널 트리거(tone="good")는 매도 알림이 아니라 재평가 신호로 표시
+      // 긍정 시그널 트리거(tone="good")는 매도 알림이 아니라 진입/재평가 신호로 표시
       const isPositive = m.tone === "good";
+      const hitMessage = isPositive
+        ? purpose === "entry"
+          ? `현재 ${m.display} — 매수 진입 시그널 발생 (분할 진입 검토)`
+          : `현재 ${m.display} — 긍정 시그널 발생 (재평가 검토)`
+        : purpose === "entry"
+          ? `현재 ${m.display} — 진입 보류 신호 도달`
+          : `현재 ${m.display} — 매도 트리거 도달`;
       alerts.push({
         severity: isPositive ? "info" : "bad",
         type: m.id,
         title: `${m.label} ${m.threshold}`,
-        message: isPositive
-          ? `현재 ${m.display} — 긍정 시그널 발생 (재평가 검토)`
-          : `현재 ${m.display} — 매도 트리거 도달`,
+        message: hitMessage,
       });
     } else if (m.tone === "warn") {
       alerts.push({
@@ -364,11 +372,19 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
         : maxSev === "warn"
           ? `관찰 신호 ${sevCount.warn}건 포함`
           : "관찰 신호 0건 — 키워드 단순 매칭만";
+    const newsTitle =
+      purpose === "entry"
+        ? `매수 시그널 키워드 매칭 뉴스 ${newsHits.length}건 (${sevLabel})`
+        : `리스크 키워드 매칭 뉴스 ${newsHits.length}건 (${sevLabel})`;
+    const newsMsg =
+      purpose === "entry"
+        ? `매수 시그널 모니터링 키워드 기준 최근 7일 매칭. 호재 명시 phrase로 등록되어 있으나 본문 직접 확인 권장.`
+        : `매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요.`;
     alerts.push({
       severity: maxSev,
       type: "news_keyword_hit",
-      title: `리스크 키워드 매칭 뉴스 ${newsHits.length}건 (${sevLabel})`,
-      message: `매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요.`,
+      title: newsTitle,
+      message: newsMsg,
     });
   }
   // 정규식 정확도 1회성 검증 — target_period 일치 시에만 발동
@@ -411,12 +427,21 @@ async function processStock(config: MonitorConfig): Promise<MonitorData> {
     }
   }
   if (alerts.length === 0) {
-    alerts.push({
-      severity: "info",
-      type: "all_clear",
-      title: "모든 매도 트리거 범위 내",
-      message: "현재 지표·공시·뉴스 기준 즉각 매도 사유 없음. 보유 유지.",
-    });
+    if (purpose === "entry") {
+      alerts.push({
+        severity: "info",
+        type: "all_clear",
+        title: "매수 트리거 미발동",
+        message: "현재 가격·실적·공시 기준 분할 진입 시그널 없음. 관망 유지.",
+      });
+    } else {
+      alerts.push({
+        severity: "info",
+        type: "all_clear",
+        title: "모든 매도 트리거 범위 내",
+        message: "현재 지표·공시·뉴스 기준 즉각 매도 사유 없음. 보유 유지.",
+      });
+    }
   }
 
   // 출처
@@ -614,7 +639,13 @@ async function main() {
   }
 }
 
-main().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+// monitor-entry.ts가 processStock만 import할 때는 main() 실행 안 함.
+const isMainModule =
+  typeof process.argv[1] === "string" &&
+  process.argv[1].replace(/\\/g, "/").endsWith("scripts/monitor-research.ts");
+if (isMainModule) {
+  main().catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
+}

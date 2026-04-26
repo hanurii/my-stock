@@ -33,11 +33,17 @@ export interface TriggerDef {
   silent_alert?: boolean;
 }
 
+/** 모니터 목적 — 매도 트리거 vs 매수(진입) 트리거 분기.
+ *  알림 문구·all_clear 메시지·뉴스 알림 라벨이 purpose에 따라 변함. 기본 "exit". */
+export type MonitorPurpose = "exit" | "entry";
+
 /** 종목별 모니터 설정 */
 export interface MonitorConfig {
   code: string;
   name: string;
   corp_code: string;
+  /** 모니터 목적 (기본 "exit"). entry-configs.ts 항목은 "entry"로 명시. */
+  purpose?: MonitorPurpose;
   triggers: TriggerDef[];
   /** 특수관계자 매입 비율 추적 시 거래 상대방 회사명 */
   related_party_partner?: string;

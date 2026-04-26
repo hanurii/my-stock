@@ -59,6 +59,25 @@ async function loadMonitor(code: string): Promise<MonitorData | null> {
   }
 }
 
+async function loadMonitorEntry(code: string): Promise<MonitorData | null> {
+  try {
+    const raw = await fs.readFile(
+      path.join(
+        process.cwd(),
+        "public",
+        "data",
+        "research",
+        "monitor_entry",
+        `${code}.json`,
+      ),
+      "utf-8",
+    );
+    return JSON.parse(raw) as MonitorData;
+  } catch {
+    return null;
+  }
+}
+
 const SEVERITY_COLOR: Record<MonitorData["alerts"][number]["severity"], string> = {
   info: TONE_COLOR.neutral,
   warn: TONE_COLOR.warn,
@@ -109,7 +128,15 @@ const METRIC_GRID_COLS: Record<number, string> = {
   8: "grid-cols-2 sm:grid-cols-4",
 };
 
-function MonitorPanel({ data }: { data: MonitorData }) {
+function MonitorPanel({
+  data,
+  purpose = "exit",
+}: {
+  data: MonitorData;
+  purpose?: "exit" | "entry";
+}) {
+  // 매수(entry) 패널은 모든 트리거가 미발동(neutral)이어도 "관망" 정상 상태 → good 톤 유지하지 않고 neutral.
+  // 매수 시그널 발동(tone=good 메트릭 hit) 시에만 accent 색상 활성화.
   const hasBad = data.alerts.some((a) => a.severity === "bad");
   const hasWarn = data.alerts.some((a) => a.severity === "warn");
   const overallTone: "good" | "warn" | "bad" = hasBad ? "bad" : hasWarn ? "warn" : "good";
@@ -123,6 +150,18 @@ function MonitorPanel({ data }: { data: MonitorData }) {
     hour: "2-digit",
     minute: "2-digit",
   });
+
+  const isEntry = purpose === "entry";
+  const headerIcon = isEntry ? "trending_up" : "radar";
+  const headerTitle = isEntry
+    ? "매수 트리거 자동 모니터링"
+    : "매도 트리거 자동 모니터링";
+  const headerSubtitle = isEntry
+    ? "Daily Entry-Trigger Watch"
+    : "Daily Sell-Trigger Watch";
+  const newsLabel = isEntry
+    ? "매수 시그널 키워드 매칭 (최근 7일)"
+    : "규제·매크로 키워드 매칭 (최근 7일)";
 
   return (
     <section
@@ -141,14 +180,14 @@ function MonitorPanel({ data }: { data: MonitorData }) {
         <div className="flex items-center justify-between gap-3 mb-4">
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-xl" style={{ color: accent }}>
-              radar
+              {headerIcon}
             </span>
             <div>
               <p className="text-sm font-serif font-medium text-on-surface">
-                매도 트리거 자동 모니터링
+                {headerTitle}
               </p>
               <p className="text-[10px] uppercase tracking-[0.2em] text-on-surface-variant/50">
-                Daily Sell-Trigger Watch
+                {headerSubtitle}
               </p>
             </div>
           </div>
@@ -200,7 +239,7 @@ function MonitorPanel({ data }: { data: MonitorData }) {
         {data.news_hits.length > 0 && (
           <div className="mt-4 pt-4" style={{ borderTop: `1px solid ${accent}20` }}>
             <p className="text-[10px] uppercase tracking-[0.2em] text-on-surface-variant/60 mb-2">
-              규제·매크로 키워드 매칭 (최근 7일)
+              {newsLabel}
             </p>
             <ul className="space-y-1.5">
               {data.news_hits.slice(0, 6).map((h, i) => {
@@ -414,11 +453,17 @@ export default async function ResearchDetailPage({
   params: Promise<{ code: string }>;
 }) {
   const { code } = await params;
-  const [data, monitor] = await Promise.all([
+  const [data, monitor, monitorEntry] = await Promise.all([
     loadResearchDetail(code),
     loadMonitor(code),
+    loadMonitorEntry(code),
   ]);
   if (!data) notFound();
+
+  // interested(매수 검토) 종목 → 매수 모니터를 우선 노출. 매도 모니터는 holding/watching 종목만.
+  // (향후 holding 종목에 추가매수 entry 트리거가 등록되면 둘 다 렌더링)
+  const showEntry = data.status === "interested" && !!monitorEntry;
+  const showExit = data.status !== "interested" && !!monitor;
 
   return (
     <div className="space-y-10">
@@ -431,8 +476,9 @@ export default async function ResearchDetailPage({
         심층 분석 목록
       </Link>
 
-      {/* Monitor panel (상단 우선 노출) */}
-      {monitor && <MonitorPanel data={monitor} />}
+      {/* Monitor panel (상단 우선 노출) — interested는 매수, 그 외는 매도 */}
+      {showEntry && <MonitorPanel data={monitorEntry!} purpose="entry" />}
+      {showExit && <MonitorPanel data={monitor!} purpose="exit" />}
 
       {/* Header */}
       <section>

@@ -1,0 +1,57 @@
+{
+  "code": "265560",
+  "name": "영화테크",
+  "last_checked": "2026-04-26T22:10:14.735+09:00",
+  "metrics": [
+    {
+      "id": "entry_drawdown_7pct",
+      "label": "진입 가격 (현 10,200원 -7%)",
+      "value": 10200,
+      "display": "10,200원",
+      "threshold": "9,486원 이하",
+      "hit": false,
+      "tone": "neutral"
+    },
+    {
+      "id": "q1_op_margin_16",
+      "label": "분기 영업이익률",
+      "value": 16.61,
+      "display": "16.6%",
+      "threshold": "16% 이상 유지",
+      "hit": true,
+      "tone": "good"
+    },
+    {
+      "id": "new_supply_contract",
+      "label": "신규 단일판매·공급계약",
+      "value": 82,
+      "display": "82일 전",
+      "threshold": "최근 7일 내 신규 공시",
+      "hit": false,
+      "tone": "neutral"
+    }
+  ],
+  "alerts": [
+    {
+      "severity": "info",
+      "type": "q1_op_margin_16",
+      "title": "분기 영업이익률 16% 이상 유지",
+      "message": "현재 16.6% — 매수 진입 시그널 발생 (분할 진입 검토)"
+    }
+  ],
+  "news_hits": [],
+  "sources": [
+    {
+      "label": "PER/PEG/PBR 스코어",
+      "ref": "public/data/growth-watchlist.json"
+    },
+    {
+      "label": "최근 공급계약 공시",
+      "ref": "DART 20260203900963"
+    },
+    {
+      "label": "분기 영업이익률 (2025)",
+      "ref": "DART 20260318001678"
+    }
+  ]
+}
