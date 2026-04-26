@@ -141,7 +141,7 @@ export const ENTRY_CONFIGS: MonitorConfig[] = [
   {
     code: "046940",
     name: "우원개발",
-    corp_code: "00400485",
+    corp_code: "00363246",
     purpose: "entry",
     triggers: [
       {

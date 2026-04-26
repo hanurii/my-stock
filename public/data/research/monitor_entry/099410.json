@@ -1,7 +1,7 @@
 {
   "code": "099410",
   "name": "동방선기",
-  "last_checked": "2026-04-26T22:10:20.437+09:00",
+  "last_checked": "2026-04-26T22:40:48.677+09:00",
   "metrics": [
     {
       "id": "entry_drawdown_10pct",
@@ -15,11 +15,11 @@
     {
       "id": "q1_op_margin_18",
       "label": "분기 영업이익률",
-      "value": null,
-      "display": "—",
+      "value": 22.18,
+      "display": "22.2%",
       "threshold": "18% 이상 유지",
-      "hit": false,
-      "tone": "neutral"
+      "hit": true,
+      "tone": "good"
     },
     {
       "id": "buyback_announcement",
@@ -33,10 +33,10 @@
   ],
   "alerts": [
     {
-      "severity": "warn",
-      "type": "q1_op_margin_18_missing",
-      "title": "분기 영업이익률 데이터 미수집",
-      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
+      "severity": "info",
+      "type": "q1_op_margin_18",
+      "title": "분기 영업이익률 18% 이상 유지",
+      "message": "현재 22.2% — 매수 진입 시그널 발생 (분할 진입 검토)"
     },
     {
       "severity": "info",
@@ -59,6 +59,10 @@
     {
       "label": "PER/PEG/PBR 스코어",
       "ref": "public/data/growth-watchlist.json"
+    },
+    {
+      "label": "분기 영업이익률 (2025)",
+      "ref": "DART 20260323001236"
     },
     {
       "label": "뉴스 RSS",

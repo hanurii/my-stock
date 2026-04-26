@@ -238,39 +238,50 @@ export async function collectQuarterlyOpMargin(
 ): Promise<CollectorBundle["op_margin"]> {
   const report = await fetchLatestPeriodicReport(corp_code);
   if (!report) return null;
-  const list = await dartGet<{ account_nm: string; thstrm_amount: string; sj_div: string }>(
-    "fnlttSinglAcntAll",
-    {
+  // CFS(연결) 우선 시도. 소형주는 연결 없는 케이스가 있어 OFS(별도) 폴백.
+  const tryFsDiv = async (fs_div: "CFS" | "OFS") => {
+    const list = await dartGet<{
+      account_nm: string;
+      thstrm_amount: string;
+      sj_div: string;
+    }>("fnlttSinglAcntAll", {
       corp_code,
       bsns_year: String(report.bsns_year),
       reprt_code: report.reprt_code,
-      fs_div: "CFS",
-    },
-  );
-  if (!list) return null;
-  let revenue = 0;
-  let op_profit = 0;
-  for (const row of list) {
-    if (row.sj_div !== "IS" && row.sj_div !== "CIS") continue;
-    const name = row.account_nm?.trim() ?? "";
-    const v = Number(String(row.thstrm_amount).replace(/,/g, ""));
-    if (isNaN(v)) continue;
-    if (
-      revenue === 0 &&
-      (name === "매출액" || name === "수익(매출액)" || name === "영업수익" || name === "매출")
-    ) {
-      revenue = v;
+      fs_div,
+    });
+    if (!list) return null;
+    let revenue = 0;
+    let op_profit = 0;
+    for (const row of list) {
+      if (row.sj_div !== "IS" && row.sj_div !== "CIS") continue;
+      const name = row.account_nm?.trim() ?? "";
+      const v = Number(String(row.thstrm_amount).replace(/,/g, ""));
+      if (isNaN(v)) continue;
+      if (
+        revenue === 0 &&
+        (name === "매출액" ||
+          name === "수익(매출액)" ||
+          name === "영업수익" ||
+          name === "매출")
+      ) {
+        revenue = v;
+      }
+      if (op_profit === 0 && (name === "영업이익" || name === "영업이익(손실)")) {
+        op_profit = v;
+      }
     }
-    if (op_profit === 0 && (name === "영업이익" || name === "영업이익(손실)")) {
-      op_profit = v;
-    }
-  }
-  if (revenue === 0) return null;
-  const op_margin_pct = (op_profit / revenue) * 100;
+    if (revenue === 0) return null;
+    return { revenue, op_profit };
+  };
+  const cfs = await tryFsDiv("CFS");
+  const result = cfs ?? (await tryFsDiv("OFS"));
+  if (!result) return null;
+  const op_margin_pct = (result.op_profit / result.revenue) * 100;
   return {
     year: report.bsns_year,
-    revenue,
-    op_profit,
+    revenue: result.revenue,
+    op_profit: result.op_profit,
     op_margin_pct: Number(op_margin_pct.toFixed(2)),
     rcept_no: report.rcept_no,
   };
