@@ -1,41 +1,59 @@
 {
   "code": "046940",
   "name": "우원개발",
-  "last_checked": "2026-04-26T22:40:46.322+09:00",
+  "last_checked": "2026-04-26T22:50:26.149+09:00",
   "metrics": [
     {
-      "id": "entry_drawdown_10pct",
-      "label": "진입 가격 (현 5,400원 -10%)",
-      "value": 5400,
-      "display": "5,400원",
-      "threshold": "4,860원 이하",
+      "id": "no_capital_issuance",
+      "label": "❌ 신규 자본조달 공시 (CB/BW/유증, 90일)",
+      "value": 0,
+      "display": "0건",
+      "threshold": "1건 이상",
+      "hit": false,
+      "tone": "good"
+    },
+    {
+      "id": "op_margin_collapse",
+      "label": "❌ 분기 영업이익률 급락 (일회성 검증)",
+      "value": 17.85,
+      "display": "17.9%",
+      "threshold": "5% 이하 (2024 0.93% 회귀)",
+      "hit": false,
+      "tone": "good"
+    },
+    {
+      "id": "op_margin_sustained",
+      "label": "✅ 분기 영업이익률 지속",
+      "value": 17.85,
+      "display": "17.9%",
+      "threshold": "12% 이상",
+      "hit": true,
+      "tone": "good"
+    },
+    {
+      "id": "per_value_zone",
+      "label": "✅ PER 추가 저평가",
+      "value": 2.03,
+      "display": "2.03배",
+      "threshold": "1.8배 이하 (현 2.03배)",
       "hit": false,
       "tone": "neutral"
     },
     {
+      "id": "new_supply_contract",
+      "label": "✅ 신규 SOC 수주 공시",
+      "value": 2,
+      "display": "2일 전",
+      "threshold": "최근 7일 내 신규",
+      "hit": true,
+      "tone": "good"
+    },
+    {
       "id": "correction_disclosure",
-      "label": "사업보고서 정정 공시 (90일)",
+      "label": "✅ 사업보고서 정정 공시 (노이즈 해소)",
       "value": 12,
       "display": "12건",
       "threshold": "정정본 1건+",
-      "hit": true,
-      "tone": "good"
-    },
-    {
-      "id": "q1_op_margin_12",
-      "label": "분기 영업이익률",
-      "value": 17.85,
-      "display": "17.9%",
-      "threshold": "12% 이상 유지",
-      "hit": true,
-      "tone": "good"
-    },
-    {
-      "id": "new_supply_contract",
-      "label": "신규 단일판매·공급계약 (SOC 수주)",
-      "value": 2,
-      "display": "2일 전",
-      "threshold": "최근 7일 내 신규 공시",
       "hit": true,
       "tone": "good"
     }
@@ -43,21 +61,21 @@
   "alerts": [
     {
       "severity": "info",
-      "type": "correction_disclosure",
-      "title": "사업보고서 정정 공시 (90일) 정정본 1건+",
-      "message": "현재 12건 — 매수 진입 시그널 발생 (분할 진입 검토)"
-    },
-    {
-      "severity": "info",
-      "type": "q1_op_margin_12",
-      "title": "분기 영업이익률 12% 이상 유지",
-      "message": "현재 17.9% — 매수 진입 시그널 발생 (분할 진입 검토)"
+      "type": "op_margin_sustained",
+      "title": "✅ 분기 영업이익률 지속 12% 이상",
+      "message": "현재 17.9% — 매수 시그널 (분할 진입 검토 권장)"
     },
     {
       "severity": "info",
       "type": "new_supply_contract",
-      "title": "신규 단일판매·공급계약 (SOC 수주) 최근 7일 내 신규 공시",
-      "message": "현재 2일 전 — 매수 진입 시그널 발생 (분할 진입 검토)"
+      "title": "✅ 신규 SOC 수주 공시 최근 7일 내 신규",
+      "message": "현재 2일 전 — 매수 시그널 (분할 진입 검토 권장)"
+    },
+    {
+      "severity": "info",
+      "type": "correction_disclosure",
+      "title": "✅ 사업보고서 정정 공시 (노이즈 해소) 정정본 1건+",
+      "message": "현재 12건 — 매수 시그널 (분할 진입 검토 권장)"
     }
   ],
   "news_hits": [],

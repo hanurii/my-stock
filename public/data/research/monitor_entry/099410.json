@@ -1,32 +1,59 @@
 {
   "code": "099410",
   "name": "동방선기",
-  "last_checked": "2026-04-26T22:40:48.677+09:00",
+  "last_checked": "2026-04-26T22:50:30.755+09:00",
   "metrics": [
     {
-      "id": "entry_drawdown_10pct",
-      "label": "진입 가격 (현 5,490원 -10%)",
-      "value": 5490,
-      "display": "5,490원",
-      "threshold": "4,941원 이하",
+      "id": "no_capital_issuance",
+      "label": "❌ 신규 자본조달 공시 (CB/BW/유증, 90일)",
+      "value": 0,
+      "display": "0건",
+      "threshold": "1건 이상",
       "hit": false,
-      "tone": "neutral"
+      "tone": "good"
     },
     {
-      "id": "q1_op_margin_18",
-      "label": "분기 영업이익률",
+      "id": "op_margin_collapse",
+      "label": "❌ 분기 영업이익률 급락 (관리종목 이력)",
       "value": 22.18,
       "display": "22.2%",
-      "threshold": "18% 이상 유지",
+      "threshold": "12% 이하",
+      "hit": false,
+      "tone": "good"
+    },
+    {
+      "id": "op_margin_strong",
+      "label": "✅ 분기 영업이익률 견조",
+      "value": 22.18,
+      "display": "22.2%",
+      "threshold": "18% 이상",
       "hit": true,
       "tone": "good"
     },
     {
-      "id": "buyback_announcement",
-      "label": "자사주 매입·소각 공시 (90일)",
+      "id": "per_value_zone",
+      "label": "✅ PER 저평가",
+      "value": 9.63,
+      "display": "9.63배",
+      "threshold": "8.0배 이하 (현 9.67배)",
+      "hit": false,
+      "tone": "neutral"
+    },
+    {
+      "id": "buyback_action",
+      "label": "✅ 자사주 매입·소각 신규 (주주환원 정책 도입)",
       "value": 0,
       "display": "0건",
-      "threshold": "공시 1건+",
+      "threshold": "1건 이상",
+      "hit": false,
+      "tone": "neutral"
+    },
+    {
+      "id": "new_supply_contract",
+      "label": "✅ 신규 단일판매·공급계약",
+      "value": 180,
+      "display": "180일 전",
+      "threshold": "최근 7일 내 신규",
       "hit": false,
       "tone": "neutral"
     }
@@ -34,9 +61,9 @@
   "alerts": [
     {
       "severity": "info",
-      "type": "q1_op_margin_18",
-      "title": "분기 영업이익률 18% 이상 유지",
-      "message": "현재 22.2% — 매수 진입 시그널 발생 (분할 진입 검토)"
+      "type": "op_margin_strong",
+      "title": "✅ 분기 영업이익률 견조 18% 이상",
+      "message": "현재 22.2% — 매수 시그널 (분할 진입 검토 권장)"
     },
     {
       "severity": "info",

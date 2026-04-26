@@ -320,10 +320,10 @@ export async function processStock(config: MonitorConfig): Promise<MonitorData> 
       const isPositive = m.tone === "good";
       const hitMessage = isPositive
         ? purpose === "entry"
-          ? `현재 ${m.display} — 매수 진입 시그널 발생 (분할 진입 검토)`
+          ? `현재 ${m.display} — 매수 시그널 (분할 진입 검토 권장)`
           : `현재 ${m.display} — 긍정 시그널 발생 (재평가 검토)`
         : purpose === "entry"
-          ? `현재 ${m.display} — 진입 보류 신호 도달`
+          ? `현재 ${m.display} — 매수 보류 권장 (펀더멘털 훼손·희석 발생)`
           : `현재 ${m.display} — 매도 트리거 도달`;
       alerts.push({
         severity: isPositive ? "info" : "bad",
@@ -431,8 +431,9 @@ export async function processStock(config: MonitorConfig): Promise<MonitorData> 
       alerts.push({
         severity: "info",
         type: "all_clear",
-        title: "매수 트리거 미발동",
-        message: "현재 가격·실적·공시 기준 분할 진입 시그널 없음. 관망 유지.",
+        title: "관망 유지",
+        message:
+          "매수 보류 신호도, 매수 시그널도 발동하지 않음. 펀더멘털 변화·신규 공시 대기.",
       });
     } else {
       alerts.push({

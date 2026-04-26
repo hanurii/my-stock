@@ -1,42 +1,75 @@
 {
   "code": "265560",
   "name": "영화테크",
-  "last_checked": "2026-04-26T22:40:43.973+09:00",
+  "last_checked": "2026-04-26T22:50:22.576+09:00",
   "metrics": [
     {
-      "id": "entry_drawdown_7pct",
-      "label": "진입 가격 (현 10,200원 -7%)",
-      "value": 10200,
-      "display": "10,200원",
-      "threshold": "9,486원 이하",
+      "id": "no_capital_issuance",
+      "label": "❌ 신규 자본조달 공시 (CB/BW/유증, 90일)",
+      "value": 0,
+      "display": "0건",
+      "threshold": "1건 이상",
       "hit": false,
-      "tone": "neutral"
+      "tone": "good"
     },
     {
-      "id": "q1_op_margin_16",
-      "label": "분기 영업이익률",
+      "id": "op_margin_collapse",
+      "label": "❌ 분기 영업이익률 후퇴",
       "value": 16.61,
       "display": "16.6%",
-      "threshold": "16% 이상 유지",
+      "threshold": "10% 이하",
+      "hit": false,
+      "tone": "good"
+    },
+    {
+      "id": "op_margin_strong",
+      "label": "✅ 분기 영업이익률 견조",
+      "value": 16.61,
+      "display": "16.6%",
+      "threshold": "16% 이상",
       "hit": true,
       "tone": "good"
     },
     {
-      "id": "new_supply_contract",
-      "label": "신규 단일판매·공급계약",
-      "value": 82,
-      "display": "82일 전",
-      "threshold": "최근 7일 내 신규 공시",
+      "id": "per_value_zone",
+      "label": "✅ PER 저평가",
+      "value": 5.6,
+      "display": "5.60배",
+      "threshold": "5.0배 이하",
       "hit": false,
       "tone": "neutral"
+    },
+    {
+      "id": "new_supply_contract",
+      "label": "✅ 신규 단일판매·공급계약",
+      "value": 82,
+      "display": "82일 전",
+      "threshold": "최근 7일 내 신규",
+      "hit": false,
+      "tone": "neutral"
+    },
+    {
+      "id": "buyback_action",
+      "label": "✅ 자사주 매입·소각 신규 (90일)",
+      "value": 2,
+      "display": "2건",
+      "threshold": "1건 이상",
+      "hit": true,
+      "tone": "good"
     }
   ],
   "alerts": [
     {
       "severity": "info",
-      "type": "q1_op_margin_16",
-      "title": "분기 영업이익률 16% 이상 유지",
-      "message": "현재 16.6% — 매수 진입 시그널 발생 (분할 진입 검토)"
+      "type": "op_margin_strong",
+      "title": "✅ 분기 영업이익률 견조 16% 이상",
+      "message": "현재 16.6% — 매수 시그널 (분할 진입 검토 권장)"
+    },
+    {
+      "severity": "info",
+      "type": "buyback_action",
+      "title": "✅ 자사주 매입·소각 신규 (90일) 1건 이상",
+      "message": "현재 2건 — 매수 시그널 (분할 진입 검토 권장)"
     }
   ],
   "news_hits": [],
