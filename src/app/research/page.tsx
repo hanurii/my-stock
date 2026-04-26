@@ -3,7 +3,11 @@ import {
   loadResearchIndex,
   STATUS_LABEL,
   STATUS_COLOR,
-  TONE_COLOR,
+  VERDICT_ORDER,
+  VERDICT_LABEL,
+  VERDICT_COLOR,
+  VERDICT_DESCRIPTION,
+  formatVerdict,
   type ResearchStatus,
 } from "@/lib/research";
 
@@ -34,6 +38,52 @@ export default async function ResearchIndexPage() {
         <p className="text-base text-on-surface-variant mt-2">
           보유 종목과 매수 검토 종목에 대한 주주가치·공시 기반 비판적 검증.
         </p>
+      </section>
+
+      {/* Verdict Legend */}
+      <section className="bg-surface-container-low rounded-xl ghost-border p-4 sm:p-5">
+        <div className="flex items-baseline gap-3 mb-3">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-primary-dim/60">
+            Verdict Legend
+          </p>
+          <span className="text-[10px] text-on-surface-variant/50">
+            종목 카드 우측 상단 레이블의 의미
+          </span>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3">
+          {VERDICT_ORDER.map((level) => {
+            const color = VERDICT_COLOR[level];
+            return (
+              <div
+                key={level}
+                className="rounded-lg p-2.5"
+                style={{
+                  backgroundColor: `${color}10`,
+                  border: `1px solid ${color}30`,
+                }}
+              >
+                <div className="flex items-center gap-1.5 mb-1">
+                  <span
+                    className="w-2 h-2 rounded-full shrink-0"
+                    style={{
+                      backgroundColor: color,
+                      boxShadow: `0 0 6px ${color}80`,
+                    }}
+                  />
+                  <p
+                    className="text-xs font-medium leading-tight"
+                    style={{ color }}
+                  >
+                    {VERDICT_LABEL[level]}
+                  </p>
+                </div>
+                <p className="text-[10px] text-on-surface-variant/70 leading-snug break-keep">
+                  {VERDICT_DESCRIPTION[level]}
+                </p>
+              </div>
+            );
+          })}
+        </div>
       </section>
 
       {/* Empty state */}
@@ -87,11 +137,11 @@ export default async function ResearchIndexPage() {
                     <span
                       className="text-[11px] px-2 py-0.5 rounded shrink-0"
                       style={{
-                        backgroundColor: `${TONE_COLOR[entry.verdict_tone]}20`,
-                        color: TONE_COLOR[entry.verdict_tone],
+                        backgroundColor: `${VERDICT_COLOR[entry.verdict_level]}20`,
+                        color: VERDICT_COLOR[entry.verdict_level],
                       }}
                     >
-                      {entry.verdict}
+                      {formatVerdict(entry.verdict_level, entry.verdict_comment)}
                     </span>
                   </div>
 

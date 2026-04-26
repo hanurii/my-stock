@@ -8,6 +8,9 @@ import {
   STATUS_COLOR,
   TONE_COLOR,
   TONE_ICON,
+  VERDICT_COLOR,
+  VERDICT_LABEL,
+  formatVerdict,
   type Tone,
 } from "@/lib/research";
 
@@ -505,20 +508,26 @@ export default async function ResearchDetailPage({
 
       {/* Thesis 요약 */}
       <section className="bg-surface-container-low rounded-xl ghost-border p-6">
-        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-2">
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-primary">gavel</span>
             <span className="text-xs uppercase tracking-[0.15em] text-on-surface-variant">
               종합 판정
             </span>
           </div>
-          <Chip tone={data.verdict.tone}>
-            <span className="material-symbols-outlined text-sm">
-              {TONE_ICON[data.verdict.tone]}
-            </span>
-            {data.verdict.label}
-          </Chip>
+          <span
+            className="text-[11px] px-2 py-0.5 rounded inline-flex items-center gap-1 shrink-0"
+            style={{
+              backgroundColor: `${VERDICT_COLOR[data.verdict.level]}20`,
+              color: VERDICT_COLOR[data.verdict.level],
+            }}
+          >
+            {formatVerdict(data.verdict.level, data.verdict.comment)}
+          </span>
         </div>
+        <p className="text-[10px] text-on-surface-variant/50 leading-relaxed mb-4 break-keep">
+          ※ 상단 종합 판정은 6단계 매수/매도 분류이며, 아래 섹션의 색상 톤(good/warn/bad)은 신호 강도 — 서로 다른 체계입니다.
+        </p>
         <p className="text-base text-on-surface leading-relaxed mb-3">{data.thesis}</p>
         {data.verdict.summary && (
           <p className="text-sm text-on-surface-variant leading-relaxed">

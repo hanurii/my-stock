@@ -3,6 +3,13 @@ import path from "path";
 
 export type ResearchStatus = "holding" | "interested" | "watching";
 export type Tone = "good" | "warn" | "bad" | "neutral";
+export type VerdictLevel =
+  | "buy"
+  | "scaled_buy"
+  | "hold"
+  | "watch_exit"
+  | "scaled_sell"
+  | "full_exit";
 
 export interface ResearchIndexEntry {
   code: string;
@@ -10,8 +17,8 @@ export interface ResearchIndexEntry {
   sector: string;
   market: string;
   status: ResearchStatus;
-  verdict: string;
-  verdict_tone: Tone;
+  verdict_level: VerdictLevel;
+  verdict_comment?: string;
   thesis: string;
   updated_at: string;
 }
@@ -24,7 +31,7 @@ export interface ResearchDetail {
   status: ResearchStatus;
   updated_at: string;
   thesis: string;
-  verdict: { label: string; tone: Tone; summary?: string };
+  verdict: { level: VerdictLevel; comment?: string; summary?: string };
   entry_timing?: {
     label: string;
     tone: Tone;
@@ -141,3 +148,44 @@ export const TONE_ICON: Record<Tone, string> = {
   bad: "cancel",
   neutral: "info",
 };
+
+export const VERDICT_ORDER: VerdictLevel[] = [
+  "buy",
+  "scaled_buy",
+  "hold",
+  "watch_exit",
+  "scaled_sell",
+  "full_exit",
+];
+
+export const VERDICT_LABEL: Record<VerdictLevel, string> = {
+  buy: "매수 추천",
+  scaled_buy: "분할 매수 추천",
+  hold: "보유 유지",
+  watch_exit: "매도 모니터링 필요",
+  scaled_sell: "분할 매도 추천",
+  full_exit: "전량 매도 추천",
+};
+
+export const VERDICT_COLOR: Record<VerdictLevel, string> = {
+  buy: "#7ab8ff",
+  scaled_buy: "#9fd2e8",
+  hold: "#95d3ba",
+  watch_exit: "#e9c176",
+  scaled_sell: "#e9a36f",
+  full_exit: "#d97a78",
+};
+
+export const VERDICT_DESCRIPTION: Record<VerdictLevel, string> = {
+  buy: "진입 시그널 강함, 적극 매수",
+  scaled_buy: "조건 충족, 분할 진입 권장",
+  hold: "현 비중 유지, 특이 변동 없음",
+  watch_exit: "트리거 임박, 매도 준비",
+  scaled_sell: "비중 축소, 분할 차익실현",
+  full_exit: "시그널 깨짐, 청산 권장",
+};
+
+export function formatVerdict(level: VerdictLevel, comment?: string): string {
+  const base = VERDICT_LABEL[level];
+  return comment ? `${base} (${comment})` : base;
+}
