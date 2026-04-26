@@ -721,6 +721,187 @@ export const CONFIGS: MonitorConfig[] = [
     },
   },
 
+  // ───── JB금융지주 (175330) ─────
+  // research/175330.json exit_timing 6개 + α 자동화 매핑:
+  // 1. PBR 1.1 돌파 + 지방지주(BNK·iM) 평균 대비 PBR 프리미엄
+  // 2. 분기배당 동결·감액 (dividend_trend QoQ ≤ 0%)
+  // 3. 자사주 1,550억 매입·소각 트랜치 미집행 (buyback_program_status 180일+)
+  // 4. 분기 적자 전환 (quarterly_net_income ≤ 0, warn 1,300억 — Q1’26 1,661억 -20%)
+  // 5. PF 손실·환원 정책 변경 — 자사 corp 공시 키워드 (disclosure_keyword_hits)
+  // 6. NPL 0.7% / ROE 8% 진입 — V2 silent_alert (1Q26 분기보고서 후 활성화 검증)
+  // + 외국인 지분율 25% 이하 (지방지주 베이스 30%대 → -10%p 이탈 신호)
+  // + 뉴스: 김기홍 회장·사법 리스크·환원 후퇴
+  {
+    code: "175330",
+    name: "JB금융지주",
+    corp_code: "00980122",
+    triggers: [
+      {
+        id: "pbr",
+        label: "PBR",
+        source: "valuation.pbr",
+        threshold: { gte: 1.1 },
+        threshold_label: "1.1배 돌파",
+        suffix: "배",
+        precision: 2,
+        warn_threshold: 1.0,
+      },
+      {
+        // 지방지주 1등주로 정상 프리미엄 +0.30~0.40pp 영역 (2026-04-25 기준 +0.38pp).
+        // +0.50pp 돌파는 "1등 프리미엄도 과도한 구간"(=PBR 1배 돌파 가까이) 신호.
+        // peers: BNK 138930, iM금융 139130 (구 DGB) — JB 자기 제외.
+        id: "pbr_premium_pp",
+        label: "지방지주 평균 대비 PBR 프리미엄",
+        source: "peer_pbr_premium.premium_pp",
+        threshold: { gte: 0.50 },
+        threshold_label: "+0.50pp 이상",
+        suffix: "pp",
+        precision: 3,
+        warn_threshold: 0.45,
+      },
+      {
+        // 지방지주는 외국인 30%대가 베이스(BNK 41·iM 44·JB 35).
+        // 25% 이하 = -10%p 이탈로 글로벌 자금 회피·자체 신뢰 훼손 신호.
+        id: "foreign_ratio",
+        label: "외국인 지분율",
+        source: "valuation.foreign_ratio",
+        threshold: { lte: 25 },
+        threshold_label: "25% 이하",
+        suffix: "%",
+        precision: 2,
+        warn_threshold: 28,
+      },
+      {
+        id: "foreign_net_buy_4w",
+        label: "최근 20거래일 외국인 순매수",
+        source: "foreign_net_buy.cumulative_20d_shares",
+        threshold: { lte: 0 },
+        threshold_label: "순매도 전환",
+        suffix: "주",
+      },
+      {
+        id: "dividend_qoq_change",
+        label: "분기배당 QoQ 변화율",
+        source: "dividend_trend.qoq_change_pct",
+        threshold: { lte: 0 },
+        threshold_label: "동결 또는 감소",
+        suffix: "%",
+        precision: 1,
+      },
+      {
+        // 2026 자사주 매입·소각 계획: 2월 400억 + 상반기 450억 + 하반기 700억 = 1,550억.
+        // 마지막 활동 후 180일+면 트랜치 미집행 = 환원율 50% 가이던스 후퇴 신호.
+        id: "buyback_program_status",
+        label: "자사주 프로그램 마지막 활동 후 경과일",
+        source: "buyback_program_status.days_ago",
+        threshold: { gte: 180 },
+        threshold_label: "180일+ (1,550억 트랜치 미집행)",
+        suffix: "일",
+        warn_threshold: 90,
+      },
+      {
+        // Q1’26 지배 순이익 1,661억. warn 1,300억(-20%)·hit 적자 전환.
+        // 시총 5.4조 소형이라 KB(-30% warn)보다 보수적으로 잡음.
+        id: "quarterly_net_income",
+        label: "최근 분기 순이익",
+        source: "quarterly_net_income.net_income_billion",
+        threshold: { lte: 0 },
+        threshold_label: "분기 적자 전환",
+        suffix: "억",
+        precision: 0,
+        warn_threshold: 1300,
+      },
+      {
+        id: "pf_loss_disclosure",
+        label: "PF 손실·충당금 공시 (90일)",
+        source: "disclosure_keyword_hits.groups.pf_loss.hits.count",
+        threshold: { gte: 1 },
+        threshold_label: "1건 이상",
+        suffix: "건",
+      },
+      {
+        // 환원율 50% 가이던스(2026.02.05 공시) 하향·자사주 철회 등 정성 신호 감지.
+        id: "shareholder_policy_disclosure",
+        label: "주주환원 정책 변경 공시 (90일)",
+        source: "disclosure_keyword_hits.groups.policy_change.hits.count",
+        threshold: { gte: 1 },
+        threshold_label: "1건 이상",
+        suffix: "건",
+      },
+      // V2 metric 2개 (금융사 특화 지표 — silent_alert로 추출 정확도 검증 후 활성화).
+      // 1Q26 분기보고서(2026-05 중순 예정) 후 monitor JSON의 추출값을 IR 보도자료와
+      // 수동 비교하여 ±0.1%p 이내면 silent_alert 줄 제거하여 활성화. KB 패턴 대비
+      // verification 자동화 블록은 정확한 NPL expected 값 확정 후 후속 추가.
+      {
+        // 지방지주 NPL 베이스: 2025-FY 기준 JB 1.12%·BNK·iM도 1%대 — 4대 지주(0.3~0.5%) 잣대
+        // 0.7%는 지방지주에선 상시 hit 영역이므로 부적절. 1.5% 돌파(현재 +0.38%p 악화)로
+        // 조정. warn 1.3%(+0.18%p)는 단계적 경고.
+        id: "npl_ratio",
+        label: "NPL 비율",
+        source: "npl_ratio.npl_ratio_pct",
+        threshold: { gte: 1.5 },
+        threshold_label: "1.5% 돌파 (지방지주 기준)",
+        suffix: "%",
+        precision: 2,
+        warn_threshold: 1.3,
+        silent_alert: true,
+      },
+      {
+        id: "quarterly_roe",
+        label: "ROE (사업보고서 기준 연환산)",
+        source: "roe.annualized_roe_pct",
+        threshold: { lte: 8 },
+        threshold_label: "8% 이하",
+        suffix: "%",
+        precision: 2,
+        warn_threshold: 9.5,
+        silent_alert: true,
+      },
+    ],
+    peer_codes: ["138930", "139130"], // BNK·iM(구 DGB) — 지방지주 동질 비교군 (JB 자기 제외)
+    // major_shareholder_name 미설정 — 삼양사 14.50% 지배구조이나 사용자 exit_timing에
+    // 명시 없음. 후속 검토 시 추가 가능.
+    disclosure_keyword_groups: [
+      {
+        name: "pf_loss",
+        label: "PF 손실·충당금",
+        keywords: [
+          "충당금 적립",
+          "대규모 손실",
+          "손상차손 인식",
+          "부동산 PF",
+          "프로젝트금융",
+        ],
+      },
+      {
+        name: "policy_change",
+        label: "주주환원 정책 변경",
+        keywords: [
+          "주주환원 정책 변경",
+          "배당정책 변경",
+          "기업가치 제고 계획 변경",
+          "기업가치 제고계획 변경",
+          "자기주식취득 철회",
+          "자기주식취득결정 취소",
+        ],
+      },
+    ],
+    news_keywords: [
+      "JB금융 분기배당",
+      "JB금융 자사주",
+      "JB금융 주주환원",
+      "JB금융 환원율",
+      "JB금융 충당금",
+      "전북은행 부동산 PF",
+      "광주은행 부동산 PF",
+      "김기홍 JB금융",
+      "JB금융 사법",
+      "은행 주주환원 후퇴",
+      "금융당국 자본규제",
+      "지방은행 NPL",
+    ],
+  },
+
   // ───── 현대차2우B (005387) ─────
   // research/005387.json exit_timing 6개 중 5개 자동화:
   // 1. 부분익절 ① — 가격 320,000 돌파 + PER 9배 (price + per 트리거)

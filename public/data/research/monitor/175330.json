@@ -1,0 +1,584 @@
+{
+  "code": "175330",
+  "name": "JB금융지주",
+  "last_checked": "2026-04-26T10:55:33.349+09:00",
+  "metrics": [
+    {
+      "id": "pbr",
+      "label": "PBR",
+      "value": 0.88,
+      "display": "0.88배",
+      "threshold": "1.1배 돌파",
+      "hit": false,
+      "tone": "good"
+    },
+    {
+      "id": "pbr_premium_pp",
+      "label": "지방지주 평균 대비 PBR 프리미엄",
+      "value": 0.36,
+      "display": "0.360pp",
+      "threshold": "+0.50pp 이상",
+      "hit": false,
+      "tone": "good"
+    },
+    {
+      "id": "foreign_ratio",
+      "label": "외국인 지분율",
+      "value": 34.72,
+      "display": "34.72%",
+      "threshold": "25% 이하",
+      "hit": false,
+      "tone": "good"
+    },
+    {
+      "id": "foreign_net_buy_4w",
+      "label": "최근 20거래일 외국인 순매수",
+      "value": null,
+      "display": "—",
+      "threshold": "순매도 전환",
+      "hit": false,
+      "tone": "neutral"
+    },
+    {
+      "id": "dividend_qoq_change",
+      "label": "분기배당 QoQ 변화율",
+      "value": 14.57,
+      "display": "14.6%",
+      "threshold": "동결 또는 감소",
+      "hit": false,
+      "tone": "good"
+    },
+    {
+      "id": "buyback_program_status",
+      "label": "자사주 프로그램 (마지막 소각결정 · 후속 대기)",
+      "value": 80,
+      "display": "80일",
+      "threshold": "180일+ (1,550억 트랜치 미집행)",
+      "hit": false,
+      "tone": "good"
+    },
+    {
+      "id": "quarterly_net_income",
+      "label": "최근 분기 순이익",
+      "value": 7300,
+      "display": "7,300억",
+      "threshold": "분기 적자 전환",
+      "hit": false,
+      "tone": "good"
+    },
+    {
+      "id": "pf_loss_disclosure",
+      "label": "PF 손실·충당금 공시 (90일)",
+      "value": 0,
+      "display": "0건",
+      "threshold": "1건 이상",
+      "hit": false,
+      "tone": "good"
+    },
+    {
+      "id": "shareholder_policy_disclosure",
+      "label": "주주환원 정책 변경 공시 (90일)",
+      "value": 0,
+      "display": "0건",
+      "threshold": "1건 이상",
+      "hit": false,
+      "tone": "good"
+    },
+    {
+      "id": "npl_ratio",
+      "label": "NPL 비율",
+      "value": 1.12,
+      "display": "1.12%",
+      "threshold": "1.5% 돌파 (지방지주 기준)",
+      "hit": false,
+      "tone": "good"
+    },
+    {
+      "id": "quarterly_roe",
+      "label": "ROE (사업보고서 기준 연환산)",
+      "value": 11.82,
+      "display": "11.82%",
+      "threshold": "8% 이하",
+      "hit": false,
+      "tone": "good"
+    }
+  ],
+  "alerts": [
+    {
+      "severity": "info",
+      "type": "foreign_net_buy_4w_warmup",
+      "title": "최근 20거래일 외국인 순매수 누적 중",
+      "message": "현재 5거래일 누적 (20일 이상 시 메트릭 평가 시작)."
+    },
+    {
+      "severity": "warn",
+      "type": "news_keyword_hit",
+      "title": "규제·매크로 키워드 뉴스 50건 (관찰 신호 12건 포함)",
+      "message": "최근 7일 매칭. 상세는 하단 리스트 확인."
+    }
+  ],
+  "news_hits": [
+    {
+      "keyword": "JB금융 분기배당",
+      "date": "2026-04-24",
+      "title": "JB금융, 1Q 순익 1661억…분기배당 규모 2배로 - 딜사이트",
+      "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTFBna3NZM2h3eDQ1VEkwNjhyX2sxbjhNOWFQd1lhNnV2UE44bW1PdG16dmd5ekktZGhyVFp6QlB4cXc2ME1mOWF4RVVRRmtzWEk?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "JB금융 분기배당",
+      "date": "2026-04-23",
+      "title": "JB금융, 1분기 순익 1661억 우상향…배당도 2배 파격 증액 - 블로터",
+      "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE5hR25NTnpoTlhYaThfZC1qbFY4V09ZVDlHM0lvOFhpd3NWSzZtdUxZMlBQcmZCa1pEN2Q4WkhfUkhEZ01fVVZOWkZ2Q1FTalh2eWdFNnpYVXY5UVJHX2VMckJoc2wyTVlL0gFsQVVfeXFMTmYxSW5XdmN1aXloZkRlUTBLVWFqdy16U21SN1Y0Z1BjVkhKcnpJOHliREdLeDNrUFcyNWFTaWkweEF2WFpFUDZPV1E3QjBnc0RlWkd1bDlINUh2UjUzN1V6VEQ3amtjTWxMYm1P?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "JB금융 분기배당",
+      "date": "2026-04-23",
+      "title": "JB금융지주, 분기 현금배당 1주당 311원 결정 - 디지털투데이",
+      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE1yNl9vR1VmWVY5c1VlNloyNXFlYnVlOUJ4Yjc3dGhDNjRzUUJqYmlrdHdJeWhRdmROdEZ1alRsOVctS2xOODBuREk1Wl9NYkNZVmRILWhQMmxDcUFhUXVnbG9pdTRpOFo0eUczOGdGSW43Wkk?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "JB금융 분기배당",
+      "date": "2026-04-24",
+      "title": "JB금융, 분기배당 2배 확대… 주주환원 우상향 - 이코리아",
+      "url": "https://news.google.com/rss/articles/CBMib0FVX3lxTE4tUjdTajg0UHFqaHc2YVk0a005T1RHcmdmcUpWTHBockVOOEhsNFgwQmV1bVV6c3gzYmppaHZtWE50U3BjRzZtTEtQampTU3QycTZpOXZHb0hUMnlQSGd4QmZmV1B1OGk2V2Joelc3SQ?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "JB금융 분기배당",
+      "date": "2026-04-23",
+      "title": "JB금융, 1분기 당기순익 1661억원…311원 현금 분기 배당 - 지디넷코리아",
+      "url": "https://news.google.com/rss/articles/CBMiVkFVX3lxTE5RQVpqTnJ3eDJpVmsxWnd4X0Z0cUVHMUhJZGVBak9JV3p4S3lnSXUzZkFVN1VaZGZlQ3hzREs1aHpFS2U2TEltV1RhQWZEX1pUN3JmNi1B?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "JB금융 분기배당",
+      "date": "2026-04-23",
+      "title": "JB금융지주 분기 배당 576억 7322만원 확정...시가배당률 1.0% 달성 - 데이터투자",
+      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE1XRUxRMXpEVzVPOXphR1dBdXFjc3EwT3hsMDZRdWNuVGhUYjRmQWtOdi05ZEJxRWtZczktZUg1VUVkejhTeTBhM1JJYXRkZUxRT3pzQW5pLTdGWE16UEFGTk9heFJqOVpwa2hPcnFWM1dMNGs?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "JB금융 분기배당",
+      "date": "2026-04-23",
+      "title": "JB금융지주 1분기 순이익 1661억원… 작년 동기 대비 2.1% 증가 - 조선비즈 - Chosunbiz",
+      "url": "https://news.google.com/rss/articles/CBMigAFBVV95cUxQVElTUExnX25UbFF0N2UtbjktUXIyUUhZdm54MXZHbTAtT2NfbWVULS1sNWpXekhVM056R2Z0bXpYTm81S1l1M3lrV2JUNi1ER01GaHZxZDVNM0NpeUsyQm8wVjhNU1NxNFk2RUpTUXcwaDR5cXZLUkxPdVNicXc1YtIBlAFBVV95cUxOdU9Wd1g0VkhhYXk2UE1pbi1vV3JxSEppeHNTbXR3Snk3QnIySHhCa0phbklyVFBLVEdpLWFjQklNWnB6VlU3dXp1bVZES0lCX29lQnBEc1pQUGlxNXRjLXY0OFM4eW5heFBDdk85a1RRZWp0QkgtYkJNOWlaazNaWHJrZDJaYTY4SFdzaU9KUUo3OXln?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "JB금융 분기배당",
+      "date": "2026-04-25",
+      "title": "JB금융지주, 올 1분기 순이익 1천661억원 '선방'…증권가, 기초 체력은 \"견조\" - 청년일보",
+      "url": "https://news.google.com/rss/articles/CBMiakFVX3lxTE1sbms2SXcyVGQyQTd0SG45N2FULV8zUWpLZGdfNmVDVjBHTW5lUkVhOHhqaG1JUG9PUGRrMlZLZjBPSENJdVFJbEJBRlhIaFRSeG5jQzZkR1JseTRWZU80ZFBZMWI2amp5ZWc?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "JB금융 분기배당",
+      "date": "2026-04-23",
+      "title": "‘은행 줄고 캐피탈 성장’...JB금융지주, 1분기 순익 1661억 - 에너지경제신문",
+      "url": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE9udkJLNUpRaUJ3S1B5U05CVzk4WF85d1BiaFNNWDBacXNXSVkwMGdOTVU2dVFQTUlpdUhPTkNqX0Uta0RSeHZpY1hZeDhISGY1OGxpbVY4bVJoa28?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "JB금융 분기배당",
+      "date": "2026-04-23",
+      "title": "JB금융 1분기 당기순익 1천661억…캐피탈, 은행보다 더 벌었다 - 연합인포맥스",
+      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTFBGN2xWWENIV3JDNVFRMUVRQ2FQcDh6R1JyeG5vYWF4QjBQTkZrc0FkaWtRTTVSSk9lRWdVQ1hFMW5lZ2RUYVZmLTdYYndOaHJQR0hIYnl1eXEtZjFlNHRSZlBzNm1HcEZ1MUdPa1hRdjQ?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "JB금융 주주환원",
+      "date": "2026-04-24",
+      "title": "JB금융, 연간 실적 개선에 주주환원정책 강화 기대감 - 알파경제",
+      "url": "https://news.google.com/rss/articles/CBMibkFVX3lxTE9vZ3RUeVVpcS1vN0FGRlY4WkxtREMtbXhkY0JxLUgxU1RoUEh0aVBkQlJOby02S1AtRWtFUTRodDFiUzVveWY1cnpRaGdtNWZvT1pLa2ZxMjNDc0RicEFyaFI2R1kzdzlJQUdhY3F30gFuQVVfeXFMT29ndFR5VWlxLW83QUZGVjhaTG1EQy1teGRjQnEtSDFTVGhQSHRpUGRCUk5vLTZLUC1Fa0VRNGh0MWJTNW95ZjVyelFoZ201Zm9PWktrZnEyM0NzRGJwQXJoUjZHWTN3OUlBR2FjcXc?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "JB금융 주주환원",
+      "date": "2026-04-25",
+      "title": "JB금융지주, 올 1분기 순이익 1천661억원 '선방'…증권가, 기초 체력은 \"견조\" - 청년일보",
+      "url": "https://news.google.com/rss/articles/CBMiakFVX3lxTE1sbms2SXcyVGQyQTd0SG45N2FULV8zUWpLZGdfNmVDVjBHTW5lUkVhOHhqaG1JUG9PUGRrMlZLZjBPSENJdVFJbEJBRlhIaFRSeG5jQzZkR1JseTRWZU80ZFBZMWI2amp5ZWc?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "JB금융 주주환원",
+      "date": "2026-04-24",
+      "title": "JB금융, 분기배당 2배 확대… 주주환원 우상향 - 이코리아",
+      "url": "https://news.google.com/rss/articles/CBMib0FVX3lxTE4tUjdTajg0UHFqaHc2YVk0a005T1RHcmdmcUpWTHBockVOOEhsNFgwQmV1bVV6c3gzYmppaHZtWE50U3BjRzZtTEtQampTU3QycTZpOXZHb0hUMnlQSGd4QmZmV1B1OGk2V2Joelc3SQ?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "JB금융 주주환원",
+      "date": "2026-04-23",
+      "title": "[모닝 리포트",
+      "url": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE1XcnFMY1ZUamZiMm5VdnBxUHJCNkdqWTktM2JpcjF3N1ljSFRjVUk0aFZaU2VjVE9QZDUyMDd4NnIwdWsyLUlTbkY3c2NuMjlmcUFuWlJUTnBpbzBK?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "JB금융 주주환원",
+      "date": "2026-04-24",
+      "title": "JB금융, 1Q 순익 1661억…분기배당 규모 2배로 - 딜사이트",
+      "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTFBna3NZM2h3eDQ1VEkwNjhyX2sxbjhNOWFQd1lhNnV2UE44bW1PdG16dmd5ekktZGhyVFp6QlB4cXc2ME1mOWF4RVVRRmtzWEk?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "JB금융 주주환원",
+      "date": "2026-04-23",
+      "title": "'AX-주주환원 선도' 김기홍의 JB금융, 1Q 순익 1661억으로 내실 경영 증명 - 테크M",
+      "url": "https://news.google.com/rss/articles/CBMiakFVX3lxTE1kaGQwUkl1Q3Nub3dURzFqYlNaaDZYSVhNdXIyZ2s2MURVNTcxSGRxWThUNUlRNFBTV0ptWXQ0NExsUWdtR0VDeUg2SFRNVXozVHNXbUl6akI3OEgtVXZZVVB6NmJxdHJHN2fSAWpBVV95cUxNZGhkMFJJdUNzbm93VEcxamJTWmg2WElYTXVyMmdrNjFEVTU3MUhkcVk4VDVJUTRQU1dKbVl0NDRMbFFnbUdFQ3lINkhUTVV6M1RzV21JempCNzhILVV2WVVQejZicXRyRzdn?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "JB금융 주주환원",
+      "date": "2026-04-22",
+      "title": "[지방금융 밸류업 점검",
+      "url": "https://news.google.com/rss/articles/CBMiVkFVX3lxTE5BTHhPM2g3VnZJLW5BSXBNdFd3YTNGQUh1c1FrX1pLMm9ZOHpWX1BRM2xLTko0MUtSb2hhLXZtbmo4UFQwamdwN0o0ZEtVNExuRXNSWTN3?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "JB금융 주주환원",
+      "date": "2026-04-23",
+      "title": "JB금융, 1분기 순익 1661억 우상향…배당도 2배 파격 증액 - v.daum.net",
+      "url": "https://news.google.com/rss/articles/CBMiS0FVX3lxTFAtenBXQlZDdzBzTWpKMHNNdzdrcVYtTzM0RkdTdDF5MWQzOFl3MHluaS1qN2RfS1VzV2Rxc2NHUlRLUGkxWWdWSFJ5aw?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "JB금융 주주환원",
+      "date": "2026-04-23",
+      "title": "JB금융, 1Q 순익 1661억원…NIM 회복 숙제 - 스트레이트뉴스",
+      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE9teHFLODR2bWliSWdPRV9kX012aXpyQzlCWVcydTFOMW9jUTFpNE9hRHRSd0tCMUFvcUUxaERvWmpnMWZBdE5GZmVkR3I4QW95QkRNV3JRUXBxRERydlcxNzFGTmRQNUxEZFFhbklGZ2dYR2vSAXdBVV95cUxPTGp0Z21haG4tM2ZVajkwZHd2enFySDhza2s5SXhHVGV6ajFwWndWTHZEU1pvNTRCTUR4UDhGdjRqaG1BaWQzS1ROamJKejk4cFlHWXdNZmdSbVpRZGxRNkhkbFVKSnB4bEh1STRTdHlndnhieFBvbw?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "JB금융 주주환원",
+      "date": "2026-04-23",
+      "title": "[이슈",
+      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE44N0xucGNXYmlTX3FyRENCYk9GTm1ONGN2WS1MUFZLbkk1enZ2djY4T0ptb2NvRjcyalY3OUV3cFo5eGJkZTBneVNnN1FPcC1qZ0czbkpHbFVXMXhYS2Q4WGhGbGhlTHFSdmQ1WWNDYVRVVHc?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "JB금융 환원율",
+      "date": "2026-04-22",
+      "title": "[지방금융 밸류업 점검",
+      "url": "https://news.google.com/rss/articles/CBMiVkFVX3lxTE5BTHhPM2g3VnZJLW5BSXBNdFd3YTNGQUh1c1FrX1pLMm9ZOHpWX1BRM2xLTko0MUtSb2hhLXZtbmo4UFQwamdwN0o0ZEtVNExuRXNSWTN3?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "JB금융 환원율",
+      "date": "2026-04-23",
+      "title": "‘은행 줄고 캐피탈 성장’...JB금융지주, 1분기 순익 1661억 - 에너지경제신문",
+      "url": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE9udkJLNUpRaUJ3S1B5U05CVzk4WF85d1BiaFNNWDBacXNXSVkwMGdOTVU2dVFQTUlpdUhPTkNqX0Uta0RSeHZpY1hZeDhISGY1OGxpbVY4bVJoa28?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "JB금융 환원율",
+      "date": "2026-04-24",
+      "title": "JB금융, 분기배당 2배 확대… 주주환원 우상향 - 이코리아",
+      "url": "https://news.google.com/rss/articles/CBMib0FVX3lxTE4tUjdTajg0UHFqaHc2YVk0a005T1RHcmdmcUpWTHBockVOOEhsNFgwQmV1bVV6c3gzYmppaHZtWE50U3BjRzZtTEtQampTU3QycTZpOXZHb0hUMnlQSGd4QmZmV1B1OGk2V2Joelc3SQ?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "JB금융 환원율",
+      "date": "2026-04-23",
+      "title": "'AX-주주환원 선도' 김기홍의 JB금융, 1Q 순익 1661억으로 내실 경영 증명 - 테크M",
+      "url": "https://news.google.com/rss/articles/CBMiakFVX3lxTE1kaGQwUkl1Q3Nub3dURzFqYlNaaDZYSVhNdXIyZ2s2MURVNTcxSGRxWThUNUlRNFBTV0ptWXQ0NExsUWdtR0VDeUg2SFRNVXozVHNXbUl6akI3OEgtVXZZVVB6NmJxdHJHN2fSAWpBVV95cUxNZGhkMFJJdUNzbm93VEcxamJTWmg2WElYTXVyMmdrNjFEVTU3MUhkcVk4VDVJUTRQU1dKbVl0NDRMbFFnbUdFQ3lINkhUTVV6M1RzV21JempCNzhILVV2WVVQejZicXRyRzdn?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "JB금융 환원율",
+      "date": "2026-04-23",
+      "title": "[모닝 리포트",
+      "url": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE1XcnFMY1ZUamZiMm5VdnBxUHJCNkdqWTktM2JpcjF3N1ljSFRjVUk0aFZaU2VjVE9QZDUyMDd4NnIwdWsyLUlTbkY3c2NuMjlmcUFuWlJUTnBpbzBK?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "JB금융 환원율",
+      "date": "2026-04-23",
+      "title": "JB금융 1분기 순익 1661억…캐피탈 24%↑이 은행 부진 상쇄 - jabon.co.kr",
+      "url": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE1iU3RHa284am1RWlc3SDliT1NlZFBUTHZndVlmRm5TNUJMcG56OUdFQ1RmLUhnblZaNnFIMnViS1FYUE1zY0JlOVlpdkc0dEphNXhSNVJGeUl1YVJUQjdyZWNyYnU4aFk?oc=5",
+      "severity": "warn",
+      "signals": [
+        "부진"
+      ]
+    },
+    {
+      "keyword": "JB금융 환원율",
+      "date": "2026-04-20",
+      "title": "'전략대출' 확대 JB금융, 1분기 호실적…배당확대 '청신호' - 팝콘뉴스",
+      "url": "https://news.google.com/rss/articles/CBMibkFVX3lxTE5BMHFnSTJxX0RsVWZXamllQ000eXQzZW5IcExGSTMzZV9pRW1rbjdoTEpXeTBGSGlveUg0cVlpX2xUUlB2Z2kwSFg4SFVnVTdDSGZSa0hlbUp6Z0hBMlotU3VySWZXaklDNzVhOE130gFyQVVfeXFMTnpiYXBXYklqcGV6cGpEY0FZTXAzT3JweUozNkFMRnNzTnU4SURjREs3dGZKY05rd0JmV09xc0tTS0djMU9fSERMNG84cWphSmFvVF9JRndKeVR0SXJfMC0tdTFlekc2ZmlJSVJVR09rRDlR?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "JB금융 충당금",
+      "date": "2026-04-24",
+      "title": "부실채권 늘었는데 충당금↓···JB금융, 실적 증가의 그림자 - 시사저널e",
+      "url": "https://news.google.com/rss/articles/CBMidkFVX3lxTE43d3FQMWZsTWhhWjFvOW1EcHZ2WGlRaHllenlrVHJsaUF2d1FSOWl6ZHNtcTN1Q0tpVllkNTNCc2NZa3B2bWhQcEY4emtxRk5uLTNGOEFTeDlJbDNZNFBZZDVUOGV1SXNKb0l2Y1NEOFNoVi1xZXfSAXZBVV95cUxON3dxUDFmbE1oYVoxbzltRHB2dlhpUWh5ZXp5a1RybGlBdndRUjlpemRzbXEzdUNLaVZZZDUzQnNjWWtwdm1oUHBGOHprcUZObi0zRjhBU3g5SWwzWTRQWWQ1VDhldUlzSm9JdmNTRDhTaFYtcWV3?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "김기홍 JB금융",
+      "date": "2026-04-23",
+      "title": "'AX-주주환원 선도' 김기홍의 JB금융, 1Q 순익 1661억으로 내실 경영 증명 - 테크M",
+      "url": "https://news.google.com/rss/articles/CBMiakFVX3lxTE1kaGQwUkl1Q3Nub3dURzFqYlNaaDZYSVhNdXIyZ2s2MURVNTcxSGRxWThUNUlRNFBTV0ptWXQ0NExsUWdtR0VDeUg2SFRNVXozVHNXbUl6akI3OEgtVXZZVVB6NmJxdHJHN2fSAWpBVV95cUxNZGhkMFJJdUNzbm93VEcxamJTWmg2WElYTXVyMmdrNjFEVTU3MUhkcVk4VDVJUTRQU1dKbVl0NDRMbFFnbUdFQ3lINkhUTVV6M1RzV21JempCNzhILVV2WVVQejZicXRyRzdn?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "김기홍 JB금융",
+      "date": "2026-04-23",
+      "title": "JB우리캐피탈 덕에 실적 개선…김기홍 “연간 순익 7500억 달성 가능” - 에너지경제신문",
+      "url": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE1FaUZFSlhLc3pNa0pIZjN0TjhiWlZwc3FtMzhSUlkwNVBWNVlmNjJteEc5ckh0dG1BcXN1Mzl6ZXpVRTdRa3lvOEpiMEpuLWZlYW1QN18tNUFKV0U?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "김기홍 JB금융",
+      "date": "2026-04-24",
+      "title": "김기홍 JB금융 회장 “연간 순익 7500억 문제 없어…자산 구조 지속 개편” - SR타임스",
+      "url": "https://news.google.com/rss/articles/CBMia0FVX3lxTFBVLUlCVlZXR213bGROeUprdkpTQUlqQ3lpQ3dmUTljcFI1TVpoUHAxYmhJRVBpb01RRlRBaE80MHg1VC1CYWotdTQ4MUpfaV9oUjAydlRKeFhoMmZHbjd2UWJESndwaWRsM0RB0gFrQVVfeXFMUFUtSUJWVldHbXdsZE55Smt2SlNBSWpDeWlDd2ZROWNwUjVNWmhQcDFiaElFUGlvTVFGVEFoTzQweDVULUJhai11NDgxSl9pX2hSMDJ2VEp4WGgyZkduN3ZRYkRKd3BpZGwzREE?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "김기홍 JB금융",
+      "date": "2026-04-23",
+      "title": "김기홍號 JB금융, CET1비율 12.6%로 개선…비이자익·NPL 개선 '과제' [금융사 2026 1분기 실적",
+      "url": "https://news.google.com/rss/articles/CBMie0FVX3lxTE9BdlF2Rnd2QjhiR25zX2M4aklsaThMTUZMVEFoMzB4MTltUzlUZVU5NEViM0RqVHdXdGxJMlRSdEh2NHpHQ1RkVEFtZlJSN05FYklYTTdIaTIxMVRFMjZ4LTA4QmxwOEozb05mM2xXZ1NXNkRPN1RrOFItcw?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "김기홍 JB금융",
+      "date": "2026-04-23",
+      "title": "JB금융지주 1분기 순이익 1661억 2% 증가, 김기홍 \"연간 목표 7500억 순이익 달성 문제 없다\" - 비즈니스포스트",
+      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE9Wa2xWSUk3ZjNJc1NvdUhyNmtBWnRCVmFhVWp4T2VkZWw2REEzQmxrSkM1Uzl6Skwza2RhTEl5dDdOTnF4OFozVjgwWkpLMEdSMTczajNwenl1RkhZdUh4NDFBOWhzZjZveEFyNXJ1NTJHT0E?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "김기홍 JB금융",
+      "date": "2026-04-20",
+      "title": "[박종면칼럼",
+      "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTFBCOXNWcVQ5VkFSOVdlV2NwYW9icUM2aDluSTU5c2ZBbWFBR1FLYVF3OHMxbkFFam5FS19ZYnRtODRDd3F2VV9JMFhlZUlEOUxHT0lKSEwtdkx5UjJidzEtQ0lXS0F5YWZy0gFsQVVfeXFMUHNlQ1A3NjBWLXhvb1RYSU5lZWFtMUxra3NjQUtpWlJlclZoZ0tjOWtUNS1tUGlSVlQzMVVwVjZQUGJGYWl3aTVVN0gzaUpwTTZtSnRfWHlNLV9jcFdfUWdaazNUTllpMWswZmJU?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "김기홍 JB금융",
+      "date": "2026-04-23",
+      "title": "JB금융, NIM 반등 시동…이번엔 외국인 시장 '승부수' - 딜사이트",
+      "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE14enRwaEkzWlQzelM4YWxFUklHZDE0NGw2M0NvaW9pa01rbU1lMm05V083cnZ1X3NwREd3UE4zMkJvQVVlSzdnakpNZXkyQVk?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "김기홍 JB금융",
+      "date": "2026-04-23",
+      "title": "김기홍 JB금융 회장 \"순이익 7500억 원 목표 차질없이 달성할 것\" - 소비자가 만드는 신문",
+      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE4yRE5UakI5d3JMLUc0Wkpod3lNeDl4UVdtRU1WYTZkODJWZ2drS1NqYlhRS1phalJpaFJuRURjTThyd0t4MmlkcXpIWmMwVHZtNU5oMjBfeDNST1o0TEdzT21fc2U4OUpMek44TzZ6bDVpeFE?oc=5",
+      "severity": "warn",
+      "signals": [
+        "차질"
+      ]
+    },
+    {
+      "keyword": "김기홍 JB금융",
+      "date": "2026-04-23",
+      "title": "JB금융, 1분기 순이익 1661억원…비은행 호실적에 전년比 2.1%↑ - 아시아경제",
+      "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE1kYmxWS0xaaGpCaHoyMFI3bkN5SGNiWFNJMTVVb1N3aU1iVG1PQ2x4TThnZHhDR0U4eEhrRzhmckxLd0ZRMW9hR0FjMEpmTGg2X2FpbE9kRzJZSE80b0Ntdw?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "은행 주주환원 후퇴",
+      "date": "2026-04-24",
+      "title": "우리금융 자본 비율 끌어올렸지만 순익은 뒷걸음···비은행 성과 시험대 - 여성경제신문",
+      "url": "https://news.google.com/rss/articles/CBMid0FVX3lxTE9NdTRPQV9ZQmF5eU95c3FSU0pOLUhvcnU4UFR0OGZRYU5faEludlpIZjlFeU1SWnFuc2NJYnRKN3RMcDMtVUFSVy1tTGdSdVVES283ckhmZlRvX29lZ3p1RkszQmQ1TjdDM2JqZFVUc1BWVExldzJB0gF3QVVfeXFMT011NE9BX1lCYXl5T3lzcVJTSk4tSG9ydThQVHQ4ZlFhTl9oSW52WkhmOUV5TVJacW5zY0lidEo3dExwMy1VQVJXLW1MZ1J1VURLbzdySGZmVG9fb2VnenVGSzNCZDVON0MzYmpkVVRzUFZUTGV3MkE?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "은행 주주환원 후퇴",
+      "date": "2026-04-24",
+      "title": "우리금융, 수수료이익 최대에도 순익은 후퇴 - 더리포트",
+      "url": "https://news.google.com/rss/articles/CBMib0FVX3lxTE5qbDZKOVVOUGlSekJyOE5ZbUNCT2tnWTlhd1o1Y1U0NnJmdDFNX1pXMGZYWE80MUd5VFpRcEJINTlIWmxISXNSOXVfaGpSc3RRWnkxMmg4R01SOWV6b2ZUaThSQS10VXE5cVk2X2FBMA?oc=5",
+      "severity": "warn",
+      "signals": [
+        "후퇴"
+      ]
+    },
+    {
+      "keyword": "은행 주주환원 후퇴",
+      "date": "2026-04-24",
+      "title": "기업은행, 1분기 순익 7534억…중기대출 늘렸지만 수익성 '주춤' - 뉴스웍스",
+      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE4tWnlidkE5U2w1ZWYzdGcyXzd1MUZ2Y2JJVzBaQmFqckFHNjBpWDQzZ2Iyd25qUVBGS1lzLVVPMVJwUkl6QUVWSzV3OEJYYzRrWDFEVlJjMTUyaXZzNTZzak51dkVHcU41NUNqSERQWkFORHPSAXNBVV95cUxOLVp5YnZBOVNsNWVmM3RnMl83dTFGdmNiSVcwWkJhanJBRzYwaVg0M2diMndualFQRktZcy1VTzFScFJJekFFVks1dzhCWGM0a1gxRFZSYzE1Mml2czU2c2pOdXZFR3FONTVDakhEUFpBTkRz?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "은행 주주환원 후퇴",
+      "date": "2026-04-24",
+      "title": "IBK기업은행, 1분기 순이익 7,534억…환율 급등·기저효과에 실적 후퇴 - 데일리스포츠한국",
+      "url": "https://news.google.com/rss/articles/CBMie0FVX3lxTE5xNTJHLV9MNU1LZXpabGZ0bU03b0dyTmJXNGh4aTBYS1JqUWJkT1RJSkxfTjFvOGFRMU1Mb3NRREVBd1ZNYjh2RU9Jc29FRXQ1bml5aWlrZzQtVkgwTmVHVXJ0SXRKQWxsMTBqNHRQWUlzVzZaeC02Mmh1SdIBf0FVX3lxTFBFUGxtME9MT1RfUVBTbVBHWTBVSnl6bU95ZnNsbldicVM5ejZmRUxSSGlhbW9NZnFlVklidXhQLUdNWldlWnlFTlkyOHhUTXBQMHFEN1Z0WXBOWjBRU2d1cU5GYmd2d1pYTTBkcGtZMWV4cTJtSWJuXzBnWHVmT0E?oc=5",
+      "severity": "warn",
+      "signals": [
+        "후퇴"
+      ]
+    },
+    {
+      "keyword": "은행 주주환원 후퇴",
+      "date": "2026-04-24",
+      "title": "우리금융, 1분기 순익 6038억… 나홀로 후퇴 - IT조선",
+      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE50LWVPTXJPWVBZMTVEWXFhMFVCNUkydWMzVFVja05wa0ZMaFQxQUY3SVlpR3Z5XzJ6RnJPZ0F1UFJJTVJiRFRzTU9Fb1NtNW42d2k2bXVrckhKUmlKUGtYQTg5VFc2aFJCZ1pVRkZfV2TSAXRBVV95cUxOS2tId0hnS0hoT1VJNW1KQkZibTFZWFlXSFoyQTRQaVhfNXVBUjg5dE5OZDFPQWFTOXNIaGF5bG9LbTV4TU01bWlYNHJmb1Z2OHdoSHhrbC1vXzlZbGFvTXNFazExVkVYZVhMNzhtSFVHVGR5TQ?oc=5",
+      "severity": "warn",
+      "signals": [
+        "후퇴"
+      ]
+    },
+    {
+      "keyword": "금융당국 자본규제",
+      "date": "2026-04-25",
+      "title": "'자본규제 합리화'로 4대 금융 CET1 개선…KB금융 ELS 리스크 '뚝' - 뉴스1",
+      "url": "https://news.google.com/rss/articles/CBMiYkFVX3lxTFBrSGd1NFR0d1F6RDlsMGVuVDhnNkxmVXMtUndOZXRhLTlDSU9USTVreWlQZVJmMW1xclYwcjVwRUVIUW0tLVVrQktIeF9kRFdXR2J6WnN4LVpqZzdzaEVDa2R3?oc=5",
+      "severity": "warn",
+      "signals": [
+        "규제"
+      ]
+    },
+    {
+      "keyword": "금융당국 자본규제",
+      "date": "2026-04-23",
+      "title": "생산적금융 자본규제 완화해놓고 \"정부 정책사업 우선 강요\" - 뉴스토마토",
+      "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE1Lc1R2X2NWWndjZk1iVkFnZlpEOGxkM2tSTVVzZ3dIdkJQbzBmcC1hdWw4ekozbThHZ0FyQ0kxa0FKdGJXMjQydnV2Yzg2M2otLUJkcGNQSUpXWnpSYlBLeQ?oc=5",
+      "severity": "warn",
+      "signals": [
+        "규제"
+      ]
+    },
+    {
+      "keyword": "금융당국 자본규제",
+      "date": "2026-04-23",
+      "title": "자본규제 완화에도 '온도차'…금융지주별 영향 갈렸다 - 딜사이트",
+      "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE9BbU5uZFRyOC15Z1MzQUgzMC13N3dkRTBualEyc29sV2dfZVhLWjZ4cFB2d1lubngtVDB5enVDOWdKRnZNUkIwQmVOR1NCdzQ?oc=5",
+      "severity": "warn",
+      "signals": [
+        "규제"
+      ]
+    },
+    {
+      "keyword": "금융당국 자본규제",
+      "date": "2026-04-22",
+      "title": "“생산적 금융은 이제부터”...금융지주, 자본비율 숨통트였다 - 에너지경제신문",
+      "url": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE9tYkNzbTExMlk5T1JGSEdWcGFmNlFhaC1laURRZndnUWFJai04QnNuVktodVdrQm1FdjRMTlctdGR1aW1sdUFjNU5xc0MxMEN2emloUW1XLTY5TlE?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "금융당국 자본규제",
+      "date": "2026-04-22",
+      "title": "'손톱 밑 가시' 뺐다…자본규제 손질, 돈 흐름 바꾼다[성장엔진 금융",
+      "url": "https://news.google.com/rss/articles/CBMiS0FVX3lxTE9zZUcxZUNDR3RSMGFsRHJvNTJod01OWktLMUhrV3VINlBZUmEyV3VwSXlVUDN3MFAybHhOU2JOWEZfazRjVUVocmJiUQ?oc=5",
+      "severity": "warn",
+      "signals": [
+        "규제"
+      ]
+    },
+    {
+      "keyword": "금융당국 자본규제",
+      "date": "2026-04-23",
+      "title": "신한금융 \"자본규제 완화에 CET1 20bp 개선 가능…주주환원율 50~60%\" - 연합인포맥스",
+      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE5JRjhGbWVNVjZnUDRBN3BzYjRQOUdSQm9DVHpWaFNWUHdfZUFzTkhzQWRUMDN0a0RmSHR6Qy10X3N6bmFVZ2wwaWh0VjFYckgwX2RGTGw2UE8zQ3UtdkRoS0RRQXdESjUtUkx5THZaazU?oc=5",
+      "severity": "warn",
+      "signals": [
+        "규제"
+      ]
+    },
+    {
+      "keyword": "금융당국 자본규제",
+      "date": "2026-04-23",
+      "title": "4대 금융지주, 자본 규제 풀리고 실적도 역대급...주주환원 확대 기대감 - 주주경제신문",
+      "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE5qNkgxczBMQnNaNEtIZXlQaW0xaTBFZ1BqMlNDVm56Mm1QZnpVSFE1cFhYaU9fN3BmRWJJd1NlTmxLblRQdERMUHNuWjBrY1NiMVIxcGo0cjk1VXh1YVprbHJIdTg3NHJU?oc=5",
+      "severity": "warn",
+      "signals": [
+        "규제"
+      ]
+    },
+    {
+      "keyword": "금융당국 자본규제",
+      "date": "2026-04-24",
+      "title": "하나금융 \"자본규제 완화로 CET1 13.2%까지 상승할 듯\"[컨콜",
+      "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTFBpblFoVTNwN0tOZ2NGVmFRd3VUSUk4eWc3WG11V1AxX0dmMmxFRVo5VFdUM2lCc2EtTGYxZ3FjUDM5c2MxZU1pNEthRFl6cU0?oc=5",
+      "severity": "warn",
+      "signals": [
+        "규제"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "label": "PER/PEG/PBR 스코어",
+      "ref": "public/data/watchlist.json"
+    },
+    {
+      "label": "4대 지주 평균 PBR 비교 (1종목)",
+      "ref": "peers: 138930 / avg 0.52"
+    },
+    {
+      "label": "분기 배당 결정 (사업보고서 (2025.12))",
+      "ref": "DART 20260318001225 (alotMatter)"
+    },
+    {
+      "label": "외국인 순매수 누적 (5일)",
+      "ref": "네이버 dealTrendInfos / history 2026-04-24"
+    },
+    {
+      "label": "최근 분기 순이익 (2025-FY)",
+      "ref": "DART 20260318001225 (fnlttSinglAcntAll)"
+    },
+    {
+      "label": "자사주 프로그램 마지막 활동 (2026-02-05 · 소각결정) — 누적 취득 9 / 결과 0 / 소각 9",
+      "ref": "DART 20260205800888"
+    },
+    {
+      "label": "여신 건전성 (2025-FY · NPL 1.12%·연체 1.46%)",
+      "ref": "DART 20260318001225 (본문 정규식 추출)"
+    },
+    {
+      "label": "분기 ROE 연환산 (2025-FY · 11.82%)",
+      "ref": "DART 20260318001225 (fnlttSinglAcntAll: 자본총계+분기순이익)"
+    },
+    {
+      "label": "뉴스 RSS",
+      "ref": "news.google.com/rss (7일)"
+    }
+  ]
+}
