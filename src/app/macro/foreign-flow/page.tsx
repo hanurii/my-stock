@@ -152,6 +152,8 @@ export default function ForeignFlowPage() {
           </div>
         </div>
         <ForeignFlowSectorBars
+          cum3d={sectors.cum_3d}
+          cum7d={sectors.cum_7d}
           cum20d={sectors.cum_20d}
           cum60d={sectors.cum_60d}
           availableDays={sectorAvailableDays}

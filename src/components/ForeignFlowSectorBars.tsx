@@ -4,12 +4,28 @@ import { useState, useMemo } from "react";
 import type { SectorCumPoint } from "@/lib/foreign-flow";
 
 interface Props {
+  cum3d: SectorCumPoint[];
+  cum7d: SectorCumPoint[];
   cum20d: SectorCumPoint[];
   cum60d: SectorCumPoint[];
   availableDays: number;
 }
 
-type Window = "20d" | "60d";
+type Window = "3d" | "7d" | "20d" | "60d";
+
+const WINDOW_TARGET: Record<Window, number> = {
+  "3d": 3,
+  "7d": 7,
+  "20d": 20,
+  "60d": 60,
+};
+
+const WINDOW_LABEL: Record<Window, string> = {
+  "3d": "최근 3일",
+  "7d": "최근 7일",
+  "20d": "최근 20일",
+  "60d": "최근 60일",
+};
 
 function formatBillion(v: number): string {
   const sign = v >= 0 ? "+" : "−";
@@ -19,11 +35,18 @@ function formatBillion(v: number): string {
   return `${sign}${Math.round(abs)}억`;
 }
 
-export function ForeignFlowSectorBars({ cum20d, cum60d, availableDays }: Props) {
-  const [win, setWin] = useState<Window>("20d");
+export function ForeignFlowSectorBars({
+  cum3d,
+  cum7d,
+  cum20d,
+  cum60d,
+  availableDays,
+}: Props) {
+  const [win, setWin] = useState<Window>("7d");
 
-  const data = win === "20d" ? cum20d : cum60d;
-  const targetDays = win === "20d" ? 20 : 60;
+  const data =
+    win === "3d" ? cum3d : win === "7d" ? cum7d : win === "20d" ? cum20d : cum60d;
+  const targetDays = WINDOW_TARGET[win];
   const insufficient = availableDays < targetDays;
   const effectiveDays = Math.min(availableDays, targetDays);
 
@@ -55,10 +78,7 @@ export function ForeignFlowSectorBars({ cum20d, cum60d, availableDays }: Props) 
           </span>
         )}
         <div className="flex items-center gap-1 rounded-md bg-surface-container-low p-1 w-fit">
-          {([
-            ["20d", "최근 20일"],
-            ["60d", "최근 60일"],
-          ] as Array<[Window, string]>).map(([w, label]) => (
+          {(["3d", "7d", "20d", "60d"] as Window[]).map((w) => (
             <button
               key={w}
               onClick={() => setWin(w)}
@@ -68,7 +88,7 @@ export function ForeignFlowSectorBars({ cum20d, cum60d, availableDays }: Props) 
                   : "text-on-surface-variant hover:text-on-surface"
               }`}
             >
-              {label}
+              {WINDOW_LABEL[w]}
             </button>
           ))}
         </div>

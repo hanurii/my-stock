@@ -242,6 +242,8 @@ interface ForeignFlowOutput {
   };
   sectors: {
     daily: SectorDailyPoint[];           // 모든 sector × 모든 영업일
+    cum_3d: Array<{ sector: string; net_buy_billion: number }>;
+    cum_7d: Array<{ sector: string; net_buy_billion: number }>;
     cum_20d: Array<{ sector: string; net_buy_billion: number }>;
     cum_60d: Array<{ sector: string; net_buy_billion: number }>;
   };
@@ -305,10 +307,15 @@ function summarizeMarket(daily: MarketSnapshot[]): ForeignFlowOutput["market"]["
   };
 }
 
-function summarizeSectors(
-  daily: SectorDailyPoint[],
-): { cum_20d: ForeignFlowOutput["sectors"]["cum_20d"]; cum_60d: ForeignFlowOutput["sectors"]["cum_60d"] } {
+function summarizeSectors(daily: SectorDailyPoint[]): {
+  cum_3d: ForeignFlowOutput["sectors"]["cum_3d"];
+  cum_7d: ForeignFlowOutput["sectors"]["cum_7d"];
+  cum_20d: ForeignFlowOutput["sectors"]["cum_20d"];
+  cum_60d: ForeignFlowOutput["sectors"]["cum_60d"];
+} {
   const allDates = Array.from(new Set(daily.map((p) => p.date))).sort();
+  const dates3 = new Set(allDates.slice(-3));
+  const dates7 = new Set(allDates.slice(-7));
   const dates20 = new Set(allDates.slice(-20));
   const dates60 = new Set(allDates.slice(-60));
   const sumBy = (datesSet: Set<string>) => {
@@ -321,7 +328,12 @@ function summarizeSectors(
       .map(([sector, v]) => ({ sector, net_buy_billion: Math.round(v * 10) / 10 }))
       .sort((a, b) => b.net_buy_billion - a.net_buy_billion);
   };
-  return { cum_20d: sumBy(dates20), cum_60d: sumBy(dates60) };
+  return {
+    cum_3d: sumBy(dates3),
+    cum_7d: sumBy(dates7),
+    cum_20d: sumBy(dates20),
+    cum_60d: sumBy(dates60),
+  };
 }
 
 // ── 메인 ──
@@ -377,6 +389,8 @@ async function main() {
     market: { daily: mergedMarketDaily, summary: marketSummary },
     sectors: {
       daily: mergedSectorDaily,
+      cum_3d: sectorsSummary.cum_3d,
+      cum_7d: sectorsSummary.cum_7d,
       cum_20d: sectorsSummary.cum_20d,
       cum_60d: sectorsSummary.cum_60d,
     },

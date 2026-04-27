@@ -46,6 +46,8 @@ export interface ForeignFlowData {
   };
   sectors: {
     daily: SectorDailyPoint[];
+    cum_3d: SectorCumPoint[];
+    cum_7d: SectorCumPoint[];
     cum_20d: SectorCumPoint[];
     cum_60d: SectorCumPoint[];
   };
