@@ -22,7 +22,7 @@ interface Holding {
 interface Transaction {
   id: number;
   date: string;
-  type: "매수" | "매도";
+  type: "매수" | "매도" | "배당";
   code: string;
   name: string;
   quantity: number;
@@ -482,13 +482,15 @@ export default function JournalPage() {
           <div className="space-y-4">
             {transactions.map((tx) => {
               const isBuy = tx.type === "매수";
-              const typeColor = isBuy ? "#6ea8fe" : "#95d3ba";
-              const typeIcon = isBuy ? "shopping_cart" : "sell";
+              const isSell = tx.type === "매도";
+              const isDividend = tx.type === "배당";
+              const typeColor = isBuy ? "#6ea8fe" : isDividend ? "#d4b483" : "#95d3ba";
+              const typeIcon = isBuy ? "shopping_cart" : isDividend ? "payments" : "sell";
 
               // 매도 시 수익/손실 계산 (같은 종목의 전체 매수 평균가 기준)
               let sellProfit = 0;
               let sellProfitPct = 0;
-              if (!isBuy) {
+              if (isSell) {
                 const buyTxs = transactions.filter(t => t.type === "매수" && t.code === tx.code);
                 if (buyTxs.length > 0) {
                   const totalBuyQty = buyTxs.reduce((s, t) => s + t.quantity, 0);
@@ -523,24 +525,38 @@ export default function JournalPage() {
                         </div>
                       </div>
                       <div className="text-left sm:text-right ml-14 sm:ml-0">
-                        <p className="text-xl font-mono text-on-surface font-bold">
-                          {tx.total.toLocaleString()}원
-                        </p>
-                        <p className="text-sm text-on-surface-variant">
-                          {tx.quantity.toLocaleString()}주 × {tx.price.toLocaleString()}원
-                        </p>
-                        {(tx.fees || tx.tax) && (
-                          <p className="text-xs text-on-surface-variant/40 mt-0.5">
-                            {tx.fees ? `수수료 ${tx.fees.toLocaleString()}원` : ""}
-                            {tx.fees && tx.tax ? " · " : ""}
-                            {tx.tax ? `세금 ${tx.tax.toLocaleString()}원` : ""}
-                          </p>
+                        {isDividend ? (
+                          <>
+                            <p className="text-xl font-mono font-bold" style={{ color: typeColor }}>
+                              +{(tx.net_amount ?? tx.total).toLocaleString()}원
+                            </p>
+                            <p className="text-sm text-on-surface-variant">
+                              gross {tx.total.toLocaleString()}원
+                              {tx.tax ? ` · 세금 ${tx.tax.toLocaleString()}원` : ""}
+                            </p>
+                          </>
+                        ) : (
+                          <>
+                            <p className="text-xl font-mono text-on-surface font-bold">
+                              {tx.total.toLocaleString()}원
+                            </p>
+                            <p className="text-sm text-on-surface-variant">
+                              {tx.quantity.toLocaleString()}주 × {tx.price.toLocaleString()}원
+                            </p>
+                            {(tx.fees || tx.tax) && (
+                              <p className="text-xs text-on-surface-variant/40 mt-0.5">
+                                {tx.fees ? `수수료 ${tx.fees.toLocaleString()}원` : ""}
+                                {tx.fees && tx.tax ? " · " : ""}
+                                {tx.tax ? `세금 ${tx.tax.toLocaleString()}원` : ""}
+                              </p>
+                            )}
+                          </>
                         )}
                       </div>
                     </div>
 
                     {/* 매도 수익/손실 결과 */}
-                    {!isBuy && sellProfit !== 0 && (
+                    {isSell && sellProfit !== 0 && (
                       <div className="mb-4 p-4 rounded-xl" style={{ backgroundColor: `${sellProfitColor}10` }}>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
