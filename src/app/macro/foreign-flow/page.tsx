@@ -124,7 +124,7 @@ export default function ForeignFlowPage() {
               일별 외인 순매수 추이
             </h2>
             <p className="text-xs text-on-surface-variant mt-0.5">
-              막대: 일별 순매수 금액 · 라인: 누적
+              일별 모드: 하루 순매수 금액 · 누적 모드: 기간 합산 추세
             </p>
           </div>
         </div>
