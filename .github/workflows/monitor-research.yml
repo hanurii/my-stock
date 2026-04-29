@@ -43,10 +43,10 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           mkdir -p public/data/research/monitor public/data/research/monitor_entry
-          git add public/data/research/monitor/*.json public/data/research/monitor_entry/*.json
+          git add public/data/research/monitor public/data/research/monitor_entry
           if ! git diff --staged --quiet; then
             git commit -m "chore: research 모니터 자동 갱신 $(TZ=Asia/Seoul date +%Y-%m-%d)"
-            git pull --rebase origin master
+            git pull --rebase --autostash origin master
             git push
           else
             echo "변경 사항 없음 — 커밋 생략"
