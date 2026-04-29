@@ -1,16 +1,16 @@
 {
   "code": "000660",
   "name": "SK하이닉스",
-  "last_checked": "2026-04-26T12:07:39.191+09:00",
+  "last_checked": "2026-04-30T08:55:15.974+09:00",
   "metrics": [
     {
       "id": "pbr",
       "label": "PBR",
-      "value": 7.37,
-      "display": "7.37배",
+      "value": 7.8,
+      "display": "7.80배",
       "threshold": "8배 돌파",
       "hit": false,
-      "tone": "good"
+      "tone": "warn"
     },
     {
       "id": "op_margin",
@@ -69,10 +69,10 @@
   ],
   "alerts": [
     {
-      "severity": "info",
-      "type": "all_clear",
-      "title": "모든 매도 트리거 범위 내",
-      "message": "현재 지표·공시·뉴스 기준 즉각 매도 사유 없음. 보유 유지."
+      "severity": "warn",
+      "type": "pbr",
+      "title": "PBR 임계 근접",
+      "message": "현재 7.80배 (임계 8배 돌파)"
     }
   ],
   "news_hits": [],

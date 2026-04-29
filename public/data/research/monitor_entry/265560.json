@@ -1,16 +1,16 @@
 {
   "code": "265560",
   "name": "영화테크",
-  "last_checked": "2026-04-26T22:50:22.576+09:00",
+  "last_checked": "2026-04-30T08:57:27.302+09:00",
   "metrics": [
     {
       "id": "no_capital_issuance",
       "label": "❌ 신규 자본조달 공시 (CB/BW/유증, 90일)",
-      "value": 0,
-      "display": "0건",
+      "value": 1,
+      "display": "1건",
       "threshold": "1건 이상",
-      "hit": false,
-      "tone": "good"
+      "hit": true,
+      "tone": "bad"
     },
     {
       "id": "op_margin_collapse",
@@ -33,8 +33,8 @@
     {
       "id": "per_value_zone",
       "label": "✅ PER 저평가",
-      "value": 5.6,
-      "display": "5.60배",
+      "value": 6.01,
+      "display": "6.01배",
       "threshold": "5.0배 이하",
       "hit": false,
       "tone": "neutral"
@@ -42,8 +42,8 @@
     {
       "id": "new_supply_contract",
       "label": "✅ 신규 단일판매·공급계약",
-      "value": 82,
-      "display": "82일 전",
+      "value": 85,
+      "display": "85일 전",
       "threshold": "최근 7일 내 신규",
       "hit": false,
       "tone": "neutral"
@@ -59,6 +59,12 @@
     }
   ],
   "alerts": [
+    {
+      "severity": "bad",
+      "type": "no_capital_issuance",
+      "title": "❌ 신규 자본조달 공시 (CB/BW/유증, 90일) 1건 이상",
+      "message": "현재 1건 — 매수 보류 권장 (펀더멘털 훼손·희석 발생)"
+    },
     {
       "severity": "info",
       "type": "op_margin_strong",
@@ -85,6 +91,10 @@
     {
       "label": "분기 영업이익률 (2025)",
       "ref": "DART 20260318001678"
+    },
+    {
+      "label": "자본조달 공시 1건 (최근: 2026-04-28 주요사항보고서(유상증자결정))",
+      "ref": "DART 20260428000604"
     }
   ]
 }

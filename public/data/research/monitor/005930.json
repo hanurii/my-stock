@@ -1,13 +1,13 @@
 {
   "code": "005930",
   "name": "삼성전자",
-  "last_checked": "2026-04-26T12:07:57.844+09:00",
+  "last_checked": "2026-04-30T08:55:46.146+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 33.23,
-      "display": "33.23배",
+      "value": 34.22,
+      "display": "34.22배",
       "threshold": "35배 돌파",
       "hit": false,
       "tone": "warn"
@@ -15,8 +15,8 @@
     {
       "id": "buyback_gap",
       "label": "자사주 소각 공시 공백",
-      "value": 26,
-      "display": "26일",
+      "value": 29,
+      "display": "29일",
       "threshold": "180일 경과",
       "hit": false,
       "tone": "good"
@@ -72,7 +72,7 @@
       "severity": "warn",
       "type": "per",
       "title": "PER 임계 근접",
-      "message": "현재 33.23배 (임계 35배 돌파)"
+      "message": "현재 34.22배 (임계 35배 돌파)"
     },
     {
       "severity": "bad",
@@ -85,9 +85,24 @@
       "type": "family_sell_shares",
       "title": "일가 누적 매도 주식수 (90일) 500만주 이상",
       "message": "현재 1,521만주 — 매도 트리거 도달"
+    },
+    {
+      "severity": "info",
+      "type": "news_keyword_hit",
+      "title": "리스크 키워드 매칭 뉴스 1건 (관찰 신호 0건 — 키워드 단순 매칭만)",
+      "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
-  "news_hits": [],
+  "news_hits": [
+    {
+      "keyword": "삼성생명 삼성전자 처분",
+      "date": "2026-04-29",
+      "title": "하나증권 \"삼성생명 주식 매수 새로 제시, 삼성전자 처분이익 기대감 반영\" - 비즈니스포스트",
+      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE9KUDFhckgxOGpZRGJIelB6Z1p6ZmYydjBOZGI1bXpTOE9ScV9FR3Z4cFZnU0wzSHRxUDVkRmRTSENIZVMyX0E2WUw5VUw0YUpaNnRoWFRlQWxqN0NzcWZHTUU0YW1FTXV3QmdzX1dSUVd2dTA?oc=5",
+      "severity": "info",
+      "signals": []
+    }
+  ],
   "sources": [
     {
       "label": "PER/PEG/PBR 스코어",
@@ -104,6 +119,10 @@
     {
       "label": "일가 매도 2건 총 15,206,633주 (최대: 홍라희 2026-04-13 -15,000,000주 시간외매매(-))",
       "ref": "DART 최대주주등소유주식변동신고서 20260413800802"
+    },
+    {
+      "label": "뉴스 RSS",
+      "ref": "news.google.com/rss (7일)"
     }
   ]
 }

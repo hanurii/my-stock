@@ -1,7 +1,7 @@
 {
   "code": "100840",
   "name": "SNT에너지",
-  "last_checked": "2026-04-26T12:08:08.399+09:00",
+  "last_checked": "2026-04-30T08:55:56.091+09:00",
   "metrics": [
     {
       "id": "op_margin",
@@ -15,8 +15,8 @@
     {
       "id": "supply_gap",
       "label": "수주 공백",
-      "value": 59,
-      "display": "59일",
+      "value": 62,
+      "display": "62일",
       "threshold": "180일 경과",
       "hit": false,
       "tone": "good"
@@ -43,29 +43,12 @@
   "alerts": [
     {
       "severity": "info",
-      "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 2건 (관찰 신호 0건 — 키워드 단순 매칭만)",
-      "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
+      "type": "all_clear",
+      "title": "모든 매도 트리거 범위 내",
+      "message": "현재 지표·공시·뉴스 기준 즉각 매도 사유 없음. 보유 유지."
     }
   ],
-  "news_hits": [
-    {
-      "keyword": "SNT홀딩스 매각",
-      "date": "2026-04-22",
-      "title": "주요주주 SNT홀딩스, 스맥 지분 대량 매각 - 디지털투데이",
-      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE8xT1FZSGhzNmxFRnJaTHMxMEF1S00yOHdwVUdyNGhSMXJDS09hYWJkRjhvU3QzQWJDUHkzVnJhOWtiS2otUG9sTXRVb2ozVjFyS2dFQTI5V1hSVHNpQ2VDdk9GdE9weWpVeG5BbTRqd1FPRkk?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "SNT홀딩스 매각",
-      "date": "2026-04-22",
-      "title": "주요주주 SNT홀딩스, 스맥 지분 대량 매각 - 네이트",
-      "url": "https://news.google.com/rss/articles/CBMiU0FVX3lxTE0taUxQOS0zUldidjhQME5XelFlblJ4eFRzcldWYVJpdWdCODJ3SzMzalFBTnkxV0E2RWRwblZGRUZHejlVdmQ1cjZmTGNDVnRwTVM4?oc=5",
-      "severity": "info",
-      "signals": []
-    }
-  ],
+  "news_hits": [],
   "sources": [
     {
       "label": "최근 공급계약 공시",
@@ -78,10 +61,6 @@
     {
       "label": "(주)SNT홀딩스 보유 비율 (2025)",
       "ref": "DART 20260220002472 (hyslrSttus)"
-    },
-    {
-      "label": "뉴스 RSS",
-      "ref": "news.google.com/rss (7일)"
     }
   ]
 }
