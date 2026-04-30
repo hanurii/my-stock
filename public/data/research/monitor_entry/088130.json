@@ -1,7 +1,7 @@
 {
   "code": "088130",
   "name": "동아엘텍",
-  "last_checked": "2026-04-30T17:01:48.908+09:00",
+  "last_checked": "2026-04-30T20:01:46.900+09:00",
   "metrics": [
     {
       "id": "no_capital_issuance",
@@ -33,11 +33,11 @@
     {
       "id": "per_value_zone",
       "label": "✅ PER 본격 저평가",
-      "value": 4.24,
-      "display": "4.24배",
+      "value": 3.95,
+      "display": "3.95배",
       "threshold": "3.5배 이하",
       "hit": false,
-      "tone": "neutral"
+      "tone": "warn"
     },
     {
       "id": "buyback_action",
@@ -64,6 +64,12 @@
       "type": "op_margin_strong",
       "title": "✅ 분기 영업이익률 견조 18% 이상",
       "message": "현재 19.4% — 매수 시그널 (분할 진입 검토 권장)"
+    },
+    {
+      "severity": "warn",
+      "type": "per_value_zone",
+      "title": "✅ PER 본격 저평가 임계 근접",
+      "message": "현재 3.95배 (임계 3.5배 이하)"
     },
     {
       "severity": "warn",

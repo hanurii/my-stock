@@ -1,13 +1,13 @@
 {
   "code": "175330",
   "name": "JB금융지주",
-  "last_checked": "2026-04-30T17:01:12.979+09:00",
+  "last_checked": "2026-04-30T20:01:09.855+09:00",
   "metrics": [
     {
       "id": "pbr",
       "label": "PBR",
-      "value": 0.83,
-      "display": "0.83배",
+      "value": 0.84,
+      "display": "0.84배",
       "threshold": "1.1배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "pbr_premium_pp",
       "label": "지방지주 평균 대비 PBR 프리미엄",
-      "value": 0.31,
-      "display": "0.310pp",
+      "value": 0.32,
+      "display": "0.320pp",
       "threshold": "+0.50pp 이상",
       "hit": false,
       "tone": "good"
@@ -108,12 +108,12 @@
       "severity": "info",
       "type": "foreign_net_buy_4w_warmup",
       "title": "최근 20거래일 외국인 순매수 누적 중",
-      "message": "현재 8거래일 누적 (20일 이상 시 메트릭 평가 시작)."
+      "message": "현재 9거래일 누적 (20일 이상 시 메트릭 평가 시작)."
     },
     {
-      "severity": "warn",
+      "severity": "info",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 4건 (관찰 신호 2건 포함)",
+      "title": "리스크 키워드 매칭 뉴스 2건 (관찰 신호 0건 — 키워드 단순 매칭만)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
@@ -125,26 +125,6 @@
       "url": "https://news.google.com/rss/articles/CBMickFVX3lxTE5uVHZIcXczZG9BaW96V3YwSHI3TlBxNE9LZHpmMUtxcEtuaGRKUjRhcVJWU0lDQjczYVdGMDhtRXQ2SkliWVhjOG1LWUpWcXNhYkNsT1ZQRlB6R2FJb3JOTEhJZl9VaEs1cVJDSEszeFpVQdIBdkFVX3lxTE43d3FQMWZsTWhhWjFvOW1EcHZ2WGlRaHllenlrVHJsaUF2d1FSOWl6ZHNtcTN1Q0tpVllkNTNCc2NZa3B2bWhQcEY4emtxRk5uLTNGOEFTeDlJbDNZNFBZZDVUOGV1SXNKb0l2Y1NEOFNoVi1xZXc?oc=5",
       "severity": "info",
       "signals": []
-    },
-    {
-      "keyword": "JB금융 건전성 악화",
-      "date": "2026-04-23",
-      "title": "JB금융, 1분기 순이익 2.1%↑…은행 부진·건전성 악화 - MTN 머니투데이방송",
-      "url": "https://news.google.com/rss/articles/CBMiZEFVX3lxTFA1X2djbHZOVVNZdW5fbHA0OXp6TXgzLWpLYTlhYTVHS2ZqRkViODNCU0dqbTZ2TWZ2QUFuVFBDNGM5UG5JNkdPRFM2WVp4d2hmVjBvdm9JUTM4elRzR3VodVdNQWM?oc=5",
-      "severity": "warn",
-      "signals": [
-        "부진"
-      ]
-    },
-    {
-      "keyword": "JB금융 건전성 악화",
-      "date": "2026-04-23",
-      "title": "JB금융, 1분기 순이익 2.1%↑…은행 부진·건전성 악화 - v.daum.net",
-      "url": "https://news.google.com/rss/articles/CBMiVEFVX3lxTE90aUZyRW40dTA0cVJVdXdBRVRoQ1cxc0JCN0t2cGl0cFhMaDhacUVoNUp0bWZ6dDlaSWtTTjBlTVotR3Nlb1RhRjd3YS15T1ZiTDI3bw?oc=5",
-      "severity": "warn",
-      "signals": [
-        "부진"
-      ]
     },
     {
       "keyword": "지방은행 부실",
@@ -169,8 +149,8 @@
       "ref": "DART 20260318001225 (alotMatter)"
     },
     {
-      "label": "외국인 순매수 누적 (8일)",
-      "ref": "네이버 dealTrendInfos / history 2026-04-29"
+      "label": "외국인 순매수 누적 (9일)",
+      "ref": "네이버 dealTrendInfos / history 2026-04-30"
     },
     {
       "label": "최근 분기 순이익 (2025-FY)",
