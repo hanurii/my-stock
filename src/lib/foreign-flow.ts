@@ -46,6 +46,7 @@ export interface ForeignFlowData {
   };
   sectors: {
     daily: SectorDailyPoint[];
+    cum_1d: SectorCumPoint[];
     cum_3d: SectorCumPoint[];
     cum_7d: SectorCumPoint[];
     cum_20d: SectorCumPoint[];
@@ -55,10 +56,31 @@ export interface ForeignFlowData {
 
 const FILE_PATH = path.join(process.cwd(), "public", "data", "foreign-flow.json");
 
+// 기존 JSON에 cum_1d가 없을 때 daily의 가장 최근 영업일을 sector별로 합산해 채워준다.
+function deriveCum1d(daily: SectorDailyPoint[]): SectorCumPoint[] {
+  if (daily.length === 0) return [];
+  const allDates = Array.from(new Set(daily.map((p) => p.date))).sort();
+  const latest = allDates[allDates.length - 1];
+  const m = new Map<string, number>();
+  for (const p of daily) {
+    if (p.date !== latest) continue;
+    m.set(p.sector, (m.get(p.sector) ?? 0) + p.net_buy_billion);
+  }
+  return Array.from(m.entries())
+    .map(([sector, v]) => ({ sector, net_buy_billion: Math.round(v * 10) / 10 }))
+    .sort((a, b) => b.net_buy_billion - a.net_buy_billion);
+}
+
 export function getForeignFlowData(): ForeignFlowData | null {
   try {
     const raw = fs.readFileSync(FILE_PATH, "utf-8");
-    return JSON.parse(raw) as ForeignFlowData;
+    const parsed = JSON.parse(raw) as ForeignFlowData & {
+      sectors: ForeignFlowData["sectors"] & { cum_1d?: SectorCumPoint[] };
+    };
+    if (!parsed.sectors.cum_1d) {
+      parsed.sectors.cum_1d = deriveCum1d(parsed.sectors.daily);
+    }
+    return parsed;
   } catch {
     return null;
   }

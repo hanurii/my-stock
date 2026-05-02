@@ -67,7 +67,10 @@ export default function ForeignFlowPage() {
   const lastDate =
     market.daily.length > 0 ? market.daily[market.daily.length - 1].date : "—";
   const accumulatedDays = market.daily.length;
-  const sectorAvailableDays = new Set(sectors.daily.map((p) => p.date)).size;
+  const sectorDates = Array.from(new Set(sectors.daily.map((p) => p.date))).sort();
+  const sectorAvailableDays = sectorDates.length;
+  const sectorLatestDate =
+    sectorDates.length > 0 ? sectorDates[sectorDates.length - 1] : undefined;
 
   return (
     <div className="space-y-10 sm:space-y-14">
@@ -152,11 +155,13 @@ export default function ForeignFlowPage() {
           </div>
         </div>
         <ForeignFlowSectorBars
+          cum1d={sectors.cum_1d}
           cum3d={sectors.cum_3d}
           cum7d={sectors.cum_7d}
           cum20d={sectors.cum_20d}
           cum60d={sectors.cum_60d}
           availableDays={sectorAvailableDays}
+          latestDate={sectorLatestDate}
         />
       </section>
 

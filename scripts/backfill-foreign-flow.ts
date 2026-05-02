@@ -201,6 +201,7 @@ interface ForeignFlowOutput {
   };
   sectors: {
     daily: SectorDailyPoint[];
+    cum_1d: Array<{ sector: string; net_buy_billion: number }>;
     cum_3d: Array<{ sector: string; net_buy_billion: number }>;
     cum_7d: Array<{ sector: string; net_buy_billion: number }>;
     cum_20d: Array<{ sector: string; net_buy_billion: number }>;
@@ -232,6 +233,7 @@ function getKST(): { date: string; iso: string } {
 
 function summarizeSectors(daily: SectorDailyPoint[]) {
   const allDates = Array.from(new Set(daily.map((p) => p.date))).sort();
+  const dates1 = new Set(allDates.slice(-1));
   const dates3 = new Set(allDates.slice(-3));
   const dates7 = new Set(allDates.slice(-7));
   const dates20 = new Set(allDates.slice(-20));
@@ -247,6 +249,7 @@ function summarizeSectors(daily: SectorDailyPoint[]) {
       .sort((a, b) => b.net_buy_billion - a.net_buy_billion);
   };
   return {
+    cum_1d: sumBy(dates1),
     cum_3d: sumBy(dates3),
     cum_7d: sumBy(dates7),
     cum_20d: sumBy(dates20),
@@ -410,6 +413,7 @@ async function main() {
     market: { daily: marketDaily, summary: marketSummary },
     sectors: {
       daily: mergedSectorDaily,
+      cum_1d: sectorsSummary.cum_1d,
       cum_3d: sectorsSummary.cum_3d,
       cum_7d: sectorsSummary.cum_7d,
       cum_20d: sectorsSummary.cum_20d,

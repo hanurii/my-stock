@@ -4,16 +4,19 @@ import { useState, useMemo } from "react";
 import type { SectorCumPoint } from "@/lib/foreign-flow";
 
 interface Props {
+  cum1d: SectorCumPoint[];
   cum3d: SectorCumPoint[];
   cum7d: SectorCumPoint[];
   cum20d: SectorCumPoint[];
   cum60d: SectorCumPoint[];
   availableDays: number;
+  latestDate?: string;
 }
 
-type Window = "3d" | "7d" | "20d" | "60d";
+type Window = "1d" | "3d" | "7d" | "20d" | "60d";
 
 const WINDOW_TARGET: Record<Window, number> = {
+  "1d": 1,
   "3d": 3,
   "7d": 7,
   "20d": 20,
@@ -21,6 +24,7 @@ const WINDOW_TARGET: Record<Window, number> = {
 };
 
 const WINDOW_LABEL: Record<Window, string> = {
+  "1d": "최근 1일",
   "3d": "최근 3일",
   "7d": "최근 7일",
   "20d": "최근 20일",
@@ -36,16 +40,26 @@ function formatBillion(v: number): string {
 }
 
 export function ForeignFlowSectorBars({
+  cum1d,
   cum3d,
   cum7d,
   cum20d,
   cum60d,
   availableDays,
+  latestDate,
 }: Props) {
   const [win, setWin] = useState<Window>("7d");
 
   const data =
-    win === "3d" ? cum3d : win === "7d" ? cum7d : win === "20d" ? cum20d : cum60d;
+    win === "1d"
+      ? cum1d
+      : win === "3d"
+        ? cum3d
+        : win === "7d"
+          ? cum7d
+          : win === "20d"
+            ? cum20d
+            : cum60d;
   const targetDays = WINDOW_TARGET[win];
   const insufficient = availableDays < targetDays;
   const effectiveDays = Math.min(availableDays, targetDays);
@@ -67,10 +81,14 @@ export function ForeignFlowSectorBars({
 
   return (
     <div>
-      <div className="flex items-center justify-end gap-3 mb-5">
+      <div className="flex items-center justify-end gap-3 mb-5 flex-wrap">
         {insufficient ? (
           <span className="text-[11px] text-on-surface-variant/70">
             현재 {availableDays}영업일 누적 중 (목표 {targetDays}일) — 두 탭은 같은 데이터를 표시합니다
+          </span>
+        ) : win === "1d" && latestDate ? (
+          <span className="text-[11px] text-on-surface-variant/70">
+            기준일 {latestDate} (직전 영업일)
           </span>
         ) : (
           <span className="text-[11px] text-on-surface-variant/70">
@@ -78,7 +96,7 @@ export function ForeignFlowSectorBars({
           </span>
         )}
         <div className="flex items-center gap-1 rounded-md bg-surface-container-low p-1 w-fit">
-          {(["3d", "7d", "20d", "60d"] as Window[]).map((w) => (
+          {(["1d", "3d", "7d", "20d", "60d"] as Window[]).map((w) => (
             <button
               key={w}
               onClick={() => setWin(w)}
