@@ -296,15 +296,77 @@ async function fetchDubaiCrude(): Promise<DubaiCrudeData | null> {
   }
 }
 
+// 한국 증시 휴장일 (KRX 공식 휴장 일정 기준).
+// 매년 1~2회 갱신 필요. (KRX > 시장운영 > 휴장일 안내)
+const KR_MARKET_HOLIDAYS = new Set<string>([
+  // 2026
+  "2026-01-01", // 신정
+  "2026-02-16", // 설 연휴 대체
+  "2026-02-17", // 설 연휴
+  "2026-02-18", // 설 연휴
+  "2026-03-02", // 삼일절 대체
+  "2026-05-01", // 근로자의 날
+  "2026-05-05", // 어린이날
+  "2026-05-25", // 부처님오신날
+  "2026-06-03", // 지방선거일
+  "2026-06-08", // 현충일 대체
+  "2026-08-17", // 광복절 대체
+  "2026-09-24", // 추석 연휴
+  "2026-09-25", // 추석 당일
+  "2026-09-28", // 추석 연휴 대체
+  "2026-10-05", // 개천절 대체
+  "2026-10-09", // 한글날
+  "2026-12-25", // 성탄절
+  "2026-12-31", // 연말 휴장
+  // 2027
+  "2027-01-01", // 신정
+  "2027-02-08", // 설 연휴
+  "2027-02-09", // 설 당일
+  "2027-02-10", // 설 연휴
+  "2027-03-01", // 삼일절
+  "2027-05-05", // 어린이날
+  "2027-05-13", // 부처님오신날
+  "2027-08-16", // 광복절 대체
+  "2027-09-15", // 추석 연휴
+  "2027-09-16", // 추석 당일
+  "2027-09-17", // 추석 연휴
+  "2027-10-04", // 개천절 대체
+  "2027-10-11", // 한글날 대체
+  "2027-12-31", // 연말 휴장
+]);
+
+function isKrTradingDay(d: Date): boolean {
+  const dow = d.getUTCDay();
+  if (dow === 0 || dow === 6) return false;
+  const ymd = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`;
+  return !KR_MARKET_HOLIDAYS.has(ymd);
+}
+
 // 리포트 발행일(YYYY-MM-DD) 기준으로 직전 거래일(MM/DD)을 반환한다.
-// 토/일은 거래일이 아니므로 역순으로 평일을 찾는다.
+// 토/일/한국 공휴일은 거래일이 아니므로 역순으로 거래일을 찾는다.
 function getExpectedLastTradingDay(reportDate: string): string {
   const d = new Date(reportDate + "T00:00:00Z");
   d.setUTCDate(d.getUTCDate() - 1);
-  while (d.getUTCDay() === 0 || d.getUTCDay() === 6) {
+  while (!isKrTradingDay(d)) {
     d.setUTCDate(d.getUTCDate() - 1);
   }
   return `${String(d.getUTCMonth() + 1).padStart(2, "0")}/${String(d.getUTCDate()).padStart(2, "0")}`;
+}
+
+// 리포트 발행일이 한국 공휴일인지 확인
+function isKrMarketHoliday(reportDate: string): boolean {
+  const d = new Date(reportDate + "T00:00:00Z");
+  return !isKrTradingDay(d);
+}
+
+// 깊은 객체에서 NaN/Infinity → null 로 정규화 (JSON.parse 호환).
+// JSON.stringify는 기본적으로 NaN을 null로 직렬화하지만, 명시적으로 보장.
+function sanitizeForJson<T>(obj: T): T {
+  return JSON.parse(
+    JSON.stringify(obj, (_key, value) =>
+      typeof value === "number" && !Number.isFinite(value) ? null : value,
+    ),
+  ) as T;
 }
 
 // ── 메인 ──
@@ -401,9 +463,13 @@ async function main() {
 
   // ── 1-1. 코스피/코스닥 신선도 검증 ──
   // 리포트 발행일 기준 직전 거래일 데이터인지 확인.
-  // 전전날 데이터가 재활용되는 경우 즉시 실패 처리.
+  // 휴장일을 고려하여 직전 영업일을 계산한 후, 그 날짜와 일치해야 통과.
   console.log("1️⃣-1 코스피/코스닥 신선도 검증");
   const expectedTradingDay = getExpectedLastTradingDay(kst.date);
+  const reportIsHoliday = isKrMarketHoliday(kst.date);
+  if (reportIsHoliday) {
+    console.log(`  ℹ️ ${kst.date}는 한국 증시 휴장일 — 직전 거래일(${expectedTradingDay}) 데이터 사용`);
+  }
   let staleKorea = false;
   for (const koreaInd of (indicators.korea as Record<string, unknown>[]) ?? []) {
     const ts = koreaInd.timeseries as TimeseriesPoint[] | undefined;
@@ -415,6 +481,15 @@ async function main() {
       staleKorea = true;
     } else {
       console.log(`  ✅ ${koreaInd.name}: ${latestDate} (직전 거래일 일치)`);
+    }
+    // 휴장일에는 change/weekly_change가 의미 없으므로 0으로 안정화하고 휴장 표시
+    if (reportIsHoliday) {
+      koreaInd.change = 0;
+      koreaInd.trend = "▬ 휴장";
+      const orig = typeof koreaInd.comment === "string" ? koreaInd.comment : "";
+      if (!orig.includes("휴장")) {
+        koreaInd.comment = `${kst.date} 한국 증시 휴장 — 직전 거래일(${expectedTradingDay}) 종가 유지.`;
+      }
     }
   }
   if (staleKorea) {
@@ -514,8 +589,10 @@ async function main() {
   };
 
   // ── 6. 저장 ──
+  // sanitizeForJson: 혹시라도 NaN/Infinity가 섞이면 null로 변환해 표준 JSON으로 저장.
+  // (Python 등 외부 도구가 JSON.parse가 거부하는 NaN 리터럴을 쓰는 사고 방지)
   const outPath = path.join(dataDir, `${kst.date}.json`);
-  fs.writeFileSync(outPath, JSON.stringify(report, null, 2) + "\n", "utf-8");
+  fs.writeFileSync(outPath, JSON.stringify(sanitizeForJson(report), null, 2) + "\n", "utf-8");
 
   console.log("\n" + "─".repeat(65));
   console.log(`💾 draft 저장: ${outPath}`);
