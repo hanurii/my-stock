@@ -1058,8 +1058,11 @@ async function updateStocks(
       } else {
         console.log(`\n📝 ${stock.name}: ${prevScore}점 → ${after.scores[i]}점 | ${reason}`);
       }
-    } else if (!alreadyUpdatedToday[i]) {
-      delete stock.grade_change_reason;
+    }
+    // 변동 없는 날에도 grade_change_reason / score_history는 보존 (직전 변경 맥락 유지)
+    // score_history가 있으면 grade_change_reason은 score_history[0].reason과 동기화
+    if (stock.score_history && stock.score_history[0]) {
+      stock.grade_change_reason = stock.score_history[0].reason;
     }
 
     // 현재 세부 점수 항상 저장 (UI 표시용 + 다음 실행 비교 기준)
