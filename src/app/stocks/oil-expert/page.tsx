@@ -145,7 +145,7 @@ function StockCards({ stocks, framework }: {
         return (
           <div key={stock.code} className="bg-surface-container-low rounded-xl ghost-border overflow-hidden">
             <div className="p-4 sm:p-6">
-              <ScoreChangeComment score={stock.score} previousScore={stock.previous_score} grade={stock.grade} details={stock.details} previousDetails={stock.previous_details} />
+              <ScoreChangeComment score={stock.score} previousScore={stock.previous_score} grade={stock.grade} details={stock.details} previousDetails={stock.previous_details} scoreHistory={stock.score_history} />
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-4">
                   <div className="text-center w-8">

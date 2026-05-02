@@ -30,6 +30,23 @@ export interface ScoredResult {
   shareholderBadges?: ShareholderBadges;
 }
 
+// ── 점수 변동 히스토리 ──
+
+export interface ScoreDetailDiff {
+  item: string;
+  from: number;
+  to: number;
+  diff: number;
+}
+
+export interface ScoreChangeEntry {
+  at: string;                   // 변경 발생 시각 (scoredAt 형식)
+  from: number;                 // 변경 전 점수
+  to: number;                   // 변경 후 점수
+  reason: string;               // 항목별 요약 ("PSR 10→8점(-2), …")
+  details_diff: ScoreDetailDiff[];
+}
+
 // ── 주주환원 보정 ──
 
 export interface ShareholderReturnData {
@@ -78,6 +95,7 @@ export interface DomesticStockInput {
   previous_rank?: number;
   previous_details?: ScoreDetail[];
   grade_change_reason?: string;
+  score_history?: ScoreChangeEntry[]; // 최근 점수 변경 2건
 }
 
 // ── 해외 종목 입력 ──
@@ -110,6 +128,7 @@ export interface OverseasStockInput {
   previous_rank?: number;
   previous_details?: ScoreDetail[];
   grade_change_reason?: string;
+  score_history?: ScoreChangeEntry[]; // 최근 점수 변경 2건
 }
 
 // ── 등급 산출 ──
@@ -532,6 +551,7 @@ export interface GrowthStockInput {
   previous_rank?: number;
   previous_details?: ScoreDetail[];
   grade_change_reason?: string;
+  score_history?: ScoreChangeEntry[]; // 최근 점수 변경 2건
 }
 
 // ── 금리 환경 감점 ──

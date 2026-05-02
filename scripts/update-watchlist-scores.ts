@@ -47,6 +47,21 @@ interface MarketData {
   prev_year_op_margin?: number | null; // 전년 영업이익률 (finance/annual에서 추출)
 }
 
+interface ScoreDetailDiff {
+  item: string;
+  from: number;
+  to: number;
+  diff: number;
+}
+
+interface ScoreChangeEntry {
+  at: string;
+  from: number;
+  to: number;
+  reason: string;
+  details_diff: ScoreDetailDiff[];
+}
+
 interface StockBase {
   code: string;
   name: string;
@@ -58,7 +73,34 @@ interface StockBase {
   previous_score?: number;
   previous_rank?: number;
   grade_change_reason?: string;
+  score_history?: ScoreChangeEntry[];
   [key: string]: unknown;
+}
+
+const SCORE_HISTORY_LIMIT = 2;
+
+function buildDetailsDiff(
+  beforeDetails: ScoredResult["details"],
+  afterDetails: ScoredResult["details"],
+): ScoreDetailDiff[] {
+  const diffs: ScoreDetailDiff[] = [];
+  for (let i = 0; i < beforeDetails.length; i++) {
+    const b = beforeDetails[i];
+    const a = afterDetails[i];
+    if (b && a && b.score !== a.score) {
+      diffs.push({ item: a.item, from: b.score, to: a.score, diff: a.score - b.score });
+    }
+  }
+  return diffs;
+}
+
+function pushScoreHistory(
+  stock: { score_history?: ScoreChangeEntry[] },
+  entry: ScoreChangeEntry,
+) {
+  // 같은 시각에 재실행될 경우 동일 entry로 교체 (중복 방지)
+  const filtered = (stock.score_history || []).filter((e) => e.at !== entry.at);
+  stock.score_history = [entry, ...filtered].slice(0, SCORE_HISTORY_LIMIT);
 }
 
 // Yahoo 심볼 매핑 (코드 → Yahoo 심볼)
@@ -1001,6 +1043,15 @@ async function updateStocks(
       stock.grade_change_reason = reason;
       scoreChanges++;
 
+      // score_history: 이 실행이 일으킨 변경(시작값 → 결과)을 1건으로 기록
+      pushScoreHistory(stock, {
+        at: scoredAt,
+        from: before.scores[i],
+        to: after.scores[i],
+        reason,
+        details_diff: buildDetailsDiff(before.details[i], after.details[i]),
+      });
+
       if (oldGrade !== newGrade) {
         gradeChanges++;
         console.log(`\n🔄 ${stock.name}: ${oldGrade}(${prevScore}점) → ${newGrade}(${after.scores[i]}점) | ${reason}`);
@@ -1122,6 +1173,9 @@ async function main() {
 
       console.log(`\n  📋 공시월(${currentMonth}월) — 실적 데이터 갱신`);
 
+      // 실적 갱신 직전 점수 스냅샷 (재채점 후 변동 비교용)
+      const preDisclosureScored = makeScoreAllGrowth(growthData.base_rate ?? 2.75)(stocks);
+
       let gFundUpdated = 0;
       let gFundSkipped = 0;
 
@@ -1151,13 +1205,34 @@ async function main() {
         await sleep(REQUEST_DELAY_MS);
       }
 
-      // 실적 갱신 후 재채점
+      // 실적 갱신 후 재채점 + 변동 캡처
       if (gFundUpdated > 0) {
-        const shReturnMap = loadShareholderReturnMap();
         const baseRate = growthData.base_rate ?? 2.75;
         const scoreAll = makeScoreAllGrowth(baseRate);
-        scoreAll(stocks);
-        console.log(`  📋 실적 갱신: ${gFundUpdated}개 완료, ${gFundSkipped}개 스킵 → 재채점 완료`);
+        const postDisclosureScored = scoreAll(stocks);
+
+        // 실적 갱신으로 점수가 달라진 종목은 stock.details 갱신 + score_history 기록
+        let postChanges = 0;
+        for (let si = 0; si < stocks.length; si++) {
+          const fromScore = preDisclosureScored.scores[si];
+          const toScore = postDisclosureScored.scores[si];
+          if (fromScore === toScore) continue;
+          const stk = stocks[si] as StockBase & { score?: number; details?: ScoredResult["details"] };
+          stk.details = postDisclosureScored.details[si];
+          stk.score = toScore;
+          const reason = buildChangeReason(preDisclosureScored.details[si], postDisclosureScored.details[si]);
+          stk.grade_change_reason = reason;
+          pushScoreHistory(stk, {
+            at: scoredAt,
+            from: fromScore,
+            to: toScore,
+            reason,
+            details_diff: buildDetailsDiff(preDisclosureScored.details[si], postDisclosureScored.details[si]),
+          });
+          postChanges++;
+          console.log(`    📝 ${stk.name}: ${fromScore}→${toScore}점 (실적 갱신) | ${reason}`);
+        }
+        console.log(`  📋 실적 갱신: ${gFundUpdated}개 완료, ${gFundSkipped}개 스킵 → 재채점 완료${postChanges > 0 ? ` (${postChanges}개 점수 변동 기록)` : ""}`);
       } else {
         console.log(`  📋 실적 갱신: ${gFundSkipped}개 스킵 (이미 갱신됨)`);
       }
@@ -1224,7 +1299,7 @@ async function main() {
   const screenPath = path.join(process.cwd(), "public", "data", "growth-candidates.json");
   try {
     const screenData = JSON.parse(fs.readFileSync(screenPath, "utf-8"));
-    const candidates = screenData.candidates as (GrowthScreenInput & { score: number; grade: string; cat1: number; cat2: number; cat3: number; details: unknown[]; is_top10: boolean; previous_score?: number; previous_rank?: number; previous_details?: unknown[]; fundamentals_updated_at?: string })[];
+    const candidates = screenData.candidates as (GrowthScreenInput & { score: number; grade: string; cat1: number; cat2: number; cat3: number; details: unknown[]; is_top10: boolean; previous_score?: number; previous_rank?: number; previous_details?: unknown[]; fundamentals_updated_at?: string; grade_change_reason?: string; score_history?: ScoreChangeEntry[] })[];
 
     if (candidates.length > 0) {
       const modeLabel = isDisclosureMonth ? "종가 + 실적 갱신" : "종가 기준 밸류에이션 갱신";
@@ -1329,7 +1404,19 @@ async function main() {
 
         const diff = c.score - beforeScores[ci];
         if (diff !== 0) {
-          console.log(`  ${c.name}: ${prevPrice?.toLocaleString()}→${market.price.toLocaleString()}원 | ${beforeScores[ci]}→${c.score}점 (${diff > 0 ? "+" : ""}${diff})`);
+          // 점수 변동 시 사유 + score_history 기록
+          const beforeDetailArr = beforeDetails[ci] as ScoredResult["details"];
+          const afterDetailArr = c.details as ScoredResult["details"];
+          const reason = buildChangeReason(beforeDetailArr, afterDetailArr);
+          (c as { grade_change_reason?: string }).grade_change_reason = reason;
+          pushScoreHistory(c as { score_history?: ScoreChangeEntry[] }, {
+            at: scoredAt,
+            from: beforeScores[ci],
+            to: c.score,
+            reason,
+            details_diff: buildDetailsDiff(beforeDetailArr, afterDetailArr),
+          });
+          console.log(`  ${c.name}: ${prevPrice?.toLocaleString()}→${market.price.toLocaleString()}원 | ${beforeScores[ci]}→${c.score}점 (${diff > 0 ? "+" : ""}${diff}) | ${reason}`);
         }
         screenUpdated++;
       }

@@ -1,6 +1,6 @@
 import fs from "fs/promises";
 import path from "path";
-import { getGradeColor } from "@/lib/scoring";
+import { getGradeColor, type ScoreChangeEntry } from "@/lib/scoring";
 import { Collapsible } from "@/components/Collapsible";
 import { RankChange, GradeChangeBadge, ScoreChangeComment } from "@/components/RankChange";
 import { getStockTrend, type RankHistory } from "@/lib/rank-history";
@@ -46,6 +46,7 @@ interface Candidate {
   previous_score?: number;
   previous_rank?: number;
   previous_details?: ScoreDetail[];
+  score_history?: ScoreChangeEntry[];
   is_top10: boolean;
 }
 
@@ -178,7 +179,7 @@ export default async function GrowthScreenPage() {
                   </div>
                 </div>
 
-                <ScoreChangeComment score={stock.score} previousScore={stock.previous_score} grade={stock.grade} details={stock.details} previousDetails={stock.previous_details} />
+                <ScoreChangeComment score={stock.score} previousScore={stock.previous_score} grade={stock.grade} details={stock.details} previousDetails={stock.previous_details} scoreHistory={stock.score_history} />
 
                 {/* 핵심 지표 */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
