@@ -41,6 +41,8 @@ interface CashDataPoint {
 
 interface Berkshire13FData {
   generated_at: string;
+  is_new?: boolean;
+  new_label_until?: string;
   latest: {
     accession_number: string;
     filing_date: string;

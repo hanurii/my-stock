@@ -65,6 +65,7 @@ interface HistoricalFiling {
 interface Berkshire13FData {
   generated_at: string;
   is_new: boolean;
+  new_label_until?: string;
   latest: {
     accession_number: string;
     filing_date: string;
@@ -578,12 +579,16 @@ async function main() {
   if (fs.existsSync(OUTPUT_PATH)) {
     prevData = JSON.parse(fs.readFileSync(OUTPUT_PATH, "utf-8")) as Berkshire13FData;
 
-    // 동일 Filing이면 is_new 해제 후 종료 (초기 빌드가 아닐 때만)
+    // 동일 Filing이면 종료 (초기 빌드가 아닐 때만)
+    // is_new 플래그는 new_label_until(오늘+14일 KST) 만료 시점에만 해제
     if (!isInitialBuild && prevData.latest.accession_number === latestFiling.accessionNumber) {
-      if (prevData.is_new) {
+      const todayKst = new Date(Date.now() + 9 * 3600_000).toISOString().split("T")[0];
+      if (prevData.is_new && prevData.new_label_until && prevData.new_label_until < todayKst) {
         prevData.is_new = false;
         fs.writeFileSync(OUTPUT_PATH, JSON.stringify(prevData, null, 2) + "\n", "utf-8");
-        console.log("\n✅ 이미 최신 Filing 반영됨 — is_new 플래그 해제");
+        console.log(`\n✅ 이미 최신 Filing 반영됨 — NEW 라벨 만료 (${prevData.new_label_until} 지남)`);
+      } else if (prevData.is_new && prevData.new_label_until) {
+        console.log(`\n✅ 이미 최신 Filing 반영됨 — NEW 라벨 ${prevData.new_label_until}까지 유지`);
       } else {
         console.log("\n✅ 이미 최신 Filing 반영됨 — 업데이트 불필요");
       }
@@ -693,10 +698,15 @@ async function main() {
   await sleep(REQUEST_DELAY_MS);
   const cashData = await fetchCashData();
 
-  // 결과 저장 (새 Filing 감지 → is_new: true, 차주 실행 시 해제)
+  // 결과 저장 (새 Filing 감지 → is_new: true, new_label_until = 오늘 + 14일 KST)
+  const generatedAt = new Date(Date.now() + 9 * 3600_000).toISOString().split("T")[0];
+  const newLabelUntil = new Date(Date.now() + (9 + 14 * 24) * 3600_000)
+    .toISOString()
+    .split("T")[0];
   const result: Berkshire13FData = {
-    generated_at: new Date(Date.now() + 9 * 3600_000).toISOString().split("T")[0],
+    generated_at: generatedAt,
     is_new: true,
+    new_label_until: newLabelUntil,
     latest: {
       accession_number: latestFiling.accessionNumber,
       filing_date: latestFiling.filingDate,
