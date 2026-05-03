@@ -147,6 +147,69 @@ async function fetchFiveYearPriceHistory(ticker: string): Promise<PriceHistory |
   }
 }
 
+// ── 주주환원 데이터 (자사주매입 + 배당) ──
+
+interface ShareholderReturn {
+  buybacks_ttm: number;     // 최근 회계연도 자사주매입 (절댓값, 통화는 종목 통화)
+  dividends_ttm: number;    // 최근 회계연도 배당 지급 (절댓값)
+  total_return_ttm: number; // 합산
+  asOfDate: string | null;
+}
+
+async function fetchShareholderReturn(
+  ticker: string,
+  auth: { cookie: string; crumb: string },
+): Promise<ShareholderReturn | null> {
+  const now = Math.floor(Date.now() / 1000);
+  const past = now - 90000000; // ~3년 전 (최근 회계연도 데이터 확보 목적)
+  const types = "annualRepurchaseOfCapitalStock,annualCashDividendsPaid";
+  const url = `https://query2.finance.yahoo.com/ws/fundamentals-timeseries/v1/finance/timeseries/${encodeURIComponent(
+    ticker,
+  )}?type=${types}&period1=${past}&period2=${now}&crumb=${encodeURIComponent(auth.crumb)}`;
+  try {
+    const res = await fetch(url, {
+      headers: { "User-Agent": UA, Cookie: auth.cookie },
+    });
+    if (!res.ok) return null;
+    const json = await res.json();
+    const series: Array<{
+      meta?: { type?: string[] };
+      [key: string]: unknown;
+    }> = json?.timeseries?.result ?? [];
+    if (!series.length) return null;
+
+    // 가장 최근 데이터 찾기
+    const latestOf = (typeName: string): { value: number; asOfDate: string } | null => {
+      const block = series.find((s) => s.meta?.type?.[0] === typeName);
+      if (!block) return null;
+      const arr = (block[typeName] as Array<{ asOfDate?: string; reportedValue?: { raw?: number } }> | undefined) ?? [];
+      // asOfDate desc 정렬
+      const sorted = [...arr]
+        .filter((x) => x.asOfDate && x.reportedValue?.raw != null)
+        .sort((a, b) => (a.asOfDate! < b.asOfDate! ? 1 : -1));
+      if (!sorted.length) return null;
+      return { value: sorted[0].reportedValue!.raw!, asOfDate: sorted[0].asOfDate! };
+    };
+
+    const buy = latestOf("annualRepurchaseOfCapitalStock");
+    const div = latestOf("annualCashDividendsPaid");
+
+    if (!buy && !div) return null;
+    const buybacks = Math.abs(buy?.value ?? 0);
+    const dividends = Math.abs(div?.value ?? 0);
+    const asOfDate = buy?.asOfDate ?? div?.asOfDate ?? null;
+
+    return {
+      buybacks_ttm: buybacks,
+      dividends_ttm: dividends,
+      total_return_ttm: buybacks + dividends,
+      asOfDate,
+    };
+  } catch {
+    return null;
+  }
+}
+
 // ── 메트릭 추출 헬퍼 ──
 
 function v(x: YahooRaw | undefined): number | null {
@@ -248,7 +311,7 @@ interface PillarScores {
   total: number;
 }
 
-function computeScore(m: Metrics, ph: PriceHistory | null): PillarScores {
+function computeScore(m: Metrics, ph: PriceHistory | null, shareholderYieldPct: number | null): PillarScores {
   // ── Quality (40점) ──
   // ROE: 5% 0pt → 10% 25%pt → 15% 50%pt → 20% max (15점)
   const roePct = (m.returnOnEquity ?? 0) * 100;
@@ -275,20 +338,29 @@ function computeScore(m: Metrics, ph: PriceHistory | null): PillarScores {
   const moatPB = pb <= 2 ? 5 : pb <= 5 ? 3 : pb <= 10 ? 1.5 : 0;
   const moat = moatOpMargin + moatEV + moatPB;
 
-  // ── Capital (20점) ──
-  // FCF / 시총 비율 (FCF yield, 자본효율) — 0% 0pt → 3% → 5% → 8% max (10점)
+  // ── Capital (20점) — 자본 운용력 + 주주환원 ──
+  // FCF / 시총 비율 (현금 창출력) — 0% 0pt → 3% → 5% → 8% max (7점)
   let fcfYieldPct = 0;
   if (m.freeCashflow != null && m.marketCap != null && m.marketCap > 0) {
     fcfYieldPct = (m.freeCashflow / m.marketCap) * 100;
   }
-  const cFCF = linearScore(fcfYieldPct, [0, 3, 5, 8], 10);
-  // EPS 성장률 (5점)
+  const cFCF = linearScore(fcfYieldPct, [0, 3, 5, 8], 7);
+  // 총 주주환원율 (배당 + 자사주매입) / 시총 — 단계별 (7점)
+  let cShareholder = 0;
+  if (shareholderYieldPct != null) {
+    if (shareholderYieldPct >= 10) cShareholder = 7;
+    else if (shareholderYieldPct >= 6) cShareholder = 5;
+    else if (shareholderYieldPct >= 3) cShareholder = 3;
+    else if (shareholderYieldPct >= 1) cShareholder = 1;
+    else cShareholder = 0;
+  }
+  // EPS 성장률 (3점)
   const epsGrowthPct = (m.earningsGrowth ?? 0) * 100;
-  const cEPS = linearScore(epsGrowthPct, [-10, 0, 8, 20], 5);
-  // 매출 성장률 (5점)
+  const cEPS = linearScore(epsGrowthPct, [-10, 0, 8, 20], 3);
+  // 매출 성장률 (3점)
   const revGrowthPct = (m.revenueGrowth ?? 0) * 100;
-  const cRev = linearScore(revGrowthPct, [-5, 0, 5, 15], 5);
-  const capital = cFCF + cEPS + cRev;
+  const cRev = linearScore(revGrowthPct, [-5, 0, 5, 15], 3);
+  const capital = cFCF + cShareholder + cEPS + cRev;
 
   // ── Valuation (20점) ──
   // trailingPE 절대 수준 (10점): 30 0pt → 20 → 15 → 10↓ max (역방향)
@@ -374,6 +446,13 @@ interface MegacapStock {
     avg_5y: number;
     pct_from_high: number;
     percentile_5y: number;
+  } | null;
+  shareholder_return: {
+    buybacks_ttm: number;
+    dividends_ttm: number;
+    total_return_ttm: number;
+    yield_pct: number;            // 시총 대비 % (음수 가능성 없음)
+    asOfDate: string | null;
   } | null;
   scores: PillarScores;
   signal: BuySignal;
@@ -476,16 +555,27 @@ async function main() {
   const stocks: MegacapStock[] = [];
   for (let i = 0; i < selected.length; i++) {
     const sel = selected[i];
-    process.stdout.write(`  [${i + 1}/${selected.length}] price history ${sel.candidate.ticker} `);
+    process.stdout.write(`  [${i + 1}/${selected.length}] ${sel.candidate.ticker} `);
     const ph = await fetchFiveYearPriceHistory(sel.candidate.ticker);
     if (!ph) {
       errors.push(`${sel.candidate.ticker}: 5y history failed`);
-      console.log("❌");
+      process.stdout.write("hist❌ ");
     } else {
-      console.log(`${ph.percentile_5y.toFixed(0)}%ile`);
+      process.stdout.write(`${ph.percentile_5y.toFixed(0)}%ile `);
     }
+    await sleep(REQUEST_DELAY_MS);
 
-    const scores = computeScore(sel.metrics, ph);
+    const sr = await fetchShareholderReturn(sel.candidate.ticker, auth);
+    let yieldPct: number | null = null;
+    if (sr && sel.metrics.marketCap != null && sel.metrics.marketCap > 0) {
+      yieldPct = (sr.total_return_ttm / sel.metrics.marketCap) * 100;
+      console.log(`재매입+배당 ${yieldPct.toFixed(1)}%`);
+    } else {
+      console.log("재매입+배당❌");
+    }
+    await sleep(REQUEST_DELAY_MS);
+
+    const scores = computeScore(sel.metrics, ph, yieldPct);
     const signal = computeSignal(sel.metrics);
     const is_buffett_candidate = scores.total >= 70;
 
@@ -506,11 +596,20 @@ async function main() {
             percentile_5y: Math.round(ph.percentile_5y * 10) / 10,
           }
         : null,
+      shareholder_return:
+        sr && yieldPct != null
+          ? {
+              buybacks_ttm: Math.round(sr.buybacks_ttm),
+              dividends_ttm: Math.round(sr.dividends_ttm),
+              total_return_ttm: Math.round(sr.total_return_ttm),
+              yield_pct: Math.round(yieldPct * 100) / 100,
+              asOfDate: sr.asOfDate,
+            }
+          : null,
       scores,
       signal,
       is_buffett_candidate,
     });
-    await sleep(REQUEST_DELAY_MS);
   }
 
   // 4단계: 정렬 (총점 내림차순) 및 출력

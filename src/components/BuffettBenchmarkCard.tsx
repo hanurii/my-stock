@@ -6,12 +6,13 @@ import { marketLabel } from "@/lib/megacap";
 
 // 2016년 1분기 애플 점수 (역사적 사실 — 정적 상수)
 // scripts/fetch-megacap-monitor.ts:computeScore() 로직을 당시 메트릭에 적용한 결과
+// 자본 운용력 14.4점 = FCF Yield 7 (만점) + 총 주주환원율 5 (8.2% 추정 → 5점) + EPS 성장 1.4 + 매출 성장 1.0
 const BENCHMARK = {
-  total: 88.6,
+  total: 88.9,
   pillars: {
     quality: 40,
     moat: 18,
-    capital: 14.05,
+    capital: 14.4,
     valuation: 16.5,
   },
   signal: { label: "매수 검토", triggers_met: 2, max: 3 },
@@ -20,6 +21,7 @@ const BENCHMARK = {
     { label: "영업이익률", value: "30.5%" },
     { label: "순이익률", value: "22.8%" },
     { label: "잉여현금수익률", value: "12%" },
+    { label: "총 주주환원율", value: "약 8.2% (배당 2% + 자사주매입 6%)" },
     { label: "주가수익비율(PER)", value: "10.5" },
     { label: "52주 고점대비 하락률", value: "-25%" },
   ],
@@ -33,7 +35,7 @@ const BENCHMARK = {
     avg_buy_price: "$25 (분할 후 환산)",
     current_price: "$280 (2026-05)",
     return: "약 11배 (10년 9개월)",
-    note: "버크셔 첫 매입은 2016 Q1 / 980만주 / 약 10억 달러. 매입 시점 시장은 'iPhone 판매 둔화'로 PER 10배 수준까지 빠진 구간이었음. 이후 2017-2018년 추가 매수로 포트의 30~50%까지 확대.",
+    note: "버크셔 첫 매입은 2016 Q1 / 980만주 / 약 10억 달러. 매입 시점 시장은 'iPhone 판매 둔화'로 PER 10배 수준까지 빠진 구간이었음. 자사주매입 + 배당으로 연 8~10% 주주환원을 하던 '환원 머신'이었으며, 이후 2017-2018년 추가 매수로 포트의 30~50%까지 확대.",
   },
 };
 
@@ -46,8 +48,8 @@ export function BuffettBenchmarkCard({ stocks }: Props) {
 
   const closest = useMemo(() => {
     return [...stocks]
-      .map((s) => ({ stock: s, delta: Math.abs(s.scores.total - BENCHMARK.total) }))
-      .sort((a, b) => a.delta - b.delta)
+      .map((s) => ({ stock: s, delta: s.scores.total - BENCHMARK.total }))
+      .sort((a, b) => Math.abs(a.delta) - Math.abs(b.delta))
       .slice(0, 5);
   }, [stocks]);
 
@@ -220,7 +222,7 @@ export function BuffettBenchmarkCard({ stocks }: Props) {
                           {s.scores.total.toFixed(1)}점
                         </div>
                         <div className="text-[10px] text-on-surface-variant/60">
-                          애플 대비 {entry.delta > 0 ? "−" : ""}{entry.delta.toFixed(1)}점
+                          애플 대비 {entry.delta >= 0 ? "+" : ""}{entry.delta.toFixed(1)}점
                         </div>
                       </div>
                       {s.signal.label && (

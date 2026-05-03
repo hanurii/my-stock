@@ -51,6 +51,14 @@ export interface MegacapBuySignal {
 export type MegacapMarket = "US" | "KR" | "JP" | "CN" | "EU" | "OTHER";
 export type MegacapCurrency = "USD" | "KRW" | "JPY" | "CNY" | "HKD" | "EUR" | "TWD" | "INR" | "GBP";
 
+export interface MegacapShareholderReturn {
+  buybacks_ttm: number;
+  dividends_ttm: number;
+  total_return_ttm: number;
+  yield_pct: number;
+  asOfDate: string | null;
+}
+
 export interface MegacapStock {
   ticker: string;
   name: string;
@@ -60,6 +68,7 @@ export interface MegacapStock {
   sector: string | null;
   metrics: MegacapMetrics;
   price_history: MegacapPriceHistory | null;
+  shareholder_return: MegacapShareholderReturn | null;
   scores: MegacapPillarScores;
   signal: MegacapBuySignal;
   is_buffett_candidate: boolean;

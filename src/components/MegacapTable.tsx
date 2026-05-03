@@ -274,8 +274,44 @@ function ExpandedDetail({ stock, fxScore }: { stock: MegacapStock; fxScore: numb
           <Metric label="매출 성장률" value={metrics.revenueGrowth != null ? formatPercent(metrics.revenueGrowth * 100) : "—"} />
           <Metric label="부채비율" value={metrics.debtToEquity != null ? `${metrics.debtToEquity.toFixed(0)}%` : "—"} />
           <Metric label="잉여현금수익률" value={fcfY != null ? `${fcfY.toFixed(2)}%` : "—"} />
+          <Metric label="총 주주환원율" value={stock.shareholder_return != null ? `${stock.shareholder_return.yield_pct.toFixed(2)}%` : "—"} />
         </div>
       </div>
+
+      {/* 주주환원 분해 */}
+      {stock.shareholder_return && (
+        <div>
+          <h4 className="text-xs uppercase tracking-wider text-on-surface-variant/60 mb-2">
+            주주환원 분해 (최근 회계연도)
+          </h4>
+          <div className="bg-surface-container/30 rounded-lg p-3 text-xs grid grid-cols-3 gap-3">
+            <div>
+              <div className="text-on-surface-variant/70">자사주매입</div>
+              <div className="font-mono font-medium text-on-surface mt-0.5">
+                {symbol}{(stock.shareholder_return.buybacks_ttm / 1e9).toFixed(1)}B
+              </div>
+            </div>
+            <div>
+              <div className="text-on-surface-variant/70">배당 지급</div>
+              <div className="font-mono font-medium text-on-surface mt-0.5">
+                {symbol}{(stock.shareholder_return.dividends_ttm / 1e9).toFixed(1)}B
+              </div>
+            </div>
+            <div>
+              <div className="text-on-surface-variant/70">총 환원율</div>
+              <div className="font-mono font-bold mt-0.5"
+                style={{ color: stock.shareholder_return.yield_pct >= 6 ? "#34d399" : stock.shareholder_return.yield_pct >= 3 ? "#fbbf24" : "#94a3b8" }}>
+                {stock.shareholder_return.yield_pct.toFixed(2)}%
+              </div>
+            </div>
+          </div>
+          {stock.shareholder_return.asOfDate && (
+            <div className="text-[10px] text-on-surface-variant/40 mt-1.5">
+              기준: {stock.shareholder_return.asOfDate}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* 5년 가격 위치 + 분할매수 트리거 */}
       <div className="grid sm:grid-cols-2 gap-4">
