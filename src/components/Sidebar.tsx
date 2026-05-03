@@ -12,7 +12,6 @@ const navItems = [
   { href: "/journal", label: "매매일지", icon: "history_edu" },
   { href: "/musings", label: "고민 한 스푼", icon: "psychology" },
   { href: "/discipline", label: "감정 다스리기", icon: "self_improvement" },
-  { href: "/calculator", label: "재무제표 계산기", icon: "calculate" },
   { href: "/bio", label: "바이오주 모니터링", icon: "biotech" },
   { href: "/bio/research", label: "바이오 7대 기준", icon: "science" },
 ];
