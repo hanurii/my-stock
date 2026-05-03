@@ -59,7 +59,8 @@ export function FXSignalBar({ rates }: Props) {
               {r.current.toLocaleString("ko-KR", { maximumFractionDigits: 2 })}
             </div>
             <div className="text-[10px] text-on-surface-variant/70">
-              z={r.z_score >= 0 ? "+" : ""}{r.z_score} | {r.pct_from_avg >= 0 ? "+" : ""}{r.pct_from_avg.toFixed(1)}%
+              5년평균比 {r.pct_from_avg >= 0 ? "+" : ""}{r.pct_from_avg.toFixed(1)}%
+              <span className="text-on-surface-variant/40"> · 편차 {r.z_score >= 0 ? "+" : ""}{r.z_score}σ</span>
             </div>
             <div className="text-[10px] text-on-surface-variant/70 mt-0.5">
               {r.fx_label.replace(" (외화 매수 최적)", "").replace(" (외화 매수 비추)", "")}

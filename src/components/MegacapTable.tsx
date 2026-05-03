@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import type { MegacapStock, MegacapFXData, MegacapMarket } from "@/lib/megacap";
 import { combinedScore, currencyToFXScore, formatMarketCap, formatPercent, marketLabel, currencyDisplay } from "@/lib/megacap";
 
@@ -127,8 +127,8 @@ export function MegacapTable({ stocks, fxData }: Props) {
         <SortBtn k="score" label="종목 점수" />
         <SortBtn k="marketCap" label="시총" />
         <SortBtn k="pe" label="PER" />
-        <SortBtn k="drawdown" label="드로다운" />
-        <SortBtn k="fcfYield" label="FCF Yield" />
+        <SortBtn k="drawdown" label="고점대비 하락률" />
+        <SortBtn k="fcfYield" label="잉여현금수익률" />
         <span className="text-xs text-on-surface-variant/40 ml-auto">{filtered.length}종목</span>
       </div>
 
@@ -143,10 +143,10 @@ export function MegacapTable({ stocks, fxData }: Props) {
                 <th className="text-left px-3 pb-3 pt-4 font-normal hidden md:table-cell">시장</th>
                 <th className="text-right px-3 pb-3 pt-4 font-normal hidden md:table-cell">시총</th>
                 <th className="text-right px-3 pb-3 pt-4 font-normal">PER</th>
-                <th className="text-right px-3 pb-3 pt-4 font-normal hidden lg:table-cell">FCF Yield</th>
-                <th className="text-right px-3 pb-3 pt-4 font-normal hidden lg:table-cell">드로다운</th>
+                <th className="text-right px-3 pb-3 pt-4 font-normal hidden lg:table-cell">현금수익률</th>
+                <th className="text-right px-3 pb-3 pt-4 font-normal hidden lg:table-cell">고점대비</th>
                 <th className="text-right px-3 pb-3 pt-4 font-normal">점수</th>
-                <th className="text-right px-3 pb-3 pt-4 font-normal hidden md:table-cell">FX</th>
+                <th className="text-right px-3 pb-3 pt-4 font-normal hidden md:table-cell">환율</th>
                 <th className="text-right px-3 pb-3 pt-4 font-normal">종합</th>
                 <th className="text-center px-3 pb-3 pt-4 font-normal">시그널</th>
               </tr>
@@ -161,9 +161,8 @@ export function MegacapTable({ stocks, fxData }: Props) {
                 const sigColor = signalColor(s.signal.label);
 
                 return (
-                  <>
+                  <Fragment key={s.ticker}>
                     <tr
-                      key={s.ticker}
                       onClick={() => toggleRow(s.ticker)}
                       className={`hover:bg-surface-container/30 transition-colors cursor-pointer ${
                         s.is_buffett_candidate ? "bg-primary/5" : ""
@@ -184,7 +183,7 @@ export function MegacapTable({ stocks, fxData }: Props) {
                         {s.metrics.trailingPE != null ? s.metrics.trailingPE.toFixed(1) : "—"}
                         {s.metrics.forwardPE != null && (
                           <div className="text-[10px] text-on-surface-variant/60">
-                            fwd {s.metrics.forwardPE.toFixed(1)}
+                            예상 {s.metrics.forwardPE.toFixed(1)}
                           </div>
                         )}
                       </td>
@@ -223,13 +222,13 @@ export function MegacapTable({ stocks, fxData }: Props) {
                       </td>
                     </tr>
                     {isExpanded && (
-                      <tr key={`${s.ticker}-detail`} className="bg-surface-container/20">
+                      <tr className="bg-surface-container/20">
                         <td colSpan={11} className="px-6 py-4">
                           <ExpandedDetail stock={s} fxScore={fxScore} />
                         </td>
                       </tr>
                     )}
-                  </>
+                  </Fragment>
                 );
               })}
             </tbody>
@@ -264,17 +263,17 @@ function ExpandedDetail({ stock, fxScore }: { stock: MegacapStock; fxScore: numb
         <h4 className="text-xs uppercase tracking-wider text-on-surface-variant/60 mb-2">핵심 지표</h4>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
           <Metric label="현재가" value={metrics.regularMarketPrice != null ? `${symbol}${metrics.regularMarketPrice.toLocaleString()}` : "—"} />
-          <Metric label="ROE" value={metrics.returnOnEquity != null ? `${(metrics.returnOnEquity * 100).toFixed(1)}%` : "—"} />
+          <Metric label="자기자본이익률(ROE)" value={metrics.returnOnEquity != null ? `${(metrics.returnOnEquity * 100).toFixed(1)}%` : "—"} />
           <Metric label="영업이익률" value={metrics.operatingMargins != null ? `${(metrics.operatingMargins * 100).toFixed(1)}%` : "—"} />
           <Metric label="순이익률" value={metrics.profitMargins != null ? `${(metrics.profitMargins * 100).toFixed(1)}%` : "—"} />
-          <Metric label="EV/EBITDA" value={metrics.enterpriseToEbitda != null ? metrics.enterpriseToEbitda.toFixed(1) : "—"} />
-          <Metric label="P/B" value={metrics.priceToBook != null ? metrics.priceToBook.toFixed(1) : "—"} />
+          <Metric label="기업가치/EBITDA" value={metrics.enterpriseToEbitda != null ? metrics.enterpriseToEbitda.toFixed(1) : "—"} />
+          <Metric label="주가순자산비율(PBR)" value={metrics.priceToBook != null ? metrics.priceToBook.toFixed(1) : "—"} />
           <Metric label="배당수익률" value={metrics.dividendYield != null ? `${(metrics.dividendYield * 100).toFixed(2)}%` : "—"} />
           <Metric label="배당성향" value={metrics.payoutRatio != null ? `${(metrics.payoutRatio * 100).toFixed(0)}%` : "—"} />
-          <Metric label="EPS 성장률" value={metrics.earningsGrowth != null ? formatPercent(metrics.earningsGrowth * 100) : "—"} />
+          <Metric label="주당순이익 성장률" value={metrics.earningsGrowth != null ? formatPercent(metrics.earningsGrowth * 100) : "—"} />
           <Metric label="매출 성장률" value={metrics.revenueGrowth != null ? formatPercent(metrics.revenueGrowth * 100) : "—"} />
-          <Metric label="부채/자본" value={metrics.debtToEquity != null ? `${metrics.debtToEquity.toFixed(0)}%` : "—"} />
-          <Metric label="FCF Yield" value={fcfY != null ? `${fcfY.toFixed(2)}%` : "—"} />
+          <Metric label="부채비율" value={metrics.debtToEquity != null ? `${metrics.debtToEquity.toFixed(0)}%` : "—"} />
+          <Metric label="잉여현금수익률" value={fcfY != null ? `${fcfY.toFixed(2)}%` : "—"} />
         </div>
       </div>
 
@@ -315,11 +314,11 @@ function ExpandedDetail({ stock, fxScore }: { stock: MegacapStock; fxScore: numb
         <div>
           <h4 className="text-xs uppercase tracking-wider text-on-surface-variant/60 mb-2">분할매수 트리거 ({signal.triggers_met}/3)</h4>
           <div className="bg-surface-container/30 rounded-lg p-3 text-xs space-y-1.5">
-            <Trigger met={signal.pe_below_avg} label="Forward PER < Trailing × 0.85 (실적 개선)" />
-            <Trigger met={signal.drawdown_20} label="52주 고점 대비 -20% 이상 하락" />
-            <Trigger met={signal.fcf_yield_high} label="FCF Yield ≥ 5%" />
+            <Trigger met={signal.pe_below_avg} label="향후 12개월 예상 PER이 현재 PER보다 15%↑ 낮음 (실적 개선 신호)" />
+            <Trigger met={signal.drawdown_20} label="52주 신고가 대비 -20% 이상 하락" />
+            <Trigger met={signal.fcf_yield_high} label="잉여현금수익률 ≥ 5% (시총 대비 충분한 현금 창출)" />
             <div className="pt-1.5 mt-1.5 border-t border-on-surface-variant/10 text-on-surface-variant">
-              FX 가산점: <span className={fxScore > 0 ? "text-emerald-400 font-bold" : fxScore < 0 ? "text-orange-400 font-bold" : ""}>
+              환율 가산점: <span className={fxScore > 0 ? "text-emerald-400 font-bold" : fxScore < 0 ? "text-orange-400 font-bold" : ""}>
                 {fxScore >= 0 ? "+" : ""}{fxScore}점
               </span>
               {" "}({stock.currency} 기준)

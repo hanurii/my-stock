@@ -3,6 +3,7 @@ import { getMegacapData, getMegacapFXData } from "@/lib/megacap-data";
 import { FXSignalBar } from "@/components/FXSignalBar";
 import { MegacapTable } from "@/components/MegacapTable";
 import { PillarCard } from "@/components/PillarCard";
+import { GlossarySection } from "@/components/GlossarySection";
 
 export const dynamic = "force-static";
 export const revalidate = false;
@@ -59,7 +60,7 @@ export default async function MegacapPage() {
           <h3 className="text-xl font-serif text-on-surface tracking-tight">통화별 환율 시그널</h3>
         </div>
         <p className="text-sm text-on-surface-variant mb-4">
-          5년 평균 환율 대비 z-score · 원화 강세(녹색) = 외화 종목 매수 유리 · 원화 약세(주황) = 환차손 위험
+          5년 평균 환율 대비 현재 위치 · 원화 강세(녹색) = 외화 종목 매수 유리 · 원화 약세(주황) = 환차손 위험
         </p>
         {fxData ? (
           <FXSignalBar rates={fxData.rates} />
@@ -78,7 +79,7 @@ export default async function MegacapPage() {
             <h3 className="text-xl font-serif text-on-surface tracking-tight">지금 매수 시그널이 켜진 종목</h3>
           </div>
           <p className="text-sm text-on-surface-variant mb-4">
-            종목 점수 + FX 점수 종합 상위 {buyTriggered.length}개. 분할매수 검토용.
+            종목 점수 + 환율 점수 종합 상위 {buyTriggered.length}개. 분할매수 검토용.
           </p>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {buyTriggered.map((s) => {
@@ -113,7 +114,7 @@ export default async function MegacapPage() {
                   <div className="flex items-center justify-between mt-3 pt-3 border-t border-on-surface-variant/10">
                     <div className="text-[10px] text-on-surface-variant">
                       종목 <span className="font-mono font-bold text-on-surface">{s.scores.total.toFixed(0)}</span>
-                      {" + FX "}
+                      {" + 환율 "}
                       <span className="font-mono font-bold" style={{ color: fxScore > 0 ? "#34d399" : fxScore < 0 ? "#fb923c" : "#94a3b8" }}>
                         {fxScore >= 0 ? "+" : ""}{fxScore}
                       </span>
@@ -189,11 +190,11 @@ export default async function MegacapPage() {
                 question="번 돈을 잘 굴려서 성장하고 있는가?"
                 color="#34d399"
                 metrics={[
-                  { label: "잉여현금흐름 수익률(FCF Yield) ≥6% (10점)", plain: "시가총액 대비 매년 통장에 진짜 들어오는 현금이 6% 이상" },
-                  { label: "주당순이익(EPS) 성장률 ≥15% (5점)", plain: "1주당 이익이 매년 15% 이상 성장 (작년 1,000원 → 올해 1,150원)" },
+                  { label: "잉여현금수익률 ≥6% (10점)", plain: "시가총액 대비 매년 통장에 진짜 들어오는 현금이 6% 이상" },
+                  { label: "주당순이익 성장률 ≥15% (5점)", plain: "1주당 이익이 매년 15% 이상 성장 (작년 1,000원 → 올해 1,150원)" },
                   { label: "매출 성장률 ≥10% (5점)", plain: "회사 자체가 매년 10% 이상 커지고 있는가" },
                 ]}
-                analogy="식당 인수가가 5억인데 매년 진짜 통장에 3,000만원 쌓이면 6% (월세 받는 셈). 좋은 기업은 번 돈으로 자사주 매입·재투자해서 EPS와 매출이 꾸준히 늘어납니다."
+                analogy="식당 인수가가 5억인데 매년 진짜 통장에 3,000만원 쌓이면 6% (월세 받는 셈). 좋은 기업은 번 돈으로 자사주 매입·재투자해서 주당순이익과 매출이 꾸준히 늘어납니다."
               />
               <PillarCard
                 title="가격 매력"
@@ -203,8 +204,8 @@ export default async function MegacapPage() {
                 color="#fbbf24"
                 metrics={[
                   { label: "주가수익비율(PER) ≤10 (10점)", plain: "현재 이익으로 본전 뽑는데 10년 이하면 만점 — 싸게 사는 셈" },
-                  { label: "잉여현금흐름 수익률(FCF Yield) ≥6% (5점)", plain: "자본 운용력과 같은 지표지만, 가격 관점에서 한 번 더 평가" },
-                  { label: "52주 고점 대비 −30% 이상 하락 (5점)", plain: "최근 1년 신고가 대비 30% 이상 빠졌으면 만점 — 버핏의 '두려울 때 사라'" },
+                  { label: "잉여현금수익률 ≥6% (5점)", plain: "자본 운용력과 같은 지표지만, 가격 관점에서 한 번 더 평가" },
+                  { label: "52주 신고가 대비 −30% 이상 하락 (5점)", plain: "최근 1년 신고가 대비 30% 이상 빠졌으면 만점 — 버핏의 '두려울 때 사라'" },
                 ]}
                 analogy="작년 50억에 거래되던 식당이 갑자기 35억 매물로 나오면 → 같은 가게를 30% 싸게 사는 셈입니다. 좋은 회사라도 비싸게 사면 안 좋은 투자가 되기에, 가격 매력을 따로 점수화합니다."
               />
@@ -214,35 +215,38 @@ export default async function MegacapPage() {
           <div>
             <h4 className="text-base font-bold text-on-surface mb-2">상관관계 흐름도</h4>
             <pre className="bg-surface-container/30 rounded-lg p-4 text-[11px] text-on-surface-variant whitespace-pre overflow-x-auto leading-relaxed">
-{`[원화 강세 (z<-0.5)] ───────────┐
-                                ↓
-[종목 점수 ≥ 70 (버핏 후보)] + [FX 점수 +10~+20]
-                                ↓
-                    [종합 점수 80~120]
-                                ↓
-            [분할매수 트리거 2~3개 충족 확인]
-                ├─ Forward PER < Trailing × 0.85 (실적 개선)
-                ├─ 52w 고점 대비 -20% 이상 (일시적 우려)
-                └─ FCF Yield > 5% (현금 생성력 입증)
-                                ↓
-                    [🟢 분할매수 적기]
+{`[원화 강세 (5년 평균보다 충분히 낮음)] ────────┐
+                                              ↓
+[종목 점수 ≥ 70 (버핏 후보)] + [환율 점수 +10~+20]
+                                              ↓
+                          [종합 점수 80~120]
+                                              ↓
+                  [분할매수 트리거 2~3개 충족 확인]
+                      ├─ 향후 12개월 예상 PER이 현재보다 15%↑ 낮음 (실적 개선)
+                      ├─ 52주 신고가 대비 -20% 이상 (일시적 우려로 저평가)
+                      └─ 잉여현금수익률 > 5% (시총 대비 현금 창출력 입증)
+                                              ↓
+                          [🟢 분할매수 적기]
 
-[원화 약세 (z>0.5)] → 외화 종목 [FX -10~-20] → 종합점수 하락
-                  → 한국 종목 (FX 영향 0)에 우선 배분 권장
+[원화 약세] → 외화 종목 [환율 -10~-20] → 종합점수 하락
+           → 한국 종목 (환율 영향 0)에 우선 배분 권장
 `}
             </pre>
           </div>
 
           <div>
-            <h4 className="text-base font-bold text-on-surface mb-2">분할매수 트리거 (3개 중 2개 이상)</h4>
+            <h4 className="text-base font-bold text-on-surface mb-2">분할매수 트리거 (3개 중 2개 이상이면 시그널 점등)</h4>
             <ul className="text-xs text-on-surface-variant space-y-1 ml-3 list-disc">
-              <li><strong>Forward PER &lt; Trailing × 0.85</strong>: 향후 12개월 EPS가 빠르게 개선될 것으로 컨센서스 형성</li>
-              <li><strong>52주 고점 대비 -20% 이상</strong>: 일시적 우려로 우량주가 저평가된 구간 (버핏 애플 매입 시 패턴)</li>
-              <li><strong>FCF Yield ≥ 5%</strong>: 시총 대비 잉여현금흐름이 충분 — 자사주매입·배당·재투자 여력 확보</li>
+              <li><strong>향후 12개월 예상 PER &lt; 현재 PER × 0.85</strong>: 시장 전망상 향후 1년간 1주당 이익이 빠르게 개선될 것으로 컨센서스 형성</li>
+              <li><strong>52주 신고가 대비 -20% 이상 하락</strong>: 일시적 우려로 우량주가 저평가된 구간 (버핏 애플 매입 시 패턴)</li>
+              <li><strong>잉여현금수익률 ≥ 5%</strong>: 시가총액 대비 매년 통장에 들어오는 진짜 현금이 5% 이상 — 자사주매입·배당·재투자 여력 확보</li>
             </ul>
           </div>
         </div>
       </section>
+
+      {/* Glossary */}
+      <GlossarySection />
 
       {/* Disclaimer */}
       <section className="bg-surface-container-low rounded-xl p-6 ghost-border">
@@ -254,8 +258,8 @@ export default async function MegacapPage() {
               유니버스는 시장별 시총 상위 자동 선정 (US 50 / KR 15 / JP 15 / CN 10 / EU 5 / 기타 5).
             </p>
             <p>
-              5년 평균 환율 대비 z-score, 버핏 4단계 기업 평가, 분할매수 트리거 모두 자동 산정 결과이며,
-              일부 신흥국 종목은 EBITDA·FCF 데이터가 누락되어 점수가 낮게 나올 수 있습니다.
+              5년 평균 환율 대비 편차, 버핏 4단계 기업 평가, 분할매수 트리거 모두 자동 산정 결과이며,
+              일부 신흥국 종목은 영업현금·잉여현금 데이터가 누락되어 점수가 낮게 나올 수 있습니다.
             </p>
             <p className="text-xs text-on-surface-variant/60">
               본 페이지는 학습·기록용이며 투자 조언이 아닙니다. 실제 매수 전 재무제표 확정 공시 및 사업보고서를 직접 확인하세요.
