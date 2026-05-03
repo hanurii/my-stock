@@ -4,6 +4,7 @@ import { FXSignalBar } from "@/components/FXSignalBar";
 import { MegacapTable } from "@/components/MegacapTable";
 import { PillarCard } from "@/components/PillarCard";
 import { GlossarySection } from "@/components/GlossarySection";
+import { BuffettBenchmarkCard } from "@/components/BuffettBenchmarkCard";
 
 export const dynamic = "force-static";
 export const revalidate = false;
@@ -130,11 +131,14 @@ export default async function MegacapPage() {
         </section>
       )}
 
+      {/* Buffett Benchmark Card */}
+      <BuffettBenchmarkCard stocks={data.stocks} />
+
       {/* Full Table */}
       <section>
         <div className="flex items-center gap-3 mb-4">
           <span className="material-symbols-outlined text-primary text-xl">table_view</span>
-          <h3 className="text-xl font-serif text-on-surface tracking-tight">전체 메가캡 100종목</h3>
+          <h3 className="text-xl font-serif text-on-surface tracking-tight">전체 메가캡 종목</h3>
         </div>
         <p className="text-sm text-on-surface-variant mb-4">
           행을 클릭하면 4단계 평가 점수 분해 + 핵심 지표 + 5년 가격 위치 + 분할매수 트리거 상세를 펼칩니다.
