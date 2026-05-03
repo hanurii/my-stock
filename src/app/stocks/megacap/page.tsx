@@ -30,7 +30,19 @@ export default async function MegacapPage() {
     );
   }
 
-  const buyTriggered = data.stocks
+  // 배당주 필터 — 사용자 전략(배당주 80% + 성장주 20%)에 부합하지 않는 비배당주 제외
+  // 기준: 배당수익률 ≥ 2%. 자사주매입만으로 환원하는 종목(어도비 등)은 제외됨.
+  const DIVIDEND_THRESHOLD = 0.02;
+  const dividendStocks = data.stocks.filter(
+    (s) => s.metrics.dividendYield != null && s.metrics.dividendYield >= DIVIDEND_THRESHOLD,
+  );
+  const excludedCount = data.stocks.length - dividendStocks.length;
+  const buffettCandidatesFiltered = dividendStocks.filter((s) => s.is_buffett_candidate).length;
+  const signalFiltered = dividendStocks.filter(
+    (s) => s.signal.label === "강한 매수" || s.signal.label === "매수 검토",
+  ).length;
+
+  const buyTriggered = dividendStocks
     .filter((s) => s.signal.label === "강한 매수" || s.signal.label === "매수 검토")
     .sort((a, b) => combinedScore(b, fxData) - combinedScore(a, fxData))
     .slice(0, 12);
@@ -46,12 +58,20 @@ export default async function MegacapPage() {
           메가캡 우량주 모니터
         </h2>
         <p className="text-base text-on-surface-variant mt-2">
-          글로벌 메가캡 {data.total_selected}종목 · 버핏 후보 {data.buffett_candidates_count}개 · 매수 시그널 {data.signal_count}개
+          배당주 {dividendStocks.length}종목 · 버핏 후보 {buffettCandidatesFiltered}개 · 매수 시그널 {signalFiltered}개
         </p>
         <p className="text-xs text-on-surface-variant/50 mt-1.5">
           기준일: {formatDate(data.generated_at)} ·{" "}
           {Object.entries(data.market_breakdown).map(([m, n]) => `${m} ${n}`).join(" / ")}
         </p>
+        <div className="mt-3 inline-flex items-start gap-2 px-3 py-2 rounded-lg bg-amber-400/10 border border-amber-400/20 text-xs">
+          <span className="material-symbols-outlined text-amber-400 text-base mt-0.5">filter_alt</span>
+          <span className="text-on-surface-variant">
+            <span className="text-amber-400 font-medium">배당주 모드</span> — 배당수익률 ≥ 2% 종목만 표시 (자사주매입만 하는 비배당주 {excludedCount}개 제외).
+            <br />
+            <span className="text-on-surface-variant/60">사용자님의 "배당주 80%" 전략에 부합하지 않는 종목은 점수가 높아도 표시되지 않습니다.</span>
+          </span>
+        </div>
       </section>
 
       {/* FX Signal Bar */}
@@ -80,7 +100,7 @@ export default async function MegacapPage() {
             <h3 className="text-xl font-serif text-on-surface tracking-tight">지금 매수 시그널이 켜진 종목</h3>
           </div>
           <p className="text-sm text-on-surface-variant mb-4">
-            종목 점수 + 환율 점수 종합 상위 {buyTriggered.length}개. 분할매수 검토용.
+            배당주 중 종목 점수 + 환율 점수 종합 상위 {buyTriggered.length}개. 분할매수 검토용.
           </p>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {buyTriggered.map((s) => {
@@ -132,7 +152,7 @@ export default async function MegacapPage() {
       )}
 
       {/* Buffett Benchmark Card */}
-      <BuffettBenchmarkCard stocks={data.stocks} />
+      <BuffettBenchmarkCard stocks={dividendStocks} />
 
       {/* Full Table */}
       <section>
@@ -143,7 +163,7 @@ export default async function MegacapPage() {
         <p className="text-sm text-on-surface-variant mb-4">
           행을 클릭하면 4단계 평가 점수 분해 + 핵심 지표 + 5년 가격 위치 + 분할매수 트리거 상세를 펼칩니다.
         </p>
-        <MegacapTable stocks={data.stocks} fxData={fxData} />
+        <MegacapTable stocks={dividendStocks} fxData={fxData} />
       </section>
 
       {/* Methodology + 상관관계 흐름도 */}
