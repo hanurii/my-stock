@@ -153,7 +153,7 @@ export function PortfolioStrategyFeedback({
     const excess = stock.weightPct - SINGLE_STOCK_LIMIT_PCT;
     const trimAmount = (excess / 100) * totalEval;
     recommendations.push(
-      `${stock.name} 비중을 ${SINGLE_STOCK_LIMIT_PCT}% 이하로 트리밍 (약 ${formatMoney(trimAmount)}원 매도 시 비중 ${SINGLE_STOCK_LIMIT_PCT}% 도달)`,
+      `${stock.name} 비중을 ${SINGLE_STOCK_LIMIT_PCT}% 이하로 축소 (약 ${formatMoney(trimAmount)}원 일부 매도 시 비중 ${SINGLE_STOCK_LIMIT_PCT}% 도달)`,
     );
   }
   if (dividendDeviation < -10) {
@@ -216,7 +216,7 @@ export function PortfolioStrategyFeedback({
       <div className="flex items-start justify-between gap-4 mb-6 flex-wrap">
         <div>
           <p className="text-[10px] uppercase tracking-[0.2em] text-primary-dim/60 mb-1.5">
-            Strategy Check
+            전략 점검
           </p>
           <h4 className="text-xl font-serif text-on-surface tracking-tight">
             포트폴리오 전략 점검
