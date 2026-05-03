@@ -5,6 +5,7 @@ import { MegacapTable } from "@/components/MegacapTable";
 import { PillarCard } from "@/components/PillarCard";
 import { GlossarySection } from "@/components/GlossarySection";
 import { BuffettBenchmarkCard } from "@/components/BuffettBenchmarkCard";
+import { ReturnMachineCards } from "@/components/ReturnMachineCards";
 
 export const dynamic = "force-static";
 export const revalidate = false;
@@ -150,6 +151,17 @@ export default async function MegacapPage() {
           </div>
         </section>
       )}
+
+      {/* Return Machine Top 10 (애플식 환원 머신) */}
+      <section>
+        <div className="flex items-center gap-3 mb-4">
+          <span className="material-symbols-outlined text-emerald-400 text-xl">savings</span>
+          <h3 className="text-xl font-serif text-on-surface tracking-tight">
+            애플식 환원 머신 Top 10
+          </h3>
+        </div>
+        <ReturnMachineCards stocks={dividendStocks} />
+      </section>
 
       {/* Buffett Benchmark Card */}
       <BuffettBenchmarkCard stocks={dividendStocks} />

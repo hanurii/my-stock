@@ -49,7 +49,7 @@ export interface MegacapBuySignal {
 }
 
 export type MegacapMarket = "US" | "KR" | "JP" | "CN" | "EU" | "OTHER";
-export type MegacapCurrency = "USD" | "KRW" | "JPY" | "CNY" | "HKD" | "EUR" | "TWD" | "INR" | "GBP";
+export type MegacapCurrency = "USD" | "KRW" | "JPY" | "CNY" | "HKD" | "EUR" | "TWD" | "INR" | "GBP" | "BRL" | "MXN" | "AUD" | "CAD" | "SGD";
 
 export interface MegacapShareholderReturn {
   buybacks_ttm: number;
@@ -126,7 +126,7 @@ export function combinedScore(stock: MegacapStock, fxData: MegacapFXData | null)
 export function formatMarketCap(amount: number | null, currency: MegacapCurrency): string {
   if (amount == null) return "—";
   const symbol = currencyDisplay(currency);
-  if (currency === "KRW" || currency === "JPY") {
+  if (currency === "KRW" || currency === "JPY" || currency === "CNY") {
     if (amount >= 1e12) return `${symbol}${(amount / 1e12).toFixed(1)}조`;
     if (amount >= 1e8) return `${symbol}${(amount / 1e8).toFixed(0)}억`;
     return `${symbol}${amount.toLocaleString()}`;
@@ -148,6 +148,11 @@ export function currencyDisplay(currency: MegacapCurrency): string {
     TWD: "NT$",
     INR: "₹",
     GBP: "£",
+    BRL: "R$",
+    MXN: "Mex$",
+    AUD: "A$",
+    CAD: "C$",
+    SGD: "S$",
   }[currency];
 }
 

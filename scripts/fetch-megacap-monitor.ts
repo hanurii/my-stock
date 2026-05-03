@@ -482,6 +482,11 @@ const ROUGH_USD_RATE: Record<string, number> = {
   TWD: 1 / 32,
   INR: 1 / 84,
   GBP: 1.27,
+  BRL: 1 / 5.0,
+  MXN: 1 / 17,
+  AUD: 1 / 1.5,
+  CAD: 1 / 1.4,
+  SGD: 1 / 1.35,
 };
 
 function marketCapInUSD(marketCap: number | null, currency: UniverseCandidate["currency"]): number {

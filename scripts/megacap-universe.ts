@@ -9,7 +9,7 @@ export interface UniverseCandidate {
   ticker: string;        // Yahoo Finance 티커
   name_kr: string;       // 한국어 표시명
   market: "US" | "KR" | "JP" | "CN" | "EU" | "OTHER";
-  currency: "USD" | "KRW" | "JPY" | "CNY" | "HKD" | "EUR" | "TWD" | "INR" | "GBP";
+  currency: "USD" | "KRW" | "JPY" | "CNY" | "HKD" | "EUR" | "TWD" | "INR" | "GBP" | "BRL" | "MXN" | "AUD" | "CAD" | "SGD";
   sector?: string;       // 대분류 섹터
 }
 
@@ -596,13 +596,13 @@ const OTHER: UniverseCandidate[] = [
   { ticker: "SUNPHARMA.NS", name_kr: "선파마", market: "OTHER", currency: "INR", sector: "Healthcare" },
   { ticker: "NTPC.NS", name_kr: "NTPC", market: "OTHER", currency: "INR", sector: "Utilities" },
   { ticker: "WIPRO.NS", name_kr: "위프로", market: "OTHER", currency: "INR", sector: "Technology" },
-  { ticker: "PETR4.SA", name_kr: "페트로브라스", market: "OTHER", currency: "USD", sector: "Energy" },
-  { ticker: "VALE3.SA", name_kr: "발레(브라질)", market: "OTHER", currency: "USD", sector: "Materials" },
-  { ticker: "BBAS3.SA", name_kr: "방코두브라질", market: "OTHER", currency: "USD", sector: "Financials" },
-  { ticker: "CMIG4.SA", name_kr: "세미그", market: "OTHER", currency: "USD", sector: "Utilities" },
-  { ticker: "GMEXICOB.MX", name_kr: "그루포멕시코", market: "OTHER", currency: "USD", sector: "Materials" },
+  { ticker: "PETR4.SA", name_kr: "페트로브라스", market: "OTHER", currency: "BRL", sector: "Energy" },
+  { ticker: "VALE3.SA", name_kr: "발레(브라질)", market: "OTHER", currency: "BRL", sector: "Materials" },
+  { ticker: "BBAS3.SA", name_kr: "방코두브라질", market: "OTHER", currency: "BRL", sector: "Financials" },
+  { ticker: "CMIG4.SA", name_kr: "세미그", market: "OTHER", currency: "BRL", sector: "Utilities" },
+  { ticker: "GMEXICOB.MX", name_kr: "그루포멕시코", market: "OTHER", currency: "MXN", sector: "Materials" },
   { ticker: "CX", name_kr: "세멕스", market: "OTHER", currency: "USD", sector: "Materials" },
-  { ticker: "WALMEX.MX", name_kr: "월마트멕시코", market: "OTHER", currency: "USD", sector: "Consumer Staples" },
+  { ticker: "WALMEX.MX", name_kr: "월마트멕시코", market: "OTHER", currency: "MXN", sector: "Consumer Staples" },
   { ticker: "BBD", name_kr: "방코브라데스코(ADR)", market: "OTHER", currency: "USD", sector: "Financials" },
   { ticker: "ABEV", name_kr: "암베브(ADR)", market: "OTHER", currency: "USD", sector: "Consumer Staples" },
   { ticker: "TM", name_kr: "토요타(ADR)", market: "OTHER", currency: "USD", sector: "Consumer Discretionary" },
@@ -610,16 +610,16 @@ const OTHER: UniverseCandidate[] = [
   { ticker: "SE", name_kr: "씨(Sea Limited)", market: "OTHER", currency: "USD", sector: "Communication" },
   { ticker: "GRAB", name_kr: "그랩홀딩스", market: "OTHER", currency: "USD", sector: "Consumer Discretionary" },
   { ticker: "DBSDF", name_kr: "DBS그룹(ADR)", market: "OTHER", currency: "USD", sector: "Financials" },
-  { ticker: "D05.SI", name_kr: "DBS그룹", market: "OTHER", currency: "USD", sector: "Financials" },
-  { ticker: "MS-A.AX", name_kr: "BHP호주", market: "OTHER", currency: "USD", sector: "Materials" },
-  { ticker: "CBA.AX", name_kr: "CBA은행", market: "OTHER", currency: "USD", sector: "Financials" },
-  { ticker: "CSL.AX", name_kr: "CSL", market: "OTHER", currency: "USD", sector: "Healthcare" },
-  { ticker: "WBC.AX", name_kr: "웨스트팩", market: "OTHER", currency: "USD", sector: "Financials" },
-  { ticker: "SHOP.TO", name_kr: "쇼피파이(캐나다)", market: "OTHER", currency: "USD", sector: "Technology" },
-  { ticker: "RY.TO", name_kr: "캐나다왕립은행", market: "OTHER", currency: "USD", sector: "Financials" },
-  { ticker: "TD.TO", name_kr: "토론토도미니언", market: "OTHER", currency: "USD", sector: "Financials" },
-  { ticker: "ENB.TO", name_kr: "엔브리지", market: "OTHER", currency: "USD", sector: "Energy" },
-  { ticker: "CNQ.TO", name_kr: "캐내디언내추럴리소시스", market: "OTHER", currency: "USD", sector: "Energy" },
+  { ticker: "D05.SI", name_kr: "DBS그룹", market: "OTHER", currency: "SGD", sector: "Financials" },
+  { ticker: "BHP.AX", name_kr: "BHP호주", market: "OTHER", currency: "AUD", sector: "Materials" },
+  { ticker: "CBA.AX", name_kr: "CBA은행", market: "OTHER", currency: "AUD", sector: "Financials" },
+  { ticker: "CSL.AX", name_kr: "CSL", market: "OTHER", currency: "AUD", sector: "Healthcare" },
+  { ticker: "WBC.AX", name_kr: "웨스트팩", market: "OTHER", currency: "AUD", sector: "Financials" },
+  { ticker: "SHOP.TO", name_kr: "쇼피파이(캐나다)", market: "OTHER", currency: "CAD", sector: "Technology" },
+  { ticker: "RY.TO", name_kr: "캐나다왕립은행", market: "OTHER", currency: "CAD", sector: "Financials" },
+  { ticker: "TD.TO", name_kr: "토론토도미니언", market: "OTHER", currency: "CAD", sector: "Financials" },
+  { ticker: "ENB.TO", name_kr: "엔브리지", market: "OTHER", currency: "CAD", sector: "Energy" },
+  { ticker: "CNQ.TO", name_kr: "캐내디언내추럴리소시스", market: "OTHER", currency: "CAD", sector: "Energy" },
 ];
 
 export const UNIVERSE_CANDIDATES: UniverseCandidate[] = [...US, ...KR, ...JP, ...CN, ...EU, ...OTHER];
