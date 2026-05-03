@@ -250,12 +250,12 @@ function ExpandedDetail({ stock, fxScore }: { stock: MegacapStock; fxScore: numb
     <div className="space-y-4">
       {/* 점수 분해 */}
       <div>
-        <h4 className="text-xs uppercase tracking-wider text-on-surface-variant/60 mb-2">4-Pillar 점수 분해</h4>
+        <h4 className="text-xs uppercase tracking-wider text-on-surface-variant/60 mb-2">기둥별 점수 분해 (총 100점)</h4>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-          <ScoreBar label="Quality" value={scores.quality} max={40} color="#6ea8fe" />
-          <ScoreBar label="Moat" value={scores.moat} max={20} color="#c084fc" />
-          <ScoreBar label="Capital" value={scores.capital} max={20} color="#34d399" />
-          <ScoreBar label="Valuation" value={scores.valuation} max={20} color="#fbbf24" />
+          <ScoreBar label="사업 실력" value={scores.quality} max={40} color="#6ea8fe" />
+          <ScoreBar label="경제적 해자" value={scores.moat} max={20} color="#c084fc" />
+          <ScoreBar label="자본 운용력" value={scores.capital} max={20} color="#34d399" />
+          <ScoreBar label="가격 매력" value={scores.valuation} max={20} color="#fbbf24" />
         </div>
       </div>
 

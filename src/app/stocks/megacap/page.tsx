@@ -2,6 +2,7 @@ import { combinedScore, currencyToFXScore, marketLabel, formatMarketCap } from "
 import { getMegacapData, getMegacapFXData } from "@/lib/megacap-data";
 import { FXSignalBar } from "@/components/FXSignalBar";
 import { MegacapTable } from "@/components/MegacapTable";
+import { PillarCard } from "@/components/PillarCard";
 
 export const dynamic = "force-static";
 export const revalidate = false;
@@ -135,7 +136,7 @@ export default async function MegacapPage() {
           <h3 className="text-xl font-serif text-on-surface tracking-tight">전체 메가캡 100종목</h3>
         </div>
         <p className="text-sm text-on-surface-variant mb-4">
-          행을 클릭하면 4-Pillar 점수 분해 + 핵심 지표 + 5년 가격 위치 + 분할매수 트리거 상세를 펼칩니다.
+          행을 클릭하면 4단계 평가 점수 분해 + 핵심 지표 + 5년 가격 위치 + 분할매수 트리거 상세를 펼칩니다.
         </p>
         <MegacapTable stocks={data.stocks} fxData={fxData} />
       </section>
@@ -149,39 +150,64 @@ export default async function MegacapPage() {
 
         <div className="space-y-4 text-sm">
           <div>
-            <h4 className="text-base font-bold text-on-surface mb-2">버핏 4-Pillar 스코어카드 (100점)</h4>
-            <div className="grid sm:grid-cols-2 gap-3 text-xs">
-              <div className="bg-surface-container/30 rounded-lg p-3">
-                <div className="font-bold text-on-surface mb-1">Quality (40점) — 사업 본질의 우수성</div>
-                <ul className="text-on-surface-variant space-y-0.5 ml-3 list-disc">
-                  <li>ROE: ≥20% 만점, 15% 75%pt, 10% 50%pt</li>
-                  <li>영업이익률, 순이익률 (각 10점)</li>
-                  <li>부채/자본: ≤50% 만점</li>
-                </ul>
-              </div>
-              <div className="bg-surface-container/30 rounded-lg p-3">
-                <div className="font-bold text-on-surface mb-1">Moat (20점) — 해자(경쟁우위)</div>
-                <ul className="text-on-surface-variant space-y-0.5 ml-3 list-disc">
-                  <li>영업이익률 절대치 ≥15% (해자 증명)</li>
-                  <li>EV/EBITDA ≤ 20</li>
-                  <li>P/B 적정성</li>
-                </ul>
-              </div>
-              <div className="bg-surface-container/30 rounded-lg p-3">
-                <div className="font-bold text-on-surface mb-1">Capital (20점) — 자본 효율 + 성장</div>
-                <ul className="text-on-surface-variant space-y-0.5 ml-3 list-disc">
-                  <li>FCF Yield (FCF/시총)</li>
-                  <li>EPS 성장률, 매출 성장률</li>
-                </ul>
-              </div>
-              <div className="bg-surface-container/30 rounded-lg p-3">
-                <div className="font-bold text-on-surface mb-1">Valuation (20점) — 가격 매력</div>
-                <ul className="text-on-surface-variant space-y-0.5 ml-3 list-disc">
-                  <li>Trailing PER 절대 수준</li>
-                  <li>FCF Yield (밸류 관점)</li>
-                  <li>52주 고점 대비 드로다운</li>
-                </ul>
-              </div>
+            <h4 className="text-base font-bold text-on-surface mb-1">버핏의 4단계 기업 평가 (총 100점)</h4>
+            <p className="text-xs text-on-surface-variant/70 mb-3">
+              "식당 한 곳을 통째로 인수한다면 무엇을 보겠는가?" — 워런 버핏이 60년간 기업을 평가해온 4가지 기둥(pillar)을 점수화한 것입니다. 카드를 클릭하면 풀어쓴 설명을 펼칩니다.
+            </p>
+            <div className="space-y-2">
+              <PillarCard
+                title="사업 실력"
+                subtitle="Quality"
+                points={40}
+                question="회사가 진짜로 돈을 잘 버는가?"
+                color="#6ea8fe"
+                metrics={[
+                  { label: "자기자본이익률(ROE) ≥20% (15점)", plain: "내 돈 100만원으로 1년에 20만원 이상 벌면 만점 — 자본 활용 능력" },
+                  { label: "영업이익률 ≥25% (10점)", plain: "매출 1,000원 중 본업으로 250원 이상 남기면 만점 — 본업의 수익 밀도" },
+                  { label: "순이익률 ≥20% (10점)", plain: "매출 1,000원 중 세금·이자까지 다 빼고 200원 이상 진짜 남으면 만점 — 최종 통장 잔고" },
+                  { label: "부채비율 ≤50% (5점)", plain: "빚이 자기자본의 절반 이하면 만점 — 재무 안전성" },
+                ]}
+                analogy="자기 돈 1억으로 식당을 차렸는데 연 2,000만원 순수익을 내고, 빚이 5,000만원 이하인 가게. 본업이 탄탄하고 빚 부담도 없는 안정적인 기업입니다."
+              />
+              <PillarCard
+                title="경제적 해자"
+                subtitle="Moat"
+                points={20}
+                question="다른 회사가 쉽게 따라잡을 수 없는가?"
+                color="#c084fc"
+                metrics={[
+                  { label: "영업이익률 절대치 ≥15% (10점)", plain: "마진이 두 자릿수면 '쉽게 카피되지 않는 비밀'이 있다는 증거" },
+                  { label: "EV/EBITDA ≤ 20 (5점)", plain: "회사를 통째로 사면 영업현금으로 본전 뽑는데 20년 이하면 적정 가격" },
+                  { label: "주가순자산비율(PBR) 적정성 (5점)", plain: "장부상 자산 대비 주가가 너무 비싸지 않은가" },
+                ]}
+                analogy="옆집은 마진 5% 남기는데 우리 가게는 25% 남긴다면 → 따라하기 어려운 비밀 레시피·브랜드·입지가 있다는 뜻. 워런 버핏은 이걸 '해자(moat)'라고 부릅니다 — 성을 둘러싼 물길처럼 경쟁자가 못 들어오게 막는 진입장벽."
+              />
+              <PillarCard
+                title="자본 운용력"
+                subtitle="Capital"
+                points={20}
+                question="번 돈을 잘 굴려서 성장하고 있는가?"
+                color="#34d399"
+                metrics={[
+                  { label: "잉여현금흐름 수익률(FCF Yield) ≥6% (10점)", plain: "시가총액 대비 매년 통장에 진짜 들어오는 현금이 6% 이상" },
+                  { label: "주당순이익(EPS) 성장률 ≥15% (5점)", plain: "1주당 이익이 매년 15% 이상 성장 (작년 1,000원 → 올해 1,150원)" },
+                  { label: "매출 성장률 ≥10% (5점)", plain: "회사 자체가 매년 10% 이상 커지고 있는가" },
+                ]}
+                analogy="식당 인수가가 5억인데 매년 진짜 통장에 3,000만원 쌓이면 6% (월세 받는 셈). 좋은 기업은 번 돈으로 자사주 매입·재투자해서 EPS와 매출이 꾸준히 늘어납니다."
+              />
+              <PillarCard
+                title="가격 매력"
+                subtitle="Valuation"
+                points={20}
+                question="지금 사기에 가격이 적당한가?"
+                color="#fbbf24"
+                metrics={[
+                  { label: "주가수익비율(PER) ≤10 (10점)", plain: "현재 이익으로 본전 뽑는데 10년 이하면 만점 — 싸게 사는 셈" },
+                  { label: "잉여현금흐름 수익률(FCF Yield) ≥6% (5점)", plain: "자본 운용력과 같은 지표지만, 가격 관점에서 한 번 더 평가" },
+                  { label: "52주 고점 대비 −30% 이상 하락 (5점)", plain: "최근 1년 신고가 대비 30% 이상 빠졌으면 만점 — 버핏의 '두려울 때 사라'" },
+                ]}
+                analogy="작년 50억에 거래되던 식당이 갑자기 35억 매물로 나오면 → 같은 가게를 30% 싸게 사는 셈입니다. 좋은 회사라도 비싸게 사면 안 좋은 투자가 되기에, 가격 매력을 따로 점수화합니다."
+              />
             </div>
           </div>
 
@@ -228,7 +254,7 @@ export default async function MegacapPage() {
               유니버스는 시장별 시총 상위 자동 선정 (US 50 / KR 15 / JP 15 / CN 10 / EU 5 / 기타 5).
             </p>
             <p>
-              5년 평균 환율 대비 z-score, 4-Pillar 스코어카드, 분할매수 트리거 모두 자동 산정 결과이며,
+              5년 평균 환율 대비 z-score, 버핏 4단계 기업 평가, 분할매수 트리거 모두 자동 산정 결과이며,
               일부 신흥국 종목은 EBITDA·FCF 데이터가 누락되어 점수가 낮게 나올 수 있습니다.
             </p>
             <p className="text-xs text-on-surface-variant/60">
