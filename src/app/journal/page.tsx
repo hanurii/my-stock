@@ -6,6 +6,7 @@ import { DividendSummary } from "@/components/DividendSummary";
 import { PortfolioPieChart } from "@/components/PortfolioPieChart";
 import { SectorPieChart } from "@/components/SectorPieChart";
 import { SectorProfitTable } from "@/components/SectorProfitTable";
+import { PortfolioStrategyFeedback } from "@/components/PortfolioStrategyFeedback";
 
 interface Holding {
   code: string;
@@ -17,6 +18,7 @@ interface Holding {
   profit_amount: number;
   eval_amount: number;
   sector?: string;
+  category?: "dividend" | "growth" | "etf";
 }
 
 interface Transaction {
@@ -65,6 +67,11 @@ interface JournalData {
     total_cost?: number;
     net_profit?: number;
     net_profit_pct?: number;
+    target_strategy?: {
+      dividend: number;
+      growth: number;
+      description?: string;
+    };
   };
   holdings: Holding[];
   transactions: Transaction[];
@@ -229,6 +236,16 @@ export default function JournalPage() {
               </p>
             </div>
           </div>
+        )}
+
+        {/* 포트폴리오 전략 점검 */}
+        {hasHoldings && summary.target_strategy && (
+          <PortfolioStrategyFeedback
+            holdings={holdings}
+            cash={summary.cash || 0}
+            totalAssets={summary.total_assets || summary.total_current_value}
+            targetStrategy={summary.target_strategy}
+          />
         )}
 
         {/* 포트폴리오 비율 차트 */}
