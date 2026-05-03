@@ -1,7 +1,7 @@
 {
   "code": "105560",
   "name": "KB금융",
-  "last_checked": "2026-05-01T19:25:32.762+09:00",
+  "last_checked": "2026-05-04T08:49:33.566+09:00",
   "metrics": [
     {
       "id": "pbr",
@@ -51,8 +51,8 @@
     {
       "id": "buyback_cancellation_gap",
       "label": "자사주 소각결정 후 경과일",
-      "value": 8,
-      "display": "8일",
+      "value": 10,
+      "display": "10일",
       "threshold": "365일 후속 부재",
       "hit": false,
       "tone": "good"
@@ -106,24 +106,9 @@
       "type": "foreign_net_buy_4w_warmup",
       "title": "최근 20거래일 외국인 순매수 누적 중",
       "message": "현재 9거래일 누적 (20일 이상 시 메트릭 평가 시작)."
-    },
-    {
-      "severity": "info",
-      "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 1건 (관찰 신호 0건 — 키워드 단순 매칭만)",
-      "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
-  "news_hits": [
-    {
-      "keyword": "KB국민은행 충당금",
-      "date": "2026-04-27",
-      "title": "'리딩뱅크' 구도에 균열 조짐…KB국민은행, 충당금 변수에 주춤 - 네이트",
-      "url": "https://news.google.com/rss/articles/CBMiU0FVX3lxTE0ySGFrYUtUVXF4MzhzQUg1aHY2NFFYaUlZNkx6SV9ISmhHYTBQdUxSVVF0T2dPZUdTZHBjM1hWWkQ0UGZFSTM2Q1Fma3MzWTl3SkFv?oc=5",
-      "severity": "info",
-      "signals": []
-    }
-  ],
+  "news_hits": [],
   "sources": [
     {
       "label": "PER/PEG/PBR 스코어",
@@ -160,10 +145,6 @@
     {
       "label": "분기 ROE 연환산 (2025-FY · 9.6%)",
       "ref": "DART 20260324000835 (fnlttSinglAcntAll: 자본총계+분기순이익)"
-    },
-    {
-      "label": "뉴스 RSS",
-      "ref": "news.google.com/rss (7일)"
     }
   ]
 }
