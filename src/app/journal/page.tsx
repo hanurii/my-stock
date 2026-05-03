@@ -124,6 +124,131 @@ interface SectorStat {
   holdings: Holding[];
 }
 
+interface YearlyPerformance {
+  code: string;
+  name: string;
+  buy_amount_year: number;
+  sell_amount_year: number;
+  dividend_amount: number;
+  fees_year: number;
+  tax_year: number;
+  current_eval: number;
+  cost_basis_drawn: number;
+  ytd_profit: number;
+  ytd_pct: number;
+  has_holding: boolean;
+}
+
+function computeYearlyPerformance(
+  year: number,
+  transactions: Transaction[],
+  holdings: Holding[],
+): YearlyPerformance[] {
+  const yearStr = String(year);
+  const txsByCode = new Map<string, Transaction[]>();
+  for (const tx of transactions) {
+    if (!txsByCode.has(tx.code)) txsByCode.set(tx.code, []);
+    txsByCode.get(tx.code)!.push(tx);
+  }
+
+  const result: YearlyPerformance[] = [];
+
+  for (const [code, txs] of txsByCode) {
+    const sorted = [...txs].sort((a, b) => {
+      if (a.date !== b.date) return a.date.localeCompare(b.date);
+      if (a.type !== b.type) return a.type === "매수" ? -1 : 1;
+      return a.id - b.id;
+    });
+
+    const queue: { qty: number; cost: number }[] = [];
+    let realized_gross_year = 0;
+    let cost_basis_sold_year = 0;
+    let buy_amount_year = 0;
+    let sell_amount_year = 0;
+    let dividend_year = 0;
+    let fees_year = 0;
+    let tax_year = 0;
+    let name = "";
+
+    for (const tx of sorted) {
+      name = tx.name;
+      const isYearTx = tx.date.substring(0, 4) === yearStr;
+
+      if (tx.type === "매수") {
+        queue.push({ qty: tx.quantity, cost: tx.price });
+        if (isYearTx) {
+          buy_amount_year += tx.total;
+          fees_year += tx.fees ?? 0;
+        }
+      } else if (tx.type === "매도") {
+        if (isYearTx) {
+          sell_amount_year += tx.total;
+          fees_year += tx.fees ?? 0;
+          tax_year += tx.tax ?? 0;
+        }
+        let remaining = tx.quantity;
+        let lotCostBasis = 0;
+        while (remaining > 0 && queue.length > 0) {
+          const front = queue[0];
+          const take = Math.min(front.qty, remaining);
+          lotCostBasis += take * front.cost;
+          front.qty -= take;
+          remaining -= take;
+          if (front.qty === 0) queue.shift();
+        }
+        if (isYearTx) {
+          realized_gross_year += tx.total - lotCostBasis;
+          cost_basis_sold_year += lotCostBasis;
+        }
+      } else if (tx.type === "배당" && isYearTx) {
+        dividend_year += tx.net_amount ?? tx.total ?? 0;
+      }
+    }
+
+    const h = holdings.find((x) => x.code === code);
+    const has_holding = !!h && h.quantity > 0;
+    let current_eval = 0;
+    let remaining_cost = 0;
+    let unrealized = 0;
+    if (h && h.quantity > 0) {
+      current_eval = h.eval_amount;
+      remaining_cost = h.avg_price * h.quantity;
+      unrealized = current_eval - remaining_cost;
+    }
+
+    const had_year_activity =
+      buy_amount_year > 0 ||
+      sell_amount_year > 0 ||
+      dividend_year > 0 ||
+      has_holding;
+    if (!had_year_activity) continue;
+
+    const cost_basis_drawn = cost_basis_sold_year + remaining_cost;
+    if (cost_basis_drawn === 0) continue;
+
+    const ytd_profit =
+      realized_gross_year + unrealized + dividend_year - fees_year - tax_year;
+    const ytd_pct = cost_basis_drawn > 0 ? (ytd_profit / cost_basis_drawn) * 100 : 0;
+
+    result.push({
+      code,
+      name,
+      buy_amount_year,
+      sell_amount_year,
+      dividend_amount: dividend_year,
+      fees_year,
+      tax_year,
+      current_eval,
+      cost_basis_drawn,
+      ytd_profit,
+      ytd_pct,
+      has_holding,
+    });
+  }
+
+  return result.sort((a, b) => b.ytd_profit - a.ytd_profit);
+}
+
 export default function JournalPage() {
   const data = getJournalData();
   const dividendData = getDividendData();
@@ -297,6 +422,90 @@ export default function JournalPage() {
             />
           </div>
         )}
+
+        {/* 2026년 종목별 수익률 */}
+        {hasTransactions && (() => {
+          const yearly = computeYearlyPerformance(2026, transactions, holdings);
+          if (yearly.length === 0) return null;
+          const totalBuy = yearly.reduce((s, d) => s + d.buy_amount_year, 0);
+          const totalSell = yearly.reduce((s, d) => s + d.sell_amount_year, 0);
+          const totalEval = yearly.reduce((s, d) => s + d.current_eval, 0);
+          const totalDiv = yearly.reduce((s, d) => s + d.dividend_amount, 0);
+          const totalCostBasis = yearly.reduce((s, d) => s + d.cost_basis_drawn, 0);
+          const totalProfit = yearly.reduce((s, d) => s + d.ytd_profit, 0);
+          const totalPct = totalCostBasis > 0 ? (totalProfit / totalCostBasis) * 100 : 0;
+          const totalColor = totalProfit >= 0 ? "#95d3ba" : "#ffb4ab";
+
+          return (
+            <div className="bg-surface-container-low rounded-xl p-6 sm:p-8 ghost-border mb-8">
+              <h4 className="text-lg font-serif text-on-surface mb-2">2026년 종목별 수익률</h4>
+              <p className="text-xs text-on-surface-variant/50 mb-6">
+                실현손익(FIFO) + 평가손익 + 배당 합산, 수수료·세금 차감. 분모는 2026년 매도된 cost basis + 현재 보유 cost basis
+              </p>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-xs uppercase tracking-wider text-on-surface-variant/50">
+                      <th className="text-left px-3 pb-3 font-normal">종목</th>
+                      <th className="text-right px-3 pb-3 font-normal">매수액</th>
+                      <th className="text-right px-3 pb-3 font-normal">매도액</th>
+                      <th className="text-right px-3 pb-3 font-normal">평가액</th>
+                      <th className="text-right px-3 pb-3 font-normal">배당</th>
+                      <th className="text-right px-3 pb-3 font-normal">손익</th>
+                      <th className="text-right px-3 pb-3 font-normal">수익률</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {yearly.map((d) => {
+                      const pColor = d.ytd_profit >= 0 ? "#95d3ba" : "#ffb4ab";
+                      return (
+                        <tr key={d.code} className="hover:bg-surface-container/30 transition-colors">
+                          <td className="px-3 py-3">
+                            <p className="font-medium text-on-surface">{d.name}</p>
+                            <p className="text-xs text-on-surface-variant/50">
+                              {d.code} · {d.has_holding ? "보유 중" : "매도 종료"}
+                            </p>
+                          </td>
+                          <td className="px-3 py-3 text-right font-mono text-on-surface-variant">
+                            {d.buy_amount_year > 0 ? formatMoney(d.buy_amount_year) : "—"}
+                          </td>
+                          <td className="px-3 py-3 text-right font-mono text-on-surface-variant">
+                            {d.sell_amount_year > 0 ? formatMoney(d.sell_amount_year) : "—"}
+                          </td>
+                          <td className="px-3 py-3 text-right font-mono text-on-surface-variant">
+                            {d.current_eval > 0 ? formatMoney(d.current_eval) : "—"}
+                          </td>
+                          <td className="px-3 py-3 text-right font-mono text-on-surface-variant">
+                            {d.dividend_amount > 0 ? formatMoney(d.dividend_amount) : "—"}
+                          </td>
+                          <td className="px-3 py-3 text-right font-mono font-bold" style={{ color: pColor }}>
+                            {d.ytd_profit >= 0 ? "+" : ""}{formatMoney(d.ytd_profit)}
+                          </td>
+                          <td className="px-3 py-3 text-right font-mono font-bold" style={{ color: pColor }}>
+                            {d.ytd_pct >= 0 ? "+" : ""}{d.ytd_pct.toFixed(1)}%
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    <tr className="border-t border-outline-variant/15 bg-surface-container/20">
+                      <td className="px-3 py-3 font-medium text-on-surface">합계</td>
+                      <td className="px-3 py-3 text-right font-mono text-on-surface">{formatMoney(totalBuy)}</td>
+                      <td className="px-3 py-3 text-right font-mono text-on-surface">{formatMoney(totalSell)}</td>
+                      <td className="px-3 py-3 text-right font-mono text-on-surface">{formatMoney(totalEval)}</td>
+                      <td className="px-3 py-3 text-right font-mono text-on-surface">{formatMoney(totalDiv)}</td>
+                      <td className="px-3 py-3 text-right font-mono font-bold" style={{ color: totalColor }}>
+                        {totalProfit >= 0 ? "+" : ""}{formatMoney(totalProfit)}
+                      </td>
+                      <td className="px-3 py-3 text-right font-mono font-bold" style={{ color: totalColor }}>
+                        {totalPct >= 0 ? "+" : ""}{totalPct.toFixed(1)}%
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* 수익 & 비용 요약 */}
         {hasTransactions && (
