@@ -1,7 +1,7 @@
 {
   "code": "175330",
   "name": "JB금융지주",
-  "last_checked": "2026-05-04T17:15:29.800+09:00",
+  "last_checked": "2026-05-04T20:11:13.078+09:00",
   "metrics": [
     {
       "id": "pbr",
@@ -15,8 +15,8 @@
     {
       "id": "pbr_premium_pp",
       "label": "지방지주 평균 대비 PBR 프리미엄",
-      "value": 0.32,
-      "display": "0.320pp",
+      "value": 0.34,
+      "display": "0.340pp",
       "threshold": "+0.50pp 이상",
       "hit": false,
       "tone": "good"
@@ -24,8 +24,8 @@
     {
       "id": "foreign_ratio",
       "label": "외국인 지분율",
-      "value": 34.47,
-      "display": "34.47%",
+      "value": 34.32,
+      "display": "34.32%",
       "threshold": "25% 이하",
       "hit": false,
       "tone": "good"
@@ -33,11 +33,11 @@
     {
       "id": "foreign_net_buy_4w",
       "label": "최근 20거래일 외국인 순매수",
-      "value": null,
-      "display": "—",
+      "value": -516370,
+      "display": "-52만주",
       "threshold": "순매도 전환",
-      "hit": false,
-      "tone": "neutral"
+      "hit": true,
+      "tone": "bad"
     },
     {
       "id": "dividend_qoq_change",
@@ -105,10 +105,10 @@
   ],
   "alerts": [
     {
-      "severity": "info",
-      "type": "foreign_net_buy_4w_warmup",
-      "title": "최근 20거래일 외국인 순매수 누적 중",
-      "message": "현재 9거래일 누적 (20일 이상 시 메트릭 평가 시작)."
+      "severity": "bad",
+      "type": "foreign_net_buy_4w",
+      "title": "최근 20거래일 외국인 순매수 순매도 전환",
+      "message": "현재 -52만주 — 매도 트리거 도달"
     },
     {
       "severity": "info",
@@ -134,15 +134,15 @@
     },
     {
       "label": "4대 지주 평균 PBR 비교 (1종목)",
-      "ref": "peers: 138930 / avg 0.52"
+      "ref": "peers: 138930 / avg 0.5"
     },
     {
       "label": "분기 배당 결정 (사업보고서 (2025.12))",
       "ref": "DART 20260318001225 (alotMatter)"
     },
     {
-      "label": "외국인 순매수 누적 (9일)",
-      "ref": "네이버 dealTrendInfos / history 2026-04-30"
+      "label": "외국인 순매수 누적 (10일)",
+      "ref": "네이버 dealTrendInfos / history 2026-05-04"
     },
     {
       "label": "최근 분기 순이익 (2025-FY)",
