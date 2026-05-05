@@ -554,6 +554,106 @@ function countMentionsToday(news: NewsItem[], keywords: string[]): number {
   return today;
 }
 
+// ── Naver 모바일 뉴스 검색으로 과거 N일치 멘션 카운트 백필 ──
+function parseNaverRelativeDate(raw: string, now: Date): string | null {
+  // "7시간 전" / "2일 전" / "2026.05.05."
+  const abs = raw.match(/^(\d{4})\.(\d{2})\.(\d{2})\.?$/);
+  if (abs) return `${abs[1]}-${abs[2]}-${abs[3]}`;
+  const rel = raw.match(/^(\d+)(시간|분|일)\s*전$/);
+  if (!rel) return null;
+  const n = parseInt(rel[1], 10);
+  const unit = rel[2];
+  let ms = 0;
+  if (unit === "분") ms = n * 60 * 1000;
+  else if (unit === "시간") ms = n * 3600 * 1000;
+  else if (unit === "일") ms = n * 86400 * 1000;
+  const d = new Date(now.getTime() - ms);
+  return d.toISOString().split("T")[0];
+}
+
+// 키워드별 N일치 뉴스 검색, 페이지 여러 장 가져와서 일자 분포 확보
+async function searchNaverNewsMultiPage(
+  keyword: string,
+  daysBack: number,
+  pages: number = 4,
+): Promise<Array<{ title: string; date: string }>> {
+  const today = new Date();
+  const fmt = (d: Date) =>
+    `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`;
+  const ds = fmt(new Date(today.getTime() - daysBack * 86400 * 1000));
+  const de = fmt(today);
+  const out: Array<{ title: string; date: string }> = [];
+
+  for (let p = 0; p < pages; p++) {
+    const start = p * 10 + 1;  // start=1, 11, 21, 31
+    const url =
+      `https://m.search.naver.com/search.naver?where=m_news` +
+      `&query=${encodeURIComponent(keyword)}&pd=4&ds=${ds}&de=${de}&sort=1&start=${start}`;
+    try {
+      const res = await fetch(url, {
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15",
+        },
+      });
+      if (!res.ok) break;
+      const html = await res.text();
+      const titles: Array<{ pos: number; title: string }> = [];
+      const reTitle = /sds-comps-text-type-headline1[^>]*>([^<]+)</g;
+      let m;
+      while ((m = reTitle.exec(html))) {
+        titles.push({ pos: m.index, title: m[1].trim() });
+      }
+      const dates: Array<{ pos: number; raw: string }> = [];
+      const reDate = /(\d{4}\.\d{2}\.\d{2}\.|\d+(?:시간|분|일)\s*전)/g;
+      let d;
+      while ((d = reDate.exec(html))) {
+        dates.push({ pos: d.index, raw: d[1] });
+      }
+      let foundOnPage = 0;
+      for (const t of titles) {
+        const after = dates.find((x) => x.pos > t.pos);
+        if (!after) continue;
+        const dateKey = parseNaverRelativeDate(after.raw, today);
+        if (!dateKey) continue;
+        out.push({ title: t.title, date: dateKey });
+        foundOnPage++;
+      }
+      if (foundOnPage === 0) break;  // 더 이상 결과 없음
+      await sleep(200);
+    } catch {
+      break;
+    }
+  }
+  return out;
+}
+
+async function backfillNewsCounts(
+  keywords: string[],
+  daysBack: number = 7,
+): Promise<Record<string, number>> {
+  const counts: Record<string, number> = {};
+  const today = new Date();
+  for (let i = 0; i <= daysBack; i++) {
+    const d = new Date(today.getTime() - i * 86400 * 1000);
+    counts[d.toISOString().split("T")[0]] = 0;
+  }
+  // 키워드는 너무 많으면 rate limit 위험 — 첫 2개만 사용
+  const usedKeywords = keywords.slice(0, 2);
+  const seen = new Set<string>();
+  for (const kw of usedKeywords) {
+    const articles = await searchNaverNewsMultiPage(kw, daysBack, 4);
+    for (const a of articles) {
+      const k = a.title.slice(0, 25);
+      if (seen.has(k)) continue;
+      seen.add(k);
+      if (counts[a.date] !== undefined) counts[a.date]++;
+    }
+    await sleep(300);
+  }
+  return counts;
+}
+
 interface NewsHistoryFile {
   // key: name(섹터/테마), value: { date(YYYY-MM-DD): mention_count }
   series: Record<string, Record<string, number>>;
@@ -580,9 +680,40 @@ function saveNewsHistory(file: NewsHistoryFile, today: string, kstIso: string): 
   fs.writeFileSync(NEWS_HISTORY_PATH, JSON.stringify(file, null, 2), "utf-8");
 }
 
+// KST 기준 오늘 날짜 (UTC와 다를 수 있음)
+function kstDateNow(): Date {
+  const now = new Date();
+  return new Date(now.getTime() + 9 * 3600 * 1000);
+}
+
+// 최근 N일 합계
+function computeRecentTotal(history: Record<string, number>, daysBack: number): number {
+  const today = kstDateNow().toISOString().split("T")[0];
+  const todayTs = new Date(today).getTime();
+  const dayMs = 24 * 3600 * 1000;
+  let total = 0;
+  for (const [d, count] of Object.entries(history)) {
+    const ageDays = Math.round((todayTs - new Date(d).getTime()) / dayMs);
+    if (ageDays >= 0 && ageDays < daysBack) total += count;
+  }
+  return total;
+}
+
+// 최근 N일 카운트 시계열 (오늘부터 역순으로 N개)
+function computeRecentSeries(history: Record<string, number>, daysBack: number): number[] {
+  const today = kstDateNow();
+  const out: number[] = [];
+  for (let i = 0; i < daysBack; i++) {
+    const d = new Date(today.getTime() - i * 24 * 3600 * 1000);
+    const key = d.toISOString().split("T")[0];
+    out.push(history[key] ?? 0);
+  }
+  return out;
+}
+
 // 현재 시점 5D vs 직전 5D 멘션 변화율. 누적된 시계열 기반. null이면 비교 불가.
 function newsMentionChange5d(history: Record<string, number>): number | null {
-  const today = new Date().toISOString().split("T")[0];
+  const today = kstDateNow().toISOString().split("T")[0];
   const dayMs = 24 * 3600 * 1000;
   const todayTs = new Date(today).getTime();
 
@@ -823,24 +954,69 @@ async function main() {
   }
   const spy = await fetchYahooSeries("SPY");
 
-  // 4) 뉴스 RSS + 누적 시계열 갱신
-  console.log(`[news] fetching RSS`);
-  const news = await fetchAllNews(14).catch(() => []);
-  console.log(`  collected ${news.length} items`);
+  // 4) 뉴스 수집
+  // (a) RSS로 오늘 N건 카운트 — 항상 동작 (1차 데이터)
+  // (b) Naver 검색으로 7일치 백필 — IP 차단 위험 있어서 부분 실패 허용 + 0이면 기존값 보존
+  console.log(`[news] fetching RSS for today`);
+  const todayNews = await fetchAllNews(7).catch(() => []);
+  console.log(`  RSS items: ${todayNews.length}`);
+
+  console.log(`[news] backfilling 7d via Naver search`);
   const newsHistory = loadNewsHistory();
+  let naverFailures = 0;
+  let naverBlocked = false;
   for (const seed of KOREA_SECTOR_SEEDS) {
-    const today = countMentionsToday(news, seed.news_keywords);
-    if (!newsHistory.series[`sector:${seed.wics_name}`]) {
-      newsHistory.series[`sector:${seed.wics_name}`] = {};
+    const key = `sector:${seed.wics_name}`;
+    if (!newsHistory.series[key]) newsHistory.series[key] = {};
+    // RSS 기반 오늘 카운트 (항상 갱신)
+    const rssToday = countMentionsToday(todayNews, seed.news_keywords);
+    newsHistory.series[key][kst.date] = rssToday;
+    // Naver 백필 — 차단 감지되면 이후 그룹은 skip
+    if (naverBlocked) {
+      console.log(`  ${key} → today RSS ${rssToday}건 (Naver skip)`);
+      continue;
     }
-    newsHistory.series[`sector:${seed.wics_name}`][kst.date] = today;
+    const counts = await backfillNewsCounts(seed.news_keywords, 7);
+    const totalBackfill = Object.values(counts).reduce((a, b) => a + b, 0);
+    if (totalBackfill === 0) {
+      naverFailures++;
+      // 첫 2개 그룹 모두 0이면 차단으로 판단하고 이후 skip
+      if (naverFailures >= 2) naverBlocked = true;
+    } else {
+      naverFailures = 0; // 성공하면 카운터 리셋
+      // 백필 성공 — 오늘 제외하고 덮어쓰기 (오늘은 RSS가 더 신선)
+      for (const [d, c] of Object.entries(counts)) {
+        if (d === kst.date) continue;
+        newsHistory.series[key][d] = c;
+      }
+    }
+    console.log(`  ${key} → today RSS ${rssToday}건, backfill ${totalBackfill}건/7일${totalBackfill === 0 ? " (보존)" : ""}`);
   }
   for (const seed of KOREA_THEME_SEEDS) {
-    const today = countMentionsToday(news, seed.news_keywords);
-    if (!newsHistory.series[`theme:${seed.name}`]) {
-      newsHistory.series[`theme:${seed.name}`] = {};
+    const key = `theme:${seed.name}`;
+    if (!newsHistory.series[key]) newsHistory.series[key] = {};
+    const rssToday = countMentionsToday(todayNews, seed.news_keywords);
+    newsHistory.series[key][kst.date] = rssToday;
+    if (naverBlocked) {
+      console.log(`  ${key} → today RSS ${rssToday}건 (Naver skip)`);
+      continue;
     }
-    newsHistory.series[`theme:${seed.name}`][kst.date] = today;
+    const counts = await backfillNewsCounts(seed.news_keywords, 7);
+    const totalBackfill = Object.values(counts).reduce((a, b) => a + b, 0);
+    if (totalBackfill === 0) {
+      naverFailures++;
+      if (naverFailures >= 2) naverBlocked = true;
+    } else {
+      naverFailures = 0;
+      for (const [d, c] of Object.entries(counts)) {
+        if (d === kst.date) continue;
+        newsHistory.series[key][d] = c;
+      }
+    }
+    console.log(`  ${key} → today RSS ${rssToday}건, backfill ${totalBackfill}건/7일${totalBackfill === 0 ? " (보존)" : ""}`);
+  }
+  if (naverFailures > 0) {
+    console.warn(`[news] Naver search 부분/전체 차단 추정: ${naverFailures}/${KOREA_SECTOR_SEEDS.length + KOREA_THEME_SEEDS.length} 그룹 백필 실패. 기존 데이터 보존.`);
   }
   saveNewsHistory(newsHistory, kst.date, kst.iso);
 
@@ -881,6 +1057,8 @@ async function main() {
     const sectorHist = newsHistory.series[`sector:${seed.wics_name}`] ?? {};
     const newsChange = newsMentionChange5d(sectorHist);
     const newsToday = sectorHist[kst.date] ?? 0;
+    const news5dTotal = computeRecentTotal(sectorHist, 5);
+    const news7dSeries = computeRecentSeries(sectorHist, 7);
     const sc = computeScores(agg, newsChange, allReturns60d, allVolumeSpikes5d, allReturns5d, allReturns20d);
     koreaSectors.push({
       wics_name: seed.wics_name,
@@ -904,6 +1082,8 @@ async function main() {
       volume_5d_spike_ratio: sc.volume_5d_spike_ratio,
       news_mention_change_5d: newsChange,
       news_mention_today: newsToday,
+      news_mention_5d_total: news5dTotal,
+      news_mention_7d_series: news7dSeries,
       real_hot_score: sc.realHotScore,
       short_momentum_score: sc.shortMomentumScore,
       score_breakdown: sc.breakdown,
@@ -919,6 +1099,8 @@ async function main() {
     const themeHist = newsHistory.series[`theme:${seed.name}`] ?? {};
     const newsChange = newsMentionChange5d(themeHist);
     const newsToday = themeHist[kst.date] ?? 0;
+    const news5dTotal = computeRecentTotal(themeHist, 5);
+    const news7dSeries = computeRecentSeries(themeHist, 7);
     const sc = computeScores(agg, newsChange, allReturns60d, allVolumeSpikes5d, allReturns5d, allReturns20d);
     // 테마는 임계값 더 엄격
     let cls = sc.classification;
@@ -948,6 +1130,8 @@ async function main() {
       volume_5d_spike_ratio: sc.volume_5d_spike_ratio,
       news_mention_change_5d: newsChange,
       news_mention_today: newsToday,
+      news_mention_5d_total: news5dTotal,
+      news_mention_7d_series: news7dSeries,
       real_hot_score: sc.realHotScore,
       short_momentum_score: sc.shortMomentumScore,
       score_breakdown: sc.breakdown,

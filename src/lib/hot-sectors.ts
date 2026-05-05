@@ -49,6 +49,8 @@ export interface SectorMetrics {
   // 뉴스
   news_mention_change_5d: number | null;
   news_mention_today: number;
+  news_mention_5d_total: number;
+  news_mention_7d_series: number[];   // 최근 7일 카운트 (오늘부터 역순: [today, -1d, -2d, ...])
 
   // 점수
   real_hot_score: number;

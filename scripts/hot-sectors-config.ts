@@ -83,13 +83,13 @@ export const KOREA_SECTOR_SEEDS: SectorSeed[] = [
   {
     wics_name: "반도체기판",
     gics_mapped: "Electronic Components",
-    stock_codes: ["009150", "008060", "006405"],
+    stock_codes: ["009150", "353200"],
     news_keywords: ["기판", "FCBGA", "삼성전기", "대덕전자"],
   },
   {
     wics_name: "로봇",
     gics_mapped: "Industrial Robotics",
-    stock_codes: ["108860", "278470", "094820", "036030"],
+    stock_codes: ["454910", "277810", "058610", "389500", "090360", "056080"],
     news_keywords: ["로봇", "휴머노이드", "자동화", "협동로봇", "두산로보틱스", "레인보우로보틱스"],
   },
   {
@@ -127,7 +127,7 @@ export const KOREA_THEME_SEEDS: ThemeSeed[] = [
   },
   {
     name: "휴머노이드/로봇",
-    stock_codes: ["108860", "278470", "094820", "036030"],
+    stock_codes: ["454910", "277810", "058610", "389500", "090360", "056080"],
     news_keywords: ["휴머노이드", "로봇", "테슬라 옵티머스"],
   },
   {
@@ -147,8 +147,8 @@ export const KOREA_THEME_SEEDS: ThemeSeed[] = [
   },
   {
     name: "전력 인프라",
-    stock_codes: ["015760", "034020", "108670", "100090"],
-    news_keywords: ["전력", "변압기", "송배전", "데이터센터 전력"],
+    stock_codes: ["298040", "010120", "267260", "034020"],
+    news_keywords: ["전력", "변압기", "송배전", "데이터센터 전력", "효성중공업", "LS일렉트릭"],
   },
   {
     name: "AI 반도체",
@@ -161,18 +161,13 @@ export const KOREA_THEME_SEEDS: ThemeSeed[] = [
     news_keywords: ["임상", "FDA", "신약", "바이오시밀러"],
   },
   {
-    name: "VC/IPO 회복",
-    stock_codes: ["030200", "035420", "035720"],
-    news_keywords: ["IPO", "벤처캐피탈", "VC", "공모주"],
-  },
-  {
     name: "2차전지",
     stock_codes: ["373220", "006400", "247540", "086520", "066970"],
     news_keywords: ["2차전지", "전기차", "배터리", "양극재"],
   },
   {
     name: "반도체 기판",
-    stock_codes: ["009150", "008060"],
+    stock_codes: ["009150", "353200"],
     news_keywords: ["반도체 기판", "FCBGA", "MLB"],
   },
   {
@@ -246,7 +241,6 @@ export const THEME_ETFS: Record<string, ETFCandidate[]> = {
   "바이오 신약": [
     { code: "244580", name: "KODEX 바이오" },
   ],
-  "VC/IPO 회복": [],
   "2차전지": [
     { code: "305540", name: "TIGER 2차전지테마" },
   ],

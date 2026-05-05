@@ -174,21 +174,40 @@ export function HotSectorCard({ data }: { data: SectorOrTheme }) {
         </div>
         <div>
           <p className="text-[10px] uppercase tracking-[0.18em] text-on-surface-variant/70">
-            뉴스 멘션
+            뉴스 멘션 (5일 합)
           </p>
           <p className="text-on-surface mt-1">
-            오늘 <span className="font-medium">{data.news_mention_today}건</span>
-            {" · "}
-            <span className="text-on-surface-variant text-[11px]">
-              5D 변화{" "}
-              {data.news_mention_change_5d != null
-                ? `${data.news_mention_change_5d > 0 ? "+" : ""}${data.news_mention_change_5d}%`
-                : "데이터 누적 중"}
+            <span className="font-medium text-base">{data.news_mention_5d_total}건</span>
+            <span className="text-on-surface-variant text-[11px] ml-1">
+              (오늘 {data.news_mention_today})
             </span>
           </p>
-          {newsKeywords.length > 0 ? (
-            <p className="text-on-surface-variant/70 text-[10px] truncate">
-              {newsKeywords.slice(0, 3).join(" · ")}
+          {/* 7일 sparkline (오늘이 오른쪽) */}
+          {data.news_mention_7d_series && data.news_mention_7d_series.length > 0 ? (
+            <div className="flex items-end gap-0.5 mt-1.5 h-6">
+              {data.news_mention_7d_series.slice().reverse().map((v, i) => {
+                const max = Math.max(1, ...data.news_mention_7d_series);
+                const h = Math.max(2, (v / max) * 24);
+                const isToday = i === data.news_mention_7d_series.length - 1;
+                return (
+                  <div
+                    key={i}
+                    style={{ height: `${h}px` }}
+                    className={`flex-1 rounded-sm ${
+                      isToday ? "bg-primary" : v > 0 ? "bg-primary/40" : "bg-on-surface-variant/20"
+                    }`}
+                    title={`${v}건`}
+                  />
+                );
+              })}
+            </div>
+          ) : null}
+          {data.news_mention_change_5d != null ? (
+            <p className="text-on-surface-variant text-[10px] mt-1">
+              5D 변화{" "}
+              <span className={data.news_mention_change_5d > 50 ? "text-tertiary" : ""}>
+                {data.news_mention_change_5d > 0 ? "+" : ""}{data.news_mention_change_5d}%
+              </span>
             </p>
           ) : null}
         </div>
