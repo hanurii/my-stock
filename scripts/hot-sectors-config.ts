@@ -17,6 +17,7 @@ export interface SectorSeed {
   wics_name: string;          // UI/조회 키
   gics_mapped: string;        // 글로벌 비교용 라벨
   stock_codes: string[];      // 시총가중 집계 대상
+  news_keywords: string[];    // 뉴스 멘션 카운트용
 }
 
 export interface ThemeSeed {
@@ -47,61 +48,73 @@ export const KOREA_SECTOR_SEEDS: SectorSeed[] = [
     wics_name: "반도체",
     gics_mapped: "Semiconductors & Semi Equipment",
     stock_codes: ["005930", "000660", "042700", "240810", "036930"],
+    news_keywords: ["반도체", "메모리", "삼성전자", "SK하이닉스", "파운드리"],
   },
   {
     wics_name: "2차전지",
     gics_mapped: "Electrical Equipment / Batteries",
     stock_codes: ["373220", "006400", "247540", "086520", "066970"],
+    news_keywords: ["2차전지", "이차전지", "배터리", "전기차", "양극재", "음극재", "LG에너지솔루션", "삼성SDI"],
   },
   {
     wics_name: "방산",
     gics_mapped: "Aerospace & Defense",
     stock_codes: ["047810", "012450", "272210", "064350"],
+    news_keywords: ["방산", "K방산", "K-방산", "한화에어로스페이스", "한국항공우주", "현대로템"],
   },
   {
     wics_name: "조선",
     gics_mapped: "Marine / Shipbuilding",
     stock_codes: ["329180", "010140", "009540", "042660"],
+    news_keywords: ["조선", "LNG선", "한화오션", "HD현대중공업", "삼성중공업", "수주"],
   },
   {
     wics_name: "전력/원전",
     gics_mapped: "Utilities / Heavy Equipment",
     stock_codes: ["015760", "034020", "052690", "267260"],
+    news_keywords: ["원전", "원자력", "SMR", "두산에너빌리티", "한국전력", "송배전", "변압기"],
   },
   {
     wics_name: "바이오",
     gics_mapped: "Biotechnology",
     stock_codes: ["068270", "207940", "196170", "326030"],
+    news_keywords: ["바이오", "셀트리온", "삼성바이오로직스", "신약", "임상", "FDA"],
   },
   {
     wics_name: "반도체기판",
     gics_mapped: "Electronic Components",
     stock_codes: ["009150", "008060", "006405"],
+    news_keywords: ["기판", "FCBGA", "삼성전기", "대덕전자"],
   },
   {
     wics_name: "로봇",
     gics_mapped: "Industrial Robotics",
     stock_codes: ["108860", "278470", "094820", "036030"],
+    news_keywords: ["로봇", "휴머노이드", "자동화", "협동로봇", "두산로보틱스", "레인보우로보틱스"],
   },
   {
     wics_name: "AI/소프트웨어",
     gics_mapped: "Software & Services",
     stock_codes: ["035420", "035720", "377300", "053800"],
+    news_keywords: ["AI", "인공지능", "네이버", "카카오", "생성형 AI", "챗GPT", "LLM"],
   },
   {
     wics_name: "에너지",
     gics_mapped: "Energy",
     stock_codes: ["096770", "010950", "267250"],
+    news_keywords: ["에너지", "정유", "유가", "WTI", "SK이노베이션", "S-Oil", "OPEC"],
   },
   {
     wics_name: "자동차",
     gics_mapped: "Automobiles",
     stock_codes: ["005380", "000270", "012330"],
+    news_keywords: ["현대차", "기아", "자동차", "현대모비스", "전기차"],
   },
   {
     wics_name: "철강",
     gics_mapped: "Steel & Metals",
     stock_codes: ["005490", "004020", "103140"],
+    news_keywords: ["철강", "POSCO", "포스코", "현대제철", "고로"],
   },
 ];
 

@@ -46,6 +46,7 @@ const ROOT = path.resolve(__dirname, "..");
 const DATA_DIR = path.join(ROOT, "public", "data");
 const OUTPUT_PATH = path.join(DATA_DIR, "hot-sectors.json");
 const HISTORY_PATH = path.join(DATA_DIR, "hot-sectors-history.json");
+const NEWS_HISTORY_PATH = path.join(DATA_DIR, "hot-sectors-news-history.json");
 
 const MK_RSS = ["https://www.mk.co.kr/rss/30100041", "https://www.mk.co.kr/rss/50200011"];
 const HK_RSS = ["https://www.hankyung.com/feed/economy", "https://www.hankyung.com/feed/finance"];
@@ -540,28 +541,76 @@ async function fetchAllNews(daysBack: number = 14): Promise<NewsItem[]> {
   return items;
 }
 
-function newsMentionChange5d(news: NewsItem[], keywords: string[]): number {
-  // 최근 5일 vs 직전 5일 멘션 카운트
+function countMentionsToday(news: NewsItem[], keywords: string[]): number {
   if (news.length === 0 || keywords.length === 0) return 0;
-  const now = Date.now();
-  const day5 = 5 * 24 * 3600 * 1000;
-  let recent = 0;
-  let prev = 0;
   const re = new RegExp(keywords.map((k) => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|"), "i");
+  let today = 0;
+  const dayMs = 24 * 3600 * 1000;
+  const now = Date.now();
   for (const n of news) {
     if (!re.test(n.title)) continue;
-    const ageMs = now - n.date.getTime();
-    if (ageMs <= day5) recent++;
-    else if (ageMs <= 2 * day5) prev++;
+    if (now - n.date.getTime() <= dayMs) today++;
   }
-  if (prev === 0) return recent > 0 ? 200 : 0;
+  return today;
+}
+
+interface NewsHistoryFile {
+  // key: name(섹터/테마), value: { date(YYYY-MM-DD): mention_count }
+  series: Record<string, Record<string, number>>;
+  meta: { last_updated: string; days_kept: number };
+}
+
+function loadNewsHistory(): NewsHistoryFile {
+  try {
+    return JSON.parse(fs.readFileSync(NEWS_HISTORY_PATH, "utf-8")) as NewsHistoryFile;
+  } catch {
+    return { series: {}, meta: { last_updated: "", days_kept: 30 } };
+  }
+}
+
+function saveNewsHistory(file: NewsHistoryFile, today: string, kstIso: string): void {
+  // 30일 이상은 컷
+  const cutoff = new Date(Date.now() - 30 * 24 * 3600 * 1000)
+    .toISOString().split("T")[0];
+  for (const name of Object.keys(file.series)) {
+    const m = file.series[name];
+    for (const d of Object.keys(m)) if (d < cutoff) delete m[d];
+  }
+  file.meta.last_updated = kstIso;
+  fs.writeFileSync(NEWS_HISTORY_PATH, JSON.stringify(file, null, 2), "utf-8");
+}
+
+// 현재 시점 5D vs 직전 5D 멘션 변화율. 누적된 시계열 기반. null이면 비교 불가.
+function newsMentionChange5d(history: Record<string, number>): number | null {
+  const today = new Date().toISOString().split("T")[0];
+  const dayMs = 24 * 3600 * 1000;
+  const todayTs = new Date(today).getTime();
+
+  let recent = 0;
+  let prev = 0;
+  let recentDays = 0;
+  let prevDays = 0;
+  for (const [d, count] of Object.entries(history)) {
+    const dt = new Date(d).getTime();
+    const ageDays = Math.round((todayTs - dt) / dayMs);
+    if (ageDays >= 0 && ageDays <= 4) {
+      recent += count;
+      recentDays++;
+    } else if (ageDays >= 5 && ageDays <= 9) {
+      prev += count;
+      prevDays++;
+    }
+  }
+  // 직전 5일치 데이터가 3일 미만이면 비교 불가
+  if (prevDays < 3) return null;
+  if (prev === 0) return recent === 0 ? 0 : null;
   return Math.round(((recent - prev) / prev) * 100);
 }
 
 // ── 점수 계산 ──
 function computeScores(
   agg: AggregateMetrics,
-  newsChange5d: number,
+  newsChange5d: number | null,
   allReturns60d: number[],
   allVolumeSpikes5d: number[],
   allReturns5d: number[],
@@ -602,12 +651,15 @@ function computeScores(
 
   // News-to-price decoupling
   // 뉴스 거의 없는데 가격 양호하면 ↑, 뉴스만 폭증인데 가격은 미미하면 ↓
+  // newsChange5d가 null이면 데이터 부족 → 중립 50점
   let decoupleScore = 50;
   const p60 = agg.perf_60d ?? 0;
-  if (newsChange5d < 50 && p60 > 5) decoupleScore = 90;
-  else if (newsChange5d < 100 && p60 > 0) decoupleScore = 70;
-  else if (newsChange5d > 200 && Math.abs(p60) < 5) decoupleScore = 10;
-  else decoupleScore = 50;
+  if (newsChange5d != null) {
+    if (newsChange5d < 50 && p60 > 5) decoupleScore = 90;
+    else if (newsChange5d < 100 && p60 > 0) decoupleScore = 70;
+    else if (newsChange5d > 200 && Math.abs(p60) < 5) decoupleScore = 10;
+    else decoupleScore = 50;
+  }
 
   const realHotScore = Math.round(
     0.30 * trendScore +
@@ -651,8 +703,9 @@ function computeScores(
   ) {
     fake.push("거래대금 단발성 폭증");
   }
-  // 뉴스 디커플링
+  // 뉴스 디커플링 (변화율이 측정 가능할 때만)
   if (
+    newsChange5d != null &&
     newsChange5d >= SCORE_THRESHOLDS.FAKE_NEWS_SURGE_PCT &&
     Math.abs(agg.perf_60d ?? 0) < SCORE_THRESHOLDS.FAKE_NEWS_DECOUPLE_PRICE_PCT
   ) {
@@ -770,10 +823,26 @@ async function main() {
   }
   const spy = await fetchYahooSeries("SPY");
 
-  // 4) 뉴스 RSS
+  // 4) 뉴스 RSS + 누적 시계열 갱신
   console.log(`[news] fetching RSS`);
   const news = await fetchAllNews(14).catch(() => []);
   console.log(`  collected ${news.length} items`);
+  const newsHistory = loadNewsHistory();
+  for (const seed of KOREA_SECTOR_SEEDS) {
+    const today = countMentionsToday(news, seed.news_keywords);
+    if (!newsHistory.series[`sector:${seed.wics_name}`]) {
+      newsHistory.series[`sector:${seed.wics_name}`] = {};
+    }
+    newsHistory.series[`sector:${seed.wics_name}`][kst.date] = today;
+  }
+  for (const seed of KOREA_THEME_SEEDS) {
+    const today = countMentionsToday(news, seed.news_keywords);
+    if (!newsHistory.series[`theme:${seed.name}`]) {
+      newsHistory.series[`theme:${seed.name}`] = {};
+    }
+    newsHistory.series[`theme:${seed.name}`][kst.date] = today;
+  }
+  saveNewsHistory(newsHistory, kst.date, kst.iso);
 
   // 5) 섹터 집계 (1차 — alignment 등 계산)
   const sectorAggs: Array<{ seed: typeof KOREA_SECTOR_SEEDS[number]; agg: AggregateMetrics }> = [];
@@ -809,7 +878,9 @@ async function main() {
   // 7) 섹터/테마 점수 + 분류
   const koreaSectors: KoreanSector[] = [];
   for (const { seed, agg } of sectorAggs) {
-    const newsChange = 0; // 섹터는 뉴스 키워드 매핑 없음 → 0 (테마만 사용)
+    const sectorHist = newsHistory.series[`sector:${seed.wics_name}`] ?? {};
+    const newsChange = newsMentionChange5d(sectorHist);
+    const newsToday = sectorHist[kst.date] ?? 0;
     const sc = computeScores(agg, newsChange, allReturns60d, allVolumeSpikes5d, allReturns5d, allReturns20d);
     koreaSectors.push({
       wics_name: seed.wics_name,
@@ -832,6 +903,7 @@ async function main() {
       volume_sustain_ratio: sc.volume_sustain_ratio,
       volume_5d_spike_ratio: sc.volume_5d_spike_ratio,
       news_mention_change_5d: newsChange,
+      news_mention_today: newsToday,
       real_hot_score: sc.realHotScore,
       short_momentum_score: sc.shortMomentumScore,
       score_breakdown: sc.breakdown,
@@ -844,7 +916,9 @@ async function main() {
 
   const koreaThemes: KoreanTheme[] = [];
   for (const { seed, agg } of themeAggs) {
-    const newsChange = newsMentionChange5d(news, seed.news_keywords);
+    const themeHist = newsHistory.series[`theme:${seed.name}`] ?? {};
+    const newsChange = newsMentionChange5d(themeHist);
+    const newsToday = themeHist[kst.date] ?? 0;
     const sc = computeScores(agg, newsChange, allReturns60d, allVolumeSpikes5d, allReturns5d, allReturns20d);
     // 테마는 임계값 더 엄격
     let cls = sc.classification;
@@ -873,6 +947,7 @@ async function main() {
       volume_sustain_ratio: sc.volume_sustain_ratio,
       volume_5d_spike_ratio: sc.volume_5d_spike_ratio,
       news_mention_change_5d: newsChange,
+      news_mention_today: newsToday,
       real_hot_score: sc.realHotScore,
       short_momentum_score: sc.shortMomentumScore,
       score_breakdown: sc.breakdown,

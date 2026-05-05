@@ -48,6 +48,7 @@ export interface SectorMetrics {
 
   // 뉴스
   news_mention_change_5d: number | null;
+  news_mention_today: number;
 
   // 점수
   real_hot_score: number;

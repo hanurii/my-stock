@@ -174,12 +174,17 @@ export function HotSectorCard({ data }: { data: SectorOrTheme }) {
         </div>
         <div>
           <p className="text-[10px] uppercase tracking-[0.18em] text-on-surface-variant/70">
-            뉴스 멘션 5D
+            뉴스 멘션
           </p>
-          <p className="text-on-surface mt-1 font-medium">
-            {data.news_mention_change_5d != null
-              ? `${data.news_mention_change_5d > 0 ? "+" : ""}${data.news_mention_change_5d}%`
-              : "—"}
+          <p className="text-on-surface mt-1">
+            오늘 <span className="font-medium">{data.news_mention_today}건</span>
+            {" · "}
+            <span className="text-on-surface-variant text-[11px]">
+              5D 변화{" "}
+              {data.news_mention_change_5d != null
+                ? `${data.news_mention_change_5d > 0 ? "+" : ""}${data.news_mention_change_5d}%`
+                : "데이터 누적 중"}
+            </span>
           </p>
           {newsKeywords.length > 0 ? (
             <p className="text-on-surface-variant/70 text-[10px] truncate">
