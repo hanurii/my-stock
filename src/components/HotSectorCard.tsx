@@ -51,18 +51,26 @@ function PerfPill({
 
 function InvestorBox({
   label,
-  value,
+  value60d,
+  value5d,
 }: {
   label: string;
-  value: number | null;
+  value60d: number | null;
+  value5d: number | null;
 }) {
-  const positive = value != null && value > 0;
+  const pos60 = value60d != null && value60d > 0;
+  const pos5 = value5d != null && value5d > 0;
+  // turn-around: 60일 추세와 5일 추세가 반대 방향
+  const turnAround =
+    value60d != null && value5d != null && value60d < 0 && value5d > 0;
   return (
     <div
       className={`flex flex-col items-center rounded-md border px-2 py-1.5 ${
-        positive
+        pos60
           ? "border-primary/40 bg-primary/8"
-          : "border-on-surface-variant/15 bg-on-surface-variant/5"
+          : turnAround
+            ? "border-tertiary/40 bg-tertiary/5"
+            : "border-on-surface-variant/15 bg-on-surface-variant/5"
       }`}
     >
       <span className="text-[10px] uppercase tracking-[0.16em] text-on-surface-variant/80">
@@ -70,10 +78,23 @@ function InvestorBox({
       </span>
       <span
         className={`text-xs sm:text-sm font-medium ${
-          positive ? "text-primary" : "text-on-surface-variant"
+          pos60 ? "text-primary" : "text-on-surface-variant"
         }`}
       >
-        {formatBillion(value)}
+        {formatBillion(value60d)}
+      </span>
+      <span
+        className={`text-[10px] mt-0.5 ${
+          turnAround
+            ? "text-tertiary font-medium"
+            : pos5
+              ? "text-primary/70"
+              : "text-on-surface-variant/60"
+        }`}
+        title={turnAround ? "60D 매도였으나 최근 5일 매수 전환 — 추세 반전 가능성" : ""}
+      >
+        5D {formatBillion(value5d)}
+        {turnAround ? " ⚡" : ""}
       </span>
     </div>
   );
@@ -141,18 +162,30 @@ export function HotSectorCard({ data }: { data: SectorOrTheme }) {
         <PerfPill label="6M" value={data.perf_6m} emphasize />
       </div>
 
-      {/* 3-investor row: 60D 누적 */}
+      {/* 3-investor row: 60D 메인 + 5D 보조 (turn-around 시 ⚡ 강조) */}
       <div>
         <p className="text-[10px] uppercase tracking-[0.18em] text-on-surface-variant/70 mb-2">
-          3주체 60일 누적 순매수
+          3주체 누적 순매수 (60일 메인 · 5일 보조)
         </p>
         <div className="grid grid-cols-3 gap-2">
-          <InvestorBox label="외국인" value={data.foreign_60d_billion} />
-          <InvestorBox label="기관" value={data.organ_60d_billion} />
-          <InvestorBox label="개인" value={data.individual_60d_billion} />
+          <InvestorBox
+            label="외국인"
+            value60d={data.foreign_60d_billion}
+            value5d={data.foreign_5d_billion}
+          />
+          <InvestorBox
+            label="기관"
+            value60d={data.organ_60d_billion}
+            value5d={data.organ_5d_billion}
+          />
+          <InvestorBox
+            label="개인"
+            value60d={data.individual_60d_billion}
+            value5d={data.individual_5d_billion}
+          />
         </div>
         <p className="text-[10px] text-on-surface-variant/60 mt-1.5">
-          (개인 = −(외인+기관) 추정)
+          (개인 = −(외인+기관) 추정 · ⚡ = 60D 매도였으나 5D 매수 전환 = 추세 반전 가능성)
         </p>
       </div>
 
