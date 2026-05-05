@@ -25,18 +25,83 @@ function sortSectors<T extends KoreanSector | KoreanTheme>(items: T[], key: Sort
   });
 }
 
+// 안정 후보 — 5조건 모두 충족 (가장 엄격)
+function isStableCandidate(s: KoreanSector | KoreanTheme): boolean {
+  return (
+    s.classification === "real_hot" &&
+    (s.perf_60d ?? 0) < 100 &&
+    s.three_investor_alignment_60d === 3 &&
+    (s.volume_sustain_ratio ?? 0) >= 1.3 &&
+    s.fake_hot_signals.length === 0
+  );
+}
+
+// 검토 가능 — 한 단계 완화 (4조건 + warning 분류 허용)
+function isReviewable(s: KoreanSector | KoreanTheme): boolean {
+  return (
+    (s.classification === "real_hot" || s.classification === "real_hot_warning") &&
+    (s.perf_60d ?? 0) < 150 &&
+    s.three_investor_alignment_60d >= 2 &&
+    (s.volume_sustain_ratio ?? 0) >= 1.0 &&
+    s.fake_hot_signals.length <= 1
+  );
+}
+
+function hasETF<T extends KoreanSector | KoreanTheme>(s: T): boolean {
+  return s.etf_options.length > 0;
+}
+
+type FilterMode = "all" | "safe" | "reviewable";
+
+const FILTER_OPTIONS: Array<{ key: FilterMode; label: string; tooltip: string }> = [
+  { key: "all", label: "전체", tooltip: "모든 섹터/테마 표시" },
+  {
+    key: "safe",
+    label: "🛡️ 안정 후보만",
+    tooltip:
+      "5조건 모두: 🔥 진짜 핫 + 60D<100% + 3주체 모두 매수 + 거래대금 ≥1.3× + 가짜 시그널 0개",
+  },
+  {
+    key: "reviewable",
+    label: "🟡 검토 가능",
+    tooltip:
+      "한 단계 완화: 🔥/⚠️ + 60D<150% + 3주체 ≥2/3 + 거래대금 ≥1.0× + 가짜 시그널 ≤1개",
+  },
+];
+
 export function HotSectorsView({ data }: { data: HotSectorsData }) {
   const [tab, setTab] = useState<"kr_sectors" | "kr_themes" | "global" | "rotation">("kr_sectors");
   const [sortKey, setSortKey] = useState<SortKey>("score");
+  const [filterMode, setFilterMode] = useState<FilterMode>("all");
+  const [etfOnly, setEtfOnly] = useState(false);
   const [showLearning, setShowLearning] = useState(false);
 
-  const sortedSectors = useMemo(
-    () => sortSectors(data.korea_sectors.sectors, sortKey),
-    [data.korea_sectors.sectors, sortKey],
+  const allSectors = data.korea_sectors.sectors;
+  const allThemes = data.korea_themes.themes;
+
+  const filteredSectors = useMemo(() => {
+    let result = sortSectors(allSectors, sortKey);
+    if (filterMode === "safe") result = result.filter(isStableCandidate);
+    else if (filterMode === "reviewable") result = result.filter(isReviewable);
+    if (etfOnly) result = result.filter(hasETF);
+    return result;
+  }, [allSectors, sortKey, filterMode, etfOnly]);
+  const filteredThemes = useMemo(() => {
+    let result = sortSectors(allThemes, sortKey);
+    if (filterMode === "safe") result = result.filter(isStableCandidate);
+    else if (filterMode === "reviewable") result = result.filter(isReviewable);
+    if (etfOnly) result = result.filter(hasETF);
+    return result;
+  }, [allThemes, sortKey, filterMode, etfOnly]);
+
+  // 안정 후보 0개 + safe 모드일 때 reviewable 모드의 후보 수
+  const reviewableSectorsCount = useMemo(
+    () => allSectors.filter(isReviewable).length,
+    [allSectors],
   );
-  const sortedThemes = useMemo(
-    () => sortSectors(data.korea_themes.themes, sortKey),
-    [data.korea_themes.themes, sortKey],
+  const reviewableThemesCount = useMemo(
+    () => allThemes.filter(isReviewable).length,
+    [allThemes],
   );
 
   return (
@@ -125,7 +190,7 @@ export function HotSectorsView({ data }: { data: HotSectorsData }) {
       {tab === "kr_sectors" || tab === "kr_themes" ? (
         <div>
           {/* Sort toggle */}
-          <div className="flex items-center gap-2 mb-4 flex-wrap">
+          <div className="flex items-center gap-2 mb-3 flex-wrap">
             <span className="text-[11px] uppercase tracking-[0.16em] text-on-surface-variant">
               정렬
             </span>
@@ -145,30 +210,107 @@ export function HotSectorsView({ data }: { data: HotSectorsData }) {
             ))}
           </div>
 
-          {/* Cards */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
-            {tab === "kr_sectors"
-              ? sortedSectors.map((s) => (
-                  <HotSectorCard
-                    key={s.wics_name}
-                    data={{
-                      ...s,
-                      __title: s.wics_name,
-                      __subtitle: `${s.gics_mapped} · ${s.stock_count}종목`,
-                    }}
-                  />
-                ))
-              : sortedThemes.map((t) => (
-                  <HotSectorCard
-                    key={t.theme_name}
-                    data={{
-                      ...t,
-                      __title: t.theme_name,
-                      __subtitle: `${t.stock_count}종목 · ${t.news_keywords.slice(0, 2).join(", ")}`,
-                    }}
-                  />
-                ))}
+          {/* Filter toggles */}
+          <div className="flex items-center gap-2 mb-4 flex-wrap">
+            <span className="text-[11px] uppercase tracking-[0.16em] text-on-surface-variant">
+              필터
+            </span>
+            {FILTER_OPTIONS.map((opt) => (
+              <button
+                key={opt.key}
+                type="button"
+                onClick={() => setFilterMode(opt.key)}
+                title={opt.tooltip}
+                className={`text-[12px] px-2.5 py-1 rounded-full border ${
+                  filterMode === opt.key
+                    ? "border-primary text-primary bg-primary/15"
+                    : "border-outline-variant/30 text-on-surface-variant hover:text-on-surface"
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => setEtfOnly((v) => !v)}
+              className={`text-[12px] px-2.5 py-1 rounded-full border ${
+                etfOnly
+                  ? "border-primary text-primary bg-primary/15"
+                  : "border-outline-variant/30 text-on-surface-variant hover:text-on-surface"
+              }`}
+            >
+              🛒 매수 가능 ETF 있음
+            </button>
+            <span className="text-[11px] text-on-surface-variant/70 ml-auto">
+              {tab === "kr_sectors"
+                ? `${filteredSectors.length} / ${allSectors.length}`
+                : `${filteredThemes.length} / ${allThemes.length}`}
+            </span>
           </div>
+
+          {/* Filter explainer (when filter active) */}
+          {filterMode !== "all" ? (
+            <p className="text-[11px] text-primary/80 mb-4 leading-relaxed">
+              {FILTER_OPTIONS.find((o) => o.key === filterMode)?.tooltip}
+            </p>
+          ) : null}
+
+          {/* Cards or empty state */}
+          {(tab === "kr_sectors" ? filteredSectors : filteredThemes).length === 0 ? (
+            <div className="glass-card rounded-xl ghost-border p-8 text-center text-on-surface-variant text-sm space-y-3">
+              <p>
+                조건을 충족하는 {tab === "kr_sectors" ? "섹터" : "테마"}가 없습니다.
+                {filterMode === "safe" ? (
+                  <span className="block mt-1 text-on-surface-variant/80">
+                    현재 시장은 외인이 빠지는 패턴이 많아 5조건 모두 충족하는 진짜 핫이 드뭅니다.
+                  </span>
+                ) : null}
+              </p>
+              {filterMode === "safe" &&
+              (tab === "kr_sectors" ? reviewableSectorsCount : reviewableThemesCount) > 0 ? (
+                <button
+                  type="button"
+                  onClick={() => setFilterMode("reviewable")}
+                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-tertiary/40 text-tertiary bg-tertiary/10 text-[12px] hover:bg-tertiary/20"
+                >
+                  🟡 검토 가능 후보{" "}
+                  {tab === "kr_sectors"
+                    ? reviewableSectorsCount
+                    : reviewableThemesCount}
+                  개 보기 (한 단계 완화)
+                </button>
+              ) : (
+                <p className="text-[11px]">
+                  필터를 해제하거나 ⚠️ <code>real_hot_warning</code> / 🚀{" "}
+                  <code>emerging</code> 분류도 직접 데이터 확인 후 검토하세요.
+                </p>
+              )}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
+              {tab === "kr_sectors"
+                ? filteredSectors.map((s) => (
+                    <HotSectorCard
+                      key={s.wics_name}
+                      data={{
+                        ...s,
+                        __title: s.wics_name,
+                        __subtitle: `${s.gics_mapped} · ${s.stock_count}종목`,
+                      }}
+                    />
+                  ))
+                : filteredThemes.map((t) => (
+                    <HotSectorCard
+                      key={t.theme_name}
+                      data={{
+                        ...t,
+                        __title: t.theme_name,
+                        __subtitle: `${t.stock_count}종목 · ${t.news_keywords.slice(0, 2).join(", ")}`,
+                      }}
+                    />
+                  ))}
+            </div>
+          )}
         </div>
       ) : null}
 
