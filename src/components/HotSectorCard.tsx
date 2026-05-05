@@ -4,10 +4,8 @@ import { useState } from "react";
 import {
   formatBillion,
   formatPct,
-  formatRatio,
   type KoreanSector,
   type KoreanTheme,
-  type ETFOption,
 } from "@/lib/hot-sectors";
 import { HotClassificationBadge } from "./HotClassificationBadge";
 
@@ -49,82 +47,117 @@ function PerfPill({
   );
 }
 
-function InvestorBox({
+function InvestorCell({
   label,
-  value60d,
-  value5d,
+  value,
+  highlight,
 }: {
   label: string;
-  value60d: number | null;
-  value5d: number | null;
+  value: number | null;
+  highlight?: "turn" | null;
 }) {
-  const pos60 = value60d != null && value60d > 0;
-  const pos5 = value5d != null && value5d > 0;
-  // turn-around: 60일 추세와 5일 추세가 반대 방향
-  const turnAround =
-    value60d != null && value5d != null && value60d < 0 && value5d > 0;
+  const positive = value != null && value > 0;
   return (
     <div
       className={`flex flex-col items-center rounded-md border px-2 py-1.5 ${
-        pos60
-          ? "border-primary/40 bg-primary/8"
-          : turnAround
-            ? "border-tertiary/40 bg-tertiary/5"
+        highlight === "turn"
+          ? "border-tertiary/40 bg-tertiary/5"
+          : positive
+            ? "border-primary/40 bg-primary/8"
             : "border-on-surface-variant/15 bg-on-surface-variant/5"
       }`}
     >
       <span className="text-[10px] uppercase tracking-[0.16em] text-on-surface-variant/80">
         {label}
+        {highlight === "turn" ? <span className="text-tertiary ml-1">⚡</span> : null}
       </span>
       <span
         className={`text-xs sm:text-sm font-medium ${
-          pos60 ? "text-primary" : "text-on-surface-variant"
+          highlight === "turn"
+            ? "text-tertiary"
+            : positive
+              ? "text-primary"
+              : "text-on-surface-variant"
         }`}
       >
-        {formatBillion(value60d)}
-      </span>
-      <span
-        className={`text-[10px] mt-0.5 ${
-          turnAround
-            ? "text-tertiary font-medium"
-            : pos5
-              ? "text-primary/70"
-              : "text-on-surface-variant/60"
-        }`}
-        title={turnAround ? "60D 매도였으나 최근 5일 매수 전환 — 추세 반전 가능성" : ""}
-      >
-        5D {formatBillion(value5d)}
-        {turnAround ? " ⚡" : ""}
+        {formatBillion(value)}
       </span>
     </div>
   );
 }
 
-function ETFList({ etfs }: { etfs: ETFOption[] }) {
-  if (etfs.length === 0) {
-    return (
-      <p className="text-[11px] text-on-surface-variant/70">
-        매핑된 ETF 없음 (검증 실패 또는 미등록)
-      </p>
-    );
+// 60D vs 5D 비교로 추세 변화 한 줄 코멘트 자동 생성
+function trendComment(data: SectorOrTheme): { text: string; tone: "primary" | "tertiary" | "warning" | "error" | "neutral" } {
+  const f60 = data.foreign_60d_billion ?? 0;
+  const f5 = data.foreign_5d_billion ?? 0;
+  const o60 = data.organ_60d_billion ?? 0;
+  const o5 = data.organ_5d_billion ?? 0;
+  const i60 = data.individual_60d_billion ?? 0;
+  const p60 = data.perf_60d ?? 0;
+  const p5 = data.perf_5d ?? 0;
+
+  const fTurn = f60 < 0 && f5 > 0;
+  const fContinue = f60 > 0 && f5 > 0;
+  const fLeaving = f60 < 0 && f5 < 0;
+  const fProfitTaking = f60 > 0 && f5 < 0;
+
+  // 1. 외인 turn-around + 기관도 함께 매수 → 가장 강한 반전 신호
+  if (fTurn && o5 > 0) {
+    return {
+      text: "외인 매도 → 5D 매수 전환 + 기관 동반 매수, 추세 반전 가능성",
+      tone: "tertiary",
+    };
   }
-  return (
-    <ul className="space-y-1">
-      {etfs.map((e) => (
-        <li
-          key={e.code}
-          className="flex items-center gap-2 text-[12px]"
-        >
-          <span className="font-mono text-primary/80">{e.code}</span>
-          <span className="text-on-surface">{e.name}</span>
-          {e.note ? (
-            <span className="text-[10px] text-on-surface-variant/70">— {e.note}</span>
-          ) : null}
-        </li>
-      ))}
-    </ul>
-  );
+  // 2. 외인+기관 모두 60D/5D 지속 매수
+  if (fContinue && o60 > 0 && o5 > 0) {
+    return {
+      text: "외인·기관 60D/5D 지속 매수, 안정 추세 유지 중",
+      tone: "primary",
+    };
+  }
+  // 3. 외인 매도 지속 + 개인이 받음 + 가격 강세 → 후반부 위험
+  if (fLeaving && i60 > 0 && p60 > 10) {
+    return {
+      text: "외인 매도 지속, 개인이 받는 중 + 가격 강세 — 후반부 패턴 주의",
+      tone: "warning",
+    };
+  }
+  // 4. 외인 turn 단독
+  if (fTurn) {
+    return {
+      text: "외인 60D 매도 → 5D 매수 전환, 단기 모멘텀 변화 시작",
+      tone: "tertiary",
+    };
+  }
+  // 5. 외인 차익 실현
+  if (fProfitTaking) {
+    return {
+      text: "외인 60D 매수 누적이나 5D 매도 시작, 차익 실현 가능성",
+      tone: "warning",
+    };
+  }
+  // 6. 외인 지속 매수
+  if (fContinue) {
+    return { text: "외인 60D/5D 매수 지속", tone: "primary" };
+  }
+  // 7. 외인 매도 지속 + 가격도 약세
+  if (fLeaving && p60 < 0) {
+    return { text: "외인 매도 지속 + 가격 약세, 약세 추세", tone: "error" };
+  }
+  // 8. 외인 매도 + 가격 횡보
+  if (fLeaving) {
+    return { text: "외인 60D/5D 매도 지속, 추세 약화", tone: "error" };
+  }
+  return { text: "뚜렷한 추세 변화 신호 없음", tone: "neutral" };
 }
+
+const TONE_CLASS = {
+  primary: "text-primary border-primary/30 bg-primary/8",
+  tertiary: "text-tertiary border-tertiary/40 bg-tertiary/8",
+  warning: "text-error/90 border-error/30 bg-error/5 border-dashed",
+  error: "text-error border-error/30 bg-error/8",
+  neutral: "text-on-surface-variant border-on-surface-variant/20 bg-on-surface-variant/5",
+} as const;
 
 export function HotSectorCard({ data }: { data: SectorOrTheme }) {
   const [stocksOpen, setStocksOpen] = useState(false);
@@ -134,7 +167,12 @@ export function HotSectorCard({ data }: { data: SectorOrTheme }) {
     ? (data as KoreanTheme).representative_stocks
     : (data as KoreanSector).top_stocks;
   const inWatchlist = isTheme ? (data as KoreanTheme).in_watchlist : [];
-  const newsKeywords = isTheme ? (data as KoreanTheme).news_keywords : [];
+
+  // turn-around 표시: 60D 음수 + 5D 양수
+  const turn = (v60: number | null, v5: number | null): "turn" | null =>
+    v60 != null && v5 != null && v60 < 0 && v5 > 0 ? "turn" : null;
+
+  const comment = trendComment(data);
 
   return (
     <article className="glass-card rounded-xl ghost-border p-4 sm:p-5 flex flex-col gap-4">
@@ -162,88 +200,48 @@ export function HotSectorCard({ data }: { data: SectorOrTheme }) {
         <PerfPill label="6M" value={data.perf_6m} emphasize />
       </div>
 
-      {/* 3-investor row: 60D 메인 + 5D 보조 (turn-around 시 ⚡ 강조) */}
+      {/* 누적 순매수 — 60일 그리드 */}
       <div>
         <p className="text-[10px] uppercase tracking-[0.18em] text-on-surface-variant/70 mb-2">
-          3주체 누적 순매수 (60일 메인 · 5일 보조)
+          60일 누적 순매수
         </p>
         <div className="grid grid-cols-3 gap-2">
-          <InvestorBox
+          <InvestorCell label="외국인" value={data.foreign_60d_billion} />
+          <InvestorCell label="기관" value={data.organ_60d_billion} />
+          <InvestorCell label="개인" value={data.individual_60d_billion} />
+        </div>
+      </div>
+
+      {/* 누적 순매수 — 5일 그리드 (turn-around 시 ⚡) */}
+      <div>
+        <p className="text-[10px] uppercase tracking-[0.18em] text-on-surface-variant/70 mb-2">
+          5일 누적 순매수 <span className="text-on-surface-variant/60 normal-case tracking-normal">(단기 변화)</span>
+        </p>
+        <div className="grid grid-cols-3 gap-2">
+          <InvestorCell
             label="외국인"
-            value60d={data.foreign_60d_billion}
-            value5d={data.foreign_5d_billion}
+            value={data.foreign_5d_billion}
+            highlight={turn(data.foreign_60d_billion, data.foreign_5d_billion)}
           />
-          <InvestorBox
+          <InvestorCell
             label="기관"
-            value60d={data.organ_60d_billion}
-            value5d={data.organ_5d_billion}
+            value={data.organ_5d_billion}
+            highlight={turn(data.organ_60d_billion, data.organ_5d_billion)}
           />
-          <InvestorBox
+          <InvestorCell
             label="개인"
-            value60d={data.individual_60d_billion}
-            value5d={data.individual_5d_billion}
+            value={data.individual_5d_billion}
+            highlight={turn(data.individual_60d_billion, data.individual_5d_billion)}
           />
         </div>
         <p className="text-[10px] text-on-surface-variant/60 mt-1.5">
-          (개인 = −(외인+기관) 추정 · ⚡ = 60D 매도였으나 5D 매수 전환 = 추세 반전 가능성)
+          ⚡ = 60D 매도였으나 5D 매수 전환 (추세 반전 가능성) · 개인 = −(외인+기관) 추정
         </p>
       </div>
 
-      {/* Sub metrics: volume, news */}
-      <div className="grid grid-cols-2 gap-3 text-[12px]">
-        <div>
-          <p className="text-[10px] uppercase tracking-[0.18em] text-on-surface-variant/70">
-            거래대금 지속성
-          </p>
-          <p className="text-on-surface mt-1">
-            60D / 직전60D ={" "}
-            <span className="font-medium">
-              {formatRatio(data.volume_sustain_ratio)}
-            </span>
-          </p>
-          <p className="text-on-surface-variant/80 text-[11px]">
-            5D 스파이크: {formatRatio(data.volume_5d_spike_ratio)}
-          </p>
-        </div>
-        <div>
-          <p className="text-[10px] uppercase tracking-[0.18em] text-on-surface-variant/70">
-            뉴스 멘션 (5일 합)
-          </p>
-          <p className="text-on-surface mt-1">
-            <span className="font-medium text-base">{data.news_mention_5d_total}건</span>
-            <span className="text-on-surface-variant text-[11px] ml-1">
-              (오늘 {data.news_mention_today})
-            </span>
-          </p>
-          {/* 7일 sparkline (오늘이 오른쪽) */}
-          {data.news_mention_7d_series && data.news_mention_7d_series.length > 0 ? (
-            <div className="flex items-end gap-0.5 mt-1.5 h-6">
-              {data.news_mention_7d_series.slice().reverse().map((v, i) => {
-                const max = Math.max(1, ...data.news_mention_7d_series);
-                const h = Math.max(2, (v / max) * 24);
-                const isToday = i === data.news_mention_7d_series.length - 1;
-                return (
-                  <div
-                    key={i}
-                    style={{ height: `${h}px` }}
-                    className={`flex-1 rounded-sm ${
-                      isToday ? "bg-primary" : v > 0 ? "bg-primary/40" : "bg-on-surface-variant/20"
-                    }`}
-                    title={`${v}건`}
-                  />
-                );
-              })}
-            </div>
-          ) : null}
-          {data.news_mention_change_5d != null ? (
-            <p className="text-on-surface-variant text-[10px] mt-1">
-              5D 변화{" "}
-              <span className={data.news_mention_change_5d > 50 ? "text-tertiary" : ""}>
-                {data.news_mention_change_5d > 0 ? "+" : ""}{data.news_mention_change_5d}%
-              </span>
-            </p>
-          ) : null}
-        </div>
+      {/* 추세 변화 한 줄 코멘트 */}
+      <div className={`rounded-md border px-3 py-2 text-[12px] ${TONE_CLASS[comment.tone]}`}>
+        💬 {comment.text}
       </div>
 
       {/* Score breakdown */}
@@ -281,19 +279,6 @@ export function HotSectorCard({ data }: { data: SectorOrTheme }) {
             ))}
           </div>
         ) : null}
-      </div>
-
-      {/* ETF buy options */}
-      <div className="rounded-lg border border-primary/25 bg-primary/5 p-3">
-        <div className="flex items-center gap-1.5 mb-1.5">
-          <span className="material-symbols-outlined text-primary text-base">
-            shopping_cart
-          </span>
-          <span className="text-[11px] uppercase tracking-[0.16em] text-primary/90">
-            매수 가능 ETF
-          </span>
-        </div>
-        <ETFList etfs={data.etf_options} />
       </div>
 
       {/* Watchlist hits (themes only) */}
