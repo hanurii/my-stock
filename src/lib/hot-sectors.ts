@@ -8,6 +8,87 @@ export type HotClassification =
   | "fake_hot"
   | "neutral";
 
+// 가속도 페이즈 — 6M/60D/20D 월간 환산 수익률을 비교해 추세 단계 분류.
+// 1~6개월 보유 전략에서 "초기 진입"에 적합한 시점을 찾는 보조 지표.
+export type MomentumPhase =
+  | "early_accel"      // ⭐ 가장 좋은 진입: 가속 중 + 6M < 50% (아직 안 오른 초기 단계)
+  | "accelerating"     // 🚀 가속 중이지만 이미 6M ≥ 50% (후발 진입)
+  | "early_recovery"   // 🌅 6M은 음수지만 60D 양수 (반등 시작)
+  | "decelerating"     // 📉 60D/월 < 6M/월 (감속, 정점 근처)
+  | "weakening"        // 🔻 6M·60D 모두 음수 (약세 지속)
+  | "stable";          // ➖ 데이터 부족/판단 보류
+
+// 월간 환산 수익률 (가속도 비교용 보조 데이터)
+export interface MonthlyRates {
+  m6: number | null;     // 6M 수익률 / 6
+  m60: number | null;    // 60D 수익률 / 3
+  m20: number | null;    // 20D 수익률 (≈ 1개월)
+  w5: number | null;     // 5D 수익률 (≈ 1주, 참고)
+}
+
+export function classifyMomentumPhase(
+  perf_5d: number | null,
+  perf_20d: number | null,
+  perf_60d: number | null,
+  perf_6m: number | null,
+): MomentumPhase {
+  if (perf_6m == null || perf_60d == null) return "stable";
+  const m6 = perf_6m / 6;
+  const m60 = perf_60d / 3;
+  const m20 = perf_20d ?? 0;
+
+  // 약세 지속
+  if (perf_6m < 0 && perf_60d < 0) return "weakening";
+  // 회복 시작 (6M 음수지만 60D 양수)
+  if (perf_6m < 0 && perf_60d > 0) return "early_recovery";
+
+  // 가속 판정: 60D/월 > 6M/월 + 20D/월 > 60D/월
+  const accelerating = m60 > m6 && m20 > m60;
+  const decelerating = m60 < m6;
+
+  if (accelerating && perf_6m < 50) return "early_accel";
+  if (accelerating) return "accelerating";
+  if (decelerating) return "decelerating";
+  return "stable";
+}
+
+export function momentumPhaseLabel(p: MomentumPhase): string {
+  return {
+    early_accel: "⭐ 초기 가속",
+    accelerating: "🚀 가속 중",
+    early_recovery: "🌅 회복 시작",
+    decelerating: "📉 감속/성숙",
+    weakening: "🔻 약세 지속",
+    stable: "➖ 유지",
+  }[p];
+}
+
+export function momentumPhaseColor(p: MomentumPhase): string {
+  return {
+    early_accel: "text-tertiary",
+    accelerating: "text-primary",
+    early_recovery: "text-tertiary/80",
+    decelerating: "text-on-surface-variant",
+    weakening: "text-error",
+    stable: "text-on-surface-variant",
+  }[p];
+}
+
+export function momentumPhaseDescription(p: MomentumPhase): string {
+  return {
+    early_accel:
+      "월간 가속도가 빨라지는 중 + 6개월 누적이 아직 50% 미만 — 1~6개월 보유 전략에 가장 적합한 진입 단계",
+    accelerating:
+      "월간 가속도는 빨라지나 이미 6개월 누적 50% 이상 — 후발 진입 위험 동반",
+    early_recovery:
+      "6개월 수익률은 음수지만 최근 60일 양수 전환 — 약세에서 반등 초기",
+    decelerating:
+      "최근 60일 월평균이 6개월 평균보다 낮음 — 모멘텀 감속, 정점 근처 가능성",
+    weakening: "6개월·60일 모두 음수 — 추세적 약세 지속",
+    stable: "뚜렷한 가속/감속 신호 없음",
+  }[p];
+}
+
 export interface ETFOption {
   code: string;
   name: string;
@@ -58,6 +139,10 @@ export interface SectorMetrics {
   score_breakdown: ScoreBreakdown;
   fake_hot_signals: string[];
   classification: HotClassification;
+
+  // 가속도 페이즈 (1~6개월 보유 전략용 진입 단계 판정)
+  momentum_phase: MomentumPhase;
+  monthly_rates: MonthlyRates;
 }
 
 export interface KoreanSector extends SectorMetrics {

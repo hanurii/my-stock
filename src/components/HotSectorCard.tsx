@@ -4,6 +4,9 @@ import { useState } from "react";
 import {
   formatBillion,
   formatPct,
+  momentumPhaseColor,
+  momentumPhaseDescription,
+  momentumPhaseLabel,
   type KoreanSector,
   type KoreanTheme,
 } from "@/lib/hot-sectors";
@@ -188,7 +191,15 @@ export function HotSectorCard({ data }: { data: SectorOrTheme }) {
             </p>
           ) : null}
         </div>
-        <HotClassificationBadge classification={data.classification} />
+        <div className="flex flex-col items-end gap-1.5">
+          <HotClassificationBadge classification={data.classification} />
+          <span
+            className={`text-[11px] font-medium ${momentumPhaseColor(data.momentum_phase)}`}
+            title={momentumPhaseDescription(data.momentum_phase)}
+          >
+            {momentumPhaseLabel(data.momentum_phase)}
+          </span>
+        </div>
       </div>
 
       {/* Performance row: 5D, 20D, 60D, 3M, 6M */}
@@ -198,6 +209,29 @@ export function HotSectorCard({ data }: { data: SectorOrTheme }) {
         <PerfPill label="60D" value={data.perf_60d} emphasize />
         <PerfPill label="3M" value={data.perf_3m} emphasize />
         <PerfPill label="6M" value={data.perf_6m} emphasize />
+      </div>
+
+      {/* 월간 환산 가속도: 6M/월 → 60D/월 → 20D/월 비교 */}
+      <div className="rounded-md border border-outline-variant/15 px-3 py-2 bg-surface-container-low/30">
+        <p className="text-[10px] uppercase tracking-[0.18em] text-on-surface-variant/70 mb-1">
+          월간 환산 가속도
+        </p>
+        <div className="flex items-baseline gap-1.5 text-[12px] flex-wrap">
+          <span className="text-on-surface-variant">6M/월</span>
+          <span className="font-medium">{formatPct(data.monthly_rates.m6)}</span>
+          <span className="text-on-surface-variant/50">→</span>
+          <span className="text-on-surface-variant">60D/월</span>
+          <span className="font-medium">{formatPct(data.monthly_rates.m60)}</span>
+          <span className="text-on-surface-variant/50">→</span>
+          <span className="text-on-surface-variant">20D</span>
+          <span className="font-medium">{formatPct(data.monthly_rates.m20)}</span>
+          <span className="text-on-surface-variant/50">→</span>
+          <span className="text-on-surface-variant">5D</span>
+          <span className="font-medium">{formatPct(data.monthly_rates.w5)}</span>
+        </div>
+        <p className="text-[10px] text-on-surface-variant/60 mt-1">
+          뒤로 갈수록 빨라지면 가속, 느려지면 감속
+        </p>
       </div>
 
       {/* 누적 순매수 — 60일 그리드 */}

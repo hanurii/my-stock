@@ -23,14 +23,15 @@ import {
   SCORE_THRESHOLDS,
   type ETFCandidate,
 } from "./hot-sectors-config";
-import type {
-  HotSectorsData,
-  HotClassification,
-  KoreanSector,
-  KoreanTheme,
-  GlobalSector,
-  RotationSnapshot,
-  ScoreBreakdown,
+import {
+  classifyMomentumPhase,
+  type HotSectorsData,
+  type HotClassification,
+  type KoreanSector,
+  type KoreanTheme,
+  type GlobalSector,
+  type RotationSnapshot,
+  type ScoreBreakdown,
 } from "../src/lib/hot-sectors";
 
 // ── 설정 ──
@@ -1089,6 +1090,13 @@ async function main() {
       score_breakdown: sc.breakdown,
       fake_hot_signals: sc.fakeSignals,
       classification: sc.classification,
+      momentum_phase: classifyMomentumPhase(agg.perf_5d, agg.perf_20d, agg.perf_60d, agg.perf_6m),
+      monthly_rates: {
+        m6: agg.perf_6m == null ? null : Math.round((agg.perf_6m / 6) * 10) / 10,
+        m60: agg.perf_60d == null ? null : Math.round((agg.perf_60d / 3) * 10) / 10,
+        m20: agg.perf_20d == null ? null : Math.round(agg.perf_20d * 10) / 10,
+        w5: agg.perf_5d == null ? null : Math.round(agg.perf_5d * 10) / 10,
+      },
       etf_options: [], // 아래에서 verify
       top_stocks: agg.top_stocks,
     });
@@ -1137,6 +1145,13 @@ async function main() {
       score_breakdown: sc.breakdown,
       fake_hot_signals: sc.fakeSignals,
       classification: cls,
+      momentum_phase: classifyMomentumPhase(agg.perf_5d, agg.perf_20d, agg.perf_60d, agg.perf_6m),
+      monthly_rates: {
+        m6: agg.perf_6m == null ? null : Math.round((agg.perf_6m / 6) * 10) / 10,
+        m60: agg.perf_60d == null ? null : Math.round((agg.perf_60d / 3) * 10) / 10,
+        m20: agg.perf_20d == null ? null : Math.round(agg.perf_20d * 10) / 10,
+        w5: agg.perf_5d == null ? null : Math.round(agg.perf_5d * 10) / 10,
+      },
       etf_options: [], // 아래
       representative_stocks: agg.top_stocks,
       in_watchlist: [],

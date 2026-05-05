@@ -47,14 +47,25 @@ function isReviewable(s: KoreanSector | KoreanTheme): boolean {
   );
 }
 
+// ⭐ 초기 가속 — 1~6개월 보유 전략용. momentum_phase에서 직접 판정.
+function isEarlyAccel(s: KoreanSector | KoreanTheme): boolean {
+  return s.momentum_phase === "early_accel";
+}
+
 function hasETF<T extends KoreanSector | KoreanTheme>(s: T): boolean {
   return s.etf_options.length > 0;
 }
 
-type FilterMode = "all" | "safe" | "reviewable";
+type FilterMode = "all" | "safe" | "reviewable" | "early_accel";
 
 const FILTER_OPTIONS: Array<{ key: FilterMode; label: string; tooltip: string }> = [
   { key: "all", label: "전체", tooltip: "모든 섹터/테마 표시" },
+  {
+    key: "early_accel",
+    label: "⭐ 초기 가속 (1~6개월 보유)",
+    tooltip:
+      "월간 가속도 빨라지는 중 + 6M 누적 50% 미만 — 이미 너무 오른 섹터 회피, 초기 진입 단계 후보",
+  },
   {
     key: "safe",
     label: "🛡️ 안정 후보만",
@@ -83,6 +94,7 @@ export function HotSectorsView({ data }: { data: HotSectorsData }) {
     let result = sortSectors(allSectors, sortKey);
     if (filterMode === "safe") result = result.filter(isStableCandidate);
     else if (filterMode === "reviewable") result = result.filter(isReviewable);
+    else if (filterMode === "early_accel") result = result.filter(isEarlyAccel);
     if (etfOnly) result = result.filter(hasETF);
     return result;
   }, [allSectors, sortKey, filterMode, etfOnly]);
@@ -90,6 +102,7 @@ export function HotSectorsView({ data }: { data: HotSectorsData }) {
     let result = sortSectors(allThemes, sortKey);
     if (filterMode === "safe") result = result.filter(isStableCandidate);
     else if (filterMode === "reviewable") result = result.filter(isReviewable);
+    else if (filterMode === "early_accel") result = result.filter(isEarlyAccel);
     if (etfOnly) result = result.filter(hasETF);
     return result;
   }, [allThemes, sortKey, filterMode, etfOnly]);
@@ -143,6 +156,27 @@ export function HotSectorsView({ data }: { data: HotSectorsData }) {
                 각 항목은 전체 섹터/테마 풀 내 <b>백분위 순위</b>. 96이면 단기 모멘텀이 상위 4% 수준.
                 RealHotScore와 조합으로 진입 성격을 가늠 — 둘 다 높으면 🔥 안정 진입, RealHot은 낮은데
                 ShortMomentum만 높으면 🚀 신규 부상(빠른 진입 기회) 또는 ⚡ 단기 가속(막차 위험).
+              </p>
+            </div>
+            <div>
+              <p className="font-medium text-on-surface mb-1">가속도 페이즈 — 1~6개월 보유 전략용</p>
+              <p>
+                각 윈도우 수익률을 <b>월간 환산</b>해서 비교: <code>6M/월 → 60D/월 → 20D/월 → 5D</code>.
+                뒤로 갈수록 빨라지면 가속, 느려지면 감속.
+              </p>
+              <ul className="list-disc list-inside space-y-1 mt-2">
+                <li>
+                  ⭐ <b>초기 가속</b>: 60D/월 &gt; 6M/월 + 20D/월 &gt; 60D/월 + 6M &lt; 50% — <b>이미 너무
+                  오른 섹터를 회피하고 초기 진입 단계를 찾는 핵심 필터</b>
+                </li>
+                <li>🚀 <b>가속 중</b>: 가속 패턴 동일하나 6M ≥ 50% — 후발 진입 위험</li>
+                <li>🌅 <b>회복 시작</b>: 6M 음수지만 60D 양수 — 약세 반등 초기</li>
+                <li>📉 <b>감속/성숙</b>: 60D/월 &lt; 6M/월 — 정점 근처</li>
+                <li>🔻 <b>약세 지속</b>: 6M·60D 모두 음수</li>
+              </ul>
+              <p className="mt-2 text-on-surface-variant/80">
+                💡 단기 매매가 아닌 분기/반기 단위 보유 시 "초기 가속" 페이즈를 찾는 것이 핵심.
+                RealHotScore가 1위라도 페이즈가 📉 감속이면 후발 진입 위험.
               </p>
             </div>
             <div>
