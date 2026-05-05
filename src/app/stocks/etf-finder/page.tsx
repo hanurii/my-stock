@@ -106,6 +106,35 @@ export default function ETFFinderPage() {
         )}
       </section>
 
+      {/* 점수 의미 안내 */}
+      <section className="rounded-xl p-5 ghost-border" style={{ backgroundColor: "#d4b48312" }}>
+        <div className="flex items-start gap-3">
+          <span
+            className="material-symbols-outlined text-2xl shrink-0"
+            style={{ color: "#d4b483" }}
+          >
+            tips_and_updates
+          </span>
+          <div>
+            <h3 className="text-base font-medium mb-1" style={{ color: "#d4b483" }}>
+              점수는 "운영 품질"이지 "매수 신호"가 아닙니다
+            </h3>
+            <p className="text-sm text-on-surface-variant leading-relaxed">
+              A 등급 = 같은 섹터의 다른 ETF 대비 <strong>운용보수 저렴 · 펀드 규모 큼 · 거래 활발 · 검증 기간 충분</strong>이라는 뜻이에요.
+              <br className="sm:hidden" />
+              <span className="text-on-surface-variant/80">
+                {" "}A 등급 ETF가 -20% 손실 줄 수도 있고, D 등급 ETF가 +50% 폭등할 수도 있습니다.
+              </span>
+            </p>
+            <ul className="text-xs text-on-surface-variant/70 mt-3 space-y-1 leading-relaxed">
+              <li>✅ <strong>점수의 용도</strong>: 같은 섹터 내에서 어느 ETF를 살지 비교 (예: 화장품 → TIGER vs SOL vs HANARO)</li>
+              <li>❌ <strong>점수의 한계</strong>: 이 ETF가 오를지/언제 살지 알려주지 않음 (그건 사이클·매매 룰의 영역)</li>
+              <li>🎯 <strong>실전 원칙</strong>: ① 핫섹터 판단(별개) → ② 점수로 ETF 선택 → ③ 매매 룰(분기 진입·-15% 손절)로 실행</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <ETFFinder sectors={data.sectors} etfs={data.etfs} />
 
       {/* 평가 기준 설명 */}
