@@ -63,10 +63,21 @@ export function HotSectorsView({ data }: { data: HotSectorsData }) {
               </p>
             </div>
             <div>
-              <p className="font-medium text-on-surface mb-1">RealHotScore (0~100)</p>
+              <p className="font-medium text-on-surface mb-1">RealHotScore (0~100) — 중장기 추세 점수</p>
               <p>
                 = 0.30 × 추세일관성(20D/60D/3M/6M 모두 양수) + 0.25 × 3주체 매집(외인+기관+개인 60일 모두 양수)
                 + 0.20 × 거래대금 지속성(60D / 직전60D ≥ 1.3) + 0.15 × 60일 수익률 백분위 + 0.10 × 뉴스 디커플링
+              </p>
+            </div>
+            <div>
+              <p className="font-medium text-on-surface mb-1">ShortMomentumScore (0~100) — 단기 진입 타이밍 보조 점수</p>
+              <p>
+                = 0.5 × 5D 수익률 백분위 + 0.3 × 20D 수익률 백분위 + 0.2 × 5일 거래대금 스파이크 백분위
+              </p>
+              <p className="mt-1 text-on-surface-variant/80">
+                각 항목은 전체 섹터/테마 풀 내 <b>백분위 순위</b>. 96이면 단기 모멘텀이 상위 4% 수준.
+                RealHotScore와 조합으로 진입 성격을 가늠 — 둘 다 높으면 🔥 안정 진입, RealHot은 낮은데
+                ShortMomentum만 높으면 🚀 신규 부상(빠른 진입 기회) 또는 ⚡ 단기 가속(막차 위험).
               </p>
             </div>
             <div>
