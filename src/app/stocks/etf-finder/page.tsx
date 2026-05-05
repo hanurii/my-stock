@@ -85,7 +85,7 @@ export default function ETFFinderPage() {
           핫섹터 ETF 파인더
         </h2>
         <p className="text-base text-on-surface-variant mt-2">
-          섹터를 선택하면 관련 ETF를 추천 + 운용보수·AUM·거래대금 기반 점수
+          섹터를 선택하면 관련 ETF를 추천 + 운용보수·펀드 규모·거래대금 기반 점수
         </p>
         <p className="text-xs text-on-surface-variant/50 mt-1.5">
           기준일: {data.updated_at} · 등록 ETF {totalETFs}개 · ETF 매핑 섹터 {sectorsWithETFs}개
@@ -94,7 +94,7 @@ export default function ETFFinderPage() {
           <div className="mt-4 rounded-xl p-4" style={{ backgroundColor: "#d4b48315" }}>
             <p className="text-sm" style={{ color: "#d4b483" }}>
               <span className="material-symbols-outlined text-base align-middle mr-1">info</span>
-              운용보수·AUM 등 수치 데이터 미갱신 상태입니다. 갱신 명령:
+              운용보수·펀드 규모 등 수치 데이터 미갱신 상태입니다. 갱신 명령:
               <code className="text-xs bg-surface-container/40 px-2 py-0.5 rounded ml-2">
                 {data.data_status.refresh_command}
               </code>
@@ -122,10 +122,10 @@ export default function ETFFinderPage() {
           </div>
           <div className="bg-surface-container/40 rounded-lg p-4">
             <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-1.5">
-              ② AUM 순자산 (클수록 안정)
+              ② 펀드 규모 (클수록 안정)
             </p>
             <p className="text-on-surface-variant leading-relaxed">
-              1조원 이상 = 우수 / 1,000~5,000억 = 보통 / 100억 미만 = 상장폐지 위험. 작은 ETF는 호가 격차도 큼.
+              해당 ETF에 모인 전체 자금. 1조원 이상 = 우수 / 1,000~5,000억 = 보통 / 100억 미만 = 상장폐지 위험. 규모가 작으면 매수·매도 시 호가 격차도 큼.
             </p>
           </div>
           <div className="bg-surface-container/40 rounded-lg p-4">
@@ -158,6 +158,17 @@ export default function ETFFinderPage() {
             </p>
             <p className="text-on-surface-variant leading-relaxed">
               FnGuide / WISE / KRX 등 정식 지수 추종이 안정적. "테마/액티브" 표시는 운용사 재량 비중.
+            </p>
+          </div>
+          <div className="bg-surface-container/40 rounded-lg p-4 md:col-span-2">
+            <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-1.5">
+              참고: 올해 수익률 (= YTD, Year-To-Date)
+            </p>
+            <p className="text-on-surface-variant leading-relaxed">
+              올해 1월 1일 대비 현재 등락률. 점수에는 반영하지 않음 (좋은 ETF인지와 별개) — 단지 현재 모멘텀 참고용.
+              <span className="text-on-surface-variant/60 text-xs">
+                {" "}예) +50% = 올해 50% 상승 / -10% = 올해 10% 하락.
+              </span>
             </p>
           </div>
         </div>

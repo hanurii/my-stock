@@ -76,7 +76,7 @@ function computeScore(etf: ETF): ETFScore {
       ? clamp(((0.5 - etf.expense_ratio_pct) / (0.5 - 0.05)) * 100)
       : null;
 
-  // AUM: 1조 만점, 100억 0점 (로그 스케일)
+  // 펀드 규모: 1조 만점, 100억 0점 (로그 스케일)
   const aum =
     etf.aum_krw != null
       ? clamp(
@@ -354,7 +354,7 @@ export function ETFFinder({ sectors, etfs }: Props) {
                 </div>
 
                 {/* 메트릭 그리드 */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-4">
                   <Metric
                     label="운용보수"
                     value={
@@ -365,7 +365,7 @@ export function ETFFinder({ sectors, etfs }: Props) {
                     score={etf.score.parts.expense}
                   />
                   <Metric
-                    label="AUM"
+                    label="펀드 규모"
                     value={etf.aum_krw != null ? formatMoney(etf.aum_krw) : null}
                     score={etf.score.parts.aum}
                   />
@@ -385,6 +385,10 @@ export function ETFFinder({ sectors, etfs }: Props) {
                       return y != null ? `${y.toFixed(1)}년` : null;
                     })()}
                     score={etf.score.parts.age}
+                  />
+                  <ReturnMetric
+                    label="올해 수익률"
+                    value={etf.ytd_return_pct}
                   />
                 </div>
 
@@ -429,7 +433,7 @@ export function ETFFinder({ sectors, etfs }: Props) {
                     <span className="material-symbols-outlined text-sm align-middle mr-1">
                       info
                     </span>
-                    수치 데이터 미갱신. 정확한 평가를 위해 운용보수·AUM·거래대금 입력 필요.
+                    수치 데이터 미갱신. 정확한 평가를 위해 운용보수·펀드 규모·거래대금 입력 필요.
                   </div>
                 )}
               </div>
@@ -437,6 +441,37 @@ export function ETFFinder({ sectors, etfs }: Props) {
           })}
         </div>
       )}
+    </div>
+  );
+}
+
+function ReturnMetric({
+  label,
+  value,
+}: {
+  label: string;
+  value: number | null;
+}) {
+  const color =
+    value == null
+      ? "#9ca3af"
+      : value >= 0
+        ? "#95d3ba"
+        : "#ffb4ab";
+  return (
+    <div className="bg-surface-container/30 rounded-lg p-3">
+      <p className="text-[10px] uppercase tracking-wider text-on-surface-variant/50 mb-1">
+        {label}
+      </p>
+      <p
+        className="text-base font-mono font-bold"
+        style={{ color: value == null ? "#9ca3af" : color }}
+      >
+        {value == null ? "—" : `${value >= 0 ? "+" : ""}${value.toFixed(1)}%`}
+      </p>
+      <p className="text-[10px] text-on-surface-variant/40 mt-1">
+        연초 대비 등락
+      </p>
     </div>
   );
 }
