@@ -1146,7 +1146,7 @@ async function main() {
     // 누락 종목 주주환원 데이터 자동 수집
     await ensureShareholderData(growthData.stocks as { code: string; name: string }[]);
 
-    const baseRate = growthData.base_rate ?? 2.75;
+    const baseRate = growthData.base_rate ?? 2.50;
 
     // 전년 영업이익률은 updateStocks() 내 finance/annual 폴백에서 자동 추출
 
@@ -1177,7 +1177,7 @@ async function main() {
       console.log(`\n  📋 공시월(${currentMonth}월) — 실적 데이터 갱신`);
 
       // 실적 갱신 직전 점수 스냅샷 (재채점 후 변동 비교용)
-      const preDisclosureScored = makeScoreAllGrowth(growthData.base_rate ?? 2.75)(stocks);
+      const preDisclosureScored = makeScoreAllGrowth(growthData.base_rate ?? 2.50)(stocks);
 
       let gFundUpdated = 0;
       let gFundSkipped = 0;
@@ -1210,7 +1210,7 @@ async function main() {
 
       // 실적 갱신 후 재채점 + 변동 캡처
       if (gFundUpdated > 0) {
-        const baseRate = growthData.base_rate ?? 2.75;
+        const baseRate = growthData.base_rate ?? 2.50;
         const scoreAll = makeScoreAllGrowth(baseRate);
         const postDisclosureScored = scoreAll(stocks);
 
@@ -1246,7 +1246,7 @@ async function main() {
 
   fs.writeFileSync(growthPath, JSON.stringify(growthData, null, 2) + "\n", "utf-8");
   if ((growthData.stocks as StockBase[]).length > 0) {
-    const growthScoreFn = makeScoreAllGrowth(growthData.base_rate ?? 2.75);
+    const growthScoreFn = makeScoreAllGrowth(growthData.base_rate ?? 2.50);
     const growthScoredAll = growthScoreFn(growthData.stocks as StockBase[]);
     appendRankSnapshot("rank-history-growth.json", growthData.stocks, growthScoredAll, scoredAt);
   }
@@ -1313,7 +1313,7 @@ async function main() {
       let screenUpdated = 0;
       let fundamentalsUpdated = 0;
       let fundamentalsSkipped = 0;
-      const baseRate = screenData.base_rate ?? 2.75;
+      const baseRate = screenData.base_rate ?? 2.50;
 
       // 당일 중복 실행 시 previous 덮어쓰기 방지
       const screenAlreadyUpdatedToday = screenData.scanned_at === today

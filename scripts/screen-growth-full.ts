@@ -28,7 +28,7 @@ const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
 const HEADERS = { "User-Agent": UA };
 const DATA_DIR = path.resolve("public/data");
 const OUTPUT_FILE = path.join(DATA_DIR, "growth-candidates.json");
-const BASE_RATE = 2.75; // 기준금리
+const BASE_RATE = 2.50; // 한국은행 기준금리 (2026년 5월 기준)
 
 // ── 유틸 ──
 
