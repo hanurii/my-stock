@@ -2,7 +2,7 @@
   "updated_at": "2026-05-06",
   "data_status": {
     "metadata_verified": true,
-    "metrics_last_refreshed": null,
+    "metrics_last_refreshed": "2026-05-06",
     "refresh_command": "python scripts/fetch_etf_metrics.py",
     "note": "ETF 코드·이름은 검증된 시드. 운용보수/AUM/거래대금/상위종목은 별도 갱신 필요."
   },
@@ -10,72 +10,131 @@
     {
       "key": "semiconductor_kr",
       "label": "반도체 (한국)",
-      "aliases": ["반도체", "HBM", "메모리", "비메모리"],
+      "aliases": [
+        "반도체",
+        "HBM",
+        "메모리",
+        "비메모리"
+      ],
       "description": "삼성전자·SK하이닉스 중심 한국 반도체 대형주",
-      "etf_codes": ["091160"]
+      "etf_codes": [
+        "091160"
+      ]
     },
     {
       "key": "semiconductor_us",
       "label": "반도체 (미국/글로벌)",
-      "aliases": ["미국반도체", "필라델피아반도체", "엔비디아"],
+      "aliases": [
+        "미국반도체",
+        "필라델피아반도체",
+        "엔비디아"
+      ],
       "description": "NVIDIA, TSMC, AMD 등 글로벌 반도체",
-      "etf_codes": ["381180"]
+      "etf_codes": [
+        "381180"
+      ]
     },
     {
       "key": "battery",
       "label": "2차전지",
-      "aliases": ["2차전지", "이차전지", "배터리", "전기차"],
+      "aliases": [
+        "2차전지",
+        "이차전지",
+        "배터리",
+        "전기차"
+      ],
       "description": "LG에너지솔루션·삼성SDI·SK온 등",
-      "etf_codes": ["305720", "305540"]
+      "etf_codes": [
+        "305720",
+        "305540"
+      ]
     },
     {
       "key": "bio",
       "label": "바이오/헬스케어",
-      "aliases": ["바이오", "제약", "헬스케어", "의료기기"],
+      "aliases": [
+        "바이오",
+        "제약",
+        "헬스케어",
+        "의료기기"
+      ],
       "description": "삼성바이오로직스·셀트리온 등 + 제약/의료기기",
-      "etf_codes": ["244580", "266420"]
+      "etf_codes": [
+        "244580",
+        "266420"
+      ]
     },
     {
       "key": "shipbuilding",
       "label": "조선/해양",
-      "aliases": ["조선", "조선해양", "조선업", "K-조선"],
+      "aliases": [
+        "조선",
+        "조선해양",
+        "조선업",
+        "K-조선"
+      ],
       "description": "HD현대중공업·삼성중공업·한화오션 등",
       "etf_codes": []
     },
     {
       "key": "defense",
       "label": "방산",
-      "aliases": ["방산", "방위산업", "K-방산"],
+      "aliases": [
+        "방산",
+        "방위산업",
+        "K-방산"
+      ],
       "description": "한화에어로·LIG넥스원·현대로템 등",
       "etf_codes": []
     },
     {
       "key": "power",
       "label": "전력/원자력",
-      "aliases": ["전력", "원자력", "전력기기", "유틸리티"],
+      "aliases": [
+        "전력",
+        "원자력",
+        "전력기기",
+        "유틸리티"
+      ],
       "description": "HD현대일렉트릭·LS ELECTRIC·한전 등",
       "etf_codes": []
     },
     {
       "key": "robot",
       "label": "로봇/AI",
-      "aliases": ["로봇", "AI", "인공지능", "자동화"],
+      "aliases": [
+        "로봇",
+        "AI",
+        "인공지능",
+        "자동화"
+      ],
       "description": "두산로보틱스·레인보우로보틱스 + 글로벌 AI",
       "etf_codes": []
     },
     {
       "key": "us_market",
       "label": "미국 시장 전체",
-      "aliases": ["S&P500", "미국주식", "미국시장"],
+      "aliases": [
+        "S&P500",
+        "미국주식",
+        "미국시장"
+      ],
       "description": "S&P 500 추종, 글로벌 분산 핵심",
       "etf_codes": []
     },
     {
       "key": "kospi",
       "label": "KOSPI 추종",
-      "aliases": ["코스피", "KOSPI200", "코스피200"],
+      "aliases": [
+        "코스피",
+        "KOSPI200",
+        "코스피200"
+      ],
       "description": "한국 시장 전체 추종 (삼성전자/SK하이닉스 약 30% 포함)",
-      "etf_codes": ["069500", "102110"]
+      "etf_codes": [
+        "069500",
+        "102110"
+      ]
     }
   ],
   "etfs": {
@@ -86,13 +145,65 @@
       "geography": "한국",
       "tracking_index": "KRX 반도체",
       "listed_date": "2006-06-27",
-      "expense_ratio_pct": null,
-      "aum_krw": null,
-      "trading_volume_30d_krw": null,
-      "ytd_return_pct": null,
-      "top_holdings": [],
-      "metrics_updated_at": null,
-      "notes": "한국 대표 반도체 ETF. 삼성전자·SK하이닉스 비중 매우 높음 → KOSPI ETF와 중복 노출 주의."
+      "expense_ratio_pct": 0.45,
+      "aum_krw": 5492400000000,
+      "trading_volume_30d_krw": 14087731893590,
+      "ytd_return_pct": 102.23,
+      "top_holdings": [
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "weight_pct": 30.43
+        },
+        {
+          "code": "005930",
+          "name": "삼성전자",
+          "weight_pct": 20.03
+        },
+        {
+          "code": "042700",
+          "name": "한미반도체",
+          "weight_pct": 10.16
+        },
+        {
+          "code": "058470",
+          "name": "리노공업",
+          "weight_pct": 3.84
+        },
+        {
+          "code": "000990",
+          "name": "DB하이텍",
+          "weight_pct": 3.16
+        },
+        {
+          "code": "240810",
+          "name": "원익IPS",
+          "weight_pct": 2.58
+        },
+        {
+          "code": "039030",
+          "name": "이오테크닉스",
+          "weight_pct": 2.55
+        },
+        {
+          "code": "036930",
+          "name": "주성엔지니어링",
+          "weight_pct": 2.53
+        },
+        {
+          "code": "440110",
+          "name": "파두",
+          "weight_pct": 1.88
+        },
+        {
+          "code": "095340",
+          "name": "ISC",
+          "weight_pct": 1.61
+        }
+      ],
+      "metrics_updated_at": "2026-05-06",
+      "notes": "한국 대표 반도체 ETF. 삼성전자·SK하이닉스 비중 매우 높음 → KOSPI ETF와 중복 노출 주의.",
+      "tracking_error_pct": 0.3
     },
     "381180": {
       "code": "381180",
@@ -101,13 +212,14 @@
       "geography": "미국",
       "tracking_index": "PHLX Semiconductor (SOX)",
       "listed_date": "2021-04-09",
-      "expense_ratio_pct": null,
-      "aum_krw": null,
-      "trading_volume_30d_krw": null,
-      "ytd_return_pct": null,
+      "expense_ratio_pct": 0.49,
+      "aum_krw": 4822500000000,
+      "trading_volume_30d_krw": 2067414027275,
+      "ytd_return_pct": 46.93,
       "top_holdings": [],
-      "metrics_updated_at": null,
-      "notes": "글로벌 반도체 노출 (NVIDIA, AMD, Broadcom, TSMC ADR 등). 환헤지 미적용."
+      "metrics_updated_at": "2026-05-06",
+      "notes": "글로벌 반도체 노출 (NVIDIA, AMD, Broadcom, TSMC ADR 등). 환헤지 미적용.",
+      "tracking_error_pct": 0.86
     },
     "305720": {
       "code": "305720",
@@ -116,13 +228,65 @@
       "geography": "한국",
       "tracking_index": "FnGuide 2차전지산업",
       "listed_date": "2018-09-12",
-      "expense_ratio_pct": null,
-      "aum_krw": null,
-      "trading_volume_30d_krw": null,
-      "ytd_return_pct": null,
-      "top_holdings": [],
-      "metrics_updated_at": null,
-      "notes": "LG에너지솔루션·삼성SDI·POSCO홀딩스 등 셀+소재 균형 노출."
+      "expense_ratio_pct": 0.45,
+      "aum_krw": 2613300000000,
+      "trading_volume_30d_krw": 4838465428160,
+      "ytd_return_pct": 55.04,
+      "top_holdings": [
+        {
+          "code": "006400",
+          "name": "삼성SDI",
+          "weight_pct": 19.89
+        },
+        {
+          "code": "373220",
+          "name": "LG에너지솔루션",
+          "weight_pct": 18.48
+        },
+        {
+          "code": "005490",
+          "name": "POSCO홀딩스",
+          "weight_pct": 12.93
+        },
+        {
+          "code": "247540",
+          "name": "에코프로비엠",
+          "weight_pct": 10.12
+        },
+        {
+          "code": "051910",
+          "name": "LG화학",
+          "weight_pct": 9.7
+        },
+        {
+          "code": "086520",
+          "name": "에코프로",
+          "weight_pct": 7.16
+        },
+        {
+          "code": "003670",
+          "name": "포스코퓨처엠",
+          "weight_pct": 5.15
+        },
+        {
+          "code": "096770",
+          "name": "SK이노베이션",
+          "weight_pct": 4.33
+        },
+        {
+          "code": "066970",
+          "name": "엘앤에프",
+          "weight_pct": 3.44
+        },
+        {
+          "code": "450080",
+          "name": "에코프로머티",
+          "weight_pct": 1.19
+        }
+      ],
+      "metrics_updated_at": "2026-05-06",
+      "notes": "LG에너지솔루션·삼성SDI·POSCO홀딩스 등 셀+소재 균형 노출.",
+      "tracking_error_pct": 0.36
     },
     "305540": {
       "code": "305540",
@@ -131,13 +295,65 @@
       "geography": "한국",
       "tracking_index": "WISE 2차전지 테마",
       "listed_date": "2018-09-12",
-      "expense_ratio_pct": null,
-      "aum_krw": null,
-      "trading_volume_30d_krw": null,
-      "ytd_return_pct": null,
-      "top_holdings": [],
-      "metrics_updated_at": null,
-      "notes": "2차전지 테마주 폭넓은 노출. 소재·장비주 비중 높음."
+      "expense_ratio_pct": 0.5,
+      "aum_krw": 1486200000000,
+      "trading_volume_30d_krw": 853023636720,
+      "ytd_return_pct": 56.84,
+      "top_holdings": [
+        {
+          "code": "006400",
+          "name": "삼성SDI",
+          "weight_pct": 17.88
+        },
+        {
+          "code": "005490",
+          "name": "POSCO홀딩스",
+          "weight_pct": 15.74
+        },
+        {
+          "code": "051910",
+          "name": "LG화학",
+          "weight_pct": 14.13
+        },
+        {
+          "code": "373220",
+          "name": "LG에너지솔루션",
+          "weight_pct": 13.91
+        },
+        {
+          "code": "096770",
+          "name": "SK이노베이션",
+          "weight_pct": 6.97
+        },
+        {
+          "code": "003670",
+          "name": "포스코퓨처엠",
+          "weight_pct": 6.71
+        },
+        {
+          "code": "086520",
+          "name": "에코프로",
+          "weight_pct": 5.98
+        },
+        {
+          "code": "247540",
+          "name": "에코프로비엠",
+          "weight_pct": 5.96
+        },
+        {
+          "code": "066970",
+          "name": "엘앤에프",
+          "weight_pct": 2.43
+        },
+        {
+          "code": "011790",
+          "name": "SKC",
+          "weight_pct": 1.74
+        }
+      ],
+      "metrics_updated_at": "2026-05-06",
+      "notes": "2차전지 테마주 폭넓은 노출. 소재·장비주 비중 높음.",
+      "tracking_error_pct": 1.21
     },
     "244580": {
       "code": "244580",
@@ -146,13 +362,65 @@
       "geography": "한국",
       "tracking_index": "KRX 헬스케어",
       "listed_date": "2016-05-13",
-      "expense_ratio_pct": null,
-      "aum_krw": null,
-      "trading_volume_30d_krw": null,
-      "ytd_return_pct": null,
-      "top_holdings": [],
-      "metrics_updated_at": null,
-      "notes": "삼성바이오로직스·셀트리온 등 대형 바이오 + 제약."
+      "expense_ratio_pct": 0.45,
+      "aum_krw": 284100000000,
+      "trading_volume_30d_krw": 282439031305,
+      "ytd_return_pct": -2.92,
+      "top_holdings": [
+        {
+          "code": "328130",
+          "name": "루닛",
+          "weight_pct": 2.91
+        },
+        {
+          "code": "005690",
+          "name": "파미셀",
+          "weight_pct": 2.74
+        },
+        {
+          "code": "028300",
+          "name": "HLB",
+          "weight_pct": 2.66
+        },
+        {
+          "code": "358570",
+          "name": "지아이이노베이션",
+          "weight_pct": 2.6
+        },
+        {
+          "code": "007390",
+          "name": "네이처셀",
+          "weight_pct": 2.36
+        },
+        {
+          "code": "445680",
+          "name": "큐리옥스바이오시스템즈",
+          "weight_pct": 2.34
+        },
+        {
+          "code": "214450",
+          "name": "파마리서치",
+          "weight_pct": 2.33
+        },
+        {
+          "code": "145020",
+          "name": "휴젤",
+          "weight_pct": 2.3
+        },
+        {
+          "code": "039200",
+          "name": "오스코텍",
+          "weight_pct": 2.29
+        },
+        {
+          "code": "336570",
+          "name": "원텍",
+          "weight_pct": 2.25
+        }
+      ],
+      "metrics_updated_at": "2026-05-06",
+      "notes": "삼성바이오로직스·셀트리온 등 대형 바이오 + 제약.",
+      "tracking_error_pct": 0.22
     },
     "266420": {
       "code": "266420",
@@ -161,13 +429,65 @@
       "geography": "한국",
       "tracking_index": "FnGuide 헬스케어",
       "listed_date": "2017-03-28",
-      "expense_ratio_pct": null,
-      "aum_krw": null,
-      "trading_volume_30d_krw": null,
-      "ytd_return_pct": null,
-      "top_holdings": [],
-      "metrics_updated_at": null,
-      "notes": "바이오 + 제약 + 의료기기 종합 노출."
+      "expense_ratio_pct": 0.09,
+      "aum_krw": 88800000000,
+      "trading_volume_30d_krw": 41294336380,
+      "ytd_return_pct": -2.58,
+      "top_holdings": [
+        {
+          "code": "068270",
+          "name": "셀트리온",
+          "weight_pct": 19.15
+        },
+        {
+          "code": "196170",
+          "name": "알테오젠",
+          "weight_pct": 10.1
+        },
+        {
+          "code": "207940",
+          "name": "삼성바이오로직스",
+          "weight_pct": 10.03
+        },
+        {
+          "code": "028300",
+          "name": "HLB",
+          "weight_pct": 4.75
+        },
+        {
+          "code": "087010",
+          "name": "펩트론",
+          "weight_pct": 3.82
+        },
+        {
+          "code": "000250",
+          "name": "삼천당제약",
+          "weight_pct": 3.77
+        },
+        {
+          "code": "298380",
+          "name": "에이비엘바이오",
+          "weight_pct": 3.66
+        },
+        {
+          "code": "000100",
+          "name": "유한양행",
+          "weight_pct": 3.6
+        },
+        {
+          "code": "141080",
+          "name": "리가켐바이오",
+          "weight_pct": 3.1
+        },
+        {
+          "code": "310210",
+          "name": "보로노이",
+          "weight_pct": 2.07
+        }
+      ],
+      "metrics_updated_at": "2026-05-06",
+      "notes": "바이오 + 제약 + 의료기기 종합 노출.",
+      "tracking_error_pct": 0.84
     },
     "069500": {
       "code": "069500",
@@ -176,13 +496,65 @@
       "geography": "한국",
       "tracking_index": "KOSPI 200",
       "listed_date": "2002-10-14",
-      "expense_ratio_pct": null,
-      "aum_krw": null,
-      "trading_volume_30d_krw": null,
-      "ytd_return_pct": null,
-      "top_holdings": [],
-      "metrics_updated_at": null,
-      "notes": "한국 대표 KOSPI 200 추종 ETF. 운용보수 매우 낮음. 삼성전자 25% 내외."
+      "expense_ratio_pct": 0.15,
+      "aum_krw": 23085900000000,
+      "trading_volume_30d_krw": 50054923098125,
+      "ytd_return_pct": 64.96,
+      "top_holdings": [
+        {
+          "code": "005930",
+          "name": "삼성전자",
+          "weight_pct": 30.84
+        },
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "weight_pct": 22.79
+        },
+        {
+          "code": "402340",
+          "name": "SK스퀘어",
+          "weight_pct": 2.6
+        },
+        {
+          "code": "005380",
+          "name": "현대차",
+          "weight_pct": 2.09
+        },
+        {
+          "code": "034020",
+          "name": "두산에너빌리티",
+          "weight_pct": 1.57
+        },
+        {
+          "code": "009150",
+          "name": "삼성전기",
+          "weight_pct": 1.46
+        },
+        {
+          "code": "105560",
+          "name": "KB금융",
+          "weight_pct": 1.44
+        },
+        {
+          "code": "012450",
+          "name": "한화에어로스페이스",
+          "weight_pct": 1.36
+        },
+        {
+          "code": "006400",
+          "name": "삼성SDI",
+          "weight_pct": 1.23
+        },
+        {
+          "code": "055550",
+          "name": "신한지주",
+          "weight_pct": 1.15
+        }
+      ],
+      "metrics_updated_at": "2026-05-06",
+      "notes": "한국 대표 KOSPI 200 추종 ETF. 운용보수 매우 낮음. 삼성전자 25% 내외.",
+      "tracking_error_pct": 0.41
     },
     "102110": {
       "code": "102110",
@@ -191,13 +563,65 @@
       "geography": "한국",
       "tracking_index": "KOSPI 200",
       "listed_date": "2008-04-03",
-      "expense_ratio_pct": null,
-      "aum_krw": null,
-      "trading_volume_30d_krw": null,
-      "ytd_return_pct": null,
-      "top_holdings": [],
-      "metrics_updated_at": null,
-      "notes": "TIGER 시리즈 대표 KOSPI 200 추종 ETF. 본인 보유 종목."
+      "expense_ratio_pct": 0.05,
+      "aum_krw": 9243600000000,
+      "trading_volume_30d_krw": 11493278044420,
+      "ytd_return_pct": 65.25,
+      "top_holdings": [
+        {
+          "code": "005930",
+          "name": "삼성전자",
+          "weight_pct": 31.01
+        },
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "weight_pct": 22.97
+        },
+        {
+          "code": "402340",
+          "name": "SK스퀘어",
+          "weight_pct": 2.57
+        },
+        {
+          "code": "005380",
+          "name": "현대차",
+          "weight_pct": 2.07
+        },
+        {
+          "code": "034020",
+          "name": "두산에너빌리티",
+          "weight_pct": 1.55
+        },
+        {
+          "code": "105560",
+          "name": "KB금융",
+          "weight_pct": 1.46
+        },
+        {
+          "code": "009150",
+          "name": "삼성전기",
+          "weight_pct": 1.44
+        },
+        {
+          "code": "012450",
+          "name": "한화에어로스페이스",
+          "weight_pct": 1.36
+        },
+        {
+          "code": "006400",
+          "name": "삼성SDI",
+          "weight_pct": 1.22
+        },
+        {
+          "code": "055550",
+          "name": "신한지주",
+          "weight_pct": 1.14
+        }
+      ],
+      "metrics_updated_at": "2026-05-06",
+      "notes": "TIGER 시리즈 대표 KOSPI 200 추종 ETF. 본인 보유 종목.",
+      "tracking_error_pct": 0.4
     }
   }
 }
