@@ -4,12 +4,14 @@ interface Holding {
   code: string;
   name: string;
   eval_amount: number;
-  category?: "dividend" | "growth" | "etf";
+  category?: "dividend" | "growth" | "etf" | "etf_index" | "etf_hot";
 }
 
 interface TargetStrategy {
   dividend: number;
-  growth: number;
+  growth?: number;
+  etf_index?: number;
+  etf_hot?: number;
   description?: string;
 }
 
@@ -24,6 +26,8 @@ const CATEGORY_LABEL: Record<string, string> = {
   dividend: "배당주",
   growth: "성장주",
   etf: "ETF",
+  etf_index: "KOSPI 추종 ETF",
+  etf_hot: "핫섹터 ETF",
   uncategorized: "미분류",
 };
 
@@ -31,6 +35,8 @@ const CATEGORY_COLOR: Record<string, string> = {
   dividend: "#d4b483",
   growth: "#6ea8fe",
   etf: "#95d3ba",
+  etf_index: "#95d3ba",
+  etf_hot: "#c89dd9",
   uncategorized: "#9ca3af",
 };
 
@@ -73,28 +79,43 @@ export function PortfolioStrategyFeedback({
   const totalEval = holdings.reduce((s, h) => s + h.eval_amount, 0);
   if (totalEval === 0 || !targetStrategy) return null;
 
-  // 카테고리별 집계
+  // 카테고리별 집계 (legacy "etf"는 etf_index로 합산)
   const categoryTotals: Record<string, number> = {
     dividend: 0,
     growth: 0,
-    etf: 0,
+    etf_index: 0,
+    etf_hot: 0,
     uncategorized: 0,
   };
+  const categoryHoldings: Record<string, Holding[]> = {
+    dividend: [],
+    growth: [],
+    etf_index: [],
+    etf_hot: [],
+    uncategorized: [],
+  };
   for (const h of holdings) {
-    const cat = h.category || "uncategorized";
+    let cat = h.category || "uncategorized";
+    if (cat === "etf") cat = "etf_index"; // backward compat
     categoryTotals[cat] = (categoryTotals[cat] || 0) + h.eval_amount;
+    categoryHoldings[cat].push(h);
   }
 
   const dividendPct = (categoryTotals.dividend / totalEval) * 100;
   const growthPct = (categoryTotals.growth / totalEval) * 100;
-  const etfPct = (categoryTotals.etf / totalEval) * 100;
+  const etfIndexPct = (categoryTotals.etf_index / totalEval) * 100;
+  const etfHotPct = (categoryTotals.etf_hot / totalEval) * 100;
   const uncategorizedPct = (categoryTotals.uncategorized / totalEval) * 100;
 
-  const targetDividendPct = targetStrategy.dividend * 100;
-  const targetGrowthPct = targetStrategy.growth * 100;
+  const targetDividendPct = (targetStrategy.dividend ?? 0) * 100;
+  const targetGrowthPct = (targetStrategy.growth ?? 0) * 100;
+  const targetEtfIndexPct = (targetStrategy.etf_index ?? 0) * 100;
+  const targetEtfHotPct = (targetStrategy.etf_hot ?? 0) * 100;
 
-  const dividendDeviation = dividendPct - targetDividendPct; // 음수 = 미달
-  const growthDeviation = growthPct - targetGrowthPct; // 양수 = 초과
+  const dividendDeviation = dividendPct - targetDividendPct;
+  const growthDeviation = growthPct - targetGrowthPct;
+  const etfIndexDeviation = etfIndexPct - targetEtfIndexPct;
+  const etfHotDeviation = etfHotPct - targetEtfHotPct;
 
   // 단일 종목 집중도
   const concentratedStocks = holdings
@@ -105,43 +126,48 @@ export function PortfolioStrategyFeedback({
     .filter((h) => h.weightPct > SINGLE_STOCK_LIMIT_PCT)
     .sort((a, b) => b.weightPct - a.weightPct);
 
-  // 현금 비중
   const cashPct = totalAssets > 0 ? (cash / totalAssets) * 100 : 0;
 
   // 상태 결정
   const maxConcentration =
     concentratedStocks.length > 0 ? concentratedStocks[0].weightPct : 0;
+  const maxAbsDeviation = Math.max(
+    Math.abs(dividendDeviation),
+    Math.abs(growthDeviation),
+    Math.abs(etfIndexDeviation),
+    Math.abs(etfHotDeviation),
+  );
 
   let status: Status = "ok";
-  if (
-    maxConcentration > SINGLE_STOCK_WARN_PCT ||
-    Math.abs(growthDeviation) > 30 ||
-    Math.abs(dividendDeviation) > 30
-  ) {
+  if (maxConcentration > SINGLE_STOCK_WARN_PCT || maxAbsDeviation > 30) {
     status = "danger";
-  } else if (
-    maxConcentration > SINGLE_STOCK_LIMIT_PCT ||
-    Math.abs(growthDeviation) > 15 ||
-    Math.abs(dividendDeviation) > 15
-  ) {
+  } else if (maxConcentration > SINGLE_STOCK_LIMIT_PCT || maxAbsDeviation > 15) {
     status = "warn";
   }
 
-  // 한 줄 진단
+  // 한 줄 진단 (가장 큰 편차 우선)
   let headline = "포트폴리오가 목표 전략과 잘 일치합니다.";
   if (status === "danger") {
     if (maxConcentration > SINGLE_STOCK_WARN_PCT) {
       headline = `단일 종목 집중도 위험: ${concentratedStocks[0].name} ${concentratedStocks[0].weightPct.toFixed(1)}%`;
     } else if (growthDeviation > 30) {
-      headline = `성장주 비중이 목표 대비 +${growthDeviation.toFixed(0)}%p 초과 — 즉시 조정 권고`;
+      headline = `성장주 비중이 목표 대비 +${growthDeviation.toFixed(0)}%p 초과 — 즉시 정리 권고`;
     } else if (dividendDeviation < -30) {
-      headline = `배당주 비중이 목표 대비 ${dividendDeviation.toFixed(0)}%p 미달 — 즉시 조정 권고`;
+      headline = `배당주 비중이 목표 대비 ${dividendDeviation.toFixed(0)}%p 미달 — 즉시 보강 권고`;
+    } else if (etfIndexDeviation < -30) {
+      headline = `KOSPI ETF 비중이 목표 대비 ${etfIndexDeviation.toFixed(0)}%p 미달 — 즉시 보강 권고`;
+    } else if (etfHotDeviation > 30) {
+      headline = `핫섹터 ETF 비중이 목표 대비 +${etfHotDeviation.toFixed(0)}%p 초과 — 즉시 축소 권고`;
     }
   } else if (status === "warn") {
     if (growthDeviation > 15) {
-      headline = `성장주 비중이 목표 대비 +${growthDeviation.toFixed(0)}%p 초과 — 점진적 조정 필요`;
+      headline = `성장주 비중이 목표 대비 +${growthDeviation.toFixed(0)}%p 초과 — 점진적 정리 필요`;
     } else if (dividendDeviation < -15) {
-      headline = `배당주 비중이 목표 대비 ${dividendDeviation.toFixed(0)}%p 미달 — 점진적 조정 필요`;
+      headline = `배당주 비중이 목표 대비 ${dividendDeviation.toFixed(0)}%p 미달 — 점진적 보강 필요`;
+    } else if (etfIndexDeviation < -15) {
+      headline = `KOSPI ETF 비중이 목표 대비 ${etfIndexDeviation.toFixed(0)}%p 미달 — 점진적 보강 필요`;
+    } else if (etfHotDeviation < -15) {
+      headline = `핫섹터 ETF 비중이 목표 대비 ${etfHotDeviation.toFixed(0)}%p 미달 — 분기 진입 룰에 따라 보강 가능`;
     } else if (maxConcentration > SINGLE_STOCK_LIMIT_PCT) {
       headline = `${concentratedStocks[0].name} 단일 비중 ${concentratedStocks[0].weightPct.toFixed(1)}% — 분산 권고`;
     }
@@ -159,12 +185,24 @@ export function PortfolioStrategyFeedback({
   if (dividendDeviation < -10) {
     const needed = ((targetDividendPct - dividendPct) / 100) * totalEval;
     recommendations.push(
-      `배당주 비중 회복을 위해 약 ${formatMoney(needed)}원 추가 매수 또는 다른 카테고리에서 전환 필요`,
+      `배당주 비중 회복을 위해 약 ${formatMoney(needed)}원 추가 매수 또는 다른 카테고리에서 전환 필요 (한국 + 미국 배당주 혼합)`,
     );
   }
   if (growthDeviation > 10) {
+    const excess = ((growthPct - targetGrowthPct) / 100) * totalEval;
     recommendations.push(
-      `신규 자금은 성장주가 아닌 배당주로 우선 배분`,
+      `성장주 약 ${formatMoney(excess)}원을 분할 매도해 배당주/ETF로 전환 (한 번에 처분하지 말고 6~12개월 분할)`,
+    );
+  }
+  if (etfIndexDeviation < -10) {
+    const needed = ((targetEtfIndexPct - etfIndexPct) / 100) * totalEval;
+    recommendations.push(
+      `KOSPI 추종 ETF 약 ${formatMoney(needed)}원 추가 매수 (TIGER 200, KODEX 200 등)`,
+    );
+  }
+  if (etfHotDeviation > 10) {
+    recommendations.push(
+      `핫섹터 ETF 비중 초과 — 익절 룰(+20/+30/트레일링) 또는 시간 손절(6개월) 점검 필요`,
     );
   }
   if (cashPct < 3 && totalAssets > 0) {
@@ -173,33 +211,56 @@ export function PortfolioStrategyFeedback({
     );
   }
   if (recommendations.length === 0) {
-    recommendations.push("현재 비중을 유지하면서 정기적으로 점검");
+    recommendations.push("현재 비중을 유지하면서 분기 1회 리밸런싱 점검");
   }
 
-  // 표시할 카테고리 행
-  const rows = [
+  // 표시할 카테고리 행 (목표가 있는 카테고리 + 미분류만)
+  type Row = {
+    key: string;
+    pct: number;
+    target: number | null;
+    deviation: number | null;
+    amount: number;
+    holdings: Holding[];
+  };
+
+  const rows: Row[] = [
     {
       key: "dividend",
       pct: dividendPct,
       target: targetDividendPct,
       deviation: dividendDeviation,
       amount: categoryTotals.dividend,
+      holdings: categoryHoldings.dividend,
     },
     {
+      key: "etf_index",
+      pct: etfIndexPct,
+      target: targetEtfIndexPct,
+      deviation: etfIndexDeviation,
+      amount: categoryTotals.etf_index,
+      holdings: categoryHoldings.etf_index,
+    },
+    {
+      key: "etf_hot",
+      pct: etfHotPct,
+      target: targetEtfHotPct,
+      deviation: etfHotDeviation,
+      amount: categoryTotals.etf_hot,
+      holdings: categoryHoldings.etf_hot,
+    },
+  ];
+  // 성장주는 목표가 0이거나 없을 때 "전환 대상"으로 별도 표시
+  if (categoryTotals.growth > 0 || (targetStrategy.growth ?? 0) > 0) {
+    rows.push({
       key: "growth",
       pct: growthPct,
       target: targetGrowthPct,
       deviation: growthDeviation,
       amount: categoryTotals.growth,
-    },
-    {
-      key: "etf",
-      pct: etfPct,
-      target: null as number | null,
-      deviation: null as number | null,
-      amount: categoryTotals.etf,
-    },
-  ];
+      holdings: categoryHoldings.growth,
+    });
+  }
   if (uncategorizedPct > 0) {
     rows.push({
       key: "uncategorized",
@@ -207,6 +268,7 @@ export function PortfolioStrategyFeedback({
       target: null,
       deviation: null,
       amount: categoryTotals.uncategorized,
+      holdings: categoryHoldings.uncategorized,
     });
   }
 
@@ -257,22 +319,24 @@ export function PortfolioStrategyFeedback({
         </p>
       </div>
 
-      {/* 카테고리 비중: 현재 vs 목표 */}
+      {/* 카테고리 비중: 현재 vs 목표 + 종목 리스트 */}
       <div className="mb-6">
         <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-3">
           카테고리 비중 (주식 평가액 기준)
         </p>
-        <div className="space-y-3">
+        <div className="space-y-4">
           {rows.map((r) => {
             const color = CATEGORY_COLOR[r.key];
             const label = CATEGORY_LABEL[r.key];
             const hasTarget = r.target != null;
             const isOver = r.deviation != null && r.deviation > 5;
             const isUnder = r.deviation != null && r.deviation < -5;
+            const isGrowthOverTarget0 =
+              r.key === "growth" && (targetStrategy.growth ?? 0) === 0 && r.pct > 0;
             return (
               <div key={r.key}>
                 <div className="flex items-baseline justify-between mb-1.5">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <span
                       className="w-2.5 h-2.5 rounded-full"
                       style={{ backgroundColor: color }}
@@ -280,6 +344,17 @@ export function PortfolioStrategyFeedback({
                     <span className="text-sm font-medium text-on-surface">
                       {label}
                     </span>
+                    {isGrowthOverTarget0 && (
+                      <span
+                        className="text-[10px] px-1.5 py-0.5 rounded font-medium"
+                        style={{
+                          backgroundColor: "#ffb4ab20",
+                          color: "#ffb4ab",
+                        }}
+                      >
+                        전환 대상
+                      </span>
+                    )}
                     <span className="text-xs text-on-surface-variant/50 font-mono">
                       {formatMoney(r.amount)}원
                     </span>
@@ -322,7 +397,7 @@ export function PortfolioStrategyFeedback({
                       backgroundColor: color,
                     }}
                   />
-                  {hasTarget && r.target != null && (
+                  {hasTarget && r.target != null && r.target > 0 && (
                     <div
                       className="absolute top-[-2px] bottom-[-2px] w-0.5"
                       style={{
@@ -333,6 +408,18 @@ export function PortfolioStrategyFeedback({
                     />
                   )}
                 </div>
+                {/* 종목 리스트 (작은 글씨) */}
+                {r.holdings.length > 0 && (
+                  <p className="text-[11px] text-on-surface-variant/50 mt-1.5 leading-relaxed">
+                    {[...r.holdings]
+                      .sort((a, b) => b.eval_amount - a.eval_amount)
+                      .map((h) => {
+                        const w = ((h.eval_amount / totalEval) * 100).toFixed(1);
+                        return `${h.name} (${w}%)`;
+                      })
+                      .join(" · ")}
+                  </p>
+                )}
               </div>
             );
           })}
@@ -383,6 +470,71 @@ export function PortfolioStrategyFeedback({
           </div>
         </div>
       )}
+
+      {/* 핫섹터 ETF 매매 룰 */}
+      <div className="mb-6 rounded-xl p-5" style={{ backgroundColor: "#c89dd910" }}>
+        <div className="flex items-center gap-2 mb-3">
+          <span
+            className="material-symbols-outlined text-base"
+            style={{ color: "#c89dd9" }}
+          >
+            rule
+          </span>
+          <p className="text-xs uppercase tracking-wider" style={{ color: "#c89dd9" }}>
+            핫섹터 ETF 매매 룰 (20% 슬롯 전용)
+          </p>
+        </div>
+        <p className="text-[11px] text-on-surface-variant/60 mb-4 leading-relaxed">
+          이 슬롯은 수익 극대화가 아니라 FOMO 통제용. 룰은 진입 전 명문화하고, 장중 결정 금지. 평일은 알림만, 결정은 주말에.
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="bg-surface-container/40 rounded-lg p-3">
+            <p className="text-[10px] uppercase tracking-wider text-on-surface-variant/50 mb-1">
+              ① 손절선 (필수)
+            </p>
+            <p className="text-sm text-on-surface font-medium">진입가 대비 -15%</p>
+            <p className="text-[11px] text-on-surface-variant/60 mt-1 leading-relaxed">
+              도달 시 무조건 매도. 예외 없음. 익절선만으로는 "조금만 더" 함정.
+            </p>
+          </div>
+          <div className="bg-surface-container/40 rounded-lg p-3">
+            <p className="text-[10px] uppercase tracking-wider text-on-surface-variant/50 mb-1">
+              ② 익절선 (분할)
+            </p>
+            <p className="text-sm text-on-surface font-medium">+20% / +30% / 트레일링</p>
+            <p className="text-[11px] text-on-surface-variant/60 mt-1 leading-relaxed">
+              +20% 1/3 매도, +30% 1/3 매도, 잔량은 고점 대비 -10% 도달 시 매도.
+            </p>
+          </div>
+          <div className="bg-surface-container/40 rounded-lg p-3">
+            <p className="text-[10px] uppercase tracking-wider text-on-surface-variant/50 mb-1">
+              ③ 시간 손절
+            </p>
+            <p className="text-sm text-on-surface font-medium">6개월 내 +5% 미달 시 정리</p>
+            <p className="text-[11px] text-on-surface-variant/60 mt-1 leading-relaxed">
+              모멘텀 사라진 신호. 자본 회수해 다른 슬롯에 배치.
+            </p>
+          </div>
+          <div className="bg-surface-container/40 rounded-lg p-3">
+            <p className="text-[10px] uppercase tracking-wider text-on-surface-variant/50 mb-1">
+              ④ 비중 상한 (절대 룰)
+            </p>
+            <p className="text-sm text-on-surface font-medium">전체 자산의 20% 초과 금지</p>
+            <p className="text-[11px] text-on-surface-variant/60 mt-1 leading-relaxed">
+              수익으로 25% 도달 시 5%p 즉시 매도. "잘 가니 더 넣자" 금지.
+            </p>
+          </div>
+          <div className="bg-surface-container/40 rounded-lg p-3 sm:col-span-2">
+            <p className="text-[10px] uppercase tracking-wider text-on-surface-variant/50 mb-1">
+              ⑤ 진입 룰
+            </p>
+            <p className="text-sm text-on-surface font-medium">분기 1회 검토 (3·6·9·12월 첫 주말)</p>
+            <p className="text-[11px] text-on-surface-variant/60 mt-1 leading-relaxed">
+              6개월 모멘텀 양수일 때만 진입. 3분할 매수 (1차 50% → 1개월 후 25% → 다시 1개월 후 25%). 평일 장중 진입 금지.
+            </p>
+          </div>
+        </div>
+      </div>
 
       {/* 권고 액션 */}
       <div>

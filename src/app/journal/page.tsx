@@ -18,7 +18,7 @@ interface Holding {
   profit_amount: number;
   eval_amount: number;
   sector?: string;
-  category?: "dividend" | "growth" | "etf";
+  category?: "dividend" | "growth" | "etf" | "etf_index" | "etf_hot";
 }
 
 interface Transaction {
@@ -69,7 +69,9 @@ interface JournalData {
     net_profit_pct?: number;
     target_strategy?: {
       dividend: number;
-      growth: number;
+      growth?: number;
+      etf_index?: number;
+      etf_hot?: number;
       description?: string;
     };
   };
