@@ -51,6 +51,14 @@ const sections: PrincipleSection[] = [
         why: "섹터 사이클은 같이 움직인다. 반도체 한 섹터에 25%가 묶이면 사이클 전환기에 포트폴리오 전체가 흔들림.",
         how: "메가캡·성장주 스크리닝·바이오 워치리스트 점검 시 섹터 합산 비중 항상 확인.",
       },
+      {
+        number: "1.4",
+        rule: "자산 규모에 맞는 종목 수 — 현재 단계는 8~15종목",
+        why:
+          "Markowitz 분산 효과는 15~20종목이면 비체계적 위험의 90% 이상이 제거된다. 그 이상 늘리면 모니터링은 어려워지고 결국 지수와 비슷해진다. 반대로 5종목 이하는 한 종목 충격이 포트폴리오 전체를 흔든다. 자산 규모가 커질수록 한 종목당 절대 금액이 커져서 분산이 강제된다.",
+        how:
+          "현재 자산(약 1.7억)에서는 8~15종목이 적정 범위. 한 종목 10% 상한을 지키면 자연스럽게 최소 10종목이 되고, 깊이 있게 분석·모니터링 가능한 한도가 15종목 정도. 자산이 3억 이상으로 늘어나면 12~20종목으로 확장, 10억 이상이면 ETF 활용도 검토.",
+      },
     ],
   },
   {
@@ -332,6 +340,52 @@ export default function PrinciplesPage() {
         </p>
       </section>
 
+      {/* "잃지 않는 투자"의 정의 명확화 */}
+      <section className="bg-surface-container-low rounded-xl p-6 sm:p-8 ghost-border">
+        <div className="flex items-baseline gap-2 mb-3">
+          <span className="material-symbols-outlined text-primary/70 text-xl">priority_high</span>
+          <h3 className="text-lg font-serif text-primary tracking-tight">
+            "잃지 않는 투자"의 정의 — 헷갈리지 말 것
+          </h3>
+        </div>
+        <p className="text-sm text-on-surface-variant mb-5 leading-relaxed">
+          버핏·멍거가 말하는 "잃지 않는 투자"는 <span className="text-primary/90">영구적 자본 손실(permanent loss of capital)</span>을 피한다는 뜻이지,
+          <span className="text-error/80"> 일시적 변동성</span>을 피한다는 뜻이 아니다. 두 사람 모두 초기엔 매우 공격적이었다 —
+          버핏은 1964년 American Express에 파트너십 자산의 약 40%를 투입했고, 멍거는 1973~74년 -53% 드로다운을 견뎠다.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-error/5 border border-error/20 rounded-lg p-4">
+            <p className="text-[10px] uppercase tracking-[0.15em] text-error/80 mb-2 font-medium">
+              피해야 할 것 · Permanent Loss
+            </p>
+            <h4 className="text-base font-serif text-on-surface mb-2">영구적 자본 손실</h4>
+            <ul className="text-xs text-on-surface-variant/85 space-y-1.5 leading-relaxed">
+              <li>· 회사 펀더멘털이 무너져 본질가치 자체가 사라짐 (엔론·리먼)</li>
+              <li>· 사이클 정점에서 추격 매수 후 사이클 꺾임</li>
+              <li>· 안전마진 없는 비싼 가격에 매수</li>
+              <li>· 빚으로 한 종목에 몰빵 → 마진콜로 강제 청산</li>
+            </ul>
+          </div>
+          <div className="bg-tertiary/5 border border-tertiary/20 rounded-lg p-4">
+            <p className="text-[10px] uppercase tracking-[0.15em] text-tertiary/90 mb-2 font-medium">
+              감수해야 할 것 · Temporary Volatility
+            </p>
+            <h4 className="text-base font-serif text-on-surface mb-2">일시적 변동성</h4>
+            <ul className="text-xs text-on-surface-variant/85 space-y-1.5 leading-relaxed">
+              <li>· 본질가치는 멀쩡한데 시장이 패닉 (2020년 3월 코로나)</li>
+              <li>· 안전마진 있는 종목의 -30% 드로다운</li>
+              <li>· 매크로 충격으로 인한 포트폴리오 일시 평가손</li>
+              <li>· 가설이 검증되는 동안의 횡보</li>
+            </ul>
+          </div>
+        </div>
+        <p className="text-xs text-on-surface-variant/70 mt-5 leading-relaxed">
+          → 변동성이 두려워 안전마진 있는 종목조차 못 사면 그건 <span className="text-primary/90">투자가 아니라 회피</span>다.
+          반대로, 본질가치 무너진 종목을 "조정이겠지" 하며 들고 있으면 그건 변동성이 아니라 영구 손실의 시작이다.
+          두 가지를 항상 분리해서 판단한다.
+        </p>
+      </section>
+
       {/* Why */}
       <section className="bg-surface-container-low rounded-xl p-6 sm:p-8 ghost-border">
         <h3 className="text-lg font-serif text-primary mb-4 tracking-tight">
@@ -402,6 +456,66 @@ export default function PrinciplesPage() {
               </article>
             ))}
           </div>
+
+          {/* 자산 배분 섹션 끝에 자산 규모별 분산 가이드 표 추가 */}
+          {section.id === "allocation" && (
+            <div className="mt-6 bg-surface-container-low rounded-xl p-6 sm:p-8 ghost-border">
+              <div className="flex items-baseline gap-2 mb-4">
+                <span className="material-symbols-outlined text-primary/70 text-lg">table_rows</span>
+                <h4 className="text-base font-serif text-primary tracking-tight">
+                  자산 규모별 분산 가이드
+                </h4>
+              </div>
+              <p className="text-xs text-on-surface-variant/80 mb-5 leading-relaxed">
+                Markowitz 분산 효과 + 모니터링 한계 + 한 종목 10% 상한을 종합한 일반론. 절대값이 아니라 참고선.
+              </p>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-[11px] uppercase tracking-wider text-on-surface-variant/60 border-b border-outline-variant/15">
+                      <th className="text-left py-2.5 pr-4 font-normal">자산 규모</th>
+                      <th className="text-center py-2.5 px-3 font-normal">권장 종목 수</th>
+                      <th className="text-left py-2.5 pl-4 font-normal">특성</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-on-surface-variant">
+                    <tr className="border-b border-outline-variant/10">
+                      <td className="py-3 pr-4 font-mono text-xs">~1억원</td>
+                      <td className="text-center py-3 px-3 font-mono">5~10</td>
+                      <td className="py-3 pl-4 text-xs leading-relaxed">집중 가능. 깊이 있는 종목 선택이 분산보다 중요. 버핏·멍거 초기 단계.</td>
+                    </tr>
+                    <tr className="border-b border-outline-variant/10 bg-primary/5">
+                      <td className="py-3 pr-4 font-mono text-xs">
+                        1~3억원
+                        <span className="ml-2 inline-block px-1.5 py-0.5 rounded bg-primary/20 text-primary text-[9px] uppercase tracking-wider">현재</span>
+                      </td>
+                      <td className="text-center py-3 px-3 font-mono font-bold text-primary">8~15</td>
+                      <td className="py-3 pl-4 text-xs leading-relaxed">한 종목 10% 상한 적용 시 최소 10종목. 모니터링 가능 상한이 15. 본인은 11종목.</td>
+                    </tr>
+                    <tr className="border-b border-outline-variant/10">
+                      <td className="py-3 pr-4 font-mono text-xs">3~10억원</td>
+                      <td className="text-center py-3 px-3 font-mono">12~20</td>
+                      <td className="py-3 pl-4 text-xs leading-relaxed">섹터 분산 강화 단계. 코어 8~10 + 위성 5~10 구조 검토.</td>
+                    </tr>
+                    <tr className="border-b border-outline-variant/10">
+                      <td className="py-3 pr-4 font-mono text-xs">10~50억원</td>
+                      <td className="text-center py-3 px-3 font-mono">15~25</td>
+                      <td className="py-3 pl-4 text-xs leading-relaxed">한 종목 절대 금액이 커져 분산이 강제됨. ETF 일부 활용 검토.</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3 pr-4 font-mono text-xs">50억원+</td>
+                      <td className="text-center py-3 px-3 font-mono">20+ 또는 ETF</td>
+                      <td className="py-3 pl-4 text-xs leading-relaxed">유동성·세금·시장 영향까지 고려. 일부 ETF 편입이 합리적.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p className="text-[11px] text-on-surface-variant/60 mt-4 leading-relaxed">
+                ※ 종목 수보다 더 중요한 건 <span className="text-primary/80">한 종목 10% / 한 섹터 25%</span> 상한 준수.
+                10종목이라도 한 종목이 30%면 사실상 1종목 포트폴리오와 같은 위험.
+              </p>
+            </div>
+          )}
         </section>
       ))}
 
