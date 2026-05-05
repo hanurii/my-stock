@@ -10,6 +10,7 @@ const tabs = [
   { href: "/stocks/growth-screen", label: "성장주 스크리닝", icon: "screen_search_desktop" },
   { href: "/stocks/berkshire", label: "버핏 포트폴리오", icon: "account_balance" },
   { href: "/stocks/megacap", label: "메가캡 우량주", icon: "stars" },
+  { href: "/stocks/etf-finder", label: "ETF 파인더", icon: "donut_small" },
 ];
 
 export function StocksTabs({ berkshireIsNew }: { berkshireIsNew: boolean }) {

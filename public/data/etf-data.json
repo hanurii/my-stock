@@ -1,0 +1,203 @@
+{
+  "updated_at": "2026-05-06",
+  "data_status": {
+    "metadata_verified": true,
+    "metrics_last_refreshed": null,
+    "refresh_command": "python scripts/fetch_etf_metrics.py",
+    "note": "ETF 코드·이름은 검증된 시드. 운용보수/AUM/거래대금/상위종목은 별도 갱신 필요."
+  },
+  "sectors": [
+    {
+      "key": "semiconductor_kr",
+      "label": "반도체 (한국)",
+      "aliases": ["반도체", "HBM", "메모리", "비메모리"],
+      "description": "삼성전자·SK하이닉스 중심 한국 반도체 대형주",
+      "etf_codes": ["091160"]
+    },
+    {
+      "key": "semiconductor_us",
+      "label": "반도체 (미국/글로벌)",
+      "aliases": ["미국반도체", "필라델피아반도체", "엔비디아"],
+      "description": "NVIDIA, TSMC, AMD 등 글로벌 반도체",
+      "etf_codes": ["381180"]
+    },
+    {
+      "key": "battery",
+      "label": "2차전지",
+      "aliases": ["2차전지", "이차전지", "배터리", "전기차"],
+      "description": "LG에너지솔루션·삼성SDI·SK온 등",
+      "etf_codes": ["305720", "305540"]
+    },
+    {
+      "key": "bio",
+      "label": "바이오/헬스케어",
+      "aliases": ["바이오", "제약", "헬스케어", "의료기기"],
+      "description": "삼성바이오로직스·셀트리온 등 + 제약/의료기기",
+      "etf_codes": ["244580", "266420"]
+    },
+    {
+      "key": "shipbuilding",
+      "label": "조선/해양",
+      "aliases": ["조선", "조선해양", "조선업", "K-조선"],
+      "description": "HD현대중공업·삼성중공업·한화오션 등",
+      "etf_codes": []
+    },
+    {
+      "key": "defense",
+      "label": "방산",
+      "aliases": ["방산", "방위산업", "K-방산"],
+      "description": "한화에어로·LIG넥스원·현대로템 등",
+      "etf_codes": []
+    },
+    {
+      "key": "power",
+      "label": "전력/원자력",
+      "aliases": ["전력", "원자력", "전력기기", "유틸리티"],
+      "description": "HD현대일렉트릭·LS ELECTRIC·한전 등",
+      "etf_codes": []
+    },
+    {
+      "key": "robot",
+      "label": "로봇/AI",
+      "aliases": ["로봇", "AI", "인공지능", "자동화"],
+      "description": "두산로보틱스·레인보우로보틱스 + 글로벌 AI",
+      "etf_codes": []
+    },
+    {
+      "key": "us_market",
+      "label": "미국 시장 전체",
+      "aliases": ["S&P500", "미국주식", "미국시장"],
+      "description": "S&P 500 추종, 글로벌 분산 핵심",
+      "etf_codes": []
+    },
+    {
+      "key": "kospi",
+      "label": "KOSPI 추종",
+      "aliases": ["코스피", "KOSPI200", "코스피200"],
+      "description": "한국 시장 전체 추종 (삼성전자/SK하이닉스 약 30% 포함)",
+      "etf_codes": ["069500", "102110"]
+    }
+  ],
+  "etfs": {
+    "091160": {
+      "code": "091160",
+      "name": "KODEX 반도체",
+      "manager": "삼성자산운용",
+      "geography": "한국",
+      "tracking_index": "KRX 반도체",
+      "listed_date": "2006-06-27",
+      "expense_ratio_pct": null,
+      "aum_krw": null,
+      "trading_volume_30d_krw": null,
+      "ytd_return_pct": null,
+      "top_holdings": [],
+      "metrics_updated_at": null,
+      "notes": "한국 대표 반도체 ETF. 삼성전자·SK하이닉스 비중 매우 높음 → KOSPI ETF와 중복 노출 주의."
+    },
+    "381180": {
+      "code": "381180",
+      "name": "TIGER 미국필라델피아반도체나스닥",
+      "manager": "미래에셋자산운용",
+      "geography": "미국",
+      "tracking_index": "PHLX Semiconductor (SOX)",
+      "listed_date": "2021-04-09",
+      "expense_ratio_pct": null,
+      "aum_krw": null,
+      "trading_volume_30d_krw": null,
+      "ytd_return_pct": null,
+      "top_holdings": [],
+      "metrics_updated_at": null,
+      "notes": "글로벌 반도체 노출 (NVIDIA, AMD, Broadcom, TSMC ADR 등). 환헤지 미적용."
+    },
+    "305720": {
+      "code": "305720",
+      "name": "KODEX 2차전지산업",
+      "manager": "삼성자산운용",
+      "geography": "한국",
+      "tracking_index": "FnGuide 2차전지산업",
+      "listed_date": "2018-09-12",
+      "expense_ratio_pct": null,
+      "aum_krw": null,
+      "trading_volume_30d_krw": null,
+      "ytd_return_pct": null,
+      "top_holdings": [],
+      "metrics_updated_at": null,
+      "notes": "LG에너지솔루션·삼성SDI·POSCO홀딩스 등 셀+소재 균형 노출."
+    },
+    "305540": {
+      "code": "305540",
+      "name": "TIGER 2차전지테마",
+      "manager": "미래에셋자산운용",
+      "geography": "한국",
+      "tracking_index": "WISE 2차전지 테마",
+      "listed_date": "2018-09-12",
+      "expense_ratio_pct": null,
+      "aum_krw": null,
+      "trading_volume_30d_krw": null,
+      "ytd_return_pct": null,
+      "top_holdings": [],
+      "metrics_updated_at": null,
+      "notes": "2차전지 테마주 폭넓은 노출. 소재·장비주 비중 높음."
+    },
+    "244580": {
+      "code": "244580",
+      "name": "KODEX 바이오",
+      "manager": "삼성자산운용",
+      "geography": "한국",
+      "tracking_index": "KRX 헬스케어",
+      "listed_date": "2016-05-13",
+      "expense_ratio_pct": null,
+      "aum_krw": null,
+      "trading_volume_30d_krw": null,
+      "ytd_return_pct": null,
+      "top_holdings": [],
+      "metrics_updated_at": null,
+      "notes": "삼성바이오로직스·셀트리온 등 대형 바이오 + 제약."
+    },
+    "266420": {
+      "code": "266420",
+      "name": "KODEX 헬스케어",
+      "manager": "삼성자산운용",
+      "geography": "한국",
+      "tracking_index": "FnGuide 헬스케어",
+      "listed_date": "2017-03-28",
+      "expense_ratio_pct": null,
+      "aum_krw": null,
+      "trading_volume_30d_krw": null,
+      "ytd_return_pct": null,
+      "top_holdings": [],
+      "metrics_updated_at": null,
+      "notes": "바이오 + 제약 + 의료기기 종합 노출."
+    },
+    "069500": {
+      "code": "069500",
+      "name": "KODEX 200",
+      "manager": "삼성자산운용",
+      "geography": "한국",
+      "tracking_index": "KOSPI 200",
+      "listed_date": "2002-10-14",
+      "expense_ratio_pct": null,
+      "aum_krw": null,
+      "trading_volume_30d_krw": null,
+      "ytd_return_pct": null,
+      "top_holdings": [],
+      "metrics_updated_at": null,
+      "notes": "한국 대표 KOSPI 200 추종 ETF. 운용보수 매우 낮음. 삼성전자 25% 내외."
+    },
+    "102110": {
+      "code": "102110",
+      "name": "TIGER 200",
+      "manager": "미래에셋자산운용",
+      "geography": "한국",
+      "tracking_index": "KOSPI 200",
+      "listed_date": "2008-04-03",
+      "expense_ratio_pct": null,
+      "aum_krw": null,
+      "trading_volume_30d_krw": null,
+      "ytd_return_pct": null,
+      "top_holdings": [],
+      "metrics_updated_at": null,
+      "notes": "TIGER 시리즈 대표 KOSPI 200 추종 ETF. 본인 보유 종목."
+    }
+  }
+}
