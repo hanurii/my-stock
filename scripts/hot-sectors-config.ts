@@ -116,6 +116,30 @@ export const KOREA_SECTOR_SEEDS: SectorSeed[] = [
     stock_codes: ["005490", "004020", "103140"],
     news_keywords: ["철강", "POSCO", "포스코", "현대제철", "고로"],
   },
+  {
+    wics_name: "화장품/뷰티",
+    gics_mapped: "Personal Care / Cosmetics",
+    stock_codes: ["090430", "051900", "192820", "161890", "237880", "278470"],
+    news_keywords: ["화장품", "뷰티", "K-뷰티", "코스메틱", "아모레", "LG생활건강", "코스맥스"],
+  },
+  {
+    wics_name: "엔터/미디어",
+    gics_mapped: "Media & Entertainment",
+    stock_codes: ["352820", "035900", "041510", "122870", "035760", "253450"],
+    news_keywords: ["엔터", "K팝", "K-POP", "하이브", "JYP", "콘텐츠", "스튜디오드래곤"],
+  },
+  {
+    wics_name: "우주/위성",
+    gics_mapped: "Aerospace / Satellite",
+    stock_codes: ["012450", "047810", "099320", "272210", "189300"],
+    news_keywords: ["우주", "위성", "항공우주", "누리호", "한화에어로", "쎄트렉아이"],
+  },
+  {
+    wics_name: "금융 (코리아 밸류업)",
+    gics_mapped: "Financials / Banks",
+    stock_codes: ["105560", "055550", "086790", "316140", "138040", "024110"],
+    news_keywords: ["밸류업", "코리아 밸류업", "금융지주", "은행", "KB금융", "신한지주", "자사주 소각", "주주환원"],
+  },
 ];
 
 // ── 한국 테마 (메모 9 섹터 + 5 테마 시드) ──
@@ -175,6 +199,26 @@ export const KOREA_THEME_SEEDS: ThemeSeed[] = [
     stock_codes: ["035420", "035720", "377300", "053800"],
     news_keywords: ["생성형 AI", "LLM", "엔비디아", "AI 모델"],
   },
+  {
+    name: "K-뷰티",
+    stock_codes: ["090430", "051900", "192820", "161890", "237880", "278470"],
+    news_keywords: ["K뷰티", "K-뷰티", "화장품", "코스메틱", "수출", "아모레", "한국 화장품"],
+  },
+  {
+    name: "K-엔터",
+    stock_codes: ["352820", "035900", "041510", "122870", "035760", "253450"],
+    news_keywords: ["하이브", "JYP", "에스엠", "K팝", "K-POP", "팬덤", "엔터테인먼트"],
+  },
+  {
+    name: "우주/위성",
+    stock_codes: ["012450", "047810", "099320", "272210", "189300"],
+    news_keywords: ["우주", "위성", "누리호", "발사체", "스페이스", "스타링크"],
+  },
+  {
+    name: "코리아 밸류업",
+    stock_codes: ["105560", "055550", "086790", "316140", "138040", "024110"],
+    news_keywords: ["밸류업", "코리아 밸류업", "주주환원", "자사주 소각", "배당 확대", "정책 수혜"],
+  },
 ];
 
 // ── 한국 핫섹터/테마 매수 가능 ETF (코드는 fetch-hot-sectors가 Naver로 실재 여부 검증) ──
@@ -214,6 +258,28 @@ export const SECTOR_ETFS: Record<string, ETFCandidate[]> = {
     { code: "139260", name: "TIGER 200 IT" },
   ],
   "철강": [],
+  "화장품/뷰티": [
+    { code: "228790", name: "TIGER 화장품" },
+    { code: "0008T0", name: "SOL 화장품TOP3플러스" },
+    { code: "479850", name: "HANARO K-뷰티" },
+  ],
+  "엔터/미디어": [
+    { code: "228810", name: "TIGER 미디어컨텐츠" },
+    { code: "266360", name: "KODEX K콘텐츠" },
+    { code: "395290", name: "HANARO Fn K-POP&미디어" },
+    { code: "388280", name: "RISE K엔터&여행레저" },
+  ],
+  "우주/위성": [
+    { code: "463250", name: "TIGER K방산&우주" },
+  ],
+  "금융 (코리아 밸류업)": [
+    { code: "495050", name: "RISE 코리아밸류업" },
+    { code: "495850", name: "KODEX 코리아밸류업" },
+    { code: "496080", name: "TIGER 코리아밸류업" },
+    { code: "466940", name: "TIGER 은행고배당플러스TOP10" },
+    { code: "091170", name: "KODEX 은행" },
+    { code: "484880", name: "SOL 금융지주플러스고배당" },
+  ],
 };
 
 export const THEME_ETFS: Record<string, ETFCandidate[]> = {
@@ -246,6 +312,24 @@ export const THEME_ETFS: Record<string, ETFCandidate[]> = {
   ],
   "반도체 기판": [],
   "AI 소프트웨어": [],
+  "K-뷰티": [
+    { code: "228790", name: "TIGER 화장품" },
+    { code: "0008T0", name: "SOL 화장품TOP3플러스" },
+    { code: "479850", name: "HANARO K-뷰티" },
+  ],
+  "K-엔터": [
+    { code: "228810", name: "TIGER 미디어컨텐츠" },
+    { code: "266360", name: "KODEX K콘텐츠" },
+    { code: "395290", name: "HANARO Fn K-POP&미디어" },
+  ],
+  "우주/위성": [
+    { code: "463250", name: "TIGER K방산&우주" },
+  ],
+  "코리아 밸류업": [
+    { code: "495050", name: "RISE 코리아밸류업" },
+    { code: "495850", name: "KODEX 코리아밸류업" },
+    { code: "496080", name: "TIGER 코리아밸류업" },
+  ],
 };
 
 // ── 글로벌 → 한국 연동 페어 ──
