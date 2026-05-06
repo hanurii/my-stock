@@ -150,11 +150,12 @@ def main():
     print("─" * 95)
     for it in matches:
         tab_desc = TAB_CODE_DESC.get(it.get("etfTabCode"), "기타")
-        marketSum = it.get("marketSum", 0)
-        amount = it.get("amonut", 0)  # Naver API typo "amonut"
-        rate = it.get("threeMonthEarnRate", 0)
+        marketSum = it.get("marketSum") or 0
+        amount = it.get("amonut") or 0  # Naver API typo "amonut"
+        rate = it.get("threeMonthEarnRate")
+        rate_str = f"{rate:>+8.2f}%" if isinstance(rate, (int, float)) else f"{'   N/A':>9}"
         print(f"{it['itemcode']:<8} {it['itemname']:<32} {tab_desc:<14} "
-              f"{marketSum:>8,}억 {amount:>10,}백만 {rate:>+8.2f}%")
+              f"{marketSum:>8,}억 {amount:>10,}백만 {rate_str}")
 
     if not args.add_sector:
         print()
