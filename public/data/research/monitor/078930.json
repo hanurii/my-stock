@@ -1,13 +1,13 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-05-07T08:56:43.460+09:00",
+  "last_checked": "2026-05-07T15:10:11.021+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 9.12,
-      "display": "9.12배",
+      "value": 9.3,
+      "display": "9.30배",
       "threshold": "10배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "dividend_yield",
       "label": "배당수익률",
-      "value": 3.9,
-      "display": "3.90%",
+      "value": 3.83,
+      "display": "3.83%",
       "threshold": "3.5% 이하",
       "hit": false,
       "tone": "good"
@@ -60,8 +60,8 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 111.1,
-      "display": "111.10$",
+      "value": 109.63,
+      "display": "109.63$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
@@ -71,7 +71,7 @@
     {
       "severity": "bad",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 9건 (부정 시그널 1건 포함)",
+      "title": "리스크 키워드 매칭 뉴스 12건 (부정 시그널 1건 포함)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
@@ -85,6 +85,14 @@
       "signals": [
         "하락"
       ]
+    },
+    {
+      "keyword": "이란 미국 합의",
+      "date": "2026-05-06",
+      "title": "트럼프 \"이란과의 합의 임박, 우라늄은 미국으로 보내게 될 것\"···이스라엘·유럽 움직임도 '분주' - 대구MBC",
+      "url": "https://news.google.com/rss/articles/CBMiTEFVX3lxTE9zN21UcGVxMWlfaWxJdExjTFAyUFM3TWMzNDdqRzBFZnpmYXZqbGs4c0NvNUtVd0o0TER5eEFjbzdDREgwbXY0SWJyUjA?oc=5",
+      "severity": "info",
+      "signals": []
     },
     {
       "keyword": "이란 미국 합의",
@@ -106,6 +114,32 @@
     },
     {
       "keyword": "중동 긴장 완화",
+      "date": "2026-05-07",
+      "title": "중동 긴장 완화에 환율 또 ‘급락’…장중 1440원대 등락 - dt.co.kr",
+      "url": "https://news.google.com/rss/articles/CBMiTkFVX3lxTE40Wk51NlRRTXpGVVJ3QmhTaDBUdUNPWXZ0MXF1QlZ3V0tmbkJsMEM1eWFiWUJFZUVqWWs0dnZrT2l5c1JpZ3lfbW5vSVZUUQ?oc=5",
+      "severity": "bad",
+      "signals": [
+        "급락"
+      ]
+    },
+    {
+      "keyword": "중동 긴장 완화",
+      "date": "2026-05-07",
+      "title": "중동 긴장 완화에 환율 1440원대…전쟁 이전 수준 되돌림 - 아주경제",
+      "url": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE5PSFNQT08wMWpwcURRel9fNVc4aGo2SV95NjhCS3d5TFNLakVnT2xTd2tvSnpsclhhSGE0NmY5U2hON29pTEtRdWMtZldoZnRLNi1JUEVOUjgyd9IBWEFVX3lxTE5NV2JCMklsOEo1cnNyUTFPTkxfc2s0WXd4Nk1mM0VtVW42M3VhQi11SDU5V1RtMGpzMzUwME5UTUxmRXBGVjdoMFVmUzJVSGJ1VS14dVFiWGU?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "중동 긴장 완화",
+      "date": "2026-05-07",
+      "title": "환율, 중동 긴장 완화에 1440원대로…위험 선호 심리 확산 - 뉴스투데이",
+      "url": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE9KTThFZGFlU3dLUE1jb3FuU3VDN3lUekdtZ2VZdGNqWUhMVHpKWXczMFBYUDRVNHRrMEE1aXpRS2t5RGJXYlRCaUs4aWNqbktQaXRlQWdTcGxpOXlMLXc?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "중동 긴장 완화",
       "date": "2026-05-05",
       "title": "중동 긴장 완화에 美 증시 랠리… S&amp;P·나스닥 또 ‘사상 최고’ - 조선비즈 - Chosunbiz",
       "url": "https://news.google.com/rss/articles/CBMingFBVV95cUxNeHdpSEprX0pmcTd1N01RekNZcEtqNVl5WGd1aHFxbG1qSEowSGVfLWQ3d1prZWhMTzU1ZUoyWGw3SV9Qa0tBMkdhUXNMZDVWYWJGa3JOb1RUZ1h4SFgzS2Z3ajJ4SXhDMDRCdWlubGJkeWdYNWtRbC1sX3J2dVRmamdUczBUbm5oSnExRmFYWENRYk13eUlRWUhCYmZzQdIBsgFBVV95cUxPSFRncy0wNzZiWjNrQk1WWk5CUHhCNGxZRG1BTjl5UmlxYm5xZGRRVUx6QXlHMHNBanI0UG9DMlBVdURvZE1CWUZJTFY1QTQtUnF5NVNWTVBEZUdOUHZLVXJXR3pHT1ItaWRUanprc1pHSlBxdDlUNTE0US1TUkd1OWMyZkdGemdVOGRlS1BWbWoyT1JZWGVCS2VsaGh4Y0R2SzUyczk4WDMxLVJ4c0o1NGJ3?oc=5",
@@ -114,9 +148,9 @@
     },
     {
       "keyword": "중동 긴장 완화",
-      "date": "2026-05-06",
-      "title": "중동 긴장 완화·코스피 7000 돌파…환율 장 초반 하락 - 아주경제",
-      "url": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE1CLVhNN3R3ZURkcWZEMHhuM3lqcUJWZER5eF90NjJMcDlsWE4tMm1fUllwZGpBWWV5S1BFV1JDWGdfa2haTVlCOWRaeUx2dGFMcm5HSk1SV2Vpd9IBWEFVX3lxTE51ZmpGbklPaXRpN3VXa3dNdGpOTm1NVUVHTXVDRDBWdFdfc3VSOXF2dkVMXzdZR2h2YjkxNzcyYTZzQzBIRm50UkhwQW9pZV94bXI1X3hkS20?oc=5",
+      "date": "2026-05-07",
+      "title": "원/달러 환율 1440원대로 하락…중동 긴장 완화 기대 반영 - 컨슈머타임스",
+      "url": "https://news.google.com/rss/articles/CBMiakFVX3lxTFBsWkdOWDQ5ekZSbGxMVFJUbkZMYThqV1JkamNVVXl5d1ZGelg5eXc3SDJIdVJSd0VSV0RsZ0pBdU1SVFVTRHhFb0pNUnRaUHF0cDFyQVJwWkFpRjJySS1KUlBUZkwxMTJLX1E?oc=5",
       "severity": "warn",
       "signals": [
         "하락"
@@ -142,23 +176,11 @@
     },
     {
       "keyword": "중동 긴장 완화",
-      "date": "2026-05-06",
-      "title": "유가 급락에 실적 호조까지...중동 긴장 완화 속 뉴욕증시 ‘최고치 질주’ - 더퍼블릭",
-      "url": "https://news.google.com/rss/articles/CBMib0FVX3lxTE1LR3AwMDRhOUdmMlQ5b1RoeUNoZGNyVElYQUVIeHRURTZKTzRhYUdMRjB2ZHh0enItZHFVMTRSeUdJTk13N2NrMkhvLVlmdE44a09wSUd5Tm9VOXR1N1poRjVGajkwcmdHTm45N29IWdIBb0FVX3lxTE1LR3AwMDRhOUdmMlQ5b1RoeUNoZGNyVElYQUVIeHRURTZKTzRhYUdMRjB2ZHh0enItZHFVMTRSeUdJTk13N2NrMkhvLVlmdE44a09wSUd5Tm9VOXR1N1poRjVGajkwcmdHTm45N29IWQ?oc=5",
-      "severity": "bad",
-      "signals": [
-        "급락"
-      ]
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-05-06",
-      "title": "환율 1450원대 하락…중동긴장 완화·외국인 자금 유입 영향 - 네이트",
-      "url": "https://news.google.com/rss/articles/CBMiU0FVX3lxTE5yVUhuZ1V2NkRjNUlHd25RVUJKeU9vOEJOUE8yeXA2Rk96czJvV21ldTJkSmxRMXl1bE1yWUYyWlJ2RGQ0dTZGSC1fTVAzRXpoeGJR?oc=5",
-      "severity": "warn",
-      "signals": [
-        "하락"
-      ]
+      "date": "2026-05-07",
+      "title": "日닛케이, 사상 첫 6만2000엔 돌파…중동 긴장완화 AI주 랠리 재점화 - 아시아투데이",
+      "url": "https://news.google.com/rss/articles/CBMibkFVX3lxTFBZM1lSd09DUnNTNUhJRFJObUNaS3AxSEpHWEhFOHZOQVhKSnItbU9iVzhTUTZwbXBnNmtEOU00YnlGTlRESlYzV2g0b3NGRmMxOUM1dUhIRTFxMkRsb0lMb3hhTEVHaW9NUGpuVmJB?oc=5",
+      "severity": "info",
+      "signals": []
     }
   ],
   "sources": [
@@ -167,7 +189,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 101.94 USD (2026-05-06, 7일 평균 111.1)",
+      "label": "Brent 원유 종가 101.64 USD (2026-05-07, 7일 평균 109.63)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
