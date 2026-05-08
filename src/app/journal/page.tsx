@@ -108,14 +108,21 @@ function formatMoney(amount: number): string {
 const SECTOR_GROUP: Record<string, string> = {
   "반도체": "기술", "IT서비스": "기술", "디스플레이장비": "기술",
   "소프트웨어": "기술", "전자장비": "기술",
+  "반도체/HBM": "기술", "AI/전력 인프라": "기술", "삼성그룹주": "기술",
   "금융": "금융", "은행": "금융", "보험": "금융", "증권": "금융",
   "에너지": "에너지", "에너지기자재": "에너지",
   "자동차": "산업재", "기계": "산업재", "조선": "산업재", "건설": "산업재",
-  "화학": "소재", "철강": "소재",
+  "현대차그룹주": "산업재", "방위산업/에너지": "산업재",
+  "화학": "소재", "철강": "소재", "2차전지": "소재",
   "제약": "헬스케어", "바이오": "헬스케어",
-  "음식료": "필수소비재", "유통": "임의소비재",
+  "음식료": "필수소비재", "유통": "임의소비재", "화장품": "임의소비재",
   "미디어": "커뮤니케이션", "통신": "커뮤니케이션",
+  "ETF (코스피200)": "시장 ETF",
 };
+
+function normalizeSector(s: string): string {
+  return s.replace(/\s*\((섹터|테마)\)\s*$/u, "").trim();
+}
 
 interface SectorStat {
   evalAmount: number;
@@ -273,7 +280,8 @@ export default function JournalPage() {
   let totalEval = 0;
   for (const h of holdings) {
     const raw = h.sector || "기타";
-    const key = raw.startsWith("ETF") ? "ETF" : (SECTOR_GROUP[raw] || raw);
+    const norm = normalizeSector(raw);
+    const key = SECTOR_GROUP[norm] || norm;
     const prev = sectorStats.get(key) || { evalAmount: 0, invested: 0, profit: 0, count: 0, names: [], holdings: [] };
     prev.evalAmount += h.eval_amount;
     prev.invested += h.avg_price * h.quantity;
