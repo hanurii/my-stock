@@ -651,7 +651,7 @@ export default function JournalPage() {
                               !triggered &&
                               h.sell_trigger_price != null &&
                               h.current_price <= h.sell_trigger_price * 1.03;
-                            const cellColor = triggered ? "#ffb4ab" : nearTrigger ? "#e9c176" : undefined;
+                            const cellColor = triggered ? "#ffb4ab" : nearTrigger ? "#ffd6cf" : undefined;
                             const suffix = triggered ? " ⚠" : nearTrigger ? " ⏳" : "";
                             const marginPct =
                               h.sell_trigger_price != null && h.sell_trigger_price > 0
