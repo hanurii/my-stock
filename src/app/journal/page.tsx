@@ -321,18 +321,23 @@ export default function JournalPage() {
       </section>
 
       {/* ══════════════════════════════════════════════ */}
-      {/* 파트 1: 현재 보유 현황 */}
+      {/* 파트 1: 현재 보유 현황                         */}
       {/* ══════════════════════════════════════════════ */}
 
-      {/* 포트폴리오 요약 */}
       <section>
         <h3 className="text-2xl font-serif text-on-surface mb-6 tracking-tight">
           포트폴리오 현황
         </h3>
 
+        {/* ════════════════════════════════════════════════════════════ */}
+        {/* 항상 노출 영역: 자산 현황 + 핵심 KPI                          */}
+        {/* 새 섹션을 추가할 때는 반드시 이 KPI 블록 아래에 배치해          */}
+        {/* 핵심 지표가 페이지 상단에서 절대 밀리지 않도록 한다.            */}
+        {/* ════════════════════════════════════════════════════════════ */}
+
         {/* 자산 현황 */}
         {(summary.cash != null || hasHoldings) && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-5">
             {summary.total_assets != null && (
               <div className="bg-surface-container-low rounded-xl p-4 sm:p-6 ghost-border">
                 <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">총 자산</p>
@@ -376,153 +381,9 @@ export default function JournalPage() {
           </div>
         )}
 
-        {/* 포트폴리오 전략 점검 */}
-        {hasHoldings && summary.target_strategy && (
-          <PortfolioStrategyFeedback
-            holdings={holdings}
-            cash={summary.cash || 0}
-            totalAssets={summary.total_assets || summary.total_current_value}
-            targetStrategy={summary.target_strategy}
-          />
-        )}
-
-        {/* 포트폴리오 비율 차트 */}
-        {hasHoldings && (
-          <div className="bg-surface-container-low rounded-xl p-8 ghost-border mb-8">
-            <h4 className="text-lg font-serif text-on-surface mb-6">포트폴리오 구성</h4>
-            <PortfolioPieChart holdings={holdings} cash={summary.cash} />
-          </div>
-        )}
-
-        {/* 섹터별 비중 차트 */}
-        {hasHoldings && (
-          <div className="bg-surface-container-low rounded-xl p-8 ghost-border mb-8">
-            <h4 className="text-lg font-serif text-on-surface mb-6">섹터별 비중</h4>
-            <SectorPieChart
-              sectors={sectorList.map((s) => ({
-                sector: s.sector,
-                value: s.evalAmount,
-                weight_pct: s.weightPct,
-                count: s.count,
-                names: s.names,
-              }))}
-              totalValue={totalEval}
-              currency="krw"
-            />
-          </div>
-        )}
-
-        {/* 섹터별 수익 현황 */}
-        {hasHoldings && (
-          <div className="bg-surface-container-low rounded-xl p-6 sm:p-8 ghost-border mb-8">
-            <h4 className="text-lg font-serif text-on-surface mb-6">섹터별 수익 현황</h4>
-            <SectorProfitTable
-              sectors={sectorList.map((s) => ({
-                sector: s.sector,
-                count: s.count,
-                invested: s.invested,
-                evalAmount: s.evalAmount,
-                profit: s.profit,
-                profitPct: s.profitPct,
-                holdings: [...s.holdings].sort((a, b) => b.eval_amount - a.eval_amount).map((h) => ({
-                  name: h.name,
-                  invested: h.avg_price * h.quantity,
-                  evalAmount: h.eval_amount,
-                  profitAmount: h.profit_amount,
-                  profitPct: h.profit_pct,
-                })),
-              }))}
-            />
-          </div>
-        )}
-
-        {/* 2026년 종목별 수익률 */}
-        {hasTransactions && (() => {
-          const yearly = computeYearlyPerformance(2026, transactions, holdings);
-          if (yearly.length === 0) return null;
-          const totalBuy = yearly.reduce((s, d) => s + d.buy_amount_year, 0);
-          const totalSell = yearly.reduce((s, d) => s + d.sell_amount_year, 0);
-          const totalEval = yearly.reduce((s, d) => s + d.current_eval, 0);
-          const totalDiv = yearly.reduce((s, d) => s + d.dividend_amount, 0);
-          const totalCostBasis = yearly.reduce((s, d) => s + d.cost_basis_drawn, 0);
-          const totalProfit = yearly.reduce((s, d) => s + d.ytd_profit, 0);
-          const totalPct = totalCostBasis > 0 ? (totalProfit / totalCostBasis) * 100 : 0;
-          const totalColor = totalProfit >= 0 ? "#95d3ba" : "#ffb4ab";
-
-          return (
-            <div className="bg-surface-container-low rounded-xl p-6 sm:p-8 ghost-border mb-8">
-              <h4 className="text-lg font-serif text-on-surface mb-2">2026년 종목별 수익률</h4>
-              <p className="text-xs text-on-surface-variant/50 mb-6">
-                실현손익(FIFO) + 평가손익 + 배당 합산, 수수료·세금 차감. 분모는 2026년 매도된 cost basis + 현재 보유 cost basis
-              </p>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="text-xs uppercase tracking-wider text-on-surface-variant/50">
-                      <th className="text-left px-3 pb-3 font-normal">종목</th>
-                      <th className="text-right px-3 pb-3 font-normal">매수액</th>
-                      <th className="text-right px-3 pb-3 font-normal">매도액</th>
-                      <th className="text-right px-3 pb-3 font-normal">평가액</th>
-                      <th className="text-right px-3 pb-3 font-normal">배당</th>
-                      <th className="text-right px-3 pb-3 font-normal">손익</th>
-                      <th className="text-right px-3 pb-3 font-normal">수익률</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {yearly.map((d) => {
-                      const pColor = d.ytd_profit >= 0 ? "#95d3ba" : "#ffb4ab";
-                      return (
-                        <tr key={d.code} className="hover:bg-surface-container/30 transition-colors">
-                          <td className="px-3 py-3">
-                            <p className="font-medium text-on-surface">{d.name}</p>
-                            <p className="text-xs text-on-surface-variant/50">
-                              {d.code} · {d.has_holding ? "보유 중" : "매도 종료"}
-                            </p>
-                          </td>
-                          <td className="px-3 py-3 text-right font-mono text-on-surface-variant">
-                            {d.buy_amount_year > 0 ? formatMoney(d.buy_amount_year) : "—"}
-                          </td>
-                          <td className="px-3 py-3 text-right font-mono text-on-surface-variant">
-                            {d.sell_amount_year > 0 ? formatMoney(d.sell_amount_year) : "—"}
-                          </td>
-                          <td className="px-3 py-3 text-right font-mono text-on-surface-variant">
-                            {d.current_eval > 0 ? formatMoney(d.current_eval) : "—"}
-                          </td>
-                          <td className="px-3 py-3 text-right font-mono text-on-surface-variant">
-                            {d.dividend_amount > 0 ? formatMoney(d.dividend_amount) : "—"}
-                          </td>
-                          <td className="px-3 py-3 text-right font-mono font-bold" style={{ color: pColor }}>
-                            {d.ytd_profit >= 0 ? "+" : ""}{formatMoney(d.ytd_profit)}
-                          </td>
-                          <td className="px-3 py-3 text-right font-mono font-bold" style={{ color: pColor }}>
-                            {d.ytd_pct >= 0 ? "+" : ""}{d.ytd_pct.toFixed(1)}%
-                          </td>
-                        </tr>
-                      );
-                    })}
-                    <tr className="border-t border-outline-variant/15 bg-surface-container/20">
-                      <td className="px-3 py-3 font-medium text-on-surface">합계</td>
-                      <td className="px-3 py-3 text-right font-mono text-on-surface">{formatMoney(totalBuy)}</td>
-                      <td className="px-3 py-3 text-right font-mono text-on-surface">{formatMoney(totalSell)}</td>
-                      <td className="px-3 py-3 text-right font-mono text-on-surface">{formatMoney(totalEval)}</td>
-                      <td className="px-3 py-3 text-right font-mono text-on-surface">{formatMoney(totalDiv)}</td>
-                      <td className="px-3 py-3 text-right font-mono font-bold" style={{ color: totalColor }}>
-                        {totalProfit >= 0 ? "+" : ""}{formatMoney(totalProfit)}
-                      </td>
-                      <td className="px-3 py-3 text-right font-mono font-bold" style={{ color: totalColor }}>
-                        {totalPct >= 0 ? "+" : ""}{totalPct.toFixed(1)}%
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          );
-        })()}
-
-        {/* 수익 & 비용 요약 */}
+        {/* 핵심 KPI: 매매 손익/비용 */}
         {hasTransactions && (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-4">
             {summary.gross_profit != null && (
               <div className="bg-surface-container-low rounded-xl p-3 sm:p-5 ghost-border">
                 <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">매매차익</p>
@@ -576,140 +437,298 @@ export default function JournalPage() {
           </div>
         )}
 
+        {/* 핵심 KPI: 투입/평가 */}
+        {hasHoldings && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-5 mb-8">
+            <div className="bg-surface-container-low rounded-xl p-4 sm:p-6 ghost-border">
+              <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">총 투입금액</p>
+              <p className="text-xl sm:text-2xl font-mono text-on-surface font-bold break-all">
+                {formatMoney(summary.total_invested)}
+                <span className="text-sm text-on-surface-variant ml-1">원</span>
+              </p>
+            </div>
+            <div className="bg-surface-container-low rounded-xl p-4 sm:p-6 ghost-border">
+              <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">현재 평가액</p>
+              <p className="text-xl sm:text-2xl font-mono text-on-surface font-bold break-all">
+                {formatMoney(summary.total_current_value)}
+                <span className="text-sm text-on-surface-variant ml-1">원</span>
+              </p>
+            </div>
+            <div className="bg-surface-container-low rounded-xl p-4 sm:p-6 ghost-border">
+              <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">총 수익금</p>
+              <p className="text-xl sm:text-2xl font-mono font-bold break-all" style={{ color: profitColor }}>
+                {netProfit >= 0 ? "+" : ""}{formatMoney(netProfit)}
+                <span className="text-sm ml-1">원</span>
+              </p>
+            </div>
+            <div className="bg-surface-container-low rounded-xl p-4 sm:p-6 ghost-border">
+              <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">투입 대비 수익률</p>
+              <p className="text-2xl sm:text-3xl font-mono font-bold" style={{ color: profitColor }}>
+                {(summary.net_profit_pct || 0) >= 0 ? "+" : ""}{summary.net_profit_pct || 0}%
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* ════════════════════════════════════════════════════════════ */}
+        {/* 위까지 항상 노출 KPI 영역 끝                                  */}
+        {/* 아래는 보유 종목 / 전략 점검 / 접힘 섹션                       */}
+        {/* ════════════════════════════════════════════════════════════ */}
+
+        {/* 보유 종목 (접기) */}
         {!hasHoldings ? (
-          <div className="bg-surface-container-low rounded-xl p-10 ghost-border text-center">
+          <div className="bg-surface-container-low rounded-xl p-10 ghost-border text-center mb-8">
             <span className="material-symbols-outlined text-primary-dim/30 text-4xl mb-4 block">account_balance_wallet</span>
             <p className="text-lg text-on-surface-variant">현재 보유 중인 종목이 없습니다</p>
           </div>
         ) : (
-          <>
-            {/* 보유 종목 요약 카드 */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-5 mb-8">
-              <div className="bg-surface-container-low rounded-xl p-4 sm:p-6 ghost-border">
-                <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">총 투입금액</p>
-                <p className="text-xl sm:text-2xl font-mono text-on-surface font-bold break-all">
-                  {formatMoney(summary.total_invested)}
-                  <span className="text-sm text-on-surface-variant ml-1">원</span>
-                </p>
-              </div>
-              <div className="bg-surface-container-low rounded-xl p-4 sm:p-6 ghost-border">
-                <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">현재 평가액</p>
-                <p className="text-xl sm:text-2xl font-mono text-on-surface font-bold break-all">
-                  {formatMoney(summary.total_current_value)}
-                  <span className="text-sm text-on-surface-variant ml-1">원</span>
-                </p>
-              </div>
-              <div className="bg-surface-container-low rounded-xl p-4 sm:p-6 ghost-border">
-                <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">총 수익금</p>
-                <p className="text-xl sm:text-2xl font-mono font-bold break-all" style={{ color: profitColor }}>
-                  {netProfit >= 0 ? "+" : ""}{formatMoney(netProfit)}
-                  <span className="text-sm ml-1">원</span>
-                </p>
-              </div>
-              <div className="bg-surface-container-low rounded-xl p-4 sm:p-6 ghost-border">
-                <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-2">투입 대비 수익률</p>
-                <p className="text-2xl sm:text-3xl font-mono font-bold" style={{ color: profitColor }}>
-                  {(summary.net_profit_pct || 0) >= 0 ? "+" : ""}{summary.net_profit_pct || 0}%
-                </p>
-              </div>
-            </div>
-
-            {/* 보유 종목 */}
-            <div className="bg-surface-container-low rounded-xl ghost-border overflow-hidden">
-              <div className="p-6 pb-3">
-                <h4 className="text-lg font-serif text-on-surface">보유 종목</h4>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-base">
-                  <thead>
-                    <tr className="text-xs uppercase tracking-wider text-on-surface-variant/50">
-                      <th className="text-left px-6 pb-3 font-normal">종목</th>
-                      <th className="text-right px-4 pb-3 font-normal">수량</th>
-                      <th className="text-right px-4 pb-3 font-normal">평균매수가</th>
-                      <th className="text-right px-4 pb-3 font-normal">현재가</th>
-                      <th className="text-right px-4 pb-3 font-normal">트리거가</th>
-                      <th className="text-right px-4 pb-3 font-normal">평가금액</th>
-                      <th className="text-right px-4 pb-3 font-normal">수익금</th>
-                      <th className="text-right px-6 pb-3 font-normal">수익률</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {[...holdings].sort((a, b) => b.eval_amount - a.eval_amount).map((h) => {
-                      const pColor = h.profit_pct >= 0 ? "#95d3ba" : "#ffb4ab";
-                      return (
-                        <tr key={h.code} className="hover:bg-surface-container/30 transition-colors">
-                          <td className="px-6 py-4">
-                            <p className="font-medium text-on-surface">{h.name}</p>
-                            <p className="text-sm text-on-surface-variant/50">{h.code}{h.sector ? ` · ${h.sector}` : ""}</p>
-                          </td>
-                          <td className="px-4 py-4 text-right font-mono text-on-surface">{h.quantity.toLocaleString()}주</td>
-                          <td className="px-4 py-4 text-right font-mono text-on-surface-variant">{h.avg_price.toLocaleString()}</td>
-                          <td className="px-4 py-4 text-right font-mono text-on-surface">{h.current_price.toLocaleString()}</td>
-                          {(() => {
-                            const triggered = h.sell_trigger_price != null && h.current_price <= h.sell_trigger_price;
-                            const nearTrigger =
-                              !triggered &&
-                              h.sell_trigger_price != null &&
-                              h.current_price <= h.sell_trigger_price * 1.03;
-                            const cellColor = triggered ? "#ffb4ab" : nearTrigger ? "#ffd6cf" : undefined;
-                            const suffix = triggered ? " ⚠" : nearTrigger ? " ⏳" : "";
-                            const marginPct =
-                              h.sell_trigger_price != null && h.sell_trigger_price > 0
-                                ? ((h.current_price - h.sell_trigger_price) / h.sell_trigger_price) * 100
-                                : null;
-                            const titleParts: string[] = [];
-                            if (h.high_price && h.high_price_date) {
-                              titleParts.push(`고점 ${h.high_price.toLocaleString()}원 (${h.high_price_date}) × 0.9`);
-                            }
-                            if (marginPct != null) {
-                              titleParts.push(
-                                marginPct >= 0
-                                  ? `트리거까지 +${marginPct.toFixed(1)}%`
-                                  : `트리거 ${marginPct.toFixed(1)}% 도달`,
+          <div className="mb-8">
+            <Collapsible title="보유 종목" defaultOpen={false}>
+              <div className="bg-surface-container-low rounded-xl ghost-border overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-base">
+                    <thead>
+                      <tr className="text-xs uppercase tracking-wider text-on-surface-variant/50">
+                        <th className="text-left px-6 pt-5 pb-3 font-normal">종목</th>
+                        <th className="text-right px-4 pt-5 pb-3 font-normal">수량</th>
+                        <th className="text-right px-4 pt-5 pb-3 font-normal">평균매수가</th>
+                        <th className="text-right px-4 pt-5 pb-3 font-normal">현재가</th>
+                        <th className="text-right px-4 pt-5 pb-3 font-normal">트리거가</th>
+                        <th className="text-right px-4 pt-5 pb-3 font-normal">평가금액</th>
+                        <th className="text-right px-4 pt-5 pb-3 font-normal">수익금</th>
+                        <th className="text-right px-6 pt-5 pb-3 font-normal">수익률</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[...holdings].sort((a, b) => b.eval_amount - a.eval_amount).map((h) => {
+                        const pColor = h.profit_pct >= 0 ? "#95d3ba" : "#ffb4ab";
+                        return (
+                          <tr key={h.code} className="hover:bg-surface-container/30 transition-colors">
+                            <td className="px-6 py-4">
+                              <p className="font-medium text-on-surface">{h.name}</p>
+                              <p className="text-sm text-on-surface-variant/50">{h.code}{h.sector ? ` · ${h.sector}` : ""}</p>
+                            </td>
+                            <td className="px-4 py-4 text-right font-mono text-on-surface">{h.quantity.toLocaleString()}주</td>
+                            <td className="px-4 py-4 text-right font-mono text-on-surface-variant">{h.avg_price.toLocaleString()}</td>
+                            <td className="px-4 py-4 text-right font-mono text-on-surface">{h.current_price.toLocaleString()}</td>
+                            {(() => {
+                              const triggered = h.sell_trigger_price != null && h.current_price <= h.sell_trigger_price;
+                              const nearTrigger =
+                                !triggered &&
+                                h.sell_trigger_price != null &&
+                                h.current_price <= h.sell_trigger_price * 1.03;
+                              const cellColor = triggered ? "#ffb4ab" : nearTrigger ? "#ffd6cf" : undefined;
+                              const suffix = triggered ? " ⚠" : nearTrigger ? " ⏳" : "";
+                              const marginPct =
+                                h.sell_trigger_price != null && h.sell_trigger_price > 0
+                                  ? ((h.current_price - h.sell_trigger_price) / h.sell_trigger_price) * 100
+                                  : null;
+                              const titleParts: string[] = [];
+                              if (h.high_price && h.high_price_date) {
+                                titleParts.push(`고점 ${h.high_price.toLocaleString()}원 (${h.high_price_date}) × 0.9`);
+                              }
+                              if (marginPct != null) {
+                                titleParts.push(
+                                  marginPct >= 0
+                                    ? `트리거까지 +${marginPct.toFixed(1)}%`
+                                    : `트리거 ${marginPct.toFixed(1)}% 도달`,
+                                );
+                              }
+                              const title = titleParts.length > 0 ? titleParts.join(" · ") : undefined;
+                              const innerClass = triggered
+                                ? "font-bold"
+                                : nearTrigger
+                                  ? "text-on-surface"
+                                  : "text-on-surface-variant";
+                              return (
+                                <td
+                                  className="px-4 py-4 text-right font-mono"
+                                  style={{ color: cellColor }}
+                                  title={title}
+                                >
+                                  {h.sell_trigger_price != null ? (
+                                    <span className={innerClass}>
+                                      {h.sell_trigger_price.toLocaleString()}{suffix}
+                                    </span>
+                                  ) : (
+                                    <span className="text-on-surface-variant/40">—</span>
+                                  )}
+                                </td>
                               );
-                            }
-                            const title = titleParts.length > 0 ? titleParts.join(" · ") : undefined;
-                            const innerClass = triggered
-                              ? "font-bold"
-                              : nearTrigger
-                                ? "text-on-surface"
-                                : "text-on-surface-variant";
-                            return (
-                              <td
-                                className="px-4 py-4 text-right font-mono"
-                                style={{ color: cellColor }}
-                                title={title}
-                              >
-                                {h.sell_trigger_price != null ? (
-                                  <span className={innerClass}>
-                                    {h.sell_trigger_price.toLocaleString()}{suffix}
-                                  </span>
-                                ) : (
-                                  <span className="text-on-surface-variant/40">—</span>
-                                )}
+                            })()}
+                            <td className="px-4 py-4 text-right font-mono text-on-surface">{formatMoney(h.eval_amount)}</td>
+                            <td className="px-4 py-4 text-right font-mono" style={{ color: pColor }}>
+                              {h.profit_amount >= 0 ? "+" : ""}{formatMoney(h.profit_amount)}
+                            </td>
+                            <td className="px-6 py-4 text-right font-mono font-bold" style={{ color: pColor }}>
+                              {h.profit_pct >= 0 ? "+" : ""}{h.profit_pct}%
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </Collapsible>
+          </div>
+        )}
+
+        {/* 포트폴리오 전략 점검 */}
+        {hasHoldings && summary.target_strategy && (
+          <PortfolioStrategyFeedback
+            holdings={holdings}
+            cash={summary.cash || 0}
+            totalAssets={summary.total_assets || summary.total_current_value}
+            targetStrategy={summary.target_strategy}
+          />
+        )}
+
+        {/* 포트폴리오 구성 (접기) */}
+        {hasHoldings && (
+          <div className="mb-8">
+            <Collapsible title="포트폴리오 구성" defaultOpen={false}>
+              <div className="bg-surface-container-low rounded-xl p-8 ghost-border">
+                <PortfolioPieChart holdings={holdings} cash={summary.cash} />
+              </div>
+            </Collapsible>
+          </div>
+        )}
+
+        {/* 섹터별 비중 · 수익 (통합 + 접기) */}
+        {hasHoldings && (
+          <div className="mb-8">
+            <Collapsible title="섹터별 비중 · 수익" defaultOpen={false}>
+              <div className="bg-surface-container-low rounded-xl p-6 sm:p-8 ghost-border space-y-10">
+                <div>
+                  <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-4">비중</p>
+                  <SectorPieChart
+                    sectors={sectorList.map((s) => ({
+                      sector: s.sector,
+                      value: s.evalAmount,
+                      weight_pct: s.weightPct,
+                      count: s.count,
+                      names: s.names,
+                    }))}
+                    totalValue={totalEval}
+                    currency="krw"
+                  />
+                </div>
+                <div>
+                  <p className="text-xs uppercase tracking-wider text-on-surface-variant/50 mb-4">수익 현황</p>
+                  <SectorProfitTable
+                    sectors={sectorList.map((s) => ({
+                      sector: s.sector,
+                      count: s.count,
+                      invested: s.invested,
+                      evalAmount: s.evalAmount,
+                      profit: s.profit,
+                      profitPct: s.profitPct,
+                      holdings: [...s.holdings].sort((a, b) => b.eval_amount - a.eval_amount).map((h) => ({
+                        name: h.name,
+                        invested: h.avg_price * h.quantity,
+                        evalAmount: h.eval_amount,
+                        profitAmount: h.profit_amount,
+                        profitPct: h.profit_pct,
+                      })),
+                    }))}
+                  />
+                </div>
+              </div>
+            </Collapsible>
+          </div>
+        )}
+
+        {/* 2026년 종목별 수익률 (접기) */}
+        {hasTransactions && (() => {
+          const yearly = computeYearlyPerformance(2026, transactions, holdings);
+          if (yearly.length === 0) return null;
+          const totalBuy = yearly.reduce((s, d) => s + d.buy_amount_year, 0);
+          const totalSell = yearly.reduce((s, d) => s + d.sell_amount_year, 0);
+          const totalEvalY = yearly.reduce((s, d) => s + d.current_eval, 0);
+          const totalDiv = yearly.reduce((s, d) => s + d.dividend_amount, 0);
+          const totalCostBasis = yearly.reduce((s, d) => s + d.cost_basis_drawn, 0);
+          const totalProfit = yearly.reduce((s, d) => s + d.ytd_profit, 0);
+          const totalPct = totalCostBasis > 0 ? (totalProfit / totalCostBasis) * 100 : 0;
+          const totalColor = totalProfit >= 0 ? "#95d3ba" : "#ffb4ab";
+
+          return (
+            <div className="mb-8">
+              <Collapsible title="2026년 종목별 수익률" defaultOpen={false}>
+                <div className="bg-surface-container-low rounded-xl p-6 sm:p-8 ghost-border">
+                  <p className="text-xs text-on-surface-variant/50 mb-6">
+                    실현손익(FIFO) + 평가손익 + 배당 합산, 수수료·세금 차감. 분모는 2026년 매도된 cost basis + 현재 보유 cost basis
+                  </p>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="text-xs uppercase tracking-wider text-on-surface-variant/50">
+                          <th className="text-left px-3 pb-3 font-normal">종목</th>
+                          <th className="text-right px-3 pb-3 font-normal">매수액</th>
+                          <th className="text-right px-3 pb-3 font-normal">매도액</th>
+                          <th className="text-right px-3 pb-3 font-normal">평가액</th>
+                          <th className="text-right px-3 pb-3 font-normal">배당</th>
+                          <th className="text-right px-3 pb-3 font-normal">손익</th>
+                          <th className="text-right px-3 pb-3 font-normal">수익률</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {yearly.map((d) => {
+                          const pColor = d.ytd_profit >= 0 ? "#95d3ba" : "#ffb4ab";
+                          return (
+                            <tr key={d.code} className="hover:bg-surface-container/30 transition-colors">
+                              <td className="px-3 py-3">
+                                <p className="font-medium text-on-surface">{d.name}</p>
+                                <p className="text-xs text-on-surface-variant/50">
+                                  {d.code} · {d.has_holding ? "보유 중" : "매도 종료"}
+                                </p>
                               </td>
-                            );
-                          })()}
-                          <td className="px-4 py-4 text-right font-mono text-on-surface">{formatMoney(h.eval_amount)}</td>
-                          <td className="px-4 py-4 text-right font-mono" style={{ color: pColor }}>
-                            {h.profit_amount >= 0 ? "+" : ""}{formatMoney(h.profit_amount)}
+                              <td className="px-3 py-3 text-right font-mono text-on-surface-variant">
+                                {d.buy_amount_year > 0 ? formatMoney(d.buy_amount_year) : "—"}
+                              </td>
+                              <td className="px-3 py-3 text-right font-mono text-on-surface-variant">
+                                {d.sell_amount_year > 0 ? formatMoney(d.sell_amount_year) : "—"}
+                              </td>
+                              <td className="px-3 py-3 text-right font-mono text-on-surface-variant">
+                                {d.current_eval > 0 ? formatMoney(d.current_eval) : "—"}
+                              </td>
+                              <td className="px-3 py-3 text-right font-mono text-on-surface-variant">
+                                {d.dividend_amount > 0 ? formatMoney(d.dividend_amount) : "—"}
+                              </td>
+                              <td className="px-3 py-3 text-right font-mono font-bold" style={{ color: pColor }}>
+                                {d.ytd_profit >= 0 ? "+" : ""}{formatMoney(d.ytd_profit)}
+                              </td>
+                              <td className="px-3 py-3 text-right font-mono font-bold" style={{ color: pColor }}>
+                                {d.ytd_pct >= 0 ? "+" : ""}{d.ytd_pct.toFixed(1)}%
+                              </td>
+                            </tr>
+                          );
+                        })}
+                        <tr className="border-t border-outline-variant/15 bg-surface-container/20">
+                          <td className="px-3 py-3 font-medium text-on-surface">합계</td>
+                          <td className="px-3 py-3 text-right font-mono text-on-surface">{formatMoney(totalBuy)}</td>
+                          <td className="px-3 py-3 text-right font-mono text-on-surface">{formatMoney(totalSell)}</td>
+                          <td className="px-3 py-3 text-right font-mono text-on-surface">{formatMoney(totalEvalY)}</td>
+                          <td className="px-3 py-3 text-right font-mono text-on-surface">{formatMoney(totalDiv)}</td>
+                          <td className="px-3 py-3 text-right font-mono font-bold" style={{ color: totalColor }}>
+                            {totalProfit >= 0 ? "+" : ""}{formatMoney(totalProfit)}
                           </td>
-                          <td className="px-6 py-4 text-right font-mono font-bold" style={{ color: pColor }}>
-                            {h.profit_pct >= 0 ? "+" : ""}{h.profit_pct}%
+                          <td className="px-3 py-3 text-right font-mono font-bold" style={{ color: totalColor }}>
+                            {totalPct >= 0 ? "+" : ""}{totalPct.toFixed(1)}%
                           </td>
                         </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </Collapsible>
             </div>
-          </>
-        )}
+          );
+        })()}
       </section>
 
       {/* ══════════════════════════════════════════════ */}
-      {/* 배당 수입 예상 */}
+      {/* 배당 수입 예상 (접기)                          */}
       {/* ══════════════════════════════════════════════ */}
 
       {hasHoldings && dividendData && (() => {
@@ -736,20 +755,19 @@ export default function JournalPage() {
             <p className="text-[10px] uppercase tracking-[0.2em] text-primary-dim/60 mb-2">
               Dividend Income
             </p>
-            <h3 className="text-2xl font-serif text-on-surface mb-6 tracking-tight">
-              배당 수입 예상
-            </h3>
-            <DividendSummary
-              holdings={dividendHoldings}
-              totalInvested={summary.total_invested}
-              basisYear={dividendData.basis_year}
-            />
+            <Collapsible title="배당 수입 예상" defaultOpen={false} size="h3">
+              <DividendSummary
+                holdings={dividendHoldings}
+                totalInvested={summary.total_invested}
+                basisYear={dividendData.basis_year}
+              />
+            </Collapsible>
           </section>
         );
       })()}
 
       {/* ══════════════════════════════════════════════ */}
-      {/* 파트 2: 매매 히스토리 */}
+      {/* 파트 2: 매매 히스토리                          */}
       {/* ══════════════════════════════════════════════ */}
 
       <section>
@@ -772,7 +790,6 @@ export default function JournalPage() {
               const typeColor = isBuy ? "#6ea8fe" : isDividend ? "#d4b483" : "#95d3ba";
               const typeIcon = isBuy ? "shopping_cart" : isDividend ? "payments" : "sell";
 
-              // 매도 시 수익/손실 계산 (같은 종목의 전체 매수 평균가 기준)
               let sellProfit = 0;
               let sellProfitPct = 0;
               if (isSell) {
@@ -793,7 +810,6 @@ export default function JournalPage() {
               return (
                 <div key={tx.id} className="bg-surface-container-low rounded-xl ghost-border overflow-hidden">
                   <div className="p-6">
-                    {/* 거래 헤더 */}
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
                       <div className="flex items-center gap-4">
                         <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: `${typeColor}15` }}>
@@ -840,7 +856,6 @@ export default function JournalPage() {
                       </div>
                     </div>
 
-                    {/* 매도 수익/손실 결과 */}
                     {isSell && sellProfit !== 0 && (
                       <div className="mb-4 p-4 rounded-xl" style={{ backgroundColor: `${sellProfitColor}10` }}>
                         <div className="flex items-center justify-between">
@@ -864,7 +879,6 @@ export default function JournalPage() {
                       </div>
                     )}
 
-                    {/* 매매 사유 */}
                     {tx.reason && (
                       <div className="mb-3">
                         <p className="text-sm text-on-surface-variant leading-relaxed">
@@ -874,7 +888,6 @@ export default function JournalPage() {
                       </div>
                     )}
 
-                    {/* AI 평가 */}
                     {tx.ai_evaluation && (
                       <div className="bg-surface-container/50 rounded-xl p-4">
                         <div className="flex items-center gap-2 mb-2">
