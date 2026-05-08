@@ -56,8 +56,15 @@ interface DividendData {
   stocks: Record<string, DividendStock>;
 }
 
+interface TradingBriefing {
+  generated_at: string;
+  good: string[];
+  bad: string[];
+}
+
 interface JournalData {
   updated_at: string;
+  trading_briefing?: TradingBriefing;
   summary: {
     total_invested: number;
     total_current_value: number;
@@ -273,7 +280,7 @@ export default function JournalPage() {
     );
   }
 
-  const { summary, holdings, transactions } = data;
+  const { summary, holdings, transactions, trading_briefing } = data;
   const hasHoldings = holdings.length > 0;
   const hasTransactions = transactions.length > 0;
   const netProfit = summary.net_profit || 0;
@@ -774,6 +781,84 @@ export default function JournalPage() {
         <h3 className="text-2xl font-serif text-on-surface mb-6 tracking-tight">
           매매 히스토리
         </h3>
+
+        {trading_briefing && hasTransactions && (
+          <div className="mb-6 bg-surface-container-low rounded-xl p-5 sm:p-6 ghost-border">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="material-symbols-outlined text-primary text-xl">
+                psychology
+              </span>
+              <h4 className="text-base font-serif text-on-surface tracking-tight">
+                매매 브리핑
+              </h4>
+              <span className="ml-auto text-xs text-on-surface-variant/50 font-mono">
+                {trading_briefing.generated_at} 갱신
+              </span>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="material-symbols-outlined text-[#95d3ba] text-base">
+                    trending_up
+                  </span>
+                  <p className="text-xs uppercase tracking-wider text-[#95d3ba]/80">
+                    잘하는 점
+                  </p>
+                </div>
+                {trading_briefing.good.length > 0 ? (
+                  <ul className="space-y-2">
+                    {trading_briefing.good.map((item, i) => (
+                      <li
+                        key={`good-${i}`}
+                        className="text-sm text-on-surface-variant leading-relaxed flex gap-2"
+                      >
+                        <span className="text-[#95d3ba] shrink-0">·</span>
+                        <span>
+                          <MarkdownText>{item}</MarkdownText>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-on-surface-variant/50 italic">
+                    아직 발견된 강점 패턴 없음
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="material-symbols-outlined text-[#ffb4ab] text-base">
+                    error
+                  </span>
+                  <p className="text-xs uppercase tracking-wider text-[#ffb4ab]/80">
+                    고칠 점
+                  </p>
+                </div>
+                {trading_briefing.bad.length > 0 ? (
+                  <ul className="space-y-2">
+                    {trading_briefing.bad.map((item, i) => (
+                      <li
+                        key={`bad-${i}`}
+                        className="text-sm text-on-surface-variant leading-relaxed flex gap-2"
+                      >
+                        <span className="text-[#ffb4ab] shrink-0">·</span>
+                        <span>
+                          <MarkdownText>{item}</MarkdownText>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-on-surface-variant/50 italic">
+                    현재 식별된 약점 패턴 없음
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {!hasTransactions ? (
           <div className="bg-surface-container-low rounded-xl p-10 ghost-border text-center">
