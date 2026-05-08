@@ -55,6 +55,13 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 function getKSTDate(): { date: string; weekday: string; generated_at: string } {
   const now = new Date();
   const kst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+  // 로컬 검증용: OVERRIDE_KST_DATE=YYYY-MM-DD 환경변수로 발행일 강제 주입
+  const override = process.env.OVERRIDE_KST_DATE;
+  if (override && /^\d{4}-\d{2}-\d{2}$/.test(override)) {
+    const od = new Date(override + "T00:00:00Z");
+    const weekday = WEEKDAYS[od.getUTCDay()];
+    return { date: override, weekday, generated_at: `${override} 06:05:00` };
+  }
   const date = kst.toISOString().split("T")[0];
   const weekday = WEEKDAYS[kst.getUTCDay()];
   const hh = String(kst.getUTCHours()).padStart(2, "0");
@@ -298,42 +305,62 @@ async function fetchDubaiCrude(): Promise<DubaiCrudeData | null> {
 
 // 한국 증시 휴장일 (KRX 공식 휴장 일정 기준).
 // 매년 1~2회 갱신 필요. (KRX > 시장운영 > 휴장일 안내)
-const KR_MARKET_HOLIDAYS = new Set<string>([
+// 휴장 사유 라벨을 함께 보관해 UI 배너에 표시할 수 있게 한다.
+const KR_MARKET_HOLIDAYS = new Map<string, string>([
   // 2026
-  "2026-01-01", // 신정
-  "2026-02-16", // 설 연휴 대체
-  "2026-02-17", // 설 연휴
-  "2026-02-18", // 설 연휴
-  "2026-03-02", // 삼일절 대체
-  "2026-05-01", // 근로자의 날
-  "2026-05-05", // 어린이날
-  "2026-05-25", // 부처님오신날
-  "2026-06-03", // 지방선거일
-  "2026-06-08", // 현충일 대체
-  "2026-08-17", // 광복절 대체
-  "2026-09-24", // 추석 연휴
-  "2026-09-25", // 추석 당일
-  "2026-09-28", // 추석 연휴 대체
-  "2026-10-05", // 개천절 대체
-  "2026-10-09", // 한글날
-  "2026-12-25", // 성탄절
-  "2026-12-31", // 연말 휴장
+  ["2026-01-01", "신정"],
+  ["2026-02-16", "설 연휴"],
+  ["2026-02-17", "설 연휴"],
+  ["2026-02-18", "설 연휴"],
+  ["2026-03-02", "삼일절 대체"],
+  ["2026-05-01", "근로자의 날"],
+  ["2026-05-05", "어린이날"],
+  ["2026-05-25", "부처님오신날"],
+  ["2026-06-03", "지방선거일"],
+  ["2026-06-08", "현충일 대체"],
+  ["2026-08-17", "광복절 대체"],
+  ["2026-09-24", "추석 연휴"],
+  ["2026-09-25", "추석 당일"],
+  ["2026-09-28", "추석 연휴 대체"],
+  ["2026-10-05", "개천절 대체"],
+  ["2026-10-09", "한글날"],
+  ["2026-12-25", "성탄절"],
+  ["2026-12-31", "연말 휴장"],
   // 2027
-  "2027-01-01", // 신정
-  "2027-02-08", // 설 연휴
-  "2027-02-09", // 설 당일
-  "2027-02-10", // 설 연휴
-  "2027-03-01", // 삼일절
-  "2027-05-05", // 어린이날
-  "2027-05-13", // 부처님오신날
-  "2027-08-16", // 광복절 대체
-  "2027-09-15", // 추석 연휴
-  "2027-09-16", // 추석 당일
-  "2027-09-17", // 추석 연휴
-  "2027-10-04", // 개천절 대체
-  "2027-10-11", // 한글날 대체
-  "2027-12-31", // 연말 휴장
+  ["2027-01-01", "신정"],
+  ["2027-02-08", "설 연휴"],
+  ["2027-02-09", "설 당일"],
+  ["2027-02-10", "설 연휴"],
+  ["2027-03-01", "삼일절"],
+  ["2027-05-05", "어린이날"],
+  ["2027-05-13", "부처님오신날"],
+  ["2027-08-16", "광복절 대체"],
+  ["2027-09-15", "추석 연휴"],
+  ["2027-09-16", "추석 당일"],
+  ["2027-09-17", "추석 연휴"],
+  ["2027-10-04", "개천절 대체"],
+  ["2027-10-11", "한글날 대체"],
+  ["2027-12-31", "연말 휴장"],
 ]);
+
+type HolidayReason = "weekend" | "public_holiday" | null;
+
+interface HolidayInfo {
+  isHoliday: boolean;
+  reason: HolidayReason;
+  name: string | null;
+}
+
+// 리포트 발행일이 한국 시장 기준 휴장일인지와 사유를 함께 반환.
+function getHolidayInfo(reportDate: string): HolidayInfo {
+  const d = new Date(reportDate + "T00:00:00Z");
+  const dow = d.getUTCDay();
+  if (dow === 0) return { isHoliday: true, reason: "weekend", name: "일요일" };
+  if (dow === 6) return { isHoliday: true, reason: "weekend", name: "토요일" };
+  const name = KR_MARKET_HOLIDAYS.get(reportDate);
+  if (name) return { isHoliday: true, reason: "public_holiday", name };
+  return { isHoliday: false, reason: null, name: null };
+}
 
 function isKrTradingDay(d: Date): boolean {
   const dow = d.getUTCDay();
@@ -353,10 +380,9 @@ function getExpectedLastTradingDay(reportDate: string): string {
   return `${String(d.getUTCMonth() + 1).padStart(2, "0")}/${String(d.getUTCDate()).padStart(2, "0")}`;
 }
 
-// 리포트 발행일이 한국 공휴일인지 확인
+// 리포트 발행일이 한국 공휴일인지 확인 (주말 포함)
 function isKrMarketHoliday(reportDate: string): boolean {
-  const d = new Date(reportDate + "T00:00:00Z");
-  return !isKrTradingDay(d);
+  return getHolidayInfo(reportDate).isHoliday;
 }
 
 // 깊은 객체에서 NaN/Infinity → null 로 정규화 (JSON.parse 호환).
@@ -475,10 +501,18 @@ async function main() {
     const ts = koreaInd.timeseries as TimeseriesPoint[] | undefined;
     const latestDate = ts?.[ts.length - 1]?.날짜;
     if (latestDate !== expectedTradingDay) {
-      console.error(
-        `  ❌ ${koreaInd.name}: 최신 데이터(${latestDate ?? "없음"})가 직전 거래일(${expectedTradingDay})과 불일치 — 전전날 재활용 방지를 위해 실패 처리`,
-      );
-      staleKorea = true;
+      // 휴장일 발행 시에는 직전 거래일 종가를 그대로 carry-over하므로
+      // 신선도 불일치를 발행 차단으로 격상하지 않고 경고만 남긴다.
+      if (reportIsHoliday) {
+        console.warn(
+          `  ⚠️ ${koreaInd.name}: 최신 데이터(${latestDate ?? "없음"})가 직전 거래일(${expectedTradingDay})과 불일치 — 휴장일 carry-over로 진행`,
+        );
+      } else {
+        console.error(
+          `  ❌ ${koreaInd.name}: 최신 데이터(${latestDate ?? "없음"})가 직전 거래일(${expectedTradingDay})과 불일치 — 전전날 재활용 방지를 위해 실패 처리`,
+        );
+        staleKorea = true;
+      }
     } else {
       console.log(`  ✅ ${koreaInd.name}: ${latestDate} (직전 거래일 일치)`);
     }
@@ -529,11 +563,24 @@ async function main() {
 
   // ── 2. 매일경제 + 한국경제 RSS 뉴스 수집 ──
   console.log("2️⃣ 매일경제 + 한국경제 RSS 뉴스 수집");
-  const news = await fetchNews();
+  let news = await fetchNews();
   const mkCount = news.filter((n) => n.출처 === "매일경제").length;
   const hkCount = news.filter((n) => n.출처 === "한국경제").length;
   console.log(`  매일경제 ${mkCount}개 + 한국경제 ${hkCount}개 = 총 ${news.length}개`);
   news.forEach((n) => console.log(`  · [${n.출처}] ${n.날짜} | ${n.제목.substring(0, 50)}`));
+
+  // 휴장일에는 뉴스 풀이 부족할 수 있어 직전 리포트 뉴스를 보강한다 (최대 12개, link 중복 제거).
+  const holidayInfo = getHolidayInfo(kst.date);
+  if (holidayInfo.isHoliday && news.length < 5 && Array.isArray(prev.news)) {
+    const seen = new Set(news.map((n) => n.링크));
+    const filler = (prev.news as { 제목: string; 링크: string; 출처: string; 날짜: string }[])
+      .filter((n) => n.링크 && !seen.has(n.링크));
+    const merged = [...news, ...filler].slice(0, 12);
+    console.log(
+      `  ℹ️ 휴장일 뉴스 보강: ${news.length} → ${merged.length} (직전 리포트 뉴스 합성)`,
+    );
+    news = merged;
+  }
 
   // ── 3. spread 계산 ──
   const bond10 = indicators.bonds?.[0]?.value ?? prev.spread["10년물"];
@@ -563,30 +610,44 @@ async function main() {
   }
 
   // ── 5. draft 리포트 생성 ──
+  // 휴장일에는 직전 리포트의 분석 섹션을 그대로 carry-over 한다.
+  // 평일에는 비워서 스케줄 트리거(Claude)가 새로 채우게 한다.
+  const carry = holidayInfo.isHoliday ? prev : null;
+
   const report = {
     meta: {
       date: kst.date,
       weekday: kst.weekday,
       generated_at: kst.generated_at,
+      is_holiday: holidayInfo.isHoliday,
+      holiday_reason: holidayInfo.reason,
+      holiday_name: holidayInfo.name,
     },
 
-    // === 분석 섹션 (빈 값 → 스케줄 트리거가 새로 채움) ===
-    // prev에서 복사하지 않음: stale briefing 전파 방지
-    briefing: "",
-    scenario: { 코드: "", 시나리오: "", 해석: "", 대응: "" },
+    // === 분석 섹션 ===
+    // 평일: 빈 값으로 두어 스케줄 트리거가 새로 채움 (stale 방지)
+    // 휴장일: 직전 리포트 분석 섹션을 carry-over (사용자 요구사항)
+    briefing: carry ? carry.briefing : "",
+    scenario: carry ? carry.scenario : { 코드: "", 시나리오: "", 해석: "", 대응: "" },
 
     // === 데이터 섹션 (스크립트가 채운 영역) ===
     indicators,
     spread,
-    causal_chain: "",
-    investment_direction: "",
+    causal_chain: carry ? carry.causal_chain : "",
+    investment_direction: carry ? carry.investment_direction : "",
     news,
     cpi_gdp: prev.cpi_gdp,
-    divergence: "",
-    asset_recommendation: "",
+    divergence: carry ? carry.divergence : "",
+    asset_recommendation: carry ? carry.asset_recommendation : "",
     historical,
     longterm_charts: prev.longterm_charts,
   };
+
+  if (holidayInfo.isHoliday) {
+    console.log(
+      `\n🏖️ 휴장일 (${holidayInfo.reason} / ${holidayInfo.name}) — 분석 섹션 carry-over 적용`,
+    );
+  }
 
   // ── 6. 저장 ──
   // sanitizeForJson: 혹시라도 NaN/Infinity가 섞이면 null로 변환해 표준 JSON으로 저장.
@@ -597,7 +658,7 @@ async function main() {
   console.log("\n" + "─".repeat(65));
   console.log(`💾 draft 저장: ${outPath}`);
   console.log(
-    `   데이터: ✅ | 분석: ⏳ (스케줄 트리거 대기)`,
+    `   데이터: ✅ | 분석: ${holidayInfo.isHoliday ? "♻️ carry-over (휴장일)" : "⏳ (스케줄 트리거 대기)"}`,
   );
 }
 

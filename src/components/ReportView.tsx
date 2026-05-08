@@ -51,6 +51,7 @@ export function ReportView({ report }: { report: ReportData }) {
   } = report;
 
   const isDraft = !briefing || briefing.trim() === "";
+  const isHoliday = !!meta.is_holiday;
 
   return (
     <div className="space-y-12">
@@ -72,6 +73,17 @@ export function ReportView({ report }: { report: ReportData }) {
             <p className="text-sm text-amber-400 flex items-center gap-2">
               <span className="material-symbols-outlined text-base">hourglass_top</span>
               분석 대기 중 — 데이터는 수집되었으나 AI 분석이 아직 완료되지 않았습니다.
+            </p>
+          </div>
+        )}
+        {isHoliday && (
+          <div className="mt-3 px-4 py-3 rounded-lg bg-sky-500/10 border border-sky-500/30">
+            <p className="text-sm text-sky-300 flex items-center gap-2">
+              <span className="material-symbols-outlined text-base">event_busy</span>
+              <span>
+                {meta.holiday_name} 휴장일 — 시장 데이터는 직전 거래일 기준이며,
+                분석 섹션은 직전 리포트 내용을 유지합니다. 오늘은 <strong>뉴스</strong>를 중심으로 확인하세요.
+              </span>
             </p>
           </div>
         )}
@@ -493,9 +505,19 @@ export function ReportView({ report }: { report: ReportData }) {
       <section>
         <h3 className="text-2xl font-serif text-on-surface mb-2 tracking-tight">
           주요 경제 뉴스
+          {isHoliday && (
+            <span className="ml-3 align-middle inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-sky-500/15 border border-sky-500/30 text-xs text-sky-300 font-sans">
+              <span className="material-symbols-outlined text-[14px]">stars</span>
+              휴장일 핵심
+            </span>
+          )}
         </h3>
         <p className="text-sm text-on-surface-variant mb-6">매일경제 · 한국경제</p>
-        <div className="bg-surface-container-low rounded-xl ghost-border overflow-hidden">
+        <div
+          className={`bg-surface-container-low rounded-xl ghost-border overflow-hidden ${
+            isHoliday ? "ring-2 ring-sky-500/30" : ""
+          }`}
+        >
           {news.map((article, i) => (
             <a
               key={i}

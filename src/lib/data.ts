@@ -14,7 +14,14 @@ export interface Indicator {
 }
 
 export interface ReportData {
-  meta: { date: string; weekday: string; generated_at: string };
+  meta: {
+    date: string;
+    weekday: string;
+    generated_at: string;
+    is_holiday?: boolean;
+    holiday_reason?: "weekend" | "public_holiday" | null;
+    holiday_name?: string | null;
+  };
   briefing: string;
   scenario: { 코드: string; 시나리오: string; 해석: string; 대응: string };
   indicators: {

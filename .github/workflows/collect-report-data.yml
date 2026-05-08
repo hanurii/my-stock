@@ -2,8 +2,8 @@ name: Collect Report Data
 
 on:
   schedule:
-    # 평일+토 21:05 UTC = 06:05 KST (스케줄 트리거 55분 전)
-    - cron: '5 21 * * 0-5'
+    # 매일 21:05 UTC = 06:05 KST (휴장일·일요일 포함, 스케줄 트리거 55분 전)
+    - cron: '5 21 * * *'
   workflow_dispatch: # 수동 실행 가능
 
 permissions:
