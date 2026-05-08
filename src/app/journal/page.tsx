@@ -647,15 +647,42 @@ export default function JournalPage() {
                           <td className="px-4 py-4 text-right font-mono text-on-surface">{h.current_price.toLocaleString()}</td>
                           {(() => {
                             const triggered = h.sell_trigger_price != null && h.current_price <= h.sell_trigger_price;
+                            const nearTrigger =
+                              !triggered &&
+                              h.sell_trigger_price != null &&
+                              h.current_price <= h.sell_trigger_price * 1.03;
+                            const cellColor = triggered ? "#ffb4ab" : nearTrigger ? "#e9c176" : undefined;
+                            const suffix = triggered ? " ⚠" : nearTrigger ? " ⏳" : "";
+                            const marginPct =
+                              h.sell_trigger_price != null && h.sell_trigger_price > 0
+                                ? ((h.current_price - h.sell_trigger_price) / h.sell_trigger_price) * 100
+                                : null;
+                            const titleParts: string[] = [];
+                            if (h.high_price && h.high_price_date) {
+                              titleParts.push(`고점 ${h.high_price.toLocaleString()}원 (${h.high_price_date}) × 0.9`);
+                            }
+                            if (marginPct != null) {
+                              titleParts.push(
+                                marginPct >= 0
+                                  ? `트리거까지 +${marginPct.toFixed(1)}%`
+                                  : `트리거 ${marginPct.toFixed(1)}% 도달`,
+                              );
+                            }
+                            const title = titleParts.length > 0 ? titleParts.join(" · ") : undefined;
+                            const innerClass = triggered
+                              ? "font-bold"
+                              : nearTrigger
+                                ? "text-on-surface"
+                                : "text-on-surface-variant";
                             return (
                               <td
                                 className="px-4 py-4 text-right font-mono"
-                                style={{ color: triggered ? "#ffb4ab" : undefined }}
-                                title={h.high_price && h.high_price_date ? `고점 ${h.high_price.toLocaleString()}원 (${h.high_price_date}) × 0.9` : undefined}
+                                style={{ color: cellColor }}
+                                title={title}
                               >
                                 {h.sell_trigger_price != null ? (
-                                  <span className={triggered ? "font-bold" : "text-on-surface-variant"}>
-                                    {h.sell_trigger_price.toLocaleString()}{triggered ? " ⚠" : ""}
+                                  <span className={innerClass}>
+                                    {h.sell_trigger_price.toLocaleString()}{suffix}
                                   </span>
                                 ) : (
                                   <span className="text-on-surface-variant/40">—</span>
