@@ -28,6 +28,10 @@ jobs:
           DART_API_KEY: ${{ secrets.DART_API_KEY }}
         continue-on-error: true
 
+      - name: Update journal sell triggers
+        run: npx tsx scripts/update-journal-sell-triggers.ts
+        continue-on-error: true
+
       - name: Commit & push if changed
         run: |
           git config user.name "github-actions[bot]"

@@ -19,6 +19,9 @@ interface Holding {
   eval_amount: number;
   sector?: string;
   category?: "dividend" | "growth" | "etf" | "etf_index" | "etf_hot";
+  high_price?: number;
+  high_price_date?: string;
+  sell_trigger_price?: number;
 }
 
 interface Transaction {
@@ -624,6 +627,7 @@ export default function JournalPage() {
                       <th className="text-right px-4 pb-3 font-normal">수량</th>
                       <th className="text-right px-4 pb-3 font-normal">평균매수가</th>
                       <th className="text-right px-4 pb-3 font-normal">현재가</th>
+                      <th className="text-right px-4 pb-3 font-normal">트리거가</th>
                       <th className="text-right px-4 pb-3 font-normal">평가금액</th>
                       <th className="text-right px-4 pb-3 font-normal">수익금</th>
                       <th className="text-right px-6 pb-3 font-normal">수익률</th>
@@ -641,6 +645,24 @@ export default function JournalPage() {
                           <td className="px-4 py-4 text-right font-mono text-on-surface">{h.quantity.toLocaleString()}주</td>
                           <td className="px-4 py-4 text-right font-mono text-on-surface-variant">{h.avg_price.toLocaleString()}</td>
                           <td className="px-4 py-4 text-right font-mono text-on-surface">{h.current_price.toLocaleString()}</td>
+                          {(() => {
+                            const triggered = h.sell_trigger_price != null && h.current_price <= h.sell_trigger_price;
+                            return (
+                              <td
+                                className="px-4 py-4 text-right font-mono"
+                                style={{ color: triggered ? "#ffb4ab" : undefined }}
+                                title={h.high_price && h.high_price_date ? `고점 ${h.high_price.toLocaleString()}원 (${h.high_price_date}) × 0.9` : undefined}
+                              >
+                                {h.sell_trigger_price != null ? (
+                                  <span className={triggered ? "font-bold" : "text-on-surface-variant"}>
+                                    {h.sell_trigger_price.toLocaleString()}{triggered ? " ⚠" : ""}
+                                  </span>
+                                ) : (
+                                  <span className="text-on-surface-variant/40">—</span>
+                                )}
+                              </td>
+                            );
+                          })()}
                           <td className="px-4 py-4 text-right font-mono text-on-surface">{formatMoney(h.eval_amount)}</td>
                           <td className="px-4 py-4 text-right font-mono" style={{ color: pColor }}>
                             {h.profit_amount >= 0 ? "+" : ""}{formatMoney(h.profit_amount)}
