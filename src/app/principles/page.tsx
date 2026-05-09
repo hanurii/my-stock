@@ -375,8 +375,8 @@ const rejectedItems = [
 
 const reminders = [
   {
-    text: "박탈감이 1차 동기, 손실회피가 2차. 자기진단 거꾸로 하면 헌장이 표류한다.",
-    context: "처음 메모리 \"잃지 않는 투자가 1번\"은 자기진단 거꾸로의 결과였음. 8주 진단으로 재정의.",
+    text: "박탈감 회피가 1차 동기, 손실회피는 2차다.",
+    context: "시장이 폭등하는데 내 계좌만 정체되는 고통이 평가손 자체보다 더 견디기 힘들다는 자기진단. 처음에는 손실회피를 1차로 잘못 인식했었음.",
   },
   {
     text: "변동성이 두려워 안전마진 있는 종목조차 못 사면 그건 투자가 아니라 회피다.",
@@ -412,7 +412,7 @@ export default function PrinciplesPage() {
           나의 투자 원칙
         </h2>
         <p className="text-base text-on-surface-variant mt-2 leading-relaxed">
-          Claude와 8주 대화로 확립한 투자 헌장. 박탈감 회피를 1차 동기로 두는 절충형 인덱스+액티브 한국 시장 투자자.
+          박탈감 회피를 1차 동기로 두는 절충형 인덱스+액티브 한국 시장 투자자의 운영 헌장.
         </p>
       </section>
 
@@ -493,11 +493,11 @@ export default function PrinciplesPage() {
         <div className="flex items-baseline gap-2 mb-3">
           <span className="material-symbols-outlined text-primary/70 text-xl">psychology</span>
           <h3 className="text-lg font-serif text-primary tracking-tight">
-            1차 동기 재진단 (2026-05-09 8주 진단 결과)
+            1차 동기 재진단 (2026-05-09 v2)
           </h3>
         </div>
         <p className="text-sm text-on-surface-variant mb-5 leading-relaxed">
-          처음 메모리에는 "잃지 않는 투자가 1차 동기"로 박혀 있었으나, 8주 진단으로 본인의 진짜 1차 동기가
+          처음 메모리에는 "잃지 않는 투자가 1차 동기"로 박혀 있었으나, 심층 진단으로 본인의 진짜 1차 동기가
           <span className="text-primary/90"> 박탈감 회피 = "시장과 함께 가고 싶다"</span>임이 확인됨. 사고실험에서
           시장 +30%·본인 +8%·손실 0이 본인 -18% 평가손보다 더 견디기 힘들다고 본인 입으로 답변. 본인 한 단어 자가진단: <span className="text-primary/90">"박탈감"</span>.
         </p>
@@ -541,7 +541,7 @@ export default function PrinciplesPage() {
             장기적으로는 <span className="text-primary/90">감정에 휘둘리지 않는 유일한 방법</span>이다.
           </p>
           <p>
-            이 페이지는 8주 동안 누적된 자기 자신과의 약속이다. 새로운 원칙이 추가될 수는 있지만,
+            이 페이지는 자기 자신과의 약속을 누적해 명문화한 것이다. 새로운 원칙이 추가될 수는 있지만,
             기존 원칙을 즉흥적으로 깨는 일은 없어야 한다. 만약 깬다면 분기 단위 회고에서 명문화하고 깬다.
           </p>
         </div>
@@ -752,7 +752,7 @@ export default function PrinciplesPage() {
           </span>
           <div className="space-y-2 text-sm text-on-surface-variant leading-relaxed">
             <p>
-              이 헌장은 8주(2026-03 ~ 2026-05) 동안 Claude와의 대화로 누적된 것이다.
+              이 헌장은 Claude와의 반복 대화로 누적된 것이다.
               새로운 원칙이 필요하면 매매일지에 먼저 기록하고, 분기 회고에서 정식 원칙으로 승격한다.
             </p>
             <p>
