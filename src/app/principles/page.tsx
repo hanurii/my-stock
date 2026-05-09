@@ -160,67 +160,8 @@ const sections: PrincipleSection[] = [
     ],
   },
   {
-    id: "verification",
-    number: "IV",
-    title: "정보·검증",
-    subtitle: "Information & Verification",
-    icon: "verified_user",
-    intro:
-      "분석의 90%는 데이터의 신뢰성에서 결정된다. 출처가 모호한 숫자는 안 쓰는 것만 못하다.",
-    principles: [
-      {
-        number: "4.1",
-        rule: "모든 데이터는 실제 조회+검증 (추론·환각 금지)",
-        why:
-          "리포트에 검증되지 않은 숫자가 한 번 들어가면 그 위에 쌓이는 모든 판단이 흔들린다.",
-        how:
-          "리포트 작성 시 모든 지표는 실제 API/소스에서 조회한 값으로만 표기. 점수 변동 사유는 실제 변경한 필드를 grade_change_reason에 명시.",
-      },
-      {
-        number: "4.2",
-        rule: "경제 뉴스는 매일경제·한국경제 두 곳에서만",
-        why:
-          "출처를 좁혀야 노이즈를 줄일 수 있다. 두 곳은 한국 경제 보도의 표준이고, 같은 사실을 두 곳에서 교차 확인 가능. 거시 위기 트리거의 보도 조건도 이 두 곳 기준.",
-        how:
-          "리포트·매크로 분석에서 인용 시 항상 출처 명시. 다른 매체 정보는 두 곳에서 확인된 후에만 보조 인용.",
-      },
-      {
-        number: "4.3",
-        rule: "확정 데이터 우선, 추정치는 보조 지표로만",
-        why:
-          "DART 확정 공시 > 잠정실적 > 증권사 컨센. 위 단계로 갈수록 신뢰도가 떨어진다. 알파 영역 신규 매수 시 점수 계산은 확정 공시 기반이 필수.",
-        how:
-          "점수·등급 계산은 항상 가장 신뢰할 수 있는 단계의 데이터로. 컨센만 보고 매수 결정 X.",
-      },
-      {
-        number: "4.4",
-        rule: "단위는 사용자에게 친숙한 형태로 (채권 금리는 %p)",
-        why:
-          "bp(베이시스 포인트)는 글로벌 표준이지만 직관성이 떨어진다. %p가 즉시 이해된다.",
-        how:
-          "채권 금리·스프레드 변동은 항상 %p 단위. 0.25%p 인상 같은 식으로 표기.",
-      },
-      {
-        number: "4.5",
-        rule: "거시 위기 판단은 Claude 동의를 필수 검증 단계로",
-        why:
-          "단일 유튜버 편향, 단일 신문 편향을 제3의 분석으로 검증. 가짜 패닉 보도와 단일 유튜버의 자극적 보도가 트리거를 오발동시키는 것 차단.",
-        how:
-          "거시 위기 빠른 트리거(룰 3.6) 발동 직전, Claude에게 다음 보고서 형식으로 상황 보고: 코스피·환율·금리 (3년 평균 대비), 미국·중국·한국 GDP 흐름, 진행 중인 전쟁·지정학 충돌, 매경/한경 1면 헤드라인 5거래일치, 신뢰 유튜버 발언 요약. Claude가 \"거시 위기 아닙니다\"로 답하면 트리거 미발동.",
-      },
-      {
-        number: "4.6",
-        rule: "잠정실적 분석은 3가지 모두 확인 (YoY 단일 비교 금지)",
-        why:
-          "매출·이익이 YoY로 좋아 보여도 컨센 미스이거나, 일회성 이익이 끼었거나, 분기 추세가 꺾이는 중일 수 있다.",
-        how:
-          "① 컨센서스 비교 ② 분기 추세 ③ 일회성 영업외 분리 — 세 가지 모두 통과해야 \"실적 호조\"로 분류.",
-      },
-    ],
-  },
-  {
     id: "psychology",
-    number: "V",
+    number: "IV",
     title: "심리 통제",
     subtitle: "Emotional Discipline",
     icon: "self_improvement",
@@ -228,15 +169,15 @@ const sections: PrincipleSection[] = [
       "1차 동기 = 박탈감 회피. 2차 모티프 = 손실회피. 두 동기는 양립 불가. 박탈감 발작이 가장 위험한 순간이며, 그 순간을 결박하는 룰들이 헌장의 핵심.",
     principles: [
       {
-        number: "5.1",
-        rule: "박탈감이 1차 동기, 손실회피는 2차 (자기진단 거꾸로 함정 회피)",
+        number: "4.1",
+        rule: "박탈감 회피가 1차 동기, 손실회피는 2차",
         why:
-          "처음 메모리는 \"잃지 않는 투자가 1번\"이었지만, 8주 진단으로 본인의 진짜 1차 동기가 박탈감 회피임이 두 시나리오 답변에서 확인됨. 시장 +30%·본인 +8%가 본인 -18% 평가손보다 더 견디기 힘들다고 답변. 본인 한 단어: \"박탈감.\"",
+          "처음 메모리는 \"잃지 않는 투자가 1번\"이었지만, 심층 진단으로 본인의 진짜 1차 동기가 박탈감 회피임이 두 시나리오 답변에서 확인됨. 시장 +30%·본인 +8%가 본인 -18% 평가손보다 더 견디기 힘들다고 답변. 본인 한 단어: \"박탈감.\"",
         how:
           "헌장의 모든 룰을 \"박탈감 발작 시점에서도 작동하는가\"로 점검. 손실회피와 충돌하면 박탈감 회피가 1차로 적용. 단, 영구 손실 회피(아래 정의 명확화 섹션)는 손실회피의 본질이라 절대 양보 X.",
       },
       {
-        number: "5.2",
+        number: "4.2",
         rule: "남과 비교해서 내린 결정은 모두 무효",
         why:
           "남이 번 돈은 표본 1개. 그 사람의 매수 시점·비중·진입 가격·매도 계획을 모르면 결과만 보고 따라 사는 건 도박.",
@@ -244,7 +185,7 @@ const sections: PrincipleSection[] = [
           "친구·커뮤니티·유튜버 수익 자랑을 보면 매주 일요일 자동 리포트(YTD 누적 수익 + 누적 배당 + 코스피 대비 상대 성과)를 다시 본다. 전략 변경은 분기 단위로만.",
       },
       {
-        number: "5.3",
+        number: "4.3",
         rule: "유튜버 시그널 매매는 24시간 쿨다운 통과 후에만",
         why:
           "신뢰 유튜버가 점심·오후 시그널을 발신하면 본인 의지가 가장 약하다고 자백. 의지로는 못 막는다 — \"신뢰하는 사람\"의 말이라.",
@@ -252,7 +193,7 @@ const sections: PrincipleSection[] = [
           "유튜버가 \"지금 다 파셔야 한다\" 같은 강한 시그널 발신 시 24시간 후 매매 결정. 24시간 후에도 그 시그널이 합리적이면 매매. 보통 흥분이 가라앉고 다른 정보가 들어와 검증되어 매매 보류로 결정되는 경우가 많음.",
       },
       {
-        number: "5.4",
+        number: "4.4",
         rule: "매도 후 \"못 잡은 종목\" 후회 금지",
         why:
           "원칙을 지킨 결과 못 잡은 것은 실패가 아니라 성공이다. 그 종목을 잡았다면 다음 사이클 정점에서 비슷한 종목을 또 추격했을 것.",
@@ -260,7 +201,7 @@ const sections: PrincipleSection[] = [
           "급등 종목을 보고 배가 아플 때 이 페이지를 다시 펼친다. 본인이 못 잡은 게 아니라 안 잡은 것임을 확인.",
       },
       {
-        number: "5.5",
+        number: "4.5",
         rule: "와이프 응대 한 줄 답변 미리 준비",
         why:
           "\"왜 우리는 +X%야?\" 같은 와이프 질문 자체는 24시간 쿨다운으로 풀리지 않음. 정서적 압박은 즉각 응대해야 함.",
@@ -268,7 +209,7 @@ const sections: PrincipleSection[] = [
           "표준 답변: \"코스피 ETF 절반 들고 있어서 시장은 따라가. 더 사면 천장이라 위험해. 우리 룰대로 가는 게 맞아.\" 와이프께 헌장 룰북·주간 리포트는 같이 보여주되, 의사결정 참여는 안 부담.",
       },
       {
-        number: "5.6",
+        number: "4.6",
         rule: "충동이 강할 때 거래 금지",
         why:
           "공포·흥분·복수심 — 강한 감정은 모두 동일하게 판단을 망친다.",
@@ -279,15 +220,15 @@ const sections: PrincipleSection[] = [
   },
   {
     id: "operations",
-    number: "VI",
+    number: "V",
     title: "운영 규율",
     subtitle: "Operations",
     icon: "settings",
     intro:
-      "원칙은 매일의 작은 운영 규율로 실현된다. 자동화·정기 점검·외부 결박이 의지에 기대지 않는 헌장의 뼈대.",
+      "원칙은 매일의 작은 운영 규율로 실현된다. 자동화·정기 점검이 의지에 기대지 않는 헌장의 뼈대.",
     principles: [
       {
-        number: "6.1",
+        number: "5.1",
         rule: "매주 일요일 자동 리포트 5섹션",
         why:
           "박탈감의 변형(\"내 종목이 일하는 느낌이 없다\")을 분기배당이 아니라 주간 리포트로 채운다. 누적·상대 성과가 단기 변동을 노이즈로 처리하는 효과.",
@@ -295,7 +236,7 @@ const sections: PrincipleSection[] = [
           "5섹션: ① 주간 변동 ② YTD 누적 수익 ③ YTD 누적 배당 ④ 펀더멘털 진척(주요 보유 종목 매출·영업이익 YoY) ⑤ 코스피 대비 상대 성과. my-stock에서 자동 생성.",
       },
       {
-        number: "6.2",
+        number: "5.2",
         rule: "분기 자기검증 — 알파 vs 코스피 ETF 비교",
         why:
           "본인 종목 선택 능력이 진짜 시장 평균보다 나은지 객관적 데이터로 확인. (d) 자백 결박. 계속 못 이긴다는 게 데이터로 드러나면 비중을 강제로 줄여 손해 키우는 걸 막기 위함.",
@@ -303,36 +244,12 @@ const sections: PrincipleSection[] = [
           "매 분기말 알파 영역 누적 수익률 vs 같은 기간 코스피200 ETF 비교 기록. 4분기(1년) 연속으로 코스피 ETF보다 -5%p 이상 지면 알파 비중을 자동 -5%p 축소. 의지가 아니라 룰로.",
       },
       {
-        number: "6.3",
+        number: "5.3",
         rule: "분기 리밸런싱 — 종목당 6% 초과 절삭, 1% 미만 정리",
         why:
           "한 종목이 크게 오르면 비중이 자연스럽게 커지므로 분기마다 점검해 6% 상한 유지.",
         how:
           "분기말 1회 리밸런싱. 6% 초과 종목은 6%로 절삭(차익실현), 1% 미만 자투리 종목은 정리. 코어 ETF는 50% 비중 유지를 위한 리밸런싱만.",
-      },
-      {
-        number: "6.4",
-        rule: "매매일지 반영 시 모든 보유 종목 현재가도 당일 시세로 갱신",
-        why:
-          "한 종목만 갱신하면 포트폴리오 평가액이 부정확해지고, 비중·수익률 통계도 왜곡된다.",
-        how:
-          "매수·매도 기록할 때 보유 종목 전체를 같은 날짜 시세로 일괄 갱신. /journal 페이지 사용.",
-      },
-      {
-        number: "6.5",
-        rule: "응답·UI 모두 한국어 우선",
-        why:
-          "트리밍, 워치리스트 같은 영어 표현이 익숙하지 않으면 직관적 의사결정에 방해가 된다.",
-        how:
-          "비중 축소, 관심 종목, 매수 검토 등 한국어 표현으로 통일. 영어 약어는 PER·ROE처럼 보편화된 것만 허용.",
-      },
-      {
-        number: "6.6",
-        rule: "리포트에 지표 간 상관관계 흐름도 항상 포함",
-        why:
-          "지표를 따로 보면 노이즈, 묶어서 보면 패턴. 학습 효과를 위해 흐름도가 필수.",
-        how:
-          "거시 리포트·종목 분석 모두 핵심 지표 간 인과관계를 ASCII 흐름도로 표현.",
       },
     ],
   },
@@ -526,27 +443,6 @@ export default function PrinciplesPage() {
         </p>
       </section>
 
-      {/* Why */}
-      <section className="bg-surface-container-low rounded-xl p-6 sm:p-8 ghost-border">
-        <h3 className="text-lg font-serif text-primary mb-4 tracking-tight">
-          왜 원칙인가
-        </h3>
-        <div className="space-y-3 text-sm text-on-surface-variant leading-relaxed">
-          <p>
-            시장은 매일 새로운 이야기를 들고 온다. 슈퍼사이클·AI 혁명·금리 인하·전쟁 — 어떤 이야기든
-            "이번엔 다르다"는 메시지를 담고 있다. 그 이야기에 매번 휘둘리면 일관된 성과는 불가능하다.
-          </p>
-          <p>
-            원칙은 시장의 이야기보다 느리게 바뀐다. 그래서 단기적으로는 답답해 보이지만,
-            장기적으로는 <span className="text-primary/90">감정에 휘둘리지 않는 유일한 방법</span>이다.
-          </p>
-          <p>
-            이 페이지는 자기 자신과의 약속을 누적해 명문화한 것이다. 새로운 원칙이 추가될 수는 있지만,
-            기존 원칙을 즉흥적으로 깨는 일은 없어야 한다. 만약 깬다면 분기 단위 회고에서 명문화하고 깬다.
-          </p>
-        </div>
-      </section>
-
       {/* Sections */}
       {sections.map((section) => (
         <section key={section.id} id={section.id}>
@@ -602,7 +498,7 @@ export default function PrinciplesPage() {
       {/* 보류 항목 */}
       <section>
         <div className="flex items-baseline gap-3 mb-2">
-          <span className="text-[11px] font-mono text-primary-dim/60 tracking-wider">VII.</span>
+          <span className="text-[11px] font-mono text-primary-dim/60 tracking-wider">VI.</span>
           <h3 className="text-2xl font-serif text-on-surface tracking-tight">
             보류 항목 (재검토 트리거)
           </h3>
@@ -644,7 +540,7 @@ export default function PrinciplesPage() {
       {/* 거부 항목 */}
       <section>
         <div className="flex items-baseline gap-3 mb-2">
-          <span className="text-[11px] font-mono text-primary-dim/60 tracking-wider">VIII.</span>
+          <span className="text-[11px] font-mono text-primary-dim/60 tracking-wider">VII.</span>
           <h3 className="text-2xl font-serif text-on-surface tracking-tight">
             거부 항목 (의도적 불채택)
           </h3>
@@ -752,11 +648,14 @@ export default function PrinciplesPage() {
           </span>
           <div className="space-y-2 text-sm text-on-surface-variant leading-relaxed">
             <p>
-              이 헌장은 Claude와의 반복 대화로 누적된 것이다.
-              새로운 원칙이 필요하면 매매일지에 먼저 기록하고, 분기 회고에서 정식 원칙으로 승격한다.
+              시장은 매일 새로운 이야기를 들고 온다. 슈퍼사이클·AI 혁명·금리 인하·전쟁 — 어떤 이야기든
+              "이번엔 다르다"는 메시지를 담고 있다. 원칙은 시장의 이야기보다 느리게 바뀐다.
+              그래서 단기적으로는 답답해 보이지만, 장기적으로는
+              <span className="text-primary/90"> 감정에 휘둘리지 않는 유일한 방법</span>이다.
             </p>
             <p>
-              원칙을 깨야 할 상황이 생기면 그 자리에서 즉흥적으로 깨지 말고,
+              이 헌장은 Claude와의 반복 대화로 누적된 것이다. 새로운 원칙이 필요하면 매매일지에 먼저 기록하고,
+              분기 회고에서 정식 원칙으로 승격한다. 원칙을 깨야 할 상황이 생기면 그 자리에서 즉흥적으로 깨지 말고,
               <span className="text-primary/90"> 24시간 대기 + 매매일지에 사유 기록 + 분기 회고에서 명문화</span> 절차를 거친다.
             </p>
             <p className="text-xs text-on-surface-variant/60">
