@@ -43,7 +43,6 @@ type MarketFilter = "ALL" | "KOSPI" | "KOSDAQ";
 
 interface Props {
   candidates: CanslimCandidate[];
-  mode: "main" | "turnaround";
 }
 
 function fmtCap(eok: number): string {
@@ -62,8 +61,8 @@ function pctColor(n: number | null): string {
   if (n >= 100) return "#10b981";
   if (n >= 40) return "#34d399";
   if (n >= 25) return "#6ea8fe";
-  if (n >= 23) return "#a8b5d0";
-  return "var(--on-surface-variant)";
+  if (n > 0) return "#a8b5d0";
+  return "#ffb4ab";
 }
 
 function deltaColor(n: number | null): string {
@@ -75,9 +74,9 @@ function deltaColor(n: number | null): string {
 
 const ALL_LETTERS = ["A", "N", "S", "L", "I", "M"] as const;
 
-export function CanslimTable({ candidates, mode }: Props) {
+export function CanslimTable({ candidates }: Props) {
   const [marketFilter, setMarketFilter] = useState<MarketFilter>("ALL");
-  const [sortKey, setSortKey] = useState<SortKey>(mode === "turnaround" ? "latest_eps" : "yoy_pct");
+  const [sortKey, setSortKey] = useState<SortKey>("yoy_pct");
   const [sortDesc, setSortDesc] = useState(true);
   const [salesAccompanyOnly, setSalesAccompanyOnly] = useState(false);
   const [newHighOnly, setNewHighOnly] = useState(false);
@@ -154,14 +153,10 @@ export function CanslimTable({ candidates, mode }: Props) {
           ))}
         </div>
 
-        {mode === "main" && (
-          <>
-            <FilterToggle on={salesAccompanyOnly} onChange={setSalesAccompanyOnly} label="매출 동반(+25%)" />
-            <FilterToggle on={newHighOnly} onChange={setNewHighOnly} label="12M 신고점" />
-            <FilterToggle on={accelOnly} onChange={setAccelOnly} label="가속 중" />
-            <FilterToggle on={noWarningOnly} onChange={setNoWarningOnly} label="경고 없음" />
-          </>
-        )}
+        <FilterToggle on={salesAccompanyOnly} onChange={setSalesAccompanyOnly} label="매출 +25% 이상" />
+        <FilterToggle on={newHighOnly} onChange={setNewHighOnly} label="12M EPS 신고점" />
+        <FilterToggle on={accelOnly} onChange={setAccelOnly} label="EPS 가속 중" />
+        <FilterToggle on={noWarningOnly} onChange={setNoWarningOnly} label="경고 없음" />
       </div>
 
       {/* 테이블 */}
@@ -172,26 +167,18 @@ export function CanslimTable({ candidates, mode }: Props) {
               <tr className="text-left">
                 <th className="px-3 py-2.5 font-medium text-on-surface-variant/70">종목</th>
                 <th className="px-3 py-2.5 font-medium">
-                  {mode === "main" ? (
-                    <SortHeader k="yoy_pct" label="분기 EPS YoY" />
-                  ) : (
-                    <span className="text-on-surface-variant/70">상태</span>
-                  )}
+                  <SortHeader k="yoy_pct" label="분기 EPS YoY" />
                 </th>
                 <th className="px-3 py-2.5 font-medium">
                   <SortHeader k="latest_eps" label="최근 EPS" />
                 </th>
                 <th className="px-3 py-2.5 font-medium text-on-surface-variant/70 hidden sm:table-cell">분기</th>
-                {mode === "main" && (
-                  <>
-                    <th className="px-3 py-2.5 font-medium hidden md:table-cell">
-                      <SortHeader k="accel_delta_pp" label="가속" />
-                    </th>
-                    <th className="px-3 py-2.5 font-medium hidden md:table-cell">
-                      <SortHeader k="sales_yoy_pct" label="매출 YoY" />
-                    </th>
-                  </>
-                )}
+                <th className="px-3 py-2.5 font-medium hidden md:table-cell">
+                  <SortHeader k="accel_delta_pp" label="가속" />
+                </th>
+                <th className="px-3 py-2.5 font-medium hidden md:table-cell">
+                  <SortHeader k="sales_yoy_pct" label="매출 YoY" />
+                </th>
                 <th className="px-3 py-2.5 font-medium text-on-surface-variant/70 hidden lg:table-cell">신호</th>
                 <th className="px-3 py-2.5 font-medium hidden lg:table-cell">
                   <SortHeader k="market_cap" label="시총" />
@@ -227,13 +214,14 @@ export function CanslimTable({ candidates, mode }: Props) {
                         </div>
                       </td>
                       <td className="px-3 py-2.5 font-medium" style={{ color: pctColor(cr.yoy_pct) }}>
-                        {mode === "turnaround" ? (
-                          <span className="text-tertiary text-xs px-2 py-0.5 rounded bg-tertiary/15">흑자전환</span>
-                        ) : (
+                        <div className="flex items-center gap-1.5">
                           <span className={cr.yoy_pct !== null && cr.yoy_pct >= 100 ? "font-bold" : ""}>
                             {fmtPct(cr.yoy_pct)}
                           </span>
-                        )}
+                          {cr.is_turnaround && (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-tertiary/15 text-tertiary font-medium">흑자전환</span>
+                          )}
+                        </div>
                       </td>
                       <td className="px-3 py-2.5 text-on-surface-variant">
                         {cr.latest_eps !== null ? `${Math.round(cr.latest_eps).toLocaleString()}원` : "—"}
@@ -241,30 +229,26 @@ export function CanslimTable({ candidates, mode }: Props) {
                       <td className="px-3 py-2.5 text-on-surface-variant/70 hidden sm:table-cell text-xs">
                         {cr.latest_quarter ?? "—"}
                       </td>
-                      {mode === "main" && (
-                        <>
-                          <td
-                            className="px-3 py-2.5 hidden md:table-cell text-xs"
-                            style={{ color: deltaColor(cr.accel_delta_pp) }}
-                          >
-                            {cr.accel_delta_pp !== null
-                              ? `${cr.accel_delta_pp > 0 ? "+" : ""}${cr.accel_delta_pp.toFixed(1)}%p`
-                              : "—"}
-                          </td>
-                          <td
-                            className="px-3 py-2.5 hidden md:table-cell text-xs"
-                            style={{ color: pctColor(cr.sales_yoy_pct) }}
-                          >
-                            {fmtPct(cr.sales_yoy_pct)}
-                          </td>
-                        </>
-                      )}
+                      <td
+                        className="px-3 py-2.5 hidden md:table-cell text-xs"
+                        style={{ color: deltaColor(cr.accel_delta_pp) }}
+                      >
+                        {cr.accel_delta_pp !== null
+                          ? `${cr.accel_delta_pp > 0 ? "+" : ""}${cr.accel_delta_pp.toFixed(1)}%p`
+                          : "—"}
+                      </td>
+                      <td
+                        className="px-3 py-2.5 hidden md:table-cell text-xs"
+                        style={{ color: pctColor(cr.sales_yoy_pct) }}
+                      >
+                        {fmtPct(cr.sales_yoy_pct)}
+                      </td>
                       <td className="px-3 py-2.5 hidden lg:table-cell">
                         <div className="flex flex-wrap gap-1">
                           {cr.eps_new_high && (
                             <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/15 text-primary">12M 신고점</span>
                           )}
-                          {cr.accel_delta_pp !== null && cr.accel_delta_pp > 0 && mode === "main" && (
+                          {cr.accel_delta_pp !== null && cr.accel_delta_pp > 0 && (
                             <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400">가속</span>
                           )}
                           {cr.severe_decel && (

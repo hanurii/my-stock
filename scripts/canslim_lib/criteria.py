@@ -105,19 +105,20 @@ def evaluate_c_detailed(
     yoy_key, yoy_eps = quarterly_eps[-5]
     out["latest_quarter"] = latest_key
     out["latest_eps"] = latest_eps
+    out["is_turnaround"] = (yoy_eps < 0 and latest_eps > 0)
 
-    if yoy_eps <= 0:
-        if latest_eps > 0:
-            out["is_turnaround"] = True
-    else:
-        yoy = (latest_eps - yoy_eps) / yoy_eps * 100
+    # YoY % 계산: 절댓값 분모 공식 사용 (흑자전환도 일반 종목과 동일하게 비교 가능)
+    # 단 현재 분기가 적자(latest_eps <= 0)면 C 부적격이므로 None 유지.
+    if latest_eps > 0 and yoy_eps != 0:
+        yoy = (latest_eps - yoy_eps) / abs(yoy_eps) * 100
         out["yoy_pct"] = round(yoy, 2)
 
+    # 직전 분기 YoY (가속 비교용)
     if len(quarterly_eps) >= 6:
         _, prev_q_eps = quarterly_eps[-2]
         _, yoy_prev_eps = quarterly_eps[-6]
-        if yoy_prev_eps > 0:
-            prev_yoy = (prev_q_eps - yoy_prev_eps) / yoy_prev_eps * 100
+        if prev_q_eps > 0 and yoy_prev_eps != 0:
+            prev_yoy = (prev_q_eps - yoy_prev_eps) / abs(yoy_prev_eps) * 100
             out["prev_yoy_pct"] = round(prev_yoy, 2)
             if out["yoy_pct"] is not None:
                 out["accel_delta_pp"] = round(out["yoy_pct"] - prev_yoy, 2)

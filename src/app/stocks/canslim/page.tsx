@@ -27,7 +27,7 @@ async function getData(): Promise<CanslimData | null> {
   }
 }
 
-const USER_C_THRESHOLD = 23;
+const USER_C_THRESHOLD = 25;
 
 export default async function CanslimPage() {
   const data = await getData();
@@ -48,7 +48,6 @@ export default async function CanslimPage() {
   const main = data.candidates.filter(
     (c) => c.criteria.C.yoy_pct !== null && c.criteria.C.yoy_pct !== undefined && c.criteria.C.yoy_pct >= USER_C_THRESHOLD,
   );
-  const turnaround = data.candidates.filter((c) => c.criteria.C.is_turnaround);
 
   const marketGo = data.market_status.passed;
   const marketColor = marketGo ? "#95d3ba" : "#ffb4ab";
@@ -63,10 +62,10 @@ export default async function CanslimPage() {
           윌리엄 오닐의 첫 글자 &lsquo;C&rsquo; — 분기 주당순이익이 전년 동기 대비 얼마나 크게 늘었는가.
         </p>
         <p className="text-xs text-on-surface-variant/60 mt-1.5">
-          분기 EPS YoY <strong className="text-on-surface-variant">+{USER_C_THRESHOLD}% 미만</strong> 종목은 노출 제외 (사용자 컷오프). 흑자전환 종목은 별도 섹션.
+          분기 EPS YoY <strong className="text-on-surface-variant">+{USER_C_THRESHOLD}% 미만</strong> 종목은 노출 제외 (사용자 컷오프). 흑자전환은 절댓값 분모 공식으로 일반 종목과 함께 평가.
         </p>
         <p className="text-xs text-on-surface-variant/50 mt-1">
-          생성일: {data.generated_at} · 평가 {data.evaluated_count.toLocaleString()}종목 · 메인 노출 {main.length} · 흑자전환 {turnaround.length}
+          생성일: {data.generated_at} · 평가 {data.evaluated_count.toLocaleString()}종목 · 노출 {main.length}종목
         </p>
       </header>
 
@@ -112,28 +111,26 @@ export default async function CanslimPage() {
         </div>
       </section>
 
+      {/* 필터 설명 */}
+      <section className="bg-surface-container-low rounded-xl ghost-border p-4 text-xs space-y-2">
+        <h3 className="text-sm font-serif font-bold text-on-surface flex items-center gap-2 mb-1">
+          <span className="material-symbols-outlined text-base text-primary">filter_alt</span>
+          필터 설명
+        </h3>
+        <p className="text-on-surface-variant"><strong className="text-on-surface">매출 +25% 이상</strong>: 이번 분기 매출액이 작년 같은 분기 대비 25% 이상 증가한 종목 (EPS 폭증의 진정성 검증).</p>
+        <p className="text-on-surface-variant"><strong className="text-on-surface">EPS 가속 중</strong>: 이번 분기 EPS YoY 성장률이 직전 분기 EPS YoY 성장률보다 큰 종목 (성장률이 점점 빨라지는 종목 — O&apos;Neil이 가장 중요시한 신호).</p>
+        <p className="text-on-surface-variant"><strong className="text-on-surface">12M EPS 신고점</strong>: 최근 12개월 4개 분기 EPS가 그 이전 모든 분기의 신고점에 근접·돌파한 종목.</p>
+        <p className="text-on-surface-variant"><strong className="text-on-surface">경고 없음</strong>: 2분기 연속 EPS 감소·심각 둔화(직전 분기 대비 2/3+ 둔화)·증자 희석 이력이 없는 종목.</p>
+      </section>
+
       {/* 메인 테이블 */}
       <section>
         <h3 className="text-lg font-serif font-bold text-on-surface mb-3 flex items-center gap-2">
           <span className="material-symbols-outlined text-primary">trending_up</span>
           분기 EPS YoY +{USER_C_THRESHOLD}% 이상 ({main.length}종목)
         </h3>
-        <CanslimTable candidates={main} mode="main" />
+        <CanslimTable candidates={main} />
       </section>
-
-      {/* 흑자전환 섹션 */}
-      {turnaround.length > 0 && (
-        <section>
-          <h3 className="text-lg font-serif font-bold text-on-surface mb-3 flex items-center gap-2">
-            <span className="material-symbols-outlined text-tertiary">flash_on</span>
-            흑자전환 종목 ({turnaround.length})
-          </h3>
-          <p className="text-xs text-on-surface-variant/60 mb-3">
-            전년 같은 분기에 적자였다 올해 흑자로 돌아온 종목. YoY % 비교는 불가하지만 강력한 신호.
-          </p>
-          <CanslimTable candidates={turnaround} mode="turnaround" />
-        </section>
-      )}
 
       {/* C 원칙 학습 섹션 */}
       <section className="bg-surface-container-low rounded-xl ghost-border p-5 space-y-4">

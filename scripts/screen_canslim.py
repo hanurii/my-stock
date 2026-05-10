@@ -51,6 +51,7 @@ _load_dotenv()
 
 from canslim_lib.fetch import (  # noqa: E402
     fetch_annual,
+    fetch_dart_quarterly_eps_history,
     fetch_integration,
     fetch_majorstock_holding,
     fetch_quarter,
@@ -58,6 +59,7 @@ from canslim_lib.fetch import (  # noqa: E402
     fetch_yahoo_chart,
     get_row_values,
     load_corp_code_map,
+    merge_naver_dart_quarters,
     yahoo_symbol,
 )
 from canslim_lib.criteria import (  # noqa: E402
@@ -128,6 +130,15 @@ def collect_raw_data(
     annual_roe = get_row_values(ann, "ROE") if ann else []
     quarter_eps = get_row_values(qtr, "EPS") if qtr else []
     quarter_sales = get_row_values(qtr, "매출액") if qtr else []
+
+    # DART 분기 EPS 보강: Naver 최근 5분기 → 작년 Q1/Q2/Q3 추가하여 8분기 확보
+    corp_code = corp_map.get(code)
+    if corp_code and quarter_eps:
+        from datetime import datetime
+        latest_year = int(quarter_eps[-1][0][:4]) if quarter_eps[-1][0][:4].isdigit() else datetime.now().year
+        dart_qtrs = fetch_dart_quarterly_eps_history(corp_code, latest_year - 1)
+        if dart_qtrs:
+            quarter_eps = merge_naver_dart_quarters(quarter_eps, dart_qtrs)
 
     chart = fetch_yahoo_chart(yahoo_symbol(code, market), "1y", "1d")
     if not chart or len(chart["closes"]) < 200:

@@ -278,6 +278,103 @@ def load_corp_code_map() -> dict[str, str]:
     return out
 
 
+def _extract_quarterly_eps_row(items: list[dict[str, Any]]) -> dict[str, float] | None:
+    """fnlttSinglAcntAll 응답에서 기본주당이익 행을 찾아 분기 단일 + 전년 동기 단일 EPS 추출.
+
+    DART 분기 보고서는 다음 필드를 제공:
+      thstrm_amount: 당기 분기 단일 (예: 2024 Q1 EPS)
+      frmtrm_q_amount: 전기 같은 분기 단일 (예: 2023 Q1 EPS)
+      thstrm_add_amount: 당기 누적 (YTD)
+      frmtrm_add_amount: 전기 누적
+
+    Returns: {"current": float, "prior": float} 또는 None.
+    계정 우선순위: '기본주당이익' > '기본및희석주당이익' > '주당순이익'.
+    """
+    candidates_substrings = ["기본주당이익", "기본주당순이익", "기본및희석주당이익", "주당순이익", "기본주당손익"]
+    target = None
+    for sub in candidates_substrings:
+        for it in items:
+            if it.get("sj_div") not in ("IS", "CIS"):
+                continue
+            name = (it.get("account_nm") or "").strip()
+            normalized = name.replace(" ", "")
+            if sub in normalized:
+                target = it
+                break
+        if target:
+            break
+    if not target:
+        return None
+
+    out: dict[str, float] = {}
+    th = target.get("thstrm_amount")
+    fr = target.get("frmtrm_q_amount") or target.get("frmtrm_amount")
+    for key, raw in (("current", th), ("prior", fr)):
+        if raw is None or raw in ("-", ""):
+            continue
+        try:
+            out[key] = float(str(raw).replace(",", ""))
+        except (ValueError, TypeError):
+            continue
+    return out if out else None
+
+
+def fetch_dart_quarterly_eps_history(corp_code: str, base_year: int) -> list[tuple[str, float]]:
+    """DART 분기 보고서로 base_year 와 (base_year-1) 의 분기별 단일 EPS 6개를 모은다.
+
+    Q1/H1/Q3 분기보고서의 thstrm_amount(당기 분기 단일) + frmtrm_q_amount(전년 동기 분기 단일) 사용.
+    각 보고서가 2개 분기를 제공하므로 3개 보고서 호출 = 6분기 (해당년 Q1/Q2/Q3 + 전년 Q1/Q2/Q3).
+
+    사업보고서(11011)는 thstrm_amount=연간 EPS이므로 Q4 derivation에 누적 빼기 필요해 제외.
+    Q4 분기는 Naver 최근 5분기 데이터로 커버.
+
+    Returns: [(period_key, eps), ...] 시간순. period_key='YYYY03'/'YYYY06'/'YYYY09'.
+    실패 시 partial 또는 빈 리스트.
+    """
+    quarter_map = {"11013": "03", "11012": "06", "11014": "09"}
+    out: dict[str, float] = {}
+
+    for reprt_code, q_suffix in quarter_map.items():
+        items = dart_get("fnlttSinglAcntAll", {
+            "corp_code": corp_code,
+            "bsns_year": str(base_year),
+            "reprt_code": reprt_code,
+            "fs_div": "CFS",
+        })
+        if not items:
+            items = dart_get("fnlttSinglAcntAll", {
+                "corp_code": corp_code,
+                "bsns_year": str(base_year),
+                "reprt_code": reprt_code,
+                "fs_div": "OFS",
+            })
+        if not items:
+            continue
+        eps = _extract_quarterly_eps_row(items)
+        if not eps:
+            continue
+        if "current" in eps:
+            out[f"{base_year}{q_suffix}"] = eps["current"]
+        if "prior" in eps:
+            out[f"{base_year - 1}{q_suffix}"] = eps["prior"]
+
+    return sorted(out.items())
+
+
+def merge_naver_dart_quarters(
+    naver_quarters: list[tuple[str, float]],
+    dart_quarters: list[tuple[str, float]],
+) -> list[tuple[str, float]]:
+    """Naver(최근 5분기 우선) + DART(과거 분기 보강) 머지. 중복 키는 Naver 우선.
+
+    Returns: 시간순 정렬된 EPS 리스트.
+    """
+    merged: dict[str, float] = {p: e for p, e in dart_quarters}
+    for p, e in naver_quarters:
+        merged[p] = e
+    return sorted(merged.items())
+
+
 def fetch_majorstock_holding(corp_code: str) -> dict[str, Any] | None:
     """DART 5%룰 대량보유 공시(majorstock)로 기관 합산 보유율 + 최근 1년 추세 계산.
 
