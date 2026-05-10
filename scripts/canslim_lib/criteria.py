@@ -90,9 +90,12 @@ def evaluate_c_detailed(
         "latest_eps": None,
         "prev_yoy_pct": None,
         "accel_delta_pp": None,
+        "eps_yoy_history": [],
+        "eps_accel_3q": False,
         "sales_yoy_pct": None,
         "sales_yoy_history": [],
         "sales_accel_3q": False,
+        "never_sell": False,
         "eps_new_high": False,
         "consecutive_decline_quarters": 0,
         "severe_decel": False,
@@ -153,27 +156,41 @@ def evaluate_c_detailed(
         if yoy_sales > 0:
             out["sales_yoy_pct"] = round((latest_sales - yoy_sales) / yoy_sales * 100, 2)
 
+    # EPS 분기별 YoY 추세 (최근 4분기) - 가속 판정용
+    if len(quarterly_eps) >= 8:
+        eps_hist: list[tuple[str, float]] = []
+        for i in range(len(quarterly_eps) - 1, max(len(quarterly_eps) - 5, 3), -1):
+            if i - 4 < 0:
+                break
+            curr_key, curr = quarterly_eps[i]
+            _, prior = quarterly_eps[i - 4]
+            if prior != 0 and curr > 0:
+                eps_hist.append((curr_key, round((curr - prior) / abs(prior) * 100, 2)))
+        eps_hist.reverse()
+        out["eps_yoy_history"] = eps_hist
+        if len(eps_hist) >= 3:
+            last3 = [v for _, v in eps_hist[-3:]]
+            out["eps_accel_3q"] = last3[0] < last3[1] < last3[2]
+
     # 매출 분기별 YoY 추세 (최근 N분기)
-    # 각 시점 i에서: sales_yoy[i] = (sales[i] - sales[i-4]) / sales[i-4] * 100
     # 가속: 최근 3분기 매출 YoY가 단조 증가 (Q-2 < Q-1 < Q0)
-    out["sales_yoy_history"] = []
-    out["sales_accel_3q"] = False
     if quarterly_sales and len(quarterly_sales) >= 7:
-        history: list[tuple[str, float]] = []
-        # 마지막 분기부터 거슬러 최대 4분기까지 매출 YoY 계산
+        sales_hist: list[tuple[str, float]] = []
         for i in range(len(quarterly_sales) - 1, max(len(quarterly_sales) - 5, 3), -1):
             if i - 4 < 0:
                 break
             curr_key, curr = quarterly_sales[i]
             _, prior = quarterly_sales[i - 4]
             if prior > 0:
-                history.append((curr_key, round((curr - prior) / prior * 100, 2)))
-        history.reverse()  # 시간순
-        out["sales_yoy_history"] = history
-        # 최근 3분기 매출 YoY 가속 판정
-        if len(history) >= 3:
-            last3 = [v for _, v in history[-3:]]
+                sales_hist.append((curr_key, round((curr - prior) / prior * 100, 2)))
+        sales_hist.reverse()
+        out["sales_yoy_history"] = sales_hist
+        if len(sales_hist) >= 3:
+            last3 = [v for _, v in sales_hist[-3:]]
             out["sales_accel_3q"] = last3[0] < last3[1] < last3[2]
+
+    # '절대 매도 금지': 매출 + EPS 모두 3분기 가속
+    out["never_sell"] = bool(out["sales_accel_3q"] and out["eps_accel_3q"])
 
     return out
 

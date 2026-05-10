@@ -428,7 +428,7 @@ def find_preliminary_disclosure(corp_code: str, year: int, quarter: int) -> str 
     bgn_de = f"{year}{start_month:02d}01"
     end_de = f"{end_y}{end_search_month_norm:02d}28"
 
-    items = dart_get("list", {"corp_code": corp_code, "bgn_de": bgn_de, "end_de": end_de})
+    items = dart_get("list", {"corp_code": corp_code, "bgn_de": bgn_de, "end_de": end_de, "page_count": "100"})
     if not items:
         return None
     matches = [it for it in items if "잠정" in (it.get("report_nm") or "") and "영업" in (it.get("report_nm") or "")]

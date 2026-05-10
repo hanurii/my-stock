@@ -45,9 +45,14 @@ export default async function CanslimPage() {
     );
   }
 
-  const main = data.candidates.filter(
-    (c) => c.criteria.C.yoy_pct !== null && c.criteria.C.yoy_pct !== undefined && c.criteria.C.yoy_pct >= USER_C_THRESHOLD,
-  );
+  const main = data.candidates.filter((c) => {
+    const cr = c.criteria.C;
+    if (cr.yoy_pct === null || cr.yoy_pct === undefined) return false;
+    if (cr.yoy_pct < USER_C_THRESHOLD) return false;
+    // 매출 동반 검증: 매출 +25% 이상 OR 매출 3분기 가속 둘 중 하나라도 없으면 제외
+    const salesAccompany = (cr.sales_yoy_pct !== null && cr.sales_yoy_pct >= 25) || cr.sales_accel_3q;
+    return salesAccompany;
+  });
 
   const marketGo = data.market_status.passed;
   const marketColor = marketGo ? "#95d3ba" : "#ffb4ab";
@@ -62,7 +67,7 @@ export default async function CanslimPage() {
           윌리엄 오닐의 첫 글자 &lsquo;C&rsquo; — 분기 주당순이익이 전년 동기 대비 얼마나 크게 늘었는가.
         </p>
         <p className="text-xs text-on-surface-variant/60 mt-1.5">
-          분기 EPS YoY <strong className="text-on-surface-variant">+{USER_C_THRESHOLD}% 미만</strong> 종목은 노출 제외 (사용자 컷오프). 흑자전환은 절댓값 분모 공식으로 일반 종목과 함께 평가.
+          노출 조건: 분기 EPS YoY <strong className="text-on-surface-variant">+{USER_C_THRESHOLD}% 이상</strong> AND <strong className="text-on-surface-variant">매출 동반</strong>(분기 매출 +25% OR 3분기 매출 가속). 흑자전환은 절댓값 분모 공식으로 함께 평가.
         </p>
         <p className="text-xs text-on-surface-variant/50 mt-1">
           생성일: {data.generated_at} · 평가 {data.evaluated_count.toLocaleString()}종목 · 노출 {main.length}종목
@@ -117,10 +122,12 @@ export default async function CanslimPage() {
           <span className="material-symbols-outlined text-base text-primary">filter_alt</span>
           필터 설명
         </h3>
-        <p className="text-on-surface-variant"><strong className="text-on-surface">매출 +25% 이상</strong>: 이번 분기 매출액이 작년 같은 분기 대비 25% 이상 증가한 종목 (EPS 폭증의 진정성 검증).</p>
-        <p className="text-on-surface-variant"><strong className="text-on-surface">EPS 가속 중</strong>: 이번 분기 EPS YoY 성장률이 직전 분기 EPS YoY 성장률보다 큰 종목 (성장률이 점점 빨라지는 종목 — O&apos;Neil이 가장 중요시한 신호).</p>
-        <p className="text-on-surface-variant"><strong className="text-on-surface">12M EPS 신고점</strong>: 최근 12개월 4개 분기 EPS가 그 이전 모든 분기의 신고점에 근접·돌파한 종목.</p>
-        <p className="text-on-surface-variant"><strong className="text-on-surface">경고 없음</strong>: 2분기 연속 EPS 감소·심각 둔화(직전 분기 대비 2/3+ 둔화)·증자 희석 이력이 없는 종목.</p>
+        <p className="text-on-surface-variant"><strong className="text-on-surface">매출 +25% 이상</strong>: 이번 분기 매출 YoY ≥ 25% 종목 (이미 페이지 노출 조건의 일부, 토글로 좁히기 가능).</p>
+        <p className="text-on-surface-variant"><strong className="text-on-surface">매출 3분기 가속</strong>: 최근 3분기 매출 YoY 성장률이 단조 증가 (이미 페이지 노출 조건의 일부).</p>
+        <p className="text-on-surface-variant"><strong className="text-on-surface">EPS 가속 중</strong>: 이번 분기 EPS YoY 성장률이 직전 분기 EPS YoY 성장률보다 큰 종목 (O&apos;Neil 원전 #3 가장 중요).</p>
+        <p className="text-on-surface-variant"><strong className="text-on-surface">12M EPS 신고점</strong>: 최근 12개월 4개 분기 EPS가 그 이전 모든 분기의 신고점에 근접·돌파.</p>
+        <p className="text-on-surface-variant"><strong className="text-on-surface">경고 없음</strong>: 2분기 연속 EPS 감소·심각 둔화·증자 희석 이력 없음.</p>
+        <p className="text-emerald-300"><strong>⛔ 절대 매도 금지</strong>: 매출+EPS 모두 최근 3분기 가속 — O&apos;Neil 원전 #4 (배지로 자동 부여, 필터 X).</p>
       </section>
 
       {/* 메인 테이블 */}

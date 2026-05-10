@@ -14,6 +14,9 @@ export interface CCriterion {
   sales_yoy_pct: number | null;
   sales_yoy_history: [string, number][];
   sales_accel_3q: boolean;
+  eps_yoy_history: [string, number][];
+  eps_accel_3q: boolean;
+  never_sell: boolean;
   eps_new_high: boolean;
   consecutive_decline_quarters: number;
   severe_decel: boolean;
@@ -224,6 +227,9 @@ export function CanslimTable({ candidates }: Props) {
                           {cr.latest_is_preliminary && (
                             <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400 font-medium" title="잠정실적 기반 (분기보고서 미공시)">잠정</span>
                           )}
+                          {cr.never_sell && (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-600/20 text-emerald-300 font-bold" title="최근 3분기 매출+순이익 모두 가속 - O'Neil 원전: 절대 매도 금지 종목">⛔ 절대 매도 금지</span>
+                          )}
                         </div>
                       </td>
                       <td className="px-3 py-2.5 text-on-surface-variant">
@@ -276,14 +282,35 @@ export function CanslimTable({ candidates }: Props) {
                     </tr>
                     {isOpen && (
                       <tr className="bg-surface-container/10 border-t border-on-surface/5">
-                        <td colSpan={8} className="px-3 py-3 text-xs text-on-surface-variant">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <td colSpan={8} className="px-3 py-4 text-xs text-on-surface-variant">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
                             <div>
-                              <p className="font-medium text-on-surface mb-1">EPS 분기 상세</p>
-                              <p>{cr.detail}</p>
-                              {cr.prev_yoy_pct !== null && (
-                                <p className="mt-1 text-on-surface-variant/70">
-                                  직전 분기 YoY {fmtPct(cr.prev_yoy_pct)} → 가속 delta{" "}
+                              <p className="font-medium text-on-surface mb-2 flex items-center gap-2">
+                                <span className="material-symbols-outlined text-sm text-primary">show_chart</span>
+                                EPS 분기별 YoY 추세
+                              </p>
+                              {cr.eps_yoy_history && cr.eps_yoy_history.length > 0 ? (
+                                <ul className="space-y-1">
+                                  {cr.eps_yoy_history.map(([q, v]) => (
+                                    <li key={q} className="flex items-baseline gap-3 leading-relaxed">
+                                      <span className="text-on-surface-variant/60 font-mono text-[11px] w-12">{q.slice(0, 4)}.{q.slice(4)}</span>
+                                      <span className="font-medium" style={{ color: pctColor(v) }}>
+                                        {v > 0 ? "+" : ""}{v.toFixed(1)}%
+                                      </span>
+                                    </li>
+                                  ))}
+                                  {cr.eps_accel_3q && (
+                                    <li className="text-emerald-400 font-medium pt-1">→ 최근 3분기 EPS 가속 중</li>
+                                  )}
+                                </ul>
+                              ) : (
+                                <p className="leading-relaxed">{cr.detail}</p>
+                              )}
+                              {cr.prev_yoy_pct !== null && cr.eps_yoy_history.length === 0 && (
+                                <p className="mt-2 text-on-surface-variant/70 leading-relaxed">
+                                  직전 분기 YoY {fmtPct(cr.prev_yoy_pct)}
+                                  <br />
+                                  가속 delta:{" "}
                                   <span style={{ color: deltaColor(cr.accel_delta_pp) }}>
                                     {cr.accel_delta_pp !== null ? `${cr.accel_delta_pp > 0 ? "+" : ""}${cr.accel_delta_pp.toFixed(1)}%p` : "—"}
                                   </span>
@@ -291,20 +318,37 @@ export function CanslimTable({ candidates }: Props) {
                               )}
                             </div>
                             <div>
-                              <p className="font-medium text-on-surface mb-1">매출 분기별 YoY 추세</p>
+                              <p className="font-medium text-on-surface mb-2 flex items-center gap-2">
+                                <span className="material-symbols-outlined text-sm text-primary">payments</span>
+                                매출 분기별 YoY 추세
+                              </p>
                               {cr.sales_yoy_history && cr.sales_yoy_history.length > 0 ? (
-                                <p>
-                                  {cr.sales_yoy_history
-                                    .map(([q, v]) => `${q.slice(2)} ${v > 0 ? "+" : ""}${v.toFixed(1)}%`)
-                                    .join("  →  ")}
+                                <ul className="space-y-1">
+                                  {cr.sales_yoy_history.map(([q, v]) => (
+                                    <li key={q} className="flex items-baseline gap-3 leading-relaxed">
+                                      <span className="text-on-surface-variant/60 font-mono text-[11px] w-12">{q.slice(0, 4)}.{q.slice(4)}</span>
+                                      <span className="font-medium" style={{ color: pctColor(v) }}>
+                                        {v > 0 ? "+" : ""}{v.toFixed(1)}%
+                                      </span>
+                                    </li>
+                                  ))}
                                   {cr.sales_accel_3q && (
-                                    <span className="ml-2 text-emerald-400 font-medium">(3분기 가속)</span>
+                                    <li className="text-emerald-400 font-medium pt-1">→ 최근 3분기 매출 가속 중</li>
                                   )}
-                                </p>
+                                </ul>
                               ) : (
-                                <p className="text-on-surface-variant/70">분기 매출 데이터 부족 (DART 보강 미적용 또는 7분기 미만)</p>
+                                <p className="text-on-surface-variant/70 leading-relaxed">분기 매출 데이터 부족 (DART 보강 미적용 또는 7분기 미만).</p>
                               )}
                             </div>
+                            {cr.never_sell && (
+                              <div className="md:col-span-2 mt-1 p-3 rounded-md bg-emerald-600/15 border border-emerald-600/30">
+                                <p className="text-emerald-300 font-medium leading-relaxed">
+                                  ⛔ <strong>절대 매도 금지 종목</strong>
+                                  <br />
+                                  최근 3분기 매출과 EPS가 모두 가속 중. O&apos;Neil 원전: &quot;3분기 동안 매출액과 순이익 증가율이 가속화되고 있다면 절대 초조해하거나 서둘러 매도할 필요가 없다. 꿋꿋이 포지션을 지키면 된다.&quot;
+                                </p>
+                              </div>
+                            )}
                           </div>
                         </td>
                       </tr>
