@@ -52,6 +52,7 @@ _load_dotenv()
 from canslim_lib.fetch import (  # noqa: E402
     fetch_annual,
     fetch_dart_quarterly_eps_history,
+    fetch_dart_quarterly_sales_history,
     fetch_integration,
     fetch_majorstock_holding,
     fetch_quarter,
@@ -139,18 +140,30 @@ def collect_raw_data(
         from datetime import datetime
         current_year = datetime.now().year
         naver_latest_year = int(quarter_eps[-1][0][:4]) if quarter_eps[-1][0][:4].isdigit() else current_year
-        dart_combined: list[tuple[str, float]] = []
+        dart_eps_combined: list[tuple[str, float]] = []
+        dart_sales_combined: list[tuple[str, float]] = []
         # 과거 보강 (latest_year - 1)
-        old = fetch_dart_quarterly_eps_history(corp_code, naver_latest_year - 1)
-        if old:
-            dart_combined.extend(old)
+        eps_old = fetch_dart_quarterly_eps_history(corp_code, naver_latest_year - 1)
+        sales_old = fetch_dart_quarterly_sales_history(corp_code, naver_latest_year - 1)
+        if eps_old:
+            dart_eps_combined.extend(eps_old)
+        if sales_old:
+            dart_sales_combined.extend(sales_old)
         # 최신 확정 (current_year, naver보다 앞서면)
         if current_year >= naver_latest_year:
-            new = fetch_dart_quarterly_eps_history(corp_code, current_year)
-            if new:
-                dart_combined.extend(new)
-        if dart_combined:
-            quarter_eps = merge_naver_dart_quarters(quarter_eps, dart_combined)
+            eps_new = fetch_dart_quarterly_eps_history(corp_code, current_year)
+            sales_new = fetch_dart_quarterly_sales_history(corp_code, current_year)
+            if eps_new:
+                dart_eps_combined.extend(eps_new)
+            if sales_new:
+                dart_sales_combined.extend(sales_new)
+        if dart_eps_combined:
+            quarter_eps = merge_naver_dart_quarters(quarter_eps, dart_eps_combined)
+        if dart_sales_combined:
+            # 단위 정규화: Naver 매출은 억원 단위(예: 19542 = 1.95조), DART는 원 단위(예: 1.95조 = 1,954,200,000,000)
+            # 머지 전 DART 값을 억원으로 환산 (÷10^8)
+            dart_sales_eok = [(p, v / 1e8) for p, v in dart_sales_combined]
+            quarter_sales = merge_naver_dart_quarters(quarter_sales, dart_sales_eok)
 
     chart = fetch_yahoo_chart(yahoo_symbol(code, market), "1y", "1d")
     if not chart or len(chart["closes"]) < 200:

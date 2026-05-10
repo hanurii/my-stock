@@ -278,19 +278,20 @@ def load_corp_code_map() -> dict[str, str]:
     return out
 
 
-def _extract_quarterly_eps_row(items: list[dict[str, Any]]) -> dict[str, float] | None:
-    """fnlttSinglAcntAll 응답에서 기본주당이익 행을 찾아 분기 단일 + 전년 동기 단일 EPS 추출.
+def _extract_quarterly_account_row(
+    items: list[dict[str, Any]],
+    candidates_substrings: list[str],
+) -> dict[str, float] | None:
+    """fnlttSinglAcntAll 응답에서 후보 계정 중 하나의 행을 찾아 분기 단일/전년 동기 단일 추출.
 
-    DART 분기 보고서는 다음 필드를 제공:
-      thstrm_amount: 당기 분기 단일 (예: 2024 Q1 EPS)
-      frmtrm_q_amount: 전기 같은 분기 단일 (예: 2023 Q1 EPS)
+    DART 분기 보고서 필드:
+      thstrm_amount: 당기 분기 단일
+      frmtrm_q_amount: 전기 같은 분기 단일
       thstrm_add_amount: 당기 누적 (YTD)
       frmtrm_add_amount: 전기 누적
 
     Returns: {"current": float, "prior": float} 또는 None.
-    계정 우선순위: '기본주당이익' > '기본및희석주당이익' > '주당순이익'.
     """
-    candidates_substrings = ["기본주당이익", "기본주당순이익", "기본및희석주당이익", "주당순이익", "기본주당손익"]
     target = None
     for sub in candidates_substrings:
         for it in items:
@@ -319,17 +320,31 @@ def _extract_quarterly_eps_row(items: list[dict[str, Any]]) -> dict[str, float] 
     return out if out else None
 
 
-def fetch_dart_quarterly_eps_history(corp_code: str, base_year: int) -> list[tuple[str, float]]:
-    """DART 분기 보고서로 base_year 와 (base_year-1) 의 분기별 단일 EPS 6개를 모은다.
+def _extract_quarterly_eps_row(items: list[dict[str, Any]]) -> dict[str, float] | None:
+    """기본주당이익 행 추출 (호환 wrapper)."""
+    return _extract_quarterly_account_row(
+        items,
+        ["기본주당이익", "기본주당순이익", "기본및희석주당이익", "주당순이익", "기본주당손익"],
+    )
 
-    Q1/H1/Q3 분기보고서의 thstrm_amount(당기 분기 단일) + frmtrm_q_amount(전년 동기 분기 단일) 사용.
-    각 보고서가 2개 분기를 제공하므로 3개 보고서 호출 = 6분기 (해당년 Q1/Q2/Q3 + 전년 Q1/Q2/Q3).
 
-    사업보고서(11011)는 thstrm_amount=연간 EPS이므로 Q4 derivation에 누적 빼기 필요해 제외.
-    Q4 분기는 Naver 최근 5분기 데이터로 커버.
+def _extract_quarterly_sales_row(items: list[dict[str, Any]]) -> dict[str, float] | None:
+    """매출액 행 추출. 회사마다 명칭 다름: 매출액 / 수익(매출액) / 영업수익 / 수익."""
+    return _extract_quarterly_account_row(
+        items,
+        ["매출액", "수익(매출액)", "영업수익", "매출"],
+    )
 
-    Returns: [(period_key, eps), ...] 시간순. period_key='YYYY03'/'YYYY06'/'YYYY09'.
-    실패 시 partial 또는 빈 리스트.
+
+def _fetch_dart_quarterly_account_history(
+    corp_code: str,
+    base_year: int,
+    extractor,
+) -> list[tuple[str, float]]:
+    """DART 분기 보고서 3개를 호출해 분기별 단일 금액 6개 (해당년 Q1/Q2/Q3 + 전년 Q1/Q2/Q3) 추출.
+
+    사업보고서(11011)는 누적 빼기 필요해 제외. 사업보고서로 추출되는 분기는 Naver 5분기로 커버.
+    extractor: _extract_quarterly_eps_row 또는 _extract_quarterly_sales_row 등 callable.
     """
     quarter_map = {"11013": "03", "11012": "06", "11014": "09"}
     out: dict[str, float] = {}
@@ -350,15 +365,25 @@ def fetch_dart_quarterly_eps_history(corp_code: str, base_year: int) -> list[tup
             })
         if not items:
             continue
-        eps = _extract_quarterly_eps_row(items)
-        if not eps:
+        row = extractor(items)
+        if not row:
             continue
-        if "current" in eps:
-            out[f"{base_year}{q_suffix}"] = eps["current"]
-        if "prior" in eps:
-            out[f"{base_year - 1}{q_suffix}"] = eps["prior"]
+        if "current" in row:
+            out[f"{base_year}{q_suffix}"] = row["current"]
+        if "prior" in row:
+            out[f"{base_year - 1}{q_suffix}"] = row["prior"]
 
     return sorted(out.items())
+
+
+def fetch_dart_quarterly_eps_history(corp_code: str, base_year: int) -> list[tuple[str, float]]:
+    """DART에서 base_year 와 (base_year-1) 의 분기별 단일 EPS 6분기 조회."""
+    return _fetch_dart_quarterly_account_history(corp_code, base_year, _extract_quarterly_eps_row)
+
+
+def fetch_dart_quarterly_sales_history(corp_code: str, base_year: int) -> list[tuple[str, float]]:
+    """DART에서 base_year 와 (base_year-1) 의 분기별 단일 매출액 6분기 조회."""
+    return _fetch_dart_quarterly_account_history(corp_code, base_year, _extract_quarterly_sales_row)
 
 
 def merge_naver_dart_quarters(

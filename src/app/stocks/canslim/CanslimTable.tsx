@@ -12,6 +12,8 @@ export interface CCriterion {
   prev_yoy_pct: number | null;
   accel_delta_pp: number | null;
   sales_yoy_pct: number | null;
+  sales_yoy_history: [string, number][];
+  sales_accel_3q: boolean;
   eps_new_high: boolean;
   consecutive_decline_quarters: number;
   severe_decel: boolean;
@@ -29,12 +31,6 @@ export interface CanslimCandidate {
   current_price: number;
   criteria: {
     C: CCriterion;
-    A: { pass: boolean; value: string; detail: string };
-    N: { pass: boolean; value: string; detail: string };
-    S: { pass: boolean; value: string; detail: string };
-    L: { pass: boolean; value: string; detail: string };
-    I: { pass: boolean; value: string; detail: string };
-    M: { pass: boolean; value: string; detail: string };
   };
 }
 
@@ -72,13 +68,12 @@ function deltaColor(n: number | null): string {
   return "var(--on-surface-variant)";
 }
 
-const ALL_LETTERS = ["A", "N", "S", "L", "I", "M"] as const;
-
 export function CanslimTable({ candidates }: Props) {
   const [marketFilter, setMarketFilter] = useState<MarketFilter>("ALL");
   const [sortKey, setSortKey] = useState<SortKey>("yoy_pct");
   const [sortDesc, setSortDesc] = useState(true);
   const [salesAccompanyOnly, setSalesAccompanyOnly] = useState(false);
+  const [salesAccel3qOnly, setSalesAccel3qOnly] = useState(false);
   const [newHighOnly, setNewHighOnly] = useState(false);
   const [accelOnly, setAccelOnly] = useState(false);
   const [noWarningOnly, setNoWarningOnly] = useState(false);
@@ -89,6 +84,9 @@ export function CanslimTable({ candidates }: Props) {
     if (marketFilter !== "ALL") arr = arr.filter((c) => c.market === marketFilter);
     if (salesAccompanyOnly) {
       arr = arr.filter((c) => c.criteria.C.sales_yoy_pct !== null && c.criteria.C.sales_yoy_pct >= 25);
+    }
+    if (salesAccel3qOnly) {
+      arr = arr.filter((c) => c.criteria.C.sales_accel_3q);
     }
     if (newHighOnly) arr = arr.filter((c) => c.criteria.C.eps_new_high);
     if (accelOnly) {
@@ -109,7 +107,7 @@ export function CanslimTable({ candidates }: Props) {
       if (bv === null) return -1;
       return sortDesc ? bv - av : av - bv;
     });
-  }, [candidates, marketFilter, salesAccompanyOnly, newHighOnly, accelOnly, noWarningOnly, sortKey, sortDesc]);
+  }, [candidates, marketFilter, salesAccompanyOnly, salesAccel3qOnly, newHighOnly, accelOnly, noWarningOnly, sortKey, sortDesc]);
 
   const SortHeader = ({ k, label }: { k: SortKey; label: string }) => (
     <button
@@ -154,6 +152,7 @@ export function CanslimTable({ candidates }: Props) {
         </div>
 
         <FilterToggle on={salesAccompanyOnly} onChange={setSalesAccompanyOnly} label="매출 +25% 이상" />
+        <FilterToggle on={salesAccel3qOnly} onChange={setSalesAccel3qOnly} label="매출 3분기 가속" />
         <FilterToggle on={newHighOnly} onChange={setNewHighOnly} label="12M EPS 신고점" />
         <FilterToggle on={accelOnly} onChange={setAccelOnly} label="EPS 가속 중" />
         <FilterToggle on={noWarningOnly} onChange={setNoWarningOnly} label="경고 없음" />
@@ -183,13 +182,12 @@ export function CanslimTable({ candidates }: Props) {
                 <th className="px-3 py-2.5 font-medium hidden lg:table-cell">
                   <SortHeader k="market_cap" label="시총" />
                 </th>
-                <th className="px-3 py-2.5 font-medium text-on-surface-variant/70 hidden xl:table-cell">A·N·S·L·I·M</th>
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={9} className="px-3 py-8 text-center text-on-surface-variant/60 text-sm">
+                  <td colSpan={8} className="px-3 py-8 text-center text-on-surface-variant/60 text-sm">
                     조건에 맞는 종목이 없습니다.
                   </td>
                 </tr>
@@ -262,39 +260,21 @@ export function CanslimTable({ candidates }: Props) {
                           {cr.dilution_flag === true && (
                             <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400">희석 주의</span>
                           )}
+                          {cr.sales_accel_3q && (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400">매출 3분기 가속</span>
+                          )}
                         </div>
                       </td>
                       <td className="px-3 py-2.5 text-on-surface-variant text-xs hidden lg:table-cell">
                         {fmtCap(c.market_cap_eok)}
                       </td>
-                      <td className="px-3 py-2.5 hidden xl:table-cell">
-                        <div className="flex gap-1">
-                          {ALL_LETTERS.map((k) => {
-                            const passed = c.criteria[k]?.pass;
-                            return (
-                              <span
-                                key={k}
-                                title={`${k}: ${c.criteria[k]?.value ?? ""}`}
-                                className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-medium"
-                                style={{
-                                  backgroundColor: passed ? "#95d3ba30" : "var(--surface-container)",
-                                  color: passed ? "#95d3ba" : "var(--on-surface-variant)",
-                                  opacity: passed ? 1 : 0.5,
-                                }}
-                              >
-                                {k}
-                              </span>
-                            );
-                          })}
-                        </div>
-                      </td>
                     </tr>
                     {isOpen && (
                       <tr className="bg-surface-container/10 border-t border-on-surface/5">
-                        <td colSpan={9} className="px-3 py-3 text-xs text-on-surface-variant">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        <td colSpan={8} className="px-3 py-3 text-xs text-on-surface-variant">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <div>
-                              <p className="font-medium text-on-surface mb-1">C 상세</p>
+                              <p className="font-medium text-on-surface mb-1">EPS 분기 상세</p>
                               <p>{cr.detail}</p>
                               {cr.prev_yoy_pct !== null && (
                                 <p className="mt-1 text-on-surface-variant/70">
@@ -306,17 +286,19 @@ export function CanslimTable({ candidates }: Props) {
                               )}
                             </div>
                             <div>
-                              <p className="font-medium text-on-surface mb-1">기타 6원칙 요약</p>
-                              <ul className="space-y-0.5">
-                                {ALL_LETTERS.map((k) => (
-                                  <li key={k} className="flex gap-2">
-                                    <span className="font-medium" style={{ color: c.criteria[k]?.pass ? "#95d3ba" : "var(--on-surface-variant)" }}>
-                                      {k}
-                                    </span>
-                                    <span className="text-on-surface-variant/80">{c.criteria[k]?.value}</span>
-                                  </li>
-                                ))}
-                              </ul>
+                              <p className="font-medium text-on-surface mb-1">매출 분기별 YoY 추세</p>
+                              {cr.sales_yoy_history && cr.sales_yoy_history.length > 0 ? (
+                                <p>
+                                  {cr.sales_yoy_history
+                                    .map(([q, v]) => `${q.slice(2)} ${v > 0 ? "+" : ""}${v.toFixed(1)}%`)
+                                    .join("  →  ")}
+                                  {cr.sales_accel_3q && (
+                                    <span className="ml-2 text-emerald-400 font-medium">(3분기 가속)</span>
+                                  )}
+                                </p>
+                              ) : (
+                                <p className="text-on-surface-variant/70">분기 매출 데이터 부족 (DART 보강 미적용 또는 7분기 미만)</p>
+                              )}
                             </div>
                           </div>
                         </td>
