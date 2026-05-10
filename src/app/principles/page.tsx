@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "나의 투자 원칙 | My Stock",
-  description: "박탈감 회피를 1차 동기로 두는 절충형 인덱스+액티브 투자 헌장 (2026-05-09 v2)",
+  description: "FOMO 회피를 핵심 동기로 두는 절충형 인덱스+액티브 투자 헌장 (2026-05-09 v2)",
 };
 
 interface Principle {
@@ -31,12 +31,12 @@ const sections: PrincipleSection[] = [
     subtitle: "Asset Allocation",
     icon: "donut_large",
     intro:
-      "어떤 종목을 사느냐보다 자산을 어디에 얼마나 배분하느냐가 장기 수익률을 결정한다. 비중은 한 번 정하면 분기 단위로만 바꾼다. 박탈감 회피(1차 동기) + 손실회피(2차 모티프) + 통제감을 모두 균형 있게 충족하기 위해 50/25/25 구조로 설계됨.",
+      "어떤 종목을 사느냐보다 자산을 어디에 얼마나 배분하느냐가 장기 수익률을 결정한다. 비중은 한 번 정하면 분기 단위로만 바꾼다. FOMO 회피 + 잃지 않는 투자 + 통제감을 모두 균형 있게 충족하기 위해 50/25/25 구조로 설계됨.",
     principles: [
       {
         number: "1.1",
         rule: "코스피200 ETF 50% + 배당 25% + 알파 25%",
-        why: "박탈감 1차 동기 → 시장 베타 추종이 우선 = 코스피200 ETF 50% 코어. 매도 충동 억제 앵커 + 손실회피 2차 모티프 + 매일 천천히 우상향 자산군 = 배당 25%. 종목 선택 능력에 대한 자기 자백을 인정하되 격리 결박 = 알파(저평가 성장주) 25%.",
+        why: "FOMO 회피 → 시장 베타 추종이 우선 = 코스피200 ETF 50% 코어. 매도 충동 억제 앵커 + 잃지 않는 투자 + 매일 천천히 우상향 자산군 = 배당 25%. 종목 선택 능력에 대한 자기 자백을 인정하되 격리 결박 = 알파(저평가 성장주) 25%.",
         how: "배당 25% 안 구성: 한국 고배당 ETF 15% + 우량 배당주 2~3종목 10%. 알파 25% 안 구성: 기둥(개별 종목 4~5개) + 위성(사이클 수혜 ETF 1~2개). 목표 시점 2027/Q1, 분기당 7%p 분할 매도로 현재 51% 성장주를 25%로 이행.",
       },
       {
@@ -60,8 +60,8 @@ const sections: PrincipleSection[] = [
       {
         number: "1.5",
         rule: "기둥 + 위성 모델 — 알파 5~7개로 분산 + 통제감 균형",
-        why: "분산형(10개+)은 분석 시간 부담 + 단일 종목 영향력 약함. 집중형(2~3개)은 \"내가 안 산 종목\"이 오를 때 박탈감 발작. 본인 1차 동기(박탈감 회피)를 알파 영역 안에서도 일관되게 적용한 구조.",
-        how: "기둥(개별 종목 4~5개) — 본인이 깊게 분석하고 확신 있는 종목. 위성(사이클 수혜 ETF 1~2개) — 본인이 좋게 본 종목들이 여럿 들어 있는 ETF, 분석 부담 없음 + 박탈감 차단.",
+        why: "분산형(10개+)은 분석 시간 부담 + 단일 종목 영향력 약함. 집중형(2~3개)은 \"내가 안 산 종목\"이 오를 때 FOMO 트리거. 본인의 FOMO 회피를 알파 영역 안에서도 일관되게 적용한 구조.",
+        how: "기둥(개별 종목 4~5개) — 본인이 깊게 분석하고 확신 있는 종목. 위성(사이클 수혜 ETF 1~2개) — 본인이 좋게 본 종목들이 여럿 들어 있는 ETF, 분석 부담 없음 + FOMO 차단.",
       },
     ],
   },
@@ -89,7 +89,7 @@ const sections: PrincipleSection[] = [
       {
         number: "2.3",
         rule: "큰 의사결정 24시간 쿨다운",
-        why: "박탈감 절정 + 유튜버 시그널 + 외인 매도 등 본인 의지가 가장 약한 순간이 매매를 가장 충동적으로 결정하는 순간이다. 24시간 후엔 흥분이 가라앉고 합리적 판단 가능. \"지금 안 사면 영원히 못 산다\"는 느낌은 99% 거짓.",
+        why: "FOMO 최고조 + 유튜버 시그널 + 외인 매도 등 본인 의지가 가장 약한 순간이 매매를 가장 충동적으로 결정하는 순간이다. 24시간 후엔 흥분이 가라앉고 합리적 판단 가능. \"지금 안 사면 영원히 못 산다\"는 느낌은 99% 거짓.",
         how: "신규 매수 / 임의 매도 / 유튜버 시그널 매매 / 비중 조정 모두 결정 시점부터 24시간 지연. 스마트폰 스톱워치로 시간 측정 동안 분석만, 매매 X. 자동 트리거(트레일링 스탑·거시 위기 객관 트리거·분기 리밸런싱 정해진 일정)는 즉시 실행 예외.",
       },
       {
@@ -107,7 +107,7 @@ const sections: PrincipleSection[] = [
       {
         number: "2.6",
         rule: "FOMO 매수 차단 — 시장 주간 +5% 폭등 시 그 주 신규 매수 금지",
-        why: "박탈감 1차 동기로 인한 발작 매수 차단. 통계적으로 폭등 직후 1~2주는 횡보·조정 가능성이 더 높음. 폭등 마지막 날 매수가 통계적으로 가장 나쁜 진입 시점.",
+        why: "FOMO에 의한 트리거 매수 차단. 통계적으로 폭등 직후 1~2주는 횡보·조정 가능성이 더 높음. 폭등 마지막 날 매수가 통계적으로 가장 나쁜 진입 시점.",
         how: "시장 주간 +5% 이상 폭등 + 본인 계좌 정체 감지 시 그 주 신규 매수 금지. 분석은 가능, 매수는 다음 주 월요일 이후.",
       },
     ],
@@ -136,7 +136,7 @@ const sections: PrincipleSection[] = [
       {
         number: "3.3",
         rule: "코어 코스피200 ETF 매도 금지",
-        why: "코어는 박탈감 안전판이다. 코어를 흔들면 안전판이 무너진다. 단순 사이클 다운으로 -25% 빠져도 V자 반등 가능성이 있어 보유가 답.",
+        why: "코어는 FOMO 안전판이다. 코어를 흔들면 안전판이 무너진다. 단순 사이클 다운으로 -25% 빠져도 V자 반등 가능성이 있어 보유가 답.",
         how: "분기 리밸런싱(50% 비중 유지)을 위한 매도 외에는 매도 금지. 핫 섹터 진입은 알파 영역 25% 안에서만. 다음 두 예외만 매도 가능 — (a) 슈퍼사이클(코스피·반도체 12개월 +50% 또는 반도체 ETF 코스피 대비 +30%p 아웃퍼폼) + 사이클 다운 신호(코스피 -10% + 반도체 60일 이평 하향 + 외인 5거래일 순매도) 동시 충족. (b) 거시 위기 트리거 발동(룰 3.6).",
       },
       {
@@ -166,15 +166,15 @@ const sections: PrincipleSection[] = [
     subtitle: "Emotional Discipline",
     icon: "self_improvement",
     intro:
-      "1차 동기 = 박탈감 회피. 2차 모티프 = 손실회피. 두 동기는 양립 불가. 박탈감 발작이 가장 위험한 순간이며, 그 순간을 결박하는 룰들이 헌장의 핵심.",
+      "FOMO 회피와 잃지 않는 투자는 양립 불가. FOMO 트리거 시점이 가장 위험한 순간이며, 그 순간을 결박하는 룰들이 헌장의 핵심.",
     principles: [
       {
         number: "4.1",
-        rule: "박탈감 회피가 1차 동기, 손실회피는 2차",
+        rule: "FOMO 회피와 잃지 않는 투자, 양립 불가능한 두 동기",
         why:
-          "처음 메모리는 \"잃지 않는 투자가 1번\"이었지만, 심층 진단으로 본인의 진짜 1차 동기가 박탈감 회피임이 두 시나리오 답변에서 확인됨. 시장 +30%·본인 +8%가 본인 -18% 평가손보다 더 견디기 힘들다고 답변. 본인 한 단어: \"박탈감.\"",
+          "처음 메모리는 \"잃지 않는 투자가 핵심\"이었지만, 심층 진단으로 본인의 진짜 핵심 동기가 FOMO 회피임이 두 시나리오 답변에서 확인됨. 시장 +30%·본인 +8%가 본인 -18% 평가손보다 더 견디기 힘들다고 답변. 본인 한 단어: \"박탈감.\"",
         how:
-          "헌장의 모든 룰을 \"박탈감 발작 시점에서도 작동하는가\"로 점검. 손실회피와 충돌하면 박탈감 회피가 1차로 적용. 단, 영구 손실 회피(아래 정의 명확화 섹션)는 손실회피의 본질이라 절대 양보 X.",
+          "헌장의 모든 룰을 \"FOMO 트리거 시점에서도 작동하는가\"로 점검. 잃지 않는 투자와 충돌하면 FOMO 회피가 우선. 단, 영구 손실 회피(아래 정의 명확화 섹션)는 잃지 않는 투자의 본질이라 절대 양보 X.",
       },
       {
         number: "4.2",
@@ -231,7 +231,7 @@ const sections: PrincipleSection[] = [
         number: "5.1",
         rule: "매주 일요일 자동 리포트 5섹션",
         why:
-          "박탈감의 변형(\"내 종목이 일하는 느낌이 없다\")을 분기배당이 아니라 주간 리포트로 채운다. 누적·상대 성과가 단기 변동을 노이즈로 처리하는 효과.",
+          "FOMO의 다른 형태(\"내 종목이 일하는 느낌이 없다\")를 분기배당이 아니라 주간 리포트로 채운다. 누적·상대 성과가 단기 변동을 노이즈로 처리하는 효과.",
         how:
           "5섹션: ① 주간 변동 ② YTD 누적 수익 ③ YTD 누적 배당 ④ 펀더멘털 진척(주요 보유 종목 매출·영업이익 YoY) ⑤ 코스피 대비 상대 성과. my-stock에서 자동 생성.",
       },
@@ -260,7 +260,7 @@ const heldItems = [
   {
     title: "사이클 정점 매수 타이밍",
     decision: "단순 분기 분할 매수 유지 (슈퍼사이클 종료 신호까지)",
-    why: "옵션 B(밸류에이션 트리거)는 슈퍼사이클 진입 종목에 못 올라타는 박탈감이 더 큰 고통이라는 본인 판단. 본인 1차 동기와 일관된 선택.",
+    why: "옵션 B(밸류에이션 트리거)는 슈퍼사이클 진입 종목에 못 올라타는 FOMO가 더 큰 고통이라는 본인 판단. FOMO 회피와 일관된 선택.",
     triggers: [
       "반도체 ETF가 60일 이동평균선 하향 돌파 + 외인 5거래일 연속 순매도",
       "글로벌 메모리 반도체 현물가(DRAM/NAND) 분기 단위 하락 시작",
@@ -292,8 +292,8 @@ const rejectedItems = [
 
 const reminders = [
   {
-    text: "박탈감 회피가 1차 동기, 손실회피는 2차다.",
-    context: "시장이 폭등하는데 내 계좌만 정체되는 고통이 평가손 자체보다 더 견디기 힘들다는 자기진단. 처음에는 손실회피를 1차로 잘못 인식했었음.",
+    text: "FOMO 회피와 잃지 않는 투자는 양립 불가. FOMO 회피가 우선이다.",
+    context: "시장이 폭등하는데 내 계좌만 정체되는 고통이 평가손 자체보다 더 견디기 힘들다는 자기진단. 처음에는 잃지 않는 투자를 핵심으로 잘못 인식했었음.",
   },
   {
     text: "변동성이 두려워 안전마진 있는 종목조차 못 사면 그건 투자가 아니라 회피다.",
@@ -305,10 +305,10 @@ const reminders = [
   },
   {
     text: "\"지금 안 사면 영원히 못 산다\"는 99% 거짓이다. 시장은 항상 다시 기회를 준다.",
-    context: "FOMO 발작 + 유튜버 시그널 + 시장 폭등 시.",
+    context: "FOMO 트리거 + 유튜버 시그널 + 시장 폭등 시.",
   },
   {
-    text: "코어와 배당주는 매도 안 한다. 박탈감 안전판이기 때문이다.",
+    text: "코어와 배당주는 매도 안 한다. FOMO 안전판이기 때문이다.",
     context: "코스피 -25% 사이클 다운 시. 단순 사이클 다운은 V자 반등 가능성, 거시 위기와 다르다.",
   },
   {
@@ -329,7 +329,7 @@ export default function PrinciplesPage() {
           나의 투자 원칙
         </h2>
         <p className="text-base text-on-surface-variant mt-2 leading-relaxed">
-          박탈감 회피를 1차 동기로 두는 절충형 인덱스+액티브 한국 시장 투자자의 운영 헌장.
+          FOMO 회피를 핵심 동기로 두는 절충형 인덱스+액티브 한국 시장 투자자의 운영 헌장.
         </p>
       </section>
 
@@ -405,41 +405,41 @@ export default function PrinciplesPage() {
         </p>
       </section>
 
-      {/* 1차 동기 재진단 */}
+      {/* 투자 동기 재진단 */}
       <section className="bg-surface-container-low rounded-xl p-6 sm:p-8 ghost-border">
         <div className="flex items-baseline gap-2 mb-3">
           <span className="material-symbols-outlined text-primary/70 text-xl">psychology</span>
           <h3 className="text-lg font-serif text-primary tracking-tight">
-            1차 동기 재진단 (2026-05-09 v2)
+            투자 동기 재진단 (2026-05-09 v2)
           </h3>
         </div>
         <p className="text-sm text-on-surface-variant mb-5 leading-relaxed">
-          처음 메모리에는 "잃지 않는 투자가 1차 동기"로 박혀 있었으나, 심층 진단으로 본인의 진짜 1차 동기가
-          <span className="text-primary/90"> 박탈감 회피 = "시장과 함께 가고 싶다"</span>임이 확인됨. 사고실험에서
-          시장 +30%·본인 +8%·손실 0이 본인 -18% 평가손보다 더 견디기 힘들다고 본인 입으로 답변. 본인 한 단어 자가진단: <span className="text-primary/90">"박탈감"</span>.
+          처음 메모리에는 "잃지 않는 투자가 핵심"으로 박혀 있었으나, 심층 진단으로 본인의 진짜 핵심 동기가
+          <span className="text-primary/90"> FOMO 회피 = "시장과 함께 가고 싶다"</span>임이 확인됨. 사고실험에서
+          시장 +30%·본인 +8%·손실 0이 본인 -18% 평가손보다 더 견디기 힘들다고 본인 입으로 답변. 본인 한 단어 자가진단: <span className="text-primary/90">"박탈감"</span>(= FOMO).
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
             <p className="text-[10px] uppercase tracking-[0.15em] text-primary/90 mb-2 font-medium">
-              1차 동기 · Primary
+              Motive A · 우선
             </p>
-            <h4 className="text-base font-serif text-on-surface mb-2">박탈감 회피</h4>
+            <h4 className="text-base font-serif text-on-surface mb-2">FOMO 회피</h4>
             <p className="text-xs text-on-surface-variant/85 leading-relaxed">
               시장이 폭등하는데 내 계좌만 정체되는 고통 &gt; 손실 자체. \"원래 성향도 모든 사람들과 같이 하고 싶고 같이 가고 싶은 마음이 큽니다.\" → 코스피200 ETF 50%로 시장 베타 추종 우선.
             </p>
           </div>
           <div className="bg-tertiary/5 border border-tertiary/20 rounded-lg p-4">
             <p className="text-[10px] uppercase tracking-[0.15em] text-tertiary/90 mb-2 font-medium">
-              2차 모티프 · Secondary
+              Motive B · 양보 X
             </p>
-            <h4 className="text-base font-serif text-on-surface mb-2">손실회피</h4>
+            <h4 className="text-base font-serif text-on-surface mb-2">잃지 않는 투자</h4>
             <p className="text-xs text-on-surface-variant/85 leading-relaxed">
               평가손 자체보다 거시 흐름으로 원금이 깨질 것 같은 느낌이 더 큰 트리거. 시나리오 -18% 평가손에서는 침착하게 펀더멘털 점검 후 대응. → 거시 위기 트리거 + 비상금 분리 + 코어/배당 매도 금지로 결박.
             </p>
           </div>
         </div>
         <p className="text-xs text-on-surface-variant/70 mt-5 leading-relaxed">
-          → 두 동기는 <span className="text-error/80">양립 불가</span>. 한쪽을 풀려고 비중을 옮기면 다른 쪽이 도진다. 헌장은 "박탈감을 1차로 두되, 영구 손실은 절대 양보 X" 구조.
+          → 두 동기는 <span className="text-error/80">양립 불가</span>. 한쪽을 풀려고 비중을 옮기면 다른 쪽이 도진다. 헌장은 "FOMO 회피를 우선하되, 영구 손실은 절대 양보 X" 구조.
         </p>
       </section>
 
@@ -659,7 +659,7 @@ export default function PrinciplesPage() {
               <span className="text-primary/90"> 24시간 대기 + 매매일지에 사유 기록 + 분기 회고에서 명문화</span> 절차를 거친다.
             </p>
             <p className="text-xs text-on-surface-variant/60">
-              헌장의 본질은 결국 <span className="text-primary/80">박탈감 발작 시점에서도 작동하는 룰</span>을 만드는 것이다.
+              헌장의 본질은 결국 <span className="text-primary/80">FOMO 트리거 시점에서도 작동하는 룰</span>을 만드는 것이다.
               의지가 약한 순간을 위해 자동화·체크리스트·24시간 쿨다운으로 결박한다.
             </p>
           </div>
