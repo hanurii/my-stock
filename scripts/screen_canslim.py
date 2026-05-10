@@ -131,14 +131,26 @@ def collect_raw_data(
     quarter_eps = get_row_values(qtr, "EPS") if qtr else []
     quarter_sales = get_row_values(qtr, "매출액") if qtr else []
 
-    # DART 분기 EPS 보강: Naver 최근 5분기 → 작년 Q1/Q2/Q3 추가하여 8분기 확보
+    # DART 분기 EPS 보강:
+    #  - 과거 보강: Naver 최근 5분기에 빠진 옛 분기 (Naver latest_year-1 의 Q1/Q2/Q3)
+    #  - 최신 확정: 현재년도 Q1 분기보고서가 공시된 경우 컨센서스 → 확정값으로 갱신
     corp_code = corp_map.get(code)
     if corp_code and quarter_eps:
         from datetime import datetime
-        latest_year = int(quarter_eps[-1][0][:4]) if quarter_eps[-1][0][:4].isdigit() else datetime.now().year
-        dart_qtrs = fetch_dart_quarterly_eps_history(corp_code, latest_year - 1)
-        if dart_qtrs:
-            quarter_eps = merge_naver_dart_quarters(quarter_eps, dart_qtrs)
+        current_year = datetime.now().year
+        naver_latest_year = int(quarter_eps[-1][0][:4]) if quarter_eps[-1][0][:4].isdigit() else current_year
+        dart_combined: list[tuple[str, float]] = []
+        # 과거 보강 (latest_year - 1)
+        old = fetch_dart_quarterly_eps_history(corp_code, naver_latest_year - 1)
+        if old:
+            dart_combined.extend(old)
+        # 최신 확정 (current_year, naver보다 앞서면)
+        if current_year >= naver_latest_year:
+            new = fetch_dart_quarterly_eps_history(corp_code, current_year)
+            if new:
+                dart_combined.extend(new)
+        if dart_combined:
+            quarter_eps = merge_naver_dart_quarters(quarter_eps, dart_combined)
 
     chart = fetch_yahoo_chart(yahoo_symbol(code, market), "1y", "1d")
     if not chart or len(chart["closes"]) < 200:
