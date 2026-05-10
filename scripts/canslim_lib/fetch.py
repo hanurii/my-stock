@@ -386,6 +386,142 @@ def fetch_dart_quarterly_sales_history(corp_code: str, base_year: int) -> list[t
     return _fetch_dart_quarterly_account_history(corp_code, base_year, _extract_quarterly_sales_row)
 
 
+# ── DART: 잠정실적 (영업(잠정)실적 공정공시) 파싱 ──
+
+import zipfile as _zipfile
+
+def _fetch_disclosure_html(rcept_no: str) -> str | None:
+    """rcept_no 로 공시 문서 다운로드 → ZIP 안의 HTML 추출."""
+    api_key = os.environ.get("DART_API_KEY")
+    if not api_key:
+        return None
+    url = f"{DART_API}/document.xml?crtfc_key={api_key}&rcept_no={rcept_no}"
+    try:
+        req = Request(url, headers={"User-Agent": UA})
+        with urlopen(req, timeout=15) as r:
+            raw = r.read()
+    except (HTTPError, URLError, TimeoutError):
+        return None
+    try:
+        with _zipfile.ZipFile(io.BytesIO(raw)) as z:
+            name = next((n for n in z.namelist() if n.endswith(".xml") or n.endswith(".html")), None)
+            if not name:
+                return None
+            return z.read(name).decode("utf-8", errors="replace")
+    except (_zipfile.BadZipFile, KeyError):
+        return None
+
+
+def find_preliminary_disclosure(corp_code: str, year: int, quarter: int) -> str | None:
+    """주어진 분기의 잠정실적 공시 rcept_no 찾기.
+
+    quarter: 1, 2, 3, 4. 분기 종료월(3/6/9/12) 기준 +1~2개월 내 공시 검색.
+    가장 최근 비정정 공시 우선, 없으면 정정 공시 사용.
+    """
+    end_month = quarter * 3
+    if end_month >= 13:
+        return None
+    start_month = end_month + 1
+    end_search_month = end_month + 3
+    end_y = year if end_search_month <= 12 else year + 1
+    end_search_month_norm = end_search_month if end_search_month <= 12 else end_search_month - 12
+    bgn_de = f"{year}{start_month:02d}01"
+    end_de = f"{end_y}{end_search_month_norm:02d}28"
+
+    items = dart_get("list", {"corp_code": corp_code, "bgn_de": bgn_de, "end_de": end_de})
+    if not items:
+        return None
+    matches = [it for it in items if "잠정" in (it.get("report_nm") or "") and "영업" in (it.get("report_nm") or "")]
+    if not matches:
+        return None
+    # 최신 비정정 우선
+    primary = [m for m in matches if "기재정정" not in (m.get("report_nm") or "") and "[첨부추가]" not in (m.get("report_nm") or "")]
+    target = primary[0] if primary else matches[0]
+    return target.get("rcept_no")
+
+
+def parse_preliminary_results(html: str) -> dict[str, float] | None:
+    """잠정실적 공시 HTML 에서 매출액·당기순이익(연결실적 당기) 추출.
+
+    Returns:
+      {"revenue_eok": float, "net_income_eok": float, "unit_detected": str} 또는 None.
+    단위 자동 감지 (백만원/억원/천원).
+    """
+    import re as _re
+    # 단위 감지
+    unit = None
+    if _re.search(r"단위\s*[:：]?\s*억원", html):
+        unit = "억원"
+    elif _re.search(r"단위\s*[:：]?\s*백만원", html):
+        unit = "백만원"
+    elif _re.search(r"단위\s*[:：]?\s*천원", html):
+        unit = "천원"
+    elif _re.search(r"단위\s*[:：]?\s*원", html):
+        unit = "원"
+    else:
+        return None  # 단위 불명 — 안전하게 스킵
+
+    # HTML 에서 텍스트만 (태그를 |로 치환)
+    text = _re.sub(r"<[^>]+>", "|", html)
+    # 공백+파이프 연속을 단일 |로 압축 (| | |  → |)
+    text = _re.sub(r"[\s\|]*\|[\s\|]*", "|", text)
+
+    def extract_first_numeric_after(label: str) -> float | None:
+        idx = text.find(label)
+        if idx == -1:
+            return None
+        # label 이후 첫 "당해실적" 다음 첫 숫자 토큰 (당기 값)
+        chunk = text[idx:idx + 800]
+        m = _re.search(r"당해실적\|([^|]+)\|", chunk)
+        if not m:
+            return None
+        candidate = m.group(1).strip()
+        m2 = _re.match(r"^-?[\d,]+(?:\.\d+)?$", candidate)
+        if m2:
+            try:
+                return float(candidate.replace(",", ""))
+            except ValueError:
+                return None
+        return None
+
+    revenue = extract_first_numeric_after("매출액")
+    net_income = extract_first_numeric_after("당기순이익")
+    if revenue is None or net_income is None:
+        return None
+
+    # 단위 → 억원 환산
+    factor = {"억원": 1.0, "백만원": 0.01, "천원": 0.0001, "원": 1e-8}[unit]
+    return {
+        "revenue_eok": revenue * factor,
+        "net_income_eok": net_income * factor,
+        "unit_detected": unit,
+    }
+
+
+def fetch_preliminary_quarter(corp_code: str, year: int, quarter: int) -> dict | None:
+    """corp_code 의 (year, quarter) 잠정실적 가져오기.
+
+    Returns: {"period_key": "YYYYQ", "revenue_eok": float, "net_income_eok": float, "rcept_no": str} 또는 None.
+    """
+    rcept_no = find_preliminary_disclosure(corp_code, year, quarter)
+    if not rcept_no:
+        return None
+    html = _fetch_disclosure_html(rcept_no)
+    if not html:
+        return None
+    parsed = parse_preliminary_results(html)
+    if not parsed:
+        return None
+    period_key = f"{year}{quarter * 3:02d}"
+    return {
+        "period_key": period_key,
+        "revenue_eok": parsed["revenue_eok"],
+        "net_income_eok": parsed["net_income_eok"],
+        "rcept_no": rcept_no,
+        "unit_detected": parsed["unit_detected"],
+    }
+
+
 def merge_naver_dart_quarters(
     naver_quarters: list[tuple[str, float]],
     dart_quarters: list[tuple[str, float]],

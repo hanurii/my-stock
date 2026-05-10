@@ -55,6 +55,7 @@ from canslim_lib.fetch import (  # noqa: E402
     fetch_dart_quarterly_sales_history,
     fetch_integration,
     fetch_majorstock_holding,
+    fetch_preliminary_quarter,
     fetch_quarter,
     fetch_stock_list,
     fetch_yahoo_chart,
@@ -135,6 +136,9 @@ def collect_raw_data(
     # DART 분기 EPS 보강:
     #  - 과거 보강: Naver 최근 5분기에 빠진 옛 분기 (Naver latest_year-1 의 Q1/Q2/Q3)
     #  - 최신 확정: 현재년도 Q1 분기보고서가 공시된 경우 컨센서스 → 확정값으로 갱신
+    #  - 잠정실적: 분기보고서 미공시이지만 잠정실적 발표된 분기 추가 (latest_is_preliminary 플래그)
+    preliminary_period: str | None = None
+    preliminary_rcept_no: str | None = None
     corp_code = corp_map.get(code)
     if corp_code and quarter_eps:
         from datetime import datetime
@@ -165,6 +169,35 @@ def collect_raw_data(
             dart_sales_eok = [(p, v / 1e8) for p, v in dart_sales_combined]
             quarter_sales = merge_naver_dart_quarters(quarter_sales, dart_sales_eok)
 
+        # 잠정실적 보강: 분기보고서가 아직 안 나온 분기를 잠정실적으로 채움
+        # 방식: 최신 분기(quarter_eps[-1])의 다음 분기 잠정실적 검색
+        # EPS = 당기순이익(원) / 발행주식수 (= 시가총액 / 주가)
+        if quarter_eps:
+            last_period = quarter_eps[-1][0]  # YYYYMM
+            if len(last_period) == 6 and last_period[:4].isdigit():
+                last_year = int(last_period[:4])
+                last_q = int(last_period[4:]) // 3
+                # 다음 분기 계산
+                next_q = last_q + 1
+                next_year = last_year
+                if next_q > 4:
+                    next_q = 1
+                    next_year += 1
+                # 잠정실적 fetch
+                pre = fetch_preliminary_quarter(corp_code, next_year, next_q)
+                if pre and pre["revenue_eok"] > 0 and pre["net_income_eok"] != 0:
+                    price = ig.get("price") or 0
+                    market_cap_eok = ig.get("market_cap_eok") or 0
+                    if price > 0 and market_cap_eok > 0:
+                        # 발행주식수 = 시총(원) / 주가
+                        shares = market_cap_eok * 1e8 / price
+                        if shares > 0:
+                            preliminary_eps = pre["net_income_eok"] * 1e8 / shares
+                            quarter_eps = quarter_eps + [(pre["period_key"], preliminary_eps)]
+                            quarter_sales = quarter_sales + [(pre["period_key"], pre["revenue_eok"])]
+                            preliminary_period = pre["period_key"]
+                            preliminary_rcept_no = pre["rcept_no"]
+
     chart = fetch_yahoo_chart(yahoo_symbol(code, market), "1y", "1d")
     if not chart or len(chart["closes"]) < 200:
         return None
@@ -186,6 +219,8 @@ def collect_raw_data(
         "annual_roe": annual_roe,
         "quarter_eps": quarter_eps,
         "quarter_sales": quarter_sales,
+        "preliminary_period": preliminary_period,
+        "preliminary_rcept_no": preliminary_rcept_no,
         "chart": chart,
         "institutional": institutional,
         "twelve_m_return": twelve_m_return,
@@ -226,6 +261,14 @@ def evaluate_with_rs(
         raw.get("quarter_sales"),
         dilution_flag=None,
     )
+    # 잠정실적이 최신 분기로 들어와 있다면 latest_is_preliminary 플래그
+    pre_period = raw.get("preliminary_period")
+    if pre_period and c_detailed.get("latest_quarter") == pre_period:
+        c_detailed["latest_is_preliminary"] = True
+        c_detailed["preliminary_rcept_no"] = raw.get("preliminary_rcept_no")
+    else:
+        c_detailed["latest_is_preliminary"] = False
+        c_detailed["preliminary_rcept_no"] = None
 
     criteria_out = {
         k: {"pass": r[0], "value": r[1], "detail": r[2]}

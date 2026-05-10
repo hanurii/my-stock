@@ -19,6 +19,8 @@ export interface CCriterion {
   severe_decel: boolean;
   is_turnaround: boolean;
   dilution_flag: boolean | null;
+  latest_is_preliminary?: boolean;
+  preliminary_rcept_no?: string | null;
 }
 
 export interface CanslimCandidate {
@@ -218,6 +220,9 @@ export function CanslimTable({ candidates }: Props) {
                           </span>
                           {cr.is_turnaround && (
                             <span className="text-[10px] px-1.5 py-0.5 rounded bg-tertiary/15 text-tertiary font-medium">흑자전환</span>
+                          )}
+                          {cr.latest_is_preliminary && (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400 font-medium" title="잠정실적 기반 (분기보고서 미공시)">잠정</span>
                           )}
                         </div>
                       </td>
