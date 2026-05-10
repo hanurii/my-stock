@@ -62,6 +62,7 @@ from canslim_lib.fetch import (  # noqa: E402
     get_row_values,
     load_corp_code_map,
     merge_naver_dart_quarters,
+    resolve_corp_code,
     yahoo_symbol,
 )
 from canslim_lib.criteria import (  # noqa: E402
@@ -137,9 +138,10 @@ def collect_raw_data(
     #  - 과거 보강: Naver 최근 5분기에 빠진 옛 분기 (Naver latest_year-1 의 Q1/Q2/Q3)
     #  - 최신 확정: 현재년도 Q1 분기보고서가 공시된 경우 컨센서스 → 확정값으로 갱신
     #  - 잠정실적: 분기보고서 미공시이지만 잠정실적 발표된 분기 추가 (latest_is_preliminary 플래그)
+    # 우선주(예: 005935 삼성전자우)는 corp_map 직접 매칭 없으므로 보통주(005930) corp_code 로 fallback.
     preliminary_period: str | None = None
     preliminary_rcept_no: str | None = None
-    corp_code = corp_map.get(code)
+    corp_code, common_code = resolve_corp_code(code, corp_map)
     if corp_code and quarter_eps:
         from datetime import datetime
         current_year = datetime.now().year
@@ -186,10 +188,16 @@ def collect_raw_data(
                 # 잠정실적 fetch
                 pre = fetch_preliminary_quarter(corp_code, next_year, next_q)
                 if pre and pre["revenue_eok"] > 0 and pre["net_income_eok"] != 0:
-                    price = ig.get("price") or 0
-                    market_cap_eok = ig.get("market_cap_eok") or 0
+                    # 우선주의 경우 보통주 시총·주가로 발행주식수 계산
+                    # (Naver의 EPS 는 회사 단위로 보통/우선 동일하게 보고됨)
+                    if common_code:
+                        parent_ig = fetch_integration(common_code) or {}
+                        price = parent_ig.get("price") or 0
+                        market_cap_eok = parent_ig.get("market_cap_eok") or 0
+                    else:
+                        price = ig.get("price") or 0
+                        market_cap_eok = ig.get("market_cap_eok") or 0
                     if price > 0 and market_cap_eok > 0:
-                        # 발행주식수 = 시총(원) / 주가
                         shares = market_cap_eok * 1e8 / price
                         if shares > 0:
                             preliminary_eps = pre["net_income_eok"] * 1e8 / shares
@@ -202,8 +210,7 @@ def collect_raw_data(
     if not chart or len(chart["closes"]) < 200:
         return None
 
-    # 기관 보유율 (DART) — 키 없거나 매핑 없으면 None
-    corp_code = corp_map.get(code)
+    # 기관 보유율 (DART) — 우선주 케이스에서도 보통주 corp_code 사용
     institutional = fetch_majorstock_holding(corp_code) if corp_code else None
 
     # 12개월 수익률 (RS 백분위 계산용)

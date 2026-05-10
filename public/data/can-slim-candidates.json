@@ -54,7 +54,7 @@
               124.01
             ]
           ],
-          "eps_accel_3q": true,
+          "eps_accel_3q": false,
           "sales_yoy_pct": 72.69,
           "sales_yoy_history": [
             [
@@ -117,78 +117,6 @@
       }
     },
     {
-      "code": "005935",
-      "name": "삼성전자우",
-      "market": "KOSPI",
-      "score": 76,
-      "grade": "B",
-      "passed_count": 5,
-      "market_cap_eok": 1465932,
-      "per": 27.83,
-      "pbr": 2.85,
-      "dividend_yield": 0.91,
-      "foreign_ownership": 77.35,
-      "institutional_pct": null,
-      "institutional_trend": null,
-      "twelve_m_return": 305.1,
-      "current_price": 185400,
-      "criteria": {
-        "C": {
-          "pass": true,
-          "value": "+156.9%",
-          "detail": "202412 EPS 1115 → 202512 2864 = YoY +156.9%",
-          "yoy_pct": 156.86,
-          "latest_quarter": "202512",
-          "latest_eps": 2864.0,
-          "prev_yoy_pct": null,
-          "accel_delta_pp": null,
-          "eps_yoy_history": [],
-          "eps_accel_3q": false,
-          "sales_yoy_pct": 23.82,
-          "sales_yoy_history": [],
-          "sales_accel_3q": false,
-          "never_sell": false,
-          "eps_new_high": false,
-          "consecutive_decline_quarters": 0,
-          "severe_decel": false,
-          "is_turnaround": false,
-          "dilution_flag": null,
-          "latest_is_preliminary": false,
-          "preliminary_rcept_no": null
-        },
-        "A": {
-          "pass": false,
-          "value": "EPS 3y +132.3%, +32.6% / ROE 10.8%",
-          "detail": "EPS 202312:2131 → 202412:4950 → 202512:6564 (통과) | ROE 10.8% (미달, 15.0%+ 필요)"
-        },
-        "N": {
-          "pass": true,
-          "value": "52주 고점 -3.5%",
-          "detail": "고점 189,300, 현재 182,700, 갭 -3.5% | 상승 모멘텀 (5일avg 177,060 vs 50일avg 141,830)"
-        },
-        "S": {
-          "pass": true,
-          "value": "거래량 +53.2%",
-          "detail": "최근 5일 평균 7,061,379주 vs 50일 평균 4,608,727주 = +53.2% | 시총 1,465,932억 (대형 (수급 영향 작음))"
-        },
-        "L": {
-          "pass": false,
-          "value": "RS 40",
-          "detail": "12M 수익률 +305.1% (지수 +190.7%, 초과 +114.4%) | RS 40 (미달, 80+ 필요)"
-        },
-        "I": {
-          "pass": true,
-          "value": "외인 77.3%, 기관 N/A",
-          "detail": "외인 77.3%, 기관 N/A = 합산 77.3% | 통과"
-        },
-        "M": {
-          "pass": true,
-          "value": "시장 추세 통과",
-          "detail": "(전체 시장 판정 결과 적용)"
-        }
-      }
-    },
-    {
       "code": "329180",
       "name": "HD현대중공업",
       "market": "KOSPI",
@@ -232,7 +160,7 @@
               140.86
             ]
           ],
-          "eps_accel_3q": false,
+          "eps_accel_3q": true,
           "sales_yoy_pct": 54.33,
           "sales_yoy_history": [
             [
@@ -253,7 +181,7 @@
             ]
           ],
           "sales_accel_3q": true,
-          "never_sell": false,
+          "never_sell": true,
           "eps_new_high": true,
           "consecutive_decline_quarters": 0,
           "severe_decel": false,
@@ -384,6 +312,112 @@
       }
     },
     {
+      "code": "005935",
+      "name": "삼성전자우",
+      "market": "KOSPI",
+      "score": 62,
+      "grade": "C",
+      "passed_count": 4,
+      "market_cap_eok": 1465932,
+      "per": 27.83,
+      "pbr": 2.85,
+      "dividend_yield": 0.91,
+      "foreign_ownership": 77.35,
+      "institutional_pct": 19.7,
+      "institutional_trend": "down",
+      "twelve_m_return": 305.1,
+      "current_price": 185400,
+      "criteria": {
+        "C": {
+          "pass": true,
+          "value": "+588.7%",
+          "detail": "202503 EPS 1186 → 202603 8168 = YoY +588.7%, 직전분기 +156.9% → 가속",
+          "yoy_pct": 588.71,
+          "latest_quarter": "202603",
+          "latest_eps": 8168.094676152994,
+          "prev_yoy_pct": 156.86,
+          "accel_delta_pp": 431.85,
+          "eps_yoy_history": [
+            [
+              "202506",
+              -48.34
+            ],
+            [
+              "202509",
+              23.82
+            ],
+            [
+              "202512",
+              156.86
+            ],
+            [
+              "202603",
+              588.71
+            ]
+          ],
+          "eps_accel_3q": true,
+          "sales_yoy_pct": 69.16,
+          "sales_yoy_history": [
+            [
+              "202506",
+              0.67
+            ],
+            [
+              "202509",
+              8.8
+            ],
+            [
+              "202512",
+              23.82
+            ],
+            [
+              "202603",
+              69.16
+            ]
+          ],
+          "sales_accel_3q": true,
+          "never_sell": true,
+          "eps_new_high": true,
+          "consecutive_decline_quarters": 0,
+          "severe_decel": false,
+          "is_turnaround": false,
+          "dilution_flag": null,
+          "latest_is_preliminary": true,
+          "preliminary_rcept_no": "20260430800083"
+        },
+        "A": {
+          "pass": false,
+          "value": "EPS 3y +132.3%, +32.6% / ROE 10.8%",
+          "detail": "EPS 202312:2131 → 202412:4950 → 202512:6564 (통과) | ROE 10.8% (미달, 15.0%+ 필요)"
+        },
+        "N": {
+          "pass": true,
+          "value": "52주 고점 -3.5%",
+          "detail": "고점 189,300, 현재 182,700, 갭 -3.5% | 상승 모멘텀 (5일avg 177,060 vs 50일avg 141,830)"
+        },
+        "S": {
+          "pass": true,
+          "value": "거래량 +53.2%",
+          "detail": "최근 5일 평균 7,061,379주 vs 50일 평균 4,608,727주 = +53.2% | 시총 1,465,932억 (대형 (수급 영향 작음))"
+        },
+        "L": {
+          "pass": false,
+          "value": "RS 40",
+          "detail": "12M 수익률 +305.1% (지수 +190.7%, 초과 +114.4%) | RS 40 (미달, 80+ 필요)"
+        },
+        "I": {
+          "pass": false,
+          "value": "외인 77.3%, 기관 19.7%",
+          "detail": "외인 77.3%, 기관 19.7% = 합산 97.0%, 추세 down | 미달, 합산 5.0%+ 필요"
+        },
+        "M": {
+          "pass": true,
+          "value": "시장 추세 통과",
+          "detail": "(전체 시장 판정 결과 적용)"
+        }
+      }
+    },
+    {
       "code": "034020",
       "name": "두산에너빌리티",
       "market": "KOSPI",
@@ -443,8 +477,8 @@
               13.67
             ]
           ],
-          "sales_accel_3q": false,
-          "never_sell": false,
+          "sales_accel_3q": true,
+          "never_sell": true,
           "eps_new_high": false,
           "consecutive_decline_quarters": 0,
           "severe_decel": false,
@@ -529,7 +563,7 @@
               52.82
             ]
           ],
-          "eps_accel_3q": false,
+          "eps_accel_3q": true,
           "sales_yoy_pct": 7.49,
           "sales_yoy_history": [
             [
@@ -635,7 +669,7 @@
               96.99
             ]
           ],
-          "eps_accel_3q": false,
+          "eps_accel_3q": true,
           "sales_yoy_pct": 17.18,
           "sales_yoy_history": [
             [
@@ -656,7 +690,7 @@
             ]
           ],
           "sales_accel_3q": true,
-          "never_sell": false,
+          "never_sell": true,
           "eps_new_high": true,
           "consecutive_decline_quarters": 0,
           "severe_decel": false,

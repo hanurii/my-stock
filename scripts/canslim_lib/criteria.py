@@ -156,7 +156,18 @@ def evaluate_c_detailed(
         if yoy_sales > 0:
             out["sales_yoy_pct"] = round((latest_sales - yoy_sales) / yoy_sales * 100, 2)
 
-    # EPS 분기별 YoY 추세 (최근 4분기) - 가속 판정용
+    # 가속 판정 헬퍼 — 윈도우 끝점 비교 + 최신값 양수
+    # 사유: 단조 증가 strict 검사는 한 분기 dip(예: 14.3→5.9→13.7)에서 끊김.
+    # 원전 "3분기 이상에 걸쳐 가속" 의 의미는 추세적 우상향이므로
+    # "윈도우 내 최신 YoY > 가장 오래된 YoY AND 최신 YoY > 0" 으로 완화.
+    def _is_accel(history: list[tuple[str, float]]) -> bool:
+        if len(history) < 3:
+            return False
+        latest = history[-1][1]
+        earliest = history[0][1]
+        return latest > 0 and latest > earliest
+
+    # EPS 분기별 YoY 추세 (최근 4분기까지)
     if len(quarterly_eps) >= 8:
         eps_hist: list[tuple[str, float]] = []
         for i in range(len(quarterly_eps) - 1, max(len(quarterly_eps) - 5, 3), -1):
@@ -168,12 +179,9 @@ def evaluate_c_detailed(
                 eps_hist.append((curr_key, round((curr - prior) / abs(prior) * 100, 2)))
         eps_hist.reverse()
         out["eps_yoy_history"] = eps_hist
-        if len(eps_hist) >= 3:
-            last3 = [v for _, v in eps_hist[-3:]]
-            out["eps_accel_3q"] = last3[0] < last3[1] < last3[2]
+        out["eps_accel_3q"] = _is_accel(eps_hist)
 
-    # 매출 분기별 YoY 추세 (최근 N분기)
-    # 가속: 최근 3분기 매출 YoY가 단조 증가 (Q-2 < Q-1 < Q0)
+    # 매출 분기별 YoY 추세 (최근 4분기까지)
     if quarterly_sales and len(quarterly_sales) >= 7:
         sales_hist: list[tuple[str, float]] = []
         for i in range(len(quarterly_sales) - 1, max(len(quarterly_sales) - 5, 3), -1):
@@ -185,9 +193,7 @@ def evaluate_c_detailed(
                 sales_hist.append((curr_key, round((curr - prior) / prior * 100, 2)))
         sales_hist.reverse()
         out["sales_yoy_history"] = sales_hist
-        if len(sales_hist) >= 3:
-            last3 = [v for _, v in sales_hist[-3:]]
-            out["sales_accel_3q"] = last3[0] < last3[1] < last3[2]
+        out["sales_accel_3q"] = _is_accel(sales_hist)
 
     # '절대 매도 금지': 매출 + EPS 모두 3분기 가속
     out["never_sell"] = bool(out["sales_accel_3q"] and out["eps_accel_3q"])

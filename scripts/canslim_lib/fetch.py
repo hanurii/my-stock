@@ -236,6 +236,23 @@ def dart_get(endpoint: str, params: dict[str, str]) -> list[dict[str, Any]] | No
     return None
 
 
+def resolve_corp_code(code: str, corp_map: dict[str, str]) -> tuple[str | None, str | None]:
+    """우선주 코드를 보통주 corp_code 로 fallback.
+
+    Returns: (corp_code, parent_common_code).
+    parent_common_code 가 None 이면 직접 매칭, 값이 있으면 우선주(보통주 corp_code 사용 중).
+    한국 우선주 끝자리 관행: 5(우선주1종), 7(우선주2종/신형), 9(전환우선주).
+    """
+    if code in corp_map:
+        return corp_map[code], None
+    if len(code) == 6 and code[-1] in "5679":
+        common = code[:5] + "0"
+        cc = corp_map.get(common)
+        if cc:
+            return cc, common
+    return None, None
+
+
 def load_corp_code_map() -> dict[str, str]:
     """DART corpCode.xml ZIP 다운로드 → stock_code → corp_code 매핑.
 
