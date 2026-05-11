@@ -69,6 +69,12 @@ export default async function CanslimPage() {
     );
   }
 
+  // 평가된 universe 내 시총 순위 부여
+  const rankByCode = new Map<string, number>();
+  [...data.candidates]
+    .sort((a, b) => b.market_cap_eok - a.market_cap_eok)
+    .forEach((c, idx) => rankByCode.set(c.code, idx + 1));
+
   const main = data.candidates.filter((c) => {
     const cr = c.criteria.C;
     if (cr.yoy_pct === null || cr.yoy_pct === undefined) return false;
@@ -167,7 +173,9 @@ export default async function CanslimPage() {
           <span className="material-symbols-outlined text-primary">trending_up</span>
           분기 EPS YoY +{USER_C_THRESHOLD}% 이상 ({main.length}종목)
         </h3>
-        <CanslimTable candidates={main} />
+        <CanslimTable
+          candidates={main.map((c) => ({ ...c, market_cap_rank: rankByCode.get(c.code) }))}
+        />
       </section>
 
       {/* C 원칙 학습 섹션 */}

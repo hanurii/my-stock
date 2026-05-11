@@ -31,6 +31,7 @@ export interface CanslimCandidate {
   name: string;
   market: string;
   market_cap_eok: number;
+  market_cap_rank?: number;
   per: number | null;
   pbr: number | null;
   current_price: number;
@@ -276,8 +277,13 @@ export function CanslimTable({ candidates }: Props) {
                           )}
                         </div>
                       </td>
-                      <td className="px-3 py-2.5 text-on-surface-variant text-xs hidden lg:table-cell">
-                        {fmtCap(c.market_cap_eok)}
+                      <td className="px-3 py-2.5 hidden lg:table-cell text-xs">
+                        <div className="flex flex-col leading-tight">
+                          <span className="text-on-surface-variant">{fmtCap(c.market_cap_eok)}</span>
+                          {c.market_cap_rank !== undefined && (
+                            <span className="text-[10px] text-on-surface-variant/50">시총 {c.market_cap_rank}위</span>
+                          )}
+                        </div>
                       </td>
                     </tr>
                     {isOpen && (
