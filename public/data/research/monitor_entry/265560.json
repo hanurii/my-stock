@@ -1,7 +1,7 @@
 {
   "code": "265560",
   "name": "영화테크",
-  "last_checked": "2026-05-11T17:53:42.988+09:00",
+  "last_checked": "2026-05-11T21:14:21.672+09:00",
   "metrics": [
     {
       "id": "no_capital_issuance",
@@ -33,11 +33,11 @@
     {
       "id": "per_value_zone",
       "label": "✅ PER 저평가",
-      "value": 5.69,
-      "display": "5.69배",
+      "value": 5.42,
+      "display": "5.42배",
       "threshold": "5.0배 이하",
       "hit": false,
-      "tone": "neutral"
+      "tone": "warn"
     },
     {
       "id": "new_supply_contract",
@@ -70,6 +70,12 @@
       "type": "op_margin_strong",
       "title": "✅ 분기 영업이익률 견조 16% 이상",
       "message": "현재 16.6% — 매수 시그널 (분할 진입 검토 권장)"
+    },
+    {
+      "severity": "warn",
+      "type": "per_value_zone",
+      "title": "✅ PER 저평가 임계 근접",
+      "message": "현재 5.42배 (임계 5.0배 이하)"
     },
     {
       "severity": "info",
