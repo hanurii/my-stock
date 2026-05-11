@@ -563,18 +563,34 @@ def compute_a_score(a_detail: dict) -> dict:
         score_eps_consecutive = 17
         notes["연속_증가"] = "5년 위기 면제"
     elif has_loss:
-        score_eps_consecutive = 0
-        notes["연속_증가"] = "최근 적자"
+        # 적자 후 V자 회복 체크 — 적자 다음 해 EPS > 적자 직전 해 EPS × 1.5
+        # 가장 최근 적자 위치 찾기 (최근 4년 윈도우 안에서)
+        overall_loss_idx = None
+        start = max(0, len(annual_eps) - 4)
+        for i in range(len(annual_eps) - 1, start - 1, -1):
+            if annual_eps[i][1] <= 0:
+                overall_loss_idx = i
+                break
+        if (overall_loss_idx is not None
+            and overall_loss_idx >= 1
+            and overall_loss_idx + 1 < len(annual_eps)):
+            pre_loss_v = annual_eps[overall_loss_idx - 1][1]
+            recovery_v = annual_eps[overall_loss_idx + 1][1]
+            if pre_loss_v > 0 and recovery_v > pre_loss_v * 1.5:
+                score_eps_consecutive = 15
+                ratio = recovery_v / pre_loss_v
+                notes["연속_증가"] = f"적자 후 V자 회복 (직전 대비 {ratio:.1f}배)"
+            else:
+                score_eps_consecutive = 0
+                notes["연속_증가"] = "최근 적자 (회복 미달)"
+        else:
+            score_eps_consecutive = 0
+            notes["연속_증가"] = "최근 적자"
     elif eps_growths:
         pos_count = sum(1 for g in eps_growths if g > 0)
-        last_pos = eps_growths[-1] > 0
         if pos_count == len(eps_growths) - 1:
             score_eps_consecutive = 13
             notes["연속_증가"] = "1회 dip"
-        elif last_pos:
-            # 직전 transition 양수 (=최근 2년 매년 증가). 1회 dip 보다 약하지만 회복 신호.
-            score_eps_consecutive = 10
-            notes["연속_증가"] = "2년 연속 증가 (이전 dip 회복)"
         elif pos_count >= len(eps_growths) - 2:
             score_eps_consecutive = 6
             notes["연속_증가"] = "2회 dip"
