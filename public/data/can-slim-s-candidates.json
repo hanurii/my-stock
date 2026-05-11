@@ -1,84 +1,14 @@
 {
   "generated_at": "2026-05-11",
   "n_input_count": 7,
-  "s_passed_count": 7,
-  "excluded_count": 0,
+  "s_passed_count": 5,
+  "excluded_count": 2,
   "cutoffs": {
-    "debt_ratio_threshold": null,
+    "debt_ratio_threshold": 130.0,
     "debt_reduction_threshold_pp": null,
     "split_exclude_count": 3
   },
   "candidates": [
-    {
-      "code": "329180",
-      "name": "HD현대중공업",
-      "market": "KOSPI",
-      "market_cap_eok": 718984,
-      "current_price": 658000,
-      "a_score": 100,
-      "pct_from_52w_high": -1.15,
-      "criteria": {
-        "S": {
-          "shares_outstanding": 109268085,
-          "insider_pct": 76.66,
-          "float_ratio_estimated": 23.34,
-          "buyback_3y": [],
-          "buyback_count_3y": 0,
-          "buyback_large_label": false,
-          "treasury_stock_pct_estimated": null,
-          "debt_ratio_current": 180.07,
-          "debt_ratio_quarterly": [
-            [
-              "202412",
-              239.93
-            ],
-            [
-              "202503",
-              260.05
-            ],
-            [
-              "202506",
-              219.3
-            ],
-            [
-              "202509",
-              221.63
-            ],
-            [
-              "202512",
-              180.07
-            ]
-          ],
-          "debt_ratio_annual": [
-            [
-              "202312",
-              229.02
-            ],
-            [
-              "202412",
-              239.93
-            ],
-            [
-              "202512",
-              180.07
-            ]
-          ],
-          "debt_reduction": {
-            "applies": false,
-            "annual_delta": 48.95,
-            "quarterly_delta": 59.86
-          },
-          "debt_reduction_label": false,
-          "splits_5y": [],
-          "splits_5y_count": 0,
-          "split_warning_label": false,
-          "split_exclude": false,
-          "debt_ratio_excessive": false,
-          "pass_s": true,
-          "fail_reasons": []
-        }
-      }
-    },
     {
       "code": "000660",
       "name": "SK하이닉스",
@@ -142,82 +72,6 @@
           "splits_5y": [],
           "splits_5y_count": 0,
           "split_warning_label": false,
-          "split_exclude": false,
-          "debt_ratio_excessive": false,
-          "pass_s": true,
-          "fail_reasons": []
-        }
-      }
-    },
-    {
-      "code": "010120",
-      "name": "LS ELECTRIC",
-      "market": "KOSPI",
-      "market_cap_eok": 456000,
-      "current_price": 313000,
-      "a_score": 86,
-      "pct_from_52w_high": -4.55,
-      "criteria": {
-        "S": {
-          "shares_outstanding": 145686901,
-          "insider_pct": 60.99,
-          "float_ratio_estimated": 39.01,
-          "buyback_3y": [],
-          "buyback_count_3y": 0,
-          "buyback_large_label": false,
-          "treasury_stock_pct_estimated": null,
-          "debt_ratio_current": 131.48,
-          "debt_ratio_quarterly": [
-            [
-              "202412",
-              137.3
-            ],
-            [
-              "202503",
-              147.27
-            ],
-            [
-              "202506",
-              135.94
-            ],
-            [
-              "202509",
-              125.94
-            ],
-            [
-              "202512",
-              131.48
-            ]
-          ],
-          "debt_ratio_annual": [
-            [
-              "202312",
-              116.52
-            ],
-            [
-              "202412",
-              137.3
-            ],
-            [
-              "202512",
-              131.48
-            ]
-          ],
-          "debt_reduction": {
-            "applies": false,
-            "annual_delta": -14.96,
-            "quarterly_delta": 5.82
-          },
-          "debt_reduction_label": false,
-          "splits_5y": [
-            {
-              "date": "2026-02-05",
-              "report_nm": "주식분할결정",
-              "rcept_no": "20260205800493"
-            }
-          ],
-          "splits_5y_count": 1,
-          "split_warning_label": true,
           "split_exclude": false,
           "debt_ratio_excessive": false,
           "pass_s": true,
@@ -569,5 +423,20 @@
       }
     }
   ],
-  "excluded": []
+  "excluded": [
+    {
+      "code": "329180",
+      "name": "HD현대중공업",
+      "reasons": [
+        "부채비율 180.07% > 컷오프 130.0%"
+      ]
+    },
+    {
+      "code": "010120",
+      "name": "LS ELECTRIC",
+      "reasons": [
+        "부채비율 131.48% > 컷오프 130.0%"
+      ]
+    }
+  ]
 }
