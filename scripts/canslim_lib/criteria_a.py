@@ -28,6 +28,11 @@ TURNAROUND_ANNUAL_EPS_MIN_PCT = 5.0  # 직전 1년 연 EPS YoY +5% 이상
 TURNAROUND_QUARTERLY_YOY_MIN_PCT = 50.0  # 분기 EPS YoY +50% 이상 (사용자 본문 "급증" 정량화)
 TURNAROUND_TTM_HIGH_RATIO = 0.90  # TTM EPS 가 직전 N년 사상 최고치의 90% 이상
 
+# 예비 턴어라운드 컷오프 — 정통 한 단계 완화. 한 두 개 약간 미달이지만 다음 분기에 잡힐 가능성 높은 종목
+TURNAROUND_PRELIM_ANNUAL_EPS_MIN_PCT = 0.0  # 양수 회복만 확인
+TURNAROUND_PRELIM_QUARTERLY_YOY_MIN_PCT = 30.0  # 분기 +30%+ 급증
+TURNAROUND_PRELIM_TTM_HIGH_RATIO = 0.80  # TTM 80%+ (예: 삼성전자 82%)
+
 # KSIC (한국표준산업분류) 코드 prefix 기반 경기민감주 (사용자 본문 5개)
 # 24=1차 금속(철강), 20=화학, 17=펄프/종이(제지), 22=고무/플라스틱, 29=기타 기계/장비
 CYCLICAL_KSIC_PREFIXES = ("24", "20", "17", "22", "29")
@@ -103,11 +108,13 @@ def evaluate_turnaround_detailed(
     """
     out: dict[str, Any] = {
         "turnaround_pass": False,
+        "preliminary_turnaround_pass": False,
         "annual_eps": [(k, round(v, 2)) for k, v in annual_eps[-5:]],
         "annual_roe": [(k, round(v, 2)) for k, v in annual_roe[-5:]],
         "latest_annual_yoy": None,
         "two_quarter_surge": False,
         "two_quarter_surge_detail": "",
+        "preliminary_two_quarter_surge": False,
         "ttm_high_ratio": None,
         "is_all_time_high": False,
         "latest_quarter_yoy": latest_quarter_yoy,
@@ -131,7 +138,7 @@ def evaluate_turnaround_detailed(
             # 적자→흑자 전환
             out["latest_annual_yoy"] = 999.99  # 무한대 표시 placeholder
 
-    # 2) 2분기 연속 +50%+ 급증
+    # 2) 2분기 연속 +50%+ 급증 (정통)
     if len(quarterly_eps_yoy_history) >= 2:
         last_two = quarterly_eps_yoy_history[-2:]
         if all(v >= TURNAROUND_QUARTERLY_YOY_MIN_PCT for _, v in last_two):
@@ -139,10 +146,21 @@ def evaluate_turnaround_detailed(
             out["two_quarter_surge_detail"] = (
                 f"{last_two[0][0]} +{last_two[0][1]:.1f}%, {last_two[1][0]} +{last_two[1][1]:.1f}%"
             )
+        if all(v >= TURNAROUND_PRELIM_QUARTERLY_YOY_MIN_PCT for _, v in last_two):
+            out["preliminary_two_quarter_surge"] = True
+            if not out["two_quarter_surge_detail"]:
+                out["two_quarter_surge_detail"] = (
+                    f"{last_two[0][0]} +{last_two[0][1]:.1f}%, {last_two[1][0]} +{last_two[1][1]:.1f}% (예비)"
+                )
     # history 부족 케이스 — 직전 분기 단일로 V자 시작 인정
-    elif latest_quarter_yoy is not None and latest_quarter_yoy >= TURNAROUND_QUARTERLY_YOY_MIN_PCT:
-        out["two_quarter_surge"] = True
-        out["two_quarter_surge_detail"] = f"직전 분기 단일 +{latest_quarter_yoy:.1f}% (history 부족)"
+    elif latest_quarter_yoy is not None:
+        if latest_quarter_yoy >= TURNAROUND_QUARTERLY_YOY_MIN_PCT:
+            out["two_quarter_surge"] = True
+            out["two_quarter_surge_detail"] = f"직전 분기 단일 +{latest_quarter_yoy:.1f}% (history 부족)"
+        if latest_quarter_yoy >= TURNAROUND_PRELIM_QUARTERLY_YOY_MIN_PCT:
+            out["preliminary_two_quarter_surge"] = True
+            if not out["two_quarter_surge_detail"]:
+                out["two_quarter_surge_detail"] = f"직전 분기 단일 +{latest_quarter_yoy:.1f}% (예비)"
 
     # 3) TTM 사상 최고치 근접 — 연간 EPS 기반 근사
     if len(annual_eps) >= 2:
@@ -174,6 +192,20 @@ def evaluate_turnaround_detailed(
     pass_cyclical = not out["cyclical"]
 
     out["turnaround_pass"] = bool(pass_recovery and pass_surge and pass_high and pass_cyclical)
+
+    # 예비 턴어라운드 — 정통 미충족이지만 한두 항목 약간 미달, 다음 분기 잡힐 가능성 높음
+    prelim_recovery = (
+        out["latest_annual_yoy"] is not None
+        and out["latest_annual_yoy"] >= TURNAROUND_PRELIM_ANNUAL_EPS_MIN_PCT
+    )
+    prelim_surge = out["preliminary_two_quarter_surge"]
+    prelim_high = (
+        out["is_all_time_high"]
+        or (out["ttm_high_ratio"] is not None and out["ttm_high_ratio"] >= TURNAROUND_PRELIM_TTM_HIGH_RATIO)
+    )
+    out["preliminary_turnaround_pass"] = bool(
+        prelim_recovery and prelim_surge and prelim_high and pass_cyclical and not out["turnaround_pass"]
+    )
 
     if not pass_recovery:
         ann_str = f"{out['latest_annual_yoy']}%" if out["latest_annual_yoy"] is not None else "N/A"

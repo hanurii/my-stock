@@ -284,9 +284,11 @@ def main() -> int:
                 induty_code=induty_code,
                 quarterly_eps_for_stability=quarterly_eps_for_stability,
             )
-            if t_detail["turnaround_pass"]:
+            if t_detail["turnaround_pass"] or t_detail["preliminary_turnaround_pass"]:
+                is_prelim = not t_detail["turnaround_pass"] and t_detail["preliminary_turnaround_pass"]
+                marker = "🟡 예비 턴어라운드" if is_prelim else "🔄 턴어라운드"
                 badges_str = ", ".join(t_detail["badges"]) if t_detail["badges"] else "—"
-                print(f"      🔄 턴어라운드 · 연 YoY {t_detail['latest_annual_yoy']}% · {t_detail['two_quarter_surge_detail']} · 배지: {badges_str}")
+                print(f"      {marker} · 연 YoY {t_detail['latest_annual_yoy']}% · {t_detail['two_quarter_surge_detail']} · 배지: {badges_str}")
                 turnaround_results.append({
                     "code": code,
                     "name": name,
@@ -294,6 +296,7 @@ def main() -> int:
                     "market_cap_eok": cand["market_cap_eok"],
                     "current_price": cand["current_price"],
                     "criteria_turnaround": t_detail,
+                    "is_preliminary": is_prelim,
                     "criteria_c_summary": c_summary,
                 })
             else:
@@ -303,18 +306,21 @@ def main() -> int:
 
         time.sleep(0.3)
 
+    pure_count = sum(1 for t in turnaround_results if not t.get("is_preliminary"))
+    prelim_count = sum(1 for t in turnaround_results if t.get("is_preliminary"))
     output = {
         "generated_at": datetime.now().strftime("%Y-%m-%d"),
         "c_input_count": len(c_passed),
         "a_passed_count": len(a_results),
-        "turnaround_count": len(turnaround_results),
+        "turnaround_count": pure_count,
+        "preliminary_turnaround_count": prelim_count,
         "candidates": a_results,
         "turnaround_candidates": turnaround_results,
     }
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT.write_text(json.dumps(output, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"✅ 저장: {OUTPUT}")
-    print(f"   C 노출 {len(c_passed)} → A 메인 {len(a_results)} + 턴어라운드 {len(turnaround_results)}")
+    print(f"   C 노출 {len(c_passed)} → A 메인 {len(a_results)} + 턴어라운드 {pure_count} + 예비 {prelim_count}")
     return 0
 
 

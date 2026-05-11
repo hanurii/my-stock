@@ -24,6 +24,7 @@ interface CanslimAData {
   c_input_count: number;
   a_passed_count: number;
   turnaround_count: number;
+  preliminary_turnaround_count?: number;
   candidates: AnnualCandidate[];
   turnaround_candidates: TurnaroundCandidate[];
 }
@@ -198,7 +199,9 @@ export default async function CanslimPage() {
           <p className="text-xs text-on-surface-variant/50 mt-1">
             입력 모집단: <strong className="text-on-surface-variant">C 통과 종목 {main.length}개</strong>의 부분집합 ·
             {aData
-              ? ` 생성일 ${aData.generated_at} · 평가 ${aData.c_input_count}종목 · 메인 ${aData.a_passed_count} + 턴어라운드 ${aData.turnaround_count}`
+              ? ` 생성일 ${aData.generated_at} · 평가 ${aData.c_input_count}종목 · 메인 ${aData.a_passed_count} + 턴어라운드 ${aData.turnaround_count}${
+                  aData.preliminary_turnaround_count ? ` + 예비 ${aData.preliminary_turnaround_count}` : ""
+                }`
               : " A 데이터 미생성 (`python scripts/screen_canslim_a.py` 실행 필요)"}
           </p>
         </header>
@@ -215,9 +218,12 @@ export default async function CanslimPage() {
             <div>
               <h4 className="text-sm font-serif font-bold text-on-surface mb-2 flex items-center gap-2">
                 <span className="material-symbols-outlined text-base text-tertiary">change_circle</span>
-                턴어라운드 트랙 ({aData.turnaround_candidates.length}종목)
+                턴어라운드 트랙 ({aData.turnaround_candidates.length}종목
+                {aData.preliminary_turnaround_count ? ` — 정통 ${aData.turnaround_count} + ` : ""}
+                {aData.preliminary_turnaround_count ? <span className="text-amber-400">예비 {aData.preliminary_turnaround_count}</span> : null}
+                {aData.preliminary_turnaround_count ? ")" : ")"}
                 <span className="text-xs text-on-surface-variant/60 font-normal ml-2">
-                  · 직전 1년 EPS +5%↑ + 분기 EPS 2분기 연속 +50%↑ + TTM 사상 최고치 90%↑
+                  · 정통: 연 EPS +5%↑ + 분기 2분기 +50%↑ + TTM 사상 최고치 90%↑ · 예비: +0%/+30%/80%
                 </span>
               </h4>
               <TurnaroundTable candidates={aData.turnaround_candidates} />

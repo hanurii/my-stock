@@ -353,11 +353,13 @@ function readSortValue(c: AnnualCandidate, k: SortKey): number | null {
 
 export interface TurnaroundCriterion {
   turnaround_pass: boolean;
+  preliminary_turnaround_pass: boolean;
   annual_eps: [string, number][];
   annual_roe: [string, number][];
   latest_annual_yoy: number | null;
   two_quarter_surge: boolean;
   two_quarter_surge_detail: string;
+  preliminary_two_quarter_surge: boolean;
   ttm_high_ratio: number | null;
   is_all_time_high: boolean;
   latest_quarter_yoy: number | null;
@@ -377,6 +379,7 @@ export interface TurnaroundCandidate {
   market_cap_eok: number;
   current_price: number;
   criteria_turnaround: TurnaroundCriterion;
+  is_preliminary?: boolean;
   criteria_c_summary: {
     yoy_pct: number | null;
     latest_quarter: string | null;
@@ -393,6 +396,10 @@ export function TurnaroundTable({ candidates }: TurnaroundProps) {
 
   const sorted = useMemo(() => {
     return [...candidates].sort((a, b) => {
+      // 정통 턴어라운드 우선, 예비는 그 아래
+      const aPrelim = a.is_preliminary ? 1 : 0;
+      const bPrelim = b.is_preliminary ? 1 : 0;
+      if (aPrelim !== bPrelim) return aPrelim - bPrelim;
       const av = a.criteria_turnaround.latest_annual_yoy ?? -Infinity;
       const bv = b.criteria_turnaround.latest_annual_yoy ?? -Infinity;
       return bv - av;
@@ -435,7 +442,14 @@ export function TurnaroundTable({ candidates }: TurnaroundProps) {
                   >
                     <td className="px-3 py-2.5">
                       <div className="flex flex-col">
-                        <span className="font-medium text-on-surface">{c.name}</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-medium text-on-surface">{c.name}</span>
+                          {c.is_preliminary && (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400 font-medium" title="정통 턴어라운드 한두 항목 약간 미달 — 다음 분기 잡힐 가능성">
+                              예비
+                            </span>
+                          )}
+                        </div>
                         <span className="text-[11px] text-on-surface-variant/60">
                           {c.code} · {c.market}
                         </span>
