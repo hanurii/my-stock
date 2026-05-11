@@ -212,8 +212,10 @@ def main() -> int:
             labels = []
             if s_eval["buyback_large_label"]:
                 labels.append("자사주 매우 큰 매입")
-            if s_eval["debt_reduction_label"]:
-                labels.append("부채 감소")
+            if s_eval["debt_reduction_annual_label"]:
+                labels.append("연간 부채 크게 감소")
+            if s_eval["debt_reduction_quarterly_label"]:
+                labels.append("분기 부채 크게 감소")
             if s_eval["split_warning_label"]:
                 labels.append("주식 분할 주의")
             labels_str = ", ".join(labels) if labels else "—"

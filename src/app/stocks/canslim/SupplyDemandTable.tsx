@@ -17,7 +17,11 @@ export interface SCriterion {
     applies: boolean;
     annual_delta: number | null;
     quarterly_delta: number | null;
+    annual_label: boolean;
+    quarterly_label: boolean;
   };
+  debt_reduction_annual_label: boolean;
+  debt_reduction_quarterly_label: boolean;
   debt_reduction_label: boolean;
   splits_5y: Array<{ date: string; report_nm: string; rcept_no: string }>;
   splits_5y_count: number;
@@ -137,7 +141,8 @@ export function SupplyDemandTable({ candidates }: Props) {
             const arrowInfo = debtDeltaArrow(s.debt_ratio_annual, s.debt_ratio_quarterly);
             const labels: { text: string; color: string }[] = [];
             if (s.buyback_large_label) labels.push({ text: "자사주 매우 큰 매입", color: "#10b981" });
-            if (s.debt_reduction_label) labels.push({ text: "부채 감소", color: "#34d399" });
+            if (s.debt_reduction_annual_label) labels.push({ text: "연간 부채 크게 감소", color: "#34d399" });
+            if (s.debt_reduction_quarterly_label) labels.push({ text: "분기 부채 크게 감소", color: "#6ea8fe" });
             if (s.split_warning_label) labels.push({ text: "주식 분할 주의", color: "#fbbf24" });
             const isExpanded = expandedCode === c.code;
 

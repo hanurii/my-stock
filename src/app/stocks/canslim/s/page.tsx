@@ -76,7 +76,7 @@ export default async function CanslimSPage() {
                 <p>• 부채비율 과도 컷오프: 미설정 — N 통과 종목 분포 분석 후 결정 예정 (현재는 raw 값만 표시).</p>
               )}
               {debt_reduction_threshold_pp === null && (
-                <p>• &ldquo;부채 감소&rdquo; 라벨 기준: 미설정 — 분포 분석 후 결정 예정 (현재 라벨 비활성).</p>
+                <p>• &ldquo;부채 크게 감소&rdquo; 라벨 기준: 미설정 — 분포 분석 후 결정 예정 (현재 라벨 비활성).</p>
               )}
             </div>
           </div>
@@ -103,7 +103,8 @@ export default async function CanslimSPage() {
             <p className="text-on-surface-variant mb-1">라벨 (가점, 통과 영향 X)</p>
             <ul className="space-y-1 list-disc list-inside">
               <li><strong>자사주 매우 큰 매입</strong>: 자사주 보유율 10%↑</li>
-              <li><strong>부채 감소</strong>: 최근 2~3년 또는 5분기간 부채비율 큰 감소 (기준 TBD)</li>
+              <li><strong>연간 부채 크게 감소</strong>: 최근 2~3년 연간 부채비율 20%p↑ 감소</li>
+              <li><strong>분기 부채 크게 감소</strong>: 최근 5분기 분기 부채비율 20%p↑ 감소</li>
               <li><strong>주식 분할 주의</strong>: 최근 5년 분할 1~2회 (천장 신호 가능성)</li>
             </ul>
           </div>

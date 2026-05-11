@@ -59,20 +59,23 @@ def fetch_debt_ratio_series(code: str) -> dict[str, list[tuple[str, float]]]:
 def compute_debt_reduction_label(
     quarterly: list[tuple[str, float]],
     annual: list[tuple[str, float]],
-    threshold_pp: float,
+    threshold_pp: float | None,
 ) -> dict[str, Any]:
-    """부채 감소 라벨 평가.
+    """부채 감소 라벨 평가 — 분기·연간 2개 라벨 독립.
 
-    조건 (둘 중 하나라도 충족):
-      (a) 최근 2~3년간 연간 부채비율을 threshold_pp %p 이상 낮춤.
-      (b) 최근 5분기간 분기 부채비율을 threshold_pp %p 이상 낮춤.
+    라벨 (각각 독립 부여):
+      - "연간 부채 크게 감소": 최근 2~3년간 연간 부채비율을 threshold_pp %p 이상 낮춤.
+      - "분기 부채 크게 감소": 최근 5분기간 분기 부채비율을 threshold_pp %p 이상 낮춤.
 
-    threshold_pp 는 사용자가 N 통과 분포 분석 후 결정 (TBD). 1차 구현은 None 으로 항상 False.
+    threshold_pp 미지정 시 두 라벨 모두 False.
+    delta = oldest - latest. 양수면 부채 감소.
     """
     result = {
-        "applies": False,
         "annual_delta": None,
         "quarterly_delta": None,
+        "annual_label": False,
+        "quarterly_label": False,
+        "applies": False,  # 호환용 — 둘 중 하나라도 True 면 True
     }
     if annual and len(annual) >= 2:
         recent_3 = annual[-3:]
@@ -84,9 +87,11 @@ def compute_debt_reduction_label(
         result["quarterly_delta"] = round(delta, 2)
     if threshold_pp is None:
         return result
-    a_pass = result["annual_delta"] is not None and result["annual_delta"] >= threshold_pp
-    q_pass = result["quarterly_delta"] is not None and result["quarterly_delta"] >= threshold_pp
-    result["applies"] = a_pass or q_pass
+    if result["annual_delta"] is not None and result["annual_delta"] >= threshold_pp:
+        result["annual_label"] = True
+    if result["quarterly_delta"] is not None and result["quarterly_delta"] >= threshold_pp:
+        result["quarterly_label"] = True
+    result["applies"] = result["annual_label"] or result["quarterly_label"]
     return result
 
 
@@ -312,8 +317,16 @@ def evaluate_s(
         "debt_ratio_current": None,
         "debt_ratio_quarterly": [],
         "debt_ratio_annual": [],
-        "debt_reduction": {"applies": False, "annual_delta": None, "quarterly_delta": None},
-        "debt_reduction_label": False,
+        "debt_reduction": {
+            "applies": False,
+            "annual_delta": None,
+            "quarterly_delta": None,
+            "annual_label": False,
+            "quarterly_label": False,
+        },
+        "debt_reduction_annual_label": False,
+        "debt_reduction_quarterly_label": False,
+        "debt_reduction_label": False,  # 호환 — 둘 중 하나라도 True 면 True
         "splits_5y": [],
         "splits_5y_count": 0,
         "split_warning_label": False,
@@ -336,11 +349,13 @@ def evaluate_s(
     elif debt["annual"]:
         result["debt_ratio_current"] = debt["annual"][-1][1]
 
-    # 부채 감소 라벨
+    # 부채 감소 라벨 (분기·연간 2개 독립)
     reduction = compute_debt_reduction_label(
         debt["quarterly"], debt["annual"], debt_reduction_threshold_pp,
     )
     result["debt_reduction"] = reduction
+    result["debt_reduction_annual_label"] = reduction["annual_label"]
+    result["debt_reduction_quarterly_label"] = reduction["quarterly_label"]
     result["debt_reduction_label"] = reduction["applies"]
 
     # 부채비율 과도 필터

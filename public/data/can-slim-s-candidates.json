@@ -5,7 +5,7 @@
   "excluded_count": 2,
   "cutoffs": {
     "debt_ratio_threshold": 130.0,
-    "debt_reduction_threshold_pp": null,
+    "debt_reduction_threshold_pp": 20.0,
     "split_exclude_count": 3
   },
   "candidates": [
@@ -64,11 +64,15 @@
             ]
           ],
           "debt_reduction": {
-            "applies": false,
             "annual_delta": 41.57,
-            "quarterly_delta": 16.2
+            "quarterly_delta": 16.2,
+            "annual_label": true,
+            "quarterly_label": false,
+            "applies": true
           },
-          "debt_reduction_label": false,
+          "debt_reduction_annual_label": true,
+          "debt_reduction_quarterly_label": false,
+          "debt_reduction_label": true,
           "splits_5y": [],
           "splits_5y_count": 0,
           "split_warning_label": false,
@@ -140,10 +144,14 @@
             ]
           ],
           "debt_reduction": {
-            "applies": false,
             "annual_delta": -4.58,
-            "quarterly_delta": -2.01
+            "quarterly_delta": -2.01,
+            "annual_label": false,
+            "quarterly_label": false,
+            "applies": false
           },
+          "debt_reduction_annual_label": false,
+          "debt_reduction_quarterly_label": false,
           "debt_reduction_label": false,
           "splits_5y": [],
           "splits_5y_count": 0,
@@ -216,10 +224,14 @@
             ]
           ],
           "debt_reduction": {
-            "applies": false,
             "annual_delta": -4.58,
-            "quarterly_delta": -2.01
+            "quarterly_delta": -2.01,
+            "annual_label": false,
+            "quarterly_label": false,
+            "applies": false
           },
+          "debt_reduction_annual_label": false,
+          "debt_reduction_quarterly_label": false,
           "debt_reduction_label": false,
           "splits_5y": [],
           "splits_5y_count": 0,
@@ -337,10 +349,14 @@
             ]
           ],
           "debt_reduction": {
-            "applies": false,
             "annual_delta": 4.6,
-            "quarterly_delta": 2.91
+            "quarterly_delta": 2.91,
+            "annual_label": false,
+            "quarterly_label": false,
+            "applies": false
           },
+          "debt_reduction_annual_label": false,
+          "debt_reduction_quarterly_label": false,
           "debt_reduction_label": false,
           "splits_5y": [],
           "splits_5y_count": 0,
@@ -407,10 +423,14 @@
             ]
           ],
           "debt_reduction": {
-            "applies": false,
             "annual_delta": -3.81,
-            "quarterly_delta": -7.09
+            "quarterly_delta": -7.09,
+            "annual_label": false,
+            "quarterly_label": false,
+            "applies": false
           },
+          "debt_reduction_annual_label": false,
+          "debt_reduction_quarterly_label": false,
           "debt_reduction_label": false,
           "splits_5y": [],
           "splits_5y_count": 0,
