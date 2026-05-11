@@ -84,6 +84,76 @@ function debtDeltaArrow(annual: [string, number][], qtr: [string, number][]): { 
   return { arrow: "↑", color: "#ffb4ab", detail: `+${delta.toFixed(1)}%p` };
 }
 
+function fmtQuarterLabel(key: string): string {
+  if (key.length !== 6) return key;
+  const yr = key.slice(2, 4);
+  const mo = key.slice(4, 6);
+  const qMap: Record<string, string> = { "03": "Q1", "06": "Q2", "09": "Q3", "12": "Q4" };
+  return `${yr}${qMap[mo] ?? `·${mo}`}`;
+}
+
+function fmtAnnualLabel(key: string): string {
+  if (key.length >= 4) return key.slice(0, 4);
+  return key;
+}
+
+// delta = oldest - latest. 양수 = 감소(좋음), 음수 = 증가(나쁨).
+function fmtDelta(delta: number | null): { text: string; color: string; arrow: string } | null {
+  if (delta === null || delta === undefined) return null;
+  if (delta > 0) return { text: `${delta.toFixed(1)}%p 감소`, color: "#10b981", arrow: "↓" };
+  if (delta < 0) return { text: `${Math.abs(delta).toFixed(1)}%p 증가`, color: "#ffb4ab", arrow: "↑" };
+  return { text: "변화 없음", color: "var(--on-surface-variant)", arrow: "→" };
+}
+
+function DebtTimeline({
+  series,
+  type,
+  delta,
+}: {
+  series: [string, number][];
+  type: "quarterly" | "annual";
+  delta: number | null;
+}) {
+  if (series.length === 0) return null;
+  const fmt = type === "quarterly" ? fmtQuarterLabel : fmtAnnualLabel;
+  const label = type === "quarterly" ? `분기 (${series.length}분기)` : `연간 (${series.length}년)`;
+  const deltaInfo = fmtDelta(delta);
+  return (
+    <div className="mb-3 last:mb-0">
+      <div className="flex items-baseline justify-between mb-1.5 gap-2">
+        <span className="text-[10px] text-on-surface-variant/60">{label}</span>
+        {deltaInfo && (
+          <span className="text-[11px]" style={{ color: deltaInfo.color }}>
+            {deltaInfo.arrow} {deltaInfo.text}
+          </span>
+        )}
+      </div>
+      <div className="flex items-center gap-1 flex-wrap">
+        {series.map(([k, v], i) => {
+          const isLatest = i === series.length - 1;
+          return (
+            <Fragment key={k}>
+              <div
+                className={`px-2 py-1 rounded text-center min-w-[58px] ${
+                  isLatest
+                    ? "bg-surface-container ring-1 ring-on-surface/20"
+                    : "bg-surface-container-low/60"
+                }`}
+              >
+                <div className="text-[9px] text-on-surface-variant/60 leading-tight">{fmt(k)}</div>
+                <div className="text-xs font-medium" style={{ color: debtColor(v) }}>
+                  {v.toFixed(1)}%
+                </div>
+              </div>
+              {!isLatest && <span className="text-on-surface-variant/30 text-xs">→</span>}
+            </Fragment>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export function SupplyDemandTable({ candidates }: Props) {
   const [sortKey, setSortKey] = useState<SortKey>("market_cap");
   const [sortDesc, setSortDesc] = useState(true);
@@ -213,25 +283,14 @@ export function SupplyDemandTable({ candidates }: Props) {
                     <td colSpan={10} className="p-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                         <div>
-                          <h4 className="font-medium text-on-surface mb-2">부채비율 추세</h4>
-                          <div className="text-on-surface-variant/80 space-y-1">
-                            <div>분기 (최근 → 과거): {s.debt_ratio_quarterly.length > 0
-                              ? s.debt_ratio_quarterly.slice().reverse().map(([k, v]) => `${k} ${v.toFixed(1)}%`).join(" · ")
-                              : "—"}</div>
-                            <div>연간 (최근 → 과거): {s.debt_ratio_annual.length > 0
-                              ? s.debt_ratio_annual.slice().reverse().map(([k, v]) => `${k} ${v.toFixed(1)}%`).join(" · ")
-                              : "—"}</div>
-                            {s.debt_reduction.annual_delta !== null && (
-                              <div>3년 변화: <span style={{ color: s.debt_reduction.annual_delta > 0 ? "#10b981" : "#ffb4ab" }}>
-                                {s.debt_reduction.annual_delta > 0 ? "-" : "+"}{Math.abs(s.debt_reduction.annual_delta).toFixed(1)}%p
-                              </span></div>
-                            )}
-                            {s.debt_reduction.quarterly_delta !== null && (
-                              <div>5분기 변화: <span style={{ color: s.debt_reduction.quarterly_delta > 0 ? "#10b981" : "#ffb4ab" }}>
-                                {s.debt_reduction.quarterly_delta > 0 ? "-" : "+"}{Math.abs(s.debt_reduction.quarterly_delta).toFixed(1)}%p
-                              </span></div>
-                            )}
-                          </div>
+                          <h4 className="font-medium text-on-surface mb-2.5">
+                            부채비율 추세 <span className="text-on-surface-variant/50 text-[10px] ml-1">과거 → 현재</span>
+                          </h4>
+                          <DebtTimeline series={s.debt_ratio_quarterly} type="quarterly" delta={s.debt_reduction.quarterly_delta} />
+                          <DebtTimeline series={s.debt_ratio_annual} type="annual" delta={s.debt_reduction.annual_delta} />
+                          {s.debt_ratio_quarterly.length === 0 && s.debt_ratio_annual.length === 0 && (
+                            <div className="text-on-surface-variant/50 text-xs">—</div>
+                          )}
                         </div>
                         <div>
                           <h4 className="font-medium text-on-surface mb-2">발행주식수 · 가격</h4>
