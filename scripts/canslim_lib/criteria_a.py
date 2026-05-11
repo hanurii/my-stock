@@ -567,9 +567,14 @@ def compute_a_score(a_detail: dict) -> dict:
         notes["연속_증가"] = "최근 적자"
     elif eps_growths:
         pos_count = sum(1 for g in eps_growths if g > 0)
+        last_pos = eps_growths[-1] > 0
         if pos_count == len(eps_growths) - 1:
             score_eps_consecutive = 13
             notes["연속_증가"] = "1회 dip"
+        elif last_pos:
+            # 직전 transition 양수 (=최근 2년 매년 증가). 1회 dip 보다 약하지만 회복 신호.
+            score_eps_consecutive = 10
+            notes["연속_증가"] = "2년 연속 증가 (이전 dip 회복)"
         elif pos_count >= len(eps_growths) - 2:
             score_eps_consecutive = 6
             notes["연속_증가"] = "2회 dip"
