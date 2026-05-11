@@ -1,6 +1,8 @@
 import fs from "fs/promises";
 import path from "path";
 import { CanslimTable, type CanslimCandidate } from "../CanslimTable";
+import { EPS_ACCEL_QUALITY_META } from "../lib/epsAccel";
+import { passesCGate, USER_C_THRESHOLD } from "../lib/cFilter";
 
 interface MarketStatus {
   kospi_trend_verdict: string;
@@ -27,8 +29,6 @@ async function getData(): Promise<CanslimData | null> {
   }
 }
 
-const USER_C_THRESHOLD = 25;
-
 export default async function CanslimCPage() {
   const data = await getData();
 
@@ -51,21 +51,7 @@ export default async function CanslimCPage() {
     .sort((a, b) => b.market_cap_eok - a.market_cap_eok)
     .forEach((c, idx) => rankByCode.set(c.code, idx + 1));
 
-  const main = data.candidates.filter((c) => {
-    const cr = c.criteria.C;
-    if (cr.yoy_pct === null || cr.yoy_pct === undefined) return false;
-    if (cr.yoy_pct < USER_C_THRESHOLD) return false;
-    // 매출 동반 검증: 매출 +25% 이상 OR 매출 3분기 가속 둘 중 하나라도 없으면 제외
-    const salesAccompany = (cr.sales_yoy_pct !== null && cr.sales_yoy_pct >= 25) || cr.sales_accel_3q;
-    if (!salesAccompany) return false;
-    // O'Neil 책 기준 가속화 게이트: EPS 가속 (3분기 단조 증가) 또는 직전 분기 대비 가속 둘 중 하나 필수
-    const accelerating = cr.eps_accel_3q || ((cr.accel_delta_pp ?? 0) > 0);
-    if (!accelerating) return false;
-    // O'Neil 책 기준 경고 자동 제외: 2분기 연속 EPS 감소 / 증가율 2/3 둔화
-    if (cr.consecutive_decline_quarters >= 2) return false;
-    if (cr.severe_decel) return false;
-    return true;
-  });
+  const main = data.candidates.filter((c) => passesCGate(c.criteria.C));
 
   const marketGo = data.market_status.passed;
   const marketColor = marketGo ? "#95d3ba" : "#ffb4ab";
@@ -129,6 +115,44 @@ export default async function CanslimCPage() {
         </div>
       </section>
 
+      {/* EPS 가속도 단계 (O'Neil 원전 #3 — 가장 중요한 원칙 정량화) */}
+      <section className="bg-surface-container-low rounded-xl ghost-border p-4">
+        <h3 className="text-sm font-serif font-bold text-on-surface mb-1 flex items-center gap-2">
+          <span className="material-symbols-outlined text-base text-primary">bolt</span>
+          EPS 가속도 단계
+          <span className="text-[11px] text-on-surface-variant/60 font-normal ml-1">
+            · O&apos;Neil 원전 #3 — &quot;직전 분기 대비 가속 폭이 가장 중요&quot;
+          </span>
+        </h3>
+        <p className="text-[11px] text-on-surface-variant/60 mb-3">
+          가속 폭 Δ = (이번 분기 EPS YoY %) − (직전 분기 EPS YoY %). 직전 분기 YoY가 음수였다가 양수로 회복한 케이스는 진짜 가속이 아닌 &quot;회복&quot;으로 분류 (페이지 노출 제외).
+        </p>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+          {(["mild", "strong", "explosive", "recovery"] as const).map((q) => {
+            const meta = EPS_ACCEL_QUALITY_META[q];
+            const ranges: Record<string, string> = {
+              mild: "0 < Δ ≤ 25%p",
+              strong: "25 < Δ ≤ 100%p",
+              explosive: "Δ > 100%p",
+              recovery: "직전 YoY 음수 → 양수",
+            };
+            return (
+              <div
+                key={q}
+                className="rounded-lg p-2.5 flex flex-col gap-0.5"
+                style={{ backgroundColor: meta.bg }}
+              >
+                <p className={`flex items-center gap-1 ${meta.weight}`} style={{ color: meta.color }}>
+                  <span>{meta.icon}</span>
+                  <span>{meta.label}</span>
+                </p>
+                <p className="text-on-surface-variant/70 text-[11px]">{ranges[q]}</p>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
       {/* 필터 설명 */}
       <section className="bg-surface-container-low rounded-xl ghost-border p-4 text-xs space-y-2">
         <h3 className="text-sm font-serif font-bold text-on-surface flex items-center gap-2 mb-1">
@@ -137,7 +161,7 @@ export default async function CanslimCPage() {
         </h3>
         <p className="text-on-surface-variant"><strong className="text-on-surface">매출 +25% 이상</strong>: 이번 분기 매출 YoY ≥ 25% 종목 (이미 페이지 노출 조건의 일부, 토글로 좁히기 가능).</p>
         <p className="text-on-surface-variant"><strong className="text-on-surface">매출 3분기 가속</strong>: 최근 3분기 매출 YoY 성장률이 단조 증가 (이미 페이지 노출 조건의 일부).</p>
-        <p className="text-on-surface-variant"><strong className="text-on-surface">EPS 가속 중</strong>: 이번 분기 EPS YoY 성장률이 직전 분기 EPS YoY 성장률보다 큰 종목 (O&apos;Neil 책 기준 #3 가장 중요).</p>
+        <p className="text-on-surface-variant"><strong className="text-on-surface">EPS 가속 중</strong>: 가속 폭이 mild(0~25%p) / strong(25~100%p) / explosive(100%p+) 중 하나인 종목. dip 회복은 제외 (O&apos;Neil 원전 #3 가장 중요).</p>
         <p className="text-on-surface-variant"><strong className="text-on-surface">12M EPS 신고점</strong>: 최근 12개월 4개 분기 EPS가 그 이전 모든 분기의 신고점에 근접·돌파.</p>
         <p className="text-on-surface-variant"><strong className="text-on-surface">경고 없음</strong>: 2분기 연속 EPS 감소·심각 둔화·증자 희석 이력 없음.</p>
         <p className="text-emerald-300"><strong>⛔ 절대 매도 금지</strong>: 매출+EPS 모두 최근 3분기 가속 — O&apos;Neil 책 기준 #4 (배지로 자동 부여, 필터 X).</p>

@@ -90,6 +90,7 @@ def evaluate_c_detailed(
         "latest_eps": None,
         "prev_yoy_pct": None,
         "accel_delta_pp": None,
+        "eps_accel_quality": "none",
         "eps_yoy_history": [],
         "eps_accel_3q": False,
         "sales_yoy_pct": None,
@@ -196,6 +197,22 @@ def evaluate_c_detailed(
         eps_hist.reverse()
         out["eps_yoy_history"] = eps_hist
         out["eps_accel_3q"] = _is_accel(eps_hist)
+
+    # EPS 가속 폭발도 단계 — O'Neil 원전 #3 (가장 중요한 원칙) 정량화.
+    # eps_accel_3q (4분기 윈도우의 strict 단조 또는 폭발 예외) 가 True 면 4분기 시각에서
+    # 진짜 폭발이 확인된 것이므로 dip recovery 가 아닌 explosive 로 승격.
+    yoy = out["yoy_pct"]
+    prev_yoy = out["prev_yoy_pct"]
+    delta = out["accel_delta_pp"]
+    if yoy is not None and prev_yoy is not None and delta is not None:
+        if prev_yoy < 0 and yoy > 0:
+            out["eps_accel_quality"] = "explosive" if out["eps_accel_3q"] else "recovery"
+        elif delta > 100:
+            out["eps_accel_quality"] = "explosive"
+        elif delta > 25:
+            out["eps_accel_quality"] = "strong"
+        elif delta > 0:
+            out["eps_accel_quality"] = "mild"
 
     # 매출 분기별 YoY 추세 (최근 4분기까지)
     if quarterly_sales and len(quarterly_sales) >= 5:

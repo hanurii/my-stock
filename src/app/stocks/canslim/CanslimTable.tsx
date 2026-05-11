@@ -1,6 +1,9 @@
 "use client";
 
 import { Fragment, useMemo, useState } from "react";
+import { EPS_ACCEL_QUALITY_META, type EpsAccelQuality } from "./lib/epsAccel";
+export { EPS_ACCEL_QUALITY_META } from "./lib/epsAccel";
+export type { EpsAccelQuality } from "./lib/epsAccel";
 
 export interface CCriterion {
   pass: boolean;
@@ -11,6 +14,7 @@ export interface CCriterion {
   latest_eps: number | null;
   prev_yoy_pct: number | null;
   accel_delta_pp: number | null;
+  eps_accel_quality?: EpsAccelQuality;
   sales_yoy_pct: number | null;
   sales_yoy_history: [string, number][];
   sales_accel_3q: boolean;
@@ -96,7 +100,10 @@ export function CanslimTable({ candidates }: Props) {
     }
     if (newHighOnly) arr = arr.filter((c) => c.criteria.C.eps_new_high);
     if (accelOnly) {
-      arr = arr.filter((c) => c.criteria.C.accel_delta_pp !== null && c.criteria.C.accel_delta_pp > 0);
+      arr = arr.filter((c) => {
+        const q = c.criteria.C.eps_accel_quality;
+        return q === "mild" || q === "strong" || q === "explosive";
+      });
     }
     if (noWarningOnly) {
       arr = arr.filter((c) => {
@@ -179,10 +186,10 @@ export function CanslimTable({ candidates }: Props) {
                 </th>
                 <th className="px-3 py-2.5 font-medium text-on-surface-variant/70 hidden sm:table-cell">분기</th>
                 <th className="px-3 py-2.5 font-medium hidden md:table-cell">
-                  <SortHeader k="accel_delta_pp" label="가속" />
+                  <SortHeader k="accel_delta_pp" label="EPS 가속" />
                 </th>
                 <th className="px-3 py-2.5 font-medium hidden md:table-cell">
-                  <SortHeader k="sales_yoy_pct" label="매출 YoY" />
+                  <SortHeader k="sales_yoy_pct" label="매출 가속" />
                 </th>
                 <th className="px-3 py-2.5 font-medium text-on-surface-variant/70 hidden lg:table-cell">신호</th>
                 <th className="px-3 py-2.5 font-medium hidden lg:table-cell">
@@ -239,27 +246,62 @@ export function CanslimTable({ candidates }: Props) {
                       <td className="px-3 py-2.5 text-on-surface-variant/70 hidden sm:table-cell text-xs">
                         {cr.latest_quarter ?? "—"}
                       </td>
-                      <td
-                        className="px-3 py-2.5 hidden md:table-cell text-xs"
-                        style={{ color: deltaColor(cr.accel_delta_pp) }}
-                      >
-                        {cr.accel_delta_pp !== null
-                          ? `${cr.accel_delta_pp > 0 ? "+" : ""}${cr.accel_delta_pp.toFixed(1)}%p`
-                          : "—"}
+                      <td className="px-3 py-2.5 hidden md:table-cell text-xs">
+                        {(() => {
+                          const q: EpsAccelQuality = cr.eps_accel_quality ?? "none";
+                          const meta = EPS_ACCEL_QUALITY_META[q];
+                          if (q === "none") {
+                            return (
+                              <span className="text-on-surface-variant/60">
+                                {cr.accel_delta_pp !== null
+                                  ? `${cr.accel_delta_pp > 0 ? "+" : ""}${cr.accel_delta_pp.toFixed(1)}%p`
+                                  : "—"}
+                              </span>
+                            );
+                          }
+                          return (
+                            <div
+                              className="inline-flex items-center gap-1.5 px-2 py-1 rounded"
+                              style={{ backgroundColor: meta.bg }}
+                              title={
+                                q === "recovery"
+                                  ? "직전 분기 dip에서 양수 회복 — 진짜 가속 아님"
+                                  : "O'Neil 원전 #3: EPS 증가율의 직전 분기 대비 가속 폭"
+                              }
+                            >
+                              <span style={{ color: meta.color }} className="text-[11px]">{meta.icon}</span>
+                              <span className={meta.weight} style={{ color: meta.color }}>
+                                {cr.accel_delta_pp !== null
+                                  ? `${cr.accel_delta_pp > 0 ? "+" : ""}${cr.accel_delta_pp.toFixed(1)}%p`
+                                  : "—"}
+                              </span>
+                              <span className="text-[10px]" style={{ color: meta.color, opacity: 0.85 }}>
+                                {meta.label}
+                              </span>
+                            </div>
+                          );
+                        })()}
                       </td>
-                      <td
-                        className="px-3 py-2.5 hidden md:table-cell text-xs"
-                        style={{ color: pctColor(cr.sales_yoy_pct) }}
-                      >
-                        {fmtPct(cr.sales_yoy_pct)}
+                      <td className="px-3 py-2.5 hidden md:table-cell text-xs">
+                        <div className="flex flex-col gap-0.5">
+                          <span style={{ color: pctColor(cr.sales_yoy_pct) }}>
+                            {fmtPct(cr.sales_yoy_pct)}
+                          </span>
+                          {cr.sales_accel_3q && (
+                            <span
+                              className="inline-flex items-center gap-1 text-[10px] text-on-surface-variant/80"
+                              title="최근 3분기 매출 YoY 단조 증가 또는 폭발"
+                            >
+                              <span style={{ color: "#a8b5d0" }}>▲</span>
+                              <span>3분기 가속</span>
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="px-3 py-2.5 hidden lg:table-cell">
                         <div className="flex flex-wrap gap-1">
                           {cr.eps_new_high && (
                             <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/15 text-primary">12M 신고점</span>
-                          )}
-                          {cr.accel_delta_pp !== null && cr.accel_delta_pp > 0 && (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400">가속</span>
                           )}
                           {cr.severe_decel && (
                             <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-500/15 text-red-400">심각 둔화</span>
@@ -271,9 +313,6 @@ export function CanslimTable({ candidates }: Props) {
                           )}
                           {cr.dilution_flag === true && (
                             <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400">희석 주의</span>
-                          )}
-                          {cr.sales_accel_3q && (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400">매출 3분기 가속</span>
                           )}
                         </div>
                       </td>
@@ -291,9 +330,28 @@ export function CanslimTable({ candidates }: Props) {
                         <td colSpan={8} className="px-3 py-4 text-xs text-on-surface-variant">
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
                             <div>
-                              <p className="font-medium text-on-surface mb-2 flex items-center gap-2">
+                              <p className="font-medium text-on-surface mb-2 flex items-center gap-2 flex-wrap">
                                 <span className="material-symbols-outlined text-sm text-primary">show_chart</span>
                                 EPS 분기별 YoY 추세
+                                {(() => {
+                                  const q: EpsAccelQuality = cr.eps_accel_quality ?? "none";
+                                  if (q === "none") return null;
+                                  const meta = EPS_ACCEL_QUALITY_META[q];
+                                  return (
+                                    <span
+                                      className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] ${meta.weight}`}
+                                      style={{ backgroundColor: meta.bg, color: meta.color }}
+                                      title={
+                                        q === "recovery"
+                                          ? "직전 분기 dip에서 회복한 케이스 (진짜 가속 아님)"
+                                          : `EPS 가속 폭 ${cr.accel_delta_pp?.toFixed(1)}%p (O'Neil 원전 #3)`
+                                      }
+                                    >
+                                      <span>{meta.icon}</span>
+                                      <span>{meta.label}</span>
+                                    </span>
+                                  );
+                                })()}
                               </p>
                               {cr.eps_yoy_history && cr.eps_yoy_history.length > 0 ? (
                                 <ul className="space-y-1">
@@ -324,9 +382,10 @@ export function CanslimTable({ candidates }: Props) {
                               )}
                             </div>
                             <div>
-                              <p className="font-medium text-on-surface mb-2 flex items-center gap-2">
-                                <span className="material-symbols-outlined text-sm text-primary">payments</span>
+                              <p className="font-medium text-on-surface-variant/90 mb-2 flex items-center gap-2 text-[12px]">
+                                <span className="material-symbols-outlined text-sm text-on-surface-variant/70">payments</span>
                                 매출 분기별 YoY 추세
+                                <span className="text-[10px] text-on-surface-variant/60 font-normal">(보조)</span>
                               </p>
                               {cr.sales_yoy_history && cr.sales_yoy_history.length > 0 ? (
                                 <ul className="space-y-1">

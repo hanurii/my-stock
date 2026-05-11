@@ -3,6 +3,7 @@ import path from "path";
 import Link from "next/link";
 import { type CanslimCandidate } from "./CanslimTable";
 import { type AnnualCandidate, type TurnaroundCandidate, type NewListingCandidate } from "./AnnualEarningsTable";
+import { passesCGate } from "./lib/cFilter";
 
 interface MarketStatus {
   kospi_trend_verdict: string;
@@ -50,26 +51,10 @@ async function getAData(): Promise<CanslimAData | null> {
   }
 }
 
-const USER_C_THRESHOLD = 25;
-
 export default async function CanslimIndexPage() {
   const [data, aData] = await Promise.all([getData(), getAData()]);
 
-  // C 통과 종목 수 계산
-  const cMainCount = data
-    ? data.candidates.filter((c) => {
-        const cr = c.criteria.C;
-        if (cr.yoy_pct === null || cr.yoy_pct === undefined) return false;
-        if (cr.yoy_pct < USER_C_THRESHOLD) return false;
-        const salesAccompany = (cr.sales_yoy_pct !== null && cr.sales_yoy_pct >= 25) || cr.sales_accel_3q;
-        if (!salesAccompany) return false;
-        const accelerating = cr.eps_accel_3q || ((cr.accel_delta_pp ?? 0) > 0);
-        if (!accelerating) return false;
-        if (cr.consecutive_decline_quarters >= 2) return false;
-        if (cr.severe_decel) return false;
-        return true;
-      }).length
-    : 0;
+  const cMainCount = data ? data.candidates.filter((c) => passesCGate(c.criteria.C)).length : 0;
 
   const marketGo = data?.market_status.passed ?? false;
   const marketColor = marketGo ? "#95d3ba" : "#ffb4ab";
