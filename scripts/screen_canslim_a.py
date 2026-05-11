@@ -236,27 +236,31 @@ def collect_quarterly_eps_for_stability(code: str, corp_code: str | None) -> lis
 
     Naver 분기 (최근 5분기) + DART 과거 보강 (최대 4년 ≈ 16분기) 머지.
     """
+    return [v for _, v in collect_quarterly_eps_tuples(code, corp_code)]
+
+
+def collect_quarterly_eps_tuples(code: str, corp_code: str | None) -> list[tuple[str, float]]:
+    """분기 EPS tuple 시계열 반환 (period_key, eps). TTM 계산용."""
     qtr = fetch_quarter(code)
     quarter_eps = get_row_values(qtr, "EPS") if qtr else []
     if not corp_code:
-        return [v for _, v in quarter_eps]
+        return quarter_eps
 
     if quarter_eps:
         latest_year = int(quarter_eps[-1][0][:4]) if quarter_eps[-1][0][:4].isdigit() else datetime.now().year
     else:
         latest_year = datetime.now().year
 
-    # 과거 4년 보강 (latest_year-1 ~ latest_year-4)
     dart_combined: list[tuple[str, float]] = []
-    for delta in range(1, 5):
+    for delta in range(0, 5):  # 현재년도 + 과거 4년
         year = latest_year - delta
         items = fetch_dart_quarterly_eps_history(corp_code, year)
         if items:
             dart_combined.extend(items)
-        time.sleep(0.1)  # rate limit 보호
+        time.sleep(0.1)
     if dart_combined:
         quarter_eps = merge_naver_dart_quarters(quarter_eps, dart_combined)
-    return [v for _, v in quarter_eps]
+    return quarter_eps
 
 
 def fetch_annual_eps_extended(code: str, corp_code: str | None) -> list[tuple[str, float]]:
@@ -350,8 +354,35 @@ def main() -> int:
             if latest_year_str:
                 pretax_margin = fetch_dart_annual_pretax_margin(corp_code, int(latest_year_str))
 
-        # 3) 안정성 지수용 12+ 분기 EPS
-        quarterly_eps_for_stability = collect_quarterly_eps_for_stability(code, corp_code)
+        # 3) 분기 EPS 시계열 (안정성 + TTM 계산용)
+        quarterly_eps_tuples = collect_quarterly_eps_tuples(code, corp_code)
+        # 잠정실적이 C JSON 에 있으면 quarter 시계열에 추가
+        prelim_quarter = cand["criteria"]["C"].get("latest_quarter")
+        prelim_eps_value = cand["criteria"]["C"].get("latest_eps")
+        prelim_is_p = cand["criteria"]["C"].get("latest_is_preliminary", False)
+        if prelim_is_p and prelim_quarter and prelim_eps_value is not None:
+            if not any(p == prelim_quarter for p, _ in quarterly_eps_tuples):
+                quarterly_eps_tuples = sorted(
+                    list(quarterly_eps_tuples) + [(prelim_quarter, float(prelim_eps_value))]
+                )
+        quarterly_eps_for_stability = [v for _, v in quarterly_eps_tuples]
+
+        # 3.5) TTM (최근 4분기 합산) — 연환산 EPS, 잠정실적 포함 가능
+        ttm_eps = None
+        ttm_period = None
+        annual_eps_for_a = list(annual_eps)
+        annual_last_period = annual_eps[-1][0] if annual_eps else "000000"
+        evaluation_basis = f"{annual_last_period[:4]} 사업보고서 결산"
+        if len(quarterly_eps_tuples) >= 4:
+            ttm_eps = round(sum(v for _, v in quarterly_eps_tuples[-4:]), 2)
+            ttm_period = quarterly_eps_tuples[-1][0]
+            # 분기 마지막이 annual 마지막보다 신선하면 TTM 을 annual_eps 마지막에 추가
+            if ttm_period > annual_last_period:
+                annual_eps_for_a = list(annual_eps) + [(f"TTM_{ttm_period}", ttm_eps)]
+                if prelim_is_p and prelim_quarter == ttm_period:
+                    evaluation_basis = f"{ttm_period} TTM (잠정실적 포함)"
+                else:
+                    evaluation_basis = f"{ttm_period} TTM"
 
         # 4) 직전 분기 YoY 와 4분기 YoY 추이 (C JSON 재사용)
         latest_qy = cand["criteria"]["C"].get("yoy_pct")
@@ -360,15 +391,18 @@ def main() -> int:
             (str(p), float(v)) for p, v in eps_yoy_history_raw
         ]
 
-        # 5) 메인 트랙 평가
+        # 5) 메인 트랙 평가 (TTM 포함된 annual_eps_for_a 사용)
         a_detail = evaluate_a_detailed(
-            annual_eps=annual_eps,
+            annual_eps=annual_eps_for_a,
             annual_roe=annual_roe,
             annual_cps=annual_cps,
             latest_quarter_yoy=latest_qy,
             induty_code=induty_code,
             quarterly_eps_for_stability=quarterly_eps_for_stability,
         )
+        a_detail["ttm_eps"] = ttm_eps
+        a_detail["ttm_period"] = ttm_period
+        a_detail["evaluation_basis"] = evaluation_basis
 
         # 세전 마진율 + 우선도 점수 (정렬용)
         # Tier 1 (먼저 노출): 매년 ≥25% 성장 + ROE ≥17%
@@ -422,6 +456,9 @@ def main() -> int:
             "deceleration_gate_pass": a_detail.get("deceleration_gate_pass"),
             "main_track_pass": a_detail.get("main_track_pass"),
             "badges": a_detail.get("badges", []),
+            "ttm_eps": a_detail.get("ttm_eps"),
+            "ttm_period": a_detail.get("ttm_period"),
+            "evaluation_basis": a_detail.get("evaluation_basis"),
             "criteria_c_summary": {
                 "yoy_pct": cand["criteria"]["C"].get("yoy_pct"),
                 "latest_quarter": cand["criteria"]["C"].get("latest_quarter"),

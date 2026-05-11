@@ -31,6 +31,9 @@ export interface AScoredCandidate {
   deceleration_gate_pass: boolean;
   main_track_pass: boolean;
   badges: string[];
+  ttm_eps?: number | null;
+  ttm_period?: string | null;
+  evaluation_basis?: string | null;
   criteria_c_summary: {
     yoy_pct: number | null;
     latest_quarter: string | null;
@@ -135,6 +138,7 @@ export function AScoredTable({ candidates }: Props) {
                 <th className="px-3 py-2.5 font-medium text-on-surface-variant/70">종목</th>
                 <th className="px-3 py-2.5 font-medium text-on-surface-variant/70">A 점수</th>
                 <th className="px-3 py-2.5 font-medium text-on-surface-variant/70 hidden sm:table-cell">분류</th>
+                <th className="px-3 py-2.5 font-medium text-on-surface-variant/70 hidden md:table-cell">기준 분기</th>
                 <th className="px-3 py-2.5 font-medium text-on-surface-variant/70 hidden md:table-cell">ROE</th>
                 <th className="px-3 py-2.5 font-medium text-on-surface-variant/70 hidden md:table-cell">3Y avg EPS</th>
                 <th className="px-3 py-2.5 font-medium text-on-surface-variant/70 hidden lg:table-cell">세전 마진</th>
@@ -144,7 +148,7 @@ export function AScoredTable({ candidates }: Props) {
             <tbody>
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-3 py-8 text-center text-on-surface-variant/60 text-sm">
+                  <td colSpan={8} className="px-3 py-8 text-center text-on-surface-variant/60 text-sm">
                     조건에 맞는 종목이 없습니다.
                   </td>
                 </tr>
@@ -195,6 +199,9 @@ export function AScoredTable({ candidates }: Props) {
                         {c.a_score_tier}
                       </td>
                       <td className="px-3 py-2.5 hidden md:table-cell text-xs">
+                        <span className="font-mono text-on-surface-variant">{c.evaluation_basis ?? "—"}</span>
+                      </td>
+                      <td className="px-3 py-2.5 hidden md:table-cell text-xs">
                         {c.latest_roe !== null ? `${c.latest_roe.toFixed(1)}%` : "—"}
                       </td>
                       <td className="px-3 py-2.5 hidden md:table-cell text-xs">
@@ -211,7 +218,7 @@ export function AScoredTable({ candidates }: Props) {
                     </tr>
                     {isOpen && (
                       <tr className="bg-surface-container/10 border-t border-on-surface/5">
-                        <td colSpan={7} className="px-3 py-4 text-xs text-on-surface-variant">
+                        <td colSpan={8} className="px-3 py-4 text-xs text-on-surface-variant">
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
                             <div>
                               <p className="font-medium text-on-surface mb-2">A 점수 항목별 ({c.a_score}/100)</p>
@@ -254,16 +261,23 @@ export function AScoredTable({ candidates }: Props) {
                               )}
                               {c.annual_eps.length > 0 && (
                                 <div className="mt-2">
-                                  <p className="text-on-surface-variant/60 mb-1">연간 EPS</p>
+                                  <p className="text-on-surface-variant/60 mb-1">
+                                    연간 EPS · 평가 기준: <span className="text-on-surface-variant">{c.evaluation_basis ?? "—"}</span>
+                                  </p>
                                   <ul className="space-y-0.5 font-mono text-[11px]">
-                                    {c.annual_eps.slice(-5).map(([k, v]) => (
-                                      <li key={k}>
-                                        <span className="text-on-surface-variant/60 w-14 inline-block">{k.slice(0, 4)}</span>
-                                        <span className={v > 0 ? "text-on-surface" : "text-red-400"}>
-                                          {v.toLocaleString()}원
-                                        </span>
-                                      </li>
-                                    ))}
+                                    {c.annual_eps.slice(-6).map(([k, v]) => {
+                                      const isTTM = k.startsWith("TTM_");
+                                      const label = isTTM ? `TTM (${k.slice(4)})` : k.slice(0, 4);
+                                      return (
+                                        <li key={k} className={isTTM ? "border-t border-on-surface/10 pt-0.5 mt-0.5" : ""}>
+                                          <span className="text-on-surface-variant/60 w-24 inline-block">{label}</span>
+                                          <span className={v > 0 ? "text-on-surface" : "text-red-400"}>
+                                            {v.toLocaleString()}원
+                                          </span>
+                                          {isTTM && <span className="text-emerald-400 ml-2 text-[10px]">잠정 포함 가능</span>}
+                                        </li>
+                                      );
+                                    })}
                                   </ul>
                                 </div>
                               )}
