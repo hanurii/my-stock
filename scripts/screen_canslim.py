@@ -188,23 +188,34 @@ def collect_raw_data(
                 # 잠정실적 fetch
                 pre = fetch_preliminary_quarter(corp_code, next_year, next_q)
                 if pre and pre["revenue_eok"] > 0 and pre["net_income_eok"] != 0:
-                    # 우선주의 경우 보통주 시총·주가로 발행주식수 계산
-                    # (Naver의 EPS 는 회사 단위로 보통/우선 동일하게 보고됨)
-                    if common_code:
-                        parent_ig = fetch_integration(common_code) or {}
-                        price = parent_ig.get("price") or 0
-                        market_cap_eok = parent_ig.get("market_cap_eok") or 0
-                    else:
-                        price = ig.get("price") or 0
-                        market_cap_eok = ig.get("market_cap_eok") or 0
-                    if price > 0 and market_cap_eok > 0:
-                        shares = market_cap_eok * 1e8 / price
-                        if shares > 0:
-                            preliminary_eps = pre["net_income_eok"] * 1e8 / shares
-                            quarter_eps = quarter_eps + [(pre["period_key"], preliminary_eps)]
-                            quarter_sales = quarter_sales + [(pre["period_key"], pre["revenue_eok"])]
-                            preliminary_period = pre["period_key"]
-                            preliminary_rcept_no = pre["rcept_no"]
+                    # 발행주식수 계산:
+                    #  - 1순위: annual_net_income / annual_EPS (Naver EPS 산정 기준과 동일,
+                    #    자사주·우선주 가중평균 반영)
+                    #  - 2순위(fallback): 시총 / 주가 (우선주 케이스에선 보통주)
+                    shares = None
+                    annual_ni_rows = get_row_values(ann, "당기순이익") if ann else []
+                    if annual_ni_rows and annual_eps:
+                        ni_latest = annual_ni_rows[-1][1]  # 억원 단위
+                        eps_latest = annual_eps[-1][1]
+                        if ni_latest > 0 and eps_latest > 0:
+                            # shares = NI(원) / EPS(원) = NI(억) × 1e8 / EPS
+                            shares = ni_latest * 1e8 / eps_latest
+                    if shares is None:
+                        if common_code:
+                            parent_ig = fetch_integration(common_code) or {}
+                            price = parent_ig.get("price") or 0
+                            market_cap_eok = parent_ig.get("market_cap_eok") or 0
+                        else:
+                            price = ig.get("price") or 0
+                            market_cap_eok = ig.get("market_cap_eok") or 0
+                        if price > 0 and market_cap_eok > 0:
+                            shares = market_cap_eok * 1e8 / price
+                    if shares and shares > 0:
+                        preliminary_eps = pre["net_income_eok"] * 1e8 / shares
+                        quarter_eps = quarter_eps + [(pre["period_key"], preliminary_eps)]
+                        quarter_sales = quarter_sales + [(pre["period_key"], pre["revenue_eok"])]
+                        preliminary_period = pre["period_key"]
+                        preliminary_rcept_no = pre["rcept_no"]
 
     chart = fetch_yahoo_chart(yahoo_symbol(code, market), "1y", "1d")
     if not chart or len(chart["closes"]) < 200:
@@ -306,10 +317,12 @@ def evaluate_with_rs(
 def main() -> None:
     parser = argparse.ArgumentParser(description="CAN SLIM 한국 시장 스크리너 (한국 보정판)")
     parser.add_argument("--limit", type=int, default=0, help="시총 상위 N개만 평가")
+    parser.add_argument("--offset", type=int, default=0, help="시총 상위 offset+1 위부터 평가 시작 (default 0)")
     parser.add_argument("--market", choices=["all", "kospi", "kosdaq"], default="all", help="대상 시장")
     parser.add_argument("--market-only", action="store_true", help="시장 추세(M)만 판정")
     parser.add_argument("--ticker", help="단일 종목 코드만 평가")
     parser.add_argument("--save", action="store_true", help="결과 JSON 저장")
+    parser.add_argument("--merge", action="store_true", help="기존 JSON candidates에 머지 (offset > 0 일 때 유용)")
     args = parser.parse_args()
 
     print("🎯 CAN SLIM 스크리너 (한국 보정판 v1)\n")
@@ -359,9 +372,12 @@ def main() -> None:
         kosdaq = []
 
     universe = kospi + kosdaq
+    if args.offset:
+        universe = universe[args.offset:]
+        print(f"  → 시총 {args.offset + 1}위부터 (offset {args.offset})")
     if args.limit:
         universe = universe[: args.limit]
-        print(f"  → 상위 {len(universe)}개로 제한 (시장: {args.market})")
+    print(f"  → 평가 대상 {len(universe)}종목 (시장: {args.market}, offset {args.offset}, limit {args.limit or '없음'})")
 
     # ── Pass 1: 원시 데이터 수집 (12M 수익률 포함) ──
     print(f"\n🔬 Pass 1: 원시 데이터 수집 ({len(universe)}종목)\n")
@@ -369,15 +385,19 @@ def main() -> None:
     fail = 0
     start = time.time()
 
+    failed_stocks: list[dict] = []
     for i, s in enumerate(universe):
+        err_msg = ""
         try:
             raw = collect_raw_data(s["code"], s["name"], s["market"], corp_map)
-        except Exception:
+        except Exception as e:
             raw = None
+            err_msg = repr(e)
         if raw:
             raw_data.append(raw)
         else:
             fail += 1
+            failed_stocks.append({"code": s["code"], "name": s["name"], "market": s["market"], "error": err_msg or "collect_raw_data returned None"})
         if (i + 1) % 25 == 0:
             elapsed = time.time() - start
             rate = (i + 1) / elapsed if elapsed > 0 else 0
@@ -385,6 +405,10 @@ def main() -> None:
             print(f"  ... {i + 1}/{len(universe)} 수집 ({rate:.1f}/s, ETA {eta / 60:.1f}분)")
 
     print(f"\n  Pass 1 완료: 수집 {len(raw_data)}개, 실패 {fail}")
+    if failed_stocks:
+        print("  실패 종목:")
+        for fs in failed_stocks:
+            print(f"    - {fs['code']} {fs['name']} ({fs['market']}): {fs['error']}")
 
     # ── Pass 2: universe 백분위 RS + 점수화 ──
     universe_returns = [r["twelve_m_return"] for r in raw_data]
@@ -412,10 +436,23 @@ def main() -> None:
 
     if args.save:
         OUTPUT.parent.mkdir(parents=True, exist_ok=True)
+        candidates_final = results
+        if args.merge and OUTPUT.exists():
+            try:
+                existing = json.loads(OUTPUT.read_text(encoding="utf-8"))
+                existing_by_code = {c["code"]: c for c in existing.get("candidates", [])}
+                new_by_code = {c["code"]: c for c in results}
+                # 새 결과 우선, 기존에 있는 다른 code 는 유지
+                existing_by_code.update(new_by_code)
+                candidates_final = sorted(existing_by_code.values(), key=lambda c: (-c["passed_count"], -c["score"], -c["market_cap_eok"]))
+                print(f"\n🔀 머지: 기존 {len(existing_by_code) - len(new_by_code)}개 + 신규 {len(results)}개 = {len(candidates_final)}개")
+            except (json.JSONDecodeError, OSError) as e:
+                print(f"\n⚠️  기존 JSON 머지 실패, 덮어씀: {e}")
         out = {
             "generated_at": today_iso(),
             "scanned_count": len(universe),
-            "evaluated_count": len(results),
+            "evaluated_count": len(candidates_final),
+            "scan_meta": {"offset": args.offset, "limit": args.limit, "market": args.market, "merged": args.merge},
             "market_status": {
                 "kospi_trend_verdict": market_state["verdict"],
                 "passed": market_state["passed"],
@@ -423,7 +460,8 @@ def main() -> None:
                 "detail": market_state["detail"],
                 "kospi_close": market_state.get("kospi_close"),
             },
-            "candidates": results,
+            "candidates": candidates_final,
+            "failed_stocks": failed_stocks,
             "criteria_thresholds": {
                 "version": "korea-adjusted-v1",
                 "C_quarterly_eps_yoy_min": C_QUARTERLY_EPS_MIN,
