@@ -2,6 +2,7 @@ import fs from "fs/promises";
 import path from "path";
 import { CanslimTable, type CanslimCandidate } from "./CanslimTable";
 import { AnnualEarningsTable, TurnaroundTable, NewListingTable, type AnnualCandidate, type TurnaroundCandidate, type NewListingCandidate } from "./AnnualEarningsTable";
+import { AScoredTable, type AScoredCandidate } from "./AScoredTable";
 
 interface MarketStatus {
   kospi_trend_verdict: string;
@@ -29,6 +30,7 @@ interface CanslimAData {
   candidates: AnnualCandidate[];
   turnaround_candidates: TurnaroundCandidate[];
   new_listing_candidates?: NewListingCandidate[];
+  scored_candidates?: AScoredCandidate[];
 }
 
 async function getData(): Promise<CanslimData | null> {
@@ -217,6 +219,18 @@ export default async function CanslimPage() {
 
         {aData ? (
           <div className="space-y-6">
+            {aData.scored_candidates && aData.scored_candidates.length > 0 && (
+              <div>
+                <h4 className="text-sm font-serif font-bold text-on-surface mb-2 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-base text-primary">leaderboard</span>
+                  A 충족도 점수 ({aData.scored_candidates.length}종목, 100점 만점)
+                  <span className="text-xs text-on-surface-variant/60 font-normal ml-2">
+                    · 한국 시장(사이클 종목 주도) 보정 — O'Neil 원전에 얼마나 가까운지 정량화
+                  </span>
+                </h4>
+                <AScoredTable candidates={aData.scored_candidates} />
+              </div>
+            )}
             <div>
               <h4 className="text-sm font-serif font-bold text-on-surface mb-2 flex items-center gap-2">
                 <span className="material-symbols-outlined text-base text-emerald-300">check_circle</span>

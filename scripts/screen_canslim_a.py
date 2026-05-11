@@ -64,6 +64,7 @@ from canslim_lib.fetch import (  # noqa: E402
     resolve_corp_code,
 )
 from canslim_lib.criteria_a import (  # noqa: E402
+    compute_a_score,
     evaluate_a_detailed,
     evaluate_new_listing_detailed,
     evaluate_turnaround_detailed,
@@ -308,6 +309,7 @@ def main() -> int:
     a_results: list[dict] = []
     turnaround_results: list[dict] = []
     new_listing_results: list[dict] = []
+    scored_results: list[dict] = []  # 모든 C 통과 종목의 A 충족도 점수 (메인 통과 여부 무관)
     for idx, cand in enumerate(c_passed, start=1):
         code = cand["code"]
         name = cand["name"]
@@ -394,6 +396,39 @@ def main() -> int:
             badges = ["⭐ 매년 +25% 성장"] + [b for b in badges if b != "⭐ 매년 +25% 성장"]
             a_detail["badges"] = badges
 
+        # A 충족도 점수 (0~100) — 메인 통과 여부와 무관하게 모든 C 통과 종목에 부여
+        a_score = compute_a_score(a_detail)
+        a_detail["a_score"] = a_score
+        scored_results.append({
+            "code": code,
+            "name": name,
+            "market": cand["market"],
+            "market_cap_eok": cand["market_cap_eok"],
+            "current_price": cand["current_price"],
+            "a_score": a_score["total"],
+            "a_score_tier": a_score["tier"],
+            "a_score_breakdown": a_score["breakdown"],
+            "a_score_notes": a_score["notes"],
+            "three_year_avg_growth": a_detail.get("three_year_avg_growth"),
+            "latest_roe": a_detail.get("latest_roe"),
+            "pretax_margin": a_detail.get("pretax_margin"),
+            "three_year_growths": a_detail.get("three_year_growths"),
+            "annual_eps": a_detail.get("annual_eps"),
+            "annual_roe": a_detail.get("annual_roe"),
+            "cyclical": a_detail.get("cyclical"),
+            "induty_code": a_detail.get("induty_code"),
+            "consecutive_3y_increase": a_detail.get("consecutive_3y_increase"),
+            "five_year_with_crisis_waiver": a_detail.get("five_year_with_crisis_waiver", False),
+            "deceleration_gate_pass": a_detail.get("deceleration_gate_pass"),
+            "main_track_pass": a_detail.get("main_track_pass"),
+            "badges": a_detail.get("badges", []),
+            "criteria_c_summary": {
+                "yoy_pct": cand["criteria"]["C"].get("yoy_pct"),
+                "latest_quarter": cand["criteria"]["C"].get("latest_quarter"),
+                "sales_yoy_pct": cand["criteria"]["C"].get("sales_yoy_pct"),
+            },
+        })
+
         c_summary = {
             "yoy_pct": cand["criteria"]["C"].get("yoy_pct"),
             "latest_quarter": cand["criteria"]["C"].get("latest_quarter"),
@@ -476,6 +511,8 @@ def main() -> int:
 
     pure_count = sum(1 for t in turnaround_results if not t.get("is_preliminary"))
     prelim_count = sum(1 for t in turnaround_results if t.get("is_preliminary"))
+    # A 충족도 점수 내림차순 정렬
+    scored_results.sort(key=lambda c: -c["a_score"])
     output = {
         "generated_at": datetime.now().strftime("%Y-%m-%d"),
         "c_input_count": len(c_passed),
@@ -486,11 +523,16 @@ def main() -> int:
         "candidates": a_results,
         "turnaround_candidates": turnaround_results,
         "new_listing_candidates": new_listing_results,
+        "scored_candidates": scored_results,
     }
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT.write_text(json.dumps(output, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"✅ 저장: {OUTPUT}")
     print(f"   C 노출 {len(c_passed)} → A 메인 {len(a_results)} + 턴어라운드 {pure_count} + 예비 {prelim_count} + 신규상장 {len(new_listing_results)}")
+    if scored_results:
+        print(f"\n   A 충족도 점수 상위 10:")
+        for s in scored_results[:10]:
+            print(f"     {s['a_score']:>3}점 [{s['a_score_tier']:<25}] {s['name']:14} ROE {s.get('latest_roe')}%, 3Y avg {s.get('three_year_avg_growth')}%")
     return 0
 
 

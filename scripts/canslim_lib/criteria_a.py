@@ -507,3 +507,123 @@ def evaluate_a_detailed(
             out["badges"].append("안정성 부족")
 
     return out
+
+
+# ────────────────────────────────────────────────────────
+# A 충족도 점수 (0~100)
+# ────────────────────────────────────────────────────────
+
+def compute_a_score(a_detail: dict) -> dict:
+    """A 5개 컷오프 충족도를 0~100점으로 정량화.
+
+    한국 시장(사이클 종목 주도) 특성상 모든 종목이 O'Neil 정통 메인 트랙 5중
+    AND 조건을 충족하기 어려움. 부분 점수로 "얼마나 가까운지" 노출.
+
+    구성 (각 20점):
+      1. 3년 연속 EPS 증가 — 3년 모두 증가 +20 / 위기 면제 +17 / 1-2 dip +6~13 / 적자 +0
+      2. 3년 평균 EPS 성장률 — >=25% +20 / 15~25% +13 / 5~15% +6 / <5% +0
+      3. ROE — >=17% +20 / 12~17% +13 / 8~12% +6 / <8% +0
+      4. 둔화 게이트 (직전 분기 EPS YoY >= 3년 평균 x 1/3) — 통과 +20 / 미달 +0
+      5. 비경기민감주 — 비사이클 +20 / 사이클 +0
+
+    Returns: {"total": int, "breakdown": {...}, "tier": str}
+    """
+    score_eps_consecutive = 0
+    score_eps_growth = 0
+    score_roe = 0
+    score_decel = 0
+    score_cyclical = 0
+    notes = {}
+
+    eps_growths = a_detail.get("three_year_growths") or []
+    consec = a_detail.get("consecutive_3y_increase", False)
+    waiver = a_detail.get("five_year_with_crisis_waiver", False)
+    annual_eps = a_detail.get("annual_eps") or []
+    has_loss = any(v <= 0 for _, v in annual_eps[-4:]) if annual_eps else False
+    if consec:
+        score_eps_consecutive = 20
+        notes["연속_증가"] = "3년 연속 증가"
+    elif waiver:
+        score_eps_consecutive = 17
+        notes["연속_증가"] = "5년 위기 면제"
+    elif has_loss:
+        score_eps_consecutive = 0
+        notes["연속_증가"] = "최근 적자"
+    elif eps_growths:
+        pos_count = sum(1 for g in eps_growths if g > 0)
+        if pos_count == len(eps_growths) - 1:
+            score_eps_consecutive = 13
+            notes["연속_증가"] = "1회 dip"
+        elif pos_count >= len(eps_growths) - 2:
+            score_eps_consecutive = 6
+            notes["연속_증가"] = "2회 dip"
+        else:
+            notes["연속_증가"] = "다회 dip"
+
+    avg = a_detail.get("three_year_avg_growth")
+    if avg is None:
+        notes["성장률"] = "데이터 부족"
+    elif avg >= 25:
+        score_eps_growth = 20
+        notes["성장률"] = f"+{avg:.1f}% (>=25%)"
+    elif avg >= 15:
+        score_eps_growth = 13
+        notes["성장률"] = f"+{avg:.1f}% (15~25%)"
+    elif avg >= 5:
+        score_eps_growth = 6
+        notes["성장률"] = f"+{avg:.1f}% (5~15%)"
+    else:
+        notes["성장률"] = f"+{avg:.1f}% (<5%)"
+
+    roe = a_detail.get("latest_roe")
+    if roe is None:
+        notes["ROE"] = "데이터 부족"
+    elif roe >= 17:
+        score_roe = 20
+        notes["ROE"] = f"{roe:.1f}% (>=17%)"
+    elif roe >= 12:
+        score_roe = 13
+        notes["ROE"] = f"{roe:.1f}% (12~17%)"
+    elif roe >= 8:
+        score_roe = 6
+        notes["ROE"] = f"{roe:.1f}% (8~12%)"
+    else:
+        notes["ROE"] = f"{roe:.1f}% (<8%)"
+
+    decel_pass = a_detail.get("deceleration_gate_pass", False)
+    if decel_pass:
+        score_decel = 20
+        notes["둔화_게이트"] = "통과"
+    else:
+        notes["둔화_게이트"] = "미달"
+
+    is_cyclical = a_detail.get("cyclical", False)
+    if not is_cyclical:
+        score_cyclical = 20
+        notes["비사이클"] = "비경기민감"
+    else:
+        notes["비사이클"] = f"경기민감 (KSIC {a_detail.get('induty_code')})"
+
+    total = score_eps_consecutive + score_eps_growth + score_roe + score_decel + score_cyclical
+
+    if total >= 80:
+        tier = "정통 (O'Neil 원전 충족)"
+    elif total >= 60:
+        tier = "근접 (한두 항목 미달)"
+    elif total >= 40:
+        tier = "약식 (사이클 종목 가능성)"
+    else:
+        tier = "미달"
+
+    return {
+        "total": total,
+        "breakdown": {
+            "eps_consecutive": score_eps_consecutive,
+            "eps_growth": score_eps_growth,
+            "roe": score_roe,
+            "deceleration": score_decel,
+            "non_cyclical": score_cyclical,
+        },
+        "notes": notes,
+        "tier": tier,
+    }
