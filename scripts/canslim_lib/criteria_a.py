@@ -383,25 +383,36 @@ def evaluate_a_detailed(
     }
 
     # 1) 3년 EPS 연속 증가 + 평균 증가율
+    # 사이클 종목(적자/흑자 변동) 대응:
+    #   - 적자 prev (≤0) 시 break 하지 않고 abs() 분모 공식으로 계속 계산 (흑자전환 인정)
+    #   - 각 YoY 는 ±500% 로 cap (BEP 근접 prev 의 outlier 방지)
+    #   - consecutive_3y_increase 는 strict 단조 증가 + 적자 0회 일 때만 True
     if len(annual_eps) >= 4:
         recent_4 = annual_eps[-4:]  # 4개 연도 → 3개 YoY
         all_increase = True
+        any_loss = False
         growths: list[float] = []
-        broken = False
         for i in range(1, 4):
             prev_key, prev_v = recent_4[i - 1]
             curr_key, curr_v = recent_4[i]
-            if prev_v <= 0:
-                out["fail_reasons"].append(f"{prev_key} 적자")
+            if prev_v <= 0 or curr_v <= 0:
+                any_loss = True
                 all_increase = False
-                broken = True
-                break
+                if prev_v < 0 and curr_v > 0:
+                    out["fail_reasons"].append(f"{prev_key}→{curr_key} 흑자전환")
+                elif prev_v <= 0:
+                    out["fail_reasons"].append(f"{prev_key} 적자")
+            if prev_v == 0:
+                continue  # 분모 0 skip
+            denom = abs(prev_v) if prev_v < 0 else prev_v
+            g = (curr_v - prev_v) / denom * 100
+            # outlier cap ±500%
+            g_capped = max(-500.0, min(500.0, g))
+            growths.append(round(g_capped, 2))
             if curr_v <= prev_v:
                 all_increase = False
-            g = (curr_v - prev_v) / prev_v * 100
-            growths.append(round(g, 2))
         out["three_year_growths"] = growths
-        out["consecutive_3y_increase"] = all_increase and not broken
+        out["consecutive_3y_increase"] = all_increase and not any_loss
         if growths:
             out["three_year_avg_growth"] = round(sum(growths) / len(growths), 2)
     else:
