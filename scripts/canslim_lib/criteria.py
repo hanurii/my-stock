@@ -156,16 +156,15 @@ def evaluate_c_detailed(
         if yoy_sales > 0:
             out["sales_yoy_pct"] = round((latest_sales - yoy_sales) / yoy_sales * 100, 2)
 
-    # 가속 판정 헬퍼 — 윈도우 끝점 비교 + 최신값 양수
-    # 사유: 단조 증가 strict 검사는 한 분기 dip(예: 14.3→5.9→13.7)에서 끊김.
-    # 원전 "3분기 이상에 걸쳐 가속" 의 의미는 추세적 우상향이므로
-    # "윈도우 내 최신 YoY > 가장 오래된 YoY AND 최신 YoY > 0" 으로 완화.
+    # 가속 판정 헬퍼 — 최근 3분기 strict 단조 증가 (a < b < c) + 최신 양수
+    # 원전 "3분기 이상에 걸쳐 가속" 의 엄격한 해석. 중간 dip 있으면 가속 아님
+    # (예: 두산에너빌리티 14.3→5.9→13.7 의 5.9 dip 으로 인해 가속 X).
+    # 윈도우가 4분기여도 마지막 3개만 검사.
     def _is_accel(history: list[tuple[str, float]]) -> bool:
         if len(history) < 3:
             return False
-        latest = history[-1][1]
-        earliest = history[0][1]
-        return latest > 0 and latest > earliest
+        last3 = [v for _, v in history[-3:]]
+        return last3[-1] > 0 and last3[0] < last3[1] < last3[2]
 
     # EPS 분기별 YoY 추세 (최근 4분기까지)
     if len(quarterly_eps) >= 8:
