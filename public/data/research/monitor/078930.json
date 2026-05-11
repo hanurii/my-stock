@@ -1,13 +1,13 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-05-11T08:57:40.433+09:00",
+  "last_checked": "2026-05-11T15:43:14.352+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 9.41,
-      "display": "9.41배",
+      "value": 9.18,
+      "display": "9.18배",
       "threshold": "10배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "dividend_yield",
       "label": "배당수익률",
-      "value": 3.78,
-      "display": "3.78%",
+      "value": 3.88,
+      "display": "3.88%",
       "threshold": "3.5% 이하",
       "hit": false,
       "tone": "good"
@@ -60,8 +60,8 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 105.64,
-      "display": "105.64$",
+      "value": 105.76,
+      "display": "105.76$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
@@ -77,7 +77,7 @@
     {
       "severity": "bad",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 14건 (부정 시그널 1건 포함)",
+      "title": "리스크 키워드 매칭 뉴스 13건 (부정 시그널 1건 포함)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
@@ -99,6 +99,14 @@
       "signals": []
     },
     {
+      "keyword": "이란 미국 합의",
+      "date": "2026-05-06",
+      "title": "트럼프 \"이란과의 합의 임박, 우라늄은 미국으로 보내게 될 것\"···이스라엘·유럽 움직임도 '분주' - 대구MBC",
+      "url": "https://news.google.com/rss/articles/CBMiTEFVX3lxTE9zN21UcGVxMWlfaWxJdExjTFAyUFM3TWMzNDdqRzBFZnpmYXZqbGs4c0NvNUtVd0o0TER5eEFjbzdDREgwbXY0SWJyUjA?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
       "keyword": "중동 긴장 완화",
       "date": "2026-05-07",
       "title": "중동 긴장 완화에 환율 또 ‘급락’…장중 1440원대 등락 - v.daum.net",
@@ -106,6 +114,16 @@
       "severity": "bad",
       "signals": [
         "급락"
+      ]
+    },
+    {
+      "keyword": "중동 긴장 완화",
+      "date": "2026-05-06",
+      "title": "환율 1450원대 하락…중동긴장 완화·외국인 자금 유입 영향 - JTBC",
+      "url": "https://news.google.com/rss/articles/CBMiVEFVX3lxTE94bzU5SEpWcjdvNlRabG9HcGc5ZkNlUU9URm1adWpXQzU5QWwtUFlyWEdEamYxQjNDbVVyTDVvYTlmZmlNbnBKSEo2djRqRUp0WlgwTQ?oc=5",
+      "severity": "warn",
+      "signals": [
+        "하락"
       ]
     },
     {
@@ -126,39 +144,11 @@
     },
     {
       "keyword": "중동 긴장 완화",
-      "date": "2026-05-10",
-      "title": "휴림로봇, 중동 긴장 완화 기대 속 ‘로봇 수요’ 변수 부각 - CBC뉴스",
-      "url": "https://news.google.com/rss/articles/CBMiqAdBVV95cUxNN1B5blJkeGVPTHhFb29veW5BVjVwa2Y0cGNxMi11eFVrX3FIWXBqdkxRYlh0OFlyYzlUaVJrMGdfQVRxdFlOYWVaNE9jdkdzTHRUVlJiZHN1S1BvS0dnU254bUJnbE9scW0xeng4aV8wNk1GbE1MRWZfdlNiSTloaVJBU3FySUxJX2NRYklmYi1NN3E2S1JVYk1XZGJIZ1lYRko0ci1GYkItM2JOX0Q2SEpNZU9vYXVXY1JFc25kX3IxVnJMdndpQkhrZmlLWGhiTVdiWjdkYUpYY05meVh6V0FFSU1CUDVkM1pEbnR4bTl3Wk1BYlZyZnlEcXpWdWlTQnNrdFhmeGdLX2FkZnM3eEdEOVdYR0xtRDBCdHhoQklQZnIyeE9vX3l0cy1yYklTLUQ1TzZ3ZUpuaUpHM0Izc0hVRF9LcWd3Y3VjX3FLZEMza0ZJcnBXTlVuUkxFMmd4RFVyOUNIVDNFajhyQmx5SUpqX1JEN2xyX0NDQkx4ZDItSEZFZWowTEc0U0VZWHNzekh6NkwzMWdGUm5HMndIVzJKUnY2SXV5dFQtUVR6VXpRaFVPRzNHNWI0MFZmcVNpVklMUmpKLU9IVkF4VkdoeVJQVkhLcnNJcFB3c0xabXBJYk9UNVBxUHhzQUExNUhwQUVBS2tDejh5RS1MRGdzaHhJbFZmUER1bWhPbGhhbmhQV1YtQzgwSjhrT18wQlFud3hTUGxaTE02bVVYSk4tSFg5VzZjbVpHdE01TUV6eG5GTkdHR2F1QWZIQ1FhZnlvOWtiVjJ4N3paaFhUa3JSREhIWkJQYk9MbUs4NGxUa21aeWQ5WTctT1BIc2o0bURoMUR4YjdvcG11ZDEzVElaZFdGcWZiWWsxREZxXzBzUmNrZURtd3pWSVNObkx0bHBBMFhMSkM1aHRjeGFOeUt1YUlXY3FWNGptWHAtUExETjUyOGJHQWYzWkR5cy03Q1F5NWFOOWNNYmh6c2lBYlRJNnFhUXk4NmNNYTFpdk9SM1pVYWtGVTRub2NQdEZVcXktRm9mSUNWWHVkQTdXeTVSZ2xFWDZEVnJDU0FraC1TZ1NmLVVjMUJyNGFsOGMwdkNfV1F4TlhwN3ZhS1JaREhRSUtaanFBU3hCR2tFY2ZCT0d2NU5YSGJvZU9XaWdoSEI4Uk1SNTg3VXBIOTJQMkVhTzdIY1JGUjJkWHBoZ1dwMXdLSHQyYzJLWjF5SWw5UGo0TWZGWlZINlc?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-05-06",
-      "title": "환율 1450원대 하락…중동긴장 완화·외국인 자금 유입 영향 - JTBC",
-      "url": "https://news.google.com/rss/articles/CBMiVEFVX3lxTE94bzU5SEpWcjdvNlRabG9HcGc5ZkNlUU9URm1adWpXQzU5QWwtUFlyWEdEamYxQjNDbVVyTDVvYTlmZmlNbnBKSEo2djRqRUp0WlgwTQ?oc=5",
-      "severity": "warn",
-      "signals": [
-        "하락"
-      ]
-    },
-    {
-      "keyword": "중동 긴장 완화",
       "date": "2026-05-07",
       "title": "환율, 중동 긴장 완화에 1440원대로…위험 선호 심리 확산 - 뉴스투데이",
       "url": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE9KTThFZGFlU3dLUE1jb3FuU3VDN3lUekdtZ2VZdGNqWUhMVHpKWXczMFBYUDRVNHRrMEE1aXpRS2t5RGJXYlRCaUs4aWNqbktQaXRlQWdTcGxpOXlMLXc?oc=5",
       "severity": "info",
       "signals": []
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-05-07",
-      "title": "코노코필립스 주가, 중동 긴장 완화로 유가 하락하며 3.31% 하락 - Traders Union",
-      "url": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxPbHJ0OU9JWGlBdVU3RW5NLUlUSmp4OF82OTVxSXQtd21DMjJPTTFnSktyZGduMkktUGZWVDRWaUlGNGFxWFQ3UTNxSXFnb0VJYm1CUUJPSVNVNHpUUktaalNsSnlVTF9WT3cwTFAzMnZ4Tk05NEp3ZXpUdVI5UlBSSVJWcFlrY0RlMUpxYVBtOXJjODcxT1NiLWJwUDcxNWV5WlNQNHZ2bUNoZmc?oc=5",
-      "severity": "warn",
-      "signals": [
-        "하락"
-      ]
     },
     {
       "keyword": "중동 긴장 완화",
@@ -173,16 +163,16 @@
     {
       "keyword": "GS 자사주 소각",
       "date": "2026-05-08",
-      "title": "GS, 18억 자사주 소각, 주주가치 제고 - 블로터",
-      "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTFByYU1RXy1xZk9pdnlRTGZrVFEwY1MyWDl4YW9FbFc3dmp6V2ZzVDFhRkwtbDhpNmRPVUZnTl8wdGM2WWNvYTUzX0NTdzBsNGw5NkV6OHc4M1ZzSjNQM01QX2RXdFpiYlgy0gFsQVVfeXFMT0N0S2JwM0c3TWdPbmtRcjJsc05CWVhsa2dRSE00d3AtNDNMTkduVlZ3ODEyWGNyb3ZMTUUwdXpuRGc4aXk1ekpjMURfZVN4amNLTlZOV1MtcmNGdjJVelFfT1lhX1dPSjNCeXUt?oc=5",
+      "title": "GS, 주주가치 제고 위해 자사주 전량 소각 결정 - fetv.co.kr",
+      "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE1pZVZIT0ZnTXplY3RMa3JXMTMtLVJxY01GUVNqa3BqbkVUQTh5QkZCTGJNOUlRTC1DZVh5S3Rod3VqLXNkTVhheGIyeU5fYVd5a2g1Z0dNV0hha0l1aTVEMEVROUhXblhM?oc=5",
       "severity": "info",
       "signals": []
     },
     {
       "keyword": "GS 자사주 소각",
       "date": "2026-05-08",
-      "title": "GS, 주주가치 제고 위해 자사주 전량 소각 결정 - fetv.co.kr",
-      "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE1pZVZIT0ZnTXplY3RMa3JXMTMtLVJxY01GUVNqa3BqbkVUQTh5QkZCTGJNOUlRTC1DZVh5S3Rod3VqLXNkTVhheGIyeU5fYVd5a2g1Z0dNV0hha0l1aTVEMEVROUhXblhM?oc=5",
+      "title": "GS, 18억 자사주 소각, 주주가치 제고 - 블로터",
+      "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTFByYU1RXy1xZk9pdnlRTGZrVFEwY1MyWDl4YW9FbFc3dmp6V2ZzVDFhRkwtbDhpNmRPVUZnTl8wdGM2WWNvYTUzX0NTdzBsNGw5NkV6OHc4M1ZzSjNQM01QX2RXdFpiYlgy0gFsQVVfeXFMT0N0S2JwM0c3TWdPbmtRcjJsc05CWVhsa2dRSE00d3AtNDNMTkduVlZ3ODEyWGNyb3ZMTUUwdXpuRGc4aXk1ekpjMURfZVN4amNLTlZOV1MtcmNGdjJVelFfT1lhX1dPSjNCeXUt?oc=5",
       "severity": "info",
       "signals": []
     },
@@ -209,7 +199,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 104.38 USD (2026-05-10, 7일 평균 105.64)",
+      "label": "Brent 원유 종가 105.19 USD (2026-05-11, 7일 평균 105.76)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
