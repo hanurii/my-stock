@@ -489,6 +489,9 @@ export function TurnaroundTable({ candidates }: TurnaroundProps) {
                   {isOpen && (
                     <tr className="bg-surface-container/10 border-t border-on-surface/5">
                       <td colSpan={7} className="px-3 py-4 text-xs text-on-surface-variant">
+                        {c.is_preliminary && (
+                          <PreliminaryReasonPanel t={t} />
+                        )}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
                           <div>
                             <p className="font-medium text-on-surface mb-2 flex items-center gap-2">
@@ -558,6 +561,144 @@ export function TurnaroundTable({ candidates }: TurnaroundProps) {
           </tbody>
         </table>
       </div>
+    </div>
+  );
+}
+
+// ────────────────────────────────────────────────────────
+// 예비 사유 / 정통 승격 조건 패널 — is_preliminary 일 때만 표시
+// ────────────────────────────────────────────────────────
+
+const TURNAROUND_STRICT = {
+  ANNUAL_YOY: 5.0,
+  QUARTERLY_YOY: 50.0,
+  TTM_RATIO: 0.90,
+};
+
+const TURNAROUND_PRELIM = {
+  ANNUAL_YOY: 0.0,
+  QUARTERLY_YOY: 30.0,
+  TTM_RATIO: 0.80,
+};
+
+interface ConditionStatus {
+  label: string;
+  current: string;
+  strict_pass: boolean;
+  prelim_pass: boolean;
+  strict_threshold: string;
+  upgrade_hint: string;
+}
+
+function buildConditionStatus(t: TurnaroundCriterion): ConditionStatus[] {
+  const yoy = t.latest_annual_yoy;
+  const yoyStr = yoy === 999.99 ? "흑자전환" : yoy !== null ? `${yoy >= 0 ? "+" : ""}${yoy.toFixed(1)}%` : "N/A";
+  const recoveryStrict = yoy !== null && (yoy === 999.99 || yoy >= TURNAROUND_STRICT.ANNUAL_YOY);
+  const recoveryPrelim = yoy !== null && (yoy === 999.99 || yoy >= TURNAROUND_PRELIM.ANNUAL_YOY);
+
+  const surgeStrict = t.two_quarter_surge;
+  const surgePrelim = t.preliminary_two_quarter_surge;
+  const surgeDetail = t.two_quarter_surge_detail || "데이터 부족";
+
+  const ttmRatio = t.ttm_high_ratio;
+  const ttmStr = t.is_all_time_high
+    ? "사상 최고치"
+    : ttmRatio !== null
+    ? `${(ttmRatio * 100).toFixed(0)}%`
+    : "N/A";
+  const highStrict = t.is_all_time_high || (ttmRatio !== null && ttmRatio >= TURNAROUND_STRICT.TTM_RATIO);
+  const highPrelim = t.is_all_time_high || (ttmRatio !== null && ttmRatio >= TURNAROUND_PRELIM.TTM_RATIO);
+
+  return [
+    {
+      label: "직전 1년 EPS YoY",
+      current: yoyStr,
+      strict_pass: recoveryStrict,
+      prelim_pass: recoveryPrelim,
+      strict_threshold: `≥ +${TURNAROUND_STRICT.ANNUAL_YOY}%`,
+      upgrade_hint:
+        recoveryStrict
+          ? "이미 정통 통과"
+          : yoy !== null
+          ? `다음 분기 연 EPS YoY 가 +${TURNAROUND_STRICT.ANNUAL_YOY}% 이상으로 회복되면 정통`
+          : "데이터 보강 필요",
+    },
+    {
+      label: "분기 EPS 2분기 연속 급증",
+      current: surgeDetail,
+      strict_pass: surgeStrict,
+      prelim_pass: surgePrelim,
+      strict_threshold: `2분기 연속 ≥ +${TURNAROUND_STRICT.QUARTERLY_YOY}%`,
+      upgrade_hint:
+        surgeStrict
+          ? "이미 정통 통과"
+          : `다음 분기 EPS YoY 가 +${TURNAROUND_STRICT.QUARTERLY_YOY}% 이상이면 정통 승격`,
+    },
+    {
+      label: "TTM 사상 최고치",
+      current: ttmStr,
+      strict_pass: highStrict,
+      prelim_pass: highPrelim,
+      strict_threshold: `≥ ${(TURNAROUND_STRICT.TTM_RATIO * 100).toFixed(0)}% 또는 신고가`,
+      upgrade_hint:
+        highStrict
+          ? "이미 정통 통과"
+          : ttmRatio !== null
+          ? `TTM EPS 가 사상 최고치의 ${(TURNAROUND_STRICT.TTM_RATIO * 100).toFixed(0)}% 이상까지 회복하면 정통 (현재 ${(ttmRatio * 100).toFixed(0)}%)`
+          : "데이터 보강 필요",
+    },
+  ];
+}
+
+function PreliminaryReasonPanel({ t }: { t: TurnaroundCriterion }) {
+  const conditions = buildConditionStatus(t);
+  const reasons = conditions.filter((c) => !c.strict_pass && c.prelim_pass);
+
+  return (
+    <div className="mb-4 p-3 rounded-lg bg-amber-500/8 border border-amber-500/20">
+      <p className="font-medium text-amber-300 mb-2 flex items-center gap-2">
+        <span className="material-symbols-outlined text-sm">info</span>
+        예비 사유 — 정통 승격까지 남은 조건
+      </p>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+        {conditions.map((cond) => {
+          const isReason = !cond.strict_pass && cond.prelim_pass;
+          const stateColor = cond.strict_pass
+            ? "text-emerald-300"
+            : cond.prelim_pass
+            ? "text-amber-400"
+            : "text-on-surface-variant/70";
+          const stateIcon = cond.strict_pass ? "check_circle" : cond.prelim_pass ? "warning" : "cancel";
+          const stateText = cond.strict_pass ? "정통 통과" : cond.prelim_pass ? "예비만 통과" : "미통과";
+          const bgClass = isReason
+            ? "bg-amber-500/10 border-amber-500/30"
+            : "bg-surface-container/40 border-on-surface/5";
+          return (
+            <div
+              key={cond.label}
+              className={`rounded-md p-2.5 border ${bgClass}`}
+            >
+              <div className="flex items-center gap-1 mb-1">
+                <span className={`material-symbols-outlined text-sm ${stateColor}`}>{stateIcon}</span>
+                <span className={`text-[10px] font-medium ${stateColor}`}>{stateText}</span>
+              </div>
+              <p className="text-on-surface-variant/70 text-[11px] mb-0.5">{cond.label}</p>
+              <p className="font-medium text-on-surface mb-1">{cond.current}</p>
+              <p className="text-on-surface-variant/60 text-[10px]">정통 기준: {cond.strict_threshold}</p>
+              {isReason && (
+                <p className="text-amber-300/90 text-[10px] mt-1.5 leading-relaxed">
+                  → {cond.upgrade_hint}
+                </p>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      {reasons.length === 0 && (
+        <p className="text-on-surface-variant/60 text-[11px] mt-2">
+          모든 조건이 정통 기준 충족 — 데이터 갱신 필요 (다음 스크리닝에서 정통 트랙으로 이동 예정).
+        </p>
+      )}
     </div>
   );
 }
