@@ -117,15 +117,45 @@ export default async function CanslimLPage() {
         </ul>
       </section>
 
-      {/* 참고 — O'Neil 책 인용 */}
-      <section className="text-xs text-on-surface-variant/70 leading-relaxed">
-        <p className="font-medium text-on-surface-variant mb-2">O&apos;Neil 책 인용</p>
-        <ul className="space-y-1.5 list-disc list-outside ml-5">
-          <li>&ldquo;업종 내 최고 종목 2~3개 중에서 매수하라.&rdquo;</li>
-          <li>&ldquo;주도주가 아니면 매수하지 마라.&rdquo;</li>
-          <li>&ldquo;상대적 주가 강도가 80점 이상인 주식을 매수해라.&rdquo;</li>
-          <li>&ldquo;정말 애가 탈 정도로 싸게 보이는 주식이라 해도 소외주는 투자 수익을 가져다 주는 경우가 거의 없다.&rdquo;</li>
-        </ul>
+      {/* L 원칙 학습 섹션 */}
+      <section className="bg-surface-container-low rounded-xl ghost-border p-5 space-y-4">
+        <h3 className="text-lg font-serif font-bold text-on-surface flex items-center gap-2">
+          <span className="material-symbols-outlined text-primary">menu_book</span>
+          &lsquo;L&rsquo; 원칙 — 6가지 핵심 (William O&apos;Neil)
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+          {[
+            {
+              title: "1. 주도주 선택 — 업종 내 최고 2~3개만",
+              body: "주도주가 아니면 매수하지 마라. 업종 내 최고 종목 2~3개 중에서만 골라라. O'Neil: “정말 애가 탈 정도로 싸게 보이는 주식이라 해도 소외주는 투자 수익을 가져다 주는 경우가 거의 없다.”",
+            },
+            {
+              title: "2. RS 점수 정의 — 52주 백분위",
+              body: "지난 52주 주가 상승률을 시장 전체 종목과 비교한 백분위 점수(1~99점). RS 99 = 상위 1%, RS 50 = 시장의 절반은 이 종목보다 우수하고 나머지 절반은 부진하다는 뜻.",
+            },
+            {
+              title: "3. RS 컷오프 — 매수 금지선",
+              body: "RS 70 미만은 시장 전체에서 수익률 뛰어난 주식에 들지 못함. RS 40~60점대 주식은 소외주와 동조하므로 절대 매수 금지. 진정한 주도주에만 주목하라.",
+            },
+            {
+              title: "4. RS 매수 기준 — 80점 이상",
+              body: "O'Neil: “상대적 주가 강도가 80점 이상인 주식을 매수해라.” 사용자 페이지도 RS ≥ 80 단일 컷오프로 게이트.",
+            },
+            {
+              title: "5. 매수 시점 — 모양 + 분기점 + 추격 금지",
+              body: "(1) 적절한 기간 동안 확실한 차트 모양 형성 (2) 정확한 분기점(pivot)에서 매수. 최초 매수 지점에서 5~10% 이상 상승한 다음에는 매수 금지 — 추격 매수의 우를 막고, 매물 출회로 조정 시 보유 물량을 지키기 위함.",
+            },
+            {
+              title: "6. 소외주 -8% 손절",
+              body: "O'Neil: “매수 가격보다 8% 떨어진 소외주가 있다면 당장 팔아버려라. 그렇게 하지 않으면 치명적인 상처를 입을 수 있다.” CAN SLIM 공통 손절선이지만 L 원칙에서 특히 강조.",
+            },
+          ].map((c) => (
+            <div key={c.title} className="bg-surface-container/50 rounded-lg p-3">
+              <p className="font-medium text-on-surface mb-1">{c.title}</p>
+              <p className="text-on-surface-variant leading-relaxed">{c.body}</p>
+            </div>
+          ))}
+        </div>
       </section>
     </div>
   );
