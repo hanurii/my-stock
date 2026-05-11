@@ -383,18 +383,20 @@ def evaluate_a_detailed(
     }
 
     # 1) 3년 EPS 연속 증가 + 평균 증가율
-    # 사이클 종목(적자/흑자 변동) 대응:
+    # 사이클 종목(적자/흑자 변동) + 데이터 짧은 케이스 대응:
     #   - 적자 prev (≤0) 시 break 하지 않고 abs() 분모 공식으로 계속 계산 (흑자전환 인정)
     #   - 각 YoY 는 ±500% 로 cap (BEP 근접 prev 의 outlier 방지)
     #   - consecutive_3y_increase 는 strict 단조 증가 + 적자 0회 일 때만 True
-    if len(annual_eps) >= 4:
-        recent_4 = annual_eps[-4:]  # 4개 연도 → 3개 YoY
+    #   - 최소 3개 데이터로 평가 진행 (2 YoY), 4개 있으면 3 YoY. 데이터 적으면 partial_data 플래그.
+    if len(annual_eps) >= 3:
+        window = annual_eps[-4:]  # 최대 4개 → 최대 3개 YoY
+        partial_data = (len(window) < 4)
         all_increase = True
         any_loss = False
         growths: list[float] = []
-        for i in range(1, 4):
-            prev_key, prev_v = recent_4[i - 1]
-            curr_key, curr_v = recent_4[i]
+        for i in range(1, len(window)):
+            prev_key, prev_v = window[i - 1]
+            curr_key, curr_v = window[i]
             if prev_v <= 0 or curr_v <= 0:
                 any_loss = True
                 all_increase = False
@@ -403,20 +405,23 @@ def evaluate_a_detailed(
                 elif prev_v <= 0:
                     out["fail_reasons"].append(f"{prev_key} 적자")
             if prev_v == 0:
-                continue  # 분모 0 skip
+                continue
             denom = abs(prev_v) if prev_v < 0 else prev_v
             g = (curr_v - prev_v) / denom * 100
-            # outlier cap ±500%
             g_capped = max(-500.0, min(500.0, g))
             growths.append(round(g_capped, 2))
             if curr_v <= prev_v:
                 all_increase = False
         out["three_year_growths"] = growths
-        out["consecutive_3y_increase"] = all_increase and not any_loss
+        out["consecutive_3y_increase"] = all_increase and not any_loss and not partial_data
+        out["partial_data"] = partial_data
         if growths:
             out["three_year_avg_growth"] = round(sum(growths) / len(growths), 2)
+        if partial_data:
+            out["fail_reasons"].append(f"연간 EPS {len(annual_eps)}년만 제공 (4년 권장, 2개 YoY 로 평가)")
     else:
-        out["fail_reasons"].append(f"연간 EPS 데이터 부족 ({len(annual_eps)}년, 4년 필요)")
+        out["partial_data"] = True
+        out["fail_reasons"].append(f"연간 EPS 데이터 부족 ({len(annual_eps)}년, 최소 3년 필요)")
 
     # 5년 연속 증가 (가점 배지) — O'Neil 원전: 위기 1회 dip 다음해 회복 시 면제
     out["five_year_with_crisis_waiver"] = False
@@ -572,8 +577,9 @@ def compute_a_score(a_detail: dict) -> dict:
             notes["연속_증가"] = "다회 dip"
 
     avg = a_detail.get("three_year_avg_growth")
+    eps_count = len(a_detail.get("annual_eps") or [])
     if avg is None:
-        notes["성장률"] = "데이터 부족"
+        notes["성장률"] = f"데이터 부족 (연간 EPS {eps_count}년, 최소 3년 필요)"
     elif avg >= 25:
         score_eps_growth = 20
         notes["성장률"] = f"+{avg:.1f}% (>=25%)"
@@ -588,7 +594,8 @@ def compute_a_score(a_detail: dict) -> dict:
 
     roe = a_detail.get("latest_roe")
     if roe is None:
-        notes["ROE"] = "데이터 부족"
+        roe_count = len(a_detail.get("annual_roe") or [])
+        notes["ROE"] = f"데이터 부족 (ROE {roe_count}년)"
     elif roe >= 17:
         score_roe = 20
         notes["ROE"] = f"{roe:.1f}% (>=17%)"
