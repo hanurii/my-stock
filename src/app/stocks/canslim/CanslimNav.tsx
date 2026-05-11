@@ -16,7 +16,7 @@ const principles: Principle[] = [
   { letter: "N", name: "New Highs", href: "/stocks/canslim/n", enabled: true },
   { letter: "S", name: "Supply & Demand", href: "/stocks/canslim/s", enabled: true },
   { letter: "L", name: "Leader (RS)", href: "/stocks/canslim/l", enabled: true },
-  { letter: "I", name: "Institutional", href: "/stocks/canslim/i", enabled: false },
+  { letter: "I", name: "Institutional", href: "/stocks/canslim/i", enabled: true },
   { letter: "M", name: "Market Direction", href: "/stocks/canslim/m", enabled: false },
 ];
 
