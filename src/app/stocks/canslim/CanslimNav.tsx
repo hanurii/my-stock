@@ -25,7 +25,7 @@ export function CanslimNav() {
   const isHome = pathname === "/stocks/canslim";
 
   return (
-    <nav className="flex gap-1 bg-surface-container-low rounded-xl p-1.5 ghost-border overflow-x-auto scrollbar-hide">
+    <nav className="sticky top-0 z-30 flex gap-1 bg-surface-container-low/90 backdrop-blur-md rounded-xl p-1.5 ghost-border overflow-x-auto scrollbar-hide shadow-sm">
       <Link
         href="/stocks/canslim"
         className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all flex-shrink-0 ${
