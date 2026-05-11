@@ -217,16 +217,18 @@ def collect_raw_data(
                         preliminary_period = pre["period_key"]
                         preliminary_rcept_no = pre["rcept_no"]
 
+    # Yahoo 가격 데이터 — N/L/M 원칙에만 필요. 부족해도 C/A/S/I 평가는 가능하므로
+    # 통째 제외하지 않고 빈 chart 로 진행 (글자별 평가 함수가 내부에서 데이터 부족 처리).
     chart = fetch_yahoo_chart(yahoo_symbol(code, market), "1y", "1d")
-    if not chart or len(chart["closes"]) < 200:
-        return None
+    if not chart:
+        chart = {"closes": [], "volumes": [], "timestamps": []}
 
     # 기관 보유율 (DART) — 우선주 케이스에서도 보통주 corp_code 사용
     institutional = fetch_majorstock_holding(corp_code) if corp_code else None
 
-    # 12개월 수익률 (RS 백분위 계산용)
+    # 12개월 수익률 (RS 백분위 계산용, 가격 데이터 부족 시 0)
     closes = chart["closes"]
-    twelve_m_return = (closes[-1] - closes[0]) / closes[0] * 100 if closes[0] > 0 else 0.0
+    twelve_m_return = (closes[-1] - closes[0]) / closes[0] * 100 if closes and closes[0] > 0 else 0.0
 
     return {
         "code": code,
@@ -309,7 +311,7 @@ def evaluate_with_rs(
         "institutional_pct": inst_pct,
         "institutional_trend": inst_trend,
         "twelve_m_return": round(raw["twelve_m_return"], 2),
-        "current_price": int(ig["price"]) if ig["price"] else int(chart["closes"][-1]),
+        "current_price": int(ig["price"]) if ig["price"] else (int(chart["closes"][-1]) if chart.get("closes") else 0),
         "criteria": criteria_out,
     }
 
