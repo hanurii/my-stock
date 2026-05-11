@@ -82,12 +82,14 @@ function stabilityColor(n: number | null): string {
 }
 
 function badgeStyle(label: string): string {
-  if (label === "우수 ROE") return "bg-emerald-500/15 text-emerald-300";
+  if (label === "탁월 ROE") return "bg-emerald-600/20 text-emerald-300 font-bold";
+  if (label === "글로벌 ROE") return "bg-emerald-500/15 text-emerald-300";
   if (label === "5년 연속 성장") return "bg-emerald-500/15 text-emerald-300";
   if (label === "현금창출력 우수") return "bg-cyan-500/15 text-cyan-300";
   if (label === "안정성 우수") return "bg-primary/15 text-primary";
   if (label === "안정성 보통") return "bg-on-surface/10 text-on-surface-variant";
   if (label === "안정성 부족") return "bg-amber-500/15 text-amber-400";
+  if (label === "사상 최고치") return "bg-tertiary/15 text-tertiary font-medium";
   return "bg-on-surface/10 text-on-surface-variant";
 }
 
@@ -343,4 +345,205 @@ function readSortValue(c: AnnualCandidate, k: SortKey): number | null {
   if (k === "earnings_stability_score") return a.earnings_stability_score === null ? null : -a.earnings_stability_score;
   if (k === "market_cap") return c.market_cap_eok;
   return null;
+}
+
+// ────────────────────────────────────────────────────────
+// 턴어라운드 트랙 — 별도 컴포넌트 (메인 트랙 미충족 V자 회복주)
+// ────────────────────────────────────────────────────────
+
+export interface TurnaroundCriterion {
+  turnaround_pass: boolean;
+  annual_eps: [string, number][];
+  annual_roe: [string, number][];
+  latest_annual_yoy: number | null;
+  two_quarter_surge: boolean;
+  two_quarter_surge_detail: string;
+  ttm_high_ratio: number | null;
+  is_all_time_high: boolean;
+  latest_quarter_yoy: number | null;
+  induty_code: string | null;
+  cyclical: boolean;
+  earnings_stability_score: number | null;
+  earnings_stability_detail: string;
+  latest_roe: number | null;
+  badges: string[];
+  fail_reasons: string[];
+}
+
+export interface TurnaroundCandidate {
+  code: string;
+  name: string;
+  market: string;
+  market_cap_eok: number;
+  current_price: number;
+  criteria_turnaround: TurnaroundCriterion;
+  criteria_c_summary: {
+    yoy_pct: number | null;
+    latest_quarter: string | null;
+    sales_yoy_pct: number | null;
+  };
+}
+
+interface TurnaroundProps {
+  candidates: TurnaroundCandidate[];
+}
+
+export function TurnaroundTable({ candidates }: TurnaroundProps) {
+  const [expandedCode, setExpandedCode] = useState<string | null>(null);
+
+  const sorted = useMemo(() => {
+    return [...candidates].sort((a, b) => {
+      const av = a.criteria_turnaround.latest_annual_yoy ?? -Infinity;
+      const bv = b.criteria_turnaround.latest_annual_yoy ?? -Infinity;
+      return bv - av;
+    });
+  }, [candidates]);
+
+  return (
+    <div className="bg-surface-container-low rounded-xl ghost-border overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead className="bg-surface-container/40 text-xs">
+            <tr className="text-left">
+              <th className="px-3 py-2.5 font-medium text-on-surface-variant/70">종목</th>
+              <th className="px-3 py-2.5 font-medium text-on-surface-variant/70">직전 1년 EPS YoY</th>
+              <th className="px-3 py-2.5 font-medium text-on-surface-variant/70 hidden sm:table-cell">2분기 급증</th>
+              <th className="px-3 py-2.5 font-medium text-on-surface-variant/70 hidden md:table-cell">TTM / 사상 최고</th>
+              <th className="px-3 py-2.5 font-medium text-on-surface-variant/70 hidden md:table-cell">ROE</th>
+              <th className="px-3 py-2.5 font-medium text-on-surface-variant/70 hidden lg:table-cell">배지</th>
+              <th className="px-3 py-2.5 font-medium text-on-surface-variant/70 hidden lg:table-cell">시총</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sorted.length === 0 && (
+              <tr>
+                <td colSpan={7} className="px-3 py-8 text-center text-on-surface-variant/60 text-sm">
+                  턴어라운드 후보가 없습니다.
+                </td>
+              </tr>
+            )}
+            {sorted.map((c) => {
+              const t = c.criteria_turnaround;
+              const isOpen = expandedCode === c.code;
+              return (
+                <Fragment key={c.code}>
+                  <tr
+                    onClick={() => setExpandedCode(isOpen ? null : c.code)}
+                    className={`border-t border-on-surface/5 cursor-pointer hover:bg-surface-container/30 ${
+                      isOpen ? "bg-surface-container/20" : ""
+                    }`}
+                  >
+                    <td className="px-3 py-2.5">
+                      <div className="flex flex-col">
+                        <span className="font-medium text-on-surface">{c.name}</span>
+                        <span className="text-[11px] text-on-surface-variant/60">
+                          {c.code} · {c.market}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-3 py-2.5 font-medium" style={{ color: growthColor(t.latest_annual_yoy) }}>
+                      {t.latest_annual_yoy === 999.99 ? "흑자전환" : fmtPct(t.latest_annual_yoy)}
+                    </td>
+                    <td className="px-3 py-2.5 hidden sm:table-cell text-xs text-on-surface-variant">
+                      {t.two_quarter_surge_detail || "—"}
+                    </td>
+                    <td className="px-3 py-2.5 hidden md:table-cell text-xs">
+                      {t.is_all_time_high ? (
+                        <span className="text-tertiary font-medium">사상 최고</span>
+                      ) : t.ttm_high_ratio !== null ? (
+                        <span className="text-on-surface-variant">{(t.ttm_high_ratio * 100).toFixed(0)}%</span>
+                      ) : (
+                        "—"
+                      )}
+                    </td>
+                    <td className="px-3 py-2.5 hidden md:table-cell text-xs font-medium" style={{ color: roeColor(t.latest_roe) }}>
+                      {t.latest_roe !== null ? `${t.latest_roe.toFixed(1)}%` : "—"}
+                    </td>
+                    <td className="px-3 py-2.5 hidden lg:table-cell">
+                      <div className="flex flex-wrap gap-1">
+                        {t.badges.map((b) => (
+                          <span key={b} className={`text-[10px] px-1.5 py-0.5 rounded ${badgeStyle(b)}`}>
+                            {b}
+                          </span>
+                        ))}
+                      </div>
+                    </td>
+                    <td className="px-3 py-2.5 text-on-surface-variant text-xs hidden lg:table-cell">
+                      {fmtCap(c.market_cap_eok)}
+                    </td>
+                  </tr>
+                  {isOpen && (
+                    <tr className="bg-surface-container/10 border-t border-on-surface/5">
+                      <td colSpan={7} className="px-3 py-4 text-xs text-on-surface-variant">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                          <div>
+                            <p className="font-medium text-on-surface mb-2 flex items-center gap-2">
+                              <span className="material-symbols-outlined text-sm text-primary">show_chart</span>
+                              연간 EPS 추이
+                            </p>
+                            {t.annual_eps.length > 0 ? (
+                              <ul className="space-y-1">
+                                {t.annual_eps.map(([k, v]) => (
+                                  <li key={k} className="flex items-baseline gap-3 leading-relaxed">
+                                    <span className="text-on-surface-variant/60 font-mono text-[11px] w-14">{k.slice(0, 4)}</span>
+                                    <span className="font-medium" style={{ color: v < 0 ? "#ffb4ab" : "var(--on-surface)" }}>
+                                      {v.toLocaleString()}원
+                                    </span>
+                                  </li>
+                                ))}
+                              </ul>
+                            ) : (
+                              <p>연간 EPS 데이터 없음.</p>
+                            )}
+                          </div>
+                          <div>
+                            <p className="font-medium text-on-surface mb-2 flex items-center gap-2">
+                              <span className="material-symbols-outlined text-sm text-primary">percent</span>
+                              ROE 추이
+                            </p>
+                            {t.annual_roe.length > 0 ? (
+                              <ul className="space-y-1">
+                                {t.annual_roe.map(([k, v]) => (
+                                  <li key={k} className="flex items-baseline gap-3 leading-relaxed">
+                                    <span className="text-on-surface-variant/60 font-mono text-[11px] w-14">{k.slice(0, 4)}</span>
+                                    <span className="font-medium" style={{ color: roeColor(v) }}>{v.toFixed(1)}%</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            ) : (
+                              <p>ROE 데이터 없음.</p>
+                            )}
+                          </div>
+                          <div className="md:col-span-2 grid grid-cols-2 sm:grid-cols-3 gap-3 mt-2 text-[11px]">
+                            <div className="bg-surface-container/40 rounded-md p-2.5">
+                              <p className="text-on-surface-variant/60 mb-0.5">직전 분기 EPS YoY</p>
+                              <p className="font-medium" style={{ color: growthColor(t.latest_quarter_yoy) }}>
+                                {fmtPct(t.latest_quarter_yoy)}
+                              </p>
+                            </div>
+                            <div className="bg-surface-container/40 rounded-md p-2.5">
+                              <p className="text-on-surface-variant/60 mb-0.5">안정성 지수</p>
+                              <p className="font-medium" style={{ color: stabilityColor(t.earnings_stability_score) }}>
+                                {t.earnings_stability_score !== null ? t.earnings_stability_score : "평가 불가"}
+                              </p>
+                              <p className="text-on-surface-variant/50 mt-0.5">{t.earnings_stability_detail || "—"}</p>
+                            </div>
+                            <div className="bg-surface-container/40 rounded-md p-2.5">
+                              <p className="text-on-surface-variant/60 mb-0.5">산업 코드 (KSIC)</p>
+                              <p className="font-medium text-on-surface">{t.induty_code ?? "—"}</p>
+                              <p className="text-on-surface-variant/50 mt-0.5">{t.cyclical ? "경기민감" : "비경기민감"}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
 }

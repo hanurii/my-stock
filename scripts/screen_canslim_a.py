@@ -63,7 +63,7 @@ from canslim_lib.fetch import (  # noqa: E402
     merge_naver_dart_quarters,
     resolve_corp_code,
 )
-from canslim_lib.criteria_a import evaluate_a_detailed  # noqa: E402
+from canslim_lib.criteria_a import evaluate_a_detailed, evaluate_turnaround_detailed  # noqa: E402
 
 
 def fetch_dart_annual_eps(corp_code: str, year: int) -> float | None:
@@ -218,6 +218,7 @@ def main() -> int:
     corp_map = load_corp_code_map()
 
     a_results: list[dict] = []
+    turnaround_results: list[dict] = []
     for idx, cand in enumerate(c_passed, start=1):
         code = cand["code"]
         name = cand["name"]
@@ -238,10 +239,14 @@ def main() -> int:
         # 3) 안정성 지수용 12+ 분기 EPS
         quarterly_eps_for_stability = collect_quarterly_eps_for_stability(code, corp_code)
 
-        # 4) 직전 분기 YoY (C JSON 에 이미 계산되어 있음)
+        # 4) 직전 분기 YoY 와 4분기 YoY 추이 (C JSON 재사용)
         latest_qy = cand["criteria"]["C"].get("yoy_pct")
+        eps_yoy_history_raw = cand["criteria"]["C"].get("eps_yoy_history") or []
+        quarterly_eps_yoy_history: list[tuple[str, float]] = [
+            (str(p), float(v)) for p, v in eps_yoy_history_raw
+        ]
 
-        # 5) A 평가
+        # 5) 메인 트랙 평가
         a_detail = evaluate_a_detailed(
             annual_eps=annual_eps,
             annual_roe=annual_roe,
@@ -251,40 +256,65 @@ def main() -> int:
             quarterly_eps_for_stability=quarterly_eps_for_stability,
         )
 
-        if not a_detail["main_track_pass"]:
-            reasons = " / ".join(a_detail["fail_reasons"][:2])
-            print(f"      → 미통과: {reasons}")
-            continue
+        c_summary = {
+            "yoy_pct": cand["criteria"]["C"].get("yoy_pct"),
+            "latest_quarter": cand["criteria"]["C"].get("latest_quarter"),
+            "sales_yoy_pct": cand["criteria"]["C"].get("sales_yoy_pct"),
+        }
 
-        badges_str = ", ".join(a_detail["badges"]) if a_detail["badges"] else "—"
-        print(f"      ✅ 통과 · 3Y avg {a_detail['three_year_avg_growth']}% · ROE {a_detail['latest_roe']}% · 배지: {badges_str}")
+        if a_detail["main_track_pass"]:
+            badges_str = ", ".join(a_detail["badges"]) if a_detail["badges"] else "—"
+            print(f"      ✅ 메인 통과 · 3Y avg {a_detail['three_year_avg_growth']}% · ROE {a_detail['latest_roe']}% · 배지: {badges_str}")
+            a_results.append({
+                "code": code,
+                "name": name,
+                "market": cand["market"],
+                "market_cap_eok": cand["market_cap_eok"],
+                "current_price": cand["current_price"],
+                "criteria_a": a_detail,
+                "criteria_c_summary": c_summary,
+            })
+        else:
+            # 6) 메인 미충족 → 턴어라운드 트랙 평가
+            t_detail = evaluate_turnaround_detailed(
+                annual_eps=annual_eps,
+                annual_roe=annual_roe,
+                quarterly_eps_yoy_history=quarterly_eps_yoy_history,
+                latest_quarter_yoy=latest_qy,
+                induty_code=induty_code,
+                quarterly_eps_for_stability=quarterly_eps_for_stability,
+            )
+            if t_detail["turnaround_pass"]:
+                badges_str = ", ".join(t_detail["badges"]) if t_detail["badges"] else "—"
+                print(f"      🔄 턴어라운드 · 연 YoY {t_detail['latest_annual_yoy']}% · {t_detail['two_quarter_surge_detail']} · 배지: {badges_str}")
+                turnaround_results.append({
+                    "code": code,
+                    "name": name,
+                    "market": cand["market"],
+                    "market_cap_eok": cand["market_cap_eok"],
+                    "current_price": cand["current_price"],
+                    "criteria_turnaround": t_detail,
+                    "criteria_c_summary": c_summary,
+                })
+            else:
+                main_reason = a_detail["fail_reasons"][0] if a_detail["fail_reasons"] else "?"
+                t_reason = t_detail["fail_reasons"][0] if t_detail["fail_reasons"] else "?"
+                print(f"      → 미통과: 메인({main_reason}) / 턴어라운드({t_reason})")
 
-        a_results.append({
-            "code": code,
-            "name": name,
-            "market": cand["market"],
-            "market_cap_eok": cand["market_cap_eok"],
-            "current_price": cand["current_price"],
-            "criteria_a": a_detail,
-            "criteria_c_summary": {
-                "yoy_pct": cand["criteria"]["C"].get("yoy_pct"),
-                "latest_quarter": cand["criteria"]["C"].get("latest_quarter"),
-                "sales_yoy_pct": cand["criteria"]["C"].get("sales_yoy_pct"),
-            },
-        })
-
-        time.sleep(0.3)  # 종목 간 rate limit
+        time.sleep(0.3)
 
     output = {
         "generated_at": datetime.now().strftime("%Y-%m-%d"),
         "c_input_count": len(c_passed),
         "a_passed_count": len(a_results),
+        "turnaround_count": len(turnaround_results),
         "candidates": a_results,
+        "turnaround_candidates": turnaround_results,
     }
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT.write_text(json.dumps(output, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"✅ 저장: {OUTPUT}")
-    print(f"   C 노출 {len(c_passed)} → A 통과 {len(a_results)}")
+    print(f"   C 노출 {len(c_passed)} → A 메인 {len(a_results)} + 턴어라운드 {len(turnaround_results)}")
     return 0
 
 

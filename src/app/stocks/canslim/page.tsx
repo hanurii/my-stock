@@ -1,7 +1,7 @@
 import fs from "fs/promises";
 import path from "path";
 import { CanslimTable, type CanslimCandidate } from "./CanslimTable";
-import { AnnualEarningsTable, type AnnualCandidate } from "./AnnualEarningsTable";
+import { AnnualEarningsTable, TurnaroundTable, type AnnualCandidate, type TurnaroundCandidate } from "./AnnualEarningsTable";
 
 interface MarketStatus {
   kospi_trend_verdict: string;
@@ -23,7 +23,9 @@ interface CanslimAData {
   generated_at: string;
   c_input_count: number;
   a_passed_count: number;
+  turnaround_count: number;
   candidates: AnnualCandidate[];
+  turnaround_candidates: TurnaroundCandidate[];
 }
 
 async function getData(): Promise<CanslimData | null> {
@@ -191,18 +193,36 @@ export default async function CanslimPage() {
             윌리엄 오닐의 두 번째 글자 &lsquo;A&rsquo; — 최근 실적이 일시적이지 않다는 점을 연간 EPS·ROE로 입증.
           </p>
           <p className="text-xs text-on-surface-variant/60 mt-1.5">
-            노출 조건 (모두 충족, AND): ① 최근 3년 연속 EPS 증가 ② 3년 평균 +25% 이상 ③ ROE ≥ 17% ④ 직전 분기 EPS YoY ≥ 3년 평균/3 (둔화 게이트) ⑤ 비경기민감 (KSIC 24·20·17·22·29 제외)
+            메인 트랙 (모두 충족, AND): ① 최근 3년 연속 EPS 증가 ② 3년 평균 +25% 이상 ③ <strong className="text-on-surface-variant">ROE ≥ 12% (한국 보정, O&apos;Neil 원전 17%)</strong> ④ 직전 분기 EPS YoY ≥ 3년 평균/3 (둔화 게이트) ⑤ 비경기민감 (KSIC 24·20·17·22·29 제외). ROE ≥ 17% 시 <span className="px-1 py-0.5 rounded bg-emerald-500/15 text-emerald-300">글로벌 ROE</span> 배지, ≥ 25% 시 <span className="px-1 py-0.5 rounded bg-emerald-600/20 text-emerald-300 font-bold">탁월 ROE</span>.
           </p>
           <p className="text-xs text-on-surface-variant/50 mt-1">
             입력 모집단: <strong className="text-on-surface-variant">C 통과 종목 {main.length}개</strong>의 부분집합 ·
             {aData
-              ? ` 생성일 ${aData.generated_at} · 평가 ${aData.c_input_count}종목 · 노출 ${aData.a_passed_count}종목`
+              ? ` 생성일 ${aData.generated_at} · 평가 ${aData.c_input_count}종목 · 메인 ${aData.a_passed_count} + 턴어라운드 ${aData.turnaround_count}`
               : " A 데이터 미생성 (`python scripts/screen_canslim_a.py` 실행 필요)"}
           </p>
         </header>
 
         {aData ? (
-          <AnnualEarningsTable candidates={aData.candidates} />
+          <div className="space-y-6">
+            <div>
+              <h4 className="text-sm font-serif font-bold text-on-surface mb-2 flex items-center gap-2">
+                <span className="material-symbols-outlined text-base text-emerald-300">check_circle</span>
+                메인 트랙 ({aData.candidates.length}종목)
+              </h4>
+              <AnnualEarningsTable candidates={aData.candidates} />
+            </div>
+            <div>
+              <h4 className="text-sm font-serif font-bold text-on-surface mb-2 flex items-center gap-2">
+                <span className="material-symbols-outlined text-base text-tertiary">change_circle</span>
+                턴어라운드 트랙 ({aData.turnaround_candidates.length}종목)
+                <span className="text-xs text-on-surface-variant/60 font-normal ml-2">
+                  · 직전 1년 EPS +5%↑ + 분기 EPS 2분기 연속 +50%↑ + TTM 사상 최고치 90%↑
+                </span>
+              </h4>
+              <TurnaroundTable candidates={aData.turnaround_candidates} />
+            </div>
+          </div>
         ) : (
           <div className="bg-surface-container-low rounded-xl ghost-border p-6 text-center text-sm text-on-surface-variant/70">
             A 스크리닝 데이터가 아직 생성되지 않았습니다.
