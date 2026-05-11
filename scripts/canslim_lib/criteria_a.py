@@ -62,28 +62,34 @@ def compute_earnings_stability(quarterly_eps: list[float]) -> tuple[int | None, 
 
     공개 합의된 근사 (IBD 정확 공식 비공개):
     1) 분기 EPS 시계열을 시간 t 에 대한 선형 회귀로 추세선 fit
-    2) 평균 절대 편차 / 평균 EPS = 편차율(%)
+    2) 평균 절대 편차 / 평균 |EPS| = 편차율(%)
+       (적자 분기 포함해도 분모 안전 — mean(|EPS|) 는 부호 무관)
     3) score = 20 * log10(편차율 + 1) 후 [1, 99] 클램프
-    4) 적자 분기 포함 → 평가 불가
+
+    적자 분기가 있어도 점수 산출. 데이터 < 12분기 또는 전 분기 EPS=0 인 경우만 None.
     """
     if len(quarterly_eps) < 12:
         return None, f"분기 데이터 {len(quarterly_eps)}개 (12+ 필요)"
-    if any(e <= 0 for e in quarterly_eps):
-        return None, "적자 분기 포함 — 평가 불가"
 
     xs = [float(i) for i in range(len(quarterly_eps))]
     slope, intercept = _linear_regression(xs, quarterly_eps)
     deviations = [abs(quarterly_eps[i] - (slope * i + intercept)) for i in range(len(quarterly_eps))]
     mean_dev = sum(deviations) / len(deviations)
-    mean_eps = sum(quarterly_eps) / len(quarterly_eps)
-    if mean_eps <= 0:
-        return None, "평균 EPS 0 이하 — 평가 불가"
+    mean_abs_eps = sum(abs(e) for e in quarterly_eps) / len(quarterly_eps)
+    if mean_abs_eps <= 0:
+        return None, "전 분기 EPS = 0"
 
-    dev_pct = (mean_dev / mean_eps) * 100
+    dev_pct = (mean_dev / mean_abs_eps) * 100
     if dev_pct <= 0:
         return 1, "편차 0 (완전 일정)"
     score = max(1, min(99, int(round(20 * math.log10(dev_pct + 1)))))
-    return score, f"편차율 {dev_pct:.1f}%"
+
+    has_loss = any(e <= 0 for e in quarterly_eps)
+    loss_count = sum(1 for e in quarterly_eps if e <= 0)
+    detail = f"편차율 {dev_pct:.1f}%"
+    if has_loss:
+        detail += f" (적자 {loss_count}분기 포함, 평균 |EPS| 정규화)"
+    return score, detail
 
 
 def evaluate_turnaround_detailed(

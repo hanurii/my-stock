@@ -338,19 +338,78 @@ def _extract_quarterly_account_row(
 
 
 def _extract_quarterly_eps_row(items: list[dict[str, Any]]) -> dict[str, float] | None:
-    """기본주당이익 행 추출 (호환 wrapper)."""
+    """기본주당이익 행 추출 (호환 wrapper).
+
+    SK하이닉스처럼 적자 분기에 "기본주당분기순이익(손실)" 행으로 표기되는 케이스 포함.
+    """
     return _extract_quarterly_account_row(
         items,
-        ["기본주당이익", "기본주당순이익", "기본및희석주당이익", "주당순이익", "기본주당손익"],
+        [
+            "기본주당이익",
+            "기본주당순이익",
+            "기본주당분기순이익",
+            "기본주당반기순이익",
+            "기본및희석주당이익",
+            "주당순이익",
+            "주당분기순이익",
+            "기본주당손익",
+        ],
     )
+
+
+def _extract_quarterly_specific_row(items: list[dict[str, Any]], account_name: str) -> dict[str, Any] | None:
+    """정확한 계정명 매칭 (공백 제거 후 동일)."""
+    target_norm = account_name.replace(" ", "")
+    for it in items:
+        if it.get("sj_div") not in ("IS", "CIS"):
+            continue
+        name = (it.get("account_nm") or "").strip().replace(" ", "")
+        if name == target_norm:
+            return it
+    return None
 
 
 def _extract_quarterly_sales_row(items: list[dict[str, Any]]) -> dict[str, float] | None:
-    """매출액 행 추출. 회사마다 명칭 다름: 매출액 / 수익(매출액) / 영업수익 / 수익."""
-    return _extract_quarterly_account_row(
+    """매출액 행 추출.
+
+    1차: 표준 매출 계정 (매출액 / 수익(매출액) / 영업수익 / 수익)
+    2차: 증권사 fallback (수수료수익 + 이자수익 + 기타의영업손익 합산)
+    """
+    # 1차: 표준 매출 계정
+    result = _extract_quarterly_account_row(
         items,
         ["매출액", "수익(매출액)", "영업수익", "매출"],
     )
+    if result:
+        return result
+
+    # 2차: 증권사 fallback (수수료수익 + 이자수익 + 기타의영업손익 합산)
+    parts_names = ["수수료수익", "이자수익", "기타의영업손익"]
+    sums_curr = 0.0
+    sums_prior = 0.0
+    found_any = False
+    for name in parts_names:
+        row = _extract_quarterly_specific_row(items, name)
+        if not row:
+            continue
+        try:
+            th = row.get("thstrm_amount")
+            if th not in (None, "-", ""):
+                sums_curr += float(str(th).replace(",", ""))
+                found_any = True
+            fr = row.get("frmtrm_q_amount") or row.get("frmtrm_amount")
+            if fr not in (None, "-", ""):
+                sums_prior += float(str(fr).replace(",", ""))
+        except (ValueError, TypeError):
+            continue
+    if not found_any:
+        return None
+    out: dict[str, float] = {}
+    if sums_curr != 0:
+        out["current"] = sums_curr
+    if sums_prior != 0:
+        out["prior"] = sums_prior
+    return out if out else None
 
 
 def _fetch_dart_quarterly_account_history(
