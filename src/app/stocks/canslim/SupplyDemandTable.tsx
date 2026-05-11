@@ -32,6 +32,14 @@ export interface SCriterion {
   fail_reasons: string[];
 }
 
+export interface NCommentary {
+  new_product: string | null;
+  new_management: string | null;
+  new_high_reason: string | null;
+  sources?: { title: string; url: string }[];
+  researched_at?: string;
+}
+
 export interface SCandidate {
   code: string;
   name: string;
@@ -40,10 +48,11 @@ export interface SCandidate {
   current_price: number;
   a_score: number | null;
   pct_from_52w_high: number | null;
+  n_commentary?: NCommentary | null;
   criteria: { S: SCriterion };
 }
 
-type SortKey = "market_cap" | "debt_ratio" | "insider_pct" | "a_score";
+type SortKey = "market_cap" | "debt_ratio" | "insider_pct";
 
 interface Props {
   candidates: SCandidate[];
@@ -62,6 +71,15 @@ function fmtPct(n: number | null, digits = 1): string {
 
 function fmtPrice(n: number): string {
   return n.toLocaleString();
+}
+
+function firstSentence(s: string | null | undefined, maxLen = 80): string {
+  if (!s) return "—";
+  // 한국어/영문 종결부호 매칭. 날짜 표현 (yyyy-mm-dd) 의 - 는 영향 없음.
+  const m = s.match(/^.+?[.。!?]/);
+  const first = (m ? m[0] : s).trim();
+  if (first.length > maxLen) return first.slice(0, maxLen).trimEnd() + "…";
+  return first;
 }
 
 function debtColor(n: number | null): string {
@@ -166,7 +184,6 @@ export function SupplyDemandTable({ candidates }: Props) {
       if (sortKey === "market_cap") { av = a.market_cap_eok; bv = b.market_cap_eok; }
       else if (sortKey === "debt_ratio") { av = a.criteria.S.debt_ratio_current; bv = b.criteria.S.debt_ratio_current; }
       else if (sortKey === "insider_pct") { av = a.criteria.S.insider_pct; bv = b.criteria.S.insider_pct; }
-      else if (sortKey === "a_score") { av = a.a_score; bv = b.a_score; }
       const an = av ?? -Infinity;
       const bn = bv ?? -Infinity;
       return sortDesc ? bn - an : an - bn;
@@ -200,9 +217,7 @@ export function SupplyDemandTable({ candidates }: Props) {
             <th className="text-center py-2 px-2 font-medium">분할 횟수</th>
             <th className="text-center py-2 px-2 font-medium">자사주 매입</th>
             <th className="text-left py-2 px-2 font-medium">라벨</th>
-            <th className="text-right py-2 px-2 font-medium cursor-pointer hover:text-on-surface-variant" onClick={() => toggleSort("a_score")}>
-              A 점수 {arrow("a_score")}
-            </th>
+            <th className="text-left py-2 px-2 font-medium">종목 설명</th>
           </tr>
         </thead>
         <tbody>
@@ -230,6 +245,20 @@ export function SupplyDemandTable({ candidates }: Props) {
                       <div>
                         <div className="font-medium text-on-surface">{c.name}</div>
                         <div className="text-[10px] text-on-surface-variant/50">{c.code} · {c.market}</div>
+                        {c.n_commentary && (c.n_commentary.new_product || c.n_commentary.new_management) && (
+                          <div className="flex gap-1 mt-0.5">
+                            {c.n_commentary.new_product && (
+                              <span className="text-[9px] px-1 py-0.5 rounded bg-blue-400/15 text-blue-300" title={c.n_commentary.new_product}>
+                                신제품
+                              </span>
+                            )}
+                            {c.n_commentary.new_management && (
+                              <span className="text-[9px] px-1 py-0.5 rounded bg-purple-400/15 text-purple-300" title={c.n_commentary.new_management}>
+                                신경영
+                              </span>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </td>
@@ -274,8 +303,10 @@ export function SupplyDemandTable({ candidates }: Props) {
                       ))}
                     </div>
                   </td>
-                  <td className="text-right py-2.5 px-2 text-on-surface-variant">
-                    {c.a_score ?? "—"}
+                  <td className="py-2.5 px-2 text-on-surface-variant/80 text-xs max-w-[280px]">
+                    <div className="line-clamp-2 leading-snug" title={c.n_commentary?.new_high_reason ?? undefined}>
+                      {firstSentence(c.n_commentary?.new_high_reason, 90)}
+                    </div>
                   </td>
                 </tr>
                 {isExpanded && (
