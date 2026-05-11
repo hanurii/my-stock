@@ -1,6 +1,7 @@
 import fs from "fs/promises";
 import path from "path";
 import { CanslimTable, type CanslimCandidate } from "./CanslimTable";
+import { AnnualEarningsTable, type AnnualCandidate } from "./AnnualEarningsTable";
 
 interface MarketStatus {
   kospi_trend_verdict: string;
@@ -18,6 +19,13 @@ interface CanslimData {
   candidates: CanslimCandidate[];
 }
 
+interface CanslimAData {
+  generated_at: string;
+  c_input_count: number;
+  a_passed_count: number;
+  candidates: AnnualCandidate[];
+}
+
 async function getData(): Promise<CanslimData | null> {
   try {
     const filePath = path.join(process.cwd(), "public", "data", "can-slim-candidates.json");
@@ -27,10 +35,19 @@ async function getData(): Promise<CanslimData | null> {
   }
 }
 
+async function getAData(): Promise<CanslimAData | null> {
+  try {
+    const filePath = path.join(process.cwd(), "public", "data", "can-slim-a-candidates.json");
+    return JSON.parse(await fs.readFile(filePath, "utf-8"));
+  } catch {
+    return null;
+  }
+}
+
 const USER_C_THRESHOLD = 25;
 
 export default async function CanslimPage() {
-  const data = await getData();
+  const [data, aData] = await Promise.all([getData(), getAData()]);
 
   if (!data || data.candidates.length === 0) {
     return (
@@ -163,15 +180,76 @@ export default async function CanslimPage() {
         </div>
       </section>
 
-      {/* A·N·S·L·I·M 진행 상황 */}
+      {/* A 원칙 — 활성 섹션 (C 통과 종목의 부분집합) */}
+      <section>
+        <header className="mb-4">
+          <h3 className="text-xl sm:text-2xl font-serif font-bold text-on-surface flex items-center gap-2">
+            <span className="material-symbols-outlined text-primary">stacked_bar_chart</span>
+            CAN SLIM 발굴 — A: 연간 EPS
+          </h3>
+          <p className="text-sm text-on-surface-variant mt-2">
+            윌리엄 오닐의 두 번째 글자 &lsquo;A&rsquo; — 최근 실적이 일시적이지 않다는 점을 연간 EPS·ROE로 입증.
+          </p>
+          <p className="text-xs text-on-surface-variant/60 mt-1.5">
+            노출 조건 (모두 충족, AND): ① 최근 3년 연속 EPS 증가 ② 3년 평균 +25% 이상 ③ ROE ≥ 17% ④ 직전 분기 EPS YoY ≥ 3년 평균/3 (둔화 게이트) ⑤ 비경기민감 (KSIC 24·20·17·22·29 제외)
+          </p>
+          <p className="text-xs text-on-surface-variant/50 mt-1">
+            입력 모집단: <strong className="text-on-surface-variant">C 통과 종목 {main.length}개</strong>의 부분집합 ·
+            {aData
+              ? ` 생성일 ${aData.generated_at} · 평가 ${aData.c_input_count}종목 · 노출 ${aData.a_passed_count}종목`
+              : " A 데이터 미생성 (`python scripts/screen_canslim_a.py` 실행 필요)"}
+          </p>
+        </header>
+
+        {aData ? (
+          <AnnualEarningsTable candidates={aData.candidates} />
+        ) : (
+          <div className="bg-surface-container-low rounded-xl ghost-border p-6 text-center text-sm text-on-surface-variant/70">
+            A 스크리닝 데이터가 아직 생성되지 않았습니다.
+            <br />
+            <span className="text-[11px] text-on-surface-variant/50 mt-1 block">
+              <code className="px-1.5 py-0.5 bg-surface-container/50 rounded">python scripts/screen_canslim_a.py</code> 실행 후 새로고침하세요.
+            </span>
+          </div>
+        )}
+      </section>
+
+      {/* A 원칙 학습 섹션 */}
+      <section className="bg-surface-container-low rounded-xl ghost-border p-5 space-y-4">
+        <h3 className="text-lg font-serif font-bold text-on-surface flex items-center gap-2">
+          <span className="material-symbols-outlined text-primary">menu_book</span>
+          &lsquo;A&rsquo; 원칙 — 11가지 핵심 (William O&apos;Neil)
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+          {[
+            { title: "1. 연간 EPS 증가율 (핵심)", body: "최근 3년 연속 EPS 매년 증가 + 권장 25~50%↑. 5년 연속이면 최고. 위기 한 해 둔화는 다음해 회복 시 OK. 통과율 전체의 20% 미만." },
+            { title: "2. 성장 둔화 경고", body: "직전 3년 30%+ 성장이 최근 분기 10~15%로 떨어지면 성장주 생명 다함. 분기 EPS가 연간 평균의 1/3 이하면 탈락 신호." },
+            { title: "3. ROE", body: "최소 17% (경영진 우수성). 탁월한 성장주는 25~50%." },
+            { title: "4. 주당현금흐름 (CPS)", body: "CPS = 영업CF / 발행주식. 일부 우수 성장주는 CPS가 EPS보다 20%↑ (가점)." },
+            { title: "5. 안정성 지수", body: "20~25 미만 이상적, 30 초과 경기민감주. 분기 EPS 추세선 편차로 1~99 점수화 (낮을수록 안정)." },
+            { title: "6. 경기민감주 회피", body: "철강·화학·제지·고무·기계 (KSIC 24·20·17·22·29). 강세장 막바지 반짝." },
+            { title: "7. 턴어라운드 (별도 트랙)", body: "연 EPS 5~10%↑ + 분기 EPS 2분기 연속 급증 + TTM 사상 최고치 근접. (이번 범위 제외)" },
+            { title: "8. 신규 상장 (별도 트랙)", body: "상장 <3년: 최근 5~6분기 EPS 큰 폭 + 매출 동반. (이번 범위 제외)" },
+            { title: "9. PER 사용 원칙", body: "PER 자체로 매수/매도 판단 금지. 낮다고 매수 X, 높다고 외면 X. 좋은 주식은 비싸다." },
+            { title: "10. 목표주가 산정", body: "목표가 = (2년 후 EPS 예상치) × (매수 지점 PER) × 2 (강세장 절정엔 ×2.25). 신흥 단계 PER 20 → 확장 종료 PER 45 (≈125% 확장)." },
+            { title: "11. 핵심 결론", body: "지난 3년 눈에 띄는 EPS 증가율 + 최근 강력한 실적 호전 — 두 축에 어긋나면 관심 갖지 마라." },
+          ].map((c) => (
+            <div key={c.title} className="bg-surface-container/50 rounded-lg p-3">
+              <p className="font-medium text-on-surface mb-1">{c.title}</p>
+              <p className="text-on-surface-variant leading-relaxed">{c.body}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* N·S·L·I·M 자리표시자 */}
       <section>
         <h3 className="text-lg font-serif font-bold text-on-surface mb-3 flex items-center gap-2">
           <span className="material-symbols-outlined text-on-surface-variant">timeline</span>
-          나머지 6원칙 — 향후 추가 예정
+          나머지 5원칙 — 향후 추가 예정
         </h3>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
           {[
-            { letter: "A", name: "Annual Earnings", body: "연간 순이익 3년 이상 +25% 성장 + ROE" },
             { letter: "N", name: "New Highs", body: "52주 신고가 근접 + 베이스 돌파" },
             { letter: "S", name: "Supply & Demand", body: "거래량 급증 + 유통주식 수급" },
             { letter: "L", name: "Leader", body: "상대강도(RS) 상위 20%" },
