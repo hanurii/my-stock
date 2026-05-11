@@ -229,7 +229,7 @@ export function CanslimTable({ candidates }: Props) {
                             <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400 font-medium" title="잠정실적 기반 (분기보고서 미공시)">잠정</span>
                           )}
                           {cr.never_sell && (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-600/20 text-emerald-300 font-bold" title="최근 3분기 매출+순이익 모두 가속 - O'Neil 원전: 절대 매도 금지 종목">⛔ 절대 매도 금지</span>
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-600/20 text-emerald-300 font-bold" title="최근 3분기 매출+순이익 모두 가속 - O'Neil 책 기준: 절대 매도 금지 종목">⛔ 절대 매도 금지</span>
                           )}
                         </div>
                       </td>
@@ -351,7 +351,7 @@ export function CanslimTable({ candidates }: Props) {
                                 <p className="text-emerald-300 font-medium leading-relaxed">
                                   ⛔ <strong>절대 매도 금지 종목</strong>
                                   <br />
-                                  최근 3분기 매출과 EPS가 모두 가속 중. O&apos;Neil 원전: &quot;3분기 동안 매출액과 순이익 증가율이 가속화되고 있다면 절대 초조해하거나 서둘러 매도할 필요가 없다. 꿋꿋이 포지션을 지키면 된다.&quot;
+                                  최근 3분기 매출과 EPS가 모두 가속 중. O&apos;Neil 책 기준: &quot;3분기 동안 매출액과 순이익 증가율이 가속화되고 있다면 절대 초조해하거나 서둘러 매도할 필요가 없다. 꿋꿋이 포지션을 지키면 된다.&quot;
                                 </p>
                               </div>
                             )}

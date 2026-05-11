@@ -58,10 +58,10 @@ export default async function CanslimCPage() {
     // 매출 동반 검증: 매출 +25% 이상 OR 매출 3분기 가속 둘 중 하나라도 없으면 제외
     const salesAccompany = (cr.sales_yoy_pct !== null && cr.sales_yoy_pct >= 25) || cr.sales_accel_3q;
     if (!salesAccompany) return false;
-    // O'Neil 원전 가속화 게이트: EPS 가속 (3분기 단조 증가) 또는 직전 분기 대비 가속 둘 중 하나 필수
+    // O'Neil 책 기준 가속화 게이트: EPS 가속 (3분기 단조 증가) 또는 직전 분기 대비 가속 둘 중 하나 필수
     const accelerating = cr.eps_accel_3q || ((cr.accel_delta_pp ?? 0) > 0);
     if (!accelerating) return false;
-    // O'Neil 원전 경고 자동 제외: 2분기 연속 EPS 감소 / 증가율 2/3 둔화
+    // O'Neil 책 기준 경고 자동 제외: 2분기 연속 EPS 감소 / 증가율 2/3 둔화
     if (cr.consecutive_decline_quarters >= 2) return false;
     if (cr.severe_decel) return false;
     return true;
@@ -137,10 +137,10 @@ export default async function CanslimCPage() {
         </h3>
         <p className="text-on-surface-variant"><strong className="text-on-surface">매출 +25% 이상</strong>: 이번 분기 매출 YoY ≥ 25% 종목 (이미 페이지 노출 조건의 일부, 토글로 좁히기 가능).</p>
         <p className="text-on-surface-variant"><strong className="text-on-surface">매출 3분기 가속</strong>: 최근 3분기 매출 YoY 성장률이 단조 증가 (이미 페이지 노출 조건의 일부).</p>
-        <p className="text-on-surface-variant"><strong className="text-on-surface">EPS 가속 중</strong>: 이번 분기 EPS YoY 성장률이 직전 분기 EPS YoY 성장률보다 큰 종목 (O&apos;Neil 원전 #3 가장 중요).</p>
+        <p className="text-on-surface-variant"><strong className="text-on-surface">EPS 가속 중</strong>: 이번 분기 EPS YoY 성장률이 직전 분기 EPS YoY 성장률보다 큰 종목 (O&apos;Neil 책 기준 #3 가장 중요).</p>
         <p className="text-on-surface-variant"><strong className="text-on-surface">12M EPS 신고점</strong>: 최근 12개월 4개 분기 EPS가 그 이전 모든 분기의 신고점에 근접·돌파.</p>
         <p className="text-on-surface-variant"><strong className="text-on-surface">경고 없음</strong>: 2분기 연속 EPS 감소·심각 둔화·증자 희석 이력 없음.</p>
-        <p className="text-emerald-300"><strong>⛔ 절대 매도 금지</strong>: 매출+EPS 모두 최근 3분기 가속 — O&apos;Neil 원전 #4 (배지로 자동 부여, 필터 X).</p>
+        <p className="text-emerald-300"><strong>⛔ 절대 매도 금지</strong>: 매출+EPS 모두 최근 3분기 가속 — O&apos;Neil 책 기준 #4 (배지로 자동 부여, 필터 X).</p>
       </section>
 
       {/* 메인 테이블 */}

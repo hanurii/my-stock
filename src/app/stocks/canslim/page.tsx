@@ -129,7 +129,7 @@ export default async function CanslimIndexPage() {
             </div>
             <p className="text-base font-medium text-on-surface mb-1">현재 분기 EPS</p>
             <p className="text-xs text-on-surface-variant/80 leading-relaxed mb-3">
-              분기 EPS YoY +25% 이상 + 매출 동반 + 가속 + 경고 없음 (O&apos;Neil 원전 강화)
+              분기 EPS YoY +25% 이상 + 매출 동반 + 가속 + 경고 없음 (O&apos;Neil 책 기준 강화)
             </p>
             <div className="flex items-baseline justify-between">
               <span className="text-2xl font-bold text-primary">{cMainCount}</span>

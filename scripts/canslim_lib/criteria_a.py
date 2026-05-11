@@ -646,7 +646,7 @@ def compute_a_score(a_detail: dict) -> dict:
     total = score_eps_consecutive + score_eps_growth + score_roe + score_decel + score_cyclical
 
     if total >= 80:
-        tier = "정통 (O'Neil 원전 충족)"
+        tier = "정통 (O'Neil 책 기준 충족)"
     elif total >= 60:
         tier = "근접 (한두 항목 미달)"
     elif total >= 40:

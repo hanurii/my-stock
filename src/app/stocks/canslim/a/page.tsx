@@ -85,7 +85,7 @@ export default async function CanslimAPage() {
           윌리엄 오닐의 두 번째 글자 &lsquo;A&rsquo; — 최근 실적이 일시적이지 않다는 점을 연간 EPS·ROE로 입증.
         </p>
         <p className="text-xs text-on-surface-variant/60 mt-1.5">
-          메인 트랙 (모두 충족, AND): ① 최근 3년 연속 EPS 증가 ② 3년 평균 +25% 이상 ③ <strong className="text-on-surface-variant">ROE ≥ 12% (한국 보정, O&apos;Neil 원전 17%)</strong> ④ 직전 분기 EPS YoY ≥ 3년 평균/3 (둔화 게이트) ⑤ 비경기민감 (KSIC 24·20·17·22·29 제외). ROE ≥ 17% 시 <span className="px-1 py-0.5 rounded bg-emerald-500/15 text-emerald-300">글로벌 ROE</span> 배지, ≥ 25% 시 <span className="px-1 py-0.5 rounded bg-emerald-600/20 text-emerald-300 font-bold">탁월 ROE</span>.
+          메인 트랙 (모두 충족, AND): ① 최근 3년 연속 EPS 증가 ② 3년 평균 +25% 이상 ③ <strong className="text-on-surface-variant">ROE ≥ 12% (한국 보정, O&apos;Neil 책 기준 17%)</strong> ④ 직전 분기 EPS YoY ≥ 3년 평균/3 (둔화 게이트) ⑤ 비경기민감 (KSIC 24·20·17·22·29 제외). ROE ≥ 17% 시 <span className="px-1 py-0.5 rounded bg-emerald-500/15 text-emerald-300">글로벌 ROE</span> 배지, ≥ 25% 시 <span className="px-1 py-0.5 rounded bg-emerald-600/20 text-emerald-300 font-bold">탁월 ROE</span>.
         </p>
         <p className="text-xs text-on-surface-variant/50 mt-1">
           입력 모집단: <strong className="text-on-surface-variant">C 통과 종목 {cMainCount}개</strong>의 부분집합 ·
@@ -127,7 +127,7 @@ export default async function CanslimAPage() {
                   <span className="material-symbols-outlined text-base text-primary">leaderboard</span>
                   A 충족도 점수 ({aData.scored_candidates.length}종목, 100점 만점)
                   <span className="text-xs text-on-surface-variant/60 font-normal ml-2">
-                    · 한국 시장(사이클 종목 주도) 보정 — O&apos;Neil 원전에 얼마나 가까운지 정량화
+                    · 한국 시장(사이클 종목 주도) 보정 — O&apos;Neil 책 기준에 얼마나 가까운지 정량화
                   </span>
                 </h4>
                 <AScoredTable candidates={aData.scored_candidates} />
