@@ -167,21 +167,23 @@ def evaluate_c_detailed(
         return last3[-1] > 0 and last3[0] < last3[1] < last3[2]
 
     # EPS 분기별 YoY 추세 (최근 4분기까지)
-    if len(quarterly_eps) >= 8:
+    # 최소 5분기 데이터로 1개 YoY 점 표시 (가속 판정은 _is_accel 이 3점 미만이면 False 반환).
+    # 적자 분기도 포함 (절댓값 분모 공식으로 적자 심화/감소/턴어라운드 모두 의미 있음).
+    if len(quarterly_eps) >= 5:
         eps_hist: list[tuple[str, float]] = []
         for i in range(len(quarterly_eps) - 1, max(len(quarterly_eps) - 5, 3), -1):
             if i - 4 < 0:
                 break
             curr_key, curr = quarterly_eps[i]
             _, prior = quarterly_eps[i - 4]
-            if prior != 0 and curr > 0:
+            if prior != 0:
                 eps_hist.append((curr_key, round((curr - prior) / abs(prior) * 100, 2)))
         eps_hist.reverse()
         out["eps_yoy_history"] = eps_hist
         out["eps_accel_3q"] = _is_accel(eps_hist)
 
     # 매출 분기별 YoY 추세 (최근 4분기까지)
-    if quarterly_sales and len(quarterly_sales) >= 7:
+    if quarterly_sales and len(quarterly_sales) >= 5:
         sales_hist: list[tuple[str, float]] = []
         for i in range(len(quarterly_sales) - 1, max(len(quarterly_sales) - 5, 3), -1):
             if i - 4 < 0:
