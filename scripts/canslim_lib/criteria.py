@@ -156,15 +156,30 @@ def evaluate_c_detailed(
         if yoy_sales > 0:
             out["sales_yoy_pct"] = round((latest_sales - yoy_sales) / yoy_sales * 100, 2)
 
-    # 가속 판정 헬퍼 — 최근 3분기 strict 단조 증가 (a < b < c) + 최신 양수
-    # 원전 "3분기 이상에 걸쳐 가속" 의 엄격한 해석. 중간 dip 있으면 가속 아님
-    # (예: 두산에너빌리티 14.3→5.9→13.7 의 5.9 dip 으로 인해 가속 X).
-    # 윈도우가 4분기여도 마지막 3개만 검사.
+    # 가속 판정 헬퍼 — 두 단계 검사:
+    #   (1) strict 단조 우선: 최근 3분기 a < b < c + 최신 양수 (원전 엄격 해석)
+    #   (2) 폭발 예외: 4분기 윈도우 마지막이 최댓값 AND 이전 3분기 평균의 1.5배+ + 최신 양수
+    # 두산에너빌리티(14.3→5.9→13.7) 같은 노이즈 dip 은 제외, SK하이닉스(60→107→90→397) 처럼
+    # 한 분기 dip 후 폭발하는 케이스는 (2) 폭발 예외로 가속 인정.
     def _is_accel(history: list[tuple[str, float]]) -> bool:
         if len(history) < 3:
             return False
         last3 = [v for _, v in history[-3:]]
-        return last3[-1] > 0 and last3[0] < last3[1] < last3[2]
+        if last3[-1] > 0 and last3[0] < last3[1] < last3[2]:
+            return True
+        # 폭발 예외 — 4분기 윈도우 필요
+        if len(history) < 4:
+            return False
+        last4 = [v for _, v in history[-4:]]
+        latest = last4[-1]
+        prior_3 = last4[:-1]
+        if latest <= 0 or latest != max(last4):
+            return False
+        prior_avg = sum(prior_3) / 3
+        if prior_avg <= 0:
+            # 이전 평균이 0 이하면 1.5배 비교 의미 없음 → 절대값 분모로 폭발 비율 계산
+            return latest > abs(prior_avg) * 1.5
+        return latest >= prior_avg * 1.5
 
     # EPS 분기별 YoY 추세 (최근 4분기까지)
     # 최소 5분기 데이터로 1개 YoY 점 표시 (가속 판정은 _is_accel 이 3점 미만이면 False 반환).
