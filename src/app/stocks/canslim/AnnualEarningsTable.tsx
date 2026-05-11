@@ -76,8 +76,9 @@ function roeColor(n: number | null): string {
 
 function stabilityColor(n: number | null): string {
   if (n === null) return "var(--on-surface-variant)";
-  if (n < 25) return "#10b981";
-  if (n <= 30) return "#a8b5d0";
+  // 한국 보정: <30 우수 / 30~40 보통 / >40 부족
+  if (n < 30) return "#10b981";
+  if (n <= 40) return "#a8b5d0";
   return "#ffb4ab";
 }
 

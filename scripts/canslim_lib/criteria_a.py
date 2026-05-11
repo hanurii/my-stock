@@ -20,8 +20,12 @@ A_DECELERATION_GATE_DIVISOR = 3.0  # 직전 분기 YoY ≥ 3년 평균 증가율
 A_BADGE_ROE_GLOBAL = 17.0  # O'Neil 원전 기준 충족 — "글로벌 ROE" 배지
 A_BADGE_ROE_EXCELLENT = 25.0  # 탁월 ROE
 A_BADGE_CPS_EPS_RATIO = 1.20
-A_STABILITY_EXCELLENT_MAX = 25
-A_STABILITY_MODERATE_MAX = 30
+# 안정성 지수 임계값 — 한국 보정 (+5 shift)
+# O'Neil 원전: <25 우수 / 25~30 보통 / >30 부족
+# 한국 보정: 한국 KOSPI 시총 상위 다수가 cyclical 산업(반도체·자동차·철강·화학·배터리)이라 원전 적용 시 거의 전부 "부족" 분류.
+# 한국 종목 분포 분석 기반 +5 shift: <30 우수 / 30~40 보통 / >40 부족
+A_STABILITY_EXCELLENT_MAX = 30
+A_STABILITY_MODERATE_MAX = 40
 
 # 턴어라운드 트랙 컷오프 (별도 트랙 — 메인 트랙 미충족 종목 중 V자 회복주 잡기)
 TURNAROUND_ANNUAL_EPS_MIN_PCT = 5.0  # 직전 1년 연 EPS YoY +5% 이상
