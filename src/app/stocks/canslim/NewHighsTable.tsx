@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 
 export interface NSource {
   title: string;
@@ -63,6 +63,7 @@ function scoreColor(score: number): string {
 export function NewHighsTable({ candidates }: Props) {
   const [sortKey, setSortKey] = useState<SortKey>("pct_from_52w_high");
   const [sortDesc, setSortDesc] = useState(true);
+  const [expandedCode, setExpandedCode] = useState<string | null>(null);
 
   const sorted = useMemo(() => {
     return [...candidates].sort((a, b) => {
@@ -72,141 +73,149 @@ export function NewHighsTable({ candidates }: Props) {
     });
   }, [candidates, sortKey, sortDesc]);
 
+  function toggleSort(key: SortKey) {
+    if (sortKey === key) setSortDesc(!sortDesc);
+    else { setSortKey(key); setSortDesc(true); }
+  }
+
+  function sortArrow(key: SortKey): string {
+    if (sortKey !== key) return "";
+    return sortDesc ? "↓" : "↑";
+  }
+
   return (
-    <div>
-      {/* 정렬 토글 */}
-      <div className="flex flex-wrap items-center gap-2 mb-4">
-        <span className="text-xs text-on-surface-variant/60">정렬:</span>
-        <div className="flex gap-1 rounded-md bg-surface-container-low p-1">
-          {([
-            { key: "pct_from_52w_high" as SortKey, label: "신고가 대비" },
-            { key: "a_score" as SortKey, label: "A 점수" },
-          ]).map((opt) => (
-            <button
-              key={opt.key}
-              onClick={() => {
-                if (sortKey === opt.key) setSortDesc(!sortDesc);
-                else { setSortKey(opt.key); setSortDesc(true); }
-              }}
-              className={`px-3 py-1.5 rounded text-xs transition-all ${
-                sortKey === opt.key
-                  ? "bg-primary/15 text-primary"
-                  : "text-on-surface-variant/70 hover:bg-surface-container/50"
-              }`}
+    <div className="overflow-x-auto">
+      <table className="w-full text-sm border-collapse">
+        <thead>
+          <tr className="text-[11px] text-on-surface-variant/70 border-b border-on-surface/10">
+            <th className="text-left py-2.5 pr-3 font-normal">종목명</th>
+            <th
+              className="text-right py-2.5 px-3 font-normal cursor-pointer hover:text-on-surface"
+              onClick={() => toggleSort("a_score")}
             >
-              {opt.label} {sortKey === opt.key ? (sortDesc ? "↓" : "↑") : ""}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* 카드 리스트 */}
-      <div className="space-y-4">
-        {sorted.map((c) => {
-          const pct = c.pct_from_52w_high;
-          const npd = c.n_commentary.new_product;
-          const nmg = c.n_commentary.new_management;
-          const nhr = c.n_commentary.new_high_reason;
-
-          return (
-            <div
-              key={c.code}
-              className="bg-surface-container-low rounded-xl ghost-border p-5"
+              A 점수 {sortArrow("a_score")}
+            </th>
+            <th className="text-right py-2.5 px-3 font-normal">현재가</th>
+            <th className="text-right py-2.5 px-3 font-normal">52주 신고가 (도달일)</th>
+            <th
+              className="text-right py-2.5 px-3 font-normal cursor-pointer hover:text-on-surface"
+              onClick={() => toggleSort("pct_from_52w_high")}
             >
-              {/* 헤더: 종목명 + A점수 + 가격 정보 */}
-              <div className="flex flex-wrap items-baseline gap-x-4 gap-y-2 mb-4 pb-4 border-b border-on-surface/5">
-                <div className="flex items-baseline gap-2">
-                  <h4 className="text-lg font-serif font-bold text-on-surface">{c.name}</h4>
-                  <span className="text-xs text-on-surface-variant/60 font-mono">{c.code}</span>
-                </div>
-
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[11px] text-on-surface-variant/60">A</span>
-                  <span
-                    className="text-sm font-bold"
-                    style={{ color: scoreColor(c.a_score) }}
-                  >
-                    {c.a_score}
-                  </span>
-                </div>
-
-                <div className="flex-1" />
-
-                <div className="flex items-baseline gap-3 text-sm">
-                  <span className="text-on-surface-variant/80">
-                    {fmtPrice(c.current_price)}원
-                  </span>
-                  <span className="text-[11px] text-on-surface-variant/50">/</span>
-                  <span className="text-on-surface-variant/60 text-xs">
-                    52주高 {fmtPrice(c.high_52w)} <span className="text-on-surface-variant/40">({c.high_52w_date})</span>
-                  </span>
-                </div>
-
-                <div
-                  className="flex items-center gap-1.5 px-2.5 py-1 rounded"
-                  style={{ backgroundColor: `${pctColor(pct)}20` }}
+              신고가 대비 {sortArrow("pct_from_52w_high")}
+            </th>
+            <th className="w-8" />
+          </tr>
+        </thead>
+        <tbody>
+          {sorted.map((c) => {
+            const pct = c.pct_from_52w_high;
+            const isExpanded = expandedCode === c.code;
+            return (
+              <Fragment key={c.code}>
+                <tr
+                  className={`border-b border-on-surface/5 cursor-pointer transition-colors ${
+                    isExpanded ? "bg-surface-container/40" : "hover:bg-surface-container/30"
+                  }`}
+                  onClick={() => setExpandedCode(isExpanded ? null : c.code)}
                 >
-                  <span
-                    className="text-sm font-bold"
-                    style={{ color: pctColor(pct) }}
-                  >
-                    {pct === 0 ? "0%" : `${pct.toFixed(2)}%`}
-                  </span>
-                  <span className="text-[10px]" style={{ color: pctColor(pct) }}>
-                    {pctLabel(pct)}
-                  </span>
-                </div>
-              </div>
+                  <td className="py-3 pr-3">
+                    <div className="flex items-baseline gap-2">
+                      <span className="font-medium text-on-surface">{c.name}</span>
+                      <span className="text-[11px] text-on-surface-variant/50 font-mono">{c.code}</span>
+                    </div>
+                  </td>
+                  <td className="text-right py-3 px-3">
+                    <span
+                      className="font-bold"
+                      style={{ color: scoreColor(c.a_score) }}
+                    >
+                      {c.a_score}
+                    </span>
+                  </td>
+                  <td className="text-right py-3 px-3 text-on-surface-variant">
+                    {fmtPrice(c.current_price)}
+                  </td>
+                  <td className="text-right py-3 px-3 text-on-surface-variant/80 text-xs">
+                    {fmtPrice(c.high_52w)} <span className="text-on-surface-variant/40">({c.high_52w_date})</span>
+                  </td>
+                  <td className="text-right py-3 px-3">
+                    <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded" style={{ backgroundColor: `${pctColor(pct)}20` }}>
+                      <span className="font-bold text-xs" style={{ color: pctColor(pct) }}>
+                        {pct === 0 ? "0%" : `${pct.toFixed(2)}%`}
+                      </span>
+                      <span className="text-[10px]" style={{ color: pctColor(pct) }}>
+                        {pctLabel(pct)}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="text-right py-3 pl-1 pr-2 text-on-surface-variant/40">
+                    <span className="material-symbols-outlined text-base">
+                      {isExpanded ? "expand_less" : "expand_more"}
+                    </span>
+                  </td>
+                </tr>
+                {isExpanded && (
+                  <tr className="bg-surface-container/30 border-b border-on-surface/5">
+                    <td colSpan={6} className="p-5">
+                      <ExpandedDetail candidate={c} />
+                    </td>
+                  </tr>
+                )}
+              </Fragment>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
 
-              {/* 3개 코멘트 카드 */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <CommentaryCard
-                  icon="rocket_launch"
-                  title="신제품"
-                  body={npd}
-                  accent="#95d3ba"
-                />
-                <CommentaryCard
-                  icon="groups"
-                  title="신경영"
-                  body={nmg}
-                  accent="#e9c176"
-                />
-                <CommentaryCard
-                  icon="trending_up"
-                  title="신고가 이유"
-                  body={nhr}
-                  accent="#a8b5d0"
-                />
-              </div>
-
-              {/* 출처 */}
-              {c.n_commentary.sources.length > 0 && (
-                <div className="mt-3 pt-3 border-t border-on-surface/5">
-                  <p className="text-[11px] text-on-surface-variant/60 mb-1.5">출처</p>
-                  <div className="flex flex-wrap gap-x-3 gap-y-1.5">
-                    {c.n_commentary.sources.map((s, i) => (
-                      <a
-                        key={i}
-                        href={s.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[11px] text-primary/80 hover:text-primary inline-flex items-center gap-0.5"
-                      >
-                        <span className="material-symbols-outlined text-[14px]">link</span>
-                        {s.title}
-                      </a>
-                    ))}
-                  </div>
-                  <p className="text-[10px] text-on-surface-variant/40 mt-2">
-                    조사일 {c.n_commentary.researched_at}
-                  </p>
-                </div>
-              )}
-            </div>
-          );
-        })}
+function ExpandedDetail({ candidate }: { candidate: NCandidate }) {
+  const { new_product, new_management, new_high_reason, sources, researched_at } = candidate.n_commentary;
+  return (
+    <div className="space-y-3">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <CommentaryCard
+          icon="rocket_launch"
+          title="신제품"
+          body={new_product}
+          accent="#95d3ba"
+        />
+        <CommentaryCard
+          icon="groups"
+          title="신경영"
+          body={new_management}
+          accent="#e9c176"
+        />
+        <CommentaryCard
+          icon="trending_up"
+          title="신고가 이유"
+          body={new_high_reason}
+          accent="#a8b5d0"
+        />
       </div>
+      {sources.length > 0 && (
+        <div className="pt-3 border-t border-on-surface/5">
+          <p className="text-[11px] text-on-surface-variant/60 mb-1.5">출처</p>
+          <div className="flex flex-wrap gap-x-3 gap-y-1.5">
+            {sources.map((s, i) => (
+              <a
+                key={i}
+                href={s.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[11px] text-primary/80 hover:text-primary inline-flex items-center gap-0.5"
+              >
+                <span className="material-symbols-outlined text-[14px]">link</span>
+                {s.title}
+              </a>
+            ))}
+          </div>
+          <p className="text-[10px] text-on-surface-variant/40 mt-2">
+            조사일 {researched_at}
+          </p>
+        </div>
+      )}
     </div>
   );
 }
