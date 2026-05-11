@@ -266,7 +266,7 @@ export function CanslimTable({ candidates }: Props) {
                               title={
                                 q === "recovery"
                                   ? "직전 분기 dip에서 양수 회복 — 진짜 가속 아님"
-                                  : "O'Neil 원전 #3: EPS 증가율의 직전 분기 대비 가속 폭"
+                                  : "O'Neil 책 기준 #3: EPS 증가율의 직전 분기 대비 가속 폭"
                               }
                             >
                               <span style={{ color: meta.color }} className="text-[11px]">{meta.icon}</span>
@@ -344,7 +344,7 @@ export function CanslimTable({ candidates }: Props) {
                                       title={
                                         q === "recovery"
                                           ? "직전 분기 dip에서 회복한 케이스 (진짜 가속 아님)"
-                                          : `EPS 가속 폭 ${cr.accel_delta_pp?.toFixed(1)}%p (O'Neil 원전 #3)`
+                                          : `EPS 가속 폭 ${cr.accel_delta_pp?.toFixed(1)}%p (O'Neil 책 기준 #3)`
                                       }
                                     >
                                       <span>{meta.icon}</span>

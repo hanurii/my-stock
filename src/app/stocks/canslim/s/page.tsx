@@ -123,14 +123,15 @@ export default async function CanslimSPage() {
       {/* 제외 종목 */}
       <ExcludedSection excluded={data.excluded} />
 
-      {/* 참고 — O'Neil 원전 */}
-      <section className="text-xs text-on-surface-variant/60 leading-relaxed">
-        <p className="mb-1">
-          <strong className="text-on-surface-variant/80">O&apos;Neil 원전 인용</strong> — &ldquo;자사주 10%만 매수해도 무척 큰 것이다&rdquo;,
-          &ldquo;두세 차례의 주식 분할은 천장을 쳤다는 징후&rdquo; (분할 다음해 본격 상승 18%),
-          &ldquo;부채비율 낮을수록 더 안전하고 더 나은 기업&rdquo;,
-          &ldquo;경영진이 많은 주식을 보유한 기업은 자기 회사 주식에 애착을 가지고 있다는 반증&rdquo;.
-        </p>
+      {/* 참고 — O'Neil 책 인용 */}
+      <section className="text-xs text-on-surface-variant/70 leading-relaxed">
+        <p className="font-medium text-on-surface-variant mb-2">O&apos;Neil 책 인용</p>
+        <ul className="space-y-1.5 list-disc list-outside ml-5">
+          <li>&ldquo;자사주 10%만 매수해도 무척 큰 것이다.&rdquo;</li>
+          <li>&ldquo;두세 차례의 주식 분할은 천장을 쳤다는 징후&rdquo; (분할 다음해 본격 상승 확률은 18% 채 안 됨).</li>
+          <li>&ldquo;부채비율은 낮을수록 더 안전하고 더 나은 기업이다.&rdquo;</li>
+          <li>&ldquo;경영진이 많은 주식을 보유한 기업은 자기 회사 주식에 애착을 가지고 있다는 반증.&rdquo;</li>
+        </ul>
       </section>
     </div>
   );

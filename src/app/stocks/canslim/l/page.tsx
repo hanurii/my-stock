@@ -78,7 +78,7 @@ export default async function CanslimLPage() {
             </ul>
           </div>
           <div>
-            <p className="text-on-surface-variant mb-1">매수 판정 (O&apos;Neil 원전)</p>
+            <p className="text-on-surface-variant mb-1">매수 판정 (O&apos;Neil 책 기준)</p>
             <ul className="space-y-1 list-disc list-inside">
               <li><strong>RS ≥ 80</strong>: 매수 가능 (사용자 컷오프)</li>
               <li><strong>RS 70~79</strong>: 회색지대 — 매수 기준 미달</li>
@@ -102,7 +102,7 @@ export default async function CanslimLPage() {
       <section className="rounded-xl ghost-border p-4 bg-amber-400/[0.04]">
         <h4 className="text-sm font-medium text-on-surface mb-2 flex items-center gap-2">
           <span className="material-symbols-outlined text-amber-300 text-base">warning</span>
-          RS 80+ 매수 진입 시 주의 (O&apos;Neil 원전)
+          RS 80+ 매수 진입 시 주의 (O&apos;Neil 책 기준)
         </h4>
         <ul className="space-y-1.5 text-xs text-on-surface-variant/80 list-disc list-inside leading-relaxed">
           <li>
@@ -117,15 +117,15 @@ export default async function CanslimLPage() {
         </ul>
       </section>
 
-      {/* 참고 — O'Neil 원전 */}
-      <section className="text-xs text-on-surface-variant/60 leading-relaxed">
-        <p className="mb-1">
-          <strong className="text-on-surface-variant/80">O&apos;Neil 원전 인용</strong> —
-          &ldquo;업종 내 최고 종목 2~3개 중에서 매수하라&rdquo;,
-          &ldquo;주도주가 아니면 매수하지 마라&rdquo;,
-          &ldquo;상대적 주가 강도가 80점 이상인 주식을 매수해라&rdquo;,
-          &ldquo;정말 애가 탈 정도로 싸게 보이는 주식이라 해도 소외주는 투자 수익을 가져다 주는 경우가 거의 없다&rdquo;.
-        </p>
+      {/* 참고 — O'Neil 책 인용 */}
+      <section className="text-xs text-on-surface-variant/70 leading-relaxed">
+        <p className="font-medium text-on-surface-variant mb-2">O&apos;Neil 책 인용</p>
+        <ul className="space-y-1.5 list-disc list-outside ml-5">
+          <li>&ldquo;업종 내 최고 종목 2~3개 중에서 매수하라.&rdquo;</li>
+          <li>&ldquo;주도주가 아니면 매수하지 마라.&rdquo;</li>
+          <li>&ldquo;상대적 주가 강도가 80점 이상인 주식을 매수해라.&rdquo;</li>
+          <li>&ldquo;정말 애가 탈 정도로 싸게 보이는 주식이라 해도 소외주는 투자 수익을 가져다 주는 경우가 거의 없다.&rdquo;</li>
+        </ul>
       </section>
     </div>
   );

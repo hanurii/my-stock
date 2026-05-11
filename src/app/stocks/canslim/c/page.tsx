@@ -115,13 +115,13 @@ export default async function CanslimCPage() {
         </div>
       </section>
 
-      {/* EPS 가속도 단계 (O'Neil 원전 #3 — 가장 중요한 원칙 정량화) */}
+      {/* EPS 가속도 단계 (O'Neil 책 기준 #3 — 가장 중요한 원칙 정량화) */}
       <section className="bg-surface-container-low rounded-xl ghost-border p-4">
         <h3 className="text-sm font-serif font-bold text-on-surface mb-1 flex items-center gap-2">
           <span className="material-symbols-outlined text-base text-primary">bolt</span>
           EPS 가속도 단계
           <span className="text-[11px] text-on-surface-variant/60 font-normal ml-1">
-            · O&apos;Neil 원전 #3 — &quot;직전 분기 대비 가속 폭이 가장 중요&quot;
+            · O&apos;Neil 책 기준 #3 — &quot;직전 분기 대비 가속 폭이 가장 중요&quot;
           </span>
         </h3>
         <p className="text-[11px] text-on-surface-variant/60 mb-3">
@@ -161,7 +161,7 @@ export default async function CanslimCPage() {
         </h3>
         <p className="text-on-surface-variant"><strong className="text-on-surface">매출 +25% 이상</strong>: 이번 분기 매출 YoY ≥ 25% 종목 (이미 페이지 노출 조건의 일부, 토글로 좁히기 가능).</p>
         <p className="text-on-surface-variant"><strong className="text-on-surface">매출 3분기 가속</strong>: 최근 3분기 매출 YoY 성장률이 단조 증가 (이미 페이지 노출 조건의 일부).</p>
-        <p className="text-on-surface-variant"><strong className="text-on-surface">EPS 가속 중</strong>: 가속 폭이 mild(0~25%p) / strong(25~100%p) / explosive(100%p+) 중 하나인 종목. dip 회복은 제외 (O&apos;Neil 원전 #3 가장 중요).</p>
+        <p className="text-on-surface-variant"><strong className="text-on-surface">EPS 가속 중</strong>: 가속 폭이 mild(0~25%p) / strong(25~100%p) / explosive(100%p+) 중 하나인 종목. dip 회복은 제외 (O&apos;Neil 책 기준 #3 가장 중요).</p>
         <p className="text-on-surface-variant"><strong className="text-on-surface">12M EPS 신고점</strong>: 최근 12개월 4개 분기 EPS가 그 이전 모든 분기의 신고점에 근접·돌파.</p>
         <p className="text-on-surface-variant"><strong className="text-on-surface">경고 없음</strong>: 2분기 연속 EPS 감소·심각 둔화·증자 희석 이력 없음.</p>
         <p className="text-emerald-300"><strong>⛔ 절대 매도 금지</strong>: 매출+EPS 모두 최근 3분기 가속 — O&apos;Neil 책 기준 #4 (배지로 자동 부여, 필터 X).</p>
