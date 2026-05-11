@@ -106,7 +106,6 @@ export function LeaderTable({ candidates }: Props) {
               A 점수 {sortArrow("a_score")}
             </th>
             <th className="text-right py-2.5 px-3 font-normal">현재가</th>
-            <th className="text-left py-2.5 pl-3 font-normal">판정</th>
           </tr>
         </thead>
         <tbody>
@@ -156,22 +155,6 @@ export function LeaderTable({ candidates }: Props) {
                 </td>
                 <td className="text-right py-3 px-3 text-on-surface-variant">
                   {fmtPrice(c.current_price)}
-                </td>
-                <td className="py-3 pl-3">
-                  {c.passes_l ? (
-                    <span className="inline-flex items-center gap-1 text-xs text-emerald-300">
-                      <span className="material-symbols-outlined text-sm">check_circle</span>
-                      통과
-                    </span>
-                  ) : (
-                    <span
-                      className="inline-flex items-center gap-1 text-xs text-amber-300"
-                      title={c.fail_reasons.join(", ")}
-                    >
-                      <span className="material-symbols-outlined text-sm">block</span>
-                      {c.fail_reasons[0] ?? "미통과"}
-                    </span>
-                  )}
                 </td>
               </tr>
             );
