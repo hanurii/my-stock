@@ -202,9 +202,7 @@ def main() -> int:
             "market": market,
             "market_cap_eok": market_cap_eok,
             "current_price": current_price,
-            "a_score": cand.get("a_score"),
             "pct_from_52w_high": cand.get("pct_from_52w_high"),
-            "n_commentary": cand.get("n_commentary"),
             "criteria": {"S": s_eval},
         }
 

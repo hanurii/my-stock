@@ -32,23 +32,13 @@ export interface SCriterion {
   fail_reasons: string[];
 }
 
-export interface NCommentary {
-  new_product: string | null;
-  new_management: string | null;
-  new_high_reason: string | null;
-  sources?: { title: string; url: string }[];
-  researched_at?: string;
-}
-
 export interface SCandidate {
   code: string;
   name: string;
   market: string;
   market_cap_eok: number;
   current_price: number;
-  a_score: number | null;
   pct_from_52w_high: number | null;
-  n_commentary?: NCommentary | null;
   criteria: { S: SCriterion };
 }
 
@@ -71,15 +61,6 @@ function fmtPct(n: number | null, digits = 1): string {
 
 function fmtPrice(n: number): string {
   return n.toLocaleString();
-}
-
-function firstSentence(s: string | null | undefined, maxLen = 80): string {
-  if (!s) return "—";
-  // 한국어/영문 종결부호 매칭. 날짜 표현 (yyyy-mm-dd) 의 - 는 영향 없음.
-  const m = s.match(/^.+?[.。!?]/);
-  const first = (m ? m[0] : s).trim();
-  if (first.length > maxLen) return first.slice(0, maxLen).trimEnd() + "…";
-  return first;
 }
 
 function debtColor(n: number | null): string {
@@ -217,7 +198,6 @@ export function SupplyDemandTable({ candidates }: Props) {
             <th className="text-center py-2 px-2 font-medium">분할 횟수</th>
             <th className="text-center py-2 px-2 font-medium">자사주 매입</th>
             <th className="text-left py-2 px-2 font-medium">라벨</th>
-            <th className="text-left py-2 px-2 font-medium">종목 설명</th>
           </tr>
         </thead>
         <tbody>
@@ -245,20 +225,6 @@ export function SupplyDemandTable({ candidates }: Props) {
                       <div>
                         <div className="font-medium text-on-surface">{c.name}</div>
                         <div className="text-[10px] text-on-surface-variant/50">{c.code} · {c.market}</div>
-                        {c.n_commentary && (c.n_commentary.new_product || c.n_commentary.new_management) && (
-                          <div className="flex gap-1 mt-0.5">
-                            {c.n_commentary.new_product && (
-                              <span className="text-[9px] px-1 py-0.5 rounded bg-blue-400/15 text-blue-300" title={c.n_commentary.new_product}>
-                                신제품
-                              </span>
-                            )}
-                            {c.n_commentary.new_management && (
-                              <span className="text-[9px] px-1 py-0.5 rounded bg-purple-400/15 text-purple-300" title={c.n_commentary.new_management}>
-                                신경영
-                              </span>
-                            )}
-                          </div>
-                        )}
                       </div>
                     </div>
                   </td>
@@ -303,15 +269,10 @@ export function SupplyDemandTable({ candidates }: Props) {
                       ))}
                     </div>
                   </td>
-                  <td className="py-2.5 px-2 text-on-surface-variant/80 text-xs max-w-[280px]">
-                    <div className="line-clamp-2 leading-snug" title={c.n_commentary?.new_high_reason ?? undefined}>
-                      {firstSentence(c.n_commentary?.new_high_reason, 90)}
-                    </div>
-                  </td>
                 </tr>
                 {isExpanded && (
                   <tr className="bg-surface-container-low/30 border-b border-on-surface/10">
-                    <td colSpan={10} className="p-4">
+                    <td colSpan={9} className="p-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                         <div>
                           <h4 className="font-medium text-on-surface mb-2.5">
