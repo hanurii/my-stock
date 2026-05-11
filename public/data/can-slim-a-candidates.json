@@ -1,17 +1,131 @@
 {
   "generated_at": "2026-05-11",
-  "c_input_count": 10,
-  "a_passed_count": 0,
+  "c_input_count": 11,
+  "a_passed_count": 1,
   "turnaround_count": 3,
   "preliminary_turnaround_count": 2,
   "new_listing_count": 0,
-  "candidates": [],
+  "candidates": [
+    {
+      "code": "079550",
+      "name": "LIG디펜스앤에어로스페이스",
+      "market": "KOSPI",
+      "market_cap_eok": 192060,
+      "current_price": 840000,
+      "criteria_a": {
+        "main_track_pass": true,
+        "annual_eps": [
+          [
+            "202112",
+            4829.0
+          ],
+          [
+            "202212",
+            5641.0
+          ],
+          [
+            "202312",
+            7953.0
+          ],
+          [
+            "202412",
+            9974.0
+          ],
+          [
+            "202512",
+            11516.0
+          ]
+        ],
+        "annual_roe": [
+          [
+            "202312",
+            17.61
+          ],
+          [
+            "202412",
+            19.4
+          ],
+          [
+            "202512",
+            19.2
+          ]
+        ],
+        "annual_cps": [
+          [
+            "202312",
+            20437.34
+          ],
+          [
+            "202412",
+            41634.72
+          ],
+          [
+            "202512",
+            -25555.37
+          ]
+        ],
+        "three_year_growths": [
+          40.99,
+          25.41,
+          15.46
+        ],
+        "three_year_avg_growth": 27.29,
+        "five_year_consecutive_increase": true,
+        "consecutive_3y_increase": true,
+        "latest_roe": 19.2,
+        "latest_cps": -25555.37,
+        "latest_eps": 11516.0,
+        "latest_cps_eps_ratio": -2.219,
+        "latest_quarter_yoy": 71.51,
+        "deceleration_gate_pass": true,
+        "deceleration_gate_threshold": 9.1,
+        "induty_code": "25200",
+        "cyclical": false,
+        "earnings_stability_score": 31,
+        "earnings_stability_detail": "편차율 35.9%",
+        "badges": [
+          "글로벌 ROE",
+          "5년 연속 성장",
+          "안정성 보통"
+        ],
+        "fail_reasons": [],
+        "partial_data": false,
+        "five_year_with_crisis_waiver": false,
+        "pretax_margin": 6.46,
+        "priority_score": 46.49,
+        "stellar_growth": false,
+        "a_score": {
+          "total": 100,
+          "breakdown": {
+            "eps_consecutive": 20,
+            "eps_growth": 20,
+            "roe": 20,
+            "deceleration": 20,
+            "non_cyclical": 20
+          },
+          "notes": {
+            "연속_증가": "3년 연속 증가",
+            "성장률": "+27.3% (>=25%)",
+            "ROE": "19.2% (>=17%)",
+            "둔화_게이트": "통과",
+            "비사이클": "비경기민감"
+          },
+          "tier": "정통 (O'Neil 원전 충족)"
+        }
+      },
+      "criteria_c_summary": {
+        "yoy_pct": 71.51,
+        "latest_quarter": "202603",
+        "sales_yoy_pct": 28.68
+      }
+    }
+  ],
   "turnaround_candidates": [
     {
       "code": "402340",
       "name": "SK스퀘어",
       "market": "KOSPI",
-      "market_cap_eok": 1576903,
+      "market_cap_eok": 1579542,
       "current_price": 1098000,
       "criteria_turnaround": {
         "turnaround_pass": true,
@@ -71,10 +185,81 @@
       }
     },
     {
+      "code": "005930",
+      "name": "삼성전자",
+      "market": "KOSPI",
+      "market_cap_eok": 16749588,
+      "current_price": 268500,
+      "criteria_turnaround": {
+        "turnaround_pass": false,
+        "preliminary_turnaround_pass": true,
+        "annual_eps": [
+          [
+            "202112",
+            5777.0
+          ],
+          [
+            "202212",
+            8057.0
+          ],
+          [
+            "202312",
+            2131.0
+          ],
+          [
+            "202412",
+            4950.0
+          ],
+          [
+            "202512",
+            6564.0
+          ]
+        ],
+        "annual_roe": [
+          [
+            "202312",
+            4.15
+          ],
+          [
+            "202412",
+            9.03
+          ],
+          [
+            "202512",
+            10.85
+          ]
+        ],
+        "latest_annual_yoy": 32.61,
+        "two_quarter_surge": true,
+        "two_quarter_surge_detail": "202512 +156.9%, 202603 +478.2%",
+        "preliminary_two_quarter_surge": true,
+        "ttm_high_ratio": 0.815,
+        "is_all_time_high": false,
+        "latest_quarter_yoy": 478.17,
+        "induty_code": "264",
+        "cyclical": false,
+        "earnings_stability_score": 31,
+        "earnings_stability_detail": "편차율 35.8%",
+        "latest_roe": 10.85,
+        "badges": [
+          "안정성 보통"
+        ],
+        "fail_reasons": [
+          "TTM 사상 최고치 82% (≥90% 또는 신고가 필요)"
+        ]
+      },
+      "is_preliminary": true,
+      "criteria_c_summary": {
+        "yoy_pct": 478.17,
+        "latest_quarter": "202603",
+        "sales_yoy_pct": 69.16
+      }
+    },
+    {
       "code": "000660",
       "name": "SK하이닉스",
       "market": "KOSPI",
-      "market_cap_eok": 13826426,
+      "market_cap_eok": 13840680,
       "current_price": 1686000,
       "criteria_turnaround": {
         "turnaround_pass": true,
@@ -145,7 +330,7 @@
       "code": "005935",
       "name": "삼성전자우",
       "market": "KOSPI",
-      "market_cap_eok": 1585485,
+      "market_cap_eok": 1583881,
       "current_price": 182700,
       "criteria_turnaround": {
         "turnaround_pass": false,
@@ -216,7 +401,7 @@
       "code": "068270",
       "name": "셀트리온",
       "market": "KOSPI",
-      "market_cap_eok": 424124,
+      "market_cap_eok": 425678,
       "current_price": 198400,
       "criteria_turnaround": {
         "turnaround_pass": true,
@@ -281,86 +466,98 @@
         "latest_quarter": "202603",
         "sales_yoy_pct": 36.0
       }
-    },
-    {
-      "code": "005930",
-      "name": "삼성전자",
-      "market": "KOSPI",
-      "market_cap_eok": 16778820,
-      "current_price": 268500,
-      "criteria_turnaround": {
-        "turnaround_pass": false,
-        "preliminary_turnaround_pass": true,
-        "annual_eps": [
-          [
-            "202112",
-            5777.0
-          ],
-          [
-            "202212",
-            8057.0
-          ],
-          [
-            "202312",
-            2131.0
-          ],
-          [
-            "202412",
-            4950.0
-          ],
-          [
-            "202512",
-            6564.0
-          ]
-        ],
-        "annual_roe": [
-          [
-            "202312",
-            4.15
-          ],
-          [
-            "202412",
-            9.03
-          ],
-          [
-            "202512",
-            10.85
-          ]
-        ],
-        "latest_annual_yoy": 32.61,
-        "two_quarter_surge": true,
-        "two_quarter_surge_detail": "202512 +156.9%, 202603 +478.2%",
-        "preliminary_two_quarter_surge": true,
-        "ttm_high_ratio": 0.815,
-        "is_all_time_high": false,
-        "latest_quarter_yoy": 478.17,
-        "induty_code": "264",
-        "cyclical": false,
-        "earnings_stability_score": 31,
-        "earnings_stability_detail": "편차율 35.8%",
-        "latest_roe": 10.85,
-        "badges": [
-          "안정성 보통"
-        ],
-        "fail_reasons": [
-          "TTM 사상 최고치 82% (≥90% 또는 신고가 필요)"
-        ]
-      },
-      "is_preliminary": true,
-      "criteria_c_summary": {
-        "yoy_pct": 478.17,
-        "latest_quarter": "202603",
-        "sales_yoy_pct": 69.16
-      }
     }
   ],
   "new_listing_candidates": [],
   "scored_candidates": [
     {
+      "code": "079550",
+      "name": "LIG디펜스앤에어로스페이스",
+      "market": "KOSPI",
+      "market_cap_eok": 192060,
+      "current_price": 840000,
+      "a_score": 100,
+      "a_score_tier": "정통 (O'Neil 원전 충족)",
+      "a_score_breakdown": {
+        "eps_consecutive": 20,
+        "eps_growth": 20,
+        "roe": 20,
+        "deceleration": 20,
+        "non_cyclical": 20
+      },
+      "a_score_notes": {
+        "연속_증가": "3년 연속 증가",
+        "성장률": "+27.3% (>=25%)",
+        "ROE": "19.2% (>=17%)",
+        "둔화_게이트": "통과",
+        "비사이클": "비경기민감"
+      },
+      "three_year_avg_growth": 27.29,
+      "latest_roe": 19.2,
+      "pretax_margin": 6.46,
+      "three_year_growths": [
+        40.99,
+        25.41,
+        15.46
+      ],
+      "annual_eps": [
+        [
+          "202112",
+          4829.0
+        ],
+        [
+          "202212",
+          5641.0
+        ],
+        [
+          "202312",
+          7953.0
+        ],
+        [
+          "202412",
+          9974.0
+        ],
+        [
+          "202512",
+          11516.0
+        ]
+      ],
+      "annual_roe": [
+        [
+          "202312",
+          17.61
+        ],
+        [
+          "202412",
+          19.4
+        ],
+        [
+          "202512",
+          19.2
+        ]
+      ],
+      "cyclical": false,
+      "induty_code": "25200",
+      "consecutive_3y_increase": true,
+      "five_year_with_crisis_waiver": false,
+      "deceleration_gate_pass": true,
+      "main_track_pass": true,
+      "badges": [
+        "글로벌 ROE",
+        "5년 연속 성장",
+        "안정성 보통"
+      ],
+      "criteria_c_summary": {
+        "yoy_pct": 71.51,
+        "latest_quarter": "202603",
+        "sales_yoy_pct": 28.68
+      }
+    },
+    {
       "code": "402340",
       "name": "SK스퀘어",
       "market": "KOSPI",
-      "market_cap_eok": 1576903,
+      "market_cap_eok": 1579542,
       "current_price": 1098000,
       "a_score": 80,
       "a_score_tier": "정통 (O'Neil 원전 충족)",
@@ -434,7 +631,7 @@
       "code": "329180",
       "name": "HD현대중공업",
       "market": "KOSPI",
-      "market_cap_eok": 718984,
+      "market_cap_eok": 716885,
       "current_price": 658000,
       "a_score": 80,
       "a_score_tier": "정통 (O'Neil 원전 충족)",
@@ -514,7 +711,7 @@
       "code": "006800",
       "name": "미래에셋증권",
       "market": "KOSPI",
-      "market_cap_eok": 445415,
+      "market_cap_eok": 446534,
       "current_price": 79600,
       "a_score": 79,
       "a_score_tier": "근접 (한두 항목 미달)",
@@ -583,11 +780,11 @@
       }
     },
     {
-      "code": "005935",
-      "name": "삼성전자우",
+      "code": "005930",
+      "name": "삼성전자",
       "market": "KOSPI",
-      "market_cap_eok": 1585485,
-      "current_price": 182700,
+      "market_cap_eok": 16749588,
+      "current_price": 268500,
       "a_score": 79,
       "a_score_tier": "근접 (한두 항목 미달)",
       "a_score_breakdown": {
@@ -665,11 +862,11 @@
       }
     },
     {
-      "code": "005930",
-      "name": "삼성전자",
+      "code": "005935",
+      "name": "삼성전자우",
       "market": "KOSPI",
-      "market_cap_eok": 16778820,
-      "current_price": 268500,
+      "market_cap_eok": 1583881,
+      "current_price": 182700,
       "a_score": 79,
       "a_score_tier": "근접 (한두 항목 미달)",
       "a_score_breakdown": {
@@ -750,7 +947,7 @@
       "code": "010120",
       "name": "LS ELECTRIC",
       "market": "KOSPI",
-      "market_cap_eok": 450000,
+      "market_cap_eok": 449625,
       "current_price": 313000,
       "a_score": 66,
       "a_score_tier": "근접 (한두 항목 미달)",
@@ -831,7 +1028,7 @@
       "code": "068270",
       "name": "셀트리온",
       "market": "KOSPI",
-      "market_cap_eok": 424124,
+      "market_cap_eok": 425678,
       "current_price": 198400,
       "a_score": 66,
       "a_score_tier": "근접 (한두 항목 미달)",
@@ -912,7 +1109,7 @@
       "code": "000660",
       "name": "SK하이닉스",
       "market": "KOSPI",
-      "market_cap_eok": 13826426,
+      "market_cap_eok": 13840680,
       "current_price": 1686000,
       "a_score": 60,
       "a_score_tier": "근접 (한두 항목 미달)",
@@ -994,7 +1191,7 @@
       "code": "009150",
       "name": "삼성전기",
       "market": "KOSPI",
-      "market_cap_eok": 670749,
+      "market_cap_eok": 671870,
       "current_price": 914000,
       "a_score": 53,
       "a_score_tier": "약식 (사이클 종목 가능성)",
@@ -1076,7 +1273,7 @@
       "code": "006400",
       "name": "삼성SDI",
       "market": "KOSPI",
-      "market_cap_eok": 548787,
+      "market_cap_eok": 549593,
       "current_price": 678000,
       "a_score": 40,
       "a_score_tier": "약식 (사이클 종목 가능성)",
@@ -1137,7 +1334,7 @@
       "main_track_pass": false,
       "badges": [],
       "criteria_c_summary": {
-        "yoy_pct": 122.72,
+        "yoy_pct": 122.69,
         "latest_quarter": "202603",
         "sales_yoy_pct": 12.58
       }
