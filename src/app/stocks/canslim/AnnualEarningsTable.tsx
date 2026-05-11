@@ -750,3 +750,170 @@ function PreliminaryReasonPanel({ t }: { t: TurnaroundCriterion }) {
     </div>
   );
 }
+
+// ────────────────────────────────────────────────────────
+// 신규 상장 (<3년) 트랙 — 별도 컴포넌트
+// ────────────────────────────────────────────────────────
+
+export interface NewListingCriterion {
+  new_listing_pass: boolean;
+  annual_eps_count: number;
+  annual_eps: [string, number][];
+  quarterly_yoy_history: [string, number][];
+  sales_yoy_history: [string, number][];
+  induty_code: string | null;
+  cyclical: boolean;
+  earnings_stability_score: number | null;
+  earnings_stability_detail: string;
+  latest_roe: number | null;
+  badges: string[];
+  fail_reasons: string[];
+}
+
+export interface NewListingCandidate {
+  code: string;
+  name: string;
+  market: string;
+  market_cap_eok: number;
+  current_price: number;
+  criteria_new_listing: NewListingCriterion;
+  criteria_c_summary: {
+    yoy_pct: number | null;
+    latest_quarter: string | null;
+    sales_yoy_pct: number | null;
+  };
+}
+
+export function NewListingTable({ candidates }: { candidates: NewListingCandidate[] }) {
+  const [expandedCode, setExpandedCode] = useState<string | null>(null);
+
+  const sorted = useMemo(() => {
+    return [...candidates].sort((a, b) => {
+      const av = a.criteria_new_listing.quarterly_yoy_history.at(-1)?.[1] ?? -Infinity;
+      const bv = b.criteria_new_listing.quarterly_yoy_history.at(-1)?.[1] ?? -Infinity;
+      return bv - av;
+    });
+  }, [candidates]);
+
+  return (
+    <div className="bg-surface-container-low rounded-xl ghost-border overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead className="bg-surface-container/40 text-xs">
+            <tr className="text-left">
+              <th className="px-3 py-2.5 font-medium text-on-surface-variant/70">종목</th>
+              <th className="px-3 py-2.5 font-medium text-on-surface-variant/70">분기 EPS YoY 추이</th>
+              <th className="px-3 py-2.5 font-medium text-on-surface-variant/70 hidden sm:table-cell">분기 매출 YoY 추이</th>
+              <th className="px-3 py-2.5 font-medium text-on-surface-variant/70 hidden md:table-cell">연 데이터</th>
+              <th className="px-3 py-2.5 font-medium text-on-surface-variant/70 hidden md:table-cell">ROE</th>
+              <th className="px-3 py-2.5 font-medium text-on-surface-variant/70 hidden lg:table-cell">배지</th>
+              <th className="px-3 py-2.5 font-medium text-on-surface-variant/70 hidden lg:table-cell">시총</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sorted.length === 0 && (
+              <tr>
+                <td colSpan={7} className="px-3 py-8 text-center text-on-surface-variant/60 text-sm">
+                  신규 상장 후보가 없습니다.
+                </td>
+              </tr>
+            )}
+            {sorted.map((c) => {
+              const n = c.criteria_new_listing;
+              const isOpen = expandedCode === c.code;
+              return (
+                <Fragment key={c.code}>
+                  <tr
+                    onClick={() => setExpandedCode(isOpen ? null : c.code)}
+                    className={`border-t border-on-surface/5 cursor-pointer hover:bg-surface-container/30 ${
+                      isOpen ? "bg-surface-container/20" : ""
+                    }`}
+                  >
+                    <td className="px-3 py-2.5">
+                      <div className="flex flex-col">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-medium text-on-surface">{c.name}</span>
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-300 font-medium" title="상장 3년 미만, 분기 데이터 기반 평가">
+                            🆕 신규
+                          </span>
+                        </div>
+                        <span className="text-[11px] text-on-surface-variant/60">{c.code} · {c.market}</span>
+                      </div>
+                    </td>
+                    <td className="px-3 py-2.5 text-xs">
+                      <span className="font-mono text-on-surface-variant">
+                        {n.quarterly_yoy_history.map(([q, v], i) => (
+                          <span key={q}>
+                            <span style={{ color: growthColor(v) }}>{fmtPct(v)}</span>
+                            {i < n.quarterly_yoy_history.length - 1 && <span className="text-on-surface-variant/40 mx-1">→</span>}
+                          </span>
+                        ))}
+                      </span>
+                    </td>
+                    <td className="px-3 py-2.5 hidden sm:table-cell text-xs">
+                      <span className="font-mono text-on-surface-variant">
+                        {n.sales_yoy_history.map(([q, v], i) => (
+                          <span key={q}>
+                            <span style={{ color: growthColor(v) }}>{fmtPct(v)}</span>
+                            {i < n.sales_yoy_history.length - 1 && <span className="text-on-surface-variant/40 mx-1">→</span>}
+                          </span>
+                        ))}
+                      </span>
+                    </td>
+                    <td className="px-3 py-2.5 hidden md:table-cell text-xs text-on-surface-variant">
+                      {n.annual_eps_count}년
+                    </td>
+                    <td className="px-3 py-2.5 hidden md:table-cell text-xs font-medium" style={{ color: roeColor(n.latest_roe) }}>
+                      {n.latest_roe !== null ? `${n.latest_roe.toFixed(1)}%` : "—"}
+                    </td>
+                    <td className="px-3 py-2.5 hidden lg:table-cell">
+                      <div className="flex flex-wrap gap-1">
+                        {n.badges.map((b) => (
+                          <span key={b} className={`text-[10px] px-1.5 py-0.5 rounded ${badgeStyle(b)}`}>{b}</span>
+                        ))}
+                      </div>
+                    </td>
+                    <td className="px-3 py-2.5 text-on-surface-variant text-xs hidden lg:table-cell">{fmtCap(c.market_cap_eok)}</td>
+                  </tr>
+                  {isOpen && (
+                    <tr className="bg-surface-container/10 border-t border-on-surface/5">
+                      <td colSpan={7} className="px-3 py-4 text-xs text-on-surface-variant">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                          <div className="bg-surface-container/40 rounded-md p-2.5">
+                            <p className="text-on-surface-variant/60 mb-0.5">연간 EPS ({n.annual_eps_count}년)</p>
+                            {n.annual_eps.length > 0 ? (
+                              <ul className="space-y-1 mt-1">
+                                {n.annual_eps.map(([k, v]) => (
+                                  <li key={k} className="flex items-baseline gap-2">
+                                    <span className="text-on-surface-variant/60 font-mono text-[11px] w-12">{k.slice(0, 4)}</span>
+                                    <span className="font-medium text-on-surface">{v.toLocaleString()}원</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            ) : "데이터 없음"}
+                          </div>
+                          <div className="bg-surface-container/40 rounded-md p-2.5">
+                            <p className="text-on-surface-variant/60 mb-0.5">안정성 지수</p>
+                            <p className="font-medium" style={{ color: stabilityColor(n.earnings_stability_score) }}>
+                              {n.earnings_stability_score !== null ? n.earnings_stability_score : "평가 불가"}
+                            </p>
+                            <p className="text-on-surface-variant/50 mt-0.5">{n.earnings_stability_detail || "—"}</p>
+                          </div>
+                          <div className="bg-surface-container/40 rounded-md p-2.5">
+                            <p className="text-on-surface-variant/60 mb-0.5">산업 코드 (KSIC)</p>
+                            <p className="font-medium text-on-surface">{n.induty_code ?? "—"}</p>
+                            <p className="text-on-surface-variant/50 mt-0.5">{n.cyclical ? "경기민감" : "비경기민감"}</p>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}

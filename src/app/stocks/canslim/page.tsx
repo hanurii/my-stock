@@ -1,7 +1,7 @@
 import fs from "fs/promises";
 import path from "path";
 import { CanslimTable, type CanslimCandidate } from "./CanslimTable";
-import { AnnualEarningsTable, TurnaroundTable, type AnnualCandidate, type TurnaroundCandidate } from "./AnnualEarningsTable";
+import { AnnualEarningsTable, TurnaroundTable, NewListingTable, type AnnualCandidate, type TurnaroundCandidate, type NewListingCandidate } from "./AnnualEarningsTable";
 
 interface MarketStatus {
   kospi_trend_verdict: string;
@@ -25,8 +25,10 @@ interface CanslimAData {
   a_passed_count: number;
   turnaround_count: number;
   preliminary_turnaround_count?: number;
+  new_listing_count?: number;
   candidates: AnnualCandidate[];
   turnaround_candidates: TurnaroundCandidate[];
+  new_listing_candidates?: NewListingCandidate[];
 }
 
 async function getData(): Promise<CanslimData | null> {
@@ -235,6 +237,18 @@ export default async function CanslimPage() {
               </h4>
               <TurnaroundTable candidates={aData.turnaround_candidates} />
             </div>
+            {aData.new_listing_candidates && aData.new_listing_candidates.length > 0 && (
+              <div>
+                <h4 className="text-sm font-serif font-bold text-on-surface mb-2 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-base text-blue-300">new_releases</span>
+                  신규 상장 트랙 ({aData.new_listing_candidates.length}종목)
+                  <span className="text-xs text-on-surface-variant/60 font-normal ml-2">
+                    · 상장 &lt;3년 (연 데이터 부족) + 분기 EPS·매출 모두 +25%↑ 지속 + 비경기민감
+                  </span>
+                </h4>
+                <NewListingTable candidates={aData.new_listing_candidates} />
+              </div>
+            )}
           </div>
         ) : (
           <div className="bg-surface-container-low rounded-xl ghost-border p-6 text-center text-sm text-on-surface-variant/70">

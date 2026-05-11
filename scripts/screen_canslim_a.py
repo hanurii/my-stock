@@ -63,7 +63,11 @@ from canslim_lib.fetch import (  # noqa: E402
     merge_naver_dart_quarters,
     resolve_corp_code,
 )
-from canslim_lib.criteria_a import evaluate_a_detailed, evaluate_turnaround_detailed  # noqa: E402
+from canslim_lib.criteria_a import (  # noqa: E402
+    evaluate_a_detailed,
+    evaluate_new_listing_detailed,
+    evaluate_turnaround_detailed,
+)
 
 
 def fetch_dart_annual_eps(corp_code: str, year: int) -> float | None:
@@ -99,6 +103,39 @@ def fetch_dart_annual_roe(corp_code: str, year: int) -> float | None:
 
     Naver 가 ROE 를 제공하므로 이 helper 는 보강용 placeholder.
     """
+    return None
+
+
+def fetch_dart_annual_cfo(corp_code: str, year: int) -> float | None:
+    """DART 사업보고서(11011) 현금흐름표에서 영업활동현금흐름 (원, 연간 단일).
+
+    sj_div='CF' 항목 중 "영업활동" 키워드 매칭. 회사마다 명칭 변형 다수.
+    """
+    for fs_div in ("CFS", "OFS"):
+        items = dart_get("fnlttSinglAcntAll", {
+            "corp_code": corp_code,
+            "bsns_year": str(year),
+            "reprt_code": "11011",
+            "fs_div": fs_div,
+        })
+        if not items:
+            continue
+        for it in items:
+            if it.get("sj_div") != "CF":
+                continue
+            nm = (it.get("account_nm") or "").replace(" ", "")
+            if any(k in nm for k in (
+                "영업활동현금흐름",
+                "영업활동으로인한현금흐름",
+                "영업활동순현금흐름",
+                "영업활동에서창출된현금",
+            )):
+                raw = it.get("thstrm_amount")
+                if raw and raw not in ("-", ""):
+                    try:
+                        return float(str(raw).replace(",", ""))
+                    except (ValueError, TypeError):
+                        continue
     return None
 
 
@@ -270,6 +307,7 @@ def main() -> int:
 
     a_results: list[dict] = []
     turnaround_results: list[dict] = []
+    new_listing_results: list[dict] = []
     for idx, cand in enumerate(c_passed, start=1):
         code = cand["code"]
         name = cand["name"]
@@ -281,8 +319,24 @@ def main() -> int:
         ann = fetch_annual(code)
         annual_eps = fetch_annual_eps_extended(code, corp_code)
         annual_roe = get_row_values(ann, "ROE") if ann else []
-        # CPS — Naver 미제공, v1 에서는 미수집
+
+        # 1.5) CPS — DART 사업보고서 영업CF / 발행주식수 (시가총액×1e8/주가)
         annual_cps: list[tuple[str, float]] = []
+        market_cap_eok = cand.get("market_cap_eok") or 0
+        current_price = cand.get("current_price") or 0
+        if corp_code and market_cap_eok > 0 and current_price > 0:
+            shares_outstanding = market_cap_eok * 1e8 / current_price
+            if shares_outstanding > 0:
+                # 최근 3년 CPS 수집 (배지·추이 표시용)
+                cps_years = sorted({
+                    int(k[:4]) for k, _ in annual_eps[-3:] if k[:4].isdigit()
+                })
+                for y in cps_years:
+                    cfo = fetch_dart_annual_cfo(corp_code, y)
+                    if cfo is not None:
+                        cps = cfo / shares_outstanding
+                        annual_cps.append((f"{y}12", round(cps, 2)))
+                    time.sleep(0.1)
 
         # 2) 산업 코드
         induty_code = fetch_dart_industry_code(corp_code) if corp_code else None
@@ -384,6 +438,36 @@ def main() -> int:
                     "criteria_c_summary": c_summary,
                 })
             else:
+                # 7) 턴어라운드도 미통과 → 신규 상장 (<3년) 트랙 평가
+                # 연간 EPS 데이터 부족 (DART 보강 후에도 4년 미달) 종목 대상
+                new_listing_eligible = len(annual_eps) < 4
+                if new_listing_eligible:
+                    sales_yoy_history_raw = cand["criteria"]["C"].get("sales_yoy_history") or []
+                    sales_yoy_history: list[tuple[str, float]] = [
+                        (str(p), float(v)) for p, v in sales_yoy_history_raw
+                    ]
+                    n_detail = evaluate_new_listing_detailed(
+                        annual_eps=annual_eps,
+                        quarterly_eps_yoy_history=quarterly_eps_yoy_history,
+                        sales_yoy_history=sales_yoy_history,
+                        induty_code=induty_code,
+                        annual_roe=annual_roe,
+                        quarterly_eps_for_stability=quarterly_eps_for_stability,
+                    )
+                    if n_detail["new_listing_pass"]:
+                        badges_str = ", ".join(n_detail["badges"]) if n_detail["badges"] else "—"
+                        print(f"      🆕 신규 상장 · 연 데이터 {n_detail['annual_eps_count']}년 · 분기 EPS·매출 4분기 모두 +25%+ · 배지: {badges_str}")
+                        new_listing_results.append({
+                            "code": code,
+                            "name": name,
+                            "market": cand["market"],
+                            "market_cap_eok": cand["market_cap_eok"],
+                            "current_price": cand["current_price"],
+                            "criteria_new_listing": n_detail,
+                            "criteria_c_summary": c_summary,
+                        })
+                        time.sleep(0.3)
+                        continue
                 main_reason = a_detail["fail_reasons"][0] if a_detail["fail_reasons"] else "?"
                 t_reason = t_detail["fail_reasons"][0] if t_detail["fail_reasons"] else "?"
                 print(f"      → 미통과: 메인({main_reason}) / 턴어라운드({t_reason})")
@@ -398,13 +482,15 @@ def main() -> int:
         "a_passed_count": len(a_results),
         "turnaround_count": pure_count,
         "preliminary_turnaround_count": prelim_count,
+        "new_listing_count": len(new_listing_results),
         "candidates": a_results,
         "turnaround_candidates": turnaround_results,
+        "new_listing_candidates": new_listing_results,
     }
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT.write_text(json.dumps(output, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"✅ 저장: {OUTPUT}")
-    print(f"   C 노출 {len(c_passed)} → A 메인 {len(a_results)} + 턴어라운드 {pure_count} + 예비 {prelim_count}")
+    print(f"   C 노출 {len(c_passed)} → A 메인 {len(a_results)} + 턴어라운드 {pure_count} + 예비 {prelim_count} + 신규상장 {len(new_listing_results)}")
     return 0
 
 

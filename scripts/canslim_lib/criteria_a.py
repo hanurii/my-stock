@@ -37,6 +37,10 @@ TURNAROUND_PRELIM_ANNUAL_EPS_MIN_PCT = 0.0  # 양수 회복만 확인
 TURNAROUND_PRELIM_QUARTERLY_YOY_MIN_PCT = 30.0  # 분기 +30%+ 급증
 TURNAROUND_PRELIM_TTM_HIGH_RATIO = 0.80  # TTM 80%+ (예: 삼성전자 82%)
 
+# 신규 상장 (<3년) 트랙 컷오프 — 연간 데이터 부족 종목 중 분기 가속 강한 후보
+NEW_LISTING_QUARTERLY_MIN_PCT = 25.0  # 분기 EPS YoY 모든 분기 +25%+ (지속성)
+NEW_LISTING_MIN_HISTORY = 3  # 분기 history 최소 3개 (1~2분기는 불충분)
+
 # KSIC (한국표준산업분류) 코드 prefix 기반 경기민감주 (사용자 본문 5개)
 # 24=1차 금속(철강), 20=화학, 17=펄프/종이(제지), 22=고무/플라스틱, 29=기타 기계/장비
 CYCLICAL_KSIC_PREFIXES = ("24", "20", "17", "22", "29")
@@ -94,6 +98,95 @@ def compute_earnings_stability(quarterly_eps: list[float]) -> tuple[int | None, 
     if has_loss:
         detail += f" (적자 {loss_count}분기 포함, 평균 |EPS| 정규화)"
     return score, detail
+
+
+def evaluate_new_listing_detailed(
+    annual_eps: list[tuple[str, float]],
+    quarterly_eps_yoy_history: list[tuple[str, float]],
+    sales_yoy_history: list[tuple[str, float]],
+    induty_code: str | None,
+    annual_roe: list[tuple[str, float]] | None = None,
+    quarterly_eps_for_stability: list[float] | None = None,
+) -> dict:
+    """A 신규 상장 (<3년) 트랙 — 연간 데이터 부족 종목 중 분기 EPS·매출 강한 후보.
+
+    O'Neil 원전 (사용자 본문 #8): 상장 3년 미만으로 연 데이터 없으면
+      - 최근 5~6분기 EPS 큰 폭 증가
+      - 분기 매출 증가율도 충분
+      - 1~2분기만 좋은 건 불충분 (지속성 확인)
+    """
+    out: dict[str, Any] = {
+        "new_listing_pass": False,
+        "annual_eps_count": len(annual_eps),
+        "annual_eps": [(k, round(v, 2)) for k, v in annual_eps[-5:]],
+        "quarterly_yoy_history": [(p, round(v, 2)) for p, v in quarterly_eps_yoy_history[-5:]],
+        "sales_yoy_history": [(p, round(v, 2)) for p, v in sales_yoy_history[-5:]],
+        "induty_code": induty_code,
+        "cyclical": is_cyclical_industry(induty_code),
+        "earnings_stability_score": None,
+        "earnings_stability_detail": "",
+        "latest_roe": annual_roe[-1][1] if annual_roe else None,
+        "badges": [],
+        "fail_reasons": [],
+    }
+
+    # 1) 분기 EPS 지속성
+    if len(quarterly_eps_yoy_history) < NEW_LISTING_MIN_HISTORY:
+        out["fail_reasons"].append(
+            f"분기 EPS YoY history {len(quarterly_eps_yoy_history)}개 (≥{NEW_LISTING_MIN_HISTORY} 필요)"
+        )
+    eps_pass = (
+        len(quarterly_eps_yoy_history) >= NEW_LISTING_MIN_HISTORY
+        and all(v >= NEW_LISTING_QUARTERLY_MIN_PCT for _, v in quarterly_eps_yoy_history)
+    )
+
+    # 2) 분기 매출 지속성
+    if len(sales_yoy_history) < NEW_LISTING_MIN_HISTORY:
+        out["fail_reasons"].append(
+            f"분기 매출 YoY history {len(sales_yoy_history)}개 (≥{NEW_LISTING_MIN_HISTORY} 필요)"
+        )
+    sales_pass = (
+        len(sales_yoy_history) >= NEW_LISTING_MIN_HISTORY
+        and all(v >= NEW_LISTING_QUARTERLY_MIN_PCT for _, v in sales_yoy_history)
+    )
+
+    # 3) 비경기민감
+    cyclical_pass = not out["cyclical"]
+
+    out["new_listing_pass"] = bool(eps_pass and sales_pass and cyclical_pass)
+
+    if not eps_pass and len(quarterly_eps_yoy_history) >= NEW_LISTING_MIN_HISTORY:
+        weakest = min(v for _, v in quarterly_eps_yoy_history)
+        out["fail_reasons"].append(
+            f"분기 EPS YoY 지속성 미충족 (최약 +{weakest:.1f}%, ≥+{NEW_LISTING_QUARTERLY_MIN_PCT}% 필요)"
+        )
+    if not sales_pass and len(sales_yoy_history) >= NEW_LISTING_MIN_HISTORY:
+        weakest = min(v for _, v in sales_yoy_history)
+        out["fail_reasons"].append(
+            f"분기 매출 YoY 지속성 미충족 (최약 +{weakest:.1f}%, ≥+{NEW_LISTING_QUARTERLY_MIN_PCT}% 필요)"
+        )
+    if not cyclical_pass:
+        out["fail_reasons"].append(f"경기민감주 (KSIC {induty_code})")
+
+    # 안정성 + ROE 배지 (참고)
+    if quarterly_eps_for_stability and len(quarterly_eps_for_stability) >= 12:
+        score, detail = compute_earnings_stability(quarterly_eps_for_stability)
+        out["earnings_stability_score"] = score
+        out["earnings_stability_detail"] = detail
+        if score is not None:
+            if score < A_STABILITY_EXCELLENT_MAX:
+                out["badges"].append("안정성 우수")
+            elif score <= A_STABILITY_MODERATE_MAX:
+                out["badges"].append("안정성 보통")
+            else:
+                out["badges"].append("안정성 부족")
+    if out["latest_roe"] is not None:
+        if out["latest_roe"] >= A_BADGE_ROE_EXCELLENT:
+            out["badges"].append("탁월 ROE")
+        elif out["latest_roe"] >= A_BADGE_ROE_GLOBAL:
+            out["badges"].append("글로벌 ROE")
+
+    return out
 
 
 def evaluate_turnaround_detailed(
