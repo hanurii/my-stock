@@ -206,9 +206,10 @@ def fetch_dart_industry_code(corp_code: str) -> str | None:
 
 
 def passes_c_main(criteria_c: dict) -> bool:
-    """page.tsx 의 main 필터와 동일 — C 노출 조건 검사.
+    """src/app/stocks/canslim/lib/cFilter.ts 의 passesCGate 와 동일 — C 노출 조건 검사.
 
-    O'Neil 원전 강화: 가속 필수 + 경고 자동 제외.
+    가속 게이트: eps_accel_3q (4분기 윈도우 단조/폭발) OR eps_accel_quality 가 mild/strong/explosive.
+    직전 분기 YoY 음수 → 양수 회복 (recovery) 은 진짜 가속이 아니므로 페이지/A에서 모두 제외.
     """
     yoy = criteria_c.get("yoy_pct")
     if yoy is None or yoy < C_QUARTERLY_EPS_THRESHOLD:
@@ -218,10 +219,11 @@ def passes_c_main(criteria_c: dict) -> bool:
     sales_pass = (sales_yoy is not None and sales_yoy >= C_SALES_THRESHOLD) or sales_accel
     if not sales_pass:
         return False
-    # O'Neil 원전 가속화 게이트
-    accel_delta = criteria_c.get("accel_delta_pp") or 0
+    # 가속화 게이트 — quality(mild/strong/explosive) 또는 4분기 윈도우 폭발
+    quality = criteria_c.get("eps_accel_quality")
     eps_accel_3q = criteria_c.get("eps_accel_3q", False)
-    if not (eps_accel_3q or accel_delta > 0):
+    quality_accel = quality in ("mild", "strong", "explosive")
+    if not (eps_accel_3q or quality_accel):
         return False
     # 경고 자동 제외
     if (criteria_c.get("consecutive_decline_quarters") or 0) >= 2:
