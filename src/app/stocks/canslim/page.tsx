@@ -33,6 +33,13 @@ interface CanslimAData {
   new_listing_candidates?: NewListingCandidate[];
 }
 
+interface CanslimNData {
+  generated_at: string;
+  input_track: string;
+  a_input_total: number;
+  n_count: number;
+}
+
 async function getData(): Promise<CanslimData | null> {
   try {
     const filePath = path.join(process.cwd(), "public", "data", "can-slim-candidates.json");
@@ -51,8 +58,17 @@ async function getAData(): Promise<CanslimAData | null> {
   }
 }
 
+async function getNData(): Promise<CanslimNData | null> {
+  try {
+    const filePath = path.join(process.cwd(), "public", "data", "can-slim-n-candidates.json");
+    return JSON.parse(await fs.readFile(filePath, "utf-8"));
+  } catch {
+    return null;
+  }
+}
+
 export default async function CanslimIndexPage() {
-  const [data, aData] = await Promise.all([getData(), getAData()]);
+  const [data, aData, nData] = await Promise.all([getData(), getAData(), getNData()]);
 
   const cMainCount = data ? data.candidates.filter((c) => passesCGate(c.criteria.C)).length : 0;
 
@@ -63,6 +79,7 @@ export default async function CanslimIndexPage() {
   const aTurnaroundCount = aData?.turnaround_count ?? 0;
   const aPrelimCount = aData?.preliminary_turnaround_count ?? 0;
   const aNewListingCount = aData?.new_listing_count ?? 0;
+  const nCount = nData?.n_count ?? 0;
 
   return (
     <div className="space-y-10">
@@ -102,7 +119,7 @@ export default async function CanslimIndexPage() {
           <span className="material-symbols-outlined text-primary">check_circle</span>
           구현된 원칙
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {/* C 카드 */}
           <Link
             href="/stocks/canslim/c"
@@ -154,18 +171,40 @@ export default async function CanslimIndexPage() {
               <span className="material-symbols-outlined text-sm">arrow_forward</span>
             </p>
           </Link>
+
+          {/* N 카드 */}
+          <Link
+            href="/stocks/canslim/n"
+            className="block bg-surface-container-low rounded-xl ghost-border p-5 hover:bg-surface-container/50 transition-all group"
+          >
+            <div className="flex items-baseline gap-3 mb-2">
+              <span className="text-3xl font-serif font-bold text-primary">N</span>
+              <span className="text-sm text-on-surface-variant">New Products / Management / Highs</span>
+            </div>
+            <p className="text-base font-medium text-on-surface mb-1">신제품·신경영·신고가</p>
+            <p className="text-xs text-on-surface-variant/80 leading-relaxed mb-3">
+              A 점수 80+ 종목 대상으로 52주 신고가 대비 % 자동 계산 + 신제품·신경영 카탈리스트를 한국 언론 검색 기반 코멘트로 정리
+            </p>
+            <div className="flex items-baseline justify-between">
+              <span className="text-2xl font-bold text-primary">{nCount}</span>
+              <span className="text-xs text-on-surface-variant/60">N 후보 종목</span>
+            </div>
+            <p className="text-xs text-primary/80 mt-3 group-hover:text-primary flex items-center gap-1">
+              상세 보기
+              <span className="material-symbols-outlined text-sm">arrow_forward</span>
+            </p>
+          </Link>
         </div>
       </section>
 
-      {/* N·S·L·I·M 자리표시자 */}
+      {/* S·L·I·M 자리표시자 */}
       <section>
         <h3 className="text-lg font-serif font-bold text-on-surface mb-3 flex items-center gap-2">
           <span className="material-symbols-outlined text-on-surface-variant">timeline</span>
-          나머지 5원칙 — 향후 추가 예정
+          나머지 4원칙 — 향후 추가 예정
         </h3>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 text-xs">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
           {[
-            { letter: "N", name: "New Highs", body: "52주 신고가 근접 + 베이스 돌파" },
             { letter: "S", name: "Supply & Demand", body: "거래량 급증 + 유통주식 수급" },
             { letter: "L", name: "Leader", body: "상대강도(RS) 상위 20%" },
             { letter: "I", name: "Institutional", body: "외인+기관 매집 + 분기 증가 추세" },

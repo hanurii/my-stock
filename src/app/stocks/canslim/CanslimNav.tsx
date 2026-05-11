@@ -13,7 +13,7 @@ interface Principle {
 const principles: Principle[] = [
   { letter: "C", name: "Current Quarterly", href: "/stocks/canslim/c", enabled: true },
   { letter: "A", name: "Annual Earnings", href: "/stocks/canslim/a", enabled: true },
-  { letter: "N", name: "New Highs", href: "/stocks/canslim/n", enabled: false },
+  { letter: "N", name: "New Highs", href: "/stocks/canslim/n", enabled: true },
   { letter: "S", name: "Supply & Demand", href: "/stocks/canslim/s", enabled: false },
   { letter: "L", name: "Leader (RS)", href: "/stocks/canslim/l", enabled: false },
   { letter: "I", name: "Institutional", href: "/stocks/canslim/i", enabled: false },
