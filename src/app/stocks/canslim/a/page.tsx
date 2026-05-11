@@ -72,9 +72,6 @@ export default async function CanslimAPage() {
       }).length
     : 0;
 
-  const marketGo = data?.market_status.passed ?? false;
-  const marketColor = marketGo ? "#95d3ba" : "#ffb4ab";
-
   return (
     <div className="space-y-10">
       <header>
@@ -98,24 +95,6 @@ export default async function CanslimAPage() {
             : " A 데이터 미생성 (`python scripts/screen_canslim_a.py` 실행 필요)"}
         </p>
       </header>
-
-      {/* 시장 추세 미니배너 (M 원칙 미리보기) */}
-      {data && (
-        <section
-          className="rounded-xl ghost-border p-4 flex items-center gap-3"
-          style={{ backgroundColor: `${marketColor}10` }}
-        >
-          <span className="material-symbols-outlined text-2xl" style={{ color: marketColor }}>
-            {marketGo ? "trending_up" : "trending_down"}
-          </span>
-          <div className="flex-1">
-            <p className="text-sm font-medium text-on-surface">
-              시장 추세(M): <span style={{ color: marketColor }}>{data.market_status.value}</span>
-            </p>
-            <p className="text-xs text-on-surface-variant/70 mt-0.5">{data.market_status.detail}</p>
-          </div>
-        </section>
-      )}
 
       {/* A 본문 */}
       <section>
