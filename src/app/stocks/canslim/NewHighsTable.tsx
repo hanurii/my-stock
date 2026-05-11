@@ -8,6 +8,7 @@ export interface NSource {
 }
 
 export interface NCommentary {
+  summary: string | null;
   new_product: string | null;
   new_management: string | null;
   new_high_reason: string | null;
@@ -29,7 +30,7 @@ export interface NCandidate {
   n_commentary: NCommentary;
 }
 
-type SortKey = "pct_from_52w_high" | "a_score";
+type SortKey = "pct_from_52w_high";
 
 interface Props {
   candidates: NCandidate[];
@@ -52,12 +53,6 @@ function pctLabel(pct: number): string {
   if (pct >= -3) return "신고가권";
   if (pct >= -5) return "근접권";
   return "미달";
-}
-
-function scoreColor(score: number): string {
-  if (score >= 95) return "#10b981";
-  if (score >= 85) return "#34d399";
-  return "#a8b5d0";
 }
 
 export function NewHighsTable({ candidates }: Props) {
@@ -89,12 +84,9 @@ export function NewHighsTable({ candidates }: Props) {
         <thead>
           <tr className="text-[11px] text-on-surface-variant/70 border-b border-on-surface/10">
             <th className="text-left py-2.5 pr-3 font-normal">종목명</th>
-            <th
-              className="text-right py-2.5 px-3 font-normal cursor-pointer hover:text-on-surface"
-              onClick={() => toggleSort("a_score")}
-            >
-              A 점수 {sortArrow("a_score")}
-            </th>
+            <th className="text-left py-2.5 px-3 font-normal">핵심 요약</th>
+            <th className="text-center py-2.5 px-2 font-normal" title="신제품">신제품</th>
+            <th className="text-center py-2.5 px-2 font-normal" title="신경영">신경영</th>
             <th className="text-right py-2.5 px-3 font-normal">현재가</th>
             <th className="text-right py-2.5 px-3 font-normal">52주 신고가 (도달일)</th>
             <th
@@ -110,6 +102,8 @@ export function NewHighsTable({ candidates }: Props) {
           {sorted.map((c) => {
             const pct = c.pct_from_52w_high;
             const isExpanded = expandedCode === c.code;
+            const hasProduct = !!c.n_commentary.new_product;
+            const hasManagement = !!c.n_commentary.new_management;
             return (
               <Fragment key={c.code}>
                 <tr
@@ -124,13 +118,14 @@ export function NewHighsTable({ candidates }: Props) {
                       <span className="text-[11px] text-on-surface-variant/50 font-mono">{c.code}</span>
                     </div>
                   </td>
-                  <td className="text-right py-3 px-3">
-                    <span
-                      className="font-bold"
-                      style={{ color: scoreColor(c.a_score) }}
-                    >
-                      {c.a_score}
-                    </span>
+                  <td className="py-3 px-3 text-xs text-on-surface-variant max-w-[280px]">
+                    {c.n_commentary.summary ?? <span className="text-on-surface-variant/40 italic">—</span>}
+                  </td>
+                  <td className="text-center py-3 px-2">
+                    <Indicator on={hasProduct} icon="rocket_launch" color="#95d3ba" title={hasProduct ? "신제품 카탈리스트 확인" : "확인된 신제품 없음"} />
+                  </td>
+                  <td className="text-center py-3 px-2">
+                    <Indicator on={hasManagement} icon="groups" color="#e9c176" title={hasManagement ? "신경영 카탈리스트 확인" : "확인된 신경영 없음"} />
                   </td>
                   <td className="text-right py-3 px-3 text-on-surface-variant">
                     {fmtPrice(c.current_price)}
@@ -156,7 +151,7 @@ export function NewHighsTable({ candidates }: Props) {
                 </tr>
                 {isExpanded && (
                   <tr className="bg-surface-container/30 border-b border-on-surface/5">
-                    <td colSpan={6} className="p-5">
+                    <td colSpan={8} className="p-5">
                       <ExpandedDetail candidate={c} />
                     </td>
                   </tr>
@@ -167,6 +162,18 @@ export function NewHighsTable({ candidates }: Props) {
         </tbody>
       </table>
     </div>
+  );
+}
+
+function Indicator({ on, icon, color, title }: { on: boolean; icon: string; color: string; title: string }) {
+  return (
+    <span
+      title={title}
+      className="material-symbols-outlined text-lg"
+      style={{ color: on ? color : "var(--on-surface-variant)", opacity: on ? 1 : 0.25 }}
+    >
+      {on ? icon : "remove"}
+    </span>
   );
 }
 
