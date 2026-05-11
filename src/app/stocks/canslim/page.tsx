@@ -47,6 +47,18 @@ interface CanslimSData {
   excluded_count: number;
 }
 
+interface CanslimLData {
+  generated_at: string;
+  s_input_count: number;
+  l_passed_count: number;
+  excluded_count: number;
+  universe: {
+    type: string;
+    actual_size: number;
+    rs_cutoff: number;
+  };
+}
+
 async function getData(): Promise<CanslimData | null> {
   try {
     const filePath = path.join(process.cwd(), "public", "data", "can-slim-candidates.json");
@@ -83,8 +95,17 @@ async function getSData(): Promise<CanslimSData | null> {
   }
 }
 
+async function getLData(): Promise<CanslimLData | null> {
+  try {
+    const filePath = path.join(process.cwd(), "public", "data", "can-slim-l-candidates.json");
+    return JSON.parse(await fs.readFile(filePath, "utf-8"));
+  } catch {
+    return null;
+  }
+}
+
 export default async function CanslimIndexPage() {
-  const [data, aData, nData, sData] = await Promise.all([getData(), getAData(), getNData(), getSData()]);
+  const [data, aData, nData, sData, lData] = await Promise.all([getData(), getAData(), getNData(), getSData(), getLData()]);
 
   const cMainCount = data ? data.candidates.filter((c) => passesCGate(c.criteria.C)).length : 0;
 
@@ -98,6 +119,9 @@ export default async function CanslimIndexPage() {
   const nCount = nData?.n_count ?? 0;
   const sCount = sData?.s_passed_count ?? 0;
   const sExcludedCount = sData?.excluded_count ?? 0;
+  const lCount = lData?.l_passed_count ?? 0;
+  const lCutoff = lData?.universe.rs_cutoff ?? 80;
+  const lUniverseSize = lData?.universe.actual_size ?? 0;
 
   return (
     <div className="space-y-10">
@@ -237,18 +261,40 @@ export default async function CanslimIndexPage() {
               <span className="material-symbols-outlined text-sm">arrow_forward</span>
             </p>
           </Link>
+
+          {/* L 카드 */}
+          <Link
+            href="/stocks/canslim/l"
+            className="block bg-surface-container-low rounded-xl ghost-border p-5 hover:bg-surface-container/50 transition-all group"
+          >
+            <div className="flex items-baseline gap-3 mb-2">
+              <span className="text-3xl font-serif font-bold text-primary">L</span>
+              <span className="text-sm text-on-surface-variant">Leader or Laggard</span>
+            </div>
+            <p className="text-base font-medium text-on-surface mb-1">주도주 (상대강도)</p>
+            <p className="text-xs text-on-surface-variant/80 leading-relaxed mb-3">
+              S 통과 종목 대상으로 52주 단순 수익률 백분위 RS 점수 산출. KOSPI 시총 상위 {lUniverseSize || 300}개 모집단, RS ≥ {lCutoff} 통과.
+            </p>
+            <div className="flex items-baseline justify-between">
+              <span className="text-2xl font-bold text-primary">{lCount}</span>
+              <span className="text-xs text-on-surface-variant/60">L 통과 종목</span>
+            </div>
+            <p className="text-xs text-primary/80 mt-3 group-hover:text-primary flex items-center gap-1">
+              상세 보기
+              <span className="material-symbols-outlined text-sm">arrow_forward</span>
+            </p>
+          </Link>
         </div>
       </section>
 
-      {/* L·I·M 자리표시자 */}
+      {/* I·M 자리표시자 */}
       <section>
         <h3 className="text-lg font-serif font-bold text-on-surface mb-3 flex items-center gap-2">
           <span className="material-symbols-outlined text-on-surface-variant">timeline</span>
-          나머지 3원칙 — 향후 추가 예정
+          나머지 2원칙 — 향후 추가 예정
         </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
           {[
-            { letter: "L", name: "Leader", body: "상대강도(RS) 상위 20%" },
             { letter: "I", name: "Institutional", body: "외인+기관 매집 + 분기 증가 추세" },
             { letter: "M", name: "Market Direction", body: "지수 200일선 위 + 50일선이 위로" },
           ].map((l) => (
