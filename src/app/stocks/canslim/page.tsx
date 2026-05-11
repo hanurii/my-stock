@@ -71,7 +71,14 @@ export default async function CanslimPage() {
     if (cr.yoy_pct < USER_C_THRESHOLD) return false;
     // 매출 동반 검증: 매출 +25% 이상 OR 매출 3분기 가속 둘 중 하나라도 없으면 제외
     const salesAccompany = (cr.sales_yoy_pct !== null && cr.sales_yoy_pct >= 25) || cr.sales_accel_3q;
-    return salesAccompany;
+    if (!salesAccompany) return false;
+    // O'Neil 원전 가속화 게이트: EPS 가속 (3분기 단조 증가) 또는 직전 분기 대비 가속 둘 중 하나 필수
+    const accelerating = cr.eps_accel_3q || ((cr.accel_delta_pp ?? 0) > 0);
+    if (!accelerating) return false;
+    // O'Neil 원전 경고 자동 제외: 2분기 연속 EPS 감소 / 증가율 2/3 둔화
+    if (cr.consecutive_decline_quarters >= 2) return false;
+    if (cr.severe_decel) return false;
+    return true;
   });
 
   const marketGo = data.market_status.passed;

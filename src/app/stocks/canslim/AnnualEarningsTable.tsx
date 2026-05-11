@@ -24,6 +24,10 @@ export interface ACriterion {
   earnings_stability_detail: string;
   badges: string[];
   fail_reasons: string[];
+  pretax_margin?: number | null;
+  priority_score?: number | null;
+  stellar_growth?: boolean;
+  five_year_with_crisis_waiver?: boolean;
 }
 
 export interface AnnualCandidate {
@@ -40,7 +44,7 @@ export interface AnnualCandidate {
   };
 }
 
-type SortKey = "three_year_avg_growth" | "latest_roe" | "earnings_stability_score" | "market_cap";
+type SortKey = "priority_score" | "three_year_avg_growth" | "latest_roe" | "pretax_margin" | "earnings_stability_score" | "market_cap";
 type MarketFilter = "ALL" | "KOSPI" | "KOSDAQ";
 
 interface Props {
@@ -83,9 +87,11 @@ function stabilityColor(n: number | null): string {
 }
 
 function badgeStyle(label: string): string {
+  if (label === "⭐ 매년 +25% 성장") return "bg-emerald-600/30 text-emerald-200 font-bold";
   if (label === "탁월 ROE") return "bg-emerald-600/20 text-emerald-300 font-bold";
   if (label === "글로벌 ROE") return "bg-emerald-500/15 text-emerald-300";
   if (label === "5년 연속 성장") return "bg-emerald-500/15 text-emerald-300";
+  if (label === "5년 연속 성장 (위기 면제)") return "bg-emerald-500/15 text-emerald-300";
   if (label === "현금창출력 우수") return "bg-cyan-500/15 text-cyan-300";
   if (label === "안정성 우수") return "bg-primary/15 text-primary";
   if (label === "안정성 보통") return "bg-on-surface/10 text-on-surface-variant";
@@ -96,7 +102,7 @@ function badgeStyle(label: string): string {
 
 export function AnnualEarningsTable({ candidates }: Props) {
   const [marketFilter, setMarketFilter] = useState<MarketFilter>("ALL");
-  const [sortKey, setSortKey] = useState<SortKey>("three_year_avg_growth");
+  const [sortKey, setSortKey] = useState<SortKey>("priority_score");
   const [sortDesc, setSortDesc] = useState(true);
   const [expandedCode, setExpandedCode] = useState<string | null>(null);
 
@@ -153,6 +159,29 @@ export function AnnualEarningsTable({ candidates }: Props) {
             </button>
           ))}
         </div>
+        <div className="flex gap-1 rounded-md bg-surface-container-low p-1">
+          {([
+            { k: "priority_score", label: "우선도" },
+            { k: "three_year_avg_growth", label: "EPS 성장" },
+            { k: "latest_roe", label: "ROE" },
+            { k: "pretax_margin", label: "세전 마진" },
+          ] as { k: SortKey; label: string }[]).map((opt) => (
+            <button
+              key={opt.k}
+              onClick={() => setSortKey(opt.k)}
+              className={`px-3 py-1.5 rounded text-xs transition-all ${
+                sortKey === opt.k
+                  ? "bg-primary/15 text-primary"
+                  : "text-on-surface-variant/70 hover:bg-surface-container/50"
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+        <span className="text-[11px] text-on-surface-variant/60 ml-auto">
+          기본 정렬: 매년 +25% 성장 + ROE 17% 이상 종목 우선 (Tier 1), 그 다음 ROE+EPS 성장 합산 내림차순
+        </span>
       </div>
 
       <div className="bg-surface-container-low rounded-xl ghost-border overflow-hidden">
@@ -323,6 +352,22 @@ export function AnnualEarningsTable({ candidates }: Props) {
                                   {a.cyclical ? "경기민감주 (제외)" : "비경기민감"}
                                 </p>
                               </div>
+                              <div className="bg-surface-container/40 rounded-md p-2.5">
+                                <p className="text-on-surface-variant/60 mb-0.5">세전 순이익 마진율</p>
+                                <p className="font-medium text-on-surface">
+                                  {a.pretax_margin !== null && a.pretax_margin !== undefined ? `${a.pretax_margin.toFixed(2)}%` : "—"}
+                                </p>
+                                <p className="text-on-surface-variant/50 mt-0.5">ROE 낮을 때 보충 지표</p>
+                              </div>
+                              <div className="bg-surface-container/40 rounded-md p-2.5">
+                                <p className="text-on-surface-variant/60 mb-0.5">우선도 점수</p>
+                                <p className="font-medium text-primary">
+                                  {a.priority_score !== null && a.priority_score !== undefined ? a.priority_score.toFixed(1) : "—"}
+                                </p>
+                                <p className="text-on-surface-variant/50 mt-0.5">
+                                  {a.stellar_growth ? "Tier 1 (매년 +25%+ 성장)" : "Tier 2"}
+                                </p>
+                              </div>
                             </div>
                           </div>
                         </td>
@@ -341,8 +386,10 @@ export function AnnualEarningsTable({ candidates }: Props) {
 
 function readSortValue(c: AnnualCandidate, k: SortKey): number | null {
   const a = c.criteria_a;
+  if (k === "priority_score") return a.priority_score ?? null;
   if (k === "three_year_avg_growth") return a.three_year_avg_growth;
   if (k === "latest_roe") return a.latest_roe;
+  if (k === "pretax_margin") return a.pretax_margin ?? null;
   if (k === "earnings_stability_score") return a.earnings_stability_score === null ? null : -a.earnings_stability_score;
   if (k === "market_cap") return c.market_cap_eok;
   return null;

@@ -314,14 +314,25 @@ def evaluate_a_detailed(
     else:
         out["fail_reasons"].append(f"연간 EPS 데이터 부족 ({len(annual_eps)}년, 4년 필요)")
 
-    # 5년 연속 증가 (가점 배지)
+    # 5년 연속 증가 (가점 배지) — O'Neil 원전: 위기 1회 dip 다음해 회복 시 면제
+    out["five_year_with_crisis_waiver"] = False
     if len(annual_eps) >= 6:
         recent_6 = annual_eps[-6:]
-        all_inc = all(
-            recent_6[i][1] > recent_6[i - 1][1] and recent_6[i - 1][1] > 0
-            for i in range(1, 6)
-        )
-        out["five_year_consecutive_increase"] = all_inc
+        values = [v for _, v in recent_6]
+        # 적자 끼면 위기 면제 미적용 (적자는 별개 문제)
+        if all(v > 0 for v in values):
+            # strict 단조 증가 우선 체크
+            if all(values[i] > values[i - 1] for i in range(1, len(values))):
+                out["five_year_consecutive_increase"] = True
+            else:
+                # 1회 위기 dip 면제 룰
+                dip_indices = [i for i in range(1, len(values)) if values[i] < values[i - 1]]
+                if len(dip_indices) == 1:
+                    dip_i = dip_indices[0]
+                    # dip 이 마지막 해가 아니어야 함 (회복 확인 필요)
+                    if dip_i + 1 < len(values) and values[dip_i + 1] >= values[dip_i - 1]:
+                        out["five_year_consecutive_increase"] = True
+                        out["five_year_with_crisis_waiver"] = True
 
     # 2) 최신 ROE
     if annual_roe:
@@ -387,7 +398,10 @@ def evaluate_a_detailed(
         elif out["latest_roe"] >= A_BADGE_ROE_GLOBAL:
             out["badges"].append("글로벌 ROE")
     if out["five_year_consecutive_increase"]:
-        out["badges"].append("5년 연속 성장")
+        if out.get("five_year_with_crisis_waiver"):
+            out["badges"].append("5년 연속 성장 (위기 면제)")
+        else:
+            out["badges"].append("5년 연속 성장")
     if out["latest_cps_eps_ratio"] is not None and out["latest_cps_eps_ratio"] >= A_BADGE_CPS_EPS_RATIO:
         out["badges"].append("현금창출력 우수")
     score = out["earnings_stability_score"]

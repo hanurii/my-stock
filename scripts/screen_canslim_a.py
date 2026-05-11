@@ -101,6 +101,44 @@ def fetch_dart_annual_roe(corp_code: str, year: int) -> float | None:
     """
     return None
 
+
+def fetch_dart_annual_pretax_margin(corp_code: str, year: int) -> float | None:
+    """DART 사업보고서에서 세전 순이익 마진율 = (법인세비용차감전이익 / 매출액) × 100.
+
+    매출액 / 법인세비용차감전순이익 둘 다 IS 항목. 없으면 None.
+    """
+    for fs_div in ("CFS", "OFS"):
+        items = dart_get("fnlttSinglAcntAll", {
+            "corp_code": corp_code,
+            "bsns_year": str(year),
+            "reprt_code": "11011",
+            "fs_div": fs_div,
+        })
+        if not items:
+            continue
+        sales_val = None
+        pretax_val = None
+        for it in items:
+            if it.get("sj_div") not in ("IS", "CIS"):
+                continue
+            nm = (it.get("account_nm") or "").replace(" ", "")
+            raw = it.get("thstrm_amount")
+            if not raw or raw in ("-", ""):
+                continue
+            try:
+                v = float(str(raw).replace(",", ""))
+            except (ValueError, TypeError):
+                continue
+            if sales_val is None and any(k in nm for k in ("매출액", "수익(매출액)", "영업수익")):
+                sales_val = v
+            if pretax_val is None and any(k in nm for k in ("법인세비용차감전순이익", "법인세비용차감전이익", "법인세차감전순이익", "법인세차감전이익", "법인세차감전계속사업이익")):
+                pretax_val = v
+            if sales_val and pretax_val:
+                break
+        if sales_val and pretax_val and sales_val > 0:
+            return round(pretax_val / sales_val * 100, 2)
+    return None
+
 INPUT = ROOT / "public" / "data" / "can-slim-candidates.json"
 OUTPUT = ROOT / "public" / "data" / "can-slim-a-candidates.json"
 
@@ -130,16 +168,29 @@ def fetch_dart_industry_code(corp_code: str) -> str | None:
 
 
 def passes_c_main(criteria_c: dict) -> bool:
-    """page.tsx 의 main 필터와 동일 — C 노출 조건 검사."""
+    """page.tsx 의 main 필터와 동일 — C 노출 조건 검사.
+
+    O'Neil 원전 강화: 가속 필수 + 경고 자동 제외.
+    """
     yoy = criteria_c.get("yoy_pct")
-    if yoy is None:
-        return False
-    if yoy < C_QUARTERLY_EPS_THRESHOLD:
+    if yoy is None or yoy < C_QUARTERLY_EPS_THRESHOLD:
         return False
     sales_yoy = criteria_c.get("sales_yoy_pct")
     sales_accel = criteria_c.get("sales_accel_3q", False)
     sales_pass = (sales_yoy is not None and sales_yoy >= C_SALES_THRESHOLD) or sales_accel
-    return sales_pass
+    if not sales_pass:
+        return False
+    # O'Neil 원전 가속화 게이트
+    accel_delta = criteria_c.get("accel_delta_pp") or 0
+    eps_accel_3q = criteria_c.get("eps_accel_3q", False)
+    if not (eps_accel_3q or accel_delta > 0):
+        return False
+    # 경고 자동 제외
+    if (criteria_c.get("consecutive_decline_quarters") or 0) >= 2:
+        return False
+    if criteria_c.get("severe_decel"):
+        return False
+    return True
 
 
 def collect_quarterly_eps_for_stability(code: str, corp_code: str | None) -> list[float]:
@@ -236,6 +287,13 @@ def main() -> int:
         # 2) 산업 코드
         induty_code = fetch_dart_industry_code(corp_code) if corp_code else None
 
+        # 2.5) 세전 순이익 마진율 (최근 사업연도) — ROE 낮은 종목 정렬 보완용
+        pretax_margin = None
+        if corp_code and annual_eps:
+            latest_year_str = annual_eps[-1][0][:4] if annual_eps[-1][0][:4].isdigit() else None
+            if latest_year_str:
+                pretax_margin = fetch_dart_annual_pretax_margin(corp_code, int(latest_year_str))
+
         # 3) 안정성 지수용 12+ 분기 EPS
         quarterly_eps_for_stability = collect_quarterly_eps_for_stability(code, corp_code)
 
@@ -255,6 +313,32 @@ def main() -> int:
             induty_code=induty_code,
             quarterly_eps_for_stability=quarterly_eps_for_stability,
         )
+
+        # 세전 마진율 + 우선도 점수 (정렬용)
+        # Tier 1 (먼저 노출): 매년 ≥25% 성장 + ROE ≥17%
+        # Tier 2: 위 미충족이고 ROE 낮으면 세전 마진율로 보충
+        a_detail["pretax_margin"] = pretax_margin
+        growths = a_detail.get("three_year_growths") or []
+        roe = a_detail.get("latest_roe") or 0
+        avg = a_detail.get("three_year_avg_growth") or 0
+        stellar = (growths and all(g >= 25 for g in growths))
+        score = roe + avg
+        if stellar and roe >= 17:
+            score += 100  # Tier 1 boost
+        if 25 <= roe <= 50:
+            score += 15
+        elif roe > 50:
+            score += 10  # 50% 초과는 약간 의심
+        if 12 <= roe < 17 and pretax_margin is not None:
+            # 세전 마진 보충: 15% 이상이면 가산점
+            score += max(0, pretax_margin - 5)
+        a_detail["priority_score"] = round(score, 2)
+        a_detail["stellar_growth"] = bool(stellar)
+        # 정렬 우선도가 명시되도록 stellar 종목엔 배지 상단 추가
+        badges = a_detail.get("badges") or []
+        if stellar and roe >= 17:
+            badges = ["⭐ 매년 +25% 성장"] + [b for b in badges if b != "⭐ 매년 +25% 성장"]
+            a_detail["badges"] = badges
 
         c_summary = {
             "yoy_pct": cand["criteria"]["C"].get("yoy_pct"),
