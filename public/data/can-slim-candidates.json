@@ -1,22 +1,22 @@
 {
   "generated_at": "2026-05-13",
-  "scanned_count": 895,
-  "evaluated_count": 91,
+  "scanned_count": 1742,
+  "evaluated_count": 106,
   "scan_meta": {
     "offset": 0,
     "limit": 0,
-    "market": "kospi",
+    "market": "kosdaq",
     "merged": true,
     "min_price": 200000,
-    "skipped_low_price_count": 705,
-    "skipped_small_cap_count": 119
+    "skipped_low_price_count": 1276,
+    "skipped_small_cap_count": 451
   },
   "market_status": {
     "kospi_trend_verdict": "GO",
     "passed": true,
     "value": "확정 상승 추세 (Stage 2)",
-    "detail": "종가 7,806.1 | 50일선 6,038.9 | 200일선 4,525.2 (1M 전 4,157.5) | 종가>200일선=True, 50일>200일=True, 200일선 상승=True",
-    "kospi_close": 7806.14013671875
+    "detail": "종가 7,810.5 | 50일선 6,039.0 | 200일선 4,525.2 (1M 전 4,157.5) | 종가>200일선=True, 50일>200일=True, 200일선 상승=True",
+    "kospi_close": 7810.52001953125
   },
   "candidates": [
     {
@@ -653,6 +653,113 @@
           "pass": true,
           "value": "외인 0.9%, 기관 81.6%",
           "detail": "외인 0.9%, 기관 81.6% = 합산 82.6%, 추세 flat | 통과"
+        },
+        "M": {
+          "pass": true,
+          "value": "시장 추세 통과",
+          "detail": "(전체 시장 판정 결과 적용)"
+        }
+      }
+    },
+    {
+      "code": "108490",
+      "name": "로보티즈",
+      "market": "KOSDAQ",
+      "score": 91,
+      "grade": "A",
+      "passed_count": 6,
+      "market_cap_eok": 51226,
+      "per": 927.06,
+      "pbr": 16.1,
+      "dividend_yield": 0.0,
+      "foreign_ownership": 8.34,
+      "institutional_pct": 30.5,
+      "institutional_trend": "up",
+      "twelve_m_return": 820.42,
+      "current_price": 345000,
+      "criteria": {
+        "C": {
+          "pass": true,
+          "value": "+86.1%",
+          "detail": "202412 EPS 115 → 202512 214 = YoY +86.1%",
+          "yoy_pct": 86.09,
+          "latest_quarter": "202512",
+          "latest_eps": 214.0,
+          "prev_yoy_pct": 151.24,
+          "accel_delta_pp": -65.15,
+          "eps_accel_quality": "none",
+          "eps_yoy_history": [
+            [
+              "202503",
+              141.31
+            ],
+            [
+              "202506",
+              129.41
+            ],
+            [
+              "202509",
+              151.24
+            ],
+            [
+              "202512",
+              86.09
+            ]
+          ],
+          "eps_accel_3q": false,
+          "sales_yoy_pct": 70.59,
+          "sales_yoy_history": [
+            [
+              "202503",
+              22.33
+            ],
+            [
+              "202506",
+              -2.37
+            ],
+            [
+              "202509",
+              34.58
+            ],
+            [
+              "202512",
+              70.59
+            ]
+          ],
+          "sales_accel_3q": true,
+          "never_sell": false,
+          "eps_new_high": false,
+          "consecutive_decline_quarters": 0,
+          "severe_decel": false,
+          "is_turnaround": false,
+          "dilution_flag": null,
+          "latest_is_preliminary": false,
+          "preliminary_rcept_no": null
+        },
+        "A": {
+          "pass": false,
+          "value": "EPS 3y 계산불가 / ROE 2.5%",
+          "detail": "EPS 202312:-107 → 202412:-240 → 202512:377 (미달, 25%+ 필요) | ROE 2.5% (미달, 15.0%+ 필요) | 이슈: 202312 적자, 202412 적자"
+        },
+        "N": {
+          "pass": true,
+          "value": "52주 고점 -8.1%",
+          "detail": "고점 377,500, 현재 347,000, 갭 -8.1% | 상승 모멘텀 (5일avg 341,200 vs 50일avg 271,530)"
+        },
+        "S": {
+          "pass": true,
+          "value": "거래량 +138.4%",
+          "detail": "최근 5일 평균 609,517주 vs 50일 평균 255,652주 = +138.4% | 시총 51,226억 (대형 (수급 영향 작음))"
+        },
+        "L": {
+          "pass": true,
+          "value": "RS 93",
+          "detail": "12M 수익률 +820.4% (지수 +199.4%, 초과 +621.0%) | RS 93 (통과)"
+        },
+        "I": {
+          "pass": true,
+          "value": "외인 8.3%, 기관 30.5%",
+          "detail": "외인 8.3%, 기관 30.5% = 합산 38.8%, 추세 up | 통과"
         },
         "M": {
           "pass": true,
@@ -1711,6 +1818,113 @@
           "pass": true,
           "value": "외인 20.3%, 기관 69.0%",
           "detail": "외인 20.3%, 기관 69.0% = 합산 89.3%, 추세 up | 통과"
+        },
+        "M": {
+          "pass": true,
+          "value": "시장 추세 통과",
+          "detail": "(전체 시장 판정 결과 적용)"
+        }
+      }
+    },
+    {
+      "code": "357780",
+      "name": "솔브레인",
+      "market": "KOSDAQ",
+      "score": 76,
+      "grade": "B",
+      "passed_count": 5,
+      "market_cap_eok": 35626,
+      "per": 45.06,
+      "pbr": 3.32,
+      "dividend_yield": 0.51,
+      "foreign_ownership": 23.34,
+      "institutional_pct": 64.85,
+      "institutional_trend": "up",
+      "twelve_m_return": 151.92,
+      "current_price": 426500,
+      "criteria": {
+        "C": {
+          "pass": true,
+          "value": "흑자전환 (1375)",
+          "detail": "202412 적자→ 202512 흑자 1375원",
+          "yoy_pct": 1149.62,
+          "latest_quarter": "202512",
+          "latest_eps": 1375.0,
+          "prev_yoy_pct": -12.6,
+          "accel_delta_pp": 1162.22,
+          "eps_accel_quality": "explosive",
+          "eps_yoy_history": [
+            [
+              "202503",
+              -32.69
+            ],
+            [
+              "202506",
+              -74.28
+            ],
+            [
+              "202509",
+              -12.6
+            ],
+            [
+              "202512",
+              1149.62
+            ]
+          ],
+          "eps_accel_3q": true,
+          "sales_yoy_pct": 12.7,
+          "sales_yoy_history": [
+            [
+              "202503",
+              -0.57
+            ],
+            [
+              "202506",
+              5.79
+            ],
+            [
+              "202509",
+              9.64
+            ],
+            [
+              "202512",
+              12.7
+            ]
+          ],
+          "sales_accel_3q": true,
+          "never_sell": true,
+          "eps_new_high": false,
+          "consecutive_decline_quarters": 0,
+          "severe_decel": false,
+          "is_turnaround": true,
+          "dilution_flag": null,
+          "latest_is_preliminary": false,
+          "preliminary_rcept_no": null
+        },
+        "A": {
+          "pass": false,
+          "value": "EPS 3y -9.1%, -33.2% / ROE 7.7%",
+          "detail": "EPS 202312:16759 → 202412:15226 → 202512:10164 (미달, 25%+ 필요) | ROE 7.7% (미달, 15.0%+ 필요)"
+        },
+        "N": {
+          "pass": true,
+          "value": "52주 고점 -8.2%",
+          "detail": "고점 501,000, 현재 460,000, 갭 -8.2% | 상승 모멘텀 (5일avg 458,000 vs 50일avg 432,250)"
+        },
+        "S": {
+          "pass": true,
+          "value": "거래량 +35.7%",
+          "detail": "최근 5일 평균 69,437주 vs 50일 평균 51,158주 = +35.7% | 시총 35,626억 (대형 (수급 영향 작음))"
+        },
+        "L": {
+          "pass": false,
+          "value": "RS 47",
+          "detail": "12M 수익률 +151.9% (지수 +199.4%, 초과 -47.5%) | RS 47 (미달, 80+ 필요)"
+        },
+        "I": {
+          "pass": true,
+          "value": "외인 23.3%, 기관 64.8%",
+          "detail": "외인 23.3%, 기관 64.8% = 합산 88.2%, 추세 up | 통과"
         },
         "M": {
           "pass": true,
@@ -3539,6 +3753,113 @@
       }
     },
     {
+      "code": "277810",
+      "name": "레인보우로보틱스",
+      "market": "KOSDAQ",
+      "score": 62,
+      "grade": "C",
+      "passed_count": 4,
+      "market_cap_eok": 168973,
+      "per": 11931.51,
+      "pbr": 126.25,
+      "dividend_yield": 0.0,
+      "foreign_ownership": 8.61,
+      "institutional_pct": 117.24,
+      "institutional_trend": "flat",
+      "twelve_m_return": 210.2,
+      "current_price": 855000,
+      "criteria": {
+        "C": {
+          "pass": false,
+          "value": "-15.7%",
+          "detail": "202412 EPS 166 → 202512 140 = YoY -15.7%",
+          "yoy_pct": -15.66,
+          "latest_quarter": "202512",
+          "latest_eps": 140.0,
+          "prev_yoy_pct": null,
+          "accel_delta_pp": null,
+          "eps_accel_quality": "none",
+          "eps_yoy_history": [
+            [
+              "202503",
+              -219.35
+            ],
+            [
+              "202506",
+              57.14
+            ],
+            [
+              "202509",
+              92.0
+            ],
+            [
+              "202512",
+              -15.66
+            ]
+          ],
+          "eps_accel_3q": false,
+          "sales_yoy_pct": 34.02,
+          "sales_yoy_history": [
+            [
+              "202503",
+              37.78
+            ],
+            [
+              "202506",
+              95.13
+            ],
+            [
+              "202509",
+              208.37
+            ],
+            [
+              "202512",
+              34.02
+            ]
+          ],
+          "sales_accel_3q": false,
+          "never_sell": false,
+          "eps_new_high": false,
+          "consecutive_decline_quarters": 1,
+          "severe_decel": false,
+          "is_turnaround": false,
+          "dilution_flag": null,
+          "latest_is_preliminary": false,
+          "preliminary_rcept_no": null
+        },
+        "A": {
+          "pass": false,
+          "value": "EPS 3y -33.6% / ROE 1.1%",
+          "detail": "EPS 202312:-47 → 202412:110 → 202512:73 (미달, 25%+ 필요) | ROE 1.1% (미달, 15.0%+ 필요) | 이슈: 202312 적자"
+        },
+        "N": {
+          "pass": true,
+          "value": "52주 고점 -1.5%",
+          "detail": "고점 880,000, 현재 867,000, 갭 -1.5% | 상승 모멘텀 (5일avg 813,600 vs 50일avg 663,860)"
+        },
+        "S": {
+          "pass": true,
+          "value": "거래량 +132.4%",
+          "detail": "최근 5일 평균 440,784주 vs 50일 평균 189,704주 = +132.4% | 시총 168,973억 (대형 (수급 영향 작음))"
+        },
+        "L": {
+          "pass": false,
+          "value": "RS 67",
+          "detail": "12M 수익률 +210.2% (지수 +199.4%, 초과 +10.8%) | RS 67 (미달, 80+ 필요)"
+        },
+        "I": {
+          "pass": true,
+          "value": "외인 8.6%, 기관 117.2%",
+          "detail": "외인 8.6%, 기관 117.2% = 합산 125.8%, 추세 flat | 통과"
+        },
+        "M": {
+          "pass": true,
+          "value": "시장 추세 통과",
+          "detail": "(전체 시장 판정 결과 적용)"
+        }
+      }
+    },
+    {
       "code": "003230",
       "name": "삼양식품",
       "market": "KOSPI",
@@ -3860,6 +4181,220 @@
       }
     },
     {
+      "code": "039030",
+      "name": "이오테크닉스",
+      "market": "KOSDAQ",
+      "score": 62,
+      "grade": "C",
+      "passed_count": 4,
+      "market_cap_eok": 56054,
+      "per": 97.98,
+      "pbr": 8.15,
+      "dividend_yield": 0.26,
+      "foreign_ownership": 21.6,
+      "institutional_pct": 24.73,
+      "institutional_trend": "up",
+      "twelve_m_return": 249.54,
+      "current_price": 428000,
+      "criteria": {
+        "C": {
+          "pass": false,
+          "value": "+4.0%",
+          "detail": "202412 EPS 1338 → 202512 1391 = YoY +4.0%, 직전분기 +367.9% → 둔화",
+          "yoy_pct": 3.96,
+          "latest_quarter": "202512",
+          "latest_eps": 1391.0,
+          "prev_yoy_pct": 367.91,
+          "accel_delta_pp": -363.95,
+          "eps_accel_quality": "none",
+          "eps_yoy_history": [
+            [
+              "202503",
+              33.3
+            ],
+            [
+              "202506",
+              -77.42
+            ],
+            [
+              "202509",
+              367.91
+            ],
+            [
+              "202512",
+              3.96
+            ]
+          ],
+          "eps_accel_3q": false,
+          "sales_yoy_pct": 11.69,
+          "sales_yoy_history": [
+            [
+              "202503",
+              16.42
+            ],
+            [
+              "202506",
+              26.7
+            ],
+            [
+              "202509",
+              21.13
+            ],
+            [
+              "202512",
+              11.69
+            ]
+          ],
+          "sales_accel_3q": false,
+          "never_sell": false,
+          "eps_new_high": false,
+          "consecutive_decline_quarters": 0,
+          "severe_decel": true,
+          "is_turnaround": false,
+          "dilution_flag": null,
+          "latest_is_preliminary": false,
+          "preliminary_rcept_no": null
+        },
+        "A": {
+          "pass": false,
+          "value": "EPS 3y +17.0%, +33.5% / ROE 8.9%",
+          "detail": "EPS 202312:2973 → 202412:3478 → 202512:4644 (미달, 25%+ 필요) | ROE 8.9% (미달, 15.0%+ 필요)"
+        },
+        "N": {
+          "pass": true,
+          "value": "52주 고점 -11.5%",
+          "detail": "고점 516,000, 현재 456,500, 갭 -11.5% | 상승 모멘텀 (5일avg 465,500 vs 50일avg 442,470)"
+        },
+        "S": {
+          "pass": false,
+          "value": "거래량 +6.9%",
+          "detail": "최근 5일 평균 127,627주 vs 50일 평균 119,424주 = +6.9% | 시총 56,054억 (대형 (수급 영향 작음))"
+        },
+        "L": {
+          "pass": true,
+          "value": "RS 80",
+          "detail": "12M 수익률 +249.5% (지수 +199.4%, 초과 +50.1%) | RS 80 (통과)"
+        },
+        "I": {
+          "pass": true,
+          "value": "외인 21.6%, 기관 24.7%",
+          "detail": "외인 21.6%, 기관 24.7% = 합산 46.3%, 추세 up | 통과"
+        },
+        "M": {
+          "pass": true,
+          "value": "시장 추세 통과",
+          "detail": "(전체 시장 판정 결과 적용)"
+        }
+      }
+    },
+    {
+      "code": "095340",
+      "name": "ISC",
+      "market": "KOSDAQ",
+      "score": 62,
+      "grade": "C",
+      "passed_count": 4,
+      "market_cap_eok": 50873,
+      "per": 90.63,
+      "pbr": 9.15,
+      "dividend_yield": 0.35,
+      "foreign_ownership": 20.26,
+      "institutional_pct": 73.58,
+      "institutional_trend": "down",
+      "twelve_m_return": 332.8,
+      "current_price": 248500,
+      "criteria": {
+        "C": {
+          "pass": true,
+          "value": "+200.9%",
+          "detail": "202503 EPS 322 → 202603 969 = YoY +200.9%, 직전분기 +84.4% → 가속",
+          "yoy_pct": 200.9,
+          "latest_quarter": "202603",
+          "latest_eps": 968.8952042628775,
+          "prev_yoy_pct": 84.35,
+          "accel_delta_pp": 116.55,
+          "eps_accel_quality": "explosive",
+          "eps_yoy_history": [
+            [
+              "202506",
+              -30.38
+            ],
+            [
+              "202509",
+              39.34
+            ],
+            [
+              "202512",
+              84.35
+            ],
+            [
+              "202603",
+              200.9
+            ]
+          ],
+          "eps_accel_3q": true,
+          "sales_yoy_pct": 115.37,
+          "sales_yoy_history": [
+            [
+              "202506",
+              3.9
+            ],
+            [
+              "202509",
+              28.0
+            ],
+            [
+              "202512",
+              83.97
+            ],
+            [
+              "202603",
+              115.37
+            ]
+          ],
+          "sales_accel_3q": true,
+          "never_sell": true,
+          "eps_new_high": true,
+          "consecutive_decline_quarters": 0,
+          "severe_decel": false,
+          "is_turnaround": false,
+          "dilution_flag": null,
+          "latest_is_preliminary": true,
+          "preliminary_rcept_no": "20260427900108"
+        },
+        "A": {
+          "pass": false,
+          "value": "EPS 3y +258.2%, +2.7% / ROE 10.6%",
+          "detail": "EPS 202312:720 → 202412:2579 → 202512:2648 (미달, 25%+ 필요) | ROE 10.6% (미달, 15.0%+ 필요)"
+        },
+        "N": {
+          "pass": true,
+          "value": "52주 고점 -10.9%",
+          "detail": "고점 271,000, 현재 241,500, 갭 -10.9% | 상승 모멘텀 (5일avg 246,800 vs 50일avg 230,248)"
+        },
+        "S": {
+          "pass": false,
+          "value": "거래량 -27.5%",
+          "detail": "최근 5일 평균 239,424주 vs 50일 평균 330,048주 = -27.5% | 시총 50,873억 (대형 (수급 영향 작음))"
+        },
+        "L": {
+          "pass": true,
+          "value": "RS 87",
+          "detail": "12M 수익률 +332.8% (지수 +199.4%, 초과 +133.4%) | RS 87 (통과)"
+        },
+        "I": {
+          "pass": false,
+          "value": "외인 20.3%, 기관 73.6%",
+          "detail": "외인 20.3%, 기관 73.6% = 합산 93.8%, 추세 down | 미달, 합산 5.0%+ 필요"
+        },
+        "M": {
+          "pass": true,
+          "value": "시장 추세 통과",
+          "detail": "(전체 시장 판정 결과 적용)"
+        }
+      }
+    },
+    {
       "code": "004170",
       "name": "신세계",
       "market": "KOSPI",
@@ -3958,6 +4493,220 @@
           "pass": true,
           "value": "외인 22.8%, 기관 41.8%",
           "detail": "외인 22.8%, 기관 41.8% = 합산 64.7%, 추세 flat | 통과"
+        },
+        "M": {
+          "pass": true,
+          "value": "시장 추세 통과",
+          "detail": "(전체 시장 판정 결과 적용)"
+        }
+      }
+    },
+    {
+      "code": "064760",
+      "name": "티씨케이",
+      "market": "KOSDAQ",
+      "score": 62,
+      "grade": "C",
+      "passed_count": 4,
+      "market_cap_eok": 36445,
+      "per": 54.37,
+      "pbr": 7.02,
+      "dividend_yield": 0.44,
+      "foreign_ownership": 64.46,
+      "institutional_pct": 24.509999999999998,
+      "institutional_trend": "up",
+      "twelve_m_return": 247.87,
+      "current_price": 308000,
+      "criteria": {
+        "C": {
+          "pass": true,
+          "value": "+28.8%",
+          "detail": "202503 EPS 1672 → 202603 2154 = YoY +28.8%, 직전분기 -6.9% → 가속",
+          "yoy_pct": 28.84,
+          "latest_quarter": "202603",
+          "latest_eps": 2154.185236051502,
+          "prev_yoy_pct": -6.95,
+          "accel_delta_pp": 35.79,
+          "eps_accel_quality": "explosive",
+          "eps_yoy_history": [
+            [
+              "202506",
+              -16.01
+            ],
+            [
+              "202509",
+              -8.42
+            ],
+            [
+              "202512",
+              -6.95
+            ],
+            [
+              "202603",
+              28.84
+            ]
+          ],
+          "eps_accel_3q": true,
+          "sales_yoy_pct": 21.67,
+          "sales_yoy_history": [
+            [
+              "202506",
+              6.37
+            ],
+            [
+              "202509",
+              4.73
+            ],
+            [
+              "202512",
+              -2.34
+            ],
+            [
+              "202603",
+              21.67
+            ]
+          ],
+          "sales_accel_3q": true,
+          "never_sell": true,
+          "eps_new_high": false,
+          "consecutive_decline_quarters": 0,
+          "severe_decel": false,
+          "is_turnaround": false,
+          "dilution_flag": null,
+          "latest_is_preliminary": true,
+          "preliminary_rcept_no": "20260428900313"
+        },
+        "A": {
+          "pass": false,
+          "value": "EPS 3y +17.6%, -2.8% / ROE 13.5%",
+          "detail": "EPS 202312:5246 → 202412:6167 → 202512:5996 (미달, 25%+ 필요) | ROE 13.5% (미달, 15.0%+ 필요)"
+        },
+        "N": {
+          "pass": true,
+          "value": "52주 고점 -0.0%",
+          "detail": "고점 327,000, 현재 327,000, 갭 -0.0% | 상승 모멘텀 (5일avg 309,200 vs 50일avg 258,610)"
+        },
+        "S": {
+          "pass": false,
+          "value": "거래량 -28.7%",
+          "detail": "최근 5일 평균 66,941주 vs 50일 평균 93,939주 = -28.7% | 시총 36,445억 (대형 (수급 영향 작음))"
+        },
+        "L": {
+          "pass": false,
+          "value": "RS 73",
+          "detail": "12M 수익률 +247.9% (지수 +199.4%, 초과 +48.4%) | RS 73 (미달, 80+ 필요)"
+        },
+        "I": {
+          "pass": true,
+          "value": "외인 64.5%, 기관 24.5%",
+          "detail": "외인 64.5%, 기관 24.5% = 합산 89.0%, 추세 up | 통과"
+        },
+        "M": {
+          "pass": true,
+          "value": "시장 추세 통과",
+          "detail": "(전체 시장 판정 결과 적용)"
+        }
+      }
+    },
+    {
+      "code": "145020",
+      "name": "휴젤",
+      "market": "KOSDAQ",
+      "score": 62,
+      "grade": "C",
+      "passed_count": 4,
+      "market_cap_eok": 34451,
+      "per": 24.67,
+      "pbr": 3.18,
+      "dividend_yield": 0.0,
+      "foreign_ownership": 57.97,
+      "institutional_pct": 50.769999999999996,
+      "institutional_trend": "up",
+      "twelve_m_return": -18.6,
+      "current_price": 280500,
+      "criteria": {
+        "C": {
+          "pass": true,
+          "value": "+35.9%",
+          "detail": "202503 EPS 2306 → 202603 3135 = YoY +35.9%, 직전분기 -1.1% → 가속",
+          "yoy_pct": 35.94,
+          "latest_quarter": "202603",
+          "latest_eps": 3134.749904761905,
+          "prev_yoy_pct": -1.14,
+          "accel_delta_pp": 37.08,
+          "eps_accel_quality": "explosive",
+          "eps_yoy_history": [
+            [
+              "202506",
+              -10.57
+            ],
+            [
+              "202509",
+              -18.41
+            ],
+            [
+              "202512",
+              -1.14
+            ],
+            [
+              "202603",
+              35.94
+            ]
+          ],
+          "eps_accel_3q": true,
+          "sales_yoy_pct": 29.89,
+          "sales_yoy_history": [
+            [
+              "202506",
+              15.59
+            ],
+            [
+              "202509",
+              0.75
+            ],
+            [
+              "202512",
+              21.28
+            ],
+            [
+              "202603",
+              29.89
+            ]
+          ],
+          "sales_accel_3q": true,
+          "never_sell": true,
+          "eps_new_high": false,
+          "consecutive_decline_quarters": 0,
+          "severe_decel": false,
+          "is_turnaround": false,
+          "dilution_flag": null,
+          "latest_is_preliminary": true,
+          "preliminary_rcept_no": "20260507900340"
+        },
+        "A": {
+          "pass": false,
+          "value": "EPS 3y +46.1%, +3.3% / ROE 16.1%",
+          "detail": "EPS 202312:7517 → 202412:10985 → 202512:11348 (미달, 25%+ 필요) | ROE 16.1% (통과)"
+        },
+        "N": {
+          "pass": false,
+          "value": "52주 고점 -27.8%",
+          "detail": "고점 388,000, 현재 280,000, 갭 -27.8% | 상승 모멘텀 (5일avg 281,300 vs 50일avg 257,500)"
+        },
+        "S": {
+          "pass": true,
+          "value": "거래량 +133.0%",
+          "detail": "최근 5일 평균 119,452주 vs 50일 평균 51,266주 = +133.0% | 시총 34,451억 (대형 (수급 영향 작음))"
+        },
+        "L": {
+          "pass": false,
+          "value": "RS 7",
+          "detail": "12M 수익률 -18.6% (지수 +199.4%, 초과 -218.0%) | RS 7 (미달, 80+ 필요)"
+        },
+        "I": {
+          "pass": true,
+          "value": "외인 58.0%, 기관 50.8%",
+          "detail": "외인 58.0%, 기관 50.8% = 합산 108.7%, 추세 up | 통과"
         },
         "M": {
           "pass": true,
@@ -4172,6 +4921,113 @@
           "pass": true,
           "value": "외인 8.3%, 기관 50.5%",
           "detail": "외인 8.3%, 기관 50.5% = 합산 58.8%, 추세 up | 통과"
+        },
+        "M": {
+          "pass": true,
+          "value": "시장 추세 통과",
+          "detail": "(전체 시장 판정 결과 적용)"
+        }
+      }
+    },
+    {
+      "code": "140860",
+      "name": "파크시스템스",
+      "market": "KOSDAQ",
+      "score": 62,
+      "grade": "C",
+      "passed_count": 4,
+      "market_cap_eok": 19733,
+      "per": 57.19,
+      "pbr": 8.71,
+      "dividend_yield": 0.18,
+      "foreign_ownership": 34.92,
+      "institutional_pct": 10.05,
+      "institutional_trend": "up",
+      "twelve_m_return": 21.23,
+      "current_price": 298500,
+      "criteria": {
+        "C": {
+          "pass": false,
+          "value": "-71.5%",
+          "detail": "202412 EPS 2913 → 202512 829 = YoY -71.5%, 직전분기 +51.4% → 둔화",
+          "yoy_pct": -71.54,
+          "latest_quarter": "202512",
+          "latest_eps": 829.0,
+          "prev_yoy_pct": 51.42,
+          "accel_delta_pp": -122.96,
+          "eps_accel_quality": "none",
+          "eps_yoy_history": [
+            [
+              "202503",
+              443.15
+            ],
+            [
+              "202506",
+              -70.02
+            ],
+            [
+              "202509",
+              51.42
+            ],
+            [
+              "202512",
+              -71.54
+            ]
+          ],
+          "eps_accel_3q": false,
+          "sales_yoy_pct": -10.27,
+          "sales_yoy_history": [
+            [
+              "202503",
+              98.33
+            ],
+            [
+              "202506",
+              17.01
+            ],
+            [
+              "202509",
+              10.21
+            ],
+            [
+              "202512",
+              -10.27
+            ]
+          ],
+          "sales_accel_3q": false,
+          "never_sell": false,
+          "eps_new_high": false,
+          "consecutive_decline_quarters": 1,
+          "severe_decel": true,
+          "is_turnaround": false,
+          "dilution_flag": null,
+          "latest_is_preliminary": false,
+          "preliminary_rcept_no": null
+        },
+        "A": {
+          "pass": false,
+          "value": "EPS 3y +73.8%, -19.6% / ROE 16.7%",
+          "detail": "EPS 202312:3530 → 202412:6134 → 202512:4931 (미달, 25%+ 필요) | ROE 16.7% (통과)"
+        },
+        "N": {
+          "pass": true,
+          "value": "52주 고점 -10.2%",
+          "detail": "고점 318,000, 현재 285,500, 갭 -10.2% | 상승 모멘텀 (5일avg 303,100 vs 50일avg 268,900)"
+        },
+        "S": {
+          "pass": true,
+          "value": "거래량 +53.6%",
+          "detail": "최근 5일 평균 68,990주 vs 50일 평균 44,927주 = +53.6% | 시총 19,733억 (중소형 (수급 영향 큼))"
+        },
+        "L": {
+          "pass": false,
+          "value": "RS 20",
+          "detail": "12M 수익률 +21.2% (지수 +199.4%, 초과 -178.2%) | RS 20 (미달, 80+ 필요)"
+        },
+        "I": {
+          "pass": true,
+          "value": "외인 34.9%, 기관 10.1%",
+          "detail": "외인 34.9%, 기관 10.1% = 합산 45.0%, 추세 up | 통과"
         },
         "M": {
           "pass": true,
@@ -5572,6 +6428,113 @@
       }
     },
     {
+      "code": "247540",
+      "name": "에코프로비엠",
+      "market": "KOSDAQ",
+      "score": 48,
+      "grade": "C",
+      "passed_count": 3,
+      "market_cap_eok": 193704,
+      "per": 491.32,
+      "pbr": 11.2,
+      "dividend_yield": 0.05,
+      "foreign_ownership": 13.93,
+      "institutional_pct": 45.48,
+      "institutional_trend": "down",
+      "twelve_m_return": 100.61,
+      "current_price": 205500,
+      "criteria": {
+        "C": {
+          "pass": true,
+          "value": "흑자전환 (54)",
+          "detail": "202503 적자→ 202603 흑자 54원",
+          "yoy_pct": 137.42,
+          "latest_quarter": "202603",
+          "latest_eps": 53.50748908296943,
+          "prev_yoy_pct": 209.04,
+          "accel_delta_pp": -71.62,
+          "eps_accel_quality": "none",
+          "eps_yoy_history": [
+            [
+              "202506",
+              400.0
+            ],
+            [
+              "202509",
+              139.83
+            ],
+            [
+              "202512",
+              209.04
+            ],
+            [
+              "202603",
+              137.42
+            ]
+          ],
+          "eps_accel_3q": false,
+          "sales_yoy_pct": -3.88,
+          "sales_yoy_history": [
+            [
+              "202506",
+              -3.68
+            ],
+            [
+              "202509",
+              19.77
+            ],
+            [
+              "202512",
+              6.9
+            ],
+            [
+              "202603",
+              -3.88
+            ]
+          ],
+          "sales_accel_3q": false,
+          "never_sell": false,
+          "eps_new_high": false,
+          "consecutive_decline_quarters": 0,
+          "severe_decel": false,
+          "is_turnaround": true,
+          "dilution_flag": null,
+          "latest_is_preliminary": true,
+          "preliminary_rcept_no": "20260429900124"
+        },
+        "A": {
+          "pass": false,
+          "value": "EPS 3y 계산불가 / ROE 2.3%",
+          "detail": "EPS 202312:-89 → 202412:-987 → 202512:403 (미달, 25%+ 필요) | ROE 2.3% (미달, 15.0%+ 필요) | 이슈: 202312 적자, 202412 적자"
+        },
+        "N": {
+          "pass": false,
+          "value": "52주 고점 -19.4%",
+          "detail": "고점 246,000, 현재 198,200, 갭 -19.4% | 상승 모멘텀 (5일avg 219,740 vs 50일avg 203,032)"
+        },
+        "S": {
+          "pass": true,
+          "value": "거래량 +36.9%",
+          "detail": "최근 5일 평균 809,656주 vs 50일 평균 591,282주 = +36.9% | 시총 193,704억 (대형 (수급 영향 작음))"
+        },
+        "L": {
+          "pass": false,
+          "value": "RS 40",
+          "detail": "12M 수익률 +100.6% (지수 +199.4%, 초과 -98.8%) | RS 40 (미달, 80+ 필요)"
+        },
+        "I": {
+          "pass": false,
+          "value": "외인 13.9%, 기관 45.5%",
+          "detail": "외인 13.9%, 기관 45.5% = 합산 59.4%, 추세 down | 미달, 합산 5.0%+ 필요"
+        },
+        "M": {
+          "pass": true,
+          "value": "시장 추세 통과",
+          "detail": "(전체 시장 판정 결과 적용)"
+        }
+      }
+    },
+    {
       "code": "000720",
       "name": "현대건설",
       "market": "KOSPI",
@@ -5987,6 +6950,113 @@
           "pass": false,
           "value": "외인 29.3%, 기관 73.7%",
           "detail": "외인 29.3%, 기관 73.7% = 합산 102.9%, 추세 down | 미달, 합산 5.0%+ 필요"
+        },
+        "M": {
+          "pass": true,
+          "value": "시장 추세 통과",
+          "detail": "(전체 시장 판정 결과 적용)"
+        }
+      }
+    },
+    {
+      "code": "000250",
+      "name": "삼천당제약",
+      "market": "KOSDAQ",
+      "score": 48,
+      "grade": "C",
+      "passed_count": 3,
+      "market_cap_eok": 93361,
+      "per": 1776.79,
+      "pbr": 33.54,
+      "dividend_yield": 0.01,
+      "foreign_ownership": 6.33,
+      "institutional_pct": 37.61,
+      "institutional_trend": "flat",
+      "twelve_m_return": 166.89,
+      "current_price": 415000,
+      "criteria": {
+        "C": {
+          "pass": true,
+          "value": "흑자전환 (236)",
+          "detail": "202412 적자→ 202512 흑자 236원",
+          "yoy_pct": 149.79,
+          "latest_quarter": "202512",
+          "latest_eps": 236.0,
+          "prev_yoy_pct": 329.17,
+          "accel_delta_pp": -179.38,
+          "eps_accel_quality": "none",
+          "eps_yoy_history": [
+            [
+              "202503",
+              -60.0
+            ],
+            [
+              "202506",
+              -1875.0
+            ],
+            [
+              "202509",
+              329.17
+            ],
+            [
+              "202512",
+              149.79
+            ]
+          ],
+          "eps_accel_3q": false,
+          "sales_yoy_pct": 20.11,
+          "sales_yoy_history": [
+            [
+              "202503",
+              4.42
+            ],
+            [
+              "202506",
+              3.66
+            ],
+            [
+              "202509",
+              10.72
+            ],
+            [
+              "202512",
+              20.11
+            ]
+          ],
+          "sales_accel_3q": true,
+          "never_sell": false,
+          "eps_new_high": false,
+          "consecutive_decline_quarters": 0,
+          "severe_decel": false,
+          "is_turnaround": true,
+          "dilution_flag": null,
+          "latest_is_preliminary": false,
+          "preliminary_rcept_no": null
+        },
+        "A": {
+          "pass": false,
+          "value": "EPS 3y 계산불가 / ROE 1.9%",
+          "detail": "EPS 202312:-449 → 202412:-465 → 202512:224 (미달, 25%+ 필요) | ROE 1.9% (미달, 15.0%+ 필요) | 이슈: 202312 적자, 202412 적자"
+        },
+        "N": {
+          "pass": false,
+          "value": "52주 고점 -66.6%",
+          "detail": "고점 1,184,000, 현재 395,000, 갭 -66.6% | 약세 (5일avg 404,600 vs 50일avg 640,380)"
+        },
+        "S": {
+          "pass": false,
+          "value": "거래량 -47.4%",
+          "detail": "최근 5일 평균 222,636주 vs 50일 평균 423,018주 = -47.4% | 시총 93,361억 (대형 (수급 영향 작음))"
+        },
+        "L": {
+          "pass": false,
+          "value": "RS 60",
+          "detail": "12M 수익률 +166.9% (지수 +199.4%, 초과 -32.5%) | RS 60 (미달, 80+ 필요)"
+        },
+        "I": {
+          "pass": true,
+          "value": "외인 6.3%, 기관 37.6%",
+          "detail": "외인 6.3%, 기관 37.6% = 합산 43.9%, 추세 flat | 통과"
         },
         "M": {
           "pass": true,
@@ -6514,6 +7584,113 @@
           "pass": false,
           "value": "외인 41.2%, 기관 47.7%",
           "detail": "외인 41.2%, 기관 47.7% = 합산 88.9%, 추세 down | 미달, 합산 5.0%+ 필요"
+        },
+        "M": {
+          "pass": true,
+          "value": "시장 추세 통과",
+          "detail": "(전체 시장 판정 결과 적용)"
+        }
+      }
+    },
+    {
+      "code": "214450",
+      "name": "파마리서치",
+      "market": "KOSDAQ",
+      "score": 48,
+      "grade": "C",
+      "passed_count": 3,
+      "market_cap_eok": 32623,
+      "per": 22.1,
+      "pbr": 5.27,
+      "dividend_yield": 1.18,
+      "foreign_ownership": 5.65,
+      "institutional_pct": 50.64,
+      "institutional_trend": "down",
+      "twelve_m_return": -21.36,
+      "current_price": 309500,
+      "criteria": {
+        "C": {
+          "pass": true,
+          "value": "+32.9%",
+          "detail": "202503 EPS 3096 → 202603 4116 = YoY +32.9%, 직전분기 +74.7% → 둔화",
+          "yoy_pct": 32.93,
+          "latest_quarter": "202603",
+          "latest_eps": 4115.628829471183,
+          "prev_yoy_pct": 74.69,
+          "accel_delta_pp": -41.76,
+          "eps_accel_quality": "none",
+          "eps_yoy_history": [
+            [
+              "202506",
+              32.83
+            ],
+            [
+              "202509",
+              75.47
+            ],
+            [
+              "202512",
+              74.69
+            ],
+            [
+              "202603",
+              32.93
+            ]
+          ],
+          "eps_accel_3q": false,
+          "sales_yoy_pct": 24.98,
+          "sales_yoy_history": [
+            [
+              "202506",
+              69.18
+            ],
+            [
+              "202509",
+              51.78
+            ],
+            [
+              "202512",
+              38.99
+            ],
+            [
+              "202603",
+              24.98
+            ]
+          ],
+          "sales_accel_3q": false,
+          "never_sell": false,
+          "eps_new_high": true,
+          "consecutive_decline_quarters": 0,
+          "severe_decel": false,
+          "is_turnaround": false,
+          "dilution_flag": null,
+          "latest_is_preliminary": true,
+          "preliminary_rcept_no": "20260508900237"
+        },
+        "A": {
+          "pass": false,
+          "value": "EPS 3y +15.1%, +65.1% / ROE 26.9%",
+          "detail": "EPS 202312:7481 → 202412:8608 → 202512:14209 (미달, 25%+ 필요) | ROE 26.9% (통과)"
+        },
+        "N": {
+          "pass": false,
+          "value": "52주 고점 -56.0%",
+          "detail": "고점 711,000, 현재 313,000, 갭 -56.0% | 상승 모멘텀 (5일avg 324,800 vs 50일avg 312,470)"
+        },
+        "S": {
+          "pass": true,
+          "value": "거래량 +114.1%",
+          "detail": "최근 5일 평균 175,986주 vs 50일 평균 82,210주 = +114.1% | 시총 32,623억 (대형 (수급 영향 작음))"
+        },
+        "L": {
+          "pass": false,
+          "value": "RS 0",
+          "detail": "12M 수익률 -21.4% (지수 +199.4%, 초과 -220.8%) | RS 0 (미달, 80+ 필요)"
+        },
+        "I": {
+          "pass": false,
+          "value": "외인 5.7%, 기관 50.6%",
+          "detail": "외인 5.7%, 기관 50.6% = 합산 56.3%, 추세 down | 미달, 합산 5.0%+ 필요"
         },
         "M": {
           "pass": true,
@@ -8104,6 +9281,113 @@
       }
     },
     {
+      "code": "196170",
+      "name": "알테오젠",
+      "market": "KOSDAQ",
+      "score": 34,
+      "grade": "D",
+      "passed_count": 2,
+      "market_cap_eok": 191383,
+      "per": 135.78,
+      "pbr": 43.3,
+      "dividend_yield": 0.1,
+      "foreign_ownership": 14.51,
+      "institutional_pct": 25.509999999999998,
+      "institutional_trend": "down",
+      "twelve_m_return": 2.3,
+      "current_price": 342000,
+      "criteria": {
+        "C": {
+          "pass": false,
+          "value": "-16.7%",
+          "detail": "202503 EPS 1554 → 202603 1294 = YoY -16.7%, 직전분기 +27.9% → 둔화",
+          "yoy_pct": -16.75,
+          "latest_quarter": "202603",
+          "latest_eps": 1293.7241873278238,
+          "prev_yoy_pct": 27.89,
+          "accel_delta_pp": -44.64,
+          "eps_accel_quality": "none",
+          "eps_yoy_history": [
+            [
+              "202506",
+              -1018.18
+            ],
+            [
+              "202509",
+              337.14
+            ],
+            [
+              "202512",
+              27.89
+            ],
+            [
+              "202603",
+              -16.75
+            ]
+          ],
+          "eps_accel_3q": false,
+          "sales_yoy_pct": -14.46,
+          "sales_yoy_history": [
+            [
+              "202506",
+              52.03
+            ],
+            [
+              "202509",
+              902.05
+            ],
+            [
+              "202512",
+              26.97
+            ],
+            [
+              "202603",
+              -14.46
+            ]
+          ],
+          "sales_accel_3q": false,
+          "never_sell": false,
+          "eps_new_high": false,
+          "consecutive_decline_quarters": 1,
+          "severe_decel": true,
+          "is_turnaround": false,
+          "dilution_flag": null,
+          "latest_is_preliminary": true,
+          "preliminary_rcept_no": "20260508900289"
+        },
+        "A": {
+          "pass": false,
+          "value": "EPS 3y +124.9% / ROE 39.4%",
+          "detail": "EPS 202312:-64 → 202412:1171 → 202512:2633 (미달, 25%+ 필요) | ROE 39.4% (통과) | 이슈: 202312 적자"
+        },
+        "N": {
+          "pass": false,
+          "value": "52주 고점 -36.3%",
+          "detail": "고점 559,000, 현재 356,000, 갭 -36.3% | 약세 (5일avg 344,000 vs 50일avg 361,560)"
+        },
+        "S": {
+          "pass": true,
+          "value": "거래량 +86.9%",
+          "detail": "최근 5일 평균 625,526주 vs 50일 평균 334,739주 = +86.9% | 시총 191,383억 (대형 (수급 영향 작음))"
+        },
+        "L": {
+          "pass": false,
+          "value": "RS 13",
+          "detail": "12M 수익률 +2.3% (지수 +199.4%, 초과 -197.1%) | RS 13 (미달, 80+ 필요)"
+        },
+        "I": {
+          "pass": false,
+          "value": "외인 14.5%, 기관 25.5%",
+          "detail": "외인 14.5%, 기관 25.5% = 합산 40.0%, 추세 down | 미달, 합산 5.0%+ 필요"
+        },
+        "M": {
+          "pass": true,
+          "value": "시장 추세 통과",
+          "detail": "(전체 시장 판정 결과 적용)"
+        }
+      }
+    },
+    {
       "code": "079550",
       "name": "LIG디펜스앤에어로스페이스",
       "market": "KOSPI",
@@ -8382,6 +9666,220 @@
           "pass": true,
           "value": "외인 6.9%, 기관 80.0%",
           "detail": "외인 6.9%, 기관 80.0% = 합산 86.9%, 추세 up | 통과"
+        },
+        "M": {
+          "pass": true,
+          "value": "시장 추세 통과",
+          "detail": "(전체 시장 판정 결과 적용)"
+        }
+      }
+    },
+    {
+      "code": "141080",
+      "name": "리가켐바이오",
+      "market": "KOSDAQ",
+      "score": 34,
+      "grade": "D",
+      "passed_count": 2,
+      "market_cap_eok": 72706,
+      "per": null,
+      "pbr": 14.1,
+      "dividend_yield": 0.0,
+      "foreign_ownership": 12.03,
+      "institutional_pct": 35.74,
+      "institutional_trend": "down",
+      "twelve_m_return": 98.19,
+      "current_price": 203500,
+      "criteria": {
+        "C": {
+          "pass": false,
+          "value": "양사 적자",
+          "detail": "202412 -148 → 202512 -1491",
+          "yoy_pct": null,
+          "latest_quarter": "202512",
+          "latest_eps": -1491.0,
+          "prev_yoy_pct": null,
+          "accel_delta_pp": null,
+          "eps_accel_quality": "none",
+          "eps_yoy_history": [
+            [
+              "202503",
+              119.09
+            ],
+            [
+              "202506",
+              -210.41
+            ],
+            [
+              "202509",
+              -229.39
+            ],
+            [
+              "202512",
+              -907.43
+            ]
+          ],
+          "eps_accel_3q": false,
+          "sales_yoy_pct": -52.52,
+          "sales_yoy_history": [
+            [
+              "202503",
+              66.15
+            ],
+            [
+              "202506",
+              6.0
+            ],
+            [
+              "202509",
+              36.09
+            ],
+            [
+              "202512",
+              -52.52
+            ]
+          ],
+          "sales_accel_3q": false,
+          "never_sell": false,
+          "eps_new_high": false,
+          "consecutive_decline_quarters": 0,
+          "severe_decel": false,
+          "is_turnaround": false,
+          "dilution_flag": null,
+          "latest_is_preliminary": false,
+          "preliminary_rcept_no": null
+        },
+        "A": {
+          "pass": false,
+          "value": "EPS 3y -1001.8% / ROE -13.2%",
+          "detail": "EPS 202312:-2634 → 202412:225 → 202512:-2029 (미달, 25%+ 필요) | ROE -13.2% (미달, 15.0%+ 필요) | 이슈: 202312 적자"
+        },
+        "N": {
+          "pass": true,
+          "value": "52주 고점 -7.4%",
+          "detail": "고점 213,500, 현재 197,600, 갭 -7.4% | 약세 (5일avg 191,020 vs 50일avg 192,382)"
+        },
+        "S": {
+          "pass": false,
+          "value": "거래량 +18.9%",
+          "detail": "최근 5일 평균 505,105주 vs 50일 평균 424,968주 = +18.9% | 시총 72,706억 (대형 (수급 영향 작음))"
+        },
+        "L": {
+          "pass": false,
+          "value": "RS 33",
+          "detail": "12M 수익률 +98.2% (지수 +199.4%, 초과 -101.2%) | RS 33 (미달, 80+ 필요)"
+        },
+        "I": {
+          "pass": false,
+          "value": "외인 12.0%, 기관 35.7%",
+          "detail": "외인 12.0%, 기관 35.7% = 합산 47.8%, 추세 down | 미달, 합산 5.0%+ 필요"
+        },
+        "M": {
+          "pass": true,
+          "value": "시장 추세 통과",
+          "detail": "(전체 시장 판정 결과 적용)"
+        }
+      }
+    },
+    {
+      "code": "087010",
+      "name": "펩트론",
+      "market": "KOSDAQ",
+      "score": 34,
+      "grade": "D",
+      "passed_count": 2,
+      "market_cap_eok": 62141,
+      "per": null,
+      "pbr": 43.62,
+      "dividend_yield": 0.0,
+      "foreign_ownership": 6.57,
+      "institutional_pct": 13.34,
+      "institutional_trend": "up",
+      "twelve_m_return": 36.95,
+      "current_price": 286500,
+      "criteria": {
+        "C": {
+          "pass": false,
+          "value": "양사 적자",
+          "detail": "202412 -231 → 202512 -201",
+          "yoy_pct": null,
+          "latest_quarter": "202512",
+          "latest_eps": -201.0,
+          "prev_yoy_pct": null,
+          "accel_delta_pp": null,
+          "eps_accel_quality": "none",
+          "eps_yoy_history": [
+            [
+              "202503",
+              27.04
+            ],
+            [
+              "202506",
+              59.05
+            ],
+            [
+              "202509",
+              62.5
+            ],
+            [
+              "202512",
+              12.99
+            ]
+          ],
+          "eps_accel_3q": false,
+          "sales_yoy_pct": -33.33,
+          "sales_yoy_history": [
+            [
+              "202503",
+              235.24
+            ],
+            [
+              "202506",
+              158.32
+            ],
+            [
+              "202509",
+              171.97
+            ],
+            [
+              "202512",
+              -33.33
+            ]
+          ],
+          "sales_accel_3q": false,
+          "never_sell": false,
+          "eps_new_high": true,
+          "consecutive_decline_quarters": 0,
+          "severe_decel": false,
+          "is_turnaround": false,
+          "dilution_flag": null,
+          "latest_is_preliminary": false,
+          "preliminary_rcept_no": null
+        },
+        "A": {
+          "pass": false,
+          "value": "EPS 3y 계산불가 / ROE -9.4%",
+          "detail": "EPS 202312:-772 → 202412:-1052 → 202512:-593 (미달, 25%+ 필요) | ROE -9.4% (미달, 15.0%+ 필요) | 이슈: 202312 적자, 202412 적자"
+        },
+        "N": {
+          "pass": false,
+          "value": "52주 고점 -31.0%",
+          "detail": "고점 386,000, 현재 266,500, 갭 -31.0% | 약세 (5일avg 268,800 vs 50일avg 281,590)"
+        },
+        "S": {
+          "pass": false,
+          "value": "거래량 +10.9%",
+          "detail": "최근 5일 평균 214,359주 vs 50일 평균 193,346주 = +10.9% | 시총 62,141억 (대형 (수급 영향 작음))"
+        },
+        "L": {
+          "pass": false,
+          "value": "RS 27",
+          "detail": "12M 수익률 +36.9% (지수 +199.4%, 초과 -162.5%) | RS 27 (미달, 80+ 필요)"
+        },
+        "I": {
+          "pass": true,
+          "value": "외인 6.6%, 기관 13.3%",
+          "detail": "외인 6.6%, 기관 13.3% = 합산 19.9%, 추세 up | 통과"
         },
         "M": {
           "pass": true,
@@ -9444,6 +10942,96 @@
           "pass": false,
           "value": "외인 14.4%, 기관 60.7%",
           "detail": "외인 14.4%, 기관 60.7% = 합산 75.1%, 추세 down | 미달, 합산 5.0%+ 필요"
+        },
+        "M": {
+          "pass": true,
+          "value": "시장 추세 통과",
+          "detail": "(전체 시장 판정 결과 적용)"
+        }
+      }
+    },
+    {
+      "code": "310210",
+      "name": "보로노이",
+      "market": "KOSDAQ",
+      "score": 19,
+      "grade": "D",
+      "passed_count": 1,
+      "market_cap_eok": 47938,
+      "per": null,
+      "pbr": 45.66,
+      "dividend_yield": 0.0,
+      "foreign_ownership": 5.56,
+      "institutional_pct": 40.92,
+      "institutional_trend": "down",
+      "twelve_m_return": 161.57,
+      "current_price": 274000,
+      "criteria": {
+        "C": {
+          "pass": false,
+          "value": "양사 적자",
+          "detail": "202412 -483 → 202512 -234",
+          "yoy_pct": null,
+          "latest_quarter": "202512",
+          "latest_eps": -234.0,
+          "prev_yoy_pct": null,
+          "accel_delta_pp": null,
+          "eps_accel_quality": "none",
+          "eps_yoy_history": [
+            [
+              "202503",
+              -99.48
+            ],
+            [
+              "202506",
+              31.41
+            ],
+            [
+              "202509",
+              45.02
+            ],
+            [
+              "202512",
+              51.55
+            ]
+          ],
+          "eps_accel_3q": true,
+          "sales_yoy_pct": null,
+          "sales_yoy_history": [],
+          "sales_accel_3q": false,
+          "never_sell": false,
+          "eps_new_high": false,
+          "consecutive_decline_quarters": 0,
+          "severe_decel": false,
+          "is_turnaround": false,
+          "dilution_flag": null,
+          "latest_is_preliminary": false,
+          "preliminary_rcept_no": null
+        },
+        "A": {
+          "pass": false,
+          "value": "EPS 3y 계산불가 / ROE -50.2%",
+          "detail": "EPS 202112:-1140 → 202212:-1363 → 202512:-2323 (미달, 25%+ 필요) | ROE -50.2% (미달, 15.0%+ 필요) | 이슈: 202112 적자, 202212 적자"
+        },
+        "N": {
+          "pass": false,
+          "value": "52주 고점 -28.5%",
+          "detail": "고점 363,500, 현재 260,000, 갭 -28.5% | 약세 (5일avg 277,400 vs 50일avg 304,330)"
+        },
+        "S": {
+          "pass": false,
+          "value": "거래량 -13.6%",
+          "detail": "최근 5일 평균 96,658주 vs 50일 평균 111,853주 = -13.6% | 시총 47,938억 (대형 (수급 영향 작음))"
+        },
+        "L": {
+          "pass": false,
+          "value": "RS 53",
+          "detail": "12M 수익률 +161.6% (지수 +199.4%, 초과 -37.9%) | RS 53 (미달, 80+ 필요)"
+        },
+        "I": {
+          "pass": false,
+          "value": "외인 5.6%, 기관 40.9%",
+          "detail": "외인 5.6%, 기관 40.9% = 합산 46.5%, 추세 down | 미달, 합산 5.0%+ 필요"
         },
         "M": {
           "pass": true,
