@@ -126,12 +126,12 @@ def collect_raw_data(
         return None
     market_cap = ig["market_cap_eok"]
     if market_cap < 500:
-        return None
+        return {"_skipped_small_cap": True, "market_cap_eok": market_cap}
 
     if min_price > 0:
         price_val = ig.get("price") or 0
         if price_val < min_price:
-            return {"_skipped_low_price": True}
+            return {"_skipped_low_price": True, "price": price_val}
 
     ann = fetch_annual(code)
     qtr = fetch_quarter(code)
@@ -394,6 +394,7 @@ def main() -> None:
     raw_data: list[dict] = []
     fail = 0
     skipped_low_price = 0
+    skipped_small_cap = 0
     start = time.time()
 
     failed_stocks: list[dict] = []
@@ -405,22 +406,26 @@ def main() -> None:
         except Exception as e:
             raw = None
             err_msg = repr(e)
-        if raw and raw.get("_skipped_low_price"):
+        if raw and raw.get("_skipped_small_cap"):
+            skipped_small_cap += 1
+        elif raw and raw.get("_skipped_low_price"):
             skipped_low_price += 1
         elif raw:
             raw_data.append(raw)
         else:
             fail += 1
-            failed_stocks.append({"code": s["code"], "name": s["name"], "market": s["market"], "error": err_msg or "collect_raw_data returned None"})
+            failed_stocks.append({"code": s["code"], "name": s["name"], "market": s["market"], "error": err_msg or "fetch_integration None (Naver 응답 없음)"})
         if (i + 1) % 25 == 0:
             elapsed = time.time() - start
             rate = (i + 1) / elapsed if elapsed > 0 else 0
             eta = (len(universe) - i - 1) / rate if rate > 0 else 0
             print(f"  ... {i + 1}/{len(universe)} 수집 ({rate:.1f}/s, ETA {eta / 60:.1f}분)")
 
-    print(f"\n  Pass 1 완료: 수집 {len(raw_data)}개, 실패 {fail}")
+    print(f"\n  Pass 1 완료: 평가 진입 {len(raw_data)}개")
+    print(f"    🪙 시총 500억 미만 제외: {skipped_small_cap}종목")
     if args.min_price:
-        print(f"  💰 최소가 {args.min_price:,}원 미만으로 스킵: {skipped_low_price}종목")
+        print(f"    💰 최소가 {args.min_price:,}원 미만 제외: {skipped_low_price}종목")
+    print(f"    ❌ 진짜 실패(Naver 데이터 X): {fail}종목")
     if failed_stocks:
         print("  실패 종목:")
         for fs in failed_stocks:
@@ -475,6 +480,7 @@ def main() -> None:
                 "merged": args.merge,
                 "min_price": args.min_price,
                 "skipped_low_price_count": skipped_low_price,
+                "skipped_small_cap_count": skipped_small_cap,
             },
             "market_status": {
                 "kospi_trend_verdict": market_state["verdict"],
