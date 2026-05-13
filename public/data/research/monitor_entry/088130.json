@@ -1,7 +1,7 @@
 {
   "code": "088130",
   "name": "동아엘텍",
-  "last_checked": "2026-05-13T15:30:23.189+09:00",
+  "last_checked": "2026-05-13T17:33:35.857+09:00",
   "metrics": [
     {
       "id": "no_capital_issuance",
@@ -70,9 +70,24 @@
       "type": "per_value_zone",
       "title": "✅ PER 본격 저평가 임계 근접",
       "message": "현재 3.56배 (임계 3.5배 이하)"
+    },
+    {
+      "severity": "info",
+      "type": "news_keyword_hit",
+      "title": "매수 시그널 키워드 매칭 뉴스 1건 (관찰 신호 0건 — 키워드 단순 매칭만)",
+      "message": "매수 시그널 모니터링 키워드 기준 최근 7일 매칭. 호재 명시 phrase로 등록되어 있으나 본문 직접 확인 권장."
     }
   ],
-  "news_hits": [],
+  "news_hits": [
+    {
+      "keyword": "OLED 8.6세대 양산",
+      "date": "2026-05-13",
+      "title": "삼성보다 빨랐다...中 BOE 8.6세대 OLED 양산 눈앞에 - 디일렉",
+      "url": "https://news.google.com/rss/articles/CBMiZkFVX3lxTE1tdEFZbm9HTlh3NTFYUWRtN3gzNDI4VFhCOGUtMENrYjVHNDBXWDFZV1laby1CMEd6NlhlNC0yeElKSGV1eWEzVXptV1FNWklidTktNlF5ZWlqcElwVWZLTk5jQjVmZw?oc=5",
+      "severity": "info",
+      "signals": []
+    }
+  ],
   "sources": [
     {
       "label": "PER/PEG/PBR 스코어",
@@ -81,6 +96,10 @@
     {
       "label": "분기 영업이익률 (2025)",
       "ref": "DART 20260316001316"
+    },
+    {
+      "label": "뉴스 RSS",
+      "ref": "news.google.com/rss (7일)"
     }
   ]
 }
