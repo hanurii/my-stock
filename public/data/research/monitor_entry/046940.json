@@ -1,7 +1,7 @@
 {
   "code": "046940",
   "name": "우원개발",
-  "last_checked": "2026-05-13T17:33:48.258+09:00",
+  "last_checked": "2026-05-13T20:33:19.059+09:00",
   "metrics": [
     {
       "id": "no_capital_issuance",
@@ -33,11 +33,11 @@
     {
       "id": "per_value_zone",
       "label": "✅ PER 추가 저평가",
-      "value": 2.07,
-      "display": "2.07배",
+      "value": 2,
+      "display": "2배",
       "threshold": "1.8배 이하 (현 2.03배)",
       "hit": false,
-      "tone": "neutral"
+      "tone": "warn"
     },
     {
       "id": "new_supply_contract",
@@ -64,6 +64,12 @@
       "type": "op_margin_sustained",
       "title": "✅ 분기 영업이익률 지속 12% 이상",
       "message": "현재 17.9% — 매수 시그널 (분할 진입 검토 권장)"
+    },
+    {
+      "severity": "warn",
+      "type": "per_value_zone",
+      "title": "✅ PER 추가 저평가 임계 근접",
+      "message": "현재 2배 (임계 1.8배 이하 (현 2.03배))"
     },
     {
       "severity": "info",
