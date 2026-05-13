@@ -118,6 +118,7 @@ def collect_raw_data(
     name: str,
     market: str,
     corp_map: dict[str, str],
+    min_price: int = 0,
 ) -> dict | None:
     """1차 패스: 종목별 원시 데이터 수집. RS는 아직 계산하지 않음."""
     ig = fetch_integration(code)
@@ -126,6 +127,11 @@ def collect_raw_data(
     market_cap = ig["market_cap_eok"]
     if market_cap < 500:
         return None
+
+    if min_price > 0:
+        price_val = ig.get("price") or 0
+        if price_val < min_price:
+            return {"_skipped_low_price": True}
 
     ann = fetch_annual(code)
     qtr = fetch_quarter(code)
@@ -325,6 +331,8 @@ def main() -> None:
     parser.add_argument("--ticker", help="단일 종목 코드만 평가")
     parser.add_argument("--save", action="store_true", help="결과 JSON 저장")
     parser.add_argument("--merge", action="store_true", help="기존 JSON candidates에 머지 (offset > 0 일 때 유용)")
+    parser.add_argument("--min-price", type=int, default=0,
+                        help="현재가가 이 KRW 미만이면 DART 호출 전에 스킵 (default 0 = 비활성)")
     args = parser.parse_args()
 
     print("🎯 CAN SLIM 스크리너 (한국 보정판 v1)\n")
@@ -385,17 +393,21 @@ def main() -> None:
     print(f"\n🔬 Pass 1: 원시 데이터 수집 ({len(universe)}종목)\n")
     raw_data: list[dict] = []
     fail = 0
+    skipped_low_price = 0
     start = time.time()
 
     failed_stocks: list[dict] = []
     for i, s in enumerate(universe):
         err_msg = ""
         try:
-            raw = collect_raw_data(s["code"], s["name"], s["market"], corp_map)
+            raw = collect_raw_data(s["code"], s["name"], s["market"], corp_map,
+                                   min_price=args.min_price)
         except Exception as e:
             raw = None
             err_msg = repr(e)
-        if raw:
+        if raw and raw.get("_skipped_low_price"):
+            skipped_low_price += 1
+        elif raw:
             raw_data.append(raw)
         else:
             fail += 1
@@ -407,6 +419,8 @@ def main() -> None:
             print(f"  ... {i + 1}/{len(universe)} 수집 ({rate:.1f}/s, ETA {eta / 60:.1f}분)")
 
     print(f"\n  Pass 1 완료: 수집 {len(raw_data)}개, 실패 {fail}")
+    if args.min_price:
+        print(f"  💰 최소가 {args.min_price:,}원 미만으로 스킵: {skipped_low_price}종목")
     if failed_stocks:
         print("  실패 종목:")
         for fs in failed_stocks:
@@ -454,7 +468,14 @@ def main() -> None:
             "generated_at": today_iso(),
             "scanned_count": len(universe),
             "evaluated_count": len(candidates_final),
-            "scan_meta": {"offset": args.offset, "limit": args.limit, "market": args.market, "merged": args.merge},
+            "scan_meta": {
+                "offset": args.offset,
+                "limit": args.limit,
+                "market": args.market,
+                "merged": args.merge,
+                "min_price": args.min_price,
+                "skipped_low_price_count": skipped_low_price,
+            },
             "market_status": {
                 "kospi_trend_verdict": market_state["verdict"],
                 "passed": market_state["passed"],
