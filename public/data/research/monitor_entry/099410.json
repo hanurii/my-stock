@@ -1,7 +1,7 @@
 {
   "code": "099410",
   "name": "동방선기",
-  "last_checked": "2026-05-14T17:23:52.101+09:00",
+  "last_checked": "2026-05-14T20:18:50.967+09:00",
   "metrics": [
     {
       "id": "no_capital_issuance",
@@ -33,11 +33,11 @@
     {
       "id": "per_value_zone",
       "label": "✅ PER 저평가",
-      "value": 9.46,
-      "display": "9.46배",
+      "value": 8.98,
+      "display": "8.98배",
       "threshold": "8.0배 이하 (현 9.67배)",
       "hit": false,
-      "tone": "neutral"
+      "tone": "warn"
     },
     {
       "id": "buyback_action",
@@ -66,9 +66,15 @@
       "message": "현재 22.2% — 매수 시그널 (분할 진입 검토 권장)"
     },
     {
+      "severity": "warn",
+      "type": "per_value_zone",
+      "title": "✅ PER 저평가 임계 근접",
+      "message": "현재 8.98배 (임계 8.0배 이하 (현 9.67배))"
+    },
+    {
       "severity": "info",
       "type": "news_keyword_hit",
-      "title": "매수 시그널 키워드 매칭 뉴스 9건 (관찰 신호 0건 — 키워드 단순 매칭만)",
+      "title": "매수 시그널 키워드 매칭 뉴스 8건 (관찰 신호 0건 — 키워드 단순 매칭만)",
       "message": "매수 시그널 모니터링 키워드 기준 최근 7일 매칭. 호재 명시 phrase로 등록되어 있으나 본문 직접 확인 권장."
     }
   ],
@@ -78,6 +84,14 @@
       "date": "2026-05-14",
       "title": "조선업계, 슈퍼사이클 이면 노사 갈등 '시한폭탄' - 한스경제",
       "url": "https://news.google.com/rss/articles/CBMia0FVX3lxTFBRbXVfMl94S2dxWGxKSVRhVTBHZzJQdEdRQkNqVEtjeF8tYklKYWVka3BDVmRWcXlrRmZLMDhtTEFkZDhaSExFYWhHRUllMUlnOW9fTG5mZUx3NldOQUFoM0J5Z1BCSHVFWlJF0gFvQVVfeXFMTmpjcXdRdjNfWENjU2x0bUxZQUJtbnJwUThZVWxmeWZqTGZ1T0lDbG0taURsV2RNa2tOY3VjYXpLTktLclc4V0p6dzRoQmozZjNiY1o4UC1hZUJrdUNaaWxNQV8yX0NXdjd5dFB6NzRv?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "조선 슈퍼사이클",
+      "date": "2026-05-14",
+      "title": "슈퍼사이클 올라탄 K조선, 정부 키워드는 ‘생태계 보강’ - ER 이코노믹리뷰",
+      "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE1UeVpKd1lFLVBEWi15UnpEaEVrRDd3a2RVZmZWUzhJczZ4czB3LTJUWUxEM3pSLVQtOFAtaWVPaERWb1lfUUZmRUN6V21yS2E2VG5qTjEtSy11ZkF2ZEZNc1dOWU5mcmJsWUpBUQ?oc=5",
       "severity": "info",
       "signals": []
     },
@@ -94,14 +108,6 @@
       "date": "2026-05-14",
       "title": "슈퍼사이클 조선 3사에도 성과급 불씨…원청·하청 불문 '내 몫' 요구 봇물 - 데일리안",
       "url": "https://news.google.com/rss/articles/CBMiV0FVX3lxTFAzTFFqaTFsUV9vVTdTOXliM2RwQ0xERXlMX3hYSHpYVTVTdk1CR0JfRU1yTFJWMjRQdUZ2Ri1abk5OVXFVeUFKN2tnMGc1aGUtRTY4czZBZ9IBmwJBVV95cUxOVkRDcW5KaWdFUmU2OUZpbmtucHBNazRKUWZQUWE1YzlHNU1YbEZtN3AtX0IwQTM2Q3lrSDVPWk1RYk9HOUdVdUJ5Wm5uOEZDMWlDbUF2X21fRmU4NnBfTC1KVl81eGhkS1VDUUxKaDZkTHpJcHJmelhpazYwZHN2ZnQxak9Qd1h1VVd0emJkZ20wSjFrVVNDMnhIUEhsSmdYcHhtdXJ1WU5DdU9zcjlxYnVxWl9jVTdoRGQwVFJLZmNOQk5rMG9sSXZ4TTlQNllsaHdJMUJkZFhRVExNdHhDdUdNY3VXN21LR3pkbWVFcFY0V2gxdUJfY21Oa1g4WDF6UjZ5eW1pR3ZMcFVBcVUtb19IR0l1amM5Uk00?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "조선 슈퍼사이클",
-      "date": "2026-05-14",
-      "title": "슈퍼사이클 올라탄 K조선, 정부 키워드는 ‘생태계 보강’ - ER 이코노믹리뷰",
-      "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE1UeVpKd1lFLVBEWi15UnpEaEVrRDd3a2RVZmZWUzhJczZ4czB3LTJUWUxEM3pSLVQtOFAtaWVPaERWb1lfUUZmRUN6V21yS2E2VG5qTjEtSy11ZkF2ZEZNc1dOWU5mcmJsWUpBUQ?oc=5",
       "severity": "info",
       "signals": []
     },
@@ -134,14 +140,6 @@
       "date": "2026-05-11",
       "title": "K-조선 3사, 1분기 영업이익 2조 돌파...'조선업 슈퍼사이클 본격화' - 반론보도닷컴",
       "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE9GYVRYUHpnUm8xUFo0WWd5aVVQU09HNWlPdktxNmU1cHdYSlh0Szl1RUQ1N0sxcGd0TmVtVkNSeko5TDc0VEtmNUZKSzhLRVBVd1VjdFVWMldZbW9hTEh4QTZqMlQweVRyZ0xGddIBcEFVX3lxTFBhYVh4Sk1hR1pEeXNISkY2cXlXMGFCM2pSeUtJSWRsQ3QxajRVUlI1elMxckpqaXJROUdZZGpBbVktaFRPbGxsRFhPZzhBclRyaXUwN2RWak1SRjhQRU5aYnA3VDJsMEdOb1BYYzN0WkM?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "조선 슈퍼사이클",
-      "date": "2026-05-10",
-      "title": "친환경 선박 발주 '반등'... K-조선 '슈퍼사이클'은 계속된다 - v.daum.net",
-      "url": "https://news.google.com/rss/articles/CBMiS0FVX3lxTFBBM0c2T1c2M3VRbVNjUzZzd3ZuTTNFZnBSaWZVVEI0aWdZYVlNM0FiOS1vU1V3VThJVjREOHVxei16RS1QUGdjRkRLaw?oc=5",
       "severity": "info",
       "signals": []
     }
