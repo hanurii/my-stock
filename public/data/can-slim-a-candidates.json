@@ -1607,10 +1607,10 @@
       "market": "KOSPI",
       "market_cap_eok": 1567666,
       "current_price": 1126000,
-      "a_score": 80,
+      "a_score": 86,
       "a_score_tier": "정통 (O'Neil 책 기준 충족)",
       "a_score_breakdown": {
-        "eps_consecutive": 0,
+        "eps_consecutive": 6,
         "eps_growth": 20,
         "profitability": 20,
         "roe": 20,
@@ -1619,7 +1619,7 @@
         "non_cyclical": 20
       },
       "a_score_notes": {
-        "연속_증가": "최근 적자",
+        "연속_증가": "연속 적자 후 흑자전환·증가 추세",
         "성장률": "+271.2% (>=25%)",
         "수익성": "ROE 37.8% (>=17%) · 마진 673.5% (>=20%)",
         "둔화_게이트": "통과",
@@ -2119,10 +2119,10 @@
       "market": "KOSPI",
       "market_cap_eok": 23576,
       "current_price": 207000,
-      "a_score": 66,
+      "a_score": 72,
       "a_score_tier": "근접 (한두 항목 미달)",
       "a_score_breakdown": {
-        "eps_consecutive": 0,
+        "eps_consecutive": 6,
         "eps_growth": 20,
         "profitability": 6,
         "roe": 6,
@@ -2131,7 +2131,7 @@
         "non_cyclical": 20
       },
       "a_score_notes": {
-        "연속_증가": "최근 적자 (회복 미달)",
+        "연속_증가": "흑자전환 후 증가 추세",
         "성장률": "+220.0% (>=25%)",
         "수익성": "ROE 10.6% (8~12%) · 마진 8.9% (<10%)",
         "둔화_게이트": "통과",
@@ -2305,7 +2305,7 @@
         "non_cyclical": 20
       },
       "a_score_notes": {
-        "연속_증가": "최근 적자",
+        "연속_증가": "최근 적자 (회복 확인 불가)",
         "성장률": "+-75.6% (<5%)",
         "수익성": "ROE -3.1% (<8%) · 데이터 부족",
         "둔화_게이트": "통과",
@@ -2386,7 +2386,7 @@
         "non_cyclical": 20
       },
       "a_score_notes": {
-        "연속_증가": "최근 적자",
+        "연속_증가": "최근 적자 (회복 확인 불가)",
         "성장률": "+-75.6% (<5%)",
         "수익성": "ROE -3.1% (<8%) · 데이터 부족",
         "둔화_게이트": "통과",
@@ -2537,5 +2537,7 @@
         "sales_yoy_pct": 12.7
       }
     }
-  ]
+  ],
+  "regenerated_at": "2026-05-15T07:46:16.985127",
+  "regeneration_note": "compute_a_score 적자 회복 차등화 (t+1/t+2/추세 6점)"
 }

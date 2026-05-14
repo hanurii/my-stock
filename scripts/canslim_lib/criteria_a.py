@@ -650,7 +650,7 @@ def compute_a_score(a_detail: dict) -> dict:
         score_eps_consecutive = 17
         notes["연속_증가"] = "5년 위기 면제"
     elif has_loss:
-        # 적자 후 V자 회복 체크 — 적자 다음 해 EPS > 적자 직전 해 EPS × 1.5
+        # 적자 후 회복 차등 점수 — t+1 즉시 회복(15) / t+2 회복(12) / 흑자전환 후 추세(6)
         # 가장 최근 적자 위치 찾기 (최근 4년 윈도우 안에서)
         overall_loss_idx = None
         start = max(0, len(annual_eps) - 4)
@@ -658,21 +658,57 @@ def compute_a_score(a_detail: dict) -> dict:
             if annual_eps[i][1] <= 0:
                 overall_loss_idx = i
                 break
-        if (overall_loss_idx is not None
-            and overall_loss_idx >= 1
-            and overall_loss_idx + 1 < len(annual_eps)):
-            pre_loss_v = annual_eps[overall_loss_idx - 1][1]
-            recovery_v = annual_eps[overall_loss_idx + 1][1]
-            if pre_loss_v > 0 and recovery_v > pre_loss_v * 1.5:
-                score_eps_consecutive = 15
-                ratio = recovery_v / pre_loss_v
-                notes["연속_증가"] = f"적자 후 V자 회복 (직전 대비 {ratio:.1f}배)"
-            else:
-                score_eps_consecutive = 0
-                notes["연속_증가"] = "최근 적자 (회복 미달)"
-        else:
+        if overall_loss_idx is None or overall_loss_idx + 1 >= len(annual_eps):
+            # 가장 최근 데이터가 적자거나 회복 확인 불가
             score_eps_consecutive = 0
-            notes["연속_증가"] = "최근 적자"
+            notes["연속_증가"] = "최근 적자 (회복 확인 불가)"
+        else:
+            pre_loss_v = annual_eps[overall_loss_idx - 1][1] if overall_loss_idx >= 1 else None
+            recovery_v_t1 = annual_eps[overall_loss_idx + 1][1]
+            recovery_v_t2 = (
+                annual_eps[overall_loss_idx + 2][1]
+                if overall_loss_idx + 2 < len(annual_eps)
+                else None
+            )
+            latest_v = annual_eps[-1][1]
+            second_latest_v = annual_eps[-2][1] if len(annual_eps) >= 2 else None
+
+            if pre_loss_v is not None and pre_loss_v > 0:
+                threshold = pre_loss_v * 1.5
+                if recovery_v_t1 >= threshold:
+                    score_eps_consecutive = 15
+                    ratio = recovery_v_t1 / pre_loss_v
+                    notes["연속_증가"] = f"적자 후 V자 회복 (직전 대비 {ratio:.1f}배)"
+                elif recovery_v_t2 is not None and recovery_v_t2 >= threshold:
+                    score_eps_consecutive = 12
+                    ratio = recovery_v_t2 / pre_loss_v
+                    notes["연속_증가"] = f"적자 후 t+2년 회복 (직전 대비 {ratio:.1f}배)"
+                elif recovery_v_t1 > 0 and (
+                    (recovery_v_t2 is not None and recovery_v_t2 > recovery_v_t1)
+                    or (
+                        recovery_v_t2 is None
+                        and second_latest_v is not None
+                        and latest_v > 0
+                        and latest_v > second_latest_v
+                    )
+                ):
+                    score_eps_consecutive = 6
+                    notes["연속_증가"] = "흑자전환 후 증가 추세"
+                else:
+                    score_eps_consecutive = 0
+                    notes["연속_증가"] = "최근 적자 (회복 미달)"
+            else:
+                # 연속 적자 — 적자 직전 해도 적자이거나 없음
+                if (
+                    second_latest_v is not None
+                    and latest_v > 0
+                    and latest_v > second_latest_v
+                ):
+                    score_eps_consecutive = 6
+                    notes["연속_증가"] = "연속 적자 후 흑자전환·증가 추세"
+                else:
+                    score_eps_consecutive = 0
+                    notes["연속_증가"] = "연속 적자"
     elif eps_growths:
         pos_count = sum(1 for g in eps_growths if g > 0)
         if pos_count == len(eps_growths) - 1:
