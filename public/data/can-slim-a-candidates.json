@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-05-13",
+  "generated_at": "2026-05-14",
   "c_input_count": 21,
-  "a_passed_count": 2,
+  "a_passed_count": 3,
   "turnaround_count": 3,
-  "preliminary_turnaround_count": 3,
+  "preliminary_turnaround_count": 2,
   "new_listing_count": 0,
   "candidates": [
     {
@@ -14,6 +14,7 @@
       "current_price": 707000,
       "criteria_a": {
         "main_track_pass": true,
+        "main_track_via_margin": false,
         "annual_eps": [
           [
             "202212",
@@ -83,6 +84,7 @@
         "cyclical": false,
         "earnings_stability_score": 36,
         "earnings_stability_detail": "편차율 65.7% (적자 6분기 포함, 평균 |EPS| 정규화)",
+        "pretax_margin": 10.24,
         "badges": [
           "⭐ 매년 +25% 성장",
           "글로벌 ROE",
@@ -95,7 +97,6 @@
         "ttm_eps": 20950.0,
         "ttm_period": "202603",
         "evaluation_basis": "202603 TTM (잠정실적 포함)",
-        "pretax_margin": 10.24,
         "priority_score": 338.05,
         "stellar_growth": true,
         "a_score": {
@@ -103,14 +104,16 @@
           "breakdown": {
             "eps_consecutive": 20,
             "eps_growth": 20,
+            "profitability": 20,
             "roe": 20,
+            "margin": 6,
             "deceleration": 20,
             "non_cyclical": 20
           },
           "notes": {
             "연속_증가": "3년 연속 증가",
             "성장률": "+219.2% (>=25%)",
-            "ROE": "18.8% (>=17%)",
+            "수익성": "ROE 18.8% (>=17%) · 마진 10.2% (10~15%)",
             "둔화_게이트": "통과",
             "비사이클": "비경기민감"
           },
@@ -124,6 +127,126 @@
       }
     },
     {
+      "code": "095340",
+      "name": "ISC",
+      "market": "KOSDAQ",
+      "market_cap_eok": 50873,
+      "current_price": 248500,
+      "criteria_a": {
+        "main_track_pass": true,
+        "main_track_via_margin": true,
+        "annual_eps": [
+          [
+            "202212",
+            2526.0
+          ],
+          [
+            "202312",
+            720.0
+          ],
+          [
+            "202412",
+            2579.0
+          ],
+          [
+            "202512",
+            2648.0
+          ],
+          [
+            "TTM_202603",
+            3294.9
+          ]
+        ],
+        "annual_roe": [
+          [
+            "202312",
+            3.56
+          ],
+          [
+            "202412",
+            10.97
+          ],
+          [
+            "202512",
+            10.6
+          ]
+        ],
+        "annual_cps": [
+          [
+            "202312",
+            1093.13
+          ],
+          [
+            "202412",
+            2475.2
+          ],
+          [
+            "202512",
+            2037.51
+          ]
+        ],
+        "three_year_growths": [
+          258.19,
+          2.68,
+          24.43
+        ],
+        "three_year_avg_growth": 95.1,
+        "five_year_consecutive_increase": true,
+        "consecutive_3y_increase": true,
+        "latest_roe": 10.6,
+        "latest_cps": 2037.51,
+        "latest_eps": 3294.9,
+        "latest_cps_eps_ratio": 0.618,
+        "latest_quarter_yoy": 200.9,
+        "deceleration_gate_pass": true,
+        "deceleration_gate_threshold": 31.7,
+        "induty_code": "465",
+        "cyclical": false,
+        "earnings_stability_score": 31,
+        "earnings_stability_detail": "편차율 33.6%",
+        "pretax_margin": 30.24,
+        "badges": [
+          "🏆 탁월 마진",
+          "마진 우위 통과 (마진 30.2%·ROE 10.6%)",
+          "5년 연속 성장 (위기 면제)",
+          "안정성 보통"
+        ],
+        "fail_reasons": [],
+        "partial_data": false,
+        "five_year_with_crisis_waiver": true,
+        "ttm_eps": 3294.9,
+        "ttm_period": "202603",
+        "evaluation_basis": "202603 TTM (잠정실적 포함)",
+        "priority_score": 136.06,
+        "stellar_growth": false,
+        "a_score": {
+          "total": 100,
+          "breakdown": {
+            "eps_consecutive": 20,
+            "eps_growth": 20,
+            "profitability": 20,
+            "roe": 6,
+            "margin": 20,
+            "deceleration": 20,
+            "non_cyclical": 20
+          },
+          "notes": {
+            "연속_증가": "3년 연속 증가",
+            "성장률": "+95.1% (>=25%)",
+            "수익성": "마진 30.2% (>=20%) (마진 우위로 ROE 대체) · ROE 10.6% (8~12%)",
+            "둔화_게이트": "통과",
+            "비사이클": "비경기민감"
+          },
+          "tier": "정통 (O'Neil 책 기준 충족)"
+        }
+      },
+      "criteria_c_summary": {
+        "yoy_pct": 200.9,
+        "latest_quarter": "202603",
+        "sales_yoy_pct": 115.37
+      }
+    },
+    {
       "code": "039490",
       "name": "키움증권",
       "market": "KOSPI",
@@ -131,6 +254,7 @@
       "current_price": 420000,
       "criteria_a": {
         "main_track_pass": true,
+        "main_track_via_margin": false,
         "annual_eps": [
           [
             "202312",
@@ -196,6 +320,7 @@
         "cyclical": false,
         "earnings_stability_score": 27,
         "earnings_stability_detail": "편차율 21.4%",
+        "pretax_margin": 9.0,
         "badges": [
           "글로벌 ROE",
           "안정성 우수"
@@ -206,7 +331,6 @@
         "ttm_eps": 49519.21,
         "ttm_period": "202603",
         "evaluation_basis": "202603 TTM (잠정실적 포함)",
-        "pretax_margin": 9.0,
         "priority_score": 69.98,
         "stellar_growth": false,
         "a_score": {
@@ -214,14 +338,16 @@
           "breakdown": {
             "eps_consecutive": 20,
             "eps_growth": 20,
+            "profitability": 20,
             "roe": 20,
+            "margin": 0,
             "deceleration": 20,
             "non_cyclical": 20
           },
           "notes": {
             "연속_증가": "3년 연속 증가",
             "성장률": "+51.9% (>=25%)",
-            "ROE": "18.1% (>=17%)",
+            "수익성": "ROE 18.1% (>=17%) · 마진 9.0% (<10%)",
             "둔화_게이트": "통과",
             "비사이클": "비경기민감"
           },
@@ -285,9 +411,12 @@
         "earnings_stability_score": 29,
         "earnings_stability_detail": "편차율 25.8% (적자 2분기 포함, 평균 |EPS| 정규화)",
         "latest_roe": 37.82,
+        "pretax_margin": 673.55,
+        "high_via_margin": false,
         "badges": [
           "사상 최고치",
           "탁월 ROE",
+          "🏆 탁월 마진",
           "안정성 우수"
         ],
         "fail_reasons": []
@@ -356,9 +485,12 @@
         "earnings_stability_score": 38,
         "earnings_stability_detail": "편차율 76.3% (적자 3분기 포함, 평균 |EPS| 정규화)",
         "latest_roe": 44.15,
+        "pretax_margin": 51.95,
+        "high_via_margin": false,
         "badges": [
           "사상 최고치",
           "탁월 ROE",
+          "🏆 탁월 마진",
           "안정성 보통"
         ],
         "fail_reasons": []
@@ -427,11 +559,13 @@
         "earnings_stability_score": 35,
         "earnings_stability_detail": "편차율 53.8%",
         "latest_roe": 10.85,
+        "pretax_margin": 14.83,
+        "high_via_margin": false,
         "badges": [
           "안정성 보통"
         ],
         "fail_reasons": [
-          "TTM 사상 최고치 82% (≥90% 또는 신고가 필요)"
+          "TTM 사상 최고치 82% (≥90% 또는 신고가 필요, 또는 마진 ≥15.0% 대안 미충족: 마진 14.8%)"
         ]
       },
       "is_preliminary": true,
@@ -498,11 +632,13 @@
         "earnings_stability_score": 35,
         "earnings_stability_detail": "편차율 53.8%",
         "latest_roe": 10.85,
+        "pretax_margin": 14.83,
+        "high_via_margin": false,
         "badges": [
           "안정성 보통"
         ],
         "fail_reasons": [
-          "TTM 사상 최고치 82% (≥90% 또는 신고가 필요)"
+          "TTM 사상 최고치 82% (≥90% 또는 신고가 필요, 또는 마진 ≥15.0% 대안 미충족: 마진 14.8%)"
         ]
       },
       "is_preliminary": true,
@@ -569,8 +705,11 @@
         "earnings_stability_score": 32,
         "earnings_stability_detail": "편차율 37.6%",
         "latest_roe": 5.94,
+        "pretax_margin": 27.72,
+        "high_via_margin": false,
         "badges": [
           "사상 최고치",
+          "🏆 탁월 마진",
           "안정성 보통"
         ],
         "fail_reasons": []
@@ -580,78 +719,6 @@
         "yoy_pct": 223.66,
         "latest_quarter": "202603",
         "sales_yoy_pct": 36.0
-      }
-    },
-    {
-      "code": "095340",
-      "name": "ISC",
-      "market": "KOSDAQ",
-      "market_cap_eok": 50873,
-      "current_price": 248500,
-      "criteria_turnaround": {
-        "turnaround_pass": false,
-        "preliminary_turnaround_pass": true,
-        "annual_eps": [
-          [
-            "202112",
-            2202.0
-          ],
-          [
-            "202212",
-            2526.0
-          ],
-          [
-            "202312",
-            720.0
-          ],
-          [
-            "202412",
-            2579.0
-          ],
-          [
-            "202512",
-            2648.0
-          ]
-        ],
-        "annual_roe": [
-          [
-            "202312",
-            3.56
-          ],
-          [
-            "202412",
-            10.97
-          ],
-          [
-            "202512",
-            10.6
-          ]
-        ],
-        "latest_annual_yoy": 2.68,
-        "two_quarter_surge": true,
-        "two_quarter_surge_detail": "202512 +84.3%, 202603 +200.9%",
-        "preliminary_two_quarter_surge": true,
-        "ttm_high_ratio": 1.027,
-        "is_all_time_high": true,
-        "latest_quarter_yoy": 200.9,
-        "induty_code": "465",
-        "cyclical": false,
-        "earnings_stability_score": 31,
-        "earnings_stability_detail": "편차율 33.6%",
-        "latest_roe": 10.6,
-        "badges": [
-          "사상 최고치",
-          "안정성 보통"
-        ],
-        "fail_reasons": [
-          "직전 1년 EPS YoY 2.68% (≥5.0% 필요)"
-        ]
-      },
-      "is_preliminary": true,
-      "criteria_c_summary": {
-        "yoy_pct": 200.9,
-        "latest_quarter": "202603",
-        "sales_yoy_pct": 115.37
       }
     }
   ],
@@ -668,14 +735,16 @@
       "a_score_breakdown": {
         "eps_consecutive": 20,
         "eps_growth": 20,
+        "profitability": 20,
         "roe": 20,
+        "margin": 6,
         "deceleration": 20,
         "non_cyclical": 20
       },
       "a_score_notes": {
         "연속_증가": "3년 연속 증가",
         "성장률": "+219.2% (>=25%)",
-        "ROE": "18.8% (>=17%)",
+        "수익성": "ROE 18.8% (>=17%) · 마진 10.2% (10~15%)",
         "둔화_게이트": "통과",
         "비사이클": "비경기민감"
       },
@@ -729,6 +798,7 @@
       "five_year_with_crisis_waiver": false,
       "deceleration_gate_pass": true,
       "main_track_pass": true,
+      "main_track_via_margin": false,
       "badges": [
         "⭐ 매년 +25% 성장",
         "글로벌 ROE",
@@ -745,6 +815,96 @@
       }
     },
     {
+      "code": "095340",
+      "name": "ISC",
+      "market": "KOSDAQ",
+      "market_cap_eok": 50873,
+      "current_price": 248500,
+      "a_score": 100,
+      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
+      "a_score_breakdown": {
+        "eps_consecutive": 20,
+        "eps_growth": 20,
+        "profitability": 20,
+        "roe": 6,
+        "margin": 20,
+        "deceleration": 20,
+        "non_cyclical": 20
+      },
+      "a_score_notes": {
+        "연속_증가": "3년 연속 증가",
+        "성장률": "+95.1% (>=25%)",
+        "수익성": "마진 30.2% (>=20%) (마진 우위로 ROE 대체) · ROE 10.6% (8~12%)",
+        "둔화_게이트": "통과",
+        "비사이클": "비경기민감"
+      },
+      "three_year_avg_growth": 95.1,
+      "latest_roe": 10.6,
+      "pretax_margin": 30.24,
+      "three_year_growths": [
+        258.19,
+        2.68,
+        24.43
+      ],
+      "annual_eps": [
+        [
+          "202212",
+          2526.0
+        ],
+        [
+          "202312",
+          720.0
+        ],
+        [
+          "202412",
+          2579.0
+        ],
+        [
+          "202512",
+          2648.0
+        ],
+        [
+          "TTM_202603",
+          3294.9
+        ]
+      ],
+      "annual_roe": [
+        [
+          "202312",
+          3.56
+        ],
+        [
+          "202412",
+          10.97
+        ],
+        [
+          "202512",
+          10.6
+        ]
+      ],
+      "cyclical": false,
+      "induty_code": "465",
+      "consecutive_3y_increase": true,
+      "five_year_with_crisis_waiver": true,
+      "deceleration_gate_pass": true,
+      "main_track_pass": true,
+      "main_track_via_margin": true,
+      "badges": [
+        "🏆 탁월 마진",
+        "마진 우위 통과 (마진 30.2%·ROE 10.6%)",
+        "5년 연속 성장 (위기 면제)",
+        "안정성 보통"
+      ],
+      "ttm_eps": 3294.9,
+      "ttm_period": "202603",
+      "evaluation_basis": "202603 TTM (잠정실적 포함)",
+      "criteria_c_summary": {
+        "yoy_pct": 200.9,
+        "latest_quarter": "202603",
+        "sales_yoy_pct": 115.37
+      }
+    },
+    {
       "code": "039490",
       "name": "키움증권",
       "market": "KOSPI",
@@ -755,14 +915,16 @@
       "a_score_breakdown": {
         "eps_consecutive": 20,
         "eps_growth": 20,
+        "profitability": 20,
         "roe": 20,
+        "margin": 0,
         "deceleration": 20,
         "non_cyclical": 20
       },
       "a_score_notes": {
         "연속_증가": "3년 연속 증가",
         "성장률": "+51.9% (>=25%)",
-        "ROE": "18.1% (>=17%)",
+        "수익성": "ROE 18.1% (>=17%) · 마진 9.0% (<10%)",
         "둔화_게이트": "통과",
         "비사이클": "비경기민감"
       },
@@ -812,6 +974,7 @@
       "five_year_with_crisis_waiver": false,
       "deceleration_gate_pass": true,
       "main_track_pass": true,
+      "main_track_via_margin": false,
       "badges": [
         "글로벌 ROE",
         "안정성 우수"
@@ -836,14 +999,16 @@
       "a_score_breakdown": {
         "eps_consecutive": 15,
         "eps_growth": 20,
+        "profitability": 20,
         "roe": 20,
+        "margin": 20,
         "deceleration": 20,
         "non_cyclical": 20
       },
       "a_score_notes": {
         "연속_증가": "적자 후 V자 회복 (직전 대비 8.4배)",
         "성장률": "+169.7% (>=25%)",
-        "ROE": "44.1% (>=17%)",
+        "수익성": "ROE 44.1% (>=17%) · 마진 52.0% (>=20%)",
         "둔화_게이트": "통과",
         "비사이클": "비경기민감"
       },
@@ -897,9 +1062,11 @@
       "five_year_with_crisis_waiver": false,
       "deceleration_gate_pass": true,
       "main_track_pass": false,
+      "main_track_via_margin": false,
       "badges": [
         "⭐ 매년 +25% 성장",
         "탁월 ROE",
+        "🏆 탁월 마진",
         "안정성 보통"
       ],
       "ttm_eps": 103202.22,
@@ -912,934 +1079,26 @@
       }
     },
     {
-      "code": "443060",
-      "name": "HD현대마린솔루션",
-      "market": "KOSPI",
-      "market_cap_eok": 101548,
-      "current_price": 248500,
-      "a_score": 93,
-      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
-      "a_score_breakdown": {
-        "eps_consecutive": 20,
-        "eps_growth": 13,
-        "roe": 20,
-        "deceleration": 20,
-        "non_cyclical": 20
-      },
-      "a_score_notes": {
-        "연속_증가": "3년 연속 증가",
-        "성장률": "+22.2% (15~25%)",
-        "ROE": "33.7% (>=17%)",
-        "둔화_게이트": "통과",
-        "비사이클": "비경기민감"
-      },
-      "three_year_avg_growth": 22.22,
-      "latest_roe": 33.73,
-      "pretax_margin": 17.89,
-      "three_year_growths": [
-        40.34,
-        13.41,
-        12.9
-      ],
-      "annual_eps": [
-        [
-          "202312",
-          3778.0
-        ],
-        [
-          "202412",
-          5302.0
-        ],
-        [
-          "202512",
-          6013.0
-        ],
-        [
-          "TTM_202603",
-          6788.96
-        ]
-      ],
-      "annual_roe": [
-        [
-          "202312",
-          71.59
-        ],
-        [
-          "202412",
-          44.98
-        ],
-        [
-          "202512",
-          33.73
-        ]
-      ],
-      "cyclical": false,
-      "induty_code": "7212",
-      "consecutive_3y_increase": true,
-      "five_year_with_crisis_waiver": false,
-      "deceleration_gate_pass": true,
-      "main_track_pass": false,
-      "badges": [
-        "탁월 ROE"
-      ],
-      "ttm_eps": 6788.96,
-      "ttm_period": "202603",
-      "evaluation_basis": "202603 TTM (잠정실적 포함)",
-      "criteria_c_summary": {
-        "yoy_pct": 54.96,
-        "latest_quarter": "202603",
-        "sales_yoy_pct": 18.33
-      }
-    },
-    {
-      "code": "010120",
-      "name": "LS ELECTRIC",
-      "market": "KOSPI",
-      "market_cap_eok": 424500,
-      "current_price": 289000,
-      "a_score": 86,
-      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
-      "a_score_breakdown": {
-        "eps_consecutive": 20,
-        "eps_growth": 13,
-        "roe": 13,
-        "deceleration": 20,
-        "non_cyclical": 20
-      },
-      "a_score_notes": {
-        "연속_증가": "3년 연속 증가",
-        "성장률": "+17.9% (15~25%)",
-        "ROE": "14.7% (12~17%)",
-        "둔화_게이트": "통과",
-        "비사이클": "비경기민감"
-      },
-      "three_year_avg_growth": 17.89,
-      "latest_roe": 14.67,
-      "pretax_margin": null,
-      "three_year_growths": [
-        15.88,
-        20.11,
-        17.68
-      ],
-      "annual_eps": [
-        [
-          "202212",
-          3077.0
-        ],
-        [
-          "202312",
-          1373.0
-        ],
-        [
-          "202412",
-          1591.0
-        ],
-        [
-          "202512",
-          1911.0
-        ],
-        [
-          "TTM_202603",
-          2248.89
-        ]
-      ],
-      "annual_roe": [
-        [
-          "202312",
-          12.61
-        ],
-        [
-          "202412",
-          13.44
-        ],
-        [
-          "202512",
-          14.67
-        ]
-      ],
-      "cyclical": false,
-      "induty_code": "28121",
-      "consecutive_3y_increase": true,
-      "five_year_with_crisis_waiver": false,
-      "deceleration_gate_pass": true,
-      "main_track_pass": false,
-      "badges": [
-        "안정성 보통"
-      ],
-      "ttm_eps": 2248.89,
-      "ttm_period": "202603",
-      "evaluation_basis": "202603 TTM (잠정실적 포함)",
-      "criteria_c_summary": {
-        "yoy_pct": 72.51,
-        "latest_quarter": "202603",
-        "sales_yoy_pct": 33.37
-      }
-    },
-    {
-      "code": "005930",
-      "name": "삼성전자",
-      "market": "KOSPI",
-      "market_cap_eok": 16632663,
-      "current_price": 279000,
-      "a_score": 86,
-      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
-      "a_score_breakdown": {
-        "eps_consecutive": 20,
-        "eps_growth": 20,
-        "roe": 6,
-        "deceleration": 20,
-        "non_cyclical": 20
-      },
-      "a_score_notes": {
-        "연속_증가": "3년 연속 증가",
-        "성장률": "+83.8% (>=25%)",
-        "ROE": "10.8% (8~12%)",
-        "둔화_게이트": "통과",
-        "비사이클": "비경기민감"
-      },
-      "three_year_avg_growth": 83.78,
-      "latest_roe": 10.85,
-      "pretax_margin": 14.83,
-      "three_year_growths": [
-        132.29,
-        32.61,
-        86.43
-      ],
-      "annual_eps": [
-        [
-          "202212",
-          8057.0
-        ],
-        [
-          "202312",
-          2131.0
-        ],
-        [
-          "202412",
-          4950.0
-        ],
-        [
-          "202512",
-          6564.0
-        ],
-        [
-          "TTM_202603",
-          12237.08
-        ]
-      ],
-      "annual_roe": [
-        [
-          "202312",
-          4.15
-        ],
-        [
-          "202412",
-          9.03
-        ],
-        [
-          "202512",
-          10.85
-        ]
-      ],
-      "cyclical": false,
-      "induty_code": "264",
-      "consecutive_3y_increase": true,
-      "five_year_with_crisis_waiver": false,
-      "deceleration_gate_pass": true,
-      "main_track_pass": false,
-      "badges": [
-        "안정성 보통"
-      ],
-      "ttm_eps": 12237.08,
-      "ttm_period": "202603",
-      "evaluation_basis": "202603 TTM (잠정실적 포함)",
-      "criteria_c_summary": {
-        "yoy_pct": 478.17,
-        "latest_quarter": "202603",
-        "sales_yoy_pct": 69.16
-      }
-    },
-    {
-      "code": "005935",
-      "name": "삼성전자우",
-      "market": "KOSPI",
-      "market_cap_eok": 1563821,
-      "current_price": 182700,
-      "a_score": 86,
-      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
-      "a_score_breakdown": {
-        "eps_consecutive": 20,
-        "eps_growth": 20,
-        "roe": 6,
-        "deceleration": 20,
-        "non_cyclical": 20
-      },
-      "a_score_notes": {
-        "연속_증가": "3년 연속 증가",
-        "성장률": "+83.8% (>=25%)",
-        "ROE": "10.8% (8~12%)",
-        "둔화_게이트": "통과",
-        "비사이클": "비경기민감"
-      },
-      "three_year_avg_growth": 83.78,
-      "latest_roe": 10.85,
-      "pretax_margin": 14.83,
-      "three_year_growths": [
-        132.29,
-        32.61,
-        86.43
-      ],
-      "annual_eps": [
-        [
-          "202212",
-          8057.0
-        ],
-        [
-          "202312",
-          2131.0
-        ],
-        [
-          "202412",
-          4950.0
-        ],
-        [
-          "202512",
-          6564.0
-        ],
-        [
-          "TTM_202603",
-          12237.08
-        ]
-      ],
-      "annual_roe": [
-        [
-          "202312",
-          4.15
-        ],
-        [
-          "202412",
-          9.03
-        ],
-        [
-          "202512",
-          10.85
-        ]
-      ],
-      "cyclical": false,
-      "induty_code": "264",
-      "consecutive_3y_increase": true,
-      "five_year_with_crisis_waiver": false,
-      "deceleration_gate_pass": true,
-      "main_track_pass": false,
-      "badges": [
-        "현금창출력 우수",
-        "안정성 보통"
-      ],
-      "ttm_eps": 12237.08,
-      "ttm_period": "202603",
-      "evaluation_basis": "202603 TTM (잠정실적 포함)",
-      "criteria_c_summary": {
-        "yoy_pct": 478.17,
-        "latest_quarter": "202603",
-        "sales_yoy_pct": 69.16
-      }
-    },
-    {
-      "code": "095340",
-      "name": "ISC",
-      "market": "KOSDAQ",
-      "market_cap_eok": 50873,
-      "current_price": 248500,
-      "a_score": 86,
-      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
-      "a_score_breakdown": {
-        "eps_consecutive": 20,
-        "eps_growth": 20,
-        "roe": 6,
-        "deceleration": 20,
-        "non_cyclical": 20
-      },
-      "a_score_notes": {
-        "연속_증가": "3년 연속 증가",
-        "성장률": "+95.1% (>=25%)",
-        "ROE": "10.6% (8~12%)",
-        "둔화_게이트": "통과",
-        "비사이클": "비경기민감"
-      },
-      "three_year_avg_growth": 95.1,
-      "latest_roe": 10.6,
-      "pretax_margin": 30.24,
-      "three_year_growths": [
-        258.19,
-        2.68,
-        24.43
-      ],
-      "annual_eps": [
-        [
-          "202212",
-          2526.0
-        ],
-        [
-          "202312",
-          720.0
-        ],
-        [
-          "202412",
-          2579.0
-        ],
-        [
-          "202512",
-          2648.0
-        ],
-        [
-          "TTM_202603",
-          3294.9
-        ]
-      ],
-      "annual_roe": [
-        [
-          "202312",
-          3.56
-        ],
-        [
-          "202412",
-          10.97
-        ],
-        [
-          "202512",
-          10.6
-        ]
-      ],
-      "cyclical": false,
-      "induty_code": "465",
-      "consecutive_3y_increase": true,
-      "five_year_with_crisis_waiver": true,
-      "deceleration_gate_pass": true,
-      "main_track_pass": false,
-      "badges": [
-        "5년 연속 성장 (위기 면제)",
-        "안정성 보통"
-      ],
-      "ttm_eps": 3294.9,
-      "ttm_period": "202603",
-      "evaluation_basis": "202603 TTM (잠정실적 포함)",
-      "criteria_c_summary": {
-        "yoy_pct": 200.9,
-        "latest_quarter": "202603",
-        "sales_yoy_pct": 115.37
-      }
-    },
-    {
-      "code": "145020",
-      "name": "휴젤",
-      "market": "KOSDAQ",
-      "market_cap_eok": 34451,
-      "current_price": 280500,
-      "a_score": 86,
-      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
-      "a_score_breakdown": {
-        "eps_consecutive": 20,
-        "eps_growth": 13,
-        "roe": 13,
-        "deceleration": 20,
-        "non_cyclical": 20
-      },
-      "a_score_notes": {
-        "연속_증가": "3년 연속 증가",
-        "성장률": "+18.9% (15~25%)",
-        "ROE": "16.1% (12~17%)",
-        "둔화_게이트": "통과",
-        "비사이클": "비경기민감"
-      },
-      "three_year_avg_growth": 18.95,
-      "latest_roe": 16.06,
-      "pretax_margin": 46.28,
-      "three_year_growths": [
-        46.14,
-        3.3,
-        7.4
-      ],
-      "annual_eps": [
-        [
-          "202212",
-          4811.0
-        ],
-        [
-          "202312",
-          7517.0
-        ],
-        [
-          "202412",
-          10985.0
-        ],
-        [
-          "202512",
-          11348.0
-        ],
-        [
-          "TTM_202603",
-          12187.75
-        ]
-      ],
-      "annual_roe": [
-        [
-          "202312",
-          12.09
-        ],
-        [
-          "202412",
-          17.51
-        ],
-        [
-          "202512",
-          16.06
-        ]
-      ],
-      "cyclical": false,
-      "induty_code": "211",
-      "consecutive_3y_increase": true,
-      "five_year_with_crisis_waiver": false,
-      "deceleration_gate_pass": true,
-      "main_track_pass": false,
-      "badges": [
-        "5년 연속 성장",
-        "안정성 우수"
-      ],
-      "ttm_eps": 12187.75,
-      "ttm_period": "202603",
-      "evaluation_basis": "202603 TTM (잠정실적 포함)",
-      "criteria_c_summary": {
-        "yoy_pct": 35.94,
-        "latest_quarter": "202603",
-        "sales_yoy_pct": 29.89
-      }
-    },
-    {
-      "code": "402340",
-      "name": "SK스퀘어",
-      "market": "KOSPI",
-      "market_cap_eok": 1567666,
-      "current_price": 1126000,
-      "a_score": 80,
-      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
-      "a_score_breakdown": {
-        "eps_consecutive": 0,
-        "eps_growth": 20,
-        "roe": 20,
-        "deceleration": 20,
-        "non_cyclical": 20
-      },
-      "a_score_notes": {
-        "연속_증가": "최근 적자",
-        "성장률": "+271.2% (>=25%)",
-        "ROE": "37.8% (>=17%)",
-        "둔화_게이트": "통과",
-        "비사이클": "비경기민감"
-      },
-      "three_year_avg_growth": 271.18,
-      "latest_roe": 37.82,
-      "pretax_margin": 673.55,
-      "three_year_growths": [
-        399.29,
-        143.06
-      ],
-      "annual_eps": [
-        [
-          "202312",
-          -9137.0
-        ],
-        [
-          "202412",
-          27346.0
-        ],
-        [
-          "202512",
-          66468.0
-        ]
-      ],
-      "annual_roe": [
-        [
-          "202312",
-          -8.04
-        ],
-        [
-          "202412",
-          21.7
-        ],
-        [
-          "202512",
-          37.82
-        ]
-      ],
-      "cyclical": false,
-      "induty_code": "64992",
-      "consecutive_3y_increase": false,
-      "five_year_with_crisis_waiver": false,
-      "deceleration_gate_pass": true,
-      "main_track_pass": false,
-      "badges": [
-        "⭐ 매년 +25% 성장",
-        "탁월 ROE",
-        "안정성 우수"
-      ],
-      "ttm_eps": 66514.0,
-      "ttm_period": "202512",
-      "evaluation_basis": "2025 사업보고서 결산",
-      "criteria_c_summary": {
-        "yoy_pct": 124.01,
-        "latest_quarter": "202512",
-        "sales_yoy_pct": 72.69
-      }
-    },
-    {
-      "code": "009150",
-      "name": "삼성전기",
-      "market": "KOSPI",
-      "market_cap_eok": 769345,
-      "current_price": 958000,
-      "a_score": 80,
-      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
-      "a_score_breakdown": {
-        "eps_consecutive": 20,
-        "eps_growth": 20,
-        "roe": 0,
-        "deceleration": 20,
-        "non_cyclical": 20
-      },
-      "a_score_notes": {
-        "연속_증가": "3년 연속 증가",
-        "성장률": "+26.7% (>=25%)",
-        "ROE": "7.7% (<8%)",
-        "둔화_게이트": "통과",
-        "비사이클": "비경기민감"
-      },
-      "three_year_avg_growth": 26.73,
-      "latest_roe": 7.7,
-      "pretax_margin": 7.92,
-      "three_year_growths": [
-        60.59,
-        3.96,
-        15.63
-      ],
-      "annual_eps": [
-        [
-          "202212",
-          12977.0
-        ],
-        [
-          "202312",
-          5450.0
-        ],
-        [
-          "202412",
-          8752.0
-        ],
-        [
-          "202512",
-          9099.0
-        ],
-        [
-          "TTM_202603",
-          10521.29
-        ]
-      ],
-      "annual_roe": [
-        [
-          "202312",
-          5.5
-        ],
-        [
-          "202412",
-          8.16
-        ],
-        [
-          "202512",
-          7.7
-        ]
-      ],
-      "cyclical": false,
-      "induty_code": "2622",
-      "consecutive_3y_increase": true,
-      "five_year_with_crisis_waiver": false,
-      "deceleration_gate_pass": true,
-      "main_track_pass": false,
-      "badges": [
-        "현금창출력 우수",
-        "안정성 보통"
-      ],
-      "ttm_eps": 10521.29,
-      "ttm_period": "202603",
-      "evaluation_basis": "202603 TTM (잠정실적 포함)",
-      "criteria_c_summary": {
-        "yoy_pct": 82.55,
-        "latest_quarter": "202603",
-        "sales_yoy_pct": 17.18
-      }
-    },
-    {
-      "code": "278470",
-      "name": "에이피알",
-      "market": "KOSPI",
-      "market_cap_eok": 149565,
-      "current_price": 415500,
-      "a_score": 80,
-      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
-      "a_score_breakdown": {
-        "eps_consecutive": 20,
-        "eps_growth": 20,
-        "roe": 20,
-        "deceleration": 20,
-        "non_cyclical": 0
-      },
-      "a_score_notes": {
-        "연속_증가": "3년 연속 증가",
-        "성장률": "+73.6% (>=25%)",
-        "ROE": "75.3% (>=17%)",
-        "둔화_게이트": "통과",
-        "비사이클": "경기민감 (KSIC 20423)"
-      },
-      "three_year_avg_growth": 73.56,
-      "latest_roe": 75.3,
-      "pretax_margin": 23.85,
-      "three_year_growths": [
-        26.37,
-        171.08,
-        23.23
-      ],
-      "annual_eps": [
-        [
-          "202212",
-          4221.0
-        ],
-        [
-          "202312",
-          2249.0
-        ],
-        [
-          "202412",
-          2842.0
-        ],
-        [
-          "202512",
-          7704.0
-        ],
-        [
-          "TTM_202603",
-          9493.4
-        ]
-      ],
-      "annual_roe": [
-        [
-          "202312",
-          54.87
-        ],
-        [
-          "202412",
-          41.34
-        ],
-        [
-          "202512",
-          75.3
-        ]
-      ],
-      "cyclical": true,
-      "induty_code": "20423",
-      "consecutive_3y_increase": true,
-      "five_year_with_crisis_waiver": false,
-      "deceleration_gate_pass": true,
-      "main_track_pass": false,
-      "badges": [
-        "탁월 ROE",
-        "안정성 보통"
-      ],
-      "ttm_eps": 9493.4,
-      "ttm_period": "202603",
-      "evaluation_basis": "202603 TTM (잠정실적 포함)",
-      "criteria_c_summary": {
-        "yoy_pct": 134.11,
-        "latest_quarter": "202603",
-        "sales_yoy_pct": 123.07
-      }
-    },
-    {
-      "code": "009155",
-      "name": "삼성전기우",
-      "market": "KOSPI",
-      "market_cap_eok": 11613,
-      "current_price": 384500,
-      "a_score": 80,
-      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
-      "a_score_breakdown": {
-        "eps_consecutive": 20,
-        "eps_growth": 20,
-        "roe": 0,
-        "deceleration": 20,
-        "non_cyclical": 20
-      },
-      "a_score_notes": {
-        "연속_증가": "3년 연속 증가",
-        "성장률": "+26.7% (>=25%)",
-        "ROE": "7.7% (<8%)",
-        "둔화_게이트": "통과",
-        "비사이클": "비경기민감"
-      },
-      "three_year_avg_growth": 26.73,
-      "latest_roe": 7.7,
-      "pretax_margin": 7.92,
-      "three_year_growths": [
-        60.59,
-        3.96,
-        15.63
-      ],
-      "annual_eps": [
-        [
-          "202212",
-          12977.0
-        ],
-        [
-          "202312",
-          5450.0
-        ],
-        [
-          "202412",
-          8752.0
-        ],
-        [
-          "202512",
-          9099.0
-        ],
-        [
-          "TTM_202603",
-          10521.29
-        ]
-      ],
-      "annual_roe": [
-        [
-          "202312",
-          5.5
-        ],
-        [
-          "202412",
-          8.16
-        ],
-        [
-          "202512",
-          7.7
-        ]
-      ],
-      "cyclical": false,
-      "induty_code": "2622",
-      "consecutive_3y_increase": true,
-      "five_year_with_crisis_waiver": false,
-      "deceleration_gate_pass": true,
-      "main_track_pass": false,
-      "badges": [
-        "현금창출력 우수",
-        "안정성 보통"
-      ],
-      "ttm_eps": 10521.29,
-      "ttm_period": "202603",
-      "evaluation_basis": "202603 TTM (잠정실적 포함)",
-      "criteria_c_summary": {
-        "yoy_pct": 82.55,
-        "latest_quarter": "202603",
-        "sales_yoy_pct": 17.18
-      }
-    },
-    {
-      "code": "006800",
-      "name": "미래에셋증권",
-      "market": "KOSPI",
-      "market_cap_eok": 444296,
-      "current_price": 79600,
-      "a_score": 79,
-      "a_score_tier": "근접 (한두 항목 미달)",
-      "a_score_breakdown": {
-        "eps_consecutive": 6,
-        "eps_growth": 20,
-        "roe": 13,
-        "deceleration": 20,
-        "non_cyclical": 20
-      },
-      "a_score_notes": {
-        "연속_증가": "2회 dip",
-        "성장률": "+133.2% (>=25%)",
-        "ROE": "12.4% (12~17%)",
-        "둔화_게이트": "통과",
-        "비사이클": "비경기민감"
-      },
-      "three_year_avg_growth": 133.22,
-      "latest_roe": 12.36,
-      "pretax_margin": 7.1,
-      "three_year_growths": [
-        190.02,
-        76.41
-      ],
-      "annual_eps": [
-        [
-          "202312",
-          421.0
-        ],
-        [
-          "202412",
-          1221.0
-        ],
-        [
-          "202512",
-          2154.0
-        ]
-      ],
-      "annual_roe": [
-        [
-          "202312",
-          2.92
-        ],
-        [
-          "202412",
-          7.94
-        ],
-        [
-          "202512",
-          12.36
-        ]
-      ],
-      "cyclical": false,
-      "induty_code": "66121",
-      "consecutive_3y_increase": false,
-      "five_year_with_crisis_waiver": false,
-      "deceleration_gate_pass": true,
-      "main_track_pass": false,
-      "badges": [
-        "안정성 우수"
-      ],
-      "ttm_eps": 2157.0,
-      "ttm_period": "202512",
-      "evaluation_basis": "2025 사업보고서 결산",
-      "criteria_c_summary": {
-        "yoy_pct": 116.62,
-        "latest_quarter": "202512",
-        "sales_yoy_pct": 53.08
-      }
-    },
-    {
       "code": "068270",
       "name": "셀트리온",
       "market": "KOSPI",
       "market_cap_eok": 424568,
       "current_price": 198400,
-      "a_score": 73,
-      "a_score_tier": "근접 (한두 항목 미달)",
+      "a_score": 93,
+      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
       "a_score_breakdown": {
         "eps_consecutive": 13,
         "eps_growth": 20,
+        "profitability": 20,
         "roe": 0,
+        "margin": 20,
         "deceleration": 20,
         "non_cyclical": 20
       },
       "a_score_notes": {
         "연속_증가": "1회 dip",
         "성장률": "+42.0% (>=25%)",
-        "ROE": "5.9% (<8%)",
+        "수익성": "마진 27.7% (>=20%) (마진 우위로 ROE 대체) · ROE 5.9% (<8%)",
         "둔화_게이트": "통과",
         "비사이클": "비경기민감"
       },
@@ -1893,7 +1152,9 @@
       "five_year_with_crisis_waiver": false,
       "deceleration_gate_pass": true,
       "main_track_pass": false,
+      "main_track_via_margin": false,
       "badges": [
+        "🏆 탁월 마진",
         "안정성 보통"
       ],
       "ttm_eps": 5495.25,
@@ -1906,24 +1167,885 @@
       }
     },
     {
+      "code": "145020",
+      "name": "휴젤",
+      "market": "KOSDAQ",
+      "market_cap_eok": 34451,
+      "current_price": 280500,
+      "a_score": 93,
+      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
+      "a_score_breakdown": {
+        "eps_consecutive": 20,
+        "eps_growth": 13,
+        "profitability": 20,
+        "roe": 13,
+        "margin": 20,
+        "deceleration": 20,
+        "non_cyclical": 20
+      },
+      "a_score_notes": {
+        "연속_증가": "3년 연속 증가",
+        "성장률": "+18.9% (15~25%)",
+        "수익성": "마진 46.3% (>=20%) (마진 우위로 ROE 대체) · ROE 16.1% (12~17%)",
+        "둔화_게이트": "통과",
+        "비사이클": "비경기민감"
+      },
+      "three_year_avg_growth": 18.95,
+      "latest_roe": 16.06,
+      "pretax_margin": 46.28,
+      "three_year_growths": [
+        46.14,
+        3.3,
+        7.4
+      ],
+      "annual_eps": [
+        [
+          "202212",
+          4811.0
+        ],
+        [
+          "202312",
+          7517.0
+        ],
+        [
+          "202412",
+          10985.0
+        ],
+        [
+          "202512",
+          11348.0
+        ],
+        [
+          "TTM_202603",
+          12187.75
+        ]
+      ],
+      "annual_roe": [
+        [
+          "202312",
+          12.09
+        ],
+        [
+          "202412",
+          17.51
+        ],
+        [
+          "202512",
+          16.06
+        ]
+      ],
+      "cyclical": false,
+      "induty_code": "211",
+      "consecutive_3y_increase": true,
+      "five_year_with_crisis_waiver": false,
+      "deceleration_gate_pass": true,
+      "main_track_pass": false,
+      "main_track_via_margin": false,
+      "badges": [
+        "🏆 탁월 마진",
+        "5년 연속 성장",
+        "안정성 우수"
+      ],
+      "ttm_eps": 12187.75,
+      "ttm_period": "202603",
+      "evaluation_basis": "202603 TTM (잠정실적 포함)",
+      "criteria_c_summary": {
+        "yoy_pct": 35.94,
+        "latest_quarter": "202603",
+        "sales_yoy_pct": 29.89
+      }
+    },
+    {
+      "code": "443060",
+      "name": "HD현대마린솔루션",
+      "market": "KOSPI",
+      "market_cap_eok": 101548,
+      "current_price": 248500,
+      "a_score": 93,
+      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
+      "a_score_breakdown": {
+        "eps_consecutive": 20,
+        "eps_growth": 13,
+        "profitability": 20,
+        "roe": 20,
+        "margin": 13,
+        "deceleration": 20,
+        "non_cyclical": 20
+      },
+      "a_score_notes": {
+        "연속_증가": "3년 연속 증가",
+        "성장률": "+22.2% (15~25%)",
+        "수익성": "ROE 33.7% (>=17%) · 마진 17.9% (15~20%)",
+        "둔화_게이트": "통과",
+        "비사이클": "비경기민감"
+      },
+      "three_year_avg_growth": 22.22,
+      "latest_roe": 33.73,
+      "pretax_margin": 17.89,
+      "three_year_growths": [
+        40.34,
+        13.41,
+        12.9
+      ],
+      "annual_eps": [
+        [
+          "202312",
+          3778.0
+        ],
+        [
+          "202412",
+          5302.0
+        ],
+        [
+          "202512",
+          6013.0
+        ],
+        [
+          "TTM_202603",
+          6788.96
+        ]
+      ],
+      "annual_roe": [
+        [
+          "202312",
+          71.59
+        ],
+        [
+          "202412",
+          44.98
+        ],
+        [
+          "202512",
+          33.73
+        ]
+      ],
+      "cyclical": false,
+      "induty_code": "7212",
+      "consecutive_3y_increase": true,
+      "five_year_with_crisis_waiver": false,
+      "deceleration_gate_pass": true,
+      "main_track_pass": false,
+      "main_track_via_margin": false,
+      "badges": [
+        "탁월 ROE",
+        "🥇 우수 마진"
+      ],
+      "ttm_eps": 6788.96,
+      "ttm_period": "202603",
+      "evaluation_basis": "202603 TTM (잠정실적 포함)",
+      "criteria_c_summary": {
+        "yoy_pct": 54.96,
+        "latest_quarter": "202603",
+        "sales_yoy_pct": 18.33
+      }
+    },
+    {
+      "code": "010120",
+      "name": "LS ELECTRIC",
+      "market": "KOSPI",
+      "market_cap_eok": 424500,
+      "current_price": 289000,
+      "a_score": 86,
+      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
+      "a_score_breakdown": {
+        "eps_consecutive": 20,
+        "eps_growth": 13,
+        "profitability": 13,
+        "roe": 13,
+        "margin": 0,
+        "deceleration": 20,
+        "non_cyclical": 20
+      },
+      "a_score_notes": {
+        "연속_증가": "3년 연속 증가",
+        "성장률": "+17.9% (15~25%)",
+        "수익성": "ROE 14.7% (12~17%) · 데이터 부족",
+        "둔화_게이트": "통과",
+        "비사이클": "비경기민감"
+      },
+      "three_year_avg_growth": 17.89,
+      "latest_roe": 14.67,
+      "pretax_margin": null,
+      "three_year_growths": [
+        15.88,
+        20.11,
+        17.68
+      ],
+      "annual_eps": [
+        [
+          "202212",
+          3077.0
+        ],
+        [
+          "202312",
+          1373.0
+        ],
+        [
+          "202412",
+          1591.0
+        ],
+        [
+          "202512",
+          1911.0
+        ],
+        [
+          "TTM_202603",
+          2248.89
+        ]
+      ],
+      "annual_roe": [
+        [
+          "202312",
+          12.61
+        ],
+        [
+          "202412",
+          13.44
+        ],
+        [
+          "202512",
+          14.67
+        ]
+      ],
+      "cyclical": false,
+      "induty_code": "28121",
+      "consecutive_3y_increase": true,
+      "five_year_with_crisis_waiver": false,
+      "deceleration_gate_pass": true,
+      "main_track_pass": false,
+      "main_track_via_margin": false,
+      "badges": [
+        "안정성 보통"
+      ],
+      "ttm_eps": 2248.89,
+      "ttm_period": "202603",
+      "evaluation_basis": "202603 TTM (잠정실적 포함)",
+      "criteria_c_summary": {
+        "yoy_pct": 72.51,
+        "latest_quarter": "202603",
+        "sales_yoy_pct": 33.37
+      }
+    },
+    {
+      "code": "005930",
+      "name": "삼성전자",
+      "market": "KOSPI",
+      "market_cap_eok": 16632663,
+      "current_price": 279000,
+      "a_score": 86,
+      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
+      "a_score_breakdown": {
+        "eps_consecutive": 20,
+        "eps_growth": 20,
+        "profitability": 6,
+        "roe": 6,
+        "margin": 6,
+        "deceleration": 20,
+        "non_cyclical": 20
+      },
+      "a_score_notes": {
+        "연속_증가": "3년 연속 증가",
+        "성장률": "+83.8% (>=25%)",
+        "수익성": "ROE 10.8% (8~12%) · 마진 14.8% (10~15%)",
+        "둔화_게이트": "통과",
+        "비사이클": "비경기민감"
+      },
+      "three_year_avg_growth": 83.78,
+      "latest_roe": 10.85,
+      "pretax_margin": 14.83,
+      "three_year_growths": [
+        132.29,
+        32.61,
+        86.43
+      ],
+      "annual_eps": [
+        [
+          "202212",
+          8057.0
+        ],
+        [
+          "202312",
+          2131.0
+        ],
+        [
+          "202412",
+          4950.0
+        ],
+        [
+          "202512",
+          6564.0
+        ],
+        [
+          "TTM_202603",
+          12237.08
+        ]
+      ],
+      "annual_roe": [
+        [
+          "202312",
+          4.15
+        ],
+        [
+          "202412",
+          9.03
+        ],
+        [
+          "202512",
+          10.85
+        ]
+      ],
+      "cyclical": false,
+      "induty_code": "264",
+      "consecutive_3y_increase": true,
+      "five_year_with_crisis_waiver": false,
+      "deceleration_gate_pass": true,
+      "main_track_pass": false,
+      "main_track_via_margin": false,
+      "badges": [
+        "안정성 보통"
+      ],
+      "ttm_eps": 12237.08,
+      "ttm_period": "202603",
+      "evaluation_basis": "202603 TTM (잠정실적 포함)",
+      "criteria_c_summary": {
+        "yoy_pct": 478.17,
+        "latest_quarter": "202603",
+        "sales_yoy_pct": 69.16
+      }
+    },
+    {
+      "code": "005935",
+      "name": "삼성전자우",
+      "market": "KOSPI",
+      "market_cap_eok": 1563821,
+      "current_price": 182700,
+      "a_score": 86,
+      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
+      "a_score_breakdown": {
+        "eps_consecutive": 20,
+        "eps_growth": 20,
+        "profitability": 6,
+        "roe": 6,
+        "margin": 6,
+        "deceleration": 20,
+        "non_cyclical": 20
+      },
+      "a_score_notes": {
+        "연속_증가": "3년 연속 증가",
+        "성장률": "+83.8% (>=25%)",
+        "수익성": "ROE 10.8% (8~12%) · 마진 14.8% (10~15%)",
+        "둔화_게이트": "통과",
+        "비사이클": "비경기민감"
+      },
+      "three_year_avg_growth": 83.78,
+      "latest_roe": 10.85,
+      "pretax_margin": 14.83,
+      "three_year_growths": [
+        132.29,
+        32.61,
+        86.43
+      ],
+      "annual_eps": [
+        [
+          "202212",
+          8057.0
+        ],
+        [
+          "202312",
+          2131.0
+        ],
+        [
+          "202412",
+          4950.0
+        ],
+        [
+          "202512",
+          6564.0
+        ],
+        [
+          "TTM_202603",
+          12237.08
+        ]
+      ],
+      "annual_roe": [
+        [
+          "202312",
+          4.15
+        ],
+        [
+          "202412",
+          9.03
+        ],
+        [
+          "202512",
+          10.85
+        ]
+      ],
+      "cyclical": false,
+      "induty_code": "264",
+      "consecutive_3y_increase": true,
+      "five_year_with_crisis_waiver": false,
+      "deceleration_gate_pass": true,
+      "main_track_pass": false,
+      "main_track_via_margin": false,
+      "badges": [
+        "현금창출력 우수",
+        "안정성 보통"
+      ],
+      "ttm_eps": 12237.08,
+      "ttm_period": "202603",
+      "evaluation_basis": "202603 TTM (잠정실적 포함)",
+      "criteria_c_summary": {
+        "yoy_pct": 478.17,
+        "latest_quarter": "202603",
+        "sales_yoy_pct": 69.16
+      }
+    },
+    {
+      "code": "402340",
+      "name": "SK스퀘어",
+      "market": "KOSPI",
+      "market_cap_eok": 1567666,
+      "current_price": 1126000,
+      "a_score": 80,
+      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
+      "a_score_breakdown": {
+        "eps_consecutive": 0,
+        "eps_growth": 20,
+        "profitability": 20,
+        "roe": 20,
+        "margin": 20,
+        "deceleration": 20,
+        "non_cyclical": 20
+      },
+      "a_score_notes": {
+        "연속_증가": "최근 적자",
+        "성장률": "+271.2% (>=25%)",
+        "수익성": "ROE 37.8% (>=17%) · 마진 673.5% (>=20%)",
+        "둔화_게이트": "통과",
+        "비사이클": "비경기민감"
+      },
+      "three_year_avg_growth": 271.18,
+      "latest_roe": 37.82,
+      "pretax_margin": 673.55,
+      "three_year_growths": [
+        399.29,
+        143.06
+      ],
+      "annual_eps": [
+        [
+          "202312",
+          -9137.0
+        ],
+        [
+          "202412",
+          27346.0
+        ],
+        [
+          "202512",
+          66468.0
+        ]
+      ],
+      "annual_roe": [
+        [
+          "202312",
+          -8.04
+        ],
+        [
+          "202412",
+          21.7
+        ],
+        [
+          "202512",
+          37.82
+        ]
+      ],
+      "cyclical": false,
+      "induty_code": "64992",
+      "consecutive_3y_increase": false,
+      "five_year_with_crisis_waiver": false,
+      "deceleration_gate_pass": true,
+      "main_track_pass": false,
+      "main_track_via_margin": false,
+      "badges": [
+        "⭐ 매년 +25% 성장",
+        "탁월 ROE",
+        "🏆 탁월 마진",
+        "안정성 우수"
+      ],
+      "ttm_eps": 66514.0,
+      "ttm_period": "202512",
+      "evaluation_basis": "2025 사업보고서 결산",
+      "criteria_c_summary": {
+        "yoy_pct": 124.01,
+        "latest_quarter": "202512",
+        "sales_yoy_pct": 72.69
+      }
+    },
+    {
+      "code": "009150",
+      "name": "삼성전기",
+      "market": "KOSPI",
+      "market_cap_eok": 769345,
+      "current_price": 958000,
+      "a_score": 80,
+      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
+      "a_score_breakdown": {
+        "eps_consecutive": 20,
+        "eps_growth": 20,
+        "profitability": 0,
+        "roe": 0,
+        "margin": 0,
+        "deceleration": 20,
+        "non_cyclical": 20
+      },
+      "a_score_notes": {
+        "연속_증가": "3년 연속 증가",
+        "성장률": "+26.7% (>=25%)",
+        "수익성": "ROE 7.7% (<8%) · 마진 7.9% (<10%)",
+        "둔화_게이트": "통과",
+        "비사이클": "비경기민감"
+      },
+      "three_year_avg_growth": 26.73,
+      "latest_roe": 7.7,
+      "pretax_margin": 7.92,
+      "three_year_growths": [
+        60.59,
+        3.96,
+        15.63
+      ],
+      "annual_eps": [
+        [
+          "202212",
+          12977.0
+        ],
+        [
+          "202312",
+          5450.0
+        ],
+        [
+          "202412",
+          8752.0
+        ],
+        [
+          "202512",
+          9099.0
+        ],
+        [
+          "TTM_202603",
+          10521.29
+        ]
+      ],
+      "annual_roe": [
+        [
+          "202312",
+          5.5
+        ],
+        [
+          "202412",
+          8.16
+        ],
+        [
+          "202512",
+          7.7
+        ]
+      ],
+      "cyclical": false,
+      "induty_code": "2622",
+      "consecutive_3y_increase": true,
+      "five_year_with_crisis_waiver": false,
+      "deceleration_gate_pass": true,
+      "main_track_pass": false,
+      "main_track_via_margin": false,
+      "badges": [
+        "현금창출력 우수",
+        "안정성 보통"
+      ],
+      "ttm_eps": 10521.29,
+      "ttm_period": "202603",
+      "evaluation_basis": "202603 TTM (잠정실적 포함)",
+      "criteria_c_summary": {
+        "yoy_pct": 82.55,
+        "latest_quarter": "202603",
+        "sales_yoy_pct": 17.18
+      }
+    },
+    {
+      "code": "278470",
+      "name": "에이피알",
+      "market": "KOSPI",
+      "market_cap_eok": 149565,
+      "current_price": 415500,
+      "a_score": 80,
+      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
+      "a_score_breakdown": {
+        "eps_consecutive": 20,
+        "eps_growth": 20,
+        "profitability": 20,
+        "roe": 20,
+        "margin": 20,
+        "deceleration": 20,
+        "non_cyclical": 0
+      },
+      "a_score_notes": {
+        "연속_증가": "3년 연속 증가",
+        "성장률": "+73.6% (>=25%)",
+        "수익성": "ROE 75.3% (>=17%) · 마진 23.9% (>=20%)",
+        "둔화_게이트": "통과",
+        "비사이클": "경기민감 (KSIC 20423)"
+      },
+      "three_year_avg_growth": 73.56,
+      "latest_roe": 75.3,
+      "pretax_margin": 23.85,
+      "three_year_growths": [
+        26.37,
+        171.08,
+        23.23
+      ],
+      "annual_eps": [
+        [
+          "202212",
+          4221.0
+        ],
+        [
+          "202312",
+          2249.0
+        ],
+        [
+          "202412",
+          2842.0
+        ],
+        [
+          "202512",
+          7704.0
+        ],
+        [
+          "TTM_202603",
+          9493.4
+        ]
+      ],
+      "annual_roe": [
+        [
+          "202312",
+          54.87
+        ],
+        [
+          "202412",
+          41.34
+        ],
+        [
+          "202512",
+          75.3
+        ]
+      ],
+      "cyclical": true,
+      "induty_code": "20423",
+      "consecutive_3y_increase": true,
+      "five_year_with_crisis_waiver": false,
+      "deceleration_gate_pass": true,
+      "main_track_pass": false,
+      "main_track_via_margin": false,
+      "badges": [
+        "탁월 ROE",
+        "🏆 탁월 마진",
+        "안정성 보통"
+      ],
+      "ttm_eps": 9493.4,
+      "ttm_period": "202603",
+      "evaluation_basis": "202603 TTM (잠정실적 포함)",
+      "criteria_c_summary": {
+        "yoy_pct": 134.11,
+        "latest_quarter": "202603",
+        "sales_yoy_pct": 123.07
+      }
+    },
+    {
+      "code": "009155",
+      "name": "삼성전기우",
+      "market": "KOSPI",
+      "market_cap_eok": 11613,
+      "current_price": 384500,
+      "a_score": 80,
+      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
+      "a_score_breakdown": {
+        "eps_consecutive": 20,
+        "eps_growth": 20,
+        "profitability": 0,
+        "roe": 0,
+        "margin": 0,
+        "deceleration": 20,
+        "non_cyclical": 20
+      },
+      "a_score_notes": {
+        "연속_증가": "3년 연속 증가",
+        "성장률": "+26.7% (>=25%)",
+        "수익성": "ROE 7.7% (<8%) · 마진 7.9% (<10%)",
+        "둔화_게이트": "통과",
+        "비사이클": "비경기민감"
+      },
+      "three_year_avg_growth": 26.73,
+      "latest_roe": 7.7,
+      "pretax_margin": 7.92,
+      "three_year_growths": [
+        60.59,
+        3.96,
+        15.63
+      ],
+      "annual_eps": [
+        [
+          "202212",
+          12977.0
+        ],
+        [
+          "202312",
+          5450.0
+        ],
+        [
+          "202412",
+          8752.0
+        ],
+        [
+          "202512",
+          9099.0
+        ],
+        [
+          "TTM_202603",
+          10521.29
+        ]
+      ],
+      "annual_roe": [
+        [
+          "202312",
+          5.5
+        ],
+        [
+          "202412",
+          8.16
+        ],
+        [
+          "202512",
+          7.7
+        ]
+      ],
+      "cyclical": false,
+      "induty_code": "2622",
+      "consecutive_3y_increase": true,
+      "five_year_with_crisis_waiver": false,
+      "deceleration_gate_pass": true,
+      "main_track_pass": false,
+      "main_track_via_margin": false,
+      "badges": [
+        "현금창출력 우수",
+        "안정성 보통"
+      ],
+      "ttm_eps": 10521.29,
+      "ttm_period": "202603",
+      "evaluation_basis": "202603 TTM (잠정실적 포함)",
+      "criteria_c_summary": {
+        "yoy_pct": 82.55,
+        "latest_quarter": "202603",
+        "sales_yoy_pct": 17.18
+      }
+    },
+    {
+      "code": "006800",
+      "name": "미래에셋증권",
+      "market": "KOSPI",
+      "market_cap_eok": 444296,
+      "current_price": 79600,
+      "a_score": 79,
+      "a_score_tier": "근접 (한두 항목 미달)",
+      "a_score_breakdown": {
+        "eps_consecutive": 6,
+        "eps_growth": 20,
+        "profitability": 13,
+        "roe": 13,
+        "margin": 0,
+        "deceleration": 20,
+        "non_cyclical": 20
+      },
+      "a_score_notes": {
+        "연속_증가": "2회 dip",
+        "성장률": "+133.2% (>=25%)",
+        "수익성": "ROE 12.4% (12~17%) · 마진 7.1% (<10%)",
+        "둔화_게이트": "통과",
+        "비사이클": "비경기민감"
+      },
+      "three_year_avg_growth": 133.22,
+      "latest_roe": 12.36,
+      "pretax_margin": 7.1,
+      "three_year_growths": [
+        190.02,
+        76.41
+      ],
+      "annual_eps": [
+        [
+          "202312",
+          421.0
+        ],
+        [
+          "202412",
+          1221.0
+        ],
+        [
+          "202512",
+          2154.0
+        ]
+      ],
+      "annual_roe": [
+        [
+          "202312",
+          2.92
+        ],
+        [
+          "202412",
+          7.94
+        ],
+        [
+          "202512",
+          12.36
+        ]
+      ],
+      "cyclical": false,
+      "induty_code": "66121",
+      "consecutive_3y_increase": false,
+      "five_year_with_crisis_waiver": false,
+      "deceleration_gate_pass": true,
+      "main_track_pass": false,
+      "main_track_via_margin": false,
+      "badges": [
+        "안정성 우수"
+      ],
+      "ttm_eps": 2157.0,
+      "ttm_period": "202512",
+      "evaluation_basis": "2025 사업보고서 결산",
+      "criteria_c_summary": {
+        "yoy_pct": 116.62,
+        "latest_quarter": "202512",
+        "sales_yoy_pct": 53.08
+      }
+    },
+    {
       "code": "064760",
       "name": "티씨케이",
       "market": "KOSDAQ",
       "market_cap_eok": 36445,
       "current_price": 308000,
-      "a_score": 72,
+      "a_score": 79,
       "a_score_tier": "근접 (한두 항목 미달)",
       "a_score_breakdown": {
         "eps_consecutive": 13,
         "eps_growth": 6,
+        "profitability": 20,
         "roe": 13,
+        "margin": 20,
         "deceleration": 20,
         "non_cyclical": 20
       },
       "a_score_notes": {
         "연속_증가": "1회 dip",
         "성장률": "+7.6% (5~15%)",
-        "ROE": "13.5% (12~17%)",
+        "수익성": "마진 30.3% (>=20%) (마진 우위로 ROE 대체) · ROE 13.5% (12~17%)",
         "둔화_게이트": "통과",
         "비사이클": "비경기민감"
       },
@@ -1977,7 +2099,9 @@
       "five_year_with_crisis_waiver": false,
       "deceleration_gate_pass": true,
       "main_track_pass": false,
+      "main_track_via_margin": false,
       "badges": [
+        "🏆 탁월 마진",
         "안정성 우수"
       ],
       "ttm_eps": 6478.19,
@@ -2000,14 +2124,16 @@
       "a_score_breakdown": {
         "eps_consecutive": 0,
         "eps_growth": 20,
+        "profitability": 6,
         "roe": 6,
+        "margin": 0,
         "deceleration": 20,
         "non_cyclical": 20
       },
       "a_score_notes": {
         "연속_증가": "최근 적자 (회복 미달)",
         "성장률": "+220.0% (>=25%)",
-        "ROE": "10.6% (8~12%)",
+        "수익성": "ROE 10.6% (8~12%) · 마진 8.9% (<10%)",
         "둔화_게이트": "통과",
         "비사이클": "비경기민감"
       },
@@ -2061,6 +2187,7 @@
       "five_year_with_crisis_waiver": false,
       "deceleration_gate_pass": true,
       "main_track_pass": false,
+      "main_track_via_margin": false,
       "badges": [
         "안정성 보통"
       ],
@@ -2084,14 +2211,16 @@
       "a_score_breakdown": {
         "eps_consecutive": 6,
         "eps_growth": 0,
+        "profitability": 0,
         "roe": 0,
+        "margin": 0,
         "deceleration": 20,
         "non_cyclical": 20
       },
       "a_score_notes": {
         "연속_증가": "2회 dip",
         "성장률": "+-15.9% (<5%)",
-        "ROE": "5.6% (<8%)",
+        "수익성": "ROE 5.6% (<8%) · 데이터 부족",
         "둔화_게이트": "통과",
         "비사이클": "비경기민감"
       },
@@ -2145,6 +2274,7 @@
       "five_year_with_crisis_waiver": false,
       "deceleration_gate_pass": true,
       "main_track_pass": false,
+      "main_track_via_margin": false,
       "badges": [
         "안정성 보통"
       ],
@@ -2168,14 +2298,16 @@
       "a_score_breakdown": {
         "eps_consecutive": 0,
         "eps_growth": 0,
+        "profitability": 0,
         "roe": 0,
+        "margin": 0,
         "deceleration": 20,
         "non_cyclical": 20
       },
       "a_score_notes": {
         "연속_증가": "최근 적자",
         "성장률": "+-75.6% (<5%)",
-        "ROE": "-3.1% (<8%)",
+        "수익성": "ROE -3.1% (<8%) · 데이터 부족",
         "둔화_게이트": "통과",
         "비사이클": "비경기민감"
       },
@@ -2225,6 +2357,7 @@
       "five_year_with_crisis_waiver": false,
       "deceleration_gate_pass": true,
       "main_track_pass": false,
+      "main_track_via_margin": false,
       "badges": [],
       "ttm_eps": -4685.15,
       "ttm_period": "202603",
@@ -2246,14 +2379,16 @@
       "a_score_breakdown": {
         "eps_consecutive": 0,
         "eps_growth": 0,
+        "profitability": 0,
         "roe": 0,
+        "margin": 0,
         "deceleration": 20,
         "non_cyclical": 20
       },
       "a_score_notes": {
         "연속_증가": "최근 적자",
         "성장률": "+-75.6% (<5%)",
-        "ROE": "-3.1% (<8%)",
+        "수익성": "ROE -3.1% (<8%) · 데이터 부족",
         "둔화_게이트": "통과",
         "비사이클": "비경기민감"
       },
@@ -2303,6 +2438,7 @@
       "five_year_with_crisis_waiver": false,
       "deceleration_gate_pass": true,
       "main_track_pass": false,
+      "main_track_via_margin": false,
       "badges": [],
       "ttm_eps": -4685.15,
       "ttm_period": "202603",
@@ -2319,19 +2455,21 @@
       "market": "KOSDAQ",
       "market_cap_eok": 35626,
       "current_price": 426500,
-      "a_score": 20,
+      "a_score": 26,
       "a_score_tier": "미달",
       "a_score_breakdown": {
         "eps_consecutive": 0,
         "eps_growth": 0,
+        "profitability": 6,
         "roe": 0,
+        "margin": 6,
         "deceleration": 20,
         "non_cyclical": 0
       },
       "a_score_notes": {
         "연속_증가": "다회 dip",
         "성장률": "+-20.8% (<5%)",
-        "ROE": "7.7% (<8%)",
+        "수익성": "마진 12.3% (10~15%) (마진 우위로 ROE 대체) · ROE 7.7% (<8%)",
         "둔화_게이트": "통과",
         "비사이클": "경기민감 (KSIC 204)"
       },
@@ -2385,6 +2523,7 @@
       "five_year_with_crisis_waiver": false,
       "deceleration_gate_pass": true,
       "main_track_pass": false,
+      "main_track_via_margin": false,
       "badges": [
         "현금창출력 우수",
         "안정성 우수"
