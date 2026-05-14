@@ -235,12 +235,7 @@ export function AnnualEarningsTable({ candidates }: Props) {
                     >
                       <td className="px-3 py-2.5">
                         <div className="flex flex-col">
-                          <div className="flex items-center gap-1.5">
-                            <span className="font-medium text-on-surface">{c.name}</span>
-                            {a.main_track_via_margin && (
-                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-300 font-bold">🥇 마진 우위</span>
-                            )}
-                          </div>
+                          <span className="font-medium text-on-surface">{c.name}</span>
                           <span className="text-[11px] text-on-surface-variant/60">
                             {c.code} · {c.market}
                           </span>
@@ -506,11 +501,6 @@ export function TurnaroundTable({ candidates }: TurnaroundProps) {
                           {c.is_preliminary && (
                             <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400 font-medium" title="정통 턴어라운드 한두 항목 약간 미달 — 다음 분기 잡힐 가능성">
                               예비
-                            </span>
-                          )}
-                          {t.high_via_margin && (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-300 font-bold" title="회복 + 분기 급증 + 마진 ≥ 15% — TTM 사상 최고치 게이트 면제">
-                              🥇 마진 우위
                             </span>
                           )}
                         </div>

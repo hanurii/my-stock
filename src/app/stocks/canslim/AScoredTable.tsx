@@ -174,9 +174,6 @@ export function AScoredTable({ candidates }: Props) {
                             {c.main_track_pass && (
                               <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-600/20 text-emerald-300 font-bold">메인 통과</span>
                             )}
-                            {c.main_track_via_margin && (
-                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-300 font-bold">🥇 마진 우위</span>
-                            )}
                           </div>
                           <span className="text-[11px] text-on-surface-variant/60">
                             {c.code} · {c.market}
