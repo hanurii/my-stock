@@ -20,6 +20,11 @@ A_DECELERATION_GATE_DIVISOR = 3.0  # 직전 분기 YoY ≥ 3년 평균 증가율
 A_BADGE_ROE_GLOBAL = 17.0  # O'Neil 원전 기준 충족 — "글로벌 ROE" 배지
 A_BADGE_ROE_EXCELLENT = 25.0  # 탁월 ROE
 A_BADGE_CPS_EPS_RATIO = 1.20
+# 세전 순이익 마진율 — 책 원문 "ROE 낮을 시 마진율 대안" 정신을 반영한 한국 보정 컷오프
+A_MARGIN_ALT_GATE = 15.0           # 메인/턴어라운드 게이트 대체 컷오프 (한국 상위 10%)
+A_MARGIN_EXCELLENT = 20.0          # 탁월 마진 배지 (한국 상위 5%)
+A_MARGIN_GOOD = 10.0               # 양호 마진 (정렬 가산점 baseline)
+A_ROE_FLOOR_FOR_MARGIN_ALT = 8.0   # 마진 대체 시 ROE 최소 바닥선 (적자성 종목 배제)
 # 안정성 지수 임계값 — 한국 보정 (+5 shift)
 # O'Neil 원전: <25 우수 / 25~30 보통 / >30 부족
 # 한국 보정: 한국 KOSPI 시총 상위 다수가 cyclical 산업(반도체·자동차·철강·화학·배터리)이라 원전 적용 시 거의 전부 "부족" 분류.
@@ -196,6 +201,7 @@ def evaluate_turnaround_detailed(
     latest_quarter_yoy: float | None,
     induty_code: str | None,
     quarterly_eps_for_stability: list[float] | None = None,
+    pretax_margin: float | None = None,
 ) -> dict:
     """A 턴어라운드 트랙 평가 — 메인 트랙 미충족 V자 회복주 잡기.
 
@@ -226,6 +232,8 @@ def evaluate_turnaround_detailed(
         "earnings_stability_score": None,
         "earnings_stability_detail": "",
         "latest_roe": None,
+        "pretax_margin": pretax_margin,
+        "high_via_margin": False,
         "badges": [],
         "fail_reasons": [],
     }
@@ -292,9 +300,21 @@ def evaluate_turnaround_detailed(
         out["is_all_time_high"]
         or (out["ttm_high_ratio"] is not None and out["ttm_high_ratio"] >= TURNAROUND_TTM_HIGH_RATIO)
     )
+    # 마진 우위 면제: 회복(+5%) + 분기 급증(+50%+) + 마진 ≥ 15% 시 TTM 사상 최고치 게이트 면제
+    # 회복 초기 종목은 TTM이 아직 신고치 근접 못 한 경우가 많아, 비즈니스 본연 강도(마진)로 대체.
+    pass_high_via_margin = (
+        pretax_margin is not None
+        and pretax_margin >= A_MARGIN_ALT_GATE
+        and pass_recovery
+        and pass_surge
+        and not pass_high
+    )
     pass_cyclical = not out["cyclical"]
 
-    out["turnaround_pass"] = bool(pass_recovery and pass_surge and pass_high and pass_cyclical)
+    out["high_via_margin"] = bool(pass_high_via_margin)
+    out["turnaround_pass"] = bool(
+        pass_recovery and pass_surge and (pass_high or pass_high_via_margin) and pass_cyclical
+    )
 
     # 예비 턴어라운드 — 정통 미충족이지만 한두 항목 약간 미달, 다음 분기 잡힐 가능성 높음
     prelim_recovery = (
@@ -315,9 +335,13 @@ def evaluate_turnaround_detailed(
         out["fail_reasons"].append(f"직전 1년 EPS YoY {ann_str} (≥{TURNAROUND_ANNUAL_EPS_MIN_PCT}% 필요)")
     if not pass_surge:
         out["fail_reasons"].append(f"2분기 연속 +{TURNAROUND_QUARTERLY_YOY_MIN_PCT}%+ 급증 미충족")
-    if not pass_high:
+    if not pass_high and not pass_high_via_margin:
         ratio_str = f"{out['ttm_high_ratio']*100:.0f}%" if out["ttm_high_ratio"] is not None else "N/A"
-        out["fail_reasons"].append(f"TTM 사상 최고치 {ratio_str} (≥{TURNAROUND_TTM_HIGH_RATIO*100:.0f}% 또는 신고가 필요)")
+        margin_str = f"마진 {pretax_margin:.1f}%" if pretax_margin is not None else "마진 N/A"
+        out["fail_reasons"].append(
+            f"TTM 사상 최고치 {ratio_str} (≥{TURNAROUND_TTM_HIGH_RATIO*100:.0f}% 또는 신고가 필요, "
+            f"또는 마진 ≥{A_MARGIN_ALT_GATE}% 대안 미충족: {margin_str})"
+        )
     if not pass_cyclical:
         out["fail_reasons"].append(f"경기민감주 (KSIC {induty_code})")
 
@@ -329,6 +353,13 @@ def evaluate_turnaround_detailed(
             out["badges"].append("탁월 ROE")
         elif out["latest_roe"] >= A_BADGE_ROE_GLOBAL:
             out["badges"].append("글로벌 ROE")
+    if pretax_margin is not None:
+        if pretax_margin >= A_MARGIN_EXCELLENT:
+            out["badges"].append("🏆 탁월 마진")
+        elif pretax_margin >= A_MARGIN_ALT_GATE:
+            out["badges"].append("🥇 우수 마진")
+    if out["high_via_margin"]:
+        out["badges"].append(f"마진 우위 (TTM 면제, 마진 {pretax_margin:.1f}%)")
     score = out["earnings_stability_score"]
     if score is not None:
         if score < A_STABILITY_EXCELLENT_MAX:
@@ -348,6 +379,7 @@ def evaluate_a_detailed(
     latest_quarter_yoy: float | None,
     induty_code: str | None,
     quarterly_eps_for_stability: list[float] | None = None,
+    pretax_margin: float | None = None,
 ) -> dict:
     """A 메인 트랙 평가 + 가점 배지용 raw 값 추출.
 
@@ -360,6 +392,7 @@ def evaluate_a_detailed(
     """
     out: dict[str, Any] = {
         "main_track_pass": False,
+        "main_track_via_margin": False,
         "annual_eps": [(k, round(v, 2)) for k, v in annual_eps[-5:]],
         "annual_roe": [(k, round(v, 2)) for k, v in annual_roe[-5:]],
         "annual_cps": [(k, round(v, 2)) for k, v in annual_cps[-5:]] if annual_cps else [],
@@ -378,6 +411,7 @@ def evaluate_a_detailed(
         "cyclical": is_cyclical_industry(induty_code),
         "earnings_stability_score": None,
         "earnings_stability_detail": "",
+        "pretax_margin": pretax_margin,
         "badges": [],
         "fail_reasons": [],
     }
@@ -478,11 +512,22 @@ def evaluate_a_detailed(
         and out["three_year_avg_growth"] >= A_ANNUAL_EPS_GROWTH_MIN_PCT
     )
     pass_roe = out["latest_roe"] is not None and out["latest_roe"] >= A_ROE_MIN_PCT
+    # 마진 우위 대안 게이트: 책 원문 "ROE 낮을 시 세전 마진율이 아주 좋아야 한다"
+    # ROE 8% 바닥선을 둬서 적자성·자본 활용 둔화 종목 배제.
+    pass_margin_alt = (
+        not pass_roe
+        and pretax_margin is not None
+        and pretax_margin >= A_MARGIN_ALT_GATE
+        and out["latest_roe"] is not None
+        and out["latest_roe"] >= A_ROE_FLOOR_FOR_MARGIN_ALT
+    )
+    pass_profitability = pass_roe or pass_margin_alt
     pass_decel = out["deceleration_gate_pass"]
     pass_cyclical = not out["cyclical"]
 
+    out["main_track_via_margin"] = bool(pass_margin_alt)
     out["main_track_pass"] = bool(
-        pass_eps_consec and pass_eps_avg and pass_roe and pass_decel and pass_cyclical
+        pass_eps_consec and pass_eps_avg and pass_profitability and pass_decel and pass_cyclical
     )
 
     if not pass_eps_consec:
@@ -490,9 +535,13 @@ def evaluate_a_detailed(
     if not pass_eps_avg:
         avg_str = f"{out['three_year_avg_growth']}%" if out["three_year_avg_growth"] is not None else "N/A"
         out["fail_reasons"].append(f"3년 평균 증가율 {avg_str} (≥{A_ANNUAL_EPS_GROWTH_MIN_PCT}% 필요)")
-    if not pass_roe:
+    if not pass_profitability:
         roe_str = f"{out['latest_roe']}%" if out["latest_roe"] is not None else "N/A"
-        out["fail_reasons"].append(f"ROE {roe_str} (≥{A_ROE_MIN_PCT}% 필요)")
+        margin_str = f"마진 {pretax_margin:.1f}%" if pretax_margin is not None else "마진 N/A"
+        out["fail_reasons"].append(
+            f"수익성 미충족 — ROE {roe_str} (≥{A_ROE_MIN_PCT}% 필요), "
+            f"또는 마진 대안 미달 ({margin_str}, ≥{A_MARGIN_ALT_GATE}% AND ROE ≥{A_ROE_FLOOR_FOR_MARGIN_ALT}% 필요)"
+        )
     if not pass_decel:
         gate_str = f"{out['deceleration_gate_threshold']}%" if out["deceleration_gate_threshold"] is not None else "N/A"
         qy_str = f"{qy}%" if qy is not None else "N/A"
@@ -506,6 +555,15 @@ def evaluate_a_detailed(
             out["badges"].append("탁월 ROE")
         elif out["latest_roe"] >= A_BADGE_ROE_GLOBAL:
             out["badges"].append("글로벌 ROE")
+    if pretax_margin is not None:
+        if pretax_margin >= A_MARGIN_EXCELLENT:
+            out["badges"].append("🏆 탁월 마진")
+        elif pretax_margin >= A_MARGIN_ALT_GATE:
+            out["badges"].append("🥇 우수 마진")
+    if out["main_track_via_margin"]:
+        roe_v = out["latest_roe"] if out["latest_roe"] is not None else 0
+        margin_v = pretax_margin if pretax_margin is not None else 0
+        out["badges"].append(f"마진 우위 통과 (마진 {margin_v:.1f}%·ROE {roe_v:.1f}%)")
     if out["five_year_consecutive_increase"]:
         if out.get("five_year_with_crisis_waiver"):
             out["badges"].append("5년 연속 성장 (위기 면제)")
@@ -529,6 +587,32 @@ def evaluate_a_detailed(
 # A 충족도 점수 (0~100)
 # ────────────────────────────────────────────────────────
 
+def _score_roe_points(roe: float | None) -> tuple[int, str]:
+    """ROE → 0~20점 + 노트."""
+    if roe is None:
+        return 0, "데이터 부족"
+    if roe >= 17:
+        return 20, f"ROE {roe:.1f}% (>=17%)"
+    if roe >= 12:
+        return 13, f"ROE {roe:.1f}% (12~17%)"
+    if roe >= 8:
+        return 6, f"ROE {roe:.1f}% (8~12%)"
+    return 0, f"ROE {roe:.1f}% (<8%)"
+
+
+def _score_margin_points(margin: float | None) -> tuple[int, str]:
+    """세전 마진율 → 0~20점 + 노트. ROE와 같은 20점 척도로 책의 'ROE 대안' 정신 반영."""
+    if margin is None:
+        return 0, "데이터 부족"
+    if margin >= A_MARGIN_EXCELLENT:
+        return 20, f"마진 {margin:.1f}% (>=20%)"
+    if margin >= A_MARGIN_ALT_GATE:
+        return 13, f"마진 {margin:.1f}% (15~20%)"
+    if margin >= A_MARGIN_GOOD:
+        return 6, f"마진 {margin:.1f}% (10~15%)"
+    return 0, f"마진 {margin:.1f}% (<10%)"
+
+
 def compute_a_score(a_detail: dict) -> dict:
     """A 5개 컷오프 충족도를 0~100점으로 정량화.
 
@@ -538,7 +622,10 @@ def compute_a_score(a_detail: dict) -> dict:
     구성 (각 20점):
       1. 3년 연속 EPS 증가 — 3년 모두 증가 +20 / 위기 면제 +17 / 1-2 dip +6~13 / 적자 +0
       2. 3년 평균 EPS 성장률 — >=25% +20 / 15~25% +13 / 5~15% +6 / <5% +0
-      3. ROE — >=17% +20 / 12~17% +13 / 8~12% +6 / <8% +0
+      3. 수익성 (ROE 또는 마진) — max(ROE 점수, 마진 점수)
+         · ROE: >=17% +20 / 12~17% +13 / 8~12% +6 / <8% +0
+         · 마진: >=20% +20 / 15~20% +13 / 10~15% +6 / <10% +0
+         · 책 원문 "ROE 낮을 시 세전 마진율이 아주 좋아야 한다" 정신 반영.
       4. 둔화 게이트 (직전 분기 EPS YoY >= 3년 평균 x 1/3) — 통과 +20 / 미달 +0
       5. 비경기민감주 — 비사이클 +20 / 사이클 +0
 
@@ -546,7 +633,7 @@ def compute_a_score(a_detail: dict) -> dict:
     """
     score_eps_consecutive = 0
     score_eps_growth = 0
-    score_roe = 0
+    score_profitability = 0
     score_decel = 0
     score_cyclical = 0
     notes = {}
@@ -614,20 +701,16 @@ def compute_a_score(a_detail: dict) -> dict:
         notes["성장률"] = f"+{avg:.1f}% (<5%)"
 
     roe = a_detail.get("latest_roe")
-    if roe is None:
-        roe_count = len(a_detail.get("annual_roe") or [])
-        notes["ROE"] = f"데이터 부족 (ROE {roe_count}년)"
-    elif roe >= 17:
-        score_roe = 20
-        notes["ROE"] = f"{roe:.1f}% (>=17%)"
-    elif roe >= 12:
-        score_roe = 13
-        notes["ROE"] = f"{roe:.1f}% (12~17%)"
-    elif roe >= 8:
-        score_roe = 6
-        notes["ROE"] = f"{roe:.1f}% (8~12%)"
+    margin = a_detail.get("pretax_margin")
+    roe_pts, roe_note = _score_roe_points(roe)
+    margin_pts, margin_note = _score_margin_points(margin)
+    score_profitability = max(roe_pts, margin_pts)
+    if margin_pts > roe_pts and margin_pts > 0:
+        notes["수익성"] = f"{margin_note} (마진 우위로 ROE 대체) · {roe_note}"
+    elif roe_pts > 0 or margin_pts > 0:
+        notes["수익성"] = f"{roe_note} · {margin_note}"
     else:
-        notes["ROE"] = f"{roe:.1f}% (<8%)"
+        notes["수익성"] = f"{roe_note} · {margin_note}"
 
     decel_pass = a_detail.get("deceleration_gate_pass", False)
     if decel_pass:
@@ -643,7 +726,7 @@ def compute_a_score(a_detail: dict) -> dict:
     else:
         notes["비사이클"] = f"경기민감 (KSIC {a_detail.get('induty_code')})"
 
-    total = score_eps_consecutive + score_eps_growth + score_roe + score_decel + score_cyclical
+    total = score_eps_consecutive + score_eps_growth + score_profitability + score_decel + score_cyclical
 
     if total >= 80:
         tier = "정통 (O'Neil 책 기준 충족)"
@@ -659,7 +742,9 @@ def compute_a_score(a_detail: dict) -> dict:
         "breakdown": {
             "eps_consecutive": score_eps_consecutive,
             "eps_growth": score_eps_growth,
-            "roe": score_roe,
+            "profitability": score_profitability,
+            "roe": roe_pts,
+            "margin": margin_pts,
             "deceleration": score_decel,
             "non_cyclical": score_cyclical,
         },

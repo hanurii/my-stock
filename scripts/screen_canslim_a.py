@@ -401,6 +401,7 @@ def main() -> int:
             latest_quarter_yoy=latest_qy,
             induty_code=induty_code,
             quarterly_eps_for_stability=quarterly_eps_for_stability,
+            pretax_margin=pretax_margin,
         )
         a_detail["ttm_eps"] = ttm_eps
         a_detail["ttm_period"] = ttm_period
@@ -408,7 +409,7 @@ def main() -> int:
 
         # 세전 마진율 + 우선도 점수 (정렬용)
         # Tier 1 (먼저 노출): 매년 ≥25% 성장 + ROE ≥17%
-        # Tier 2: 위 미충족이고 ROE 낮으면 세전 마진율로 보충
+        # Tier 2: ROE 낮아도 마진율 우수 시 보충 + 마진 우위 메인 통과는 추가 가점
         a_detail["pretax_margin"] = pretax_margin
         growths = a_detail.get("three_year_growths") or []
         roe = a_detail.get("latest_roe") or 0
@@ -422,8 +423,11 @@ def main() -> int:
         elif roe > 50:
             score += 10  # 50% 초과는 약간 의심
         if 12 <= roe < 17 and pretax_margin is not None:
-            # 세전 마진 보충: 15% 이상이면 가산점
+            # 세전 마진 보충: 5% baseline, 15% 이상이면 의미 있는 가산점
             score += max(0, pretax_margin - 5)
+        if a_detail.get("main_track_via_margin") and pretax_margin is not None:
+            # 마진 우위로 메인 통과한 종목 — 마진 ≥ 15% 가산점 (10% baseline × 1.5배)
+            score += max(0, pretax_margin - 10) * 1.5
         a_detail["priority_score"] = round(score, 2)
         a_detail["stellar_growth"] = bool(stellar)
         # 정렬 우선도가 명시되도록 stellar 종목엔 배지 상단 추가
@@ -457,6 +461,7 @@ def main() -> int:
             "five_year_with_crisis_waiver": a_detail.get("five_year_with_crisis_waiver", False),
             "deceleration_gate_pass": a_detail.get("deceleration_gate_pass"),
             "main_track_pass": a_detail.get("main_track_pass"),
+            "main_track_via_margin": a_detail.get("main_track_via_margin", False),
             "badges": a_detail.get("badges", []),
             "ttm_eps": a_detail.get("ttm_eps"),
             "ttm_period": a_detail.get("ttm_period"),
@@ -476,7 +481,12 @@ def main() -> int:
 
         if a_detail["main_track_pass"]:
             badges_str = ", ".join(a_detail["badges"]) if a_detail["badges"] else "—"
-            print(f"      ✅ 메인 통과 · 3Y avg {a_detail['three_year_avg_growth']}% · ROE {a_detail['latest_roe']}% · 배지: {badges_str}")
+            via_margin_marker = " (🥇 마진 우위)" if a_detail.get("main_track_via_margin") else ""
+            margin_str = f"마진 {pretax_margin:.1f}%" if pretax_margin is not None else "마진 N/A"
+            print(
+                f"      ✅ 메인 통과{via_margin_marker} · 3Y avg {a_detail['three_year_avg_growth']}% · "
+                f"ROE {a_detail['latest_roe']}% · {margin_str} · 배지: {badges_str}"
+            )
             a_results.append({
                 "code": code,
                 "name": name,
@@ -495,12 +505,17 @@ def main() -> int:
                 latest_quarter_yoy=latest_qy,
                 induty_code=induty_code,
                 quarterly_eps_for_stability=quarterly_eps_for_stability,
+                pretax_margin=pretax_margin,
             )
             if t_detail["turnaround_pass"] or t_detail["preliminary_turnaround_pass"]:
                 is_prelim = not t_detail["turnaround_pass"] and t_detail["preliminary_turnaround_pass"]
                 marker = "🟡 예비 턴어라운드" if is_prelim else "🔄 턴어라운드"
+                via_margin_marker = " (🥇 마진 우위 TTM 면제)" if t_detail.get("high_via_margin") else ""
                 badges_str = ", ".join(t_detail["badges"]) if t_detail["badges"] else "—"
-                print(f"      {marker} · 연 YoY {t_detail['latest_annual_yoy']}% · {t_detail['two_quarter_surge_detail']} · 배지: {badges_str}")
+                print(
+                    f"      {marker}{via_margin_marker} · 연 YoY {t_detail['latest_annual_yoy']}% · "
+                    f"{t_detail['two_quarter_surge_detail']} · 배지: {badges_str}"
+                )
                 turnaround_results.append({
                     "code": code,
                     "name": name,

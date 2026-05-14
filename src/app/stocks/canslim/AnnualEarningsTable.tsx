@@ -4,6 +4,7 @@ import { Fragment, useMemo, useState } from "react";
 
 export interface ACriterion {
   main_track_pass: boolean;
+  main_track_via_margin?: boolean;
   annual_eps: [string, number][];
   annual_roe: [string, number][];
   annual_cps: [string, number][];
@@ -90,6 +91,9 @@ function badgeStyle(label: string): string {
   if (label === "⭐ 매년 +25% 성장") return "bg-emerald-600/30 text-emerald-200 font-bold";
   if (label === "탁월 ROE") return "bg-emerald-600/20 text-emerald-300 font-bold";
   if (label === "글로벌 ROE") return "bg-emerald-500/15 text-emerald-300";
+  if (label === "🏆 탁월 마진") return "bg-amber-600/30 text-amber-200 font-bold";
+  if (label === "🥇 우수 마진") return "bg-amber-500/15 text-amber-300";
+  if (label.startsWith("마진 우위")) return "bg-amber-500/20 text-amber-200 font-bold";
   if (label === "5년 연속 성장") return "bg-emerald-500/15 text-emerald-300";
   if (label === "5년 연속 성장 (위기 면제)") return "bg-emerald-500/15 text-emerald-300";
   if (label === "현금창출력 우수") return "bg-cyan-500/15 text-cyan-300";
@@ -213,7 +217,7 @@ export function AnnualEarningsTable({ candidates }: Props) {
                     A 메인 트랙을 통과한 종목이 없습니다.
                     <br />
                     <span className="text-[11px] text-on-surface-variant/50">
-                      (A는 3년 연속 EPS 증가 + 평균 ≥25% + ROE ≥17% + 둔화 게이트 + 비경기민감 5중 AND 조건)
+                      (A는 3년 연속 EPS 증가 + 평균 ≥25% + (ROE ≥12% OR 세전 마진 ≥15% AND ROE ≥8%) + 둔화 게이트 + 비경기민감 5중 AND 조건)
                     </span>
                   </td>
                 </tr>
@@ -231,7 +235,12 @@ export function AnnualEarningsTable({ candidates }: Props) {
                     >
                       <td className="px-3 py-2.5">
                         <div className="flex flex-col">
-                          <span className="font-medium text-on-surface">{c.name}</span>
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-medium text-on-surface">{c.name}</span>
+                            {a.main_track_via_margin && (
+                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-300 font-bold">🥇 마진 우위</span>
+                            )}
+                          </div>
                           <span className="text-[11px] text-on-surface-variant/60">
                             {c.code} · {c.market}
                           </span>
@@ -416,6 +425,8 @@ export interface TurnaroundCriterion {
   earnings_stability_score: number | null;
   earnings_stability_detail: string;
   latest_roe: number | null;
+  pretax_margin?: number | null;
+  high_via_margin?: boolean;
   badges: string[];
   fail_reasons: string[];
 }
@@ -495,6 +506,11 @@ export function TurnaroundTable({ candidates }: TurnaroundProps) {
                           {c.is_preliminary && (
                             <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400 font-medium" title="정통 턴어라운드 한두 항목 약간 미달 — 다음 분기 잡힐 가능성">
                               예비
+                            </span>
+                          )}
+                          {t.high_via_margin && (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-300 font-bold" title="회복 + 분기 급증 + 마진 ≥ 15% — TTM 사상 최고치 게이트 면제">
+                              🥇 마진 우위
                             </span>
                           )}
                         </div>

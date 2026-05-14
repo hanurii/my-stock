@@ -13,7 +13,9 @@ export interface AScoredCandidate {
   a_score_breakdown: {
     eps_consecutive: number;
     eps_growth: number;
-    roe: number;
+    profitability?: number;  // ROE·마진 max — 최신 스키마
+    roe: number;              // ROE 단독 점수 (호환 + 비교용)
+    margin?: number;          // 마진 단독 점수
     deceleration: number;
     non_cyclical: number;
   };
@@ -30,6 +32,7 @@ export interface AScoredCandidate {
   five_year_with_crisis_waiver: boolean;
   deceleration_gate_pass: boolean;
   main_track_pass: boolean;
+  main_track_via_margin?: boolean;
   badges: string[];
   ttm_eps?: number | null;
   ttm_period?: string | null;
@@ -126,7 +129,7 @@ export function AScoredTable({ candidates }: Props) {
           ))}
         </div>
         <span className="text-[11px] text-on-surface-variant/60 ml-auto">
-          5개 컷오프 각 20점 (3년 연속 증가 / 3Y 평균 EPS 성장률 / ROE / 둔화 게이트 / 비경기민감) · 100점 만점, 내림차순 정렬
+          5개 컷오프 각 20점 (3년 연속 증가 / 3Y 평균 EPS / 수익성 ROE·마진 max / 둔화 게이트 / 비경기민감) · 100점, 내림차순 정렬
         </span>
       </div>
 
@@ -170,6 +173,9 @@ export function AScoredTable({ candidates }: Props) {
                             <span className="font-medium text-on-surface">{c.name}</span>
                             {c.main_track_pass && (
                               <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-600/20 text-emerald-300 font-bold">메인 통과</span>
+                            )}
+                            {c.main_track_via_margin && (
+                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-300 font-bold">🥇 마진 우위</span>
                             )}
                           </div>
                           <span className="text-[11px] text-on-surface-variant/60">
@@ -223,24 +229,27 @@ export function AScoredTable({ candidates }: Props) {
                             <div>
                               <p className="font-medium text-on-surface mb-2">A 점수 항목별 ({c.a_score}/100)</p>
                               <ul className="space-y-1.5">
-                                {[
-                                  { key: "eps_consecutive", label: "3년 연속 EPS 증가", note: c.a_score_notes["연속_증가"] },
-                                  { key: "eps_growth", label: "3년 평균 EPS 성장률", note: c.a_score_notes["성장률"] },
-                                  { key: "roe", label: "ROE", note: c.a_score_notes["ROE"] },
-                                  { key: "deceleration", label: "둔화 게이트", note: c.a_score_notes["둔화_게이트"] },
-                                  { key: "non_cyclical", label: "비경기민감주", note: c.a_score_notes["비사이클"] },
-                                ].map((item) => {
-                                  const score = c.a_score_breakdown[item.key as keyof typeof c.a_score_breakdown];
-                                  return (
+                                {(() => {
+                                  const b = c.a_score_breakdown;
+                                  const profScore = b.profitability ?? b.roe ?? 0;
+                                  const profNote = c.a_score_notes["수익성"] ?? c.a_score_notes["ROE"] ?? "—";
+                                  const items = [
+                                    { key: "eps_consecutive", label: "3년 연속 EPS 증가", score: b.eps_consecutive, note: c.a_score_notes["연속_증가"] },
+                                    { key: "eps_growth", label: "3년 평균 EPS 성장률", score: b.eps_growth, note: c.a_score_notes["성장률"] },
+                                    { key: "profitability", label: "수익성 (ROE·마진)", score: profScore, note: profNote },
+                                    { key: "deceleration", label: "둔화 게이트", score: b.deceleration, note: c.a_score_notes["둔화_게이트"] },
+                                    { key: "non_cyclical", label: "비경기민감주", score: b.non_cyclical, note: c.a_score_notes["비사이클"] },
+                                  ];
+                                  return items.map((item) => (
                                     <li key={item.key} className="flex items-baseline gap-2 leading-relaxed">
                                       <span className="text-on-surface-variant w-32 shrink-0">{item.label}</span>
-                                      <span className="font-mono font-medium" style={{ color: scoreBarColor(score * 5) }}>
-                                        {score}/20
+                                      <span className="font-mono font-medium" style={{ color: scoreBarColor(item.score * 5) }}>
+                                        {item.score}/20
                                       </span>
                                       <span className="text-on-surface-variant/60">— {item.note}</span>
                                     </li>
-                                  );
-                                })}
+                                  ));
+                                })()}
                               </ul>
                             </div>
                             <div>
