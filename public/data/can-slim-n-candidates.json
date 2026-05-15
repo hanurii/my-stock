@@ -1,331 +1,32 @@
 {
-  "generated_at": "2026-05-13",
+  "generated_at": "2026-05-15",
   "input_track": "A 충족도 점수 ≥ 80 (정통)",
-  "a_input_total": 13,
-  "n_count": 13,
+  "a_input_total": 31,
+  "n_count": 31,
   "data_sources": {
-    "price": "Yahoo Finance 1y daily (fetch_yahoo_chart)",
-    "commentary": "한국경제 (hankyung.com) — 매경(mk.co.kr)은 크롤러 차단으로 미사용"
+    "auto_quantitative": "Yahoo Finance 1y daily (52w high, current price)",
+    "manual_qualitative": "Claude — 한국 언론·DART·IR 검색으로 new_product / new_management / new_high_reason 작성"
   },
   "candidates": [
     {
-      "code": "329180",
-      "name": "HD현대중공업",
-      "market": "KOSPI",
-      "a_score": 100,
-      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
-      "current_price": 713000.0,
-      "current_date": "2026-05-13",
-      "high_52w": 713000.0,
-      "high_52w_date": "2026-05-13",
-      "pct_from_52w_high": 0.0,
-      "data_points": 244,
-      "n_commentary": {
-        "summary": "조선 사이클 + 美 데이터센터 엔진 신시장 진입",
-        "new_product": "미국 데이터센터向 4행정 중속엔진 수주 — 선박엔진의 데이터센터 시장 진출 개념 현실화 (출처: 한경 2026-04 분석)",
-        "new_management": null,
-        "new_high_reason": "2조1308억원 컨테이너선·VLGC 8척 신규 수주(2026-05-08). 연초 누적 94척·15.8조원 수주(연 목표 46.4%). 사우디 호위함 수주 추진(2026-02), 자동차 운반선 4척 수주(2026-04). 2029~2030년 MRO 수요 가시화 전망",
-        "sources": [
-          {
-            "title": "HD현대중공업, 2조 규모 선박 8척 수주",
-            "url": "https://www.hankyung.com/article/2026050848851"
-          },
-          {
-            "title": "HD현대중공업, 3985억 규모 자동차 운반선 2척 수주",
-            "url": "https://www.hankyung.com/article/2026041654056"
-          },
-          {
-            "title": "사우디 호위함 수주 나선 HD현대중공업",
-            "url": "https://www.hankyung.com/article/2026020819161"
-          }
-        ],
-        "researched_at": "2026-05-11"
-      }
-    },
-    {
-      "code": "039490",
-      "name": "키움증권",
-      "market": "KOSPI",
-      "a_score": 100,
-      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
-      "current_price": 413000.0,
-      "current_date": "2026-05-13",
-      "high_52w": 495500.0,
-      "high_52w_date": "2026-02-20",
-      "pct_from_52w_high": -16.65,
-      "data_points": 244,
-      "n_commentary": {
-        "summary": "사상 최대 1Q 실적·일평균 약정대금 +216% 폭증·퇴직연금 2026-06 출시",
-        "new_product": "퇴직연금(DB·DC·IRP) 서비스 2026-06 출시 예정 — 신규 고객 유입·WM 수익 확대 동력. 발행어음 잔고 1.6조 → 연말 3조 확대 (book 비즈니스 성장)",
-        "new_management": "2026 상반기 중기 기업가치 제고 계획 공식 발표 예정 — 주주환원 기조 강화",
-        "new_high_reason": "1Q 영업이익 6,212억·당기순이익 4,774억 사상 최대. 일평균 약정대금 27.8조원(+216% YoY), 주식 수수료 +120.8%. 한경 분석 목표주가 70만원 상향(2026-04-30). 52주 高 49.55만원(2026-02-20) 갱신 시기 진입",
-        "sources": [
-          {
-            "title": "[키움증권 분석] 또 깜짝 실적…목표주가 70만원까지",
-            "url": "https://www.hankyung.com/article/202604308800i"
-          },
-          {
-            "title": "2026년 1분기 실적 특징주(5월 8일 발표)",
-            "url": "https://eureka.hankyung.com/insight/detail/17793"
-          }
-        ],
-        "researched_at": "2026-05-13"
-      }
-    },
-    {
-      "code": "000660",
-      "name": "SK하이닉스",
-      "market": "KOSPI",
-      "a_score": 95,
-      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
-      "current_price": 1968000.0,
-      "current_date": "2026-05-13",
-      "high_52w": 1968000.0,
-      "high_52w_date": "2026-05-13",
-      "pct_from_52w_high": 0.0,
-      "data_points": 244,
-      "n_commentary": {
-        "summary": "HBM4 16단 최초 공개·Q1 영업익 37.6조 사상최고",
-        "new_product": "CES 2026 에서 HBM4 16단 48GB 첫 공개. 업계 최고 11.7Gbps 속도. HBM4 12단 36GB 후속 (출처: 한경 2026-01-06)",
-        "new_management": null,
-        "new_high_reason": "2026 Q1 매출 52.5조·영업이익 37.6조·영업이익률 71.5% (사상 최고치). HBM 올해 물량 완판, 2027년까지 공급 부족 전망. 당일 신고가 갱신, 전일 기관 대량 순매수 (2026-05-08)",
-        "sources": [
-          {
-            "title": "SK하이닉스, CES 2026 에서 HBM4 16단 48GB 첫 공개",
-            "url": "https://www.hankyung.com/article/202601063564i"
-          },
-          {
-            "title": "37조 잭팟 터졌다…하이닉스 역대급 실적",
-            "url": "https://www.hankyung.com/article/202604230510g"
-          },
-          {
-            "title": "SK하이닉스 52주 신고가 경신, 전일 기관 대량 순매수",
-            "url": "https://www.hankyung.com/article/202605084199L"
-          }
-        ],
-        "researched_at": "2026-05-11"
-      }
-    },
-    {
-      "code": "443060",
-      "name": "HD현대마린솔루션",
-      "market": "KOSPI",
+      "code": "080220",
+      "name": "제주반도체",
+      "market": "KOSDAQ",
       "a_score": 93,
       "a_score_tier": "정통 (O'Neil 책 기준 충족)",
-      "current_price": 226500.0,
-      "current_date": "2026-05-13",
-      "high_52w": 280500.0,
-      "high_52w_date": "2026-04-27",
-      "pct_from_52w_high": -19.25,
-      "data_points": 244,
-      "n_commentary": {
-        "summary": "FSRU 개조 첫 수주 + 조선업황과 무관한 애프터마켓 성장",
-        "new_product": "LNG 운반선 → FSRU(부유식 LNG 재기화 설비) 개조 사업 첫 수주 (척당 1억~1.3억달러 약 1,400~1,800억원 고부가가치). 재액화 개조 10척 수주 — 2025~2026 순차 인도",
-        "new_management": null,
-        "new_high_reason": "1Q 매출 5,746억(+26.8% YoY)·영업이익 830억(+61.2%) — 3분기 연속 매출 증가. 4월 4주차 주가 +34.13% 급등으로 25.35만원 마감. 1Q 실적발표 후 증권가 목표가 일제 상향. 52주 高 28.05만원(2026-04-27) 대비 -19% 수준",
-        "sources": [
-          {
-            "title": "HD현대마린솔루션 올 하반기 FSRU 개조 첫 수주",
-            "url": "https://www.hankyung.com/article/202502055214i"
-          },
-          {
-            "title": "[HD현대마린솔루션 분석] 실적발표 후 목표가 줄줄이 상향한 이유",
-            "url": "https://www.hankyung.com/article/202604295569i"
-          }
-        ],
-        "researched_at": "2026-05-13"
-      }
-    },
-    {
-      "code": "010120",
-      "name": "LS ELECTRIC",
-      "market": "KOSPI",
-      "a_score": 86,
-      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
-      "current_price": 284500.0,
-      "current_date": "2026-05-13",
-      "high_52w": 318500.0,
-      "high_52w_date": "2026-05-07",
-      "pct_from_52w_high": -10.68,
-      "data_points": 244,
-      "n_commentary": {
-        "summary": "북미 데이터센터 변압기·초고압 매출 +83%",
-        "new_product": "초고압 변압기 매출 전년 동기 대비 +83% 폭증 (부산 공장 증설 효과). 북미 데이터센터 전력설비 공급 1억1497만달러(약 1703억원) 수주",
-        "new_management": null,
-        "new_high_reason": "2026 Q1 영업이익 1266억(+45%)·매출 1.38조(+33.4%). 수주잔고 5.6조 중 초고압변압기 3.1조. 빅테크發 반복 수주 가능성 (2026-04-14). 국내 전력기기 3사 동시 52주 신고가",
-        "sources": [
-          {
-            "title": "없어서 못 판다…LS일렉트릭 초고압 변압기 매출 83% 폭증, 수주잔고 5.6조",
-            "url": "https://magazine.hankyung.com/business/article/202604216984b"
-          },
-          {
-            "title": "LS일렉트릭, 빅테크發 반복 수주 가능성…목표가↑",
-            "url": "https://www.hankyung.com/article/2026041484836"
-          },
-          {
-            "title": "같은 날 나란히 신고가 달성…증권가 3사, 주가 더 오를 것",
-            "url": "https://www.hankyung.com/article/2026042807756"
-          }
-        ],
-        "researched_at": "2026-05-11"
-      }
-    },
-    {
-      "code": "005930",
-      "name": "삼성전자",
-      "market": "KOSPI",
-      "a_score": 86,
-      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
-      "current_price": 283000.0,
-      "current_date": "2026-05-13",
-      "high_52w": 285500.0,
-      "high_52w_date": "2026-05-11",
-      "pct_from_52w_high": -0.88,
-      "data_points": 244,
-      "n_commentary": {
-        "summary": "HBM4 자신감 회복·메모리 슈퍼사이클 본격화",
-        "new_product": "HBM4 — 전영현 부회장 신년사 '삼성이 돌아왔다, 차별화 성능 경쟁력 입증'. HBM 점유율 2025년 16% → 2026년 35% 확대 전망 (2배)",
-        "new_management": "전영현 DS부문장 부회장 체제 — HBM4 자신감 회복·고객사 평가 전환을 명시적 전략으로 천명 (2026 신년사)",
-        "new_high_reason": "2026-01-02 사상 최고가 12.85만원(+7.17%) — 상장 후 신고점. 메모리 슈퍼사이클 본격화, AI 빅테크 D램 5년 장기계약 체결(2026-04). NH 목표가 20.5만원(2026-01-30)",
-        "sources": [
-          {
-            "title": "10억 벌었다 그야말로 초대박…삼성전자 개미들 축제",
-            "url": "https://www.hankyung.com/article/2026010288016"
-          },
-          {
-            "title": "삼성전자, HBM 자신감 회복…목표가 20만5000원-NH",
-            "url": "https://www.hankyung.com/article/2026013026716"
-          },
-          {
-            "title": "AI 빅테크 D램 5년 계약하자…삼성전자·SK하이닉스에 줄선다",
-            "url": "https://www.hankyung.com/article/2026041362121"
-          }
-        ],
-        "researched_at": "2026-05-11"
-      }
-    },
-    {
-      "code": "005935",
-      "name": "삼성전자우",
-      "market": "KOSPI",
-      "a_score": 86,
-      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
-      "current_price": 188200.0,
-      "current_date": "2026-05-13",
-      "high_52w": 194900.0,
-      "high_52w_date": "2026-05-11",
-      "pct_from_52w_high": -3.44,
-      "data_points": 244,
-      "n_commentary": {
-        "summary": "삼성전자 보통주와 동일 펀더멘털 (우선주)",
-        "new_product": "보통주(005930)와 동일 — HBM4 차별화 성능·점유율 35% 전망",
-        "new_management": "보통주(005930)와 동일 — 전영현 DS부문장 부회장 체제 HBM4 전략",
-        "new_high_reason": "삼성전자 우선주 — 보통주 신고가 동행. 2026-05-11 신고가 19.49만원. 보통주 대비 약 68% 할인된 가격에 거래되나 동일 배당 수령(우선주 약점인 의결권 없음 외 펀더멘털 동일)",
-        "sources": [
-          {
-            "title": "보통주(005930) 코멘트 동일",
-            "url": "https://www.hankyung.com/article/2026010288016"
-          }
-        ],
-        "researched_at": "2026-05-11"
-      }
-    },
-    {
-      "code": "095340",
-      "name": "ISC",
-      "market": "KOSDAQ",
-      "a_score": 86,
-      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
-      "current_price": 240500.0,
-      "current_date": "2026-05-13",
-      "high_52w": 271000.0,
-      "high_52w_date": "2026-04-09",
-      "pct_from_52w_high": -11.25,
+      "current_price": 83200.0,
+      "current_date": "2026-05-15",
+      "high_52w": 83200.0,
+      "high_52w_date": "2026-05-15",
+      "pct_from_52w_high": 0.0,
       "data_points": 245,
       "n_commentary": {
-        "summary": "HBM 테스트소켓 양산·후공정 라인업 강화 — '슈퍼을 슈퍼乙' 자리매김",
-        "new_product": "HBM 테스트소켓 양산 단계 — 패키징 후 결함 검출로 양산 비용 절감 + 검출 못하던 HBM 오류까지 잡아냄 (출처: 한경 2024-12). 후공정 장비사 인수로 AI 반도체 테스트 라인업 강화 (2025-04). 베트남 공장 자동화·증설 500억 투자",
-        "new_management": null,
-        "new_high_reason": "매출 2,201억(+26%)·영업이익 600억(+34%, 447억 → 600억)·영업이익률 27.3% 역대 최고. 연매출 2027년 5,000억 목표(2배+). AI 반도체 테스트 소켓 수혜로 기관 지속 순매수 (2025-11). 52주 高 27.1만원(2026-04-09) 대비 -11%",
-        "sources": [
-          {
-            "title": "AI 필수품 HBM 테스트 소켓…ISC 양산 임박",
-            "url": "https://www.hankyung.com/article/202412222464i"
-          },
-          {
-            "title": "장인 손끝이 만든 초격차…슈퍼을 된 반도체 검사기업",
-            "url": "https://www.hankyung.com/article/2026030238331"
-          },
-          {
-            "title": "ISC, AI 반도체 테스트 소켓 수혜로 기관 순매수 지속",
-            "url": "https://www.hankyung.com/article/202511253434a"
-          }
-        ],
-        "researched_at": "2026-05-13"
-      }
-    },
-    {
-      "code": "145020",
-      "name": "휴젤",
-      "market": "KOSDAQ",
-      "a_score": 86,
-      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
-      "current_price": 279500.0,
-      "current_date": "2026-05-13",
-      "high_52w": 388000.0,
-      "high_52w_date": "2025-06-30",
-      "pct_from_52w_high": -27.96,
-      "data_points": 245,
-      "n_commentary": {
-        "summary": "미국 시장 본격 진입으로 톡신 매출 +60.6% — 1Q 역대 최대 영업이익",
-        "new_product": "레티보(보툴리눔톡신) — 2024 FDA 승인 후 2025 美 베네브와 본격 판매 → 2026 직접+파트너 '하이브리드 판매' 체제 돌입. 북남미 매출 +420% 폭증",
-        "new_management": "캐리 스트롬 글로벌 CEO 영입 (2026-01) — 미국 시장 확대 글로벌 성장 가속화 미션",
-        "new_high_reason": "1Q 매출 1,166억·영업이익 476억(역대 최대) — 보툴리눔톡신 매출 +60.6%(654억). 2028년 연매출 9,000억 목표(미국 30%+). 다만 52주 高 38.8만원(2025-06-30) 대비 -28% — 신고가 모멘텀 약함, 펀더멘털 회복 단계",
-        "sources": [
-          {
-            "title": "휴젤, 1분기 영업이익 476억…역대 최대",
-            "url": "https://www.hankyung.com/article/202605071602i"
-          },
-          {
-            "title": "휴젤 캐리 스트롬 글로벌 CEO '미국 시장 확대로 글로벌 성장 가속'",
-            "url": "https://www.hankyung.com/article/202601164450i"
-          }
-        ],
-        "researched_at": "2026-05-13"
-      }
-    },
-    {
-      "code": "402340",
-      "name": "SK스퀘어",
-      "market": "KOSPI",
-      "a_score": 80,
-      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
-      "current_price": 1180000.0,
-      "current_date": "2026-05-13",
-      "high_52w": 1187000.0,
-      "high_52w_date": "2026-05-11",
-      "pct_from_52w_high": -0.59,
-      "data_points": 244,
-      "n_commentary": {
-        "summary": "SK하이닉스 NAV 재평가 + 연 2000억 자사주 매입",
+        "summary": null,
         "new_product": null,
-        "new_management": "공격적 주주환원 정책 — 2025년 2000억원 자사주 매입, 2026년에도 최소 2000억원 자사주 매입·소각 예정. 2025-09 추가 1000억 매입 시작. SK하이닉스 배당 3680억원 수령으로 환원 재원 확보",
-        "new_high_reason": "SK하이닉스 지분가치 재평가가 핵심 동력 — NAV 할인율 65.7%(2024년말) → 42.4%(2026-04) 축소. 3Q 영업이익 2.6조(+127.7% YoY). 올해 SK스퀘어 주가 상승률이 SK하이닉스(+122.3%)를 초과. TIGER 반도체·커버드콜 ETF 편입 호재",
-        "sources": [
-          {
-            "title": "SK하닉 사긴 늦었다…개미들 눈 돌린 곳이 192% 폭등",
-            "url": "https://www.hankyung.com/article/2026050454411"
-          },
-          {
-            "title": "SK스퀘어, SK하이닉스 주가 상승으로 재평가…목표가↑",
-            "url": "https://www.hankyung.com/article/2026012869876"
-          },
-          {
-            "title": "TIGER 반도체·커버드콜 ETF 에 SK스퀘어 편입",
-            "url": "https://www.hankyung.com/article/2026050688936"
-          }
-        ],
-        "researched_at": "2026-05-11"
+        "new_management": null,
+        "new_high_reason": null,
+        "sources": [],
+        "researched_at": null
       }
     },
     {
@@ -334,10 +35,10 @@
       "market": "KOSPI",
       "a_score": 80,
       "a_score_tier": "정통 (O'Neil 책 기준 충족)",
-      "current_price": 1035000.0,
-      "current_date": "2026-05-13",
-      "high_52w": 1035000.0,
-      "high_52w_date": "2026-05-13",
+      "current_price": 1055000.0,
+      "current_date": "2026-05-15",
+      "high_52w": 1055000.0,
+      "high_52w_date": "2026-05-15",
       "pct_from_52w_high": 0.0,
       "data_points": 244,
       "n_commentary": {
@@ -363,16 +64,207 @@
       }
     },
     {
+      "code": "009155",
+      "name": "삼성전기우",
+      "market": "KOSPI",
+      "a_score": 80,
+      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
+      "current_price": 423000.0,
+      "current_date": "2026-05-15",
+      "high_52w": 423000.0,
+      "high_52w_date": "2026-05-15",
+      "pct_from_52w_high": 0.0,
+      "data_points": 244,
+      "n_commentary": {
+        "summary": "삼성전기 보통주와 동일 펀더멘털 (우선주)",
+        "new_product": "보통주(009150)와 동일 — AI 서버 MLCC·FC-BGA 빅테크 공급 본격화. 1Q26 매출 3.21조 분기 첫 3조 돌파",
+        "new_management": null,
+        "new_high_reason": "삼성전기 우선주 — 보통주 신고가 동행. 보통주 대비 약 60% 할인 가격에 거래, 우선주 약점인 의결권 없음 외 펀더멘털·배당 동일. 52주 高 39.95만원(2026-05-13) — 당일 신고가",
+        "sources": [
+          {
+            "title": "보통주(009150) 코멘트 동일",
+            "url": "https://www.hankyung.com/article/202604280867i"
+          }
+        ],
+        "researched_at": "2026-05-13"
+      }
+    },
+    {
+      "code": "000660",
+      "name": "SK하이닉스",
+      "market": "KOSPI",
+      "a_score": 95,
+      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
+      "current_price": 1899000.0,
+      "current_date": "2026-05-15",
+      "high_52w": 1976000.0,
+      "high_52w_date": "2026-05-13",
+      "pct_from_52w_high": -3.9,
+      "data_points": 244,
+      "n_commentary": {
+        "summary": "HBM4 16단 최초 공개·Q1 영업익 37.6조 사상최고",
+        "new_product": "CES 2026 에서 HBM4 16단 48GB 첫 공개. 업계 최고 11.7Gbps 속도. HBM4 12단 36GB 후속 (출처: 한경 2026-01-06)",
+        "new_management": null,
+        "new_high_reason": "2026 Q1 매출 52.5조·영업이익 37.6조·영업이익률 71.5% (사상 최고치). HBM 올해 물량 완판, 2027년까지 공급 부족 전망. 당일 신고가 갱신, 전일 기관 대량 순매수 (2026-05-08)",
+        "sources": [
+          {
+            "title": "SK하이닉스, CES 2026 에서 HBM4 16단 48GB 첫 공개",
+            "url": "https://www.hankyung.com/article/202601063564i"
+          },
+          {
+            "title": "37조 잭팟 터졌다…하이닉스 역대급 실적",
+            "url": "https://www.hankyung.com/article/202604230510g"
+          },
+          {
+            "title": "SK하이닉스 52주 신고가 경신, 전일 기관 대량 순매수",
+            "url": "https://www.hankyung.com/article/202605084199L"
+          }
+        ],
+        "researched_at": "2026-05-11"
+      }
+    },
+    {
+      "code": "356860",
+      "name": "티엘비",
+      "market": "KOSDAQ",
+      "a_score": 86,
+      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
+      "current_price": 105400.0,
+      "current_date": "2026-05-15",
+      "high_52w": 110000.0,
+      "high_52w_date": "2026-05-14",
+      "pct_from_52w_high": -4.18,
+      "data_points": 245,
+      "n_commentary": {
+        "summary": null,
+        "new_product": null,
+        "new_management": null,
+        "new_high_reason": null,
+        "sources": [],
+        "researched_at": null
+      }
+    },
+    {
+      "code": "005935",
+      "name": "삼성전자우",
+      "market": "KOSPI",
+      "a_score": 86,
+      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
+      "current_price": 186000.0,
+      "current_date": "2026-05-15",
+      "high_52w": 194900.0,
+      "high_52w_date": "2026-05-11",
+      "pct_from_52w_high": -4.57,
+      "data_points": 244,
+      "n_commentary": {
+        "summary": "삼성전자 보통주와 동일 펀더멘털 (우선주)",
+        "new_product": "보통주(005930)와 동일 — HBM4 차별화 성능·점유율 35% 전망",
+        "new_management": "보통주(005930)와 동일 — 전영현 DS부문장 부회장 체제 HBM4 전략",
+        "new_high_reason": "삼성전자 우선주 — 보통주 신고가 동행. 2026-05-11 신고가 19.49만원. 보통주 대비 약 68% 할인된 가격에 거래되나 동일 배당 수령(우선주 약점인 의결권 없음 외 펀더멘털 동일)",
+        "sources": [
+          {
+            "title": "보통주(005930) 코멘트 동일",
+            "url": "https://www.hankyung.com/article/2026010288016"
+          }
+        ],
+        "researched_at": "2026-05-11"
+      }
+    },
+    {
+      "code": "005930",
+      "name": "삼성전자",
+      "market": "KOSPI",
+      "a_score": 86,
+      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
+      "current_price": 282250.0,
+      "current_date": "2026-05-15",
+      "high_52w": 296000.0,
+      "high_52w_date": "2026-05-14",
+      "pct_from_52w_high": -4.65,
+      "data_points": 244,
+      "n_commentary": {
+        "summary": "HBM4 자신감 회복·메모리 슈퍼사이클 본격화",
+        "new_product": "HBM4 — 전영현 부회장 신년사 '삼성이 돌아왔다, 차별화 성능 경쟁력 입증'. HBM 점유율 2025년 16% → 2026년 35% 확대 전망 (2배)",
+        "new_management": "전영현 DS부문장 부회장 체제 — HBM4 자신감 회복·고객사 평가 전환을 명시적 전략으로 천명 (2026 신년사)",
+        "new_high_reason": "2026-01-02 사상 최고가 12.85만원(+7.17%) — 상장 후 신고점. 메모리 슈퍼사이클 본격화, AI 빅테크 D램 5년 장기계약 체결(2026-04). NH 목표가 20.5만원(2026-01-30)",
+        "sources": [
+          {
+            "title": "10억 벌었다 그야말로 초대박…삼성전자 개미들 축제",
+            "url": "https://www.hankyung.com/article/2026010288016"
+          },
+          {
+            "title": "삼성전자, HBM 자신감 회복…목표가 20만5000원-NH",
+            "url": "https://www.hankyung.com/article/2026013026716"
+          },
+          {
+            "title": "AI 빅테크 D램 5년 계약하자…삼성전자·SK하이닉스에 줄선다",
+            "url": "https://www.hankyung.com/article/2026041362121"
+          }
+        ],
+        "researched_at": "2026-05-11"
+      }
+    },
+    {
+      "code": "267250",
+      "name": "HD현대",
+      "market": "KOSPI",
+      "a_score": 86,
+      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
+      "current_price": 278500.0,
+      "current_date": "2026-05-15",
+      "high_52w": 310500.0,
+      "high_52w_date": "2026-04-30",
+      "pct_from_52w_high": -10.31,
+      "data_points": 244,
+      "n_commentary": {
+        "summary": "1Q 영업익 2.83조(+120%) 지주사 전환 후 분기 최대 + 자회사 조선·전력·정유 트리플 호조 + 자사주 10.5% 소각 검토",
+        "new_product": "HD현대일렉트릭 美 앨라배마 제2 변압기 공장 기공(2700억, 765kV 초고압, 2027 준공), 텍사스 200MWh ESS 착공, HD현대로보틱스 2026 하반기 IPO 추진",
+        "new_management": "권오갑 명예회장 사임, 정기선 회장·조영철 부회장 공동대표 체제(2026 첫 정기주총). 정기선 회장 '기술 초격차·디지털 전환' 그룹 전략 제시",
+        "new_high_reason": "1Q 영업익 2.83조(YoY +120%) 지주사 전환 후 최대. 조선(HD한국조선해양 OPM 16.7%)·전력·건설기계·정유 트리플 호조. 자사주 10.5% 소각 검토(5/13 컨콜) + 배당 900→1,300원. 흥국증권 NAV 재평가로 목표가 37만→40만원 상향 → 4/30 신고가 310,500원",
+        "sources": [
+          {
+            "title": "HD현대, 1분기 영업익 2조8348억…YoY +120.4%",
+            "url": "https://www.hankyung.com/article/2026051338376"
+          },
+          {
+            "title": "1Q 영업익 2.8조 깜짝 실적...조선·정유·전력 트리플 호조",
+            "url": "https://www.newspim.com/news/view/20260513001275"
+          },
+          {
+            "title": "[컨콜] HD현대 '자사주 소각 검토'",
+            "url": "https://www.newspim.com/news/view/20260513001122"
+          },
+          {
+            "title": "HD현대, 자회사 고른 성장에 재평가…목표가 40만원-흥국",
+            "url": "https://v.daum.net/v/20260514081115749"
+          },
+          {
+            "title": "HD현대일렉트릭, 美 제2 변압기 공장 착공",
+            "url": "https://www.g-enews.com/article/Global-Biz/2026/04/2026042809252874130c8c1c064d_1"
+          },
+          {
+            "title": "정기선 회장 체제 첫 주총 HD현대 경영 전략",
+            "url": "https://www.getnews.co.kr/news/articleView.html?idxno=866656"
+          },
+          {
+            "title": "[자사주 정책 대전환] HD현대, 자사주 활용 5년 공백 깨나",
+            "url": "https://www.bloter.net/news/articleView.html?idxno=640987"
+          }
+        ],
+        "researched_at": "2026-05-15"
+      }
+    },
+    {
       "code": "278470",
       "name": "에이피알",
       "market": "KOSPI",
       "a_score": 80,
       "a_score_tier": "정통 (O'Neil 책 기준 충족)",
-      "current_price": 400000.0,
-      "current_date": "2026-05-13",
+      "current_price": 411500.0,
+      "current_date": "2026-05-15",
       "high_52w": 459000.0,
       "high_52w_date": "2026-04-28",
-      "pct_from_52w_high": -12.85,
+      "pct_from_52w_high": -10.35,
       "data_points": 244,
       "n_commentary": {
         "summary": "메디큐브 미국·일본·유럽 동시 폭발 — 1Q 매출 5,934억 사상 최대",
@@ -397,29 +289,641 @@
       }
     },
     {
-      "code": "009155",
-      "name": "삼성전기우",
+      "code": "329180",
+      "name": "HD현대중공업",
       "market": "KOSPI",
-      "a_score": 80,
+      "a_score": 100,
       "a_score_tier": "정통 (O'Neil 책 기준 충족)",
-      "current_price": 399500.0,
-      "current_date": "2026-05-13",
-      "high_52w": 399500.0,
+      "current_price": 655000.0,
+      "current_date": "2026-05-15",
+      "high_52w": 733000.0,
       "high_52w_date": "2026-05-13",
-      "pct_from_52w_high": 0.0,
+      "pct_from_52w_high": -10.64,
       "data_points": 244,
       "n_commentary": {
-        "summary": "삼성전기 보통주와 동일 펀더멘털 (우선주)",
-        "new_product": "보통주(009150)와 동일 — AI 서버 MLCC·FC-BGA 빅테크 공급 본격화. 1Q26 매출 3.21조 분기 첫 3조 돌파",
+        "summary": "조선 사이클 + 美 데이터센터 엔진 신시장 진입",
+        "new_product": "미국 데이터센터向 4행정 중속엔진 수주 — 선박엔진의 데이터센터 시장 진출 개념 현실화 (출처: 한경 2026-04 분석)",
         "new_management": null,
-        "new_high_reason": "삼성전기 우선주 — 보통주 신고가 동행. 보통주 대비 약 60% 할인 가격에 거래, 우선주 약점인 의결권 없음 외 펀더멘털·배당 동일. 52주 高 39.95만원(2026-05-13) — 당일 신고가",
+        "new_high_reason": "2조1308억원 컨테이너선·VLGC 8척 신규 수주(2026-05-08). 연초 누적 94척·15.8조원 수주(연 목표 46.4%). 사우디 호위함 수주 추진(2026-02), 자동차 운반선 4척 수주(2026-04). 2029~2030년 MRO 수요 가시화 전망",
         "sources": [
           {
-            "title": "보통주(009150) 코멘트 동일",
-            "url": "https://www.hankyung.com/article/202604280867i"
+            "title": "HD현대중공업, 2조 규모 선박 8척 수주",
+            "url": "https://www.hankyung.com/article/2026050848851"
+          },
+          {
+            "title": "HD현대중공업, 3985억 규모 자동차 운반선 2척 수주",
+            "url": "https://www.hankyung.com/article/2026041654056"
+          },
+          {
+            "title": "사우디 호위함 수주 나선 HD현대중공업",
+            "url": "https://www.hankyung.com/article/2026020819161"
+          }
+        ],
+        "researched_at": "2026-05-11"
+      }
+    },
+    {
+      "code": "095340",
+      "name": "ISC",
+      "market": "KOSDAQ",
+      "a_score": 97,
+      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
+      "current_price": 240000.0,
+      "current_date": "2026-05-15",
+      "high_52w": 271000.0,
+      "high_52w_date": "2026-04-09",
+      "pct_from_52w_high": -11.44,
+      "data_points": 245,
+      "n_commentary": {
+        "summary": null,
+        "new_product": null,
+        "new_management": null,
+        "new_high_reason": null,
+        "sources": [],
+        "researched_at": null
+      }
+    },
+    {
+      "code": "053800",
+      "name": "안랩",
+      "market": "KOSDAQ",
+      "a_score": 93,
+      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
+      "current_price": 62400.0,
+      "current_date": "2026-05-15",
+      "high_52w": 70700.0,
+      "high_52w_date": "2025-06-25",
+      "pct_from_52w_high": -11.74,
+      "data_points": 245,
+      "n_commentary": {
+        "summary": null,
+        "new_product": null,
+        "new_management": null,
+        "new_high_reason": null,
+        "sources": [],
+        "researched_at": null
+      }
+    },
+    {
+      "code": "003230",
+      "name": "삼양식품",
+      "market": "KOSPI",
+      "a_score": 100,
+      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
+      "current_price": 1435000.0,
+      "current_date": "2026-05-15",
+      "high_52w": 1630000.0,
+      "high_52w_date": "2025-09-11",
+      "pct_from_52w_high": -11.96,
+      "data_points": 244,
+      "n_commentary": {
+        "summary": "美·유럽 채널 침투 + 2분기 호실적 + 김정수 부회장 글로벌 전담 체제",
+        "new_product": "까르보불닭 납작당면 출시(2025-07), 밀양 2공장 가동(2025-06), 中 자싱 신공장 착공(2027 완공)",
+        "new_management": "김정수 부회장이 지주사 대표 사임 → 불닭 글로벌 판로 확대에 전담",
+        "new_high_reason": "2Q25 매출 5,531억(+30% YoY)·영업익 1,201억(+34% YoY) + 美 월마트 입점률 90%·코스트코 50% 돌파 + 유럽 +200%대 + 식품 최초 9.7억달러 수출탑 → 8/28 장중 1,642,000원 신고가",
+        "sources": [
+          {
+            "title": "삼양식품 2분기 영업익 1201억… 전년비 34% 증가",
+            "url": "https://www.moneys.co.kr/article/2025081815043338053"
+          },
+          {
+            "title": "[특징주] '불닭볶음면' 인기에...삼양식품, 52주 신고가 경신",
+            "url": "https://www.youthdaily.co.kr/news/article.html?no=194185"
+          },
+          {
+            "title": "까르보불닭 납작당면 출시",
+            "url": "https://www.news1.kr/industry/distribution/5839900"
+          },
+          {
+            "title": "삼양식품 밀양 2공장 본격 가동",
+            "url": "https://www.newsis.com/view/NISX20250610_0003208092"
+          },
+          {
+            "title": "삼양라운드스퀘어 김정수 대표 사임…전문경영인 체제로 전환",
+            "url": "https://www.thinkfood.co.kr/news/articleView.html?idxno=102546"
+          },
+          {
+            "title": "삼양식품, 中 자싱 첫 해외공장 (2000억, 2027 완공)",
+            "url": "http://news.bizwatch.co.kr/article/consumer/2024/12/19/0049"
+          },
+          {
+            "title": "삼양식품, 업계 최초 '9억불 수출탑'",
+            "url": "https://www.moneys.co.kr/article/2025120409105988212"
+          },
+          {
+            "title": "유럽 매출 215% 폭증... 분기 최대 실적",
+            "url": "https://www.insight.co.kr/news/553996"
+          }
+        ],
+        "researched_at": "2026-05-15"
+      }
+    },
+    {
+      "code": "213420",
+      "name": "덕산네오룩스",
+      "market": "KOSDAQ",
+      "a_score": 86,
+      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
+      "current_price": 48700.0,
+      "current_date": "2026-05-15",
+      "high_52w": 55800.0,
+      "high_52w_date": "2026-04-17",
+      "pct_from_52w_high": -12.72,
+      "data_points": 245,
+      "n_commentary": {
+        "summary": null,
+        "new_product": null,
+        "new_management": null,
+        "new_high_reason": null,
+        "sources": [],
+        "researched_at": null
+      }
+    },
+    {
+      "code": "082920",
+      "name": "비츠로셀",
+      "market": "KOSDAQ",
+      "a_score": 83,
+      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
+      "current_price": 54700.0,
+      "current_date": "2026-05-15",
+      "high_52w": 64100.0,
+      "high_52w_date": "2026-05-11",
+      "pct_from_52w_high": -14.66,
+      "data_points": 245,
+      "n_commentary": {
+        "summary": null,
+        "new_product": null,
+        "new_management": null,
+        "new_high_reason": null,
+        "sources": [],
+        "researched_at": null
+      }
+    },
+    {
+      "code": "006800",
+      "name": "미래에셋증권",
+      "market": "KOSPI",
+      "a_score": 93,
+      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
+      "current_price": 70600.0,
+      "current_date": "2026-05-15",
+      "high_52w": 83800.0,
+      "high_52w_date": "2026-05-06",
+      "pct_from_52w_high": -15.75,
+      "data_points": 244,
+      "n_commentary": {
+        "summary": "국내 증권사 최초 '분기 영업익 1조' 돌파 + 6,354억 역대 최대 주주환원",
+        "new_product": "홍콩 '주식+디지털자산 통합 MTS' 6월 오픈(한국 증권사 최초), AI 추천검색 MTS 기능, 해외주식 양도세 신고대행",
+        "new_management": null,
+        "new_high_reason": "1Q 영업익 1조3,750억(+297%)·순익 1조19억(+288%) 한국 증권사 최초 분기 1조 돌파. 스페이스X 등 평가이익 8,040억 반영. AUM 600조→776조 머니무브. 2/24 결의 6,354억 역대 최대 주주환원(자사주 소각+배당, 환원성향 40%) → 5/6 신고가 83,800원",
+        "sources": [
+          {
+            "title": "미래에셋증권, 업계 첫 분기 순익 1조 돌파",
+            "url": "https://www.hankyung.com/article/2026051217841"
+          },
+          {
+            "title": "분기 순이익 '1조원' 돌파…'로빈후드'보다 성적 높다",
+            "url": "https://www.news1.kr/finance/general-stock/6163738"
+          },
+          {
+            "title": "미래에셋증권, 6354억 역대 최대 주주환원안 결의",
+            "url": "https://www.fnnews.com/news/202602241953168171"
+          },
+          {
+            "title": "홍콩 '주식·디지털자산 통합 MTS' 6월 오픈",
+            "url": "https://www.news1.kr/finance/general-stock/6137642"
+          },
+          {
+            "title": "미래에셋, MTS에 'AI추천검색' 담았다",
+            "url": "https://m.sedaily.com/article/14073972"
+          },
+          {
+            "title": "해외주식 양도소득세 신고대행 접수 시작",
+            "url": "https://www.mt.co.kr/stock/2026/04/08/2026040810562955967"
+          }
+        ],
+        "researched_at": "2026-05-15"
+      }
+    },
+    {
+      "code": "204620",
+      "name": "글로벌텍스프리",
+      "market": "KOSDAQ",
+      "a_score": 86,
+      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
+      "current_price": 6450.0,
+      "current_date": "2026-05-15",
+      "high_52w": 7670.0,
+      "high_52w_date": "2025-07-22",
+      "pct_from_52w_high": -15.91,
+      "data_points": 245,
+      "n_commentary": {
+        "summary": null,
+        "new_product": null,
+        "new_management": null,
+        "new_high_reason": null,
+        "sources": [],
+        "researched_at": null
+      }
+    },
+    {
+      "code": "016360",
+      "name": "삼성증권",
+      "market": "KOSPI",
+      "a_score": 100,
+      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
+      "current_price": 123700.0,
+      "current_date": "2026-05-15",
+      "high_52w": 149500.0,
+      "high_52w_date": "2026-05-06",
+      "pct_from_52w_high": -17.26,
+      "data_points": 244,
+      "n_commentary": {
+        "summary": "1Q 어닝 서프라이즈(순익 4,509억, 컨센 +15.6%) + IBKR 외국인통합계좌 출시",
+        "new_product": "IBKR 외국인통합계좌 5월 정식 오픈 (외국인이 자국 증권사에서 한국 주식 직접 거래), 적립식 증여·자녀자산관리 서비스",
+        "new_management": null,
+        "new_high_reason": "5/4 IBKR 베타 개시 뉴스에 +29% 폭등, 5/6 신고가 149,500원. 5/12 1Q 실적 영업익 6,095억(+82% YoY)·순익 4,509억(+81.5%) 어닝 서프라이즈. 하나/키움 목표가 175,000~180,000원 상향",
+        "sources": [
+          {
+            "title": "삼성증권은 정말 서양 주식개미를 몰고 왔을까",
+            "url": "https://news.bizwatch.co.kr/article/market/2026/05/07/0038"
+          },
+          {
+            "title": "삼성증권, 1분기 순이익 4500억 돌파…역대 최대",
+            "url": "https://biz.heraldcorp.com/article/10735444"
+          },
+          {
+            "title": "삼성증권, IBKR과 외국인통합계좌 정식 오픈",
+            "url": "https://www.dt.co.kr/article/12061979"
+          },
+          {
+            "title": "삼성증권, 적립식 증여·자녀자산관리 서비스 출시",
+            "url": "https://www.newspim.com/news/view/20260511001238"
+          },
+          {
+            "title": "[리포트] 삼성증권 목표가 175,000원 - 하나증권",
+            "url": "https://news.nate.com/view/20260512n05046"
+          },
+          {
+            "title": "[리포트] 삼성증권 목표가 180,000원 - 키움증권",
+            "url": "https://news.nate.com/view/20260512n04966"
+          }
+        ],
+        "researched_at": "2026-05-15"
+      }
+    },
+    {
+      "code": "241710",
+      "name": "코스메카코리아",
+      "market": "KOSDAQ",
+      "a_score": 80,
+      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
+      "current_price": 85100.0,
+      "current_date": "2026-05-15",
+      "high_52w": 103000.0,
+      "high_52w_date": "2026-02-03",
+      "pct_from_52w_high": -17.38,
+      "data_points": 245,
+      "n_commentary": {
+        "summary": null,
+        "new_product": null,
+        "new_management": null,
+        "new_high_reason": null,
+        "sources": [],
+        "researched_at": null
+      }
+    },
+    {
+      "code": "039490",
+      "name": "키움증권",
+      "market": "KOSPI",
+      "a_score": 86,
+      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
+      "current_price": 405000.0,
+      "current_date": "2026-05-15",
+      "high_52w": 495500.0,
+      "high_52w_date": "2026-02-20",
+      "pct_from_52w_high": -18.26,
+      "data_points": 244,
+      "n_commentary": {
+        "summary": "사상 최대 1Q 실적·일평균 약정대금 +216% 폭증·퇴직연금 2026-06 출시",
+        "new_product": "퇴직연금(DB·DC·IRP) 서비스 2026-06 출시 예정 — 신규 고객 유입·WM 수익 확대 동력. 발행어음 잔고 1.6조 → 연말 3조 확대 (book 비즈니스 성장)",
+        "new_management": "2026 상반기 중기 기업가치 제고 계획 공식 발표 예정 — 주주환원 기조 강화",
+        "new_high_reason": "1Q 영업이익 6,212억·당기순이익 4,774억 사상 최대. 일평균 약정대금 27.8조원(+216% YoY), 주식 수수료 +120.8%. 한경 분석 목표주가 70만원 상향(2026-04-30). 52주 高 49.55만원(2026-02-20) 갱신 시기 진입",
+        "sources": [
+          {
+            "title": "[키움증권 분석] 또 깜짝 실적…목표주가 70만원까지",
+            "url": "https://www.hankyung.com/article/202604308800i"
+          },
+          {
+            "title": "2026년 1분기 실적 특징주(5월 8일 발표)",
+            "url": "https://eureka.hankyung.com/insight/detail/17793"
           }
         ],
         "researched_at": "2026-05-13"
+      }
+    },
+    {
+      "code": "237690",
+      "name": "에스티팜",
+      "market": "KOSDAQ",
+      "a_score": 86,
+      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
+      "current_price": 135300.0,
+      "current_date": "2026-05-15",
+      "high_52w": 168700.0,
+      "high_52w_date": "2026-04-28",
+      "pct_from_52w_high": -19.8,
+      "data_points": 245,
+      "n_commentary": {
+        "summary": null,
+        "new_product": null,
+        "new_management": null,
+        "new_high_reason": null,
+        "sources": [],
+        "researched_at": null
+      }
+    },
+    {
+      "code": "368770",
+      "name": "파이버프로",
+      "market": "KOSDAQ",
+      "a_score": 86,
+      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
+      "current_price": 21250.0,
+      "current_date": "2026-05-15",
+      "high_52w": 26500.0,
+      "high_52w_date": "2026-04-17",
+      "pct_from_52w_high": -19.81,
+      "data_points": 245,
+      "n_commentary": {
+        "summary": null,
+        "new_product": null,
+        "new_management": null,
+        "new_high_reason": null,
+        "sources": [],
+        "researched_at": null
+      }
+    },
+    {
+      "code": "443060",
+      "name": "HD현대마린솔루션",
+      "market": "KOSPI",
+      "a_score": 93,
+      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
+      "current_price": 220000.0,
+      "current_date": "2026-05-15",
+      "high_52w": 280500.0,
+      "high_52w_date": "2026-04-27",
+      "pct_from_52w_high": -21.57,
+      "data_points": 244,
+      "n_commentary": {
+        "summary": "FSRU 개조 첫 수주 + 조선업황과 무관한 애프터마켓 성장",
+        "new_product": "LNG 운반선 → FSRU(부유식 LNG 재기화 설비) 개조 사업 첫 수주 (척당 1억~1.3억달러 약 1,400~1,800억원 고부가가치). 재액화 개조 10척 수주 — 2025~2026 순차 인도",
+        "new_management": null,
+        "new_high_reason": "1Q 매출 5,746억(+26.8% YoY)·영업이익 830억(+61.2%) — 3분기 연속 매출 증가. 4월 4주차 주가 +34.13% 급등으로 25.35만원 마감. 1Q 실적발표 후 증권가 목표가 일제 상향. 52주 高 28.05만원(2026-04-27) 대비 -19% 수준",
+        "sources": [
+          {
+            "title": "HD현대마린솔루션 올 하반기 FSRU 개조 첫 수주",
+            "url": "https://www.hankyung.com/article/202502055214i"
+          },
+          {
+            "title": "[HD현대마린솔루션 분석] 실적발표 후 목표가 줄줄이 상향한 이유",
+            "url": "https://www.hankyung.com/article/202604295569i"
+          }
+        ],
+        "researched_at": "2026-05-13"
+      }
+    },
+    {
+      "code": "043260",
+      "name": "성호전자",
+      "market": "KOSDAQ",
+      "a_score": 95,
+      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
+      "current_price": 41350.0,
+      "current_date": "2026-05-15",
+      "high_52w": 53200.0,
+      "high_52w_date": "2026-04-14",
+      "pct_from_52w_high": -22.27,
+      "data_points": 245,
+      "n_commentary": {
+        "summary": null,
+        "new_product": null,
+        "new_management": null,
+        "new_high_reason": null,
+        "sources": [],
+        "researched_at": null
+      }
+    },
+    {
+      "code": "068270",
+      "name": "셀트리온",
+      "market": "KOSPI",
+      "a_score": 93,
+      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
+      "current_price": 190500.0,
+      "current_date": "2026-05-15",
+      "high_52w": 248500.0,
+      "high_52w_date": "2026-02-24",
+      "pct_from_52w_high": -23.34,
+      "data_points": 244,
+      "n_commentary": {
+        "summary": "짐펜트라 美 처방 폭증 + 4Q 사상 최대 실적 + 1.7조 자사주 소각, 이후 美 공장 일회성 비용·약가 인하 우려로 -21% 조정",
+        "new_product": "짐펜트라(IBD, 1Q 매출 +294%·美 처방 +185%), 옴리클로(일본 졸레어 바이오시밀러 퍼스트), 스테키마(일본 IV 추가 승인), ADC 4종 美 임상 1상(CT-P70 FDA 패스트트랙)",
+        "new_management": "2026-03 주총에서 서진석 단독 대표 추대 공식화, 김형기 대표 퇴임. 2026 JPM 헬스케어 단독 데뷔, 2세 경영·신약 기업 전환 본격화",
+        "new_high_reason": "신고가 트리거: 4Q25 영업익 4,722억(+140% YoY, 컨센 +19%), 연간 영업익 1.17조 사상 최대 + 1.7조 자사주 소각(발행주식 4%, 단일 역대 최대) + 짐펜트라 美 가속화 기대. 이후 -21% 조정: 일라이 릴리 인수 美 공장 가동 초기 일회성 비용으로 1Q OPM 28.1%로 둔화 + 구제품 약가 인하 + CPI 쇼크",
+        "sources": [
+          {
+            "title": "셀트리온, 매출 4조1625억·영업익 1조1685억 사상 최대",
+            "url": "https://www.ezyeconomy.com/news/articleView.html?idxno=231950"
+          },
+          {
+            "title": "증권가 목표치 줄상향",
+            "url": "https://biz.heraldcorp.com/article/10647859"
+          },
+          {
+            "title": "짐펜트라, 美 1분기 처방량 185%↑",
+            "url": "https://www.newspim.com/news/view/20260508000160"
+          },
+          {
+            "title": "셀트리온, 1.7조 자사주 소각…역대 최대 주주환원",
+            "url": "https://biz.heraldcorp.com/article/10707204"
+          },
+          {
+            "title": "일본서 옴리클로·아이덴젤트 품목허가 승인",
+            "url": "https://www.kpanews.co.kr/news/articleView.html?idxno=531815"
+          },
+          {
+            "title": "日서 스테키마 IV 제형 추가 승인",
+            "url": "https://biz.heraldcorp.com/article/10721827"
+          },
+          {
+            "title": "서진석 단독 데뷔, '하반기 ADC 1상 결과 공개' [JPM2026]",
+            "url": "https://www.sedaily.com/NewsView/2K7ASGBK21"
+          },
+          {
+            "title": "셀트리온, 1Q 매출 1.1조·영업익 3219억 분기 최대",
+            "url": "https://pharm.edaily.co.kr/news/read?newsId=03742486645446296"
+          },
+          {
+            "title": "셀트리온, 20만원도 깨졌다…바이오 개미 분통",
+            "url": "https://www.wowtv.co.kr/NewsCenter/News/Read?articleId=A202604100426"
+          }
+        ],
+        "researched_at": "2026-05-15"
+      }
+    },
+    {
+      "code": "036620",
+      "name": "감성코퍼레이션",
+      "market": "KOSDAQ",
+      "a_score": 100,
+      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
+      "current_price": 5590.0,
+      "current_date": "2026-05-15",
+      "high_52w": 7370.0,
+      "high_52w_date": "2026-02-10",
+      "pct_from_52w_high": -24.15,
+      "data_points": 245,
+      "n_commentary": {
+        "summary": null,
+        "new_product": null,
+        "new_management": null,
+        "new_high_reason": null,
+        "sources": [],
+        "researched_at": null
+      }
+    },
+    {
+      "code": "006805",
+      "name": "미래에셋증권우",
+      "market": "KOSPI",
+      "a_score": 93,
+      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
+      "current_price": 20650.0,
+      "current_date": "2026-05-15",
+      "high_52w": 27577.92,
+      "high_52w_date": "2026-02-19",
+      "pct_from_52w_high": -25.12,
+      "data_points": 244,
+      "n_commentary": {
+        "summary": "[보통주 미래에셋증권(006800) 데이터 동기화] 국내 증권사 최초 '분기 영업익 1조' 돌파 + 6,354억 역대 최대 주주환원",
+        "new_product": "홍콩 '주식+디지털자산 통합 MTS' 6월 오픈(한국 증권사 최초), AI 추천검색 MTS 기능, 해외주식 양도세 신고대행",
+        "new_management": null,
+        "new_high_reason": "1Q 영업익 1조3,750억(+297%)·순익 1조19억(+288%) 한국 증권사 최초 분기 1조 돌파. 스페이스X 등 평가이익 8,040억 반영. AUM 600조→776조 머니무브. 2/24 결의 6,354억 역대 최대 주주환원(자사주 소각+배당, 환원성향 40%) → 5/6 신고가 83,800원",
+        "sources": [
+          {
+            "title": "미래에셋증권, 업계 첫 분기 순익 1조 돌파",
+            "url": "https://www.hankyung.com/article/2026051217841"
+          },
+          {
+            "title": "분기 순이익 '1조원' 돌파…'로빈후드'보다 성적 높다",
+            "url": "https://www.news1.kr/finance/general-stock/6163738"
+          },
+          {
+            "title": "미래에셋증권, 6354억 역대 최대 주주환원안 결의",
+            "url": "https://www.fnnews.com/news/202602241953168171"
+          },
+          {
+            "title": "홍콩 '주식·디지털자산 통합 MTS' 6월 오픈",
+            "url": "https://www.news1.kr/finance/general-stock/6137642"
+          },
+          {
+            "title": "미래에셋, MTS에 'AI추천검색' 담았다",
+            "url": "https://m.sedaily.com/article/14073972"
+          },
+          {
+            "title": "해외주식 양도소득세 신고대행 접수 시작",
+            "url": "https://www.mt.co.kr/stock/2026/04/08/2026040810562955967"
+          }
+        ],
+        "researched_at": "2026-05-15"
+      }
+    },
+    {
+      "code": "388050",
+      "name": "지투파워",
+      "market": "KOSDAQ",
+      "a_score": 86,
+      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
+      "current_price": 12800.0,
+      "current_date": "2026-05-15",
+      "high_52w": 17250.0,
+      "high_52w_date": "2026-05-06",
+      "pct_from_52w_high": -25.8,
+      "data_points": 245,
+      "n_commentary": {
+        "summary": null,
+        "new_product": null,
+        "new_management": null,
+        "new_high_reason": null,
+        "sources": [],
+        "researched_at": null
+      }
+    },
+    {
+      "code": "036170",
+      "name": "에이치엠넥스",
+      "market": "KOSDAQ",
+      "a_score": 93,
+      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
+      "current_price": 6410.0,
+      "current_date": "2026-05-15",
+      "high_52w": 8770.0,
+      "high_52w_date": "2026-05-08",
+      "pct_from_52w_high": -26.91,
+      "data_points": 245,
+      "n_commentary": {
+        "summary": null,
+        "new_product": null,
+        "new_management": null,
+        "new_high_reason": null,
+        "sources": [],
+        "researched_at": null
+      }
+    },
+    {
+      "code": "145020",
+      "name": "휴젤",
+      "market": "KOSDAQ",
+      "a_score": 93,
+      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
+      "current_price": 283500.0,
+      "current_date": "2026-05-15",
+      "high_52w": 388000.0,
+      "high_52w_date": "2025-06-30",
+      "pct_from_52w_high": -26.93,
+      "data_points": 245,
+      "n_commentary": {
+        "summary": null,
+        "new_product": null,
+        "new_management": null,
+        "new_high_reason": null,
+        "sources": [],
+        "researched_at": null
+      }
+    },
+    {
+      "code": "257720",
+      "name": "실리콘투",
+      "market": "KOSDAQ",
+      "a_score": 100,
+      "a_score_tier": "정통 (O'Neil 책 기준 충족)",
+      "current_price": 39650.0,
+      "current_date": "2026-05-15",
+      "high_52w": 61800.0,
+      "high_52w_date": "2025-06-11",
+      "pct_from_52w_high": -35.84,
+      "data_points": 245,
+      "n_commentary": {
+        "summary": null,
+        "new_product": null,
+        "new_management": null,
+        "new_high_reason": null,
+        "sources": [],
+        "researched_at": null
       }
     }
   ]

@@ -1,0 +1,81 @@
+{
+  "generated_at": "2026-05-15T00:04:51.694Z",
+  "target_codes": [
+    "000660"
+  ],
+  "holdings": [
+    {
+      "code": "000660",
+      "name": "SK하이닉스",
+      "sector": "반도체",
+      "quantity": 37,
+      "avg_price": 1924378,
+      "current_price": 1970000,
+      "profit_pct": 2.37,
+      "eval_amount": 72890000,
+      "position_start_date": "2026-05-11",
+      "holding_days": 4,
+      "holding_weeks": 0.57,
+      "high_price": 1994000,
+      "high_price_date": "2026-05-14",
+      "ma50": 1163100,
+      "ma200": null,
+      "strategy": {
+        "cut_loss_price": 1770428,
+        "take_profit_1_price": 2309254,
+        "take_profit_2_price": 2405473,
+        "add_buy_limit_price": 2020597,
+        "can_add_buy": true,
+        "rule_checks": {
+          "cut_loss_hit": false,
+          "take_profit_1_hit": false,
+          "take_profit_2_hit": false,
+          "add_buy_blocked": false
+        },
+        "entry_quality": {
+          "entry_date": "2026-05-11",
+          "entry_close": 1880000,
+          "entry_high": 1949000,
+          "entry_low": 1826000,
+          "entry_volume": 7433039,
+          "vs_close_pct": 2.36,
+          "vs_high_ratio": 0.9874,
+          "avg_volume_60d": 4448856,
+          "volume_ratio": 1.67,
+          "prior_high_52w": 1689000,
+          "prior_high_52w_date": "2026-05-08",
+          "vs_prior_high_ratio": 1.1394,
+          "checks": {
+            "chased_intraday_high": true,
+            "volume_surge_50pct": true,
+            "near_breakout": true
+          },
+          "breakout": {
+            "has_valid_base": false,
+            "base_left_high_date": null,
+            "base_left_high_price": null,
+            "base_low_price": null,
+            "base_depth_pct": null,
+            "base_days": null,
+            "pivot_price": null,
+            "vs_pivot_pct": null,
+            "within_5pct_of_pivot": false,
+            "no_base_reason": "최근 5주 내 신고가 갱신 — 횡보·조정 없는 모멘텀 추격"
+          },
+          "grade": {
+            "label": "잘못된 진입",
+            "book_checks_passed": 1,
+            "book_checks_total": 3
+          }
+        }
+      },
+      "strategy_verdict": {
+        "verdict": "BAD_ENTRY",
+        "reasons": [
+          "잘못 매수한 종목 (진입 시점에 적절한 모양(base)이 없었음 — 최근 5주 내 신고가 갱신 — 횡보·조정 없는 모멘텀 추격)",
+          "권장 액션: 본전 회복 시 즉시 매도 또는 손절선 도달까지 대기. 닻 내림 효과 주의 — '지금 이 가격에 새로 산다면 살 것인가?'로 재평가."
+        ]
+      }
+    }
+  ]
+}

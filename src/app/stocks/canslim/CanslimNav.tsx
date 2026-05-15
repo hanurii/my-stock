@@ -23,6 +23,7 @@ const principles: Principle[] = [
 export function CanslimNav() {
   const pathname = usePathname();
   const isHome = pathname === "/stocks/canslim";
+  const isSell = pathname.startsWith("/stocks/canslim/sell");
 
   return (
     <nav className="sticky top-0 z-30 flex gap-1 bg-surface-container-low/90 backdrop-blur-md rounded-xl p-1.5 ghost-border overflow-x-auto scrollbar-hide shadow-sm">
@@ -69,6 +70,19 @@ export function CanslimNav() {
           </span>
         );
       })}
+      <span className="w-px bg-on-surface/10 my-1.5 mx-0.5" aria-hidden />
+      <Link
+        href="/stocks/canslim/sell"
+        className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs transition-all flex-shrink-0 ${
+          isSell
+            ? "bg-[#ffb4ab]/15 text-[#ffb4ab] font-bold"
+            : "text-on-surface-variant/70 hover:text-on-surface-variant hover:bg-surface-container/50"
+        }`}
+        title="매도 시스템 — 보유 종목 매도 타이밍 판단"
+      >
+        <span className="material-symbols-outlined text-base">sell</span>
+        <span className="hidden md:inline text-[11px] text-on-surface-variant/60">매도 시스템</span>
+      </Link>
     </nav>
   );
 }

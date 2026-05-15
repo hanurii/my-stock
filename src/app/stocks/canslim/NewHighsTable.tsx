@@ -27,8 +27,17 @@ export interface NCandidate {
   high_52w: number;
   high_52w_date: string;
   pct_from_52w_high: number;
-  n_commentary: NCommentary;
+  n_commentary: NCommentary | null;
 }
+
+const EMPTY_COMMENTARY: NCommentary = {
+  summary: null,
+  new_product: null,
+  new_management: null,
+  new_high_reason: null,
+  sources: [],
+  researched_at: "",
+};
 
 type SortKey = "pct_from_52w_high";
 
@@ -102,8 +111,9 @@ export function NewHighsTable({ candidates }: Props) {
           {sorted.map((c) => {
             const pct = c.pct_from_52w_high;
             const isExpanded = expandedCode === c.code;
-            const hasProduct = !!c.n_commentary.new_product;
-            const hasManagement = !!c.n_commentary.new_management;
+            const commentary = c.n_commentary ?? EMPTY_COMMENTARY;
+            const hasProduct = !!commentary.new_product;
+            const hasManagement = !!commentary.new_management;
             return (
               <Fragment key={c.code}>
                 <tr
@@ -119,7 +129,7 @@ export function NewHighsTable({ candidates }: Props) {
                     </div>
                   </td>
                   <td className="py-3 px-3 text-xs text-on-surface-variant max-w-[280px]">
-                    {c.n_commentary.summary ?? <span className="text-on-surface-variant/40 italic">—</span>}
+                    {commentary.summary ?? <span className="text-on-surface-variant/40 italic">—</span>}
                   </td>
                   <td className="text-center py-3 px-2">
                     <Indicator on={hasProduct} icon="rocket_launch" color="#95d3ba" title={hasProduct ? "신제품 카탈리스트 확인" : "확인된 신제품 없음"} />
@@ -178,7 +188,8 @@ function Indicator({ on, icon, color, title }: { on: boolean; icon: string; colo
 }
 
 function ExpandedDetail({ candidate }: { candidate: NCandidate }) {
-  const { new_product, new_management, new_high_reason, sources, researched_at } = candidate.n_commentary;
+  const { new_product, new_management, new_high_reason, sources, researched_at } =
+    candidate.n_commentary ?? EMPTY_COMMENTARY;
   return (
     <div className="space-y-3">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
