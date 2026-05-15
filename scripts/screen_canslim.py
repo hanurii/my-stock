@@ -119,19 +119,51 @@ def collect_raw_data(
     market: str,
     corp_map: dict[str, str],
     min_price: int = 0,
+    min_market_cap_eok: int = 2000,
+    min_turnover_eok: float = 30.0,
 ) -> dict | None:
-    """1차 패스: 종목별 원시 데이터 수집. RS는 아직 계산하지 않음."""
+    """1차 패스: 종목별 원시 데이터 수집. RS는 아직 계산하지 않음.
+
+    오닐 $20 룰의 한국 적용 (v2): 절대가 컷오프 대신 시총 + 거래대금 두 축 사용.
+      - 시총 ≥ 2,000억원 (default) — 기관이 들어올 수 있는 사이즈
+      - 일평균 거래대금 ≥ 30억원 (30일, default) — 기관 진입/이탈 가능한 유동성
+    min_price (구 컷오프) 는 backward-compat 용으로 남겨두지만 default 0 = 비활성.
+    """
     ig = fetch_integration(code)
     if not ig:
         return None
     market_cap = ig["market_cap_eok"]
-    if market_cap < 500:
+    if market_cap < min_market_cap_eok:
         return {"_skipped_small_cap": True, "market_cap_eok": market_cap}
 
     if min_price > 0:
         price_val = ig.get("price") or 0
         if price_val < min_price:
             return {"_skipped_low_price": True, "price": price_val}
+
+    # Yahoo 1y 일봉 (거래대금 체크 + N/L/M 원칙 평가에 모두 사용)
+    chart = fetch_yahoo_chart(yahoo_symbol(code, market), "1y", "1d")
+    if not chart:
+        chart = {"closes": [], "volumes": [], "timestamps": []}
+
+    # 30일 일평균 거래대금 (억원). Yahoo 일시 실패로 chart 비면 컷오프 skip
+    # (false negative 방지 — Yahoo 응답 부재를 거래대금 미달로 처리하지 않는다)
+    closes = chart["closes"]
+    volumes = chart["volumes"]
+    chart_valid = bool(closes and volumes and len(closes) >= 5)
+    if chart_valid:
+        n_days = min(len(closes), 30)
+        turnover_sum = sum(closes[i] * volumes[i] for i in range(-n_days, 0))
+        avg_turnover_eok = turnover_sum / n_days / 1e8
+    else:
+        avg_turnover_eok = 0.0
+
+    if chart_valid and min_turnover_eok > 0 and avg_turnover_eok < min_turnover_eok:
+        return {
+            "_skipped_low_turnover": True,
+            "market_cap_eok": market_cap,
+            "turnover_eok": avg_turnover_eok,
+        }
 
     ann = fetch_annual(code)
     qtr = fetch_quarter(code)
@@ -223,17 +255,10 @@ def collect_raw_data(
                         preliminary_period = pre["period_key"]
                         preliminary_rcept_no = pre["rcept_no"]
 
-    # Yahoo 가격 데이터 — N/L/M 원칙에만 필요. 부족해도 C/A/S/I 평가는 가능하므로
-    # 통째 제외하지 않고 빈 chart 로 진행 (글자별 평가 함수가 내부에서 데이터 부족 처리).
-    chart = fetch_yahoo_chart(yahoo_symbol(code, market), "1y", "1d")
-    if not chart:
-        chart = {"closes": [], "volumes": [], "timestamps": []}
-
     # 기관 보유율 (DART) — 우선주 케이스에서도 보통주 corp_code 사용
     institutional = fetch_majorstock_holding(corp_code) if corp_code else None
 
     # 12개월 수익률 (RS 백분위 계산용, 가격 데이터 부족 시 0)
-    closes = chart["closes"]
     twelve_m_return = (closes[-1] - closes[0]) / closes[0] * 100 if closes and closes[0] > 0 else 0.0
 
     return {
@@ -250,6 +275,7 @@ def collect_raw_data(
         "chart": chart,
         "institutional": institutional,
         "twelve_m_return": twelve_m_return,
+        "avg_turnover_eok_30d": round(avg_turnover_eok, 2),
     }
 
 
@@ -310,6 +336,7 @@ def evaluate_with_rs(
         "grade": grade,
         "passed_count": passed_count,
         "market_cap_eok": int(ig["market_cap_eok"]),
+        "avg_turnover_eok_30d": raw.get("avg_turnover_eok_30d", 0.0),
         "per": ig["per"],
         "pbr": ig["pbr"],
         "dividend_yield": ig["dividend_yield"],
@@ -332,7 +359,11 @@ def main() -> None:
     parser.add_argument("--save", action="store_true", help="결과 JSON 저장")
     parser.add_argument("--merge", action="store_true", help="기존 JSON candidates에 머지 (offset > 0 일 때 유용)")
     parser.add_argument("--min-price", type=int, default=0,
-                        help="현재가가 이 KRW 미만이면 DART 호출 전에 스킵 (default 0 = 비활성)")
+                        help="(레거시) 현재가가 이 KRW 미만이면 스킵. 오닐 $20 룰의 한국 적용은 --min-cap + --min-turnover 사용 권장")
+    parser.add_argument("--min-cap", type=int, default=2000,
+                        help="시가총액 최소 (억원, default 2000) — 오닐 $20 룰의 한국 적용 (기관 진입 가능 사이즈)")
+    parser.add_argument("--min-turnover", type=float, default=30.0,
+                        help="일평균 거래대금 최소 (억원, 30일, default 30) — 오닐 $20 룰의 한국 적용 (기관 유동성)")
     args = parser.parse_args()
 
     print("🎯 CAN SLIM 스크리너 (한국 보정판 v1)\n")
@@ -395,14 +426,19 @@ def main() -> None:
     fail = 0
     skipped_low_price = 0
     skipped_small_cap = 0
+    skipped_low_turnover = 0
     start = time.time()
 
     failed_stocks: list[dict] = []
     for i, s in enumerate(universe):
         err_msg = ""
         try:
-            raw = collect_raw_data(s["code"], s["name"], s["market"], corp_map,
-                                   min_price=args.min_price)
+            raw = collect_raw_data(
+                s["code"], s["name"], s["market"], corp_map,
+                min_price=args.min_price,
+                min_market_cap_eok=args.min_cap,
+                min_turnover_eok=args.min_turnover,
+            )
         except Exception as e:
             raw = None
             err_msg = repr(e)
@@ -410,6 +446,8 @@ def main() -> None:
             skipped_small_cap += 1
         elif raw and raw.get("_skipped_low_price"):
             skipped_low_price += 1
+        elif raw and raw.get("_skipped_low_turnover"):
+            skipped_low_turnover += 1
         elif raw:
             raw_data.append(raw)
         else:
@@ -422,9 +460,10 @@ def main() -> None:
             print(f"  ... {i + 1}/{len(universe)} 수집 ({rate:.1f}/s, ETA {eta / 60:.1f}분)")
 
     print(f"\n  Pass 1 완료: 평가 진입 {len(raw_data)}개")
-    print(f"    🪙 시총 500억 미만 제외: {skipped_small_cap}종목")
+    print(f"    🪙 시총 {args.min_cap:,}억 미만 제외: {skipped_small_cap}종목")
+    print(f"    💧 일평균 거래대금 {args.min_turnover}억 미만 제외: {skipped_low_turnover}종목")
     if args.min_price:
-        print(f"    💰 최소가 {args.min_price:,}원 미만 제외: {skipped_low_price}종목")
+        print(f"    💰 (레거시) 최소가 {args.min_price:,}원 미만 제외: {skipped_low_price}종목")
     print(f"    ❌ 진짜 실패(Naver 데이터 X): {fail}종목")
     if failed_stocks:
         print("  실패 종목:")
@@ -479,8 +518,11 @@ def main() -> None:
                 "market": args.market,
                 "merged": args.merge,
                 "min_price": args.min_price,
+                "min_cap_eok": args.min_cap,
+                "min_turnover_eok": args.min_turnover,
                 "skipped_low_price_count": skipped_low_price,
                 "skipped_small_cap_count": skipped_small_cap,
+                "skipped_low_turnover_count": skipped_low_turnover,
             },
             "market_status": {
                 "kospi_trend_verdict": market_state["verdict"],
