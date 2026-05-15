@@ -1,13 +1,13 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-05-15T09:03:12.714+09:00",
+  "last_checked": "2026-05-15T15:35:19.450+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 9.47,
-      "display": "9.47배",
+      "value": 9.17,
+      "display": "9.17배",
       "threshold": "10배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "dividend_yield",
       "label": "배당수익률",
-      "value": 3.76,
-      "display": "3.76%",
+      "value": 3.88,
+      "display": "3.88%",
       "threshold": "3.5% 이하",
       "hit": false,
       "tone": "good"
@@ -60,8 +60,8 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 103.83,
-      "display": "103.83$",
+      "value": 104.6,
+      "display": "104.60$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
@@ -77,7 +77,7 @@
     {
       "severity": "warn",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 5건 (관찰 신호 1건 포함)",
+      "title": "리스크 키워드 매칭 뉴스 4건 (관찰 신호 1건 포함)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
@@ -115,14 +115,6 @@
       "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTFByYU1RXy1xZk9pdnlRTGZrVFEwY1MyWDl4YW9FbFc3dmp6V2ZzVDFhRkwtbDhpNmRPVUZnTl8wdGM2WWNvYTUzX0NTdzBsNGw5NkV6OHc4M1ZzSjNQM01QX2RXdFpiYlgy0gFsQVVfeXFMT0N0S2JwM0c3TWdPbmtRcjJsc05CWVhsa2dRSE00d3AtNDNMTkduVlZ3ODEyWGNyb3ZMTUUwdXpuRGc4aXk1ekpjMURfZVN4amNLTlZOV1MtcmNGdjJVelFfT1lhX1dPSjNCeXUt?oc=5",
       "severity": "info",
       "signals": []
-    },
-    {
-      "keyword": "GS 자사주 소각",
-      "date": "2026-05-08",
-      "title": "GS, 18억 자사주 소각, 주주가치 제고 - 네이트",
-      "url": "https://news.google.com/rss/articles/CBMiU0FVX3lxTE5JX2FQdHYxbFdaSW42WDI4cnJ0RXhkY240UjFNVTB1SGN0RHA0cDhWU1BMQ3RxWHB1bWNYUldaVjdpWVlNWFVGYVdZOGMtb2ZDNmY4?oc=5",
-      "severity": "info",
-      "signals": []
     }
   ],
   "sources": [
@@ -131,7 +123,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 106.56 USD (2026-05-14, 7일 평균 103.83)",
+      "label": "Brent 원유 종가 107.55 USD (2026-05-15, 7일 평균 104.6)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
