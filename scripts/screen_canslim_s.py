@@ -74,7 +74,7 @@ OUTPUT = ROOT / "public" / "data" / "can-slim-s-candidates.json"
 
 
 def build_market_cap_lookup() -> dict[str, dict]:
-    """A JSON 의 scored_candidates 에서 code → {market_cap_eok, current_price} 매핑."""
+    """A JSON 의 scored_candidates 에서 code → {market_cap_eok, current_price, induty_code} 매핑."""
     if not A_INPUT.exists():
         return {}
     a_data = json.loads(A_INPUT.read_text(encoding="utf-8"))
@@ -84,12 +84,14 @@ def build_market_cap_lookup() -> dict[str, dict]:
             "market_cap_eok": s.get("market_cap_eok"),
             "current_price": s.get("current_price"),
             "market": s.get("market"),
+            "induty_code": s.get("induty_code"),
         }
     for c in a_data.get("candidates") or []:
         out.setdefault(c["code"], {
             "market_cap_eok": c.get("market_cap_eok"),
             "current_price": c.get("current_price"),
             "market": c.get("market"),
+            "induty_code": (c.get("criteria_a") or {}).get("induty_code"),
         })
     return out
 
@@ -175,6 +177,7 @@ def main() -> int:
         market_cap_eok = mc_info.get("market_cap_eok") or 0
         current_price = mc_info.get("current_price") or cand.get("current_price") or 0
         market = mc_info.get("market") or cand.get("market") or ""
+        induty_code = mc_info.get("induty_code")
 
         # A 에 없으면 Naver 에서 보강
         if market_cap_eok == 0:
@@ -192,6 +195,7 @@ def main() -> int:
             corp_code=corp_code,
             market_cap_eok=market_cap_eok,
             current_price=current_price,
+            induty_code=induty_code,
             debt_ratio_threshold=args.debt_threshold,
             debt_reduction_threshold_pp=args.debt_reduction,
         )
@@ -209,6 +213,8 @@ def main() -> int:
         if s_eval["pass_s"]:
             passed.append(record)
             labels = []
+            if s_eval.get("is_financial"):
+                labels.append("금융기관 (부채비율 컷오프 면제)")
             if s_eval["buyback_large_label"]:
                 labels.append("자사주 매우 큰 매입")
             if s_eval["debt_reduction_annual_label"]:

@@ -34,6 +34,22 @@ from canslim_lib.fetch import (
 )
 
 
+# ── 금융기관 식별 (부채비율 컷오프 면제) ──
+# KSIC 대분류 K = 금융 및 보험업
+#   64 = 금융업 (은행·신탁·자산운용)
+#   65 = 보험 및 연금업
+#   66 = 금융 및 보험 관련 서비스업 (증권·선물중개)
+# 금융기관은 사업 구조상 고객 예수금·RP 등이 부채로 잡혀 800~1,200%가 정상 수준.
+# 책의 "감당 못할 빚 금지" 원칙은 제조업·서비스업 기준이라 그대로 적용 불가.
+FINANCIAL_KSIC_PREFIXES = ("64", "65", "66")
+
+
+def is_financial_industry(induty_code: str | None) -> bool:
+    if not induty_code or len(induty_code) < 2:
+        return False
+    return induty_code[:2] in FINANCIAL_KSIC_PREFIXES
+
+
 # ── 부채비율 (Naver 재무표) ──
 
 def fetch_debt_ratio_series(code: str) -> dict[str, list[tuple[str, float]]]:
@@ -278,8 +294,9 @@ def evaluate_s(
     market_cap_eok: float,
     current_price: float,
     *,
-    debt_ratio_threshold: float | None = None,  # TBD — None 이면 필터 미적용
-    debt_reduction_threshold_pp: float | None = None,  # TBD — None 이면 라벨 미적용
+    induty_code: str | None = None,  # KSIC. '64·65·66' prefix면 부채비율 컷오프 면제
+    debt_ratio_threshold: float | None = None,  # None 이면 필터 미적용
+    debt_reduction_threshold_pp: float | None = None,  # None 이면 라벨 미적용
 ) -> dict[str, Any]:
     """S 원칙 평가. 데이터 수집 + 라벨·필터 계산.
 
@@ -332,9 +349,17 @@ def evaluate_s(
         "split_warning_label": False,
         "split_exclude": False,
         "debt_ratio_excessive": False,
+        "is_financial": False,
+        "induty_code": induty_code,
+        "badges": [],
         "pass_s": True,
         "fail_reasons": [],
     }
+
+    is_financial = is_financial_industry(induty_code)
+    result["is_financial"] = is_financial
+    if is_financial:
+        result["badges"].append("금융기관")
 
     # 1) 발행주식수 추계 (시총·주가)
     if market_cap_eok > 0 and current_price > 0:
@@ -358,8 +383,12 @@ def evaluate_s(
     result["debt_reduction_quarterly_label"] = reduction["quarterly_label"]
     result["debt_reduction_label"] = reduction["applies"]
 
-    # 부채비율 과도 필터
-    if debt_ratio_threshold is not None and result["debt_ratio_current"] is not None:
+    # 부채비율 과도 필터 — 금융기관(KSIC '64·65·66' prefix)은 면제
+    if (
+        debt_ratio_threshold is not None
+        and result["debt_ratio_current"] is not None
+        and not is_financial
+    ):
         if result["debt_ratio_current"] > debt_ratio_threshold:
             result["debt_ratio_excessive"] = True
             result["pass_s"] = False
