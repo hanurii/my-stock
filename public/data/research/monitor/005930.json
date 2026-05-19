@@ -1,13 +1,13 @@
 {
   "code": "005930",
   "name": "삼성전자",
-  "last_checked": "2026-05-19T17:53:54.903+09:00",
+  "last_checked": "2026-05-19T21:13:57.497+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 42.54,
-      "display": "42.54배",
+      "value": 41.71,
+      "display": "41.71배",
       "threshold": "35배 돌파",
       "hit": true,
       "tone": "bad"
@@ -72,7 +72,7 @@
       "severity": "bad",
       "type": "per",
       "title": "PER 35배 돌파",
-      "message": "현재 42.54배 — 매도 트리거 도달"
+      "message": "현재 41.71배 — 매도 트리거 도달"
     },
     {
       "severity": "bad",
@@ -89,7 +89,7 @@
     {
       "severity": "warn",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 2건 (관찰 신호 1건 포함)",
+      "title": "리스크 키워드 매칭 뉴스 3건 (관찰 신호 2건 포함)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
@@ -101,6 +101,16 @@
       "url": "https://news.google.com/rss/articles/CBMib0FVX3lxTE4wdXVNSVVJSTRJQTV5MGRFM3FHbVJuYXhFNXA3V0xwMFV5Znc5cGpNSVdMQzZ2TDF5bklfT1VVeVNkYjYwVFlZZXF6UXRWSzl0VGc0UTV1d3N0cTVVT2xIelQ3Smc2OGhWdUdTOFVwTQ?oc=5",
       "severity": "info",
       "signals": []
+    },
+    {
+      "keyword": "메모리 가격 하락",
+      "date": "2026-05-18",
+      "title": "전 삼성 사장 경고: 내년 하반기 메모리 가격 하락할 수도 - TradingKey",
+      "url": "https://news.google.com/rss/articles/CBMizgFBVV95cUxQd0t4LVB0Q3pvbVJOUGZ3UzdBTzkyOHRSV0JIbU9ZbWNkSFlBcUg3Rk1qRXhWYmZxWEFZVERGTDAwY2FuelNfWVZyY3lSc2dqZjF5REJYMTl0QXBKaHVRTkNuNXZhemdudWQwVG81blFaNmJjZ1ZpS19TVjAwd2hWVnExNWpEMmh3ZVRoRDJqNVlnLTYwaGhaeEhjT3RNeS1UX0U1WnJXQWFhZjFtQVl1dE13M01SeXZRUW1YSjcxdEVpcmhWWEtKYlVXUlJlZw?oc=5",
+      "severity": "warn",
+      "signals": [
+        "하락"
+      ]
     },
     {
       "keyword": "메모리 가격 하락",
