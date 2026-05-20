@@ -1,13 +1,13 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-05-20T09:08:21.507+09:00",
+  "last_checked": "2026-05-20T15:52:07.042+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 8.77,
-      "display": "8.77배",
+      "value": 8.76,
+      "display": "8.76배",
       "threshold": "10배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "dividend_yield",
       "label": "배당수익률",
-      "value": 4.05,
-      "display": "4.05%",
+      "value": 4.06,
+      "display": "4.06%",
       "threshold": "3.5% 이하",
       "hit": false,
       "tone": "good"
@@ -60,8 +60,8 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 107.94,
-      "display": "107.94$",
+      "value": 108.85,
+      "display": "108.85$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
@@ -77,21 +77,11 @@
     {
       "severity": "bad",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 5건 (부정 시그널 1건 포함)",
+      "title": "리스크 키워드 매칭 뉴스 4건 (부정 시그널 1건 포함)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
   "news_hits": [
-    {
-      "keyword": "정제마진 하락",
-      "date": "2026-05-13",
-      "title": "GS, 1분기 영업익 1.26조 56.68%↑…재고효과 빼면 정제마진 하락 - jabon.co.kr",
-      "url": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTFBqZXEzckFUYS1QQWxOZGJHVlNuVEJmRkRzQnB5UFJMOTlUcjh5eGk1WjFySUhlaUVMd1lfNHVmVVJjdzZ6eS1QS1BqVFpiV2NTV3hTdU1YM3ZlNmJrUjhFWFhuUHc0WTg?oc=5",
-      "severity": "warn",
-      "signals": [
-        "하락"
-      ]
-    },
     {
       "keyword": "중동 긴장 완화",
       "date": "2026-05-19",
@@ -102,22 +92,22 @@
     },
     {
       "keyword": "중동 긴장 완화",
-      "date": "2026-05-19",
-      "title": "원·달러 환율 1500원대 재진입…중동 긴장 완화에 하락 가능성도 - kukinews.com",
-      "url": "https://news.google.com/rss/articles/CBMiY0FVX3lxTE1qdklBV3VweGRfc3NfWFlORlNwWWF5QXhyRkdkNnBzNUdEc0dDWjlUSE83Q1ZFNUExNF9RSUdKVlBHYTRfX29tbHdIWW9SRWtsTmd6b19xcTNHUDEzMTZkUVB6dw?oc=5",
-      "severity": "warn",
-      "signals": [
-        "하락"
-      ]
-    },
-    {
-      "keyword": "중동 긴장 완화",
       "date": "2026-05-18",
       "title": "뉴욕 증시, 중동 긴장 완화 속 반도체 급락에 혼조 마감 - 글로벌E",
       "url": "https://news.google.com/rss/articles/CBMib0FVX3lxTE5zTFpKWmxBMTdyUzRpRnFYcVc4SWI5UDNIb0djM00wa1ZYV2FXRW1TLXlyWXVfMTYwSmVJT0FSNVp4MEo0aVJDT0Rtd0wxNno3ZGtxZkJHdEVWVFhUZkp2NWQ5cWIxTmlkQTJYa0lOc9IBb0FVX3lxTE5zTFpKWmxBMTdyUzRpRnFYcVc4SWI5UDNIb0djM00wa1ZYV2FXRW1TLXlyWXVfMTYwSmVJT0FSNVp4MEo0aVJDT0Rtd0wxNno3ZGtxZkJHdEVWVFhUZkp2NWQ5cWIxTmlkQTJYa0lOcw?oc=5",
       "severity": "bad",
       "signals": [
         "급락"
+      ]
+    },
+    {
+      "keyword": "중동 긴장 완화",
+      "date": "2026-05-19",
+      "title": "원·달러 환율 1500원대 재진입…중동 긴장 완화에 하락 가능성도 - kukinews.com",
+      "url": "https://news.google.com/rss/articles/CBMiY0FVX3lxTE1qdklBV3VweGRfc3NfWFlORlNwWWF5QXhyRkdkNnBzNUdEc0dDWjlUSE83Q1ZFNUExNF9RSUdKVlBHYTRfX29tbHdIWW9SRWtsTmd6b19xcTNHUDEzMTZkUVB6dw?oc=5",
+      "severity": "warn",
+      "signals": [
+        "하락"
       ]
     },
     {
@@ -135,7 +125,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 110.92 USD (2026-05-19, 7일 평균 107.94)",
+      "label": "Brent 원유 종가 110.19 USD (2026-05-20, 7일 평균 108.85)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
