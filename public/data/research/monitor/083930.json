@@ -1,7 +1,7 @@
 {
   "code": "083930",
   "name": "아바코",
-  "last_checked": "2026-05-19T21:13:21.374+09:00",
+  "last_checked": "2026-05-20T09:06:34.900+09:00",
   "metrics": [
     {
       "id": "per",
@@ -24,11 +24,11 @@
     {
       "id": "supply_gap",
       "label": "수주 공백",
-      "value": 89,
-      "display": "89일",
+      "value": 90,
+      "display": "90일",
       "threshold": "90일 경과",
-      "hit": false,
-      "tone": "good"
+      "hit": true,
+      "tone": "bad"
     },
     {
       "id": "related_party",
@@ -42,10 +42,10 @@
   ],
   "alerts": [
     {
-      "severity": "info",
-      "type": "all_clear",
-      "title": "모든 매도 트리거 범위 내",
-      "message": "현재 지표·공시·뉴스 기준 즉각 매도 사유 없음. 보유 유지."
+      "severity": "bad",
+      "type": "supply_gap",
+      "title": "수주 공백 90일 경과",
+      "message": "현재 90일 — 매도 트리거 도달"
     }
   ],
   "news_hits": [],
