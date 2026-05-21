@@ -23,8 +23,9 @@ from datetime import datetime
 from pathlib import Path
 
 if sys.platform == "win32":
-    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
-    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
+    # line_buffering=True: 파이프/리다이렉트시에도 print()마다 flush → 진행 로그 실시간 노출
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace", line_buffering=True)
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace", line_buffering=True)
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -65,6 +66,8 @@ from canslim_lib.fetch import (  # noqa: E402
     resolve_corp_code,
     yahoo_symbol,
 )
+from canslim_lib.pykrx_universe import fetch_universe_with_cap  # noqa: E402
+from canslim_lib import stock_cache  # noqa: E402
 from canslim_lib.criteria import (  # noqa: E402
     A_ROE_MIN,
     C_QUARTERLY_EPS_MIN,
@@ -74,6 +77,7 @@ from canslim_lib.criteria import (  # noqa: E402
     L_RS_MIN,
     N_HIGH_PROXIMITY_MAX,
     S_VOLUME_SURGE_MIN,
+    compute_c_score,
     evaluate_a,
     evaluate_c,
     evaluate_c_detailed,
@@ -82,10 +86,50 @@ from canslim_lib.criteria import (  # noqa: E402
     evaluate_m,
     evaluate_n,
     evaluate_s,
+    passes_c_gate,
 )
 from canslim_lib.score import compute_score  # noqa: E402
 
 OUTPUT = ROOT / "public" / "data" / "can-slim-candidates.json"
+WATCHLIST_FILE = ROOT / "public" / "data" / "watchlist.json"
+MANAGEMENT_QUALITY_FILE = ROOT / "public" / "data" / "management-quality.json"
+
+
+def load_watchlist_management() -> dict[str, str]:
+    """{code: management_quality} 매핑 로드.
+
+    우선순위:
+      1. public/data/management-quality.json — DART 공시 자동 분류 (1단계 필터 통과 종목)
+      2. public/data/watchlist.json — 사람 라벨링 (저평가 배당주 워치리스트)
+    1순위가 우선 적용되고, 그 외 종목은 2순위로 보충.
+    C 점수 축 ④ (경영진 7점) 산출에 사용. 둘 다 없으면 0점.
+    """
+    out: dict[str, str] = {}
+
+    # 2순위 — 워치리스트 (사람 라벨링)
+    if WATCHLIST_FILE.exists():
+        try:
+            wl = json.loads(WATCHLIST_FILE.read_text(encoding="utf-8"))
+            for s in wl.get("stocks", []):
+                code = s.get("code")
+                mq = s.get("management_quality")
+                if code and mq:
+                    out[code] = mq
+        except Exception:
+            pass
+
+    # 1순위 — 자동 분류 (덮어쓰기)
+    if MANAGEMENT_QUALITY_FILE.exists():
+        try:
+            mq_data = json.loads(MANAGEMENT_QUALITY_FILE.read_text(encoding="utf-8"))
+            for code, info in mq_data.get("stocks", {}).items():
+                q = info.get("quality")
+                if q:
+                    out[code] = q
+        except Exception:
+            pass
+
+    return out
 
 
 def today_iso() -> str:
@@ -113,6 +157,49 @@ def fetch_market_state(verbose: bool = True) -> tuple[dict, list[float]]:
     return state, ks["closes"]
 
 
+def _is_period_recent(period_key: str, months_back: int = 6) -> bool:
+    """period_key 가 (now - months_back) 이후인지. 형식 YYYYMM."""
+    if len(period_key) != 6 or not period_key[:4].isdigit() or not period_key[4:].isdigit():
+        return False
+    py = int(period_key[:4])
+    pm = int(period_key[4:])
+    now = datetime.now()
+    delta_months = (now.year - py) * 12 + (now.month - pm)
+    return 0 <= delta_months <= months_back
+
+
+def _light_c_eligible(quarter_eps: list[tuple[str, float]]) -> bool:
+    """Tier 2 게이트 — Naver-only 데이터로 C gate 통과 가능성 사전 판단.
+
+    Returns False = "C gate 통과 불가 확정 → DART backfill·잠정실적·5%룰 스킵 안전".
+    Returns True  = "통과 가능성 있음 → Tier 2 진행 필요".
+
+    엄격 보수 — false negative (실제 C 통과 가능 종목을 스킵) 를 피하기 위해
+    아래 모든 조건이 충족된 경우에만 False 반환:
+      1) Naver 5분기 이상 보유
+      2) Naver 최신 분기가 최근 6개월 이내 (DART 가 더 새 분기 보유 가능성 낮음)
+      3) 최신 EPS > 0 (적자면 잠정실적 흑자전환 가능성 보존)
+      4) yoy_eps != 0 (분모 0 모호 케이스 보존)
+      5) latest_yoy < 25% (C gate 임계 미달)
+    """
+    if len(quarter_eps) < 5:
+        return True
+
+    latest_period, latest_eps = quarter_eps[-1]
+    _, yoy_eps = quarter_eps[-5]
+
+    if not _is_period_recent(latest_period, months_back=6):
+        return True
+    if latest_eps <= 0:
+        return True
+    if yoy_eps == 0:
+        return True
+
+    denom = max(abs(yoy_eps), 100.0)  # EPS_DENOMINATOR_FLOOR
+    latest_yoy = (latest_eps - yoy_eps) / denom * 100
+    return latest_yoy >= 25.0
+
+
 def collect_raw_data(
     code: str,
     name: str,
@@ -121,6 +208,7 @@ def collect_raw_data(
     min_price: int = 0,
     min_market_cap_eok: int = 2000,
     min_turnover_eok: float = 30.0,
+    skip_tier2_if_c_ineligible: bool = True,
 ) -> dict | None:
     """1차 패스: 종목별 원시 데이터 수집. RS는 아직 계산하지 않음.
 
@@ -128,7 +216,14 @@ def collect_raw_data(
       - 시총 ≥ 2,000억원 (default) — 기관이 들어올 수 있는 사이즈
       - 일평균 거래대금 ≥ 30억원 (30일, default) — 기관 진입/이탈 가능한 유동성
     min_price (구 컷오프) 는 backward-compat 용으로 남겨두지만 default 0 = 비활성.
+
+    2-tier fetch (2026-05-21):
+      - Tier 1: Naver integration + Yahoo 1y + Naver annual/quarter (모든 종목)
+      - Tier 2: DART 분기 EPS·매출 backfill + 잠정실적 + 5%룰 (C gate 가능성 있는 종목만)
+      Naver-only 5분기로 latest_yoy < 25% 확정된 종목은 Tier 2 전면 스킵.
+      skip_tier2_if_c_ineligible=False 면 항상 Tier 2 진행 (기존 동작).
     """
+    # ─── Tier 1: Naver + Yahoo (모든 종목) ─────────────────────
     ig = fetch_integration(code)
     if not ig:
         return None
@@ -172,6 +267,11 @@ def collect_raw_data(
     quarter_eps = get_row_values(qtr, "EPS") if qtr else []
     quarter_sales = get_row_values(qtr, "매출액") if qtr else []
 
+    # ─── Tier 2 게이트 ────────────────────────────────────────
+    do_tier2 = (not skip_tier2_if_c_ineligible) or _light_c_eligible(quarter_eps)
+    tier2_skipped = not do_tier2
+
+    # ─── Tier 2: DART backfill + 잠정실적 + 5%룰 (선별 종목만) ──
     # DART 분기 EPS 보강:
     #  - 과거 보강: Naver 최근 5분기에 빠진 옛 분기 (Naver latest_year-1 의 Q1/Q2/Q3)
     #  - 최신 확정: 현재년도 Q1 분기보고서가 공시된 경우 컨센서스 → 확정값으로 갱신
@@ -179,84 +279,88 @@ def collect_raw_data(
     # 우선주(예: 005935 삼성전자우)는 corp_map 직접 매칭 없으므로 보통주(005930) corp_code 로 fallback.
     preliminary_period: str | None = None
     preliminary_rcept_no: str | None = None
-    corp_code, common_code = resolve_corp_code(code, corp_map)
-    if corp_code and quarter_eps:
-        from datetime import datetime
-        current_year = datetime.now().year
-        naver_latest_year = int(quarter_eps[-1][0][:4]) if quarter_eps[-1][0][:4].isdigit() else current_year
-        dart_eps_combined: list[tuple[str, float]] = []
-        dart_sales_combined: list[tuple[str, float]] = []
-        # 과거 보강 (latest_year - 1)
-        eps_old = fetch_dart_quarterly_eps_history(corp_code, naver_latest_year - 1)
-        sales_old = fetch_dart_quarterly_sales_history(corp_code, naver_latest_year - 1)
-        if eps_old:
-            dart_eps_combined.extend(eps_old)
-        if sales_old:
-            dart_sales_combined.extend(sales_old)
-        # 최신 확정 (current_year, naver보다 앞서면)
-        if current_year >= naver_latest_year:
-            eps_new = fetch_dart_quarterly_eps_history(corp_code, current_year)
-            sales_new = fetch_dart_quarterly_sales_history(corp_code, current_year)
-            if eps_new:
-                dart_eps_combined.extend(eps_new)
-            if sales_new:
-                dart_sales_combined.extend(sales_new)
-        if dart_eps_combined:
-            quarter_eps = merge_naver_dart_quarters(quarter_eps, dart_eps_combined)
-        if dart_sales_combined:
-            # 단위 정규화: Naver 매출은 억원 단위(예: 19542 = 1.95조), DART는 원 단위(예: 1.95조 = 1,954,200,000,000)
-            # 머지 전 DART 값을 억원으로 환산 (÷10^8)
-            dart_sales_eok = [(p, v / 1e8) for p, v in dart_sales_combined]
-            quarter_sales = merge_naver_dart_quarters(quarter_sales, dart_sales_eok)
+    institutional = None
+    corp_code: str | None = None
+    common_code: str | None = None
 
-        # 잠정실적 보강: 분기보고서가 아직 안 나온 분기를 잠정실적으로 채움
-        # 방식: 최신 분기(quarter_eps[-1])의 다음 분기 잠정실적 검색
-        # EPS = 당기순이익(원) / 발행주식수 (= 시가총액 / 주가)
-        if quarter_eps:
-            last_period = quarter_eps[-1][0]  # YYYYMM
-            if len(last_period) == 6 and last_period[:4].isdigit():
-                last_year = int(last_period[:4])
-                last_q = int(last_period[4:]) // 3
-                # 다음 분기 계산
-                next_q = last_q + 1
-                next_year = last_year
-                if next_q > 4:
-                    next_q = 1
-                    next_year += 1
-                # 잠정실적 fetch
-                pre = fetch_preliminary_quarter(corp_code, next_year, next_q)
-                if pre and pre["revenue_eok"] > 0 and pre["net_income_eok"] != 0:
-                    # 발행주식수 계산:
-                    #  - 1순위: annual_net_income / annual_EPS (Naver EPS 산정 기준과 동일,
-                    #    자사주·우선주 가중평균 반영)
-                    #  - 2순위(fallback): 시총 / 주가 (우선주 케이스에선 보통주)
-                    shares = None
-                    annual_ni_rows = get_row_values(ann, "당기순이익") if ann else []
-                    if annual_ni_rows and annual_eps:
-                        ni_latest = annual_ni_rows[-1][1]  # 억원 단위
-                        eps_latest = annual_eps[-1][1]
-                        if ni_latest > 0 and eps_latest > 0:
-                            # shares = NI(원) / EPS(원) = NI(억) × 1e8 / EPS
-                            shares = ni_latest * 1e8 / eps_latest
-                    if shares is None:
-                        if common_code:
-                            parent_ig = fetch_integration(common_code) or {}
-                            price = parent_ig.get("price") or 0
-                            market_cap_eok = parent_ig.get("market_cap_eok") or 0
-                        else:
-                            price = ig.get("price") or 0
-                            market_cap_eok = ig.get("market_cap_eok") or 0
-                        if price > 0 and market_cap_eok > 0:
-                            shares = market_cap_eok * 1e8 / price
-                    if shares and shares > 0:
-                        preliminary_eps = pre["net_income_eok"] * 1e8 / shares
-                        quarter_eps = quarter_eps + [(pre["period_key"], preliminary_eps)]
-                        quarter_sales = quarter_sales + [(pre["period_key"], pre["revenue_eok"])]
-                        preliminary_period = pre["period_key"]
-                        preliminary_rcept_no = pre["rcept_no"]
+    if do_tier2:
+        corp_code, common_code = resolve_corp_code(code, corp_map)
+        if corp_code and quarter_eps:
+            current_year = datetime.now().year
+            naver_latest_year = int(quarter_eps[-1][0][:4]) if quarter_eps[-1][0][:4].isdigit() else current_year
+            dart_eps_combined: list[tuple[str, float]] = []
+            dart_sales_combined: list[tuple[str, float]] = []
+            # 과거 보강 (latest_year - 1)
+            eps_old = fetch_dart_quarterly_eps_history(corp_code, naver_latest_year - 1)
+            sales_old = fetch_dart_quarterly_sales_history(corp_code, naver_latest_year - 1)
+            if eps_old:
+                dart_eps_combined.extend(eps_old)
+            if sales_old:
+                dart_sales_combined.extend(sales_old)
+            # 최신 확정 (current_year, naver보다 앞서면)
+            if current_year >= naver_latest_year:
+                eps_new = fetch_dart_quarterly_eps_history(corp_code, current_year)
+                sales_new = fetch_dart_quarterly_sales_history(corp_code, current_year)
+                if eps_new:
+                    dart_eps_combined.extend(eps_new)
+                if sales_new:
+                    dart_sales_combined.extend(sales_new)
+            if dart_eps_combined:
+                quarter_eps = merge_naver_dart_quarters(quarter_eps, dart_eps_combined)
+            if dart_sales_combined:
+                # 단위 정규화: Naver 매출은 억원 단위(예: 19542 = 1.95조), DART는 원 단위(예: 1.95조 = 1,954,200,000,000)
+                # 머지 전 DART 값을 억원으로 환산 (÷10^8)
+                dart_sales_eok = [(p, v / 1e8) for p, v in dart_sales_combined]
+                quarter_sales = merge_naver_dart_quarters(quarter_sales, dart_sales_eok)
 
-    # 기관 보유율 (DART) — 우선주 케이스에서도 보통주 corp_code 사용
-    institutional = fetch_majorstock_holding(corp_code) if corp_code else None
+            # 잠정실적 보강: 분기보고서가 아직 안 나온 분기를 잠정실적으로 채움
+            # 방식: 최신 분기(quarter_eps[-1])의 다음 분기 잠정실적 검색
+            # EPS = 당기순이익(원) / 발행주식수 (= 시가총액 / 주가)
+            if quarter_eps:
+                last_period = quarter_eps[-1][0]  # YYYYMM
+                if len(last_period) == 6 and last_period[:4].isdigit():
+                    last_year = int(last_period[:4])
+                    last_q = int(last_period[4:]) // 3
+                    # 다음 분기 계산
+                    next_q = last_q + 1
+                    next_year = last_year
+                    if next_q > 4:
+                        next_q = 1
+                        next_year += 1
+                    # 잠정실적 fetch
+                    pre = fetch_preliminary_quarter(corp_code, next_year, next_q)
+                    if pre and pre["revenue_eok"] > 0 and pre["net_income_eok"] != 0:
+                        # 발행주식수 계산:
+                        #  - 1순위: annual_net_income / annual_EPS (Naver EPS 산정 기준과 동일,
+                        #    자사주·우선주 가중평균 반영)
+                        #  - 2순위(fallback): 시총 / 주가 (우선주 케이스에선 보통주)
+                        shares = None
+                        annual_ni_rows = get_row_values(ann, "당기순이익") if ann else []
+                        if annual_ni_rows and annual_eps:
+                            ni_latest = annual_ni_rows[-1][1]  # 억원 단위
+                            eps_latest = annual_eps[-1][1]
+                            if ni_latest > 0 and eps_latest > 0:
+                                # shares = NI(원) / EPS(원) = NI(억) × 1e8 / EPS
+                                shares = ni_latest * 1e8 / eps_latest
+                        if shares is None:
+                            if common_code:
+                                parent_ig = fetch_integration(common_code) or {}
+                                price = parent_ig.get("price") or 0
+                                market_cap_eok = parent_ig.get("market_cap_eok") or 0
+                            else:
+                                price = ig.get("price") or 0
+                                market_cap_eok = ig.get("market_cap_eok") or 0
+                            if price > 0 and market_cap_eok > 0:
+                                shares = market_cap_eok * 1e8 / price
+                        if shares and shares > 0:
+                            preliminary_eps = pre["net_income_eok"] * 1e8 / shares
+                            quarter_eps = quarter_eps + [(pre["period_key"], preliminary_eps)]
+                            quarter_sales = quarter_sales + [(pre["period_key"], pre["revenue_eok"])]
+                            preliminary_period = pre["period_key"]
+                            preliminary_rcept_no = pre["rcept_no"]
+
+        # 기관 보유율 (DART) — 우선주 케이스에서도 보통주 corp_code 사용
+        institutional = fetch_majorstock_holding(corp_code) if corp_code else None
 
     # 12개월 수익률 (RS 백분위 계산용, 가격 데이터 부족 시 0)
     twelve_m_return = (closes[-1] - closes[0]) / closes[0] * 100 if closes and closes[0] > 0 else 0.0
@@ -276,6 +380,7 @@ def collect_raw_data(
         "institutional": institutional,
         "twelve_m_return": twelve_m_return,
         "avg_turnover_eok_30d": round(avg_turnover_eok, 2),
+        "tier2_skipped": tier2_skipped,
     }
 
 
@@ -284,6 +389,7 @@ def evaluate_with_rs(
     kospi_closes: list[float],
     market_passed: bool,
     universe_returns: list[float] | None = None,
+    management_map: dict[str, str] | None = None,
 ) -> dict:
     """2차 패스: 7기준 평가 + 점수화. universe_returns가 있으면 RS 백분위 사용."""
     ig = raw["ig"]
@@ -327,6 +433,25 @@ def evaluate_with_rs(
         for k, r in results.items()
     }
     criteria_out["C"].update(c_detailed)
+    # C.pass 는 프론트 `passesCGate` (src/app/stocks/canslim/lib/cFilter.ts) 와
+    # 반드시 동일한 5조건 게이트 결과로 통일. evaluate_c() 의 단순 pass 와 다름.
+    # [doc-logic-sync] 동기화 깨지면 페이지 노출 종목과 백엔드 pass 가 어긋남.
+    criteria_out["C"]["pass"] = passes_c_gate(c_detailed)
+
+    # C 4축 점수 부착 (1단계 필터 통과 종목 간 우선순위 산출용).
+    # 경영진 품질은 워치리스트 매핑이 있는 종목에만 점수 부여, 미등록은 0점.
+    mgmt_quality = (management_map or {}).get(raw["code"])
+    c_score_result = compute_c_score(c_detailed, mgmt_quality)
+
+    # 52주 신고점 대비 현재가 비율 (%). 음수면 신고점 아래 (-15.0 = 15% 아래).
+    pct_from_52w_high: float | None = None
+    closes = chart.get("closes") or []
+    if closes:
+        window = closes[-252:] if len(closes) >= 252 else closes
+        high_52w = max(window)
+        latest_close = closes[-1]
+        if high_52w > 0:
+            pct_from_52w_high = round((latest_close / high_52w - 1) * 100, 2)
 
     return {
         "code": raw["code"],
@@ -345,7 +470,13 @@ def evaluate_with_rs(
         "institutional_trend": inst_trend,
         "twelve_m_return": round(raw["twelve_m_return"], 2),
         "current_price": int(ig["price"]) if ig["price"] else (int(chart["closes"][-1]) if chart.get("closes") else 0),
+        "pct_from_52w_high": pct_from_52w_high,
         "criteria": criteria_out,
+        "c_score": c_score_result["total"],
+        "c_score_tier": c_score_result["tier"],
+        "c_score_breakdown": c_score_result["breakdown"],
+        "c_score_notes": c_score_result["notes"],
+        "management_quality": mgmt_quality,
     }
 
 
@@ -364,7 +495,34 @@ def main() -> None:
                         help="시가총액 최소 (억원, default 2000) — 오닐 $20 룰의 한국 적용 (기관 진입 가능 사이즈)")
     parser.add_argument("--min-turnover", type=float, default=30.0,
                         help="일평균 거래대금 최소 (억원, 30일, default 30) — 오닐 $20 룰의 한국 적용 (기관 유동성)")
+    parser.add_argument("--worker", type=int, default=None,
+                        help="병렬 작업자 인덱스 (0-base). --workers-total 과 함께 사용. universe[worker::workers_total] 슬라이스를 Pass 1 만 처리하고 .cache/canslim_worker_NN.json 에 저장.")
+    parser.add_argument("--workers-total", type=int, default=None,
+                        help="총 작업자 수. 모든 워커가 같은 값을 써야 universe 가 빠짐없이 분배됨.")
+    parser.add_argument("--reduce", action="store_true",
+                        help="모든 .cache/canslim_worker_*.json 캐시를 병합 후 Pass 2 + 최종 JSON 저장. 항상 --save 처럼 동작.")
+    parser.add_argument("--no-cache", action="store_true",
+                        help="종목별 캐시 비활성화 (모든 종목을 새로 fetch)")
+    parser.add_argument("--cache-ttl-hours", type=float, default=24.0,
+                        help="종목 캐시 유효 시간(시간). 0 = 영구")
+    parser.add_argument("--clear-cache", action="store_true",
+                        help="시작 전에 모든 종목 캐시 삭제")
+    parser.add_argument("--no-tier2-skip", action="store_true",
+                        help="C 부적격 종목에도 DART backfill·잠정실적·5%%룰 호출 (기존 동작). "
+                             "default: Naver-only 데이터로 C gate 통과 불가 확정 종목은 DART 전면 스킵.")
     args = parser.parse_args()
+
+    if args.clear_cache:
+        n = stock_cache.clear()
+        print(f"🗑  종목 캐시 {n}개 삭제됨")
+
+    # 워치리스트 경영진 품질 매핑 (C 점수 축 ④ 산출용)
+    management_map = load_watchlist_management()
+    if management_map:
+        print(f"👥 워치리스트 경영진 매핑: {len(management_map)}종목")
+
+    is_worker = args.worker is not None and args.workers_total is not None
+    is_reduce = args.reduce
 
     print("🎯 CAN SLIM 스크리너 (한국 보정판 v1)\n")
     print(f"  임계값: C +{C_QUARTERLY_EPS_MIN}%, A +{A_ANNUAL_EPS_MIN}%/ROE {A_ROE_MIN}%+, "
@@ -377,10 +535,65 @@ def main() -> None:
         print(f"  세부: {market_state['detail']}")
         return
 
-    # corp_code 매핑 (기관 데이터용)
-    print("📦 DART corp_code 매핑 로드...")
-    corp_map = load_corp_code_map()
-    print(f"  {len(corp_map)}개 상장사 매핑")
+    cache_dir = ROOT / ".cache"
+
+    # ─────────────────────────────────────────────
+    # REDUCE 모드: 워커 캐시 병합 → Pass 2 → 최종 JSON
+    # ─────────────────────────────────────────────
+    if is_reduce:
+        worker_files = sorted(cache_dir.glob("canslim_worker_*.json"))
+        if not worker_files:
+            print("❌ .cache/canslim_worker_*.json 캐시 없음. 먼저 --worker 모드로 수집하세요.")
+            return
+        print(f"\n🔀 Reduce: {len(worker_files)}개 워커 캐시 병합")
+        raw_data: list[dict] = []
+        failed_stocks: list[dict] = []
+        skipped_small_cap = 0
+        skipped_low_price = 0
+        skipped_low_turnover = 0
+        tier2_skipped_count = 0
+        for f in worker_files:
+            try:
+                chunk = json.loads(f.read_text(encoding="utf-8"))
+            except Exception as e:
+                print(f"  ⚠️ {f.name} 로드 실패: {e}")
+                continue
+            raw_data.extend(chunk.get("raw_data", []))
+            failed_stocks.extend(chunk.get("failed_stocks", []))
+            skipped_small_cap += chunk.get("skipped_small_cap", 0)
+            skipped_low_price += chunk.get("skipped_low_price", 0)
+            skipped_low_turnover += chunk.get("skipped_low_turnover", 0)
+            tier2_skipped_count += chunk.get("tier2_skipped_count", 0)
+            print(f"  {f.name}: raw {len(chunk.get('raw_data', []))} / fail {len(chunk.get('failed_stocks', []))}")
+        print(f"\n  병합 결과: raw {len(raw_data)} / 실패 {len(failed_stocks)}")
+        print(f"    🪙 시총 미만 제외: {skipped_small_cap}")
+        print(f"    💧 거래대금 미만 제외: {skipped_low_turnover}")
+        if tier2_skipped_count:
+            print(f"    ⏩ Tier 2 스킵 (C 부적격 확정): {tier2_skipped_count}")
+        args.save = True
+        # universe 의 scanned_count 는 raw + 실패 + 제외 합으로 근사
+        universe_size_estimate = len(raw_data) + len(failed_stocks) + skipped_small_cap + skipped_low_price + skipped_low_turnover
+        fail = len(failed_stocks)
+        # Pass 1 건너뛰고 Pass 2 로 점프 (아래 ‘Pass 2’ 블록과 합쳐 흐름)
+        _reduce_path = True
+    else:
+        _reduce_path = False
+        universe_size_estimate = 0
+        fail = 0
+        raw_data = []
+        failed_stocks = []
+        skipped_small_cap = 0
+        skipped_low_price = 0
+        skipped_low_turnover = 0
+        tier2_skipped_count = 0
+
+    # corp_code 매핑 (워커·단일 종목·풀 스캔에서만 필요. reduce 는 건너뜀.)
+    if not _reduce_path:
+        print("📦 DART corp_code 매핑 로드...")
+        corp_map = load_corp_code_map()
+        print(f"  {len(corp_map)}개 상장사 매핑")
+    else:
+        corp_map = {}
 
     # 단일 종목 모드
     if args.ticker:
@@ -391,84 +604,138 @@ def main() -> None:
         if ch_kq and not ch_ks:
             market = "KOSDAQ"
 
-        raw = collect_raw_data(code, code, market, corp_map)
+        # 단일 종목 모드: 사용자가 명시한 종목이므로 항상 Tier 2 전체 fetch
+        raw = collect_raw_data(code, code, market, corp_map, skip_tier2_if_c_ineligible=False)
         if not raw:
             print(f"  {code}: 데이터 수집 실패")
             return
-        result = evaluate_with_rs(raw, kospi_closes, market_state["passed"], None)
+        result = evaluate_with_rs(raw, kospi_closes, market_state["passed"], None, management_map)
         _print_one(result)
         return
 
-    # 전체 스캔: 2-pass
-    print("\n📋 종목 리스트 수집...")
-    if args.market in ("all", "kospi"):
-        kospi = fetch_stock_list("KOSPI")
-        print(f"  KOSPI: {len(kospi)}")
-    else:
-        kospi = []
-    if args.market in ("all", "kosdaq"):
-        kosdaq = fetch_stock_list("KOSDAQ")
-        print(f"  KOSDAQ: {len(kosdaq)}")
-    else:
-        kosdaq = []
+    # 전체 스캔 또는 워커 슬라이스: 2-pass (reduce 모드는 이 블록 건너뜀)
+    if not _reduce_path:
+        print("\n📋 종목 리스트 수집 (pykrx + 시총 동봉)...")
+        universe = fetch_universe_with_cap(args.market)
+        kospi_n = sum(1 for u in universe if u["market"] == "KOSPI")
+        kosdaq_n = sum(1 for u in universe if u["market"] == "KOSDAQ")
+        print(f"  전체: {len(universe)} (KOSPI {kospi_n} / KOSDAQ {kosdaq_n})")
 
-    universe = kospi + kosdaq
-    if args.offset:
-        universe = universe[args.offset:]
-        print(f"  → 시총 {args.offset + 1}위부터 (offset {args.offset})")
-    if args.limit:
-        universe = universe[: args.limit]
-    print(f"  → 평가 대상 {len(universe)}종목 (시장: {args.market}, offset {args.offset}, limit {args.limit or '없음'})")
+        # universe 에 시총이 포함돼 있으므로 Pass 1 진입 전 미리 컷오프 — 루프 자체가 짧아짐.
+        # (collect_raw_data 의 _skipped_small_cap 분기는 안전망으로 남겨두지만
+        #  여기서 빠진 종목은 Naver/Yahoo 호출조차 안 함.)
+        if args.min_cap > 0:
+            before = len(universe)
+            universe = [u for u in universe if u["market_cap_eok"] >= args.min_cap]
+            pre_skipped = before - len(universe)
+            skipped_small_cap += pre_skipped
+            print(f"  시총 ≥ {args.min_cap:,}억: {len(universe)} (사전 제외 {pre_skipped})")
 
-    # ── Pass 1: 원시 데이터 수집 (12M 수익률 포함) ──
-    print(f"\n🔬 Pass 1: 원시 데이터 수집 ({len(universe)}종목)\n")
-    raw_data: list[dict] = []
-    fail = 0
-    skipped_low_price = 0
-    skipped_small_cap = 0
-    skipped_low_turnover = 0
-    start = time.time()
-
-    failed_stocks: list[dict] = []
-    for i, s in enumerate(universe):
-        err_msg = ""
-        try:
-            raw = collect_raw_data(
-                s["code"], s["name"], s["market"], corp_map,
-                min_price=args.min_price,
-                min_market_cap_eok=args.min_cap,
-                min_turnover_eok=args.min_turnover,
-            )
-        except Exception as e:
-            raw = None
-            err_msg = repr(e)
-        if raw and raw.get("_skipped_small_cap"):
-            skipped_small_cap += 1
-        elif raw and raw.get("_skipped_low_price"):
-            skipped_low_price += 1
-        elif raw and raw.get("_skipped_low_turnover"):
-            skipped_low_turnover += 1
-        elif raw:
-            raw_data.append(raw)
+        full_universe_size = len(universe)
+        if is_worker:
+            # 워커 모드: interleaved 슬라이스 (universe[w::N]) — 균등 분배.
+            universe = universe[args.worker::args.workers_total]
+            print(f"  → Worker {args.worker}/{args.workers_total}: {len(universe)}/{full_universe_size} 종목 슬라이스")
         else:
-            fail += 1
-            failed_stocks.append({"code": s["code"], "name": s["name"], "market": s["market"], "error": err_msg or "fetch_integration None (Naver 응답 없음)"})
-        if (i + 1) % 25 == 0:
-            elapsed = time.time() - start
-            rate = (i + 1) / elapsed if elapsed > 0 else 0
-            eta = (len(universe) - i - 1) / rate if rate > 0 else 0
-            print(f"  ... {i + 1}/{len(universe)} 수집 ({rate:.1f}/s, ETA {eta / 60:.1f}분)")
+            if args.offset:
+                universe = universe[args.offset:]
+                print(f"  → 시총 {args.offset + 1}위부터 (offset {args.offset})")
+            if args.limit:
+                universe = universe[: args.limit]
+            print(f"  → 평가 대상 {len(universe)}종목 (시장: {args.market}, offset {args.offset}, limit {args.limit or '없음'})")
 
-    print(f"\n  Pass 1 완료: 평가 진입 {len(raw_data)}개")
-    print(f"    🪙 시총 {args.min_cap:,}억 미만 제외: {skipped_small_cap}종목")
-    print(f"    💧 일평균 거래대금 {args.min_turnover}억 미만 제외: {skipped_low_turnover}종목")
-    if args.min_price:
-        print(f"    💰 (레거시) 최소가 {args.min_price:,}원 미만 제외: {skipped_low_price}종목")
-    print(f"    ❌ 진짜 실패(Naver 데이터 X): {fail}종목")
-    if failed_stocks:
-        print("  실패 종목:")
-        for fs in failed_stocks:
-            print(f"    - {fs['code']} {fs['name']} ({fs['market']}): {fs['error']}")
+        universe_size_estimate = len(universe)
+
+        # ── Pass 1: 원시 데이터 수집 (12M 수익률 포함) ──
+        print(f"\n🔬 Pass 1: 원시 데이터 수집 ({len(universe)}종목, cache {'OFF' if args.no_cache else f'TTL {args.cache_ttl_hours}h'})\n")
+        start = time.time()
+        cache_hit_count = 0
+
+        for i, s in enumerate(universe):
+            err_msg = ""
+            try:
+                if not args.no_cache:
+                    cached = stock_cache.get(s["code"], max_age_hours=args.cache_ttl_hours)
+                    if cached is not None and args.no_tier2_skip and cached.get("tier2_skipped"):
+                        # 사용자가 --no-tier2-skip 으로 전체 Tier 2 요청 — 부분 캐시 무효화
+                        cached = None
+                    if cached is not None:
+                        raw = cached
+                        cache_hit_count += 1
+                    else:
+                        raw = collect_raw_data(
+                            s["code"], s["name"], s["market"], corp_map,
+                            min_price=args.min_price,
+                            min_market_cap_eok=args.min_cap,
+                            min_turnover_eok=args.min_turnover,
+                            skip_tier2_if_c_ineligible=not args.no_tier2_skip,
+                        )
+                        # _skipped_* 키가 있으면 캐시 안 함 — 다른 실행의 cap/turnover 임계값에서 재평가 필요
+                        if raw is not None and not any(k.startswith("_skipped") for k in raw):
+                            stock_cache.put(s["code"], raw)
+                else:
+                    raw = collect_raw_data(
+                        s["code"], s["name"], s["market"], corp_map,
+                        min_price=args.min_price,
+                        min_market_cap_eok=args.min_cap,
+                        min_turnover_eok=args.min_turnover,
+                        skip_tier2_if_c_ineligible=not args.no_tier2_skip,
+                    )
+            except Exception as e:
+                raw = None
+                err_msg = repr(e)
+            if raw and raw.get("_skipped_small_cap"):
+                skipped_small_cap += 1
+            elif raw and raw.get("_skipped_low_price"):
+                skipped_low_price += 1
+            elif raw and raw.get("_skipped_low_turnover"):
+                skipped_low_turnover += 1
+            elif raw:
+                if raw.get("tier2_skipped"):
+                    tier2_skipped_count += 1
+                raw_data.append(raw)
+            else:
+                fail += 1
+                failed_stocks.append({"code": s["code"], "name": s["name"], "market": s["market"], "error": err_msg or "fetch_integration None (Naver 응답 없음)"})
+            if (i + 1) % 25 == 0:
+                elapsed = time.time() - start
+                rate = (i + 1) / elapsed if elapsed > 0 else 0
+                eta = (len(universe) - i - 1) / rate if rate > 0 else 0
+                print(f"  ... {i + 1}/{len(universe)} 수집 ({rate:.1f}/s, ETA {eta / 60:.1f}분, cache hit {cache_hit_count})")
+
+        print(f"\n  Pass 1 완료: 평가 진입 {len(raw_data)}개 (cache hit {cache_hit_count})")
+        print(f"    🪙 시총 {args.min_cap:,}억 미만 제외: {skipped_small_cap}종목")
+        print(f"    💧 일평균 거래대금 {args.min_turnover}억 미만 제외: {skipped_low_turnover}종목")
+        if not args.no_tier2_skip:
+            print(f"    ⏩ Tier 2 스킵 (C 부적격 확정): {tier2_skipped_count}종목 (DART backfill 호출 생략)")
+        if args.min_price:
+            print(f"    💰 (레거시) 최소가 {args.min_price:,}원 미만 제외: {skipped_low_price}종목")
+        print(f"    ❌ 진짜 실패(Naver 데이터 X): {fail}종목")
+        if failed_stocks:
+            print("  실패 종목:")
+            for fs in failed_stocks:
+                print(f"    - {fs['code']} {fs['name']} ({fs['market']}): {fs['error']}")
+
+        # 워커 모드: 캐시에 저장하고 종료 (Pass 2·--save 건너뜀)
+        if is_worker:
+            cache_dir.mkdir(parents=True, exist_ok=True)
+            cache_file = cache_dir / f"canslim_worker_{args.worker:02d}.json"
+            cache_file.write_text(
+                json.dumps({
+                    "worker": args.worker,
+                    "workers_total": args.workers_total,
+                    "raw_data": raw_data,
+                    "failed_stocks": failed_stocks,
+                    "skipped_small_cap": skipped_small_cap,
+                    "skipped_low_price": skipped_low_price,
+                    "skipped_low_turnover": skipped_low_turnover,
+                    "tier2_skipped_count": tier2_skipped_count,
+                }, ensure_ascii=False, default=str),
+                encoding="utf-8",
+            )
+            print(f"\n💾 워커 캐시 저장: {cache_file.relative_to(ROOT)}")
+            print("  (모든 워커 종료 후 `python scripts/screen_canslim.py --reduce` 로 병합)")
+            return
 
     # ── Pass 2: universe 백분위 RS + 점수화 ──
     universe_returns = [r["twelve_m_return"] for r in raw_data]
@@ -477,7 +744,7 @@ def main() -> None:
     results = []
     for raw in raw_data:
         try:
-            r = evaluate_with_rs(raw, kospi_closes, market_state["passed"], universe_returns)
+            r = evaluate_with_rs(raw, kospi_closes, market_state["passed"], universe_returns, management_map)
         except Exception:
             continue
         results.append(r)
@@ -510,7 +777,7 @@ def main() -> None:
                 print(f"\n⚠️  기존 JSON 머지 실패, 덮어씀: {e}")
         out = {
             "generated_at": today_iso(),
-            "scanned_count": len(universe),
+            "scanned_count": universe_size_estimate,
             "evaluated_count": len(candidates_final),
             "scan_meta": {
                 "offset": args.offset,
@@ -523,6 +790,8 @@ def main() -> None:
                 "skipped_low_price_count": skipped_low_price,
                 "skipped_small_cap_count": skipped_small_cap,
                 "skipped_low_turnover_count": skipped_low_turnover,
+                "tier2_skipped_count": tier2_skipped_count,
+                "tier2_skip_enabled": not args.no_tier2_skip,
             },
             "market_status": {
                 "kospi_trend_verdict": market_state["verdict"],

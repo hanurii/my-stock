@@ -59,6 +59,37 @@ export interface StrategyEval {
   entry_quality: EntryQuality | null;
 }
 
+export interface PeakSignal {
+  id: string;
+  label: string;
+  book_category: string;
+  hit: boolean;
+  detail: string;
+  severity: "strong" | "medium" | "weak";
+}
+
+export interface PeakEval {
+  ma50: number | null;
+  ma200_approx: number | null;
+  ma200_slope_pct: number | null;
+  price_vs_ma50_pct: number | null;
+  price_vs_ma200_pct: number | null;
+  current_high_price: number | null;
+  current_high_date: string | null;
+  drawdown_from_high_pct: number | null;
+  recent_volume_avg: number | null;
+  volume_avg_60d: number | null;
+  recent_volume_ratio: number | null;
+  high_day_volume_ratio: number | null;
+  distribution_days_in_5d: number;
+  consecutive_down_days: number;
+  largest_up_day_pct: number | null;
+  monitor_alerts_count: number;
+  monitor_alerts_critical: string[];
+  signals: PeakSignal[];
+  hit_count: number;
+}
+
 export interface SellHoldingResult {
   code: string;
   name: string;
@@ -77,6 +108,8 @@ export interface SellHoldingResult {
   ma200: number | null;
   strategy: StrategyEval;
   strategy_verdict: Verdict;
+  peak: PeakEval;
+  peak_verdict: Verdict;
 }
 
 export interface SellSignalsOutput {

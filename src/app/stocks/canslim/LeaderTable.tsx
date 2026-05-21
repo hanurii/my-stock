@@ -6,13 +6,12 @@ export interface LCandidate {
   code: string;
   name: string;
   market: string;
-  rs_score: number | null;
+  rs_score: number;
   return_1y_pct: number | null;
   current_price: number | null;
   a_score: number | null;
   in_universe: boolean;
-  passes_l: boolean;
-  fail_reasons: string[];
+  data_missing_reason: string | null;
 }
 
 type SortKey = "rs_score" | "return_1y_pct" | "a_score";
@@ -26,31 +25,32 @@ function fmtPrice(n: number | null): string {
   return n.toLocaleString();
 }
 
-function rsColor(rs: number | null): string {
-  if (rs == null) return "var(--on-surface-variant)";
+function rsColor(rs: number, dataMissing: boolean): string {
+  if (dataMissing) return "var(--on-surface-variant)";
   if (rs >= 95) return "#10b981";
   if (rs >= 90) return "#34d399";
   if (rs >= 80) return "#95d3ba";
   if (rs >= 70) return "#e9c176";
-  if (rs >= 60) return "#a8b5d0";
+  if (rs >= 40) return "#a8b5d0";
   return "#ffb4ab";
 }
 
-function rsLabel(rs: number | null): string {
-  if (rs == null) return "데이터 없음";
+function rsLabel(rs: number, dataMissing: boolean): string {
+  if (dataMissing) return "데이터 없음";
   if (rs >= 95) return "최강 주도주";
   if (rs >= 90) return "강한 주도주";
   if (rs >= 80) return "주도주";
   if (rs >= 70) return "회색지대";
-  if (rs >= 60) return "보통";
+  if (rs >= 40) return "소외주 동조";
   return "소외주";
 }
 
 function aScoreColor(score: number | null): string {
   if (score == null) return "var(--on-surface-variant)";
-  if (score >= 95) return "#10b981";
-  if (score >= 85) return "#34d399";
-  return "#a8b5d0";
+  if (score >= 40) return "#10b981";
+  if (score >= 30) return "#34d399";
+  if (score >= 20) return "#a8b5d0";
+  return "var(--on-surface-variant)";
 }
 
 export function LeaderTable({ candidates }: Props) {
@@ -91,7 +91,7 @@ export function LeaderTable({ candidates }: Props) {
               className="text-right py-2.5 px-3 font-normal cursor-pointer hover:text-on-surface"
               onClick={() => toggleSort("rs_score")}
             >
-              RS 점수 {sortArrow("rs_score")}
+              L 점수 (RS) {sortArrow("rs_score")}
             </th>
             <th
               className="text-right py-2.5 px-3 font-normal cursor-pointer hover:text-on-surface"
@@ -111,13 +111,16 @@ export function LeaderTable({ candidates }: Props) {
         <tbody>
           {sorted.map((c) => {
             const rs = c.rs_score;
+            const dataMissing = c.data_missing_reason != null;
             return (
               <tr
                 key={c.code}
-                className="border-b border-on-surface/5 hover:bg-surface-container/30"
+                className={`border-b border-on-surface/5 hover:bg-surface-container/30 ${
+                  dataMissing ? "opacity-50" : ""
+                }`}
               >
                 <td className="py-3 pr-3">
-                  <div className="flex items-baseline gap-2">
+                  <div className="flex items-baseline gap-2 flex-wrap">
                     <span className="font-medium text-on-surface">{c.name}</span>
                     <span className="text-[11px] text-on-surface-variant/50 font-mono">{c.code}</span>
                     {!c.in_universe && (
@@ -128,18 +131,26 @@ export function LeaderTable({ candidates }: Props) {
                         모집단 외
                       </span>
                     )}
+                    {dataMissing && c.data_missing_reason && (
+                      <span
+                        className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400/80"
+                        title={c.data_missing_reason}
+                      >
+                        데이터 없음
+                      </span>
+                    )}
                   </div>
                 </td>
                 <td className="text-right py-3 px-3">
                   <div
                     className="inline-flex flex-col items-end gap-0.5 px-2 py-1 rounded"
-                    style={{ backgroundColor: `${rsColor(rs)}20` }}
+                    style={{ backgroundColor: `${rsColor(rs, dataMissing)}20` }}
                   >
-                    <span className="font-bold text-base leading-none" style={{ color: rsColor(rs) }}>
-                      {rs ?? "-"}
+                    <span className="font-bold text-base leading-none" style={{ color: rsColor(rs, dataMissing) }}>
+                      {rs}
                     </span>
-                    <span className="text-[10px] leading-none" style={{ color: rsColor(rs) }}>
-                      {rsLabel(rs)}
+                    <span className="text-[10px] leading-none" style={{ color: rsColor(rs, dataMissing) }}>
+                      {rsLabel(rs, dataMissing)}
                     </span>
                   </div>
                 </td>

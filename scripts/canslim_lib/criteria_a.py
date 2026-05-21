@@ -1,10 +1,20 @@
-"""CAN SLIM 'A' 원칙 (Annual Earnings) 평가 — C 와 격리된 모듈.
+"""CAN SLIM 'A' 원칙 (Annual Earnings) 평가 — v2 점수 체계.
 
-evaluate_a_detailed: 사용자 메모리 user_canslim_thresholds.md 의 A 컷오프를 그대로 적용.
-- 메인 트랙 통과 조건 5개 AND 조합
-- 가점 배지 raw 값 노출
+문서 기준: research/oneil-model-book/IMPL_canslim_a_page.md (v2)
 
-원본 criteria.py 의 evaluate_a 는 미수정.
+핵심 설계
+---------
+- 3개 트랙 (정통 A · 턴어라운드 · 신규상장) 각 50점 만점.
+- "탈락/통과" 이분법 없음. 모든 종목이 점수를 받음.
+- 트랙 분류 우선순위: 정통 A → 턴어라운드 → 신규상장 → 분류 불가.
+- 마진은 점수에서 제외, 5단계 라벨로 별도 노출.
+- 경기민감은 정보용 라벨만, 점수 영향 없음.
+
+이전 버전과 호환
+---------------
+이전 함수 (evaluate_a_detailed, evaluate_turnaround_detailed,
+evaluate_new_listing_detailed, compute_a_score) 는 제거됨.
+새 엔트리: evaluate_a_v2.
 """
 
 from __future__ import annotations
@@ -13,48 +23,89 @@ import math
 from typing import Any
 
 
-# 사용자 컷오프 (메모리 user_canslim_thresholds.md A 섹션과 동일)
-A_ANNUAL_EPS_GROWTH_MIN_PCT = 25.0
-A_ROE_MIN_PCT = 12.0  # 한국 보정 (한국 KOSPI 평균 ROE 8.2%, O'Neil 원전 17% → 12%)
-A_DECELERATION_GATE_DIVISOR = 3.0  # 직전 분기 YoY ≥ 3년 평균 증가율 / 3
-A_BADGE_ROE_GLOBAL = 17.0  # O'Neil 원전 기준 충족 — "글로벌 ROE" 배지
-A_BADGE_ROE_EXCELLENT = 25.0  # 탁월 ROE
-A_BADGE_CPS_EPS_RATIO = 1.20
-# 세전 순이익 마진율 — 책 원문 "ROE 낮을 시 마진율 대안" 정신을 반영한 한국 보정 컷오프
-A_MARGIN_ALT_GATE = 15.0           # 메인/턴어라운드 게이트 대체 컷오프 (한국 상위 10%)
-A_MARGIN_EXCELLENT = 20.0          # 탁월 마진 배지 (한국 상위 5%)
-A_MARGIN_GOOD = 10.0               # 양호 마진 (정렬 가산점 baseline)
-A_ROE_FLOOR_FOR_MARGIN_ALT = 8.0   # 마진 대체 시 ROE 최소 바닥선 (적자성 종목 배제)
-# 안정성 지수 임계값 — 한국 보정 (+5 shift)
-# O'Neil 원전: <25 우수 / 25~30 보통 / >30 부족
-# 한국 보정: 한국 KOSPI 시총 상위 다수가 cyclical 산업(반도체·자동차·철강·화학·배터리)이라 원전 적용 시 거의 전부 "부족" 분류.
-# 한국 종목 분포 분석 기반 +5 shift: <30 우수 / 30~40 보통 / >40 부족
-A_STABILITY_EXCELLENT_MAX = 30
-A_STABILITY_MODERATE_MAX = 40
+# ────────────────────────────────────────────────────────
+# 상수 — 한국형 보정 컷오프 (문서 v2 기준)
+# ────────────────────────────────────────────────────────
 
-# 턴어라운드 트랙 컷오프 (별도 트랙 — 메인 트랙 미충족 종목 중 V자 회복주 잡기)
-TURNAROUND_ANNUAL_EPS_MIN_PCT = 5.0  # 직전 1년 연 EPS YoY +5% 이상
-TURNAROUND_QUARTERLY_YOY_MIN_PCT = 50.0  # 분기 EPS YoY +50% 이상 (사용자 본문 "급증" 정량화)
-TURNAROUND_TTM_HIGH_RATIO = 0.90  # TTM EPS 가 직전 N년 사상 최고치의 90% 이상
+# 정통 A 트랙 — EPS 성장 강도 (3년 평균 YoY) 부분 점수 구간
+EPS_GROWTH_FULL_PCT = 25.0   # 만점 (한국형 = 글로벌 = 25%)
+EPS_GROWTH_MID_PCT = 15.0
+EPS_GROWTH_LOW_PCT = 5.0
 
-# 예비 턴어라운드 컷오프 — 정통 한 단계 완화. 한 두 개 약간 미달이지만 다음 분기에 잡힐 가능성 높은 종목
-TURNAROUND_PRELIM_ANNUAL_EPS_MIN_PCT = 0.0  # 양수 회복만 확인
-TURNAROUND_PRELIM_QUARTERLY_YOY_MIN_PCT = 30.0  # 분기 +30%+ 급증
-TURNAROUND_PRELIM_TTM_HIGH_RATIO = 0.80  # TTM 80%+ (예: 삼성전자 82%)
+# 정통 A 트랙 — ROE 부분 점수 구간 (한국형 보정)
+ROE_GLOBAL_PCT = 17.0    # 글로벌 만점
+ROE_KOREAN_PCT = 12.0    # 한국형 만점 (KOSPI 평균 8.2% 감안)
+ROE_FLOOR_PCT = 8.0      # 부분 점수 하한
 
-# 신규 상장 (<3년) 트랙 컷오프 — 연간 데이터 부족 종목 중 분기 가속 강한 후보
-NEW_LISTING_QUARTERLY_MIN_PCT = 25.0  # 분기 EPS YoY 모든 분기 +25%+ (지속성)
-NEW_LISTING_MIN_HISTORY = 3  # 분기 history 최소 3개 (1~2분기는 불충분)
+# 마진 라벨 컷오프
+MARGIN_VERY_HIGH = 20.0   # 매우높음 (한국 상위 5%)
+MARGIN_HIGH = 15.0        # 높음 (한국 상위 10%)
+MARGIN_MID = 10.0         # 중간 (한국 상위 30%)
+MARGIN_LOW = 5.0          # 낮음 (한국 상위 50%)
+# < 5.0 → 매우낮음
 
-# KSIC (한국표준산업분류) 코드 prefix 기반 경기민감주 (사용자 본문 5개)
-# 24=1차 금속(철강), 20=화학, 17=펄프/종이(제지), 22=고무/플라스틱, 29=기타 기계/장비
+# 턴어라운드 트랙 — 입장 조건 (정통 + 예비)
+TURNAROUND_RECOVERY_ORTHODOX_PCT = 5.0
+TURNAROUND_RECOVERY_PRELIM_PCT = 3.0
+TURNAROUND_SURGE_ORTHODOX_PCT = 50.0
+TURNAROUND_SURGE_PRELIM_PCT = 30.0
+TURNAROUND_TTM_ORTHODOX_RATIO = 0.90
+TURNAROUND_TTM_PRELIM_RATIO = 0.80
+# 분기 급증 강도 만점 (2분기 연속 ≥ +100%)
+TURNAROUND_SURGE_FULL_PCT = 100.0
+
+# 신규상장 트랙 — 입장 조건
+NEW_LISTING_QUARTERLY_MIN_PCT = 25.0    # 분기 EPS·매출 YoY 최소
+NEW_LISTING_EPS_HIGH_PCT = 50.0         # 부분 점수 중간 구간
+NEW_LISTING_EPS_FULL_PCT = 100.0        # 만점
+NEW_LISTING_SALES_FULL_PCT = 50.0
+NEW_LISTING_MIN_HISTORY = 2             # 분기 history 최소 2개 (v2: 3 → 2)
+NEW_LISTING_MAX_ANNUAL_DATA = 3         # 상장 < 3년 근사 (연간 데이터 < 3년)
+
+# 안정성 지수 (신규상장 축 ④)
+STABILITY_EXCELLENT_MAX = 30
+STABILITY_MODERATE_MAX = 40
+
+# KSIC 경기민감주 prefix (라벨용, 점수 영향 없음)
 CYCLICAL_KSIC_PREFIXES = ("24", "20", "17", "22", "29")
 
 
+# ────────────────────────────────────────────────────────
+# 헬퍼
+# ────────────────────────────────────────────────────────
+
+
 def is_cyclical_industry(induty_code: str | None) -> bool:
+    """KSIC 첫 2자리로 경기민감주 판별. NULL/짧은 코드는 False (자동 통과)."""
     if not induty_code or len(induty_code) < 2:
         return False
     return induty_code[:2] in CYCLICAL_KSIC_PREFIXES
+
+
+def margin_label(margin: float | None) -> str:
+    """세전 마진율 → 5단계 라벨 (점수 영향 없음, 정보용)."""
+    if margin is None:
+        return "데이터 없음"
+    if margin >= MARGIN_VERY_HIGH:
+        return "매우높음"
+    if margin >= MARGIN_HIGH:
+        return "높음"
+    if margin >= MARGIN_MID:
+        return "중간"
+    if margin >= MARGIN_LOW:
+        return "낮음"
+    return "매우낮음"
+
+
+def grade_label(score: int) -> str:
+    """50점 만점 기준 등급 (세 트랙 공통)."""
+    if score >= 40:
+        return "최상"
+    if score >= 30:
+        return "상"
+    if score >= 20:
+        return "중"
+    return "하"
 
 
 def _linear_regression(xs: list[float], ys: list[float]) -> tuple[float, float]:
@@ -71,16 +122,7 @@ def _linear_regression(xs: list[float], ys: list[float]) -> tuple[float, float]:
 
 
 def compute_earnings_stability(quarterly_eps: list[float]) -> tuple[int | None, str]:
-    """순이익 안정성 지수 (1~99, 낮을수록 안정).
-
-    공개 합의된 근사 (IBD 정확 공식 비공개):
-    1) 분기 EPS 시계열을 시간 t 에 대한 선형 회귀로 추세선 fit
-    2) 평균 절대 편차 / 평균 |EPS| = 편차율(%)
-       (적자 분기 포함해도 분모 안전 — mean(|EPS|) 는 부호 무관)
-    3) score = 20 * log10(편차율 + 1) 후 [1, 99] 클램프
-
-    적자 분기가 있어도 점수 산출. 데이터 < 12분기 또는 전 분기 EPS=0 인 경우만 None.
-    """
+    """순이익 안정성 지수 (1~99, 낮을수록 안정). 신규상장 축 ④ 에서 사용."""
     if len(quarterly_eps) < 12:
         return None, f"분기 데이터 {len(quarterly_eps)}개 (12+ 필요)"
 
@@ -96,694 +138,624 @@ def compute_earnings_stability(quarterly_eps: list[float]) -> tuple[int | None, 
     if dev_pct <= 0:
         return 1, "편차 0 (완전 일정)"
     score = max(1, min(99, int(round(20 * math.log10(dev_pct + 1)))))
-
     has_loss = any(e <= 0 for e in quarterly_eps)
     loss_count = sum(1 for e in quarterly_eps if e <= 0)
     detail = f"편차율 {dev_pct:.1f}%"
     if has_loss:
-        detail += f" (적자 {loss_count}분기 포함, 평균 |EPS| 정규화)"
+        detail += f" (적자 {loss_count}분기 포함)"
     return score, detail
 
 
-def evaluate_new_listing_detailed(
+# ────────────────────────────────────────────────────────
+# 점수 산정 — 축별
+# ────────────────────────────────────────────────────────
+
+
+def _score_eps_consistency_orthodox(
+    annual_eps: list[tuple[str, float]],
+    growths: list[float],
+) -> tuple[int, str]:
+    """정통 A 축 ① — EPS 지속성 10점.
+
+    - 3년 strict 단조 증가 (적자 0회) → 10
+    - 5년 위기 1회 dip 면제 (6년 데이터 + 1 dip + 회복) → 9
+    - 1회 dip + 회복 (3-4년 데이터) → 6
+    - 2회 dip → 3
+    """
+    values = [v for _, v in annual_eps]
+    if not values or any(v <= 0 for v in values):
+        return 0, "흑자 데이터 부족"
+
+    # 6년 데이터로 strict 단조 증가 또는 위기 1회 dip + 회복 검사
+    if len(values) >= 6:
+        recent_6 = values[-6:]
+        if all(recent_6[i] > recent_6[i - 1] for i in range(1, len(recent_6))):
+            return 10, "5년 strict 단조 증가"
+        dip_indices = [i for i in range(1, len(recent_6)) if recent_6[i] < recent_6[i - 1]]
+        if len(dip_indices) == 1:
+            dip_i = dip_indices[0]
+            if dip_i + 1 < len(recent_6) and recent_6[dip_i + 1] >= recent_6[dip_i - 1]:
+                return 9, "5년 위기 1회 dip 면제"
+
+    # 최근 3-4년 strict 단조 증가
+    recent_window = values[-4:] if len(values) >= 4 else values[-3:]
+    if len(recent_window) >= 3 and all(
+        recent_window[i] > recent_window[i - 1] for i in range(1, len(recent_window))
+    ):
+        return 10, "3년 strict 단조 증가"
+
+    # dip 횟수 카운트
+    if growths:
+        dip_count = sum(1 for g in growths if g <= 0)
+        if dip_count == 1:
+            return 6, "1회 dip + 회복"
+        if dip_count == 2:
+            return 3, "2회 dip"
+        return 0, "다회 dip"
+
+    return 0, "지속성 평가 불가"
+
+
+def _score_eps_growth(avg_growth: float | None) -> tuple[int, str]:
+    """정통 A 축 ② — EPS 성장 강도 25점 (3년 평균 YoY)."""
+    if avg_growth is None:
+        return 0, "데이터 부족"
+    if avg_growth >= EPS_GROWTH_FULL_PCT:
+        return 25, f"+{avg_growth:.1f}% (≥25%)"
+    if avg_growth >= EPS_GROWTH_MID_PCT:
+        return 18, f"+{avg_growth:.1f}% (15~25%)"
+    if avg_growth >= EPS_GROWTH_LOW_PCT:
+        return 10, f"+{avg_growth:.1f}% (5~15%)"
+    if avg_growth >= 0:
+        return 3, f"+{avg_growth:.1f}% (0~5%)"
+    return 0, f"{avg_growth:.1f}% (<0%)"
+
+
+def _score_profitability_roe(roe: float | None) -> tuple[int, str]:
+    """수익성 축 — ROE 단독 15점 (세 트랙 공통 척도)."""
+    if roe is None:
+        return 3, "ROE 데이터 없음"
+    if roe >= ROE_GLOBAL_PCT:
+        return 15, f"ROE {roe:.1f}% (≥17% 글로벌)"
+    if roe >= ROE_KOREAN_PCT:
+        return 12, f"ROE {roe:.1f}% (12~17% 한국형)"
+    if roe >= ROE_FLOOR_PCT:
+        return 8, f"ROE {roe:.1f}% (8~12%)"
+    return 3, f"ROE {roe:.1f}% (<8%)"
+
+
+def _score_recovery_strength(latest_annual_yoy: float | None) -> tuple[int, str]:
+    """턴어라운드 축 ① — 회복 강도 5점 (직전 1년 EPS YoY)."""
+    if latest_annual_yoy is None:
+        return 0, "데이터 부족"
+    if latest_annual_yoy >= 50:
+        return 5, f"+{latest_annual_yoy:.1f}% (≥+50% 강한 회복)"
+    if latest_annual_yoy >= 20:
+        return 4, f"+{latest_annual_yoy:.1f}% (+20~+50%)"
+    if latest_annual_yoy >= 5:
+        return 3, f"+{latest_annual_yoy:.1f}% (+5~+20%)"
+    if latest_annual_yoy >= 3:
+        return 2, f"+{latest_annual_yoy:.1f}% (+3~+5% 예비)"
+    return 0, f"{latest_annual_yoy:.1f}% (회복 미달)"
+
+
+def _score_quarterly_surge(
+    quarterly_eps_yoy_history: list[tuple[str, float]],
+    latest_quarter_yoy: float | None,
+) -> tuple[int, str]:
+    """턴어라운드 축 ② — 분기 급증 강도 25점.
+
+    - 2분기 연속 ≥ +100% → 25
+    - 2분기 ≥ +50% → 20
+    - 단일 +50%+ (history 부족) → 15
+    - 2분기 ≥ +30% (예비) → 10
+    """
+    if len(quarterly_eps_yoy_history) >= 2:
+        last_two = [v for _, v in quarterly_eps_yoy_history[-2:]]
+        a, b = last_two[0], last_two[1]
+        if a >= TURNAROUND_SURGE_FULL_PCT and b >= TURNAROUND_SURGE_FULL_PCT:
+            return 25, f"2분기 연속 ≥+100% ({a:.1f}%, {b:.1f}%)"
+        if a >= TURNAROUND_SURGE_ORTHODOX_PCT and b >= TURNAROUND_SURGE_ORTHODOX_PCT:
+            return 20, f"2분기 연속 ≥+50% ({a:.1f}%, {b:.1f}%)"
+        if a >= TURNAROUND_SURGE_PRELIM_PCT and b >= TURNAROUND_SURGE_PRELIM_PCT:
+            return 10, f"2분기 연속 ≥+30% 예비 ({a:.1f}%, {b:.1f}%)"
+    if latest_quarter_yoy is not None and latest_quarter_yoy >= TURNAROUND_SURGE_ORTHODOX_PCT:
+        return 15, f"단일 분기 +{latest_quarter_yoy:.1f}% (history 부족)"
+    return 0, "분기 급증 미달"
+
+
+def _score_ttm_recovery(ttm_high_ratio: float | None, is_all_time_high: bool) -> tuple[int, str]:
+    """턴어라운드 축 ③ — TTM 회복도 5점."""
+    if is_all_time_high:
+        return 5, "사상 최고치 갱신"
+    if ttm_high_ratio is None:
+        return 0, "데이터 부족"
+    if ttm_high_ratio >= 1.0:
+        return 5, "사상 최고치 갱신"
+    if ttm_high_ratio >= TURNAROUND_TTM_ORTHODOX_RATIO:
+        return 4, f"TTM {ttm_high_ratio * 100:.0f}% (90~100%)"
+    if ttm_high_ratio >= TURNAROUND_TTM_PRELIM_RATIO:
+        return 3, f"TTM {ttm_high_ratio * 100:.0f}% (80~90% 예비)"
+    return 0, f"TTM {ttm_high_ratio * 100:.0f}% (<80%)"
+
+
+def _score_quarterly_eps_strength(history: list[tuple[str, float]]) -> tuple[int, str]:
+    """신규상장 축 ① — 분기 EPS 강도 25점 (최근 2분기 평균 YoY)."""
+    if len(history) < 2:
+        return 0, "history 부족"
+    last_two_avg = sum(v for _, v in history[-2:]) / 2
+    if last_two_avg >= NEW_LISTING_EPS_FULL_PCT:
+        return 25, f"2분기 평균 +{last_two_avg:.1f}% (≥+100%)"
+    if last_two_avg >= NEW_LISTING_EPS_HIGH_PCT:
+        return 20, f"2분기 평균 +{last_two_avg:.1f}% (+50~+100%)"
+    if last_two_avg >= NEW_LISTING_QUARTERLY_MIN_PCT:
+        return 13, f"2분기 평균 +{last_two_avg:.1f}% (+25~+50%)"
+    return 0, f"2분기 평균 +{last_two_avg:.1f}% (<+25%)"
+
+
+def _score_quarterly_sales_strength(history: list[tuple[str, float]]) -> tuple[int, str]:
+    """신규상장 축 ② — 분기 매출 강도 5점 (최근 2분기 평균 YoY)."""
+    if len(history) < 2:
+        return 0, "history 부족"
+    last_two_avg = sum(v for _, v in history[-2:]) / 2
+    if last_two_avg >= NEW_LISTING_SALES_FULL_PCT:
+        return 5, f"2분기 평균 +{last_two_avg:.1f}% (≥+50%)"
+    if last_two_avg >= NEW_LISTING_QUARTERLY_MIN_PCT:
+        return 3, f"2분기 평균 +{last_two_avg:.1f}% (+25~+50%)"
+    return 0, f"2분기 평균 +{last_two_avg:.1f}% (<+25%)"
+
+
+def _score_stability(quarterly_eps_for_stability: list[float] | None) -> tuple[int, str]:
+    """신규상장 축 ④ — 안정성 5점."""
+    if not quarterly_eps_for_stability or len(quarterly_eps_for_stability) < 12:
+        return 1, "데이터 부족 (<12분기)"
+    score, detail = compute_earnings_stability(quarterly_eps_for_stability)
+    if score is None:
+        return 1, detail
+    if score < STABILITY_EXCELLENT_MAX:
+        return 5, f"안정성 우수 ({detail})"
+    if score <= STABILITY_MODERATE_MAX:
+        return 3, f"안정성 보통 ({detail})"
+    return 1, f"안정성 부족 ({detail})"
+
+
+# ────────────────────────────────────────────────────────
+# 분석 헬퍼 — 연간 EPS 시계열에서 파생 지표 추출
+# ────────────────────────────────────────────────────────
+
+
+def _compute_three_year_growths(annual_eps: list[tuple[str, float]]) -> list[float]:
+    """최근 4년 윈도우에서 3개의 YoY 증가율 산출. ±500% 로 cap."""
+    if len(annual_eps) < 2:
+        return []
+    window = annual_eps[-4:]
+    growths: list[float] = []
+    for i in range(1, len(window)):
+        prev_v = window[i - 1][1]
+        curr_v = window[i][1]
+        if prev_v == 0:
+            continue
+        denom = abs(prev_v) if prev_v < 0 else prev_v
+        g = (curr_v - prev_v) / denom * 100
+        g_capped = max(-500.0, min(500.0, g))
+        growths.append(round(g_capped, 2))
+    return growths
+
+
+def _compute_ttm_high_ratio(annual_eps: list[tuple[str, float]]) -> tuple[float | None, bool]:
+    """최근 연 EPS 가 과거 사상 최고치 대비 비율 + 사상 최고치 여부."""
+    if len(annual_eps) < 2:
+        return None, False
+    all_years_pos = [v for _, v in annual_eps if v > 0]
+    if not all_years_pos:
+        return None, False
+    current = annual_eps[-1][1]
+    if current <= 0:
+        return None, False
+    past_max = max(all_years_pos[:-1]) if len(all_years_pos) >= 2 else all_years_pos[0]
+    if past_max <= 0:
+        return None, False
+    return round(current / past_max, 3), current >= past_max
+
+
+def _compute_latest_annual_yoy(annual_eps: list[tuple[str, float]]) -> float | None:
+    """직전 1년 EPS YoY (적자→흑자 전환은 999.99 placeholder)."""
+    if len(annual_eps) < 2:
+        return None
+    prev_v = annual_eps[-2][1]
+    curr_v = annual_eps[-1][1]
+    if curr_v > 0 and prev_v <= 0:
+        return 999.99
+    if prev_v == 0:
+        return None
+    return round((curr_v - prev_v) / abs(prev_v) * 100, 2)
+
+
+# ────────────────────────────────────────────────────────
+# 트랙 분류
+# ────────────────────────────────────────────────────────
+
+
+def _is_orthodox_eligible(annual_eps: list[tuple[str, float]]) -> bool:
+    """정통 A 입장 조건: 연간 EPS 데이터 ≥ 3년 + 최근 3년 모두 흑자.
+
+    (단조 증가 여부는 점수로 차등화, 입장 조건엔 포함 안 함 — 부분 점수 의미 보장)
+    """
+    if len(annual_eps) < 3:
+        return False
+    recent_3 = annual_eps[-3:]
+    return all(v > 0 for _, v in recent_3)
+
+
+def _is_turnaround_eligible(
+    latest_annual_yoy: float | None,
+    quarterly_eps_yoy_history: list[tuple[str, float]],
+    latest_quarter_yoy: float | None,
+    ttm_high_ratio: float | None,
+    is_all_time_high: bool,
+) -> tuple[bool, bool]:
+    """턴어라운드 입장 조건 검사. Returns: (orthodox_pass, preliminary_pass)."""
+
+    # 1) 회복 강도
+    recovery_orthodox = (
+        latest_annual_yoy is not None
+        and latest_annual_yoy >= TURNAROUND_RECOVERY_ORTHODOX_PCT
+    )
+    recovery_prelim = (
+        latest_annual_yoy is not None
+        and latest_annual_yoy >= TURNAROUND_RECOVERY_PRELIM_PCT
+    )
+
+    # 2) 분기 급증
+    surge_orthodox = False
+    surge_prelim = False
+    if len(quarterly_eps_yoy_history) >= 2:
+        last_two = [v for _, v in quarterly_eps_yoy_history[-2:]]
+        if all(v >= TURNAROUND_SURGE_ORTHODOX_PCT for v in last_two):
+            surge_orthodox = True
+        if all(v >= TURNAROUND_SURGE_PRELIM_PCT for v in last_two):
+            surge_prelim = True
+    # history 부족 시 단일 분기 인정 (정통만)
+    if not surge_orthodox and latest_quarter_yoy is not None:
+        if latest_quarter_yoy >= TURNAROUND_SURGE_ORTHODOX_PCT:
+            surge_orthodox = True
+            surge_prelim = True
+
+    # 3) TTM 회복도
+    ttm_orthodox = is_all_time_high or (
+        ttm_high_ratio is not None and ttm_high_ratio >= TURNAROUND_TTM_ORTHODOX_RATIO
+    )
+    ttm_prelim = is_all_time_high or (
+        ttm_high_ratio is not None and ttm_high_ratio >= TURNAROUND_TTM_PRELIM_RATIO
+    )
+
+    orthodox_pass = recovery_orthodox and surge_orthodox and ttm_orthodox
+    preliminary_pass = recovery_prelim and surge_prelim and ttm_prelim and not orthodox_pass
+    return orthodox_pass, preliminary_pass
+
+
+def _is_new_listing_eligible(
     annual_eps: list[tuple[str, float]],
     quarterly_eps_yoy_history: list[tuple[str, float]],
     sales_yoy_history: list[tuple[str, float]],
-    induty_code: str | None,
-    annual_roe: list[tuple[str, float]] | None = None,
-    quarterly_eps_for_stability: list[float] | None = None,
-) -> dict:
-    """A 신규 상장 (<3년) 트랙 — 연간 데이터 부족 종목 중 분기 EPS·매출 강한 후보.
-
-    O'Neil 원전 (사용자 본문 #8): 상장 3년 미만으로 연 데이터 없으면
-      - 최근 5~6분기 EPS 큰 폭 증가
-      - 분기 매출 증가율도 충분
-      - 1~2분기만 좋은 건 불충분 (지속성 확인)
+) -> bool:
+    """신규상장 입장 조건:
+      - 연간 EPS 데이터 < 3년 (상장 < 3년 근사)
+      - 분기 EPS YoY 최근 2분기 모두 ≥ +25%
+      - 분기 매출 YoY 최근 2분기 모두 ≥ +25%
     """
-    out: dict[str, Any] = {
-        "new_listing_pass": False,
-        "annual_eps_count": len(annual_eps),
-        "annual_eps": [(k, round(v, 2)) for k, v in annual_eps[-5:]],
-        "quarterly_yoy_history": [(p, round(v, 2)) for p, v in quarterly_eps_yoy_history[-5:]],
-        "sales_yoy_history": [(p, round(v, 2)) for p, v in sales_yoy_history[-5:]],
-        "induty_code": induty_code,
-        "cyclical": is_cyclical_industry(induty_code),
-        "earnings_stability_score": None,
-        "earnings_stability_detail": "",
-        "latest_roe": annual_roe[-1][1] if annual_roe else None,
-        "badges": [],
-        "fail_reasons": [],
-    }
-
-    # 1) 분기 EPS 지속성
+    if len(annual_eps) >= NEW_LISTING_MAX_ANNUAL_DATA:
+        return False
     if len(quarterly_eps_yoy_history) < NEW_LISTING_MIN_HISTORY:
-        out["fail_reasons"].append(
-            f"분기 EPS YoY history {len(quarterly_eps_yoy_history)}개 (≥{NEW_LISTING_MIN_HISTORY} 필요)"
-        )
-    eps_pass = (
-        len(quarterly_eps_yoy_history) >= NEW_LISTING_MIN_HISTORY
-        and all(v >= NEW_LISTING_QUARTERLY_MIN_PCT for _, v in quarterly_eps_yoy_history)
-    )
-
-    # 2) 분기 매출 지속성
+        return False
     if len(sales_yoy_history) < NEW_LISTING_MIN_HISTORY:
-        out["fail_reasons"].append(
-            f"분기 매출 YoY history {len(sales_yoy_history)}개 (≥{NEW_LISTING_MIN_HISTORY} 필요)"
-        )
-    sales_pass = (
-        len(sales_yoy_history) >= NEW_LISTING_MIN_HISTORY
-        and all(v >= NEW_LISTING_QUARTERLY_MIN_PCT for _, v in sales_yoy_history)
-    )
-
-    # 3) 비경기민감
-    cyclical_pass = not out["cyclical"]
-
-    out["new_listing_pass"] = bool(eps_pass and sales_pass and cyclical_pass)
-
-    if not eps_pass and len(quarterly_eps_yoy_history) >= NEW_LISTING_MIN_HISTORY:
-        weakest = min(v for _, v in quarterly_eps_yoy_history)
-        out["fail_reasons"].append(
-            f"분기 EPS YoY 지속성 미충족 (최약 +{weakest:.1f}%, ≥+{NEW_LISTING_QUARTERLY_MIN_PCT}% 필요)"
-        )
-    if not sales_pass and len(sales_yoy_history) >= NEW_LISTING_MIN_HISTORY:
-        weakest = min(v for _, v in sales_yoy_history)
-        out["fail_reasons"].append(
-            f"분기 매출 YoY 지속성 미충족 (최약 +{weakest:.1f}%, ≥+{NEW_LISTING_QUARTERLY_MIN_PCT}% 필요)"
-        )
-    if not cyclical_pass:
-        out["fail_reasons"].append(f"경기민감주 (KSIC {induty_code})")
-
-    # 안정성 + ROE 배지 (참고)
-    if quarterly_eps_for_stability and len(quarterly_eps_for_stability) >= 12:
-        score, detail = compute_earnings_stability(quarterly_eps_for_stability)
-        out["earnings_stability_score"] = score
-        out["earnings_stability_detail"] = detail
-        if score is not None:
-            if score < A_STABILITY_EXCELLENT_MAX:
-                out["badges"].append("안정성 우수")
-            elif score <= A_STABILITY_MODERATE_MAX:
-                out["badges"].append("안정성 보통")
-            else:
-                out["badges"].append("안정성 부족")
-    if out["latest_roe"] is not None:
-        if out["latest_roe"] >= A_BADGE_ROE_EXCELLENT:
-            out["badges"].append("탁월 ROE")
-        elif out["latest_roe"] >= A_BADGE_ROE_GLOBAL:
-            out["badges"].append("글로벌 ROE")
-
-    return out
+        return False
+    eps_ok = all(v >= NEW_LISTING_QUARTERLY_MIN_PCT for _, v in quarterly_eps_yoy_history[-2:])
+    sales_ok = all(v >= NEW_LISTING_QUARTERLY_MIN_PCT for _, v in sales_yoy_history[-2:])
+    return eps_ok and sales_ok
 
 
-def evaluate_turnaround_detailed(
+# ────────────────────────────────────────────────────────
+# 메인 엔트리 — v2 평가 + 점수 산정
+# ────────────────────────────────────────────────────────
+
+
+def evaluate_a_v2(
     annual_eps: list[tuple[str, float]],
     annual_roe: list[tuple[str, float]],
     quarterly_eps_yoy_history: list[tuple[str, float]],
+    sales_yoy_history: list[tuple[str, float]],
     latest_quarter_yoy: float | None,
     induty_code: str | None,
     quarterly_eps_for_stability: list[float] | None = None,
     pretax_margin: float | None = None,
 ) -> dict:
-    """A 턴어라운드 트랙 평가 — 메인 트랙 미충족 V자 회복주 잡기.
+    """C 통과 종목을 v2 점수 체계로 평가.
 
-    O'Neil 원전 (사용자 제공): 클리브랜드 클리프스 사례 — 적자 → 64% → 241% 두 분기 → 8개월 +170%.
+    Returns: 트랙별 점수 dict. 어디에도 분류되지 않으면 'unclassified' 트랙으로
+    0점 entry 반환 (랭킹 시스템에서 사용하기 위함).
 
-    조건 (모두 충족):
-      1. 직전 1년 연 EPS YoY ≥ 5% (회복 확인)
-      2. 분기 EPS 2분기 연속 YoY ≥ +50% 급증
-         (history 부족 시 직전 분기 단일 +50%+ 만으로도 OK — V자 막 시작 단계)
-      3. 가장 최근 연 EPS 가 과거 5년 최고치의 90% 이상 (사상 최고치 근접)
-         또는 가장 최근 연 EPS 가 사상 최고치 자체
-      4. KSIC 경기민감주 prefix 미해당
+    트랙 분류 우선순위: 정통 A → 턴어라운드 → 신규상장 → 분류 불가 (0점).
     """
-    out: dict[str, Any] = {
-        "turnaround_pass": False,
-        "preliminary_turnaround_pass": False,
-        "annual_eps": [(k, round(v, 2)) for k, v in annual_eps[-5:]],
-        "annual_roe": [(k, round(v, 2)) for k, v in annual_roe[-5:]],
-        "latest_annual_yoy": None,
-        "two_quarter_surge": False,
-        "two_quarter_surge_detail": "",
-        "preliminary_two_quarter_surge": False,
-        "ttm_high_ratio": None,
-        "is_all_time_high": False,
+    latest_roe = round(annual_roe[-1][1], 2) if annual_roe else None
+    three_year_growths = _compute_three_year_growths(annual_eps)
+    avg_growth = (
+        round(sum(three_year_growths) / len(three_year_growths), 2)
+        if three_year_growths
+        else None
+    )
+    latest_annual_yoy = _compute_latest_annual_yoy(annual_eps)
+    ttm_high_ratio, is_all_time_high = _compute_ttm_high_ratio(annual_eps)
+
+    is_cyclical_val = is_cyclical_industry(induty_code)
+    margin_lbl = margin_label(pretax_margin)
+
+    # 공통 raw 데이터 (모든 트랙에서 표시)
+    raw = {
+        "annual_eps": [(k, round(v, 2)) for k, v in annual_eps[-6:]],
+        "annual_roe": [(k, round(v, 2)) for k, v in annual_roe[-6:]],
+        "three_year_growths": three_year_growths,
+        "three_year_avg_growth": avg_growth,
+        "latest_annual_yoy": latest_annual_yoy,
+        "latest_roe": latest_roe,
         "latest_quarter_yoy": latest_quarter_yoy,
-        "induty_code": induty_code,
-        "cyclical": is_cyclical_industry(induty_code),
-        "earnings_stability_score": None,
-        "earnings_stability_detail": "",
-        "latest_roe": None,
         "pretax_margin": pretax_margin,
-        "high_via_margin": False,
-        "badges": [],
-        "fail_reasons": [],
+        "ttm_high_ratio": ttm_high_ratio,
+        "is_all_time_high": is_all_time_high,
+        "induty_code": induty_code,
     }
 
-    # 1) 직전 1년 연 EPS YoY
-    if len(annual_eps) >= 2:
-        prev_key, prev_v = annual_eps[-2]
-        curr_key, curr_v = annual_eps[-1]
-        if prev_v != 0 and curr_v > 0:
-            yoy = (curr_v - prev_v) / abs(prev_v) * 100
-            out["latest_annual_yoy"] = round(yoy, 2)
-        elif curr_v > 0 and prev_v <= 0:
-            # 적자→흑자 전환
-            out["latest_annual_yoy"] = 999.99  # 무한대 표시 placeholder
+    common = {
+        "margin_label": margin_lbl,
+        "is_cyclical": is_cyclical_val,
+        "raw": raw,
+    }
 
-    # 2) 2분기 연속 +50%+ 급증 (정통)
-    if len(quarterly_eps_yoy_history) >= 2:
-        last_two = quarterly_eps_yoy_history[-2:]
-        if all(v >= TURNAROUND_QUARTERLY_YOY_MIN_PCT for _, v in last_two):
-            out["two_quarter_surge"] = True
-            out["two_quarter_surge_detail"] = (
-                f"{last_two[0][0]} +{last_two[0][1]:.1f}%, {last_two[1][0]} +{last_two[1][1]:.1f}%"
-            )
-        if all(v >= TURNAROUND_PRELIM_QUARTERLY_YOY_MIN_PCT for _, v in last_two):
-            out["preliminary_two_quarter_surge"] = True
-            if not out["two_quarter_surge_detail"]:
-                out["two_quarter_surge_detail"] = (
-                    f"{last_two[0][0]} +{last_two[0][1]:.1f}%, {last_two[1][0]} +{last_two[1][1]:.1f}% (예비)"
-                )
-    # history 부족 케이스 — 직전 분기 단일로 V자 시작 인정
-    elif latest_quarter_yoy is not None:
-        if latest_quarter_yoy >= TURNAROUND_QUARTERLY_YOY_MIN_PCT:
-            out["two_quarter_surge"] = True
-            out["two_quarter_surge_detail"] = f"직전 분기 단일 +{latest_quarter_yoy:.1f}% (history 부족)"
-        if latest_quarter_yoy >= TURNAROUND_PRELIM_QUARTERLY_YOY_MIN_PCT:
-            out["preliminary_two_quarter_surge"] = True
-            if not out["two_quarter_surge_detail"]:
-                out["two_quarter_surge_detail"] = f"직전 분기 단일 +{latest_quarter_yoy:.1f}% (예비)"
+    # 1) 정통 A 트랙 시도
+    if _is_orthodox_eligible(annual_eps):
+        return _build_orthodox(annual_eps, three_year_growths, avg_growth, latest_roe, common)
 
-    # 3) TTM 사상 최고치 근접 — 연간 EPS 기반 근사
-    if len(annual_eps) >= 2:
-        all_years = [v for _, v in annual_eps if v > 0]
-        if all_years:
-            past_max = max(all_years[:-1]) if len(all_years) >= 2 else all_years[0]
-            current = annual_eps[-1][1]
-            if current > 0 and past_max > 0:
-                out["ttm_high_ratio"] = round(current / past_max, 3)
-                out["is_all_time_high"] = current >= past_max
-
-    # ROE / 안정성 (배지·표시용, 통과 영향 X)
-    if annual_roe:
-        out["latest_roe"] = round(annual_roe[-1][1], 2)
-    if quarterly_eps_for_stability and len(quarterly_eps_for_stability) >= 12:
-        score, detail = compute_earnings_stability(quarterly_eps_for_stability)
-        out["earnings_stability_score"] = score
-        out["earnings_stability_detail"] = detail
-
-    pass_recovery = (
-        out["latest_annual_yoy"] is not None
-        and out["latest_annual_yoy"] >= TURNAROUND_ANNUAL_EPS_MIN_PCT
+    # 2) 턴어라운드 트랙 시도
+    orthodox_t, preliminary_t = _is_turnaround_eligible(
+        latest_annual_yoy, quarterly_eps_yoy_history, latest_quarter_yoy,
+        ttm_high_ratio, is_all_time_high,
     )
-    pass_surge = out["two_quarter_surge"]
-    pass_high = (
-        out["is_all_time_high"]
-        or (out["ttm_high_ratio"] is not None and out["ttm_high_ratio"] >= TURNAROUND_TTM_HIGH_RATIO)
-    )
-    # 마진 우위 면제: 회복(+5%) + 분기 급증(+50%+) + 마진 ≥ 15% 시 TTM 사상 최고치 게이트 면제
-    # 회복 초기 종목은 TTM이 아직 신고치 근접 못 한 경우가 많아, 비즈니스 본연 강도(마진)로 대체.
-    pass_high_via_margin = (
-        pretax_margin is not None
-        and pretax_margin >= A_MARGIN_ALT_GATE
-        and pass_recovery
-        and pass_surge
-        and not pass_high
-    )
-    pass_cyclical = not out["cyclical"]
-
-    out["high_via_margin"] = bool(pass_high_via_margin)
-    out["turnaround_pass"] = bool(
-        pass_recovery and pass_surge and (pass_high or pass_high_via_margin) and pass_cyclical
-    )
-
-    # 예비 턴어라운드 — 정통 미충족이지만 한두 항목 약간 미달, 다음 분기 잡힐 가능성 높음
-    prelim_recovery = (
-        out["latest_annual_yoy"] is not None
-        and out["latest_annual_yoy"] >= TURNAROUND_PRELIM_ANNUAL_EPS_MIN_PCT
-    )
-    prelim_surge = out["preliminary_two_quarter_surge"]
-    prelim_high = (
-        out["is_all_time_high"]
-        or (out["ttm_high_ratio"] is not None and out["ttm_high_ratio"] >= TURNAROUND_PRELIM_TTM_HIGH_RATIO)
-    )
-    out["preliminary_turnaround_pass"] = bool(
-        prelim_recovery and prelim_surge and prelim_high and pass_cyclical and not out["turnaround_pass"]
-    )
-
-    if not pass_recovery:
-        ann_str = f"{out['latest_annual_yoy']}%" if out["latest_annual_yoy"] is not None else "N/A"
-        out["fail_reasons"].append(f"직전 1년 EPS YoY {ann_str} (≥{TURNAROUND_ANNUAL_EPS_MIN_PCT}% 필요)")
-    if not pass_surge:
-        out["fail_reasons"].append(f"2분기 연속 +{TURNAROUND_QUARTERLY_YOY_MIN_PCT}%+ 급증 미충족")
-    if not pass_high and not pass_high_via_margin:
-        ratio_str = f"{out['ttm_high_ratio']*100:.0f}%" if out["ttm_high_ratio"] is not None else "N/A"
-        margin_str = f"마진 {pretax_margin:.1f}%" if pretax_margin is not None else "마진 N/A"
-        out["fail_reasons"].append(
-            f"TTM 사상 최고치 {ratio_str} (≥{TURNAROUND_TTM_HIGH_RATIO*100:.0f}% 또는 신고가 필요, "
-            f"또는 마진 ≥{A_MARGIN_ALT_GATE}% 대안 미충족: {margin_str})"
+    if orthodox_t or preliminary_t:
+        return _build_turnaround(
+            latest_annual_yoy, quarterly_eps_yoy_history, latest_quarter_yoy,
+            ttm_high_ratio, is_all_time_high, latest_roe,
+            is_preliminary=preliminary_t, common=common,
         )
-    if not pass_cyclical:
-        out["fail_reasons"].append(f"경기민감주 (KSIC {induty_code})")
 
-    # 배지
-    if out["is_all_time_high"]:
-        out["badges"].append("사상 최고치")
-    if out["latest_roe"] is not None:
-        if out["latest_roe"] >= A_BADGE_ROE_EXCELLENT:
-            out["badges"].append("탁월 ROE")
-        elif out["latest_roe"] >= A_BADGE_ROE_GLOBAL:
-            out["badges"].append("글로벌 ROE")
-    if pretax_margin is not None:
-        if pretax_margin >= A_MARGIN_EXCELLENT:
-            out["badges"].append("🏆 탁월 마진")
-        elif pretax_margin >= A_MARGIN_ALT_GATE:
-            out["badges"].append("🥇 우수 마진")
-    if out["high_via_margin"]:
-        out["badges"].append(f"마진 우위 (TTM 면제, 마진 {pretax_margin:.1f}%)")
-    score = out["earnings_stability_score"]
-    if score is not None:
-        if score < A_STABILITY_EXCELLENT_MAX:
-            out["badges"].append("안정성 우수")
-        elif score <= A_STABILITY_MODERATE_MAX:
-            out["badges"].append("안정성 보통")
-        else:
-            out["badges"].append("안정성 부족")
+    # 3) 신규상장 트랙 시도
+    if _is_new_listing_eligible(annual_eps, quarterly_eps_yoy_history, sales_yoy_history):
+        return _build_new_listing(
+            quarterly_eps_yoy_history, sales_yoy_history, latest_roe,
+            quarterly_eps_for_stability, common,
+        )
 
-    return out
+    # 4) 분류 불가 — 어떤 트랙에도 못 들어옴. 랭킹 시스템 위해 0점 entry 반환.
+    return _build_unclassified(
+        annual_eps, latest_annual_yoy,
+        quarterly_eps_yoy_history, latest_quarter_yoy,
+        ttm_high_ratio, is_all_time_high,
+        sales_yoy_history,
+        common,
+    )
 
 
-def evaluate_a_detailed(
+def _build_orthodox(
     annual_eps: list[tuple[str, float]],
-    annual_roe: list[tuple[str, float]],
-    annual_cps: list[tuple[str, float]],
-    latest_quarter_yoy: float | None,
-    induty_code: str | None,
-    quarterly_eps_for_stability: list[float] | None = None,
-    pretax_margin: float | None = None,
+    growths: list[float],
+    avg_growth: float | None,
+    latest_roe: float | None,
+    common: dict,
 ) -> dict:
-    """A 메인 트랙 평가 + 가점 배지용 raw 값 추출.
+    s1, n1 = _score_eps_consistency_orthodox(annual_eps, growths)
+    s2, n2 = _score_eps_growth(avg_growth)
+    s3, n3 = _score_profitability_roe(latest_roe)
+    total = s1 + s2 + s3
 
-    메인 트랙 통과 조건 (모두 충족):
-      1. 최근 3년 연속 EPS 매년 증가 (감소 연도 0개)
-      2. 3년 평균 연 EPS 증가율 ≥ 25%
-      3. 가장 최근 ROE ≥ 17%
-      4. 직전 분기 EPS YoY ≥ 3년 평균 EPS 증가율 × 1/3 (성장 둔화 게이트)
-      5. KSIC 산업 코드가 경기민감주 prefix(24/20/17/22/29) 미해당
-    """
-    out: dict[str, Any] = {
-        "main_track_pass": False,
-        "main_track_via_margin": False,
-        "annual_eps": [(k, round(v, 2)) for k, v in annual_eps[-5:]],
-        "annual_roe": [(k, round(v, 2)) for k, v in annual_roe[-5:]],
-        "annual_cps": [(k, round(v, 2)) for k, v in annual_cps[-5:]] if annual_cps else [],
-        "three_year_growths": [],
-        "three_year_avg_growth": None,
-        "five_year_consecutive_increase": False,
-        "consecutive_3y_increase": False,
-        "latest_roe": None,
-        "latest_cps": None,
-        "latest_eps": None,
-        "latest_cps_eps_ratio": None,
-        "latest_quarter_yoy": latest_quarter_yoy,
-        "deceleration_gate_pass": False,
-        "deceleration_gate_threshold": None,
-        "induty_code": induty_code,
-        "cyclical": is_cyclical_industry(induty_code),
-        "earnings_stability_score": None,
-        "earnings_stability_detail": "",
-        "pretax_margin": pretax_margin,
-        "badges": [],
-        "fail_reasons": [],
-    }
-
-    # 1) 3년 EPS 연속 증가 + 평균 증가율
-    # 사이클 종목(적자/흑자 변동) + 데이터 짧은 케이스 대응:
-    #   - 적자 prev (≤0) 시 break 하지 않고 abs() 분모 공식으로 계속 계산 (흑자전환 인정)
-    #   - 각 YoY 는 ±500% 로 cap (BEP 근접 prev 의 outlier 방지)
-    #   - consecutive_3y_increase 는 strict 단조 증가 + 적자 0회 일 때만 True
-    #   - 최소 3개 데이터로 평가 진행 (2 YoY), 4개 있으면 3 YoY. 데이터 적으면 partial_data 플래그.
-    if len(annual_eps) >= 3:
-        window = annual_eps[-4:]  # 최대 4개 → 최대 3개 YoY
-        partial_data = (len(window) < 4)
-        all_increase = True
-        any_loss = False
-        growths: list[float] = []
-        for i in range(1, len(window)):
-            prev_key, prev_v = window[i - 1]
-            curr_key, curr_v = window[i]
-            if prev_v <= 0 or curr_v <= 0:
-                any_loss = True
-                all_increase = False
-                if prev_v < 0 and curr_v > 0:
-                    out["fail_reasons"].append(f"{prev_key}→{curr_key} 흑자전환")
-                elif prev_v <= 0:
-                    out["fail_reasons"].append(f"{prev_key} 적자")
-            if prev_v == 0:
-                continue
-            denom = abs(prev_v) if prev_v < 0 else prev_v
-            g = (curr_v - prev_v) / denom * 100
-            g_capped = max(-500.0, min(500.0, g))
-            growths.append(round(g_capped, 2))
-            if curr_v <= prev_v:
-                all_increase = False
-        out["three_year_growths"] = growths
-        out["consecutive_3y_increase"] = all_increase and not any_loss and not partial_data
-        out["partial_data"] = partial_data
-        if growths:
-            out["three_year_avg_growth"] = round(sum(growths) / len(growths), 2)
-        if partial_data:
-            out["fail_reasons"].append(f"연간 EPS {len(annual_eps)}년만 제공 (4년 권장, 2개 YoY 로 평가)")
-    else:
-        out["partial_data"] = True
-        out["fail_reasons"].append(f"연간 EPS 데이터 부족 ({len(annual_eps)}년, 최소 3년 필요)")
-
-    # 5년 연속 증가 (가점 배지) — O'Neil 원전: 위기 1회 dip 다음해 회복 시 면제
-    out["five_year_with_crisis_waiver"] = False
-    if len(annual_eps) >= 6:
-        recent_6 = annual_eps[-6:]
-        values = [v for _, v in recent_6]
-        # 적자 끼면 위기 면제 미적용 (적자는 별개 문제)
-        if all(v > 0 for v in values):
-            # strict 단조 증가 우선 체크
-            if all(values[i] > values[i - 1] for i in range(1, len(values))):
-                out["five_year_consecutive_increase"] = True
-            else:
-                # 1회 위기 dip 면제 룰
-                dip_indices = [i for i in range(1, len(values)) if values[i] < values[i - 1]]
-                if len(dip_indices) == 1:
-                    dip_i = dip_indices[0]
-                    # dip 이 마지막 해가 아니어야 함 (회복 확인 필요)
-                    if dip_i + 1 < len(values) and values[dip_i + 1] >= values[dip_i - 1]:
-                        out["five_year_consecutive_increase"] = True
-                        out["five_year_with_crisis_waiver"] = True
-
-    # 2) 최신 ROE
-    if annual_roe:
-        out["latest_roe"] = round(annual_roe[-1][1], 2)
-
-    # 3) CPS / EPS 비율
-    if annual_eps:
-        out["latest_eps"] = round(annual_eps[-1][1], 2)
-    if annual_cps and annual_eps:
-        latest_cps = annual_cps[-1][1]
-        latest_eps = annual_eps[-1][1]
-        out["latest_cps"] = round(latest_cps, 2)
-        if latest_eps > 0:
-            out["latest_cps_eps_ratio"] = round(latest_cps / latest_eps, 3)
-
-    # 4) 성장 둔화 게이트
-    avg_g = out["three_year_avg_growth"]
-    qy = out["latest_quarter_yoy"]
-    if avg_g is not None and qy is not None:
-        gate = avg_g / A_DECELERATION_GATE_DIVISOR
-        out["deceleration_gate_threshold"] = round(gate, 2)
-        out["deceleration_gate_pass"] = qy >= gate
-
-    # 5) 안정성 지수 (가점 배지용)
-    if quarterly_eps_for_stability and len(quarterly_eps_for_stability) >= 12:
-        score, detail = compute_earnings_stability(quarterly_eps_for_stability)
-        out["earnings_stability_score"] = score
-        out["earnings_stability_detail"] = detail
-
-    # 메인 트랙 통과 판정
-    pass_eps_consec = out["consecutive_3y_increase"]
-    pass_eps_avg = (
-        out["three_year_avg_growth"] is not None
-        and out["three_year_avg_growth"] >= A_ANNUAL_EPS_GROWTH_MIN_PCT
-    )
-    pass_roe = out["latest_roe"] is not None and out["latest_roe"] >= A_ROE_MIN_PCT
-    # 마진 우위 대안 게이트: 책 원문 "ROE 낮을 시 세전 마진율이 아주 좋아야 한다"
-    # ROE 8% 바닥선을 둬서 적자성·자본 활용 둔화 종목 배제.
-    pass_margin_alt = (
-        not pass_roe
-        and pretax_margin is not None
-        and pretax_margin >= A_MARGIN_ALT_GATE
-        and out["latest_roe"] is not None
-        and out["latest_roe"] >= A_ROE_FLOOR_FOR_MARGIN_ALT
-    )
-    pass_profitability = pass_roe or pass_margin_alt
-    pass_decel = out["deceleration_gate_pass"]
-    pass_cyclical = not out["cyclical"]
-
-    out["main_track_via_margin"] = bool(pass_margin_alt)
-    out["main_track_pass"] = bool(
-        pass_eps_consec and pass_eps_avg and pass_profitability and pass_decel and pass_cyclical
-    )
-
-    if not pass_eps_consec:
-        out["fail_reasons"].append("3년 연속 EPS 증가 미충족")
-    if not pass_eps_avg:
-        avg_str = f"{out['three_year_avg_growth']}%" if out["three_year_avg_growth"] is not None else "N/A"
-        out["fail_reasons"].append(f"3년 평균 증가율 {avg_str} (≥{A_ANNUAL_EPS_GROWTH_MIN_PCT}% 필요)")
-    if not pass_profitability:
-        roe_str = f"{out['latest_roe']}%" if out["latest_roe"] is not None else "N/A"
-        margin_str = f"마진 {pretax_margin:.1f}%" if pretax_margin is not None else "마진 N/A"
-        out["fail_reasons"].append(
-            f"수익성 미충족 — ROE {roe_str} (≥{A_ROE_MIN_PCT}% 필요), "
-            f"또는 마진 대안 미달 ({margin_str}, ≥{A_MARGIN_ALT_GATE}% AND ROE ≥{A_ROE_FLOOR_FOR_MARGIN_ALT}% 필요)"
-        )
-    if not pass_decel:
-        gate_str = f"{out['deceleration_gate_threshold']}%" if out["deceleration_gate_threshold"] is not None else "N/A"
-        qy_str = f"{qy}%" if qy is not None else "N/A"
-        out["fail_reasons"].append(f"성장 둔화 — 직전 분기 YoY {qy_str} < 3년 평균/3 ({gate_str})")
-    if not pass_cyclical:
-        out["fail_reasons"].append(f"경기민감주 (KSIC {induty_code})")
-
-    # 가점 배지
-    if out["latest_roe"] is not None:
-        if out["latest_roe"] >= A_BADGE_ROE_EXCELLENT:
-            out["badges"].append("탁월 ROE")
-        elif out["latest_roe"] >= A_BADGE_ROE_GLOBAL:
-            out["badges"].append("글로벌 ROE")
-    if pretax_margin is not None:
-        if pretax_margin >= A_MARGIN_EXCELLENT:
-            out["badges"].append("🏆 탁월 마진")
-        elif pretax_margin >= A_MARGIN_ALT_GATE:
-            out["badges"].append("🥇 우수 마진")
-    if out["main_track_via_margin"]:
-        roe_v = out["latest_roe"] if out["latest_roe"] is not None else 0
-        margin_v = pretax_margin if pretax_margin is not None else 0
-        out["badges"].append(f"마진 우위 통과 (마진 {margin_v:.1f}%·ROE {roe_v:.1f}%)")
-    if out["five_year_consecutive_increase"]:
-        if out.get("five_year_with_crisis_waiver"):
-            out["badges"].append("5년 연속 성장 (위기 면제)")
-        else:
-            out["badges"].append("5년 연속 성장")
-    if out["latest_cps_eps_ratio"] is not None and out["latest_cps_eps_ratio"] >= A_BADGE_CPS_EPS_RATIO:
-        out["badges"].append("현금창출력 우수")
-    score = out["earnings_stability_score"]
-    if score is not None:
-        if score < A_STABILITY_EXCELLENT_MAX:
-            out["badges"].append("안정성 우수")
-        elif score <= A_STABILITY_MODERATE_MAX:
-            out["badges"].append("안정성 보통")
-        else:
-            out["badges"].append("안정성 부족")
-
-    return out
-
-
-# ────────────────────────────────────────────────────────
-# A 충족도 점수 (0~100)
-# ────────────────────────────────────────────────────────
-
-def _score_roe_points(roe: float | None) -> tuple[int, str]:
-    """ROE → 0~20점 + 노트."""
-    if roe is None:
-        return 0, "데이터 부족"
-    if roe >= 17:
-        return 20, f"ROE {roe:.1f}% (>=17%)"
-    if roe >= 12:
-        return 13, f"ROE {roe:.1f}% (12~17%)"
-    if roe >= 8:
-        return 6, f"ROE {roe:.1f}% (8~12%)"
-    return 0, f"ROE {roe:.1f}% (<8%)"
-
-
-def _score_margin_points(margin: float | None) -> tuple[int, str]:
-    """세전 마진율 → 0~20점 + 노트. ROE와 같은 20점 척도로 책의 'ROE 대안' 정신 반영."""
-    if margin is None:
-        return 0, "데이터 부족"
-    if margin >= A_MARGIN_EXCELLENT:
-        return 20, f"마진 {margin:.1f}% (>=20%)"
-    if margin >= A_MARGIN_ALT_GATE:
-        return 13, f"마진 {margin:.1f}% (15~20%)"
-    if margin >= A_MARGIN_GOOD:
-        return 6, f"마진 {margin:.1f}% (10~15%)"
-    return 0, f"마진 {margin:.1f}% (<10%)"
-
-
-def compute_a_score(a_detail: dict) -> dict:
-    """A 5개 컷오프 충족도를 0~100점으로 정량화.
-
-    한국 시장(사이클 종목 주도) 특성상 모든 종목이 O'Neil 정통 메인 트랙 5중
-    AND 조건을 충족하기 어려움. 부분 점수로 "얼마나 가까운지" 노출.
-
-    구성 (각 20점):
-      1. 3년 연속 EPS 증가 — 3년 모두 증가 +20 / 위기 면제 +17 / 1-2 dip +6~13 / 적자 +0
-      2. 3년 평균 EPS 성장률 — >=25% +20 / 15~25% +13 / 5~15% +6 / <5% +0
-      3. 수익성 (ROE 또는 마진) — max(ROE 점수, 마진 점수)
-         · ROE: >=17% +20 / 12~17% +13 / 8~12% +6 / <8% +0
-         · 마진: >=20% +20 / 15~20% +13 / 10~15% +6 / <10% +0
-         · 책 원문 "ROE 낮을 시 세전 마진율이 아주 좋아야 한다" 정신 반영.
-      4. 둔화 게이트 (직전 분기 EPS YoY >= 3년 평균 x 1/3) — 통과 +20 / 미달 +0
-      5. 비경기민감주 — 비사이클 +20 / 사이클 +0
-
-    Returns: {"total": int, "breakdown": {...}, "tier": str}
-    """
-    score_eps_consecutive = 0
-    score_eps_growth = 0
-    score_profitability = 0
-    score_decel = 0
-    score_cyclical = 0
-    notes = {}
-
-    eps_growths = a_detail.get("three_year_growths") or []
-    consec = a_detail.get("consecutive_3y_increase", False)
-    waiver = a_detail.get("five_year_with_crisis_waiver", False)
-    annual_eps = a_detail.get("annual_eps") or []
-    has_loss = any(v <= 0 for _, v in annual_eps[-4:]) if annual_eps else False
-    if consec:
-        score_eps_consecutive = 20
-        notes["연속_증가"] = "3년 연속 증가"
-    elif waiver:
-        score_eps_consecutive = 17
-        notes["연속_증가"] = "5년 위기 면제"
-    elif has_loss:
-        # 적자 후 회복 차등 점수 — t+1 즉시 회복(15) / t+2 회복(12) / 흑자전환 후 추세(6)
-        # 가장 최근 적자 위치 찾기 (최근 4년 윈도우 안에서)
-        overall_loss_idx = None
-        start = max(0, len(annual_eps) - 4)
-        for i in range(len(annual_eps) - 1, start - 1, -1):
-            if annual_eps[i][1] <= 0:
-                overall_loss_idx = i
-                break
-        if overall_loss_idx is None or overall_loss_idx + 1 >= len(annual_eps):
-            # 가장 최근 데이터가 적자거나 회복 확인 불가
-            score_eps_consecutive = 0
-            notes["연속_증가"] = "최근 적자 (회복 확인 불가)"
-        else:
-            pre_loss_v = annual_eps[overall_loss_idx - 1][1] if overall_loss_idx >= 1 else None
-            recovery_v_t1 = annual_eps[overall_loss_idx + 1][1]
-            recovery_v_t2 = (
-                annual_eps[overall_loss_idx + 2][1]
-                if overall_loss_idx + 2 < len(annual_eps)
-                else None
-            )
-            latest_v = annual_eps[-1][1]
-            second_latest_v = annual_eps[-2][1] if len(annual_eps) >= 2 else None
-
-            if pre_loss_v is not None and pre_loss_v > 0:
-                threshold = pre_loss_v * 1.5
-                if recovery_v_t1 >= threshold:
-                    score_eps_consecutive = 15
-                    ratio = recovery_v_t1 / pre_loss_v
-                    notes["연속_증가"] = f"적자 후 V자 회복 (직전 대비 {ratio:.1f}배)"
-                elif recovery_v_t2 is not None and recovery_v_t2 >= threshold:
-                    score_eps_consecutive = 12
-                    ratio = recovery_v_t2 / pre_loss_v
-                    notes["연속_증가"] = f"적자 후 t+2년 회복 (직전 대비 {ratio:.1f}배)"
-                elif recovery_v_t1 > 0 and (
-                    (recovery_v_t2 is not None and recovery_v_t2 > recovery_v_t1)
-                    or (
-                        recovery_v_t2 is None
-                        and second_latest_v is not None
-                        and latest_v > 0
-                        and latest_v > second_latest_v
-                    )
-                ):
-                    score_eps_consecutive = 6
-                    notes["연속_증가"] = "흑자전환 후 증가 추세"
-                else:
-                    score_eps_consecutive = 0
-                    notes["연속_증가"] = "최근 적자 (회복 미달)"
-            else:
-                # 연속 적자 — 적자 직전 해도 적자이거나 없음
-                if (
-                    second_latest_v is not None
-                    and latest_v > 0
-                    and latest_v > second_latest_v
-                ):
-                    score_eps_consecutive = 6
-                    notes["연속_증가"] = "연속 적자 후 흑자전환·증가 추세"
-                else:
-                    score_eps_consecutive = 0
-                    notes["연속_증가"] = "연속 적자"
-    elif eps_growths:
-        pos_count = sum(1 for g in eps_growths if g > 0)
-        if pos_count == len(eps_growths) - 1:
-            score_eps_consecutive = 13
-            notes["연속_증가"] = "1회 dip"
-        elif pos_count >= len(eps_growths) - 2:
-            score_eps_consecutive = 6
-            notes["연속_증가"] = "2회 dip"
-        else:
-            notes["연속_증가"] = "다회 dip"
-
-    avg = a_detail.get("three_year_avg_growth")
-    eps_count = len(a_detail.get("annual_eps") or [])
-    if avg is None:
-        notes["성장률"] = f"데이터 부족 (연간 EPS {eps_count}년, 최소 3년 필요)"
-    elif avg >= 25:
-        score_eps_growth = 20
-        notes["성장률"] = f"+{avg:.1f}% (>=25%)"
-    elif avg >= 15:
-        score_eps_growth = 13
-        notes["성장률"] = f"+{avg:.1f}% (15~25%)"
-    elif avg >= 5:
-        score_eps_growth = 6
-        notes["성장률"] = f"+{avg:.1f}% (5~15%)"
-    else:
-        notes["성장률"] = f"+{avg:.1f}% (<5%)"
-
-    roe = a_detail.get("latest_roe")
-    margin = a_detail.get("pretax_margin")
-    roe_pts, roe_note = _score_roe_points(roe)
-    margin_pts, margin_note = _score_margin_points(margin)
-    score_profitability = max(roe_pts, margin_pts)
-    if margin_pts > roe_pts and margin_pts > 0:
-        notes["수익성"] = f"{margin_note} (마진 우위로 ROE 대체) · {roe_note}"
-    elif roe_pts > 0 or margin_pts > 0:
-        notes["수익성"] = f"{roe_note} · {margin_note}"
-    else:
-        notes["수익성"] = f"{roe_note} · {margin_note}"
-
-    decel_pass = a_detail.get("deceleration_gate_pass", False)
-    if decel_pass:
-        score_decel = 20
-        notes["둔화_게이트"] = "통과"
-    else:
-        notes["둔화_게이트"] = "미달"
-
-    is_cyclical = a_detail.get("cyclical", False)
-    if not is_cyclical:
-        score_cyclical = 20
-        notes["비사이클"] = "비경기민감"
-    else:
-        notes["비사이클"] = f"경기민감 (KSIC {a_detail.get('induty_code')})"
-
-    total = score_eps_consecutive + score_eps_growth + score_profitability + score_decel + score_cyclical
-
-    if total >= 80:
-        tier = "정통 (O'Neil 책 기준 충족)"
-    elif total >= 60:
-        tier = "근접 (한두 항목 미달)"
-    elif total >= 40:
-        tier = "약식 (사이클 종목 가능성)"
-    else:
-        tier = "미달"
+    badges: list[str] = []
+    if growths and len(growths) >= 3 and all(g >= EPS_GROWTH_FULL_PCT for g in growths):
+        badges.append("⭐ 매년 +25% 성장")
+    if common["is_cyclical"]:
+        badges.append("⚠️ 경기민감")
 
     return {
-        "total": total,
-        "breakdown": {
-            "eps_consecutive": score_eps_consecutive,
-            "eps_growth": score_eps_growth,
-            "profitability": score_profitability,
-            "roe": roe_pts,
-            "margin": margin_pts,
-            "deceleration": score_decel,
-            "non_cyclical": score_cyclical,
+        "track": "orthodox",
+        "track_label": "정통 A",
+        "score": total,
+        "grade": grade_label(total),
+        "axis_breakdown": {
+            "eps_consistency": s1,
+            "eps_growth": s2,
+            "profitability": s3,
         },
-        "notes": notes,
-        "tier": tier,
+        "axis_notes": {
+            "eps_consistency": n1,
+            "eps_growth": n2,
+            "profitability": n3,
+        },
+        "is_preliminary": False,
+        "badges": badges,
+        **common,
+    }
+
+
+def _build_turnaround(
+    latest_annual_yoy: float | None,
+    quarterly_eps_yoy_history: list[tuple[str, float]],
+    latest_quarter_yoy: float | None,
+    ttm_high_ratio: float | None,
+    is_all_time_high: bool,
+    latest_roe: float | None,
+    is_preliminary: bool,
+    common: dict,
+) -> dict:
+    s1, n1 = _score_recovery_strength(latest_annual_yoy)
+    s2, n2 = _score_quarterly_surge(quarterly_eps_yoy_history, latest_quarter_yoy)
+    s3, n3 = _score_ttm_recovery(ttm_high_ratio, is_all_time_high)
+    s4, n4 = _score_profitability_roe(latest_roe)
+    total = s1 + s2 + s3 + s4
+
+    badges: list[str] = []
+    if is_preliminary:
+        badges.append("🟡 예비 턴어라운드")
+    else:
+        badges.append("🔄 턴어라운드")
+    if common["is_cyclical"]:
+        badges.append("⚠️ 경기민감")
+
+    return {
+        "track": "turnaround",
+        "track_label": "예비 턴어라운드" if is_preliminary else "턴어라운드",
+        "score": total,
+        "grade": grade_label(total),
+        "axis_breakdown": {
+            "recovery_strength": s1,
+            "quarterly_surge": s2,
+            "ttm_recovery": s3,
+            "profitability": s4,
+        },
+        "axis_notes": {
+            "recovery_strength": n1,
+            "quarterly_surge": n2,
+            "ttm_recovery": n3,
+            "profitability": n4,
+        },
+        "is_preliminary": is_preliminary,
+        "badges": badges,
+        **common,
+    }
+
+
+def _build_unclassified(
+    annual_eps: list[tuple[str, float]],
+    latest_annual_yoy: float | None,
+    quarterly_eps_yoy_history: list[tuple[str, float]],
+    latest_quarter_yoy: float | None,
+    ttm_high_ratio: float | None,
+    is_all_time_high: bool,
+    sales_yoy_history: list[tuple[str, float]],
+    common: dict,
+) -> dict:
+    """분류 불가 entry — 0점. 어느 트랙 어느 게이트에서 떨어졌는지 fail_reasons 에 기록.
+
+    랭킹 시스템에서 C 통과 종목 *전체* 를 다루기 위해 None 대신 0점 entry 반환.
+    """
+    fail_reasons: list[str] = []
+
+    # 정통 A 미진입 사유
+    recent_3 = annual_eps[-3:] if len(annual_eps) >= 3 else annual_eps
+    if len(annual_eps) < 3:
+        fail_reasons.append(f"[정통 A] 연간 데이터 {len(annual_eps)}년 (3년 필요)")
+    else:
+        loss_count = sum(1 for _, v in recent_3 if v <= 0)
+        if loss_count > 0:
+            fail_reasons.append(f"[정통 A] 최근 3년 중 적자 {loss_count}회")
+
+    # 턴어라운드 미진입 사유
+    ann_yoy_str = f"{latest_annual_yoy:.1f}%" if latest_annual_yoy is not None else "N/A"
+    if latest_annual_yoy is None or latest_annual_yoy < TURNAROUND_RECOVERY_PRELIM_PCT:
+        fail_reasons.append(f"[턴어라운드] 직전 1년 회복 {ann_yoy_str} (예비 ≥+{TURNAROUND_RECOVERY_PRELIM_PCT}% 필요)")
+
+    surge_prelim_pass = False
+    if len(quarterly_eps_yoy_history) >= 2:
+        last_two = [v for _, v in quarterly_eps_yoy_history[-2:]]
+        surge_prelim_pass = all(v >= TURNAROUND_SURGE_PRELIM_PCT for v in last_two)
+    elif latest_quarter_yoy is not None and latest_quarter_yoy >= TURNAROUND_SURGE_ORTHODOX_PCT:
+        surge_prelim_pass = True
+    if not surge_prelim_pass:
+        fail_reasons.append(
+            f"[턴어라운드] 분기 급증 부족 (2분기 연속 ≥+{TURNAROUND_SURGE_PRELIM_PCT}% 예비 필요)"
+        )
+
+    ttm_str = (
+        "사상 최고치" if is_all_time_high
+        else f"{ttm_high_ratio * 100:.0f}%" if ttm_high_ratio is not None
+        else "N/A (현재 적자)"
+    )
+    ttm_prelim_pass = is_all_time_high or (
+        ttm_high_ratio is not None and ttm_high_ratio >= TURNAROUND_TTM_PRELIM_RATIO
+    )
+    if not ttm_prelim_pass:
+        fail_reasons.append(
+            f"[턴어라운드] TTM 사상 최고치 근접도 {ttm_str} (예비 ≥{int(TURNAROUND_TTM_PRELIM_RATIO*100)}% 필요)"
+        )
+
+    # 신규상장 미진입 사유
+    if len(annual_eps) >= NEW_LISTING_MAX_ANNUAL_DATA:
+        fail_reasons.append(
+            f"[신규상장] 연간 데이터 {len(annual_eps)}년 (<{NEW_LISTING_MAX_ANNUAL_DATA}년 필요)"
+        )
+    else:
+        if len(quarterly_eps_yoy_history) < NEW_LISTING_MIN_HISTORY:
+            fail_reasons.append(
+                f"[신규상장] 분기 EPS history {len(quarterly_eps_yoy_history)}개 (≥{NEW_LISTING_MIN_HISTORY} 필요)"
+            )
+        elif not all(v >= NEW_LISTING_QUARTERLY_MIN_PCT for _, v in quarterly_eps_yoy_history[-2:]):
+            fail_reasons.append(f"[신규상장] 분기 EPS YoY 2분기 모두 ≥+{NEW_LISTING_QUARTERLY_MIN_PCT}% 미달")
+        if len(sales_yoy_history) < NEW_LISTING_MIN_HISTORY:
+            fail_reasons.append(
+                f"[신규상장] 분기 매출 history {len(sales_yoy_history)}개 (≥{NEW_LISTING_MIN_HISTORY} 필요)"
+            )
+        elif not all(v >= NEW_LISTING_QUARTERLY_MIN_PCT for _, v in sales_yoy_history[-2:]):
+            fail_reasons.append(f"[신규상장] 분기 매출 YoY 2분기 모두 ≥+{NEW_LISTING_QUARTERLY_MIN_PCT}% 미달")
+
+    badges: list[str] = ["분류 불가"]
+    if common["is_cyclical"]:
+        badges.append("⚠️ 경기민감")
+
+    return {
+        "track": "unclassified",
+        "track_label": "분류 불가",
+        "score": 0,
+        "grade": "하",
+        "axis_breakdown": {},
+        "axis_notes": {},
+        "is_preliminary": False,
+        "badges": badges,
+        "fail_reasons": fail_reasons,
+        **common,
+    }
+
+
+def _build_new_listing(
+    quarterly_eps_yoy_history: list[tuple[str, float]],
+    sales_yoy_history: list[tuple[str, float]],
+    latest_roe: float | None,
+    quarterly_eps_for_stability: list[float] | None,
+    common: dict,
+) -> dict:
+    s1, n1 = _score_quarterly_eps_strength(quarterly_eps_yoy_history)
+    s2, n2 = _score_quarterly_sales_strength(sales_yoy_history)
+    s3, n3 = _score_profitability_roe(latest_roe)
+    s4, n4 = _score_stability(quarterly_eps_for_stability)
+    total = s1 + s2 + s3 + s4
+
+    badges: list[str] = ["🆕 신규상장"]
+    if common["is_cyclical"]:
+        badges.append("⚠️ 경기민감")
+
+    return {
+        "track": "new_listing",
+        "track_label": "신규상장",
+        "score": total,
+        "grade": grade_label(total),
+        "axis_breakdown": {
+            "quarterly_eps_strength": s1,
+            "quarterly_sales_strength": s2,
+            "profitability": s3,
+            "stability": s4,
+        },
+        "axis_notes": {
+            "quarterly_eps_strength": n1,
+            "quarterly_sales_strength": n2,
+            "profitability": n3,
+            "stability": n4,
+        },
+        "is_preliminary": False,
+        "badges": badges,
+        **common,
     }

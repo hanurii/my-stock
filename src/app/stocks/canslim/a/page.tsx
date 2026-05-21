@@ -1,8 +1,7 @@
 import fs from "fs/promises";
 import path from "path";
 import { type CanslimCandidate } from "../CanslimTable";
-import { AnnualEarningsTable, TurnaroundTable, NewListingTable, type AnnualCandidate, type TurnaroundCandidate, type NewListingCandidate } from "../AnnualEarningsTable";
-import { AScoredTable, type AScoredCandidate } from "../AScoredTable";
+import { CanslimAScoreTable, type CanslimACandidate } from "../CanslimAScoreTable";
 
 interface MarketStatus {
   kospi_trend_verdict: string;
@@ -20,17 +19,20 @@ interface CanslimData {
   candidates: CanslimCandidate[];
 }
 
+interface TrackCounts {
+  orthodox: number;
+  turnaround_orthodox: number;
+  turnaround_preliminary: number;
+  new_listing: number;
+  unclassified: number;
+}
+
 interface CanslimAData {
   generated_at: string;
+  schema_version: number;
   c_input_count: number;
-  a_passed_count: number;
-  turnaround_count: number;
-  preliminary_turnaround_count?: number;
-  new_listing_count?: number;
-  candidates: AnnualCandidate[];
-  turnaround_candidates: TurnaroundCandidate[];
-  new_listing_candidates?: NewListingCandidate[];
-  scored_candidates?: AScoredCandidate[];
+  track_counts: TrackCounts;
+  candidates: CanslimACandidate[];
 }
 
 async function getData(): Promise<CanslimData | null> {
@@ -56,7 +58,7 @@ const USER_C_THRESHOLD = 25;
 export default async function CanslimAPage() {
   const [data, aData] = await Promise.all([getData(), getAData()]);
 
-  // C 통과 종목 수 계산 (A는 C 통과의 부분집합 — 표시용)
+  // C 통과 종목 수 (표시용)
   const cMainCount = data
     ? data.candidates.filter((c) => {
         const cr = c.criteria.C;
@@ -72,6 +74,8 @@ export default async function CanslimAPage() {
       }).length
     : 0;
 
+  const tc = aData?.track_counts;
+
   return (
     <div className="space-y-10">
       <header>
@@ -81,19 +85,19 @@ export default async function CanslimAPage() {
         <p className="text-base text-on-surface-variant mt-2">
           윌리엄 오닐의 두 번째 글자 &lsquo;A&rsquo; — 최근 실적이 일시적이지 않다는 점을 연간 EPS·ROE로 입증.
         </p>
-        <p className="text-xs text-on-surface-variant/60 mt-1.5">
-          메인 트랙 (모두 충족, AND): ① 최근 3년 연속 EPS 증가 ② 3년 평균 +25% 이상 ③ <strong className="text-on-surface-variant">ROE ≥ 12%</strong> <em className="text-on-surface-variant/80">또는</em> <strong className="text-on-surface-variant">세전 마진율 ≥ 15% (ROE ≥ 8% 바닥선)</strong> ④ 직전 분기 EPS YoY ≥ 3년 평균/3 (둔화 게이트) ⑤ 비경기민감 (KSIC 24·20·17·22·29 제외).
-          {" "}ROE ≥ 17% <span className="px-1 py-0.5 rounded bg-emerald-500/15 text-emerald-300">글로벌 ROE</span> · ≥ 25% <span className="px-1 py-0.5 rounded bg-emerald-600/20 text-emerald-300 font-bold">탁월 ROE</span>.
-          {" "}마진 ≥ 15% <span className="px-1 py-0.5 rounded bg-amber-500/15 text-amber-300">🥇 우수 마진</span> · ≥ 20% <span className="px-1 py-0.5 rounded bg-amber-600/20 text-amber-200 font-bold">🏆 탁월 마진</span>.
+        <p className="text-xs text-on-surface-variant/60 mt-1.5 leading-relaxed">
+          <strong className="text-on-surface-variant">3트랙 × 50점 만점 점수 체계 (v2).</strong>{" "}
+          모든 C 통과 종목을 트랙 (정통 A · 턴어라운드 · 신규상장) 으로 분류 후 점수 부여.
+          탈락/통과 없음, 점수가 곧 가치.
+          {" "}<strong className="text-on-surface-variant">정통 A</strong>: EPS 지속성 10 + 성장 강도 25 + 수익성 (ROE) 15.
+          {" "}<strong className="text-on-surface-variant">턴어라운드</strong>: 회복 5 + 분기 급증 25 + TTM 5 + 수익성 15.
+          {" "}<strong className="text-on-surface-variant">신규상장</strong>: 분기 EPS 25 + 분기 매출 5 + 수익성 15 + 안정성 5.
+          {" "}마진은 점수에서 제외, 5단계 라벨로 별도 노출. 경기민감은 정보 라벨만, 점수 영향 없음.
         </p>
         <p className="text-xs text-on-surface-variant/50 mt-1">
-          입력 모집단: <strong className="text-on-surface-variant">C 통과 종목 {cMainCount}개</strong>의 부분집합 ·
-          {aData
-            ? ` 생성일 ${aData.generated_at} · 평가 ${aData.c_input_count}종목 · 메인 ${aData.a_passed_count} + 턴어라운드 ${aData.turnaround_count}${
-                aData.preliminary_turnaround_count ? ` + 예비 ${aData.preliminary_turnaround_count}` : ""
-              }${
-                aData.new_listing_count ? ` + 신규상장 ${aData.new_listing_count}` : ""
-              }`
+          입력 모집단: <strong className="text-on-surface-variant">C 통과 종목 {cMainCount}개</strong> ·
+          {aData && tc
+            ? ` 생성일 ${aData.generated_at} · 총 ${aData.candidates.length}종목 (정통 A ${tc.orthodox} · 턴어라운드 ${tc.turnaround_orthodox} · 예비 ${tc.turnaround_preliminary} · 신규상장 ${tc.new_listing} · 분류불가 ${tc.unclassified} → 0점)`
             : " A 데이터 미생성 (`python scripts/screen_canslim_a.py` 실행 필요)"}
         </p>
       </header>
@@ -101,52 +105,7 @@ export default async function CanslimAPage() {
       {/* A 본문 */}
       <section>
         {aData ? (
-          <div className="space-y-6">
-            <div>
-              <h4 className="text-sm font-serif font-bold text-on-surface mb-2 flex items-center gap-2">
-                <span className="material-symbols-outlined text-base text-emerald-300">check_circle</span>
-                메인 트랙 ({aData.candidates.length}종목)
-              </h4>
-              <AnnualEarningsTable candidates={aData.candidates} />
-            </div>
-            <div>
-              <h4 className="text-sm font-serif font-bold text-on-surface mb-2 flex items-center gap-2">
-                <span className="material-symbols-outlined text-base text-tertiary">change_circle</span>
-                턴어라운드 트랙 ({aData.turnaround_candidates.length}종목
-                {aData.preliminary_turnaround_count ? ` — 정통 ${aData.turnaround_count} + ` : ""}
-                {aData.preliminary_turnaround_count ? <span className="text-amber-400">예비 {aData.preliminary_turnaround_count}</span> : null}
-                {aData.preliminary_turnaround_count ? ")" : ")"}
-                <span className="text-xs text-on-surface-variant/60 font-normal ml-2">
-                  · 정통: 연 EPS +5%↑ + 분기 2분기 +50%↑ + TTM 사상 최고치 90%↑ · 예비: +0%/+30%/80%
-                </span>
-              </h4>
-              <TurnaroundTable candidates={aData.turnaround_candidates} />
-            </div>
-            {aData.new_listing_candidates && aData.new_listing_candidates.length > 0 && (
-              <div>
-                <h4 className="text-sm font-serif font-bold text-on-surface mb-2 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-base text-blue-300">new_releases</span>
-                  신규 상장 트랙 ({aData.new_listing_candidates.length}종목)
-                  <span className="text-xs text-on-surface-variant/60 font-normal ml-2">
-                    · 상장 &lt;3년 (연 데이터 부족) + 분기 EPS·매출 모두 +25%↑ 지속 + 비경기민감
-                  </span>
-                </h4>
-                <NewListingTable candidates={aData.new_listing_candidates} />
-              </div>
-            )}
-            {aData.scored_candidates && aData.scored_candidates.length > 0 && (
-              <div>
-                <h4 className="text-sm font-serif font-bold text-on-surface mb-2 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-base text-primary">leaderboard</span>
-                  A 충족도 점수 ({aData.scored_candidates.length}종목, 100점 만점)
-                  <span className="text-xs text-on-surface-variant/60 font-normal ml-2">
-                    · 한국 시장(사이클 종목 주도) 보정 — O&apos;Neil 책 기준에 얼마나 가까운지 정량화
-                  </span>
-                </h4>
-                <AScoredTable candidates={aData.scored_candidates} />
-              </div>
-            )}
-          </div>
+          <CanslimAScoreTable candidates={aData.candidates} />
         ) : (
           <div className="bg-surface-container-low rounded-xl ghost-border p-6 text-center text-sm text-on-surface-variant/70">
             A 스크리닝 데이터가 아직 생성되지 않았습니다.
@@ -162,28 +121,41 @@ export default async function CanslimAPage() {
       <section className="bg-surface-container-low rounded-xl ghost-border p-5 space-y-4">
         <h3 className="text-lg font-serif font-bold text-on-surface flex items-center gap-2">
           <span className="material-symbols-outlined text-primary">menu_book</span>
-          &lsquo;A&rsquo; 원칙 — 12가지 핵심 (William O&apos;Neil)
+          &lsquo;A&rsquo; 원칙 — 핵심 개념 (William O&apos;Neil + 한국형 보정)
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
           {[
-            { title: "1. 연간 EPS 증가율 (핵심)", body: "최근 3년 연속 EPS 매년 증가 + 권장 25~50%↑. 5년 연속이면 최고. 위기 한 해 둔화는 다음해 회복 시 OK. 통과율 전체의 20% 미만." },
-            { title: "2. 성장 둔화 경고", body: "직전 3년 30%+ 성장이 최근 분기 10~15%로 떨어지면 성장주 생명 다함. 분기 EPS가 연간 평균의 1/3 이하면 탈락 신호." },
-            { title: "3. ROE", body: "최소 17% (경영진 우수성). 탁월한 성장주는 25~50%. ROE가 너무 낮으면 #12 세전 순이익 마진율로 대체 평가." },
-            { title: "4. 주당현금흐름 (CPS)", body: "CPS = 영업CF / 발행주식. 일부 우수 성장주는 CPS가 EPS보다 20%↑ (가점)." },
-            { title: "5. 안정성 지수", body: "20~25 미만 이상적, 30 초과 경기민감주. 분기 EPS 추세선 편차로 1~99 점수화 (낮을수록 안정)." },
-            { title: "6. 경기민감주 회피", body: "철강·화학·제지·고무·기계 (KSIC 24·20·17·22·29). 강세장 막바지 반짝." },
-            { title: "7. 턴어라운드 (별도 트랙)", body: "연 EPS 5~10%↑ + 분기 EPS 2분기 연속 급증 + TTM 사상 최고치 근접. 마진 ≥ 15% 시 TTM 게이트 면제 (회복 초기 종목 구제)." },
-            { title: "8. 신규 상장 (별도 트랙)", body: "상장 <3년: 최근 5~6분기 EPS 큰 폭 + 매출 동반 (별도 트랙으로 구현)." },
-            { title: "9. PER 사용 원칙", body: "PER 자체로 매수/매도 판단 금지. 낮다고 매수 X, 높다고 외면 X. 좋은 주식은 비싸다." },
-            { title: "10. 목표주가 산정", body: "목표가 = (2년 후 EPS 예상치) × (매수 지점 PER) × 2 (강세장 절정엔 ×2.25). 신흥 단계 PER 20 → 확장 종료 PER 45 (≈125% 확장)." },
-            { title: "11. 핵심 결론", body: "지난 3년 눈에 띄는 EPS 증가율 + 최근 강력한 실적 호전 — 두 축에 어긋나면 관심 갖지 마라." },
             {
-              title: "12. 세전 순이익 마진율 — ROE 대안 게이트",
-              body:
-                "수식: (법인세비용차감전순이익 ÷ 매출액) × 100. DART 사업보고서(연간 IS) 직접 조회. " +
-                "ROE 12% 미달이어도 마진 ≥ 15% AND ROE ≥ 8% 바닥선 충족 시 메인 트랙 통과 인정 (책의 'ROE 낮을 시 마진 대안' 정신). " +
-                "근거: ROE는 부채·자기자본 구조로 왜곡될 수 있지만, 마진은 비즈니스 본연의 가격결정력·해자(moat)를 직접 보여줌. " +
-                "한국 KOSPI 분포: ≥20% 상위 5%(탁월), ≥15% 상위 10%(우수), ≥10% 상위 25%(양호).",
+              title: "1. 연간 EPS — A 의 핵심",
+              body: "최근 3년 연속 EPS 매년 증가 + 권장 +25%↑. 정통 A 트랙 점수의 절반 (25점) 을 차지. 한 해 dip 면 부분 점수.",
+            },
+            {
+              title: "2. ROE — 수익성",
+              body: "한국형 만점 12% · 글로벌 만점 17% · 부분 점수 8~12% · 그 미만 부분 점수. 점수 척도가 세 트랙 공통.",
+            },
+            {
+              title: "3. 세전 마진율 — 라벨만",
+              body: "(법인세비용차감전이익 / 매출액) × 100. 점수에 들어가지 않고 5단계 라벨로만 노출 (매우높음 ≥20% · 높음 15~20% · 중간 10~15% · 낮음 5~10% · 매우낮음).",
+            },
+            {
+              title: "4. 턴어라운드 트랙",
+              body: "적자→흑자 V자 회복. 정통: 연 +5%↑ + 2분기 +50%↑ + TTM 90%↑. 예비: +3%↑ / +30%↑ / 80%↑. 분기 급증 강도 25점이 핵심.",
+            },
+            {
+              title: "5. 신규상장 트랙",
+              body: "상장 < 3년 (연 데이터 4년 미달). 분기 EPS·매출 2분기 연속 +25%↑ 입장 조건. 분기 EPS 강도 25점이 핵심.",
+            },
+            {
+              title: "6. 경기민감주 — 페널티 없음",
+              body: "철강·화학·제지·고무·기계 (KSIC 24·20·17·22·29). 한국 시장에선 짧은 구간 매력적일 수 있어 점수 페널티 없음. ⚠️ 정보 라벨만 표시.",
+            },
+            {
+              title: "7. 등급 컷오프 (세 트랙 공통)",
+              body: "40↑ 최상 · 30~39 상 · 20~29 중 · <20 하. 모든 트랙 50점 만점이라 트랙 구분 없이 동일 등급 적용.",
+            },
+            {
+              title: "8. 정렬",
+              body: "점수 내림차순. 동점 시 수익성 점수 (15점 공통 척도) → 종목 코드 사전순. 트랙 우선 정렬 없음 — 점수가 곧 가치.",
             },
           ].map((c) => (
             <div key={c.title} className="bg-surface-container/50 rounded-lg p-3">

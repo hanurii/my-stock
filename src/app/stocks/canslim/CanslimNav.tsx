@@ -24,6 +24,7 @@ export function CanslimNav() {
   const pathname = usePathname();
   const isHome = pathname === "/stocks/canslim";
   const isSell = pathname.startsWith("/stocks/canslim/sell");
+  const isRanking = pathname.startsWith("/stocks/canslim/ranking");
 
   return (
     <nav className="sticky top-0 z-30 flex gap-1 bg-surface-container-low/90 backdrop-blur-md rounded-xl p-1.5 ghost-border overflow-x-auto scrollbar-hide shadow-sm">
@@ -70,6 +71,19 @@ export function CanslimNav() {
           </span>
         );
       })}
+      <span className="w-px bg-on-surface/10 my-1.5 mx-0.5" aria-hidden />
+      <Link
+        href="/stocks/canslim/ranking"
+        className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs transition-all flex-shrink-0 ${
+          isRanking
+            ? "bg-primary/15 text-primary font-bold"
+            : "text-on-surface-variant/70 hover:text-on-surface-variant hover:bg-surface-container/50"
+        }`}
+        title="종합 랭킹 — 원칙별 점수 합산"
+      >
+        <span className="material-symbols-outlined text-base">leaderboard</span>
+        <span className="hidden md:inline text-[11px] text-on-surface-variant/60">종합 랭킹</span>
+      </Link>
       <span className="w-px bg-on-surface/10 my-1.5 mx-0.5" aria-hidden />
       <Link
         href="/stocks/canslim/sell"

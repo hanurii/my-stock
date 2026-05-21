@@ -2,7 +2,6 @@ import fs from "fs/promises";
 import path from "path";
 import Link from "next/link";
 import { type CanslimCandidate } from "./CanslimTable";
-import { type AnnualCandidate, type TurnaroundCandidate, type NewListingCandidate } from "./AnnualEarningsTable";
 import { passesCGate } from "./lib/cFilter";
 
 interface MarketStatus {
@@ -23,14 +22,16 @@ interface CanslimData {
 
 interface CanslimAData {
   generated_at: string;
+  schema_version?: number;
   c_input_count: number;
-  a_passed_count: number;
-  turnaround_count: number;
-  preliminary_turnaround_count?: number;
-  new_listing_count?: number;
-  candidates: AnnualCandidate[];
-  turnaround_candidates: TurnaroundCandidate[];
-  new_listing_candidates?: NewListingCandidate[];
+  track_counts: {
+    orthodox: number;
+    turnaround_orthodox: number;
+    turnaround_preliminary: number;
+    new_listing: number;
+    unclassified: number;
+  };
+  candidates: Array<{ score: number; track: string; is_preliminary: boolean }>;
 }
 
 interface CanslimNData {
@@ -49,13 +50,12 @@ interface CanslimSData {
 
 interface CanslimLData {
   generated_at: string;
-  s_input_count: number;
-  l_passed_count: number;
-  excluded_count: number;
+  c_input_count: number;
+  l_evaluated_count: number;
+  data_missing_count: number;
   universe: {
     type: string;
     actual_size: number;
-    rs_cutoff: number;
   };
 }
 
@@ -112,15 +112,15 @@ export default async function CanslimIndexPage() {
   const marketGo = data?.market_status.passed ?? false;
   const marketColor = marketGo ? "#95d3ba" : "#ffb4ab";
 
-  const aMainCount = aData?.a_passed_count ?? 0;
-  const aTurnaroundCount = aData?.turnaround_count ?? 0;
-  const aPrelimCount = aData?.preliminary_turnaround_count ?? 0;
-  const aNewListingCount = aData?.new_listing_count ?? 0;
+  const aMainCount = aData?.track_counts.orthodox ?? 0;
+  const aTurnaroundCount = aData?.track_counts.turnaround_orthodox ?? 0;
+  const aPrelimCount = aData?.track_counts.turnaround_preliminary ?? 0;
+  const aNewListingCount = aData?.track_counts.new_listing ?? 0;
+  const aTopScored = aData?.candidates?.filter((c) => c.score >= 40).length ?? 0;
   const nCount = nData?.n_count ?? 0;
   const sCount = sData?.s_passed_count ?? 0;
   const sExcludedCount = sData?.excluded_count ?? 0;
-  const lCount = lData?.l_passed_count ?? 0;
-  const lCutoff = lData?.universe.rs_cutoff ?? 80;
+  const lEvaluated = lData?.l_evaluated_count ?? 0;
   const lUniverseSize = lData?.universe.actual_size ?? 0;
 
   return (
@@ -173,7 +173,7 @@ export default async function CanslimIndexPage() {
             </div>
             <p className="text-base font-medium text-on-surface mb-1">현재 분기 EPS</p>
             <p className="text-xs text-on-surface-variant/80 leading-relaxed mb-3">
-              분기 EPS YoY +25% 이상 + 매출 동반 + 가속 + 경고 없음 (O&apos;Neil 책 기준 강화)
+              분기 EPS YoY +25% 이상 + 매출 동반 + EPS 가속 (O&apos;Neil 책 기준)
             </p>
             <div className="flex items-baseline justify-between">
               <span className="text-2xl font-bold text-primary">{cMainCount}</span>
@@ -196,10 +196,11 @@ export default async function CanslimIndexPage() {
             </div>
             <p className="text-base font-medium text-on-surface mb-1">연간 EPS</p>
             <p className="text-xs text-on-surface-variant/80 leading-relaxed mb-3">
-              3년 연속 EPS 증가 + 평균 +25%↑ + ROE ≥ 12% (한국 보정) + 비경기민감 + 턴어라운드·신규상장 트랙
+              3트랙 × 50점 (정통 A · 턴어라운드 · 신규상장). EPS 지속성·성장·ROE 점수 + 마진 라벨 분리. 한국형 보정.
             </p>
             <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <span className="text-on-surface-variant/80 text-xs">메인 <strong className="text-primary text-base">{aMainCount}</strong></span>
+              <span className="text-on-surface-variant/80 text-xs">최상 <strong className="text-primary text-base">{aTopScored}</strong></span>
+              <span className="text-on-surface-variant/80 text-xs">정통 A <strong className="text-emerald-400 text-base">{aMainCount}</strong></span>
               <span className="text-on-surface-variant/80 text-xs">턴어라운드 <strong className="text-tertiary text-base">{aTurnaroundCount}</strong></span>
               {aPrelimCount > 0 && (
                 <span className="text-on-surface-variant/80 text-xs">예비 <strong className="text-amber-400 text-base">{aPrelimCount}</strong></span>
@@ -273,11 +274,11 @@ export default async function CanslimIndexPage() {
             </div>
             <p className="text-base font-medium text-on-surface mb-1">주도주 (상대강도)</p>
             <p className="text-xs text-on-surface-variant/80 leading-relaxed mb-3">
-              S 통과 종목 대상으로 52주 단순 수익률 백분위 RS 점수 산출. KOSPI 시총 상위 {lUniverseSize || 300}개 모집단, RS ≥ {lCutoff} 통과.
+              C 통과 종목 대상으로 52주 단순 수익률 백분위 RS 점수 산출. KOSPI 시총 상위 {lUniverseSize || 300}개 모집단, 컷오프 없이 RS 1~99 점수 그대로 사용.
             </p>
             <div className="flex items-baseline justify-between">
-              <span className="text-2xl font-bold text-primary">{lCount}</span>
-              <span className="text-xs text-on-surface-variant/60">L 통과 종목</span>
+              <span className="text-2xl font-bold text-primary">{lEvaluated}</span>
+              <span className="text-xs text-on-surface-variant/60">L 평가 종목</span>
             </div>
             <p className="text-xs text-primary/80 mt-3 group-hover:text-primary flex items-center gap-1">
               상세 보기

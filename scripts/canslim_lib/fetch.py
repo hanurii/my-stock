@@ -13,15 +13,17 @@ from __future__ import annotations
 import io
 import json
 import os
+import random
 import re
 import time
 import xml.etree.ElementTree as ET
 import zipfile
 from pathlib import Path
 from typing import Any
-from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
-from urllib.request import Request, urlopen
+
+import requests as _requests
+from requests.adapters import HTTPAdapter
 
 ROOT = Path(__file__).resolve().parents[2]
 CACHE_DIR = ROOT / ".cache"
@@ -42,12 +44,78 @@ DART_API = "https://opendart.fss.or.kr/api"
 EXCLUDE_PATTERN = re.compile(r"스팩|SPAC|리츠|REIT|ETF|ETN|인프라|우B$|우C$|\d우$")
 
 
-def _http_get_json(url: str, headers: dict[str, str], timeout: int = 10) -> Any | None:
+# ── HTTP Session (keep-alive) ──────────────────────────────────
+# requests.Session 한 개를 프로세스 전체에서 재사용해 TLS handshake 비용 절약.
+# 워커 모드는 프로세스 분리 → 각 워커가 자기 세션을 가짐 (스레드 안전성 불요).
+_session = _requests.Session()
+_adapter = HTTPAdapter(pool_connections=8, pool_maxsize=16, max_retries=0)
+_session.mount("https://", _adapter)
+_session.mount("http://", _adapter)
+
+# 호스트별 마지막 요청 시각 — politeness delay 계산용
+_LAST_REQUEST_AT: dict[str, float] = {}
+
+# 요청 간 최소 간격 (호스트별, 초). 환경변수 CANSLIM_REQ_DELAY 로 override.
+_MIN_INTERVAL = float(os.environ.get("CANSLIM_REQ_DELAY", "0.15"))
+
+
+def _politeness_wait(host: str) -> None:
+    last = _LAST_REQUEST_AT.get(host, 0.0)
+    elapsed = time.time() - last
+    if elapsed < _MIN_INTERVAL:
+        time.sleep(_MIN_INTERVAL - elapsed)
+
+
+def _http_get_json(url: str, headers: dict[str, str], timeout: int = 10,
+                   max_retries: int = 3) -> Any | None:
+    """JSON GET — politeness delay + 자동 재시도 (exponential backoff).
+
+    재시도 트리거: 네트워크 오류, JSON 디코드 실패, 5xx 서버에러.
+    HTTP 4xx (404 등) 는 재시도 안 함 (영속 실패).
+    """
+    host = url.split("/")[2] if "://" in url else "default"
+    _politeness_wait(host)
+
+    for attempt in range(max_retries + 1):
+        retry = False
+        try:
+            resp = _session.get(url, headers=headers, timeout=timeout)
+            _LAST_REQUEST_AT[host] = time.time()
+            status = resp.status_code
+            if 400 <= status < 500:
+                return None  # 4xx 영속 실패
+            if 200 <= status < 300:
+                try:
+                    return resp.json()
+                except ValueError:
+                    retry = True  # JSON 디코드 실패 → 재시도
+            else:
+                retry = True  # 5xx → 재시도
+        except (_requests.RequestException, OSError):
+            _LAST_REQUEST_AT[host] = time.time()
+            retry = True
+
+        if retry and attempt < max_retries:
+            # 재시도 backoff (지터 추가해 동시 워커가 동기화되어 함께 재시도하는 thundering herd 방지)
+            backoff = (2 ** attempt) * 0.5 + random.uniform(0, 0.3)
+            time.sleep(backoff)
+        elif not retry:
+            return None
+    return None
+
+
+def _http_get_bytes(url: str, headers: dict[str, str], timeout: int = 15) -> bytes | None:
+    """바이너리 GET (corpCode.xml, document.xml ZIP) — 세션 keep-alive 만 사용. 재시도 없음."""
+    host = url.split("/")[2] if "://" in url else "default"
+    _politeness_wait(host)
     try:
-        req = Request(url, headers=headers)
-        with urlopen(req, timeout=timeout) as r:
-            return json.loads(r.read().decode("utf-8"))
-    except (HTTPError, URLError, json.JSONDecodeError, TimeoutError):
+        resp = _session.get(url, headers=headers, timeout=timeout)
+        _LAST_REQUEST_AT[host] = time.time()
+        if resp.status_code != 200:
+            return None
+        return resp.content
+    except (_requests.RequestException, OSError):
+        _LAST_REQUEST_AT[host] = time.time()
         return None
 
 
@@ -191,9 +259,17 @@ def yahoo_symbol(code: str, market: str) -> str:
     return f"{code}.{suffix}"
 
 
-def fetch_yahoo_chart(symbol: str, range_: str = "1y", interval: str = "1d") -> dict[str, list] | None:
-    """Yahoo Finance 차트 API. closes/volumes/timestamps 리스트 반환."""
-    qs = urlencode({"range": range_, "interval": interval})
+def fetch_yahoo_chart(symbol: str, range_: str = "1y", interval: str = "1d",
+                      period1: int | None = None, period2: int | None = None) -> dict[str, list] | None:
+    """Yahoo Finance 차트 API. closes/volumes/timestamps 리스트 반환.
+
+    period1/period2(epoch 초) 지정 시 그 날짜 구간(과거 사이클)을 조회 —
+    range_ 무시. 미지정 시 기존대로 range_ 사용(하위호환).
+    """
+    if period1 is not None and period2 is not None:
+        qs = urlencode({"period1": int(period1), "period2": int(period2), "interval": interval})
+    else:
+        qs = urlencode({"range": range_, "interval": interval})
     url = f"{YAHOO_API}/{symbol}?{qs}"
     data = _http_get_json(url, YAHOO_HEADERS, timeout=15)
     if not data:
@@ -221,19 +297,54 @@ def fetch_yahoo_chart(symbol: str, range_: str = "1y", interval: str = "1d") -> 
 
 # ── DART: 확정 재무제표 (선택적) ──
 
-def dart_get(endpoint: str, params: dict[str, str]) -> list[dict[str, Any]] | None:
-    """DART OpenAPI 호출. 'list' 필드를 그대로 반환. 키 없으면 None."""
-    api_key = os.environ.get("DART_API_KEY")
-    if not api_key:
-        return None
-    qs = urlencode({**params, "crtfc_key": api_key})
-    url = f"{DART_API}/{endpoint}.json?{qs}"
-    data = _http_get_json(url, {"User-Agent": UA}, timeout=15)
-    if not data:
-        return None
-    if data.get("status") == "000":
-        return data.get("list") or []
+_DART_EXHAUSTED: set[str] = set()  # status 020(일일 한도 초과)로 소진된 키 (런 단위)
+
+
+def _dart_keys() -> list[str]:
+    """env 의 DART_API_KEY, DART_API_KEY2, DART_API_KEY3 … 순서 키 목록."""
+    out: list[str] = []
+    for name in ("DART_API_KEY", "DART_API_KEY2", "DART_API_KEY3", "DART_API_KEY4"):
+        v = os.environ.get(name)
+        if v and v not in out:
+            out.append(v)
+    return out
+
+
+def dart_active_key() -> str | None:
+    """현재 사용 가능한(소진 안 된) 첫 DART 키. 직접 호출자(company.json 등)용."""
+    for k in _dart_keys():
+        if k not in _DART_EXHAUSTED:
+            return k
     return None
+
+
+def dart_mark_exhausted(key: str) -> None:
+    if key:
+        _DART_EXHAUSTED.add(key)
+
+
+def dart_get(endpoint: str, params: dict[str, str]) -> list[dict[str, Any]] | None:
+    """DART OpenAPI 호출. 'list' 반환. status 020(한도초과) 시 다음 키로 페일오버.
+
+    정상 흐름 불변(키 1개·정상 응답이면 기존과 동일). 020일 때만 키 교체·재시도.
+    """
+    keys = [k for k in _dart_keys() if k not in _DART_EXHAUSTED]
+    if not keys:
+        return None
+    for key in keys:
+        qs = urlencode({**params, "crtfc_key": key})
+        url = f"{DART_API}/{endpoint}.json?{qs}"
+        data = _http_get_json(url, {"User-Agent": UA}, timeout=15)
+        if not data:
+            return None  # 네트워크/JSON 실패 — 키 문제 아님
+        st = data.get("status")
+        if st == "000":
+            return data.get("list") or []
+        if st == "020":  # 사용한도 초과 → 이 키 소진, 다음 키로
+            _DART_EXHAUSTED.add(key)
+            continue
+        return None  # 013(데이터없음) 등 — 키 바꿔도 동일
+    return None  # 모든 키 020 소진
 
 
 def resolve_corp_code(code: str, corp_map: dict[str, str]) -> tuple[str | None, str | None]:
@@ -270,11 +381,8 @@ def load_corp_code_map() -> dict[str, str]:
         return {}
 
     url = f"{DART_API}/corpCode.xml?crtfc_key={api_key}"
-    try:
-        req = Request(url, headers={"User-Agent": UA})
-        with urlopen(req, timeout=30) as r:
-            zip_bytes = r.read()
-    except (HTTPError, URLError, TimeoutError):
+    zip_bytes = _http_get_bytes(url, {"User-Agent": UA}, timeout=30)
+    if not zip_bytes:
         return {}
 
     out: dict[str, str] = {}
@@ -472,11 +580,8 @@ def _fetch_disclosure_html(rcept_no: str) -> str | None:
     if not api_key:
         return None
     url = f"{DART_API}/document.xml?crtfc_key={api_key}&rcept_no={rcept_no}"
-    try:
-        req = Request(url, headers={"User-Agent": UA})
-        with urlopen(req, timeout=15) as r:
-            raw = r.read()
-    except (HTTPError, URLError, TimeoutError):
+    raw = _http_get_bytes(url, {"User-Agent": UA}, timeout=15)
+    if not raw:
         return None
     try:
         with _zipfile.ZipFile(io.BytesIO(raw)) as z:

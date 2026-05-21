@@ -17,6 +17,10 @@ from typing import Any
 # ── 임계값 (한국 보정판 v1) ──
 
 C_QUARTERLY_EPS_MIN = 25.0   # 분기 EPS YoY +25% 이상 (원전 유지)
+EPS_DENOMINATOR_FLOOR = 100.0  # YoY 분모 floor (원). prior 절댓값이 100원 미만이면 100원으로
+                               # 간주해 near-zero 분모로 인한 YoY 폭주(예: 32000%) 억제.
+SALES_DENOMINATOR_FLOOR = 10.0  # 매출 YoY 분모 floor (억). 작년 분기 매출이 10억 미만이면
+                                # 10억으로 간주 (= 사실상 휴면). EPS 와 같은 폭주 방지 원리.
 A_ANNUAL_EPS_MIN = 25.0       # 연간 EPS 3년 +25% 이상 (원전 유지)
 A_ROE_MIN = 15.0              # ROE 15% 이상 (한국 보정: 17 → 15)
 N_HIGH_PROXIMITY_MAX = 15.0   # 52주 고점에서 15% 이내 (원전 유지)
@@ -100,7 +104,6 @@ def evaluate_c_detailed(
         "eps_new_high": False,
         "consecutive_decline_quarters": 0,
         "severe_decel": False,
-        "is_turnaround": False,
         "dilution_flag": dilution_flag,
     }
 
@@ -111,12 +114,12 @@ def evaluate_c_detailed(
     yoy_key, yoy_eps = quarterly_eps[-5]
     out["latest_quarter"] = latest_key
     out["latest_eps"] = latest_eps
-    out["is_turnaround"] = (yoy_eps < 0 and latest_eps > 0)
 
-    # YoY % 계산: 절댓값 분모 공식 사용 (흑자전환도 일반 종목과 동일하게 비교 가능)
-    # 단 현재 분기가 적자(latest_eps <= 0)면 C 부적격이므로 None 유지.
+    # YoY % 계산: 절댓값 분모 공식 + floor 적용 (분모 |prior| 이 너무 작으면 EPS_DENOMINATOR_FLOOR
+    # 로 대체해 32000% 같은 폭주 억제). 단 현재 분기가 적자(latest_eps <= 0)면 C 부적격이므로 None 유지.
     if latest_eps > 0 and yoy_eps != 0:
-        yoy = (latest_eps - yoy_eps) / abs(yoy_eps) * 100
+        denom = max(abs(yoy_eps), EPS_DENOMINATOR_FLOOR)
+        yoy = (latest_eps - yoy_eps) / denom * 100
         out["yoy_pct"] = round(yoy, 2)
 
     # 직전 분기 YoY (가속 비교용)
@@ -124,7 +127,8 @@ def evaluate_c_detailed(
         _, prev_q_eps = quarterly_eps[-2]
         _, yoy_prev_eps = quarterly_eps[-6]
         if prev_q_eps > 0 and yoy_prev_eps != 0:
-            prev_yoy = (prev_q_eps - yoy_prev_eps) / abs(yoy_prev_eps) * 100
+            denom = max(abs(yoy_prev_eps), EPS_DENOMINATOR_FLOOR)
+            prev_yoy = (prev_q_eps - yoy_prev_eps) / denom * 100
             out["prev_yoy_pct"] = round(prev_yoy, 2)
             if out["yoy_pct"] is not None:
                 out["accel_delta_pp"] = round(out["yoy_pct"] - prev_yoy, 2)
@@ -155,75 +159,63 @@ def evaluate_c_detailed(
         latest_sales_key, latest_sales = quarterly_sales[-1]
         _, yoy_sales = quarterly_sales[-5]
         if yoy_sales > 0:
-            out["sales_yoy_pct"] = round((latest_sales - yoy_sales) / yoy_sales * 100, 2)
+            denom = max(yoy_sales, SALES_DENOMINATOR_FLOOR)
+            out["sales_yoy_pct"] = round((latest_sales - yoy_sales) / denom * 100, 2)
 
-    # 가속 판정 헬퍼 — 두 단계 검사:
-    #   (1) strict 단조 우선: 최근 3분기 a < b < c + 최신 양수 (원전 엄격 해석)
-    #   (2) 폭발 예외: 4분기 윈도우 마지막이 최댓값 AND 이전 3분기 평균의 1.5배+ + 최신 양수
-    # 두산에너빌리티(14.3→5.9→13.7) 같은 노이즈 dip 은 제외, SK하이닉스(60→107→90→397) 처럼
-    # 한 분기 dip 후 폭발하는 케이스는 (2) 폭발 예외로 가속 인정.
+    # 가속 판정 헬퍼 — strict 단조 가속만 인정.
+    # 최근 3분기 YoY 가 a < b < c 로 점차 빨라지고 최신이 양수여야 가속.
+    # 중간 dip 이 있는 케이스(예: +34% → −0.2% → +292%)는 "마지막이 폭발"하더라도
+    # 점진 가속이 아니므로 제외. 폭발 자체는 eps_accel_quality(mild/strong/explosive)
+    # 가 Δ 크기로 별도 포착하므로 누락 우려 없음 (2026-05-21 폭발 예외 제거).
     def _is_accel(history: list[tuple[str, float]]) -> bool:
         if len(history) < 3:
             return False
         last3 = [v for _, v in history[-3:]]
-        if last3[-1] > 0 and last3[0] < last3[1] < last3[2]:
-            return True
-        # 폭발 예외 — 4분기 윈도우 필요
-        if len(history) < 4:
-            return False
-        last4 = [v for _, v in history[-4:]]
-        latest = last4[-1]
-        prior_3 = last4[:-1]
-        if latest <= 0 or latest != max(last4):
-            return False
-        prior_avg = sum(prior_3) / 3
-        if prior_avg <= 0:
-            # 이전 평균이 0 이하면 1.5배 비교 의미 없음 → 절대값 분모로 폭발 비율 계산
-            return latest > abs(prior_avg) * 1.5
-        return latest >= prior_avg * 1.5
+        return last3[-1] > 0 and last3[0] < last3[1] < last3[2]
 
-    # EPS 분기별 YoY 추세 (최근 4분기까지)
+    # EPS 분기별 YoY 추세 (최근 5분기까지 — 작년 동기 비교 포인트 포함)
     # 최소 5분기 데이터로 1개 YoY 점 표시 (가속 판정은 _is_accel 이 3점 미만이면 False 반환).
     # 적자 분기도 포함 (절댓값 분모 공식으로 적자 심화/감소/턴어라운드 모두 의미 있음).
     if len(quarterly_eps) >= 5:
         eps_hist: list[tuple[str, float]] = []
-        for i in range(len(quarterly_eps) - 1, max(len(quarterly_eps) - 5, 3), -1):
+        for i in range(len(quarterly_eps) - 1, max(len(quarterly_eps) - 6, 3), -1):
             if i - 4 < 0:
                 break
             curr_key, curr = quarterly_eps[i]
             _, prior = quarterly_eps[i - 4]
             if prior != 0:
-                eps_hist.append((curr_key, round((curr - prior) / abs(prior) * 100, 2)))
+                denom = max(abs(prior), EPS_DENOMINATOR_FLOOR)
+                eps_hist.append((curr_key, round((curr - prior) / denom * 100, 2)))
         eps_hist.reverse()
         out["eps_yoy_history"] = eps_hist
         out["eps_accel_3q"] = _is_accel(eps_hist)
 
     # EPS 가속 폭발도 단계 — O'Neil 원전 #3 (가장 중요한 원칙) 정량화.
-    # eps_accel_3q (4분기 윈도우의 strict 단조 또는 폭발 예외) 가 True 면 4분기 시각에서
-    # 진짜 폭발이 확인된 것이므로 dip recovery 가 아닌 explosive 로 승격.
+    # YoY 자체가 절댓값 분모 공식이라 적자→흑자 턴어라운드도 큰 Δ 로
+    # 자연 변환됨 → 별도 'recovery' 분기 없이 delta 만으로 단순 분류.
+    # (한국 기업의 1년 폭발 흑자전환 케이스를 explosive 로 흡수, 2026-05-20)
     yoy = out["yoy_pct"]
     prev_yoy = out["prev_yoy_pct"]
     delta = out["accel_delta_pp"]
     if yoy is not None and prev_yoy is not None and delta is not None:
-        if prev_yoy < 0 and yoy > 0:
-            out["eps_accel_quality"] = "explosive" if out["eps_accel_3q"] else "recovery"
-        elif delta > 100:
+        if delta > 100:
             out["eps_accel_quality"] = "explosive"
         elif delta > 25:
             out["eps_accel_quality"] = "strong"
         elif delta > 0:
             out["eps_accel_quality"] = "mild"
 
-    # 매출 분기별 YoY 추세 (최근 4분기까지)
+    # 매출 분기별 YoY 추세 (최근 5분기까지 — 작년 동기 비교 포인트 포함)
     if quarterly_sales and len(quarterly_sales) >= 5:
         sales_hist: list[tuple[str, float]] = []
-        for i in range(len(quarterly_sales) - 1, max(len(quarterly_sales) - 5, 3), -1):
+        for i in range(len(quarterly_sales) - 1, max(len(quarterly_sales) - 6, 3), -1):
             if i - 4 < 0:
                 break
             curr_key, curr = quarterly_sales[i]
             _, prior = quarterly_sales[i - 4]
             if prior > 0:
-                sales_hist.append((curr_key, round((curr - prior) / prior * 100, 2)))
+                denom = max(prior, SALES_DENOMINATOR_FLOOR)
+                sales_hist.append((curr_key, round((curr - prior) / denom * 100, 2)))
         sales_hist.reverse()
         out["sales_yoy_history"] = sales_hist
         out["sales_accel_3q"] = _is_accel(sales_hist)
@@ -232,6 +224,45 @@ def evaluate_c_detailed(
     out["never_sell"] = bool(out["sales_accel_3q"] and out["eps_accel_3q"])
 
     return out
+
+
+def passes_c_gate(c_detailed: dict) -> bool:
+    """C 페이지 노출 게이트 — frontend `src/app/stocks/canslim/lib/cFilter.ts`
+    의 `passesCGate()` 와 *반드시 동일* 한 5조건을 평가.
+
+    [doc-logic-sync] 이 함수와 TS 버전은 항상 동기화. 한쪽 변경 시 양쪽 반영.
+
+    5조건 (모두 AND):
+      1) yoy_pct ≥ 25
+      2) 매출 동반: sales_yoy_pct ≥ 25  OR  sales_accel_3q
+      3) EPS 가속 중: eps_accel_quality ∈ {mild, strong, explosive}  OR  eps_accel_3q
+      4) consecutive_decline_quarters < 2
+      5) NOT severe_decel
+
+    Args:
+      c_detailed: `evaluate_c_detailed()` 반환 dict.
+    """
+    yoy = c_detailed.get("yoy_pct")
+    if yoy is None or yoy < C_QUARTERLY_EPS_MIN:
+        return False
+
+    sales_yoy = c_detailed.get("sales_yoy_pct")
+    sales_accel_3q = bool(c_detailed.get("sales_accel_3q"))
+    sales_accompany = (sales_yoy is not None and sales_yoy >= 25) or sales_accel_3q
+    if not sales_accompany:
+        return False
+
+    q = c_detailed.get("eps_accel_quality")
+    quality_accel = q in ("mild", "strong", "explosive")
+    accelerating = bool(c_detailed.get("eps_accel_3q")) or quality_accel
+    if not accelerating:
+        return False
+
+    if (c_detailed.get("consecutive_decline_quarters") or 0) >= 2:
+        return False
+    if c_detailed.get("severe_decel"):
+        return False
+    return True
 
 
 # ─────────────────────────────────────────────────
@@ -463,6 +494,163 @@ def evaluate_m(index_closes: list[float]) -> tuple[bool, str, str]:
         f"종가>200일선={above_200}, 50일>200일={sma50_above_200}, 200일선 상승={sma200_rising}"
     )
     return passed, value, detail
+
+
+# ─────────────────────────────────────────────────
+# C 충족도 점수 (0~100, 4축)
+# ─────────────────────────────────────────────────
+# 문서 IMPL_canslim_c_page.md 의 점수 체계 정의를 코드로 옮긴 것.
+# 1단계 필터 통과 종목 사이의 우선순위 산출용.
+
+C_AXIS_MAX = {
+    "yoy": 42,
+    "accel": 38,
+    "sales": 20,
+}
+# 경영진 평가는 A 원칙(ROE) 에서 다룸 — C 스코어에서 제거 (2026-05-21).
+# 제거된 7점은 ① YoY 에 +3, ② 가속 에 +3, ③ 매출 에 +1 로 분산.
+
+
+def _score_c_yoy(yoy: float | None) -> tuple[int, str]:
+    """축 ① 분기 EPS YoY 폭 (0~42점)."""
+    if yoy is None:
+        return 0, "데이터 부족"
+    if yoy >= 100:
+        return 42, f"+{yoy:.1f}% (≥+100%)"
+    if yoy >= 70:
+        return 39, f"+{yoy:.1f}% (+70~+100%)"
+    if yoy >= 40:
+        return 33, f"+{yoy:.1f}% (+40~+70%)"
+    if yoy >= 30:
+        return 26, f"+{yoy:.1f}% (+30~+40%)"
+    if yoy >= 25:
+        return 18, f"+{yoy:.1f}% (+25~+30%, 오닐 권장 하한)"
+    return 0, f"+{yoy:.1f}% (<+25%, 컷오프 미달)"
+
+
+def _score_c_accel(
+    quality: str | None,
+    accel_3q: bool,
+    accel_delta_pp: float | None = None,
+) -> tuple[float, str]:
+    """축 ② EPS 가속 폭. 기본 0~38점 + 폭발 가속 100%p 초과분 보너스 (cap 없음).
+
+    배점:
+      - base: explosive 34 / strong 28 / mild 15 / 가속 없음 0
+      - 3분기 단조 가속(a < b < c) 시 +4 (base+bonus 가 38 을 넘으면 38 로 cap)
+      - 폭발 가속(Δ > 100%p) 한정 추가 보너스: 100%p 초과분에 대해 100 단위마다 +0.5
+        (예: Δ=200%p → +0.5, Δ=300%p → +1.0, Δ=500%p → +2.0). 이 보너스는 38점 cap 을
+        초과 가능 — 의도적 (사용자 정의, 2026-05-21). Δ 가 극단적으로 크면 축 ② 합계가
+        축 ① 42점을 넘어설 수 있음.
+    """
+    base = 0
+    label = "가속 없음"
+    if quality == "explosive":
+        base, label = 34, "🔥 폭발 가속"
+    elif quality == "strong":
+        base, label = 28, "▲▲ 강력 가속"
+    elif quality == "mild":
+        base, label = 15, "▲ 가속"
+    bonus_3q = 4 if accel_3q else 0
+    capped_base = min(38, base + bonus_3q)
+
+    extra = 0.0
+    if quality == "explosive" and accel_delta_pp is not None and accel_delta_pp > 100:
+        increments = int((accel_delta_pp - 100) // 100)
+        extra = increments * 0.5
+
+    total = float(capped_base) + extra
+
+    parts = [label]
+    if accel_3q:
+        parts.append(f"3분기 단조 (+{bonus_3q})")
+    if extra > 0:
+        parts.append(f"가속폭 +{extra:.1f} (Δ {accel_delta_pp:.0f}%p)")
+    note = " · ".join(parts)
+    return total, note
+
+
+def _score_c_sales(
+    sales_yoy: float | None,
+    sales_accel_3q: bool,
+    never_sell: bool,
+) -> tuple[int, str]:
+    """축 ③ 매출 가속 (0~20점). 누적 가산, 캡 20."""
+    score = 0
+    parts: list[str] = []
+    if sales_yoy is not None and sales_yoy >= 25:
+        score += 11
+        parts.append(f"분기 매출 +{sales_yoy:.1f}% (≥+25%, 11)")
+    elif sales_yoy is not None:
+        parts.append(f"분기 매출 +{sales_yoy:.1f}% (<+25%, 0)")
+    else:
+        parts.append("분기 매출 데이터 없음 (0)")
+    if sales_accel_3q:
+        score += 6
+        parts.append("3분기 단조 가속 (+6)")
+    if never_sell:
+        score += 3
+        parts.append("⛔ 매출+EPS 동시 3분기 가속 (+3)")
+    score = min(20, score)
+    return score, " · ".join(parts)
+
+
+def compute_c_score(c_detailed: dict, management_quality: str | None = None) -> dict:
+    """C 원칙 3축 점수화 (0~100, 폭발 가속 보너스 시 100+ 가능).
+
+    Args:
+      c_detailed: evaluate_c_detailed() 결과 dict.
+      management_quality: (deprecated) 경영진은 A 원칙(ROE) 에서 평가. C 스코어에서 제거 — 시그니처는
+        호환을 위해 유지하지만 무시.
+
+    Returns:
+      {
+        "total": float 0~100+,
+        "breakdown": {"yoy": int, "accel": float, "sales": int},
+        "notes": {...},
+        "tier": "강력" | "좋음" | "중립" | "약함",
+      }
+    """
+    del management_quality  # 의도적 무시 (2026-05-21 — A 원칙 ROE 로 이전)
+
+    yoy = c_detailed.get("yoy_pct")
+    quality = c_detailed.get("eps_accel_quality")
+    accel_3q = bool(c_detailed.get("eps_accel_3q"))
+    sales_yoy = c_detailed.get("sales_yoy_pct")
+    sales_accel_3q = bool(c_detailed.get("sales_accel_3q"))
+    never_sell = bool(c_detailed.get("never_sell"))
+
+    accel_delta_pp = c_detailed.get("accel_delta_pp")
+
+    yoy_score, yoy_note = _score_c_yoy(yoy)
+    accel_score, accel_note = _score_c_accel(quality, accel_3q, accel_delta_pp)
+    sales_score, sales_note = _score_c_sales(sales_yoy, sales_accel_3q, never_sell)
+
+    total = yoy_score + accel_score + sales_score
+
+    if total >= 80:
+        tier = "강력"
+    elif total >= 70:
+        tier = "좋음"
+    elif total >= 50:
+        tier = "중립"
+    else:
+        tier = "약함"
+
+    return {
+        "total": total,
+        "breakdown": {
+            "yoy": yoy_score,
+            "accel": accel_score,
+            "sales": sales_score,
+        },
+        "notes": {
+            "yoy": yoy_note,
+            "accel": accel_note,
+            "sales": sales_note,
+        },
+        "tier": tier,
+    }
 
 
 # ─────────────────────────────────────────────────

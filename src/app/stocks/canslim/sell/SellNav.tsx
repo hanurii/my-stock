@@ -12,7 +12,7 @@ interface SellPage {
 
 const pages: SellPage[] = [
   { slug: "strategy", label: "핵심 전략", icon: "rule", enabled: true },
-  { slug: "peak", label: "고점 판단", icon: "trending_up", enabled: false },
+  { slug: "peak", label: "고점 판단", icon: "trending_up", enabled: true },
   { slug: "patience", label: "인내 보유", icon: "self_improvement", enabled: false },
   { slug: "lessons", label: "오닐의 이야기", icon: "menu_book", enabled: false },
 ];

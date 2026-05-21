@@ -37,9 +37,9 @@ const PAGES: PageInfo[] = [
     slug: "peak",
     title: "고점 판단 시스템",
     subtitle: "Peak Detection",
-    desc: "최후의 정점 11신호, 약세 징후, 지지선 붕괴, 분기 EPS 2분기 둔화. 50일·200일선 괴리율·거래량 z-score.",
+    desc: "최후의 정점 신호, 약세 징후, 지지선 붕괴, thesis 알람. 50일·200일선 괴리율·거래량·distribution day 종합 평가.",
     icon: "trending_up",
-    enabled: false,
+    enabled: true,
     bookCategories: "책 5·6·7·10 범주",
   },
   {
@@ -106,17 +106,21 @@ export default async function SellIndexPage() {
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {PAGES.map((p) => {
-            const passedVerdicts =
-              p.slug === "strategy" && data
-                ? data.holdings.reduce(
-                    (acc, h) => {
-                      acc[h.strategy_verdict.verdict] =
-                        (acc[h.strategy_verdict.verdict] ?? 0) + 1;
-                      return acc;
-                    },
-                    {} as Record<string, number>,
-                  )
-                : null;
+            const verdictSource =
+              p.slug === "strategy"
+                ? data?.holdings.map((h) => h.strategy_verdict.verdict)
+                : p.slug === "peak"
+                  ? data?.holdings.map((h) => h.peak_verdict.verdict)
+                  : null;
+            const passedVerdicts = verdictSource
+              ? verdictSource.reduce(
+                  (acc, v) => {
+                    acc[v] = (acc[v] ?? 0) + 1;
+                    return acc;
+                  },
+                  {} as Record<string, number>,
+                )
+              : null;
 
             const content = (
               <>
@@ -191,41 +195,55 @@ export default async function SellIndexPage() {
         </div>
       </section>
 
-      {/* 보유 종목 verdict 요약 (strategy 페이지 기준) */}
+      {/* 보유 종목 verdict 요약 — 페이지별 판정 매트릭스 */}
       {data && data.holdings.length > 0 && (
         <section className="bg-surface-container-low rounded-xl ghost-border p-4">
           <h3 className="text-sm font-serif font-bold text-on-surface mb-3 flex items-center gap-2">
             <span className="material-symbols-outlined text-base text-primary">
               list_alt
             </span>
-            보유 종목 한 줄 요약 — 핵심 전략 페이지 판정
+            보유 종목 한 줄 요약 — 페이지별 판정
           </h3>
           <div className="space-y-1.5 text-xs">
+            {/* 헤더 */}
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 py-1.5 border-b border-on-surface/10 text-[10px] text-on-surface-variant/60">
+              <span className="w-[100px]">종목</span>
+              <span className="w-[72px] text-center">손익률</span>
+              <span className="w-[72px] text-center">전략 판정</span>
+              <span className="w-[72px] text-center">고점 판정</span>
+              <span className="flex-1">주요 사유</span>
+            </div>
             {data.holdings.map((h) => {
-              const s = verdictBadgeStyle(h.strategy_verdict.verdict);
+              const sStrategy = verdictBadgeStyle(h.strategy_verdict.verdict);
+              const sPeak = verdictBadgeStyle(h.peak_verdict.verdict);
               return (
                 <div
                   key={h.code}
                   className="flex flex-wrap items-center gap-x-3 gap-y-1 py-1.5 border-b border-on-surface/5 last:border-0"
                 >
-                  <span
-                    className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold w-[72px] justify-center"
-                    style={{ backgroundColor: s.bg, color: s.fg }}
-                  >
-                    {s.label}
-                  </span>
-                  <span className="text-on-surface font-medium min-w-[100px]">
+                  <span className="text-on-surface font-medium w-[100px]">
                     {h.name}
                   </span>
-                  <span className="text-on-surface-variant/60">
+                  <span className="text-on-surface-variant/80 w-[72px] text-center">
                     {h.profit_pct >= 0 ? "+" : ""}
                     {h.profit_pct.toFixed(2)}%
                   </span>
-                  <span className="text-on-surface-variant/60">
-                    보유 {h.holding_weeks.toFixed(1)}주
+                  <span
+                    className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold w-[72px] justify-center"
+                    style={{ backgroundColor: sStrategy.bg, color: sStrategy.fg }}
+                  >
+                    {sStrategy.label}
+                  </span>
+                  <span
+                    className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold w-[72px] justify-center"
+                    style={{ backgroundColor: sPeak.bg, color: sPeak.fg }}
+                  >
+                    {sPeak.label}
                   </span>
                   <span className="text-on-surface-variant/70 flex-1 text-[11px]">
-                    {h.strategy_verdict.reasons[0]}
+                    {h.peak.hit_count > 0
+                      ? `고점 신호 ${h.peak.hit_count}건 · ${h.strategy_verdict.reasons[0]}`
+                      : h.strategy_verdict.reasons[0]}
                   </span>
                 </div>
               );

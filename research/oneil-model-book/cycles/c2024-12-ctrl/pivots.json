@@ -1,0 +1,4106 @@
+{
+  "generated_at": "2026-05-17 00:41",
+  "rule": "2단계 — 폭발 직전 시점(pivot) 식별. (규칙 v2 — 델·시스코 역산)\n\n오닐 정의(델 1996-11 / 시스코 1990 하반기 사례에서 역산):\n  폭발 직전 시점 = 주가가 \"짧은 반등\"이 아니라 \"수개월~수년 본격·지속 대상승\"으로\n  전환한 출발일. 바닥이 아님. 직전 횡보를 벗어나 이후 큰 되돌림 없이 고점까지\n  지속 급등하는 그 시작점.\n  ※ 펀더멘털은 pivot 선정에 사용하지 않음(CAN SLIM 미적용·순환논리 회피).\n    pivot 직전 2개 확정 분기 키만 기록 → 3단계에서 값 수집해 사후 확인.\n\n규칙(명시):\n  탐색 구간 = 종목 저점일 ~ 고점일.\n  pivot = 다음을 모두 만족하는 \"가장 이른\" 날 i:\n    (a) 직전 25거래일(약 5주) 최고 종가 돌파  (횡보 base 이탈)\n    (b) i → 고점 경로에서 종가가 진행 최고치 대비 20% 초과 하락 없음\n        (= 짧은 반등이 아닌 '지속 급등')\n    (c) 고점종가 / i종가 >= 2.0  (i 이후가 대상승의 본체)\n  후보 없으면 폴백: 저점 이후 향후 60거래일 수익률 최대 구간 시작일.\n  base(직전 횡보) = pivot 직전, 종가가 돌파선 아래 머문 마지막 연속 구간.\n\npivot 직전 \"확정 분기\" 2개 = pivot 시점에 공시 완료됐을 직전 2개 분기\n  (분기 종료 + 45일 경과를 공시 가용 시점으로 간주) → 3단계 기준.\n",
+  "pivots": [
+    {
+      "code": "072770",
+      "name": "멤레이비티",
+      "market": "KOSDAQ",
+      "trough_date": "2025-08-12",
+      "peak_date": "2025-09-17",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-08-13",
+          "pivot_close": 1100.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202503",
+            "202412"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-08-13",
+          "pivot_close": 1100.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202503",
+            "202412"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-08-13",
+          "pivot_close": 1100.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202503",
+            "202412"
+          ]
+        }
+      ],
+      "spark": "▁▁▁▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▃▃▃▄▄▅▆▇▇▇▇▆▅▅▅▆▆▇▇▇███",
+      "spark_marks": "                             Lc                        H"
+    },
+    {
+      "code": "120110",
+      "name": "코오롱인더",
+      "market": "KOSPI",
+      "trough_date": "2024-12-09",
+      "peak_date": "2026-04-29",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-01-09",
+          "pivot_close": 41050.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-11-12",
+          "pivot_close": 41150.0,
+          "method": "P",
+          "prior_two_quarters": [
+            "202506",
+            "202503"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2024-12-18",
+          "pivot_close": 29500.0,
+          "method": "P",
+          "prior_two_quarters": [
+            "202409",
+            "202406"
+          ]
+        }
+      ],
+      "spark": "▁▁▁▁▁▁▁▁▁▁▁▁▁▂▂▁▁▁▁▁▁▁▁▁▁▂▂▃▃▃▃▂▂▂▂▂▂▂▂▂▂▂▃▂▃▃▃▃▃▃▄▄▅▆▅▆████",
+      "spark_marks": "    Lc                                  b      a           H"
+    },
+    {
+      "code": "018470",
+      "name": "조일알미늄",
+      "market": "KOSPI",
+      "trough_date": "2026-03-04",
+      "peak_date": "2026-04-14",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-03-04",
+          "pivot_close": 1095.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-03-04",
+          "pivot_close": 1095.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2026-03-04",
+          "pivot_close": 1095.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        }
+      ],
+      "spark": "▂▂▂▂▂▂▂▂▂▂▃▃▂▂▃▂▂▂▂▂▂▂▂▂▂▂▂▂▂▁▁▂▂▂▂▂▂▂▃▃▂▂▂▂▂▂▂▂▂▅▃▃▄▅▅▄▄▄██",
+      "spark_marks": "                              c                            H"
+    },
+    {
+      "code": "017810",
+      "name": "풀무원",
+      "market": "KOSPI",
+      "trough_date": "2024-12-09",
+      "peak_date": "2025-02-26",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2024-12-09",
+          "pivot_close": 10140.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202409",
+            "202406"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2024-12-09",
+          "pivot_close": 10140.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202409",
+            "202406"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2024-12-09",
+          "pivot_close": 10140.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202409",
+            "202406"
+          ]
+        }
+      ],
+      "spark": "▁▁▁▁▁▁▁▁▁▁▁▂▂▃▂▂▂▂▂▁▂▂▁▁▂▂▂▂▂▂▂▂▂▂▁▂▂▂▂▃▁▁▁▁▁▁▁▁▄▄▄▅▄▄▄▆▆▇▇█",
+      "spark_marks": "                      c                                    H"
+    },
+    {
+      "code": "104460",
+      "name": "디와이피엔에프",
+      "market": "KOSDAQ",
+      "trough_date": "2024-12-09",
+      "peak_date": "2025-07-23",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-04-23",
+          "pivot_close": 14490.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-04-23",
+          "pivot_close": 14490.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-04-23",
+          "pivot_close": 14490.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        }
+      ],
+      "spark": "▁▁▁▁▁▁▁▃▂▃▁▃▃▃▃▃▃▃▂▃▂▂▂▃▃▄▅▄▆▅▅▅▅▅▅▅▄▄▄▄▄▅▅▅▇▇▆▆▇▇▇▇▇▇▇▆▇▇▇█",
+      "spark_marks": "         L                             c                   H"
+    },
+    {
+      "code": "264850",
+      "name": "이랜시스",
+      "market": "KOSDAQ",
+      "trough_date": "2024-12-09",
+      "peak_date": "2026-01-29",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-11-25",
+          "pivot_close": 4735.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-11-25",
+          "pivot_close": 4735.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-11-25",
+          "pivot_close": 4735.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        }
+      ],
+      "spark": "▄▄▄▃▃▂▁▂▂▄▅▅▄▅▄▄▄▃▃▃▂▁▂▂▂▃▃▃▃▃▃▄▃▃▃▃▂▂▂▂▃▃▃▄▄▄▄▄▄▄▃▃▅▆▇█▇▇██",
+      "spark_marks": "     L                                            c        H"
+    },
+    {
+      "code": "044820",
+      "name": "코스맥스비티아이",
+      "market": "KOSPI",
+      "trough_date": "2025-01-15",
+      "peak_date": "2025-07-16",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-02-21",
+          "pivot_close": 8860.0,
+          "method": "P",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-02-21",
+          "pivot_close": 8860.0,
+          "method": "P",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-02-21",
+          "pivot_close": 8860.0,
+          "method": "P",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        }
+      ],
+      "spark": "▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▂▂▂▂▂▂▂▂▂▂▂▂▂▃▃▃▃▄▄▅▅▆▇▆▇▆▆▆██",
+      "spark_marks": "           L        c                                      H"
+    },
+    {
+      "code": "268280",
+      "name": "미원에스씨",
+      "market": "KOSPI",
+      "trough_date": "2026-05-14",
+      "peak_date": "2026-05-15",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-05-14",
+          "pivot_close": 108800.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-05-14",
+          "pivot_close": 108800.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2026-05-14",
+          "pivot_close": 108800.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        }
+      ],
+      "spark": "▇▇▆▆▆▆▇▆█▇▇▇██▇▇▆▆▆▆▇▆▇▆▅▅▅▃▂▁▁▁",
+      "spark_marks": "                              cH"
+    },
+    {
+      "code": "212560",
+      "name": "네오오토",
+      "market": "KOSDAQ",
+      "trough_date": "2024-12-09",
+      "peak_date": "2026-01-21",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-10-24",
+          "pivot_close": 5530.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202506",
+            "202503"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-10-24",
+          "pivot_close": 5530.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202506",
+            "202503"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2024-12-16",
+          "pivot_close": 5940.0,
+          "method": "P",
+          "prior_two_quarters": [
+            "202409",
+            "202406"
+          ]
+        }
+      ],
+      "spark": "▂▂▂▁▁▁▁▂▁▁▁▁▁▁▂▂▂▂▂▂▂▁▁▂▂▂▂▂▂▂▂▂▂▃▃▂▂▂▂▂▂▂▂▂▂▁▂▂▂▂▁▁▁▂▂▃▄▅█▆",
+      "spark_marks": "     Lc                                        b           H"
+    },
+    {
+      "code": "298000",
+      "name": "효성화학",
+      "market": "KOSPI",
+      "trough_date": "2024-12-09",
+      "peak_date": "2024-12-18",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2024-12-09",
+          "pivot_close": 33500.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202409",
+            "202406"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2024-12-09",
+          "pivot_close": 33500.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202409",
+            "202406"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2024-12-09",
+          "pivot_close": 33500.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202409",
+            "202406"
+          ]
+        }
+      ],
+      "spark": "▅▅▅▅▅▅▅▅▄▄▃▂▂▂▂▂▂▂▁▂▂▁▁▁▁▄▄▃▃▃▂▄▅▇▇▇▇█",
+      "spark_marks": "                              c      H"
+    },
+    {
+      "code": "049180",
+      "name": "셀루메드",
+      "market": "KOSDAQ",
+      "trough_date": "2025-08-22",
+      "peak_date": "2026-01-22",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-10-27",
+          "pivot_close": 674.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202506",
+            "202503"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-10-27",
+          "pivot_close": 674.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202506",
+            "202503"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-10-27",
+          "pivot_close": 674.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202506",
+            "202503"
+          ]
+        }
+      ],
+      "spark": "▂▂▂▂▂▂▂▂▂▂▂▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▃▆▃▂▅▄▄▆█",
+      "spark_marks": "             L                 c                           H"
+    },
+    {
+      "code": "017510",
+      "name": "세명전기",
+      "market": "KOSDAQ",
+      "trough_date": "2024-12-09",
+      "peak_date": "2026-05-08",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-05-26",
+          "pivot_close": 6940.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202503",
+            "202412"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-05-26",
+          "pivot_close": 6940.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202503",
+            "202412"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-05-26",
+          "pivot_close": 6940.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202503",
+            "202412"
+          ]
+        }
+      ],
+      "spark": "▁▂▁▁▁▁▁▁▁▃▂▂▂▂▂▂▂▁▂▂▃▃▃▃▄▄▄▃▃▃▃▇▇▇▅▆▆▅▆▇▇▇▅▅▅▅▅▅▅▆▆▆█▅▅▆▅▅▆█",
+      "spark_marks": "    L                 c                                    H"
+    },
+    {
+      "code": "00104K",
+      "name": "CJ4우(전환)",
+      "market": "KOSPI",
+      "trough_date": "2024-12-09",
+      "peak_date": "2026-04-29",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-04-14",
+          "pivot_close": 92400.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-04-14",
+          "pivot_close": 92400.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2024-12-16",
+          "pivot_close": 81200.0,
+          "method": "P",
+          "prior_two_quarters": [
+            "202409",
+            "202406"
+          ]
+        }
+      ],
+      "spark": "▁▁▁▁▁▁▁▁▁▁▁▁▁▂▁▂▂▂▂▂▂▃▂▃▄▄▅▅▅▅▄▄▄▅▅▇█▆▆▆▆▆▆▇▇▇▆▆▇▇████▇█████",
+      "spark_marks": "    Lc            b                                        H"
+    },
+    {
+      "code": "408920",
+      "name": "메쎄이상",
+      "market": "KOSDAQ",
+      "trough_date": "2025-01-02",
+      "peak_date": "2025-09-03",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-06-10",
+          "pivot_close": 2305.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202503",
+            "202412"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-06-10",
+          "pivot_close": 2305.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202503",
+            "202412"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-06-10",
+          "pivot_close": 2305.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202503",
+            "202412"
+          ]
+        }
+      ],
+      "spark": "▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▂▂▁▁▁▁▁▁▁▁▁▁▁▁▁▂▂▂▂▂▂▂▂▂▂▂▂▂▃▃▄▃▄▄▄▆▆███",
+      "spark_marks": "         L                              c                  H"
+    },
+    {
+      "code": "153460",
+      "name": "네이블",
+      "market": "KOSDAQ",
+      "trough_date": "2026-03-31",
+      "peak_date": "2026-04-13",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-03-31",
+          "pivot_close": 6250.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-03-31",
+          "pivot_close": 6250.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2026-03-31",
+          "pivot_close": 6250.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        }
+      ],
+      "spark": "▂▂▂▂▂▂▂▂▂▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▃▅█",
+      "spark_marks": "                              c        H"
+    },
+    {
+      "code": "084650",
+      "name": "랩지노믹스",
+      "market": "KOSDAQ",
+      "trough_date": "2026-04-09",
+      "peak_date": "2026-04-17",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-04-09",
+          "pivot_close": 1218.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-04-09",
+          "pivot_close": 1218.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2026-04-09",
+          "pivot_close": 1218.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        }
+      ],
+      "spark": "▆▅▅▄▂▄▄▃▃▃▃▃▃▃▃▂▂▂▂▃▂▂▂▁▂▁▂▁▁▁▁▁▁▁▂▅█",
+      "spark_marks": "                              c     H"
+    },
+    {
+      "code": "122640",
+      "name": "예스티",
+      "market": "KOSDAQ",
+      "trough_date": "2024-12-09",
+      "peak_date": "2026-04-24",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-01-16",
+          "pivot_close": 17450.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-01-16",
+          "pivot_close": 17450.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2026-01-16",
+          "pivot_close": 17450.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        }
+      ],
+      "spark": "▅▁▁▁▁▁▁▁▂▃▃▃▃▃▃▂▂▃▂▂▄▄▃▃▃▄▄▄▄▅▄▅▄▄▄▄▅▅▅▅▅▄▄▄▄▅▄▄▅▄▅▆▆▇▇▇█▅▆█",
+      "spark_marks": "    L                                           c          H"
+    },
+    {
+      "code": "475560",
+      "name": "더본코리아",
+      "market": "KOSPI",
+      "trough_date": "2026-05-15",
+      "peak_date": "2026-05-15",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-05-15",
+          "pivot_close": 19150.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202603",
+            "202512"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-05-15",
+          "pivot_close": 19150.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202603",
+            "202512"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2026-05-15",
+          "pivot_close": 19150.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202603",
+            "202512"
+          ]
+        }
+      ],
+      "spark": "█▇▆▅▅▅▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▅▅▄▄▃▂▁▁▁▁",
+      "spark_marks": "                              c"
+    },
+    {
+      "code": "028670",
+      "name": "팬오션",
+      "market": "KOSPI",
+      "trough_date": "2025-04-08",
+      "peak_date": "2026-03-03",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-11-28",
+          "pivot_close": 3770.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-11-28",
+          "pivot_close": 3770.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-11-28",
+          "pivot_close": 3770.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        }
+      ],
+      "spark": "▂▂▃▂▂▂▁▁▁▁▁▁▁▂▂▂▂▂▃▃▃▂▃▄▄▄▄▄▄▄▃▃▃▄▄▃▃▂▂▃▃▂▃▂▂▂▄▄▃▃▃▂▃▄▅▆▇▇▇█",
+      "spark_marks": "       L                                    c              H"
+    },
+    {
+      "code": "363260",
+      "name": "모비데이즈",
+      "market": "KOSDAQ",
+      "trough_date": "2026-05-15",
+      "peak_date": "2026-05-15",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-05-15",
+          "pivot_close": 1347.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202603",
+            "202512"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-05-15",
+          "pivot_close": 1347.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202603",
+            "202512"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2026-05-15",
+          "pivot_close": 1347.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202603",
+            "202512"
+          ]
+        }
+      ],
+      "spark": "▆▄▄▄▂▃▃▅▅▅▆███▇▇▇▇▇▇▇▆▇▆▅▆▅▂▅▃▁",
+      "spark_marks": "                              c"
+    },
+    {
+      "code": "162300",
+      "name": "신스틸",
+      "market": "KOSDAQ",
+      "trough_date": "2026-03-04",
+      "peak_date": "2026-04-29",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-03-04",
+          "pivot_close": 1487.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-03-04",
+          "pivot_close": 1487.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2026-03-04",
+          "pivot_close": 1487.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        }
+      ],
+      "spark": "▃▃▃▃▄▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▂▁▂▁▁▁▂▂▂▂▃▂▂▂▂▂▂▂▂▂▂▂▂▃▃▃▄▅▅▅▅▅▅▆█",
+      "spark_marks": "                         c                                 H"
+    },
+    {
+      "code": "418550",
+      "name": "제이오",
+      "market": "KOSDAQ",
+      "trough_date": "2026-01-08",
+      "peak_date": "2026-04-21",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-01-21",
+          "pivot_close": 7440.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-01-21",
+          "pivot_close": 7440.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2026-01-21",
+          "pivot_close": 7440.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        }
+      ],
+      "spark": "▁▁▂▃▂▂▃▃▃▂▂▂▂▁▁▁▂▁▁▁▂▂▂▂▃▃▄▄▄▄▄▄▅▅▄▄▄▄▃▁▂▂▃▃▂▃▃▂▃▂▃▃▃▃▄▃▄▄▄█",
+      "spark_marks": "                 L     c                                   H"
+    },
+    {
+      "code": "378800",
+      "name": "샤페론",
+      "market": "KOSDAQ",
+      "trough_date": "2026-05-15",
+      "peak_date": "2026-05-15",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-05-15",
+          "pivot_close": 1447.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202603",
+            "202512"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-05-15",
+          "pivot_close": 1447.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202603",
+            "202512"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2026-05-15",
+          "pivot_close": 1447.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202603",
+            "202512"
+          ]
+        }
+      ],
+      "spark": "▆▄▄▄▃▅▅▆▅▅▆▇█▇▆▇▆▆▇██▇█▇▇▆▅▄▃▃▁",
+      "spark_marks": "                              c"
+    },
+    {
+      "code": "001780",
+      "name": "알루코",
+      "market": "KOSPI",
+      "trough_date": "2024-12-09",
+      "peak_date": "2026-04-28",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-01-28",
+          "pivot_close": 2225.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-01-28",
+          "pivot_close": 2225.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2026-01-28",
+          "pivot_close": 2225.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        }
+      ],
+      "spark": "▆▆▄▄▄▁▄▃▃▄▃▃▅▅▅▅▅▃▂▄▄▅▆▆▆▆▆▆▆▇▇▆▇▅▄▅▄▃▃▄▄▃▃▂▃▃▄▄▄▅▅▅▆▆▃▄▄▇██",
+      "spark_marks": "    L                                            c         H"
+    },
+    {
+      "code": "290650",
+      "name": "엘앤씨바이오",
+      "market": "KOSDAQ",
+      "trough_date": "2024-12-04",
+      "peak_date": "2026-02-19",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-06-20",
+          "pivot_close": 29200.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202503",
+            "202412"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-06-20",
+          "pivot_close": 29200.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202503",
+            "202412"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2024-12-05",
+          "pivot_close": 18590.0,
+          "method": "P",
+          "prior_two_quarters": [
+            "202409",
+            "202406"
+          ]
+        }
+      ],
+      "spark": "▁▁▁▁▁▁▁▁▁▂▂▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▂▂▂▂▂▂▂▂▃▂▂▂▂▂▄▆▅▅▄▄▅▅▄▅▅▆▆▆▆▆▅▅██",
+      "spark_marks": "     c                       b                             H"
+    },
+    {
+      "code": "215600",
+      "name": "신라젠",
+      "market": "KOSDAQ",
+      "trough_date": "2025-04-09",
+      "peak_date": "2026-01-29",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-11-03",
+          "pivot_close": 2835.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202506",
+            "202503"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-11-03",
+          "pivot_close": 2835.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202506",
+            "202503"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-11-03",
+          "pivot_close": 2835.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202506",
+            "202503"
+          ]
+        }
+      ],
+      "spark": "▃▃▃▃▃▂▂▁▁▂▃█▇▆▇▆▆▆▆▆▆▅▅▅▅▅▅▅▅▅▄▄▄▅▅▅▇▆▆▅▅▅▅▅▄▄▅▄▄▅▇▇▇▇▇▇▆▆▆▇",
+      "spark_marks": "       L                                   c               H"
+    },
+    {
+      "code": "008355",
+      "name": "남선알미우",
+      "market": "KOSPI",
+      "trough_date": "2025-11-28",
+      "peak_date": "2025-12-29",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-12-11",
+          "pivot_close": 12160.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-12-11",
+          "pivot_close": 12160.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-12-11",
+          "pivot_close": 12160.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        }
+      ],
+      "spark": "▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▂▁▁▁▁▄█",
+      "spark_marks": "                              L        c          H"
+    },
+    {
+      "code": "035600",
+      "name": "KG이니시스",
+      "market": "KOSDAQ",
+      "trough_date": "2025-04-09",
+      "peak_date": "2025-07-11",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-04-11",
+          "pivot_close": 8270.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-04-11",
+          "pivot_close": 8270.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-04-11",
+          "pivot_close": 8270.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        }
+      ],
+      "spark": "▂▂▁▁▂▂▁▁▁▁▁▂▁▁▁▁▁▁▁▁▁▁▁▁▁▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▃▄▅▄▅▅▆███▆▆▆▆▆▆█",
+      "spark_marks": "                   Lc                                      H"
+    },
+    {
+      "code": "001570",
+      "name": "금양",
+      "market": "KOSPI",
+      "trough_date": "2025-03-21",
+      "peak_date": "2025-03-21",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-03-21",
+          "pivot_close": 9900.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-03-21",
+          "pivot_close": 9900.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-03-21",
+          "pivot_close": 9900.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        }
+      ],
+      "spark": "▅▅▅▅▄▅▅▄▄▅▄▆▇▆███▅▅▂▂▂▂▂▃▃▂▂▁▁▁",
+      "spark_marks": "                              c"
+    },
+    {
+      "code": "095910",
+      "name": "에스에너지",
+      "market": "KOSDAQ",
+      "trough_date": "2026-01-08",
+      "peak_date": "2026-05-04",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-02-02",
+          "pivot_close": 1312.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-02-02",
+          "pivot_close": 1312.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2026-01-20",
+          "pivot_close": 1181.0,
+          "method": "P",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        }
+      ],
+      "spark": "▃▃▃▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▂▂▂▂▂▃▂▂▃▂▂▂▂▂▁▆▃▄▄▄▆▄▃▃▃▃▅▄▅▅▅▅▅▅▅▆█",
+      "spark_marks": "                L   c    b                                 H"
+    },
+    {
+      "code": "007070",
+      "name": "GS리테일",
+      "market": "KOSPI",
+      "trough_date": "2025-04-03",
+      "peak_date": "2026-05-15",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-03-09",
+          "pivot_close": 18460.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-03-09",
+          "pivot_close": 18460.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2026-03-09",
+          "pivot_close": 18460.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        }
+      ],
+      "spark": "▂▂▁▁▁▁▁▁▁▁▁▁▁▁▂▃▂▃▃▃▃▃▂▂▃▂▂▂▃▃▂▂▃▃▃▅▆▆▆▆▆▆▅▅▅▅▅▅▆▆▄▄▅▅▆▆▇▇▇█",
+      "spark_marks": "     L                                           c         H"
+    },
+    {
+      "code": "017860",
+      "name": "DS단석",
+      "market": "KOSPI",
+      "trough_date": "2026-03-04",
+      "peak_date": "2026-04-22",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-03-04",
+          "pivot_close": 15610.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-03-04",
+          "pivot_close": 15610.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2026-03-04",
+          "pivot_close": 15610.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        }
+      ],
+      "spark": "▅▄▅▆▅▆▆▆▆▇▆▅▅▆▆▅▆▆▆▆▅▆▅▆▆▇▆▄▁▃▆▇▆██▆▇▆▇▆▅▆▇▆▇▆▆▆▇▇▅▅▅▆▆▆▇▆▇▇",
+      "spark_marks": "                           c                               H"
+    },
+    {
+      "code": "012630",
+      "name": "HDC",
+      "market": "KOSPI",
+      "trough_date": "2024-12-09",
+      "peak_date": "2026-03-26",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-03-26",
+          "pivot_close": 13920.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-03-26",
+          "pivot_close": 13920.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-03-26",
+          "pivot_close": 13920.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        }
+      ],
+      "spark": "▁▁▁▁▁▁▁▁▁▁▁▁▂▂▂▂▂▂▃▃▄▄▅▅▅▅▆▇▇▇▇▇▇▇█▆▆▆▆▅▄▄▄▅▄▄▄▄▄▄▅▃▄▅▅▆████",
+      "spark_marks": "     L           c                                         H"
+    },
+    {
+      "code": "018000",
+      "name": "유니슨",
+      "market": "KOSDAQ",
+      "trough_date": "2024-12-09",
+      "peak_date": "2025-06-16",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-03-17",
+          "pivot_close": 804.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-04-02",
+          "pivot_close": 941.0,
+          "method": "P",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2024-12-11",
+          "pivot_close": 796.0,
+          "method": "P",
+          "prior_two_quarters": [
+            "202409",
+            "202406"
+          ]
+        }
+      ],
+      "spark": "▁▁▁▁▁▁▁▁▁▁▁▁▁▂▄▃▂▂▂▂▃▃▃▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▃▃▃▃▃▄▅▅▅▅████▇▇▆█▇",
+      "spark_marks": "           Lc                      a    b                  H"
+    },
+    {
+      "code": "009680",
+      "name": "모토닉",
+      "market": "KOSPI",
+      "trough_date": "2024-12-09",
+      "peak_date": "2025-12-24",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-04-09",
+          "pivot_close": 8930.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-04-09",
+          "pivot_close": 8930.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-04-09",
+          "pivot_close": 8930.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        }
+      ],
+      "spark": "▁▁▁▁▁▁▁▁▁▂▁▁▁▁▂▂▂▃▂▃▃▃▃▂▃▃▃▄▃▅▆▆▇▆▅▆██▇▆▆▅▄▄▆▆▇▆▅▅▆▆▆▆▇▆▇███",
+      "spark_marks": "      L               c                                    H"
+    },
+    {
+      "code": "452450",
+      "name": "피아이이",
+      "market": "KOSDAQ",
+      "trough_date": "2025-02-04",
+      "peak_date": "2025-02-19",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-02-04",
+          "pivot_close": 4365.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202409",
+            "202406"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-02-04",
+          "pivot_close": 4365.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202409",
+            "202406"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-02-04",
+          "pivot_close": 4365.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202409",
+            "202406"
+          ]
+        }
+      ],
+      "spark": "▁▁▁▂▃▄▄▄▅▇██",
+      "spark_marks": "c          H"
+    },
+    {
+      "code": "047400",
+      "name": "유니온머티리얼",
+      "market": "KOSPI",
+      "trough_date": "2025-10-01",
+      "peak_date": "2025-10-15",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-10-01",
+          "pivot_close": 1297.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202506",
+            "202503"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-10-01",
+          "pivot_close": 1297.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202506",
+            "202503"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-10-01",
+          "pivot_close": 1297.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202506",
+            "202503"
+          ]
+        }
+      ],
+      "spark": "▃▃▃▃▃▃▃▂▂▂▁▁▂▂▂▂▂▂▂▂▁▂▂▂▁▁▁▁▁▁▁▁▄███",
+      "spark_marks": "                              c    H"
+    },
+    {
+      "code": "079980",
+      "name": "휴비스",
+      "market": "KOSPI",
+      "trough_date": "2025-04-09",
+      "peak_date": "2026-04-03",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-04-09",
+          "pivot_close": 2325.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-04-09",
+          "pivot_close": 2325.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-04-09",
+          "pivot_close": 2325.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        }
+      ],
+      "spark": "▃▂▂▃▄▃▂▁▂▄▄▄▆▅▅▆▇▆▆▇███▇▇▇███▅▅▆▆▅▄▆▄▃▂▄▄▃▃▃▃▄▃▃▂▂▂▃▅▅▅▁▂▂▂▄",
+      "spark_marks": "      c                                                    H"
+    },
+    {
+      "code": "073240",
+      "name": "금호타이어",
+      "market": "KOSPI",
+      "trough_date": "2025-04-09",
+      "peak_date": "2026-02-11",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-11-19",
+          "pivot_close": 5170.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-11-19",
+          "pivot_close": 5170.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-11-19",
+          "pivot_close": 5170.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        }
+      ],
+      "spark": "▄▃▃▃▃▄▃▂▁▁▂▃▃▃▁▁▁▁▂▁▁▁▃▃▃▂▃▂▃▃▃▃▃▃▃▃▃▃▂▁▃▃▂▃▅▄▅▇████▇▆▆▇█▇▆█",
+      "spark_marks": "       L                                    c              H"
+    },
+    {
+      "code": "456160",
+      "name": "지투지바이오",
+      "market": "KOSDAQ",
+      "trough_date": "2025-08-14",
+      "peak_date": "2026-03-13",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-08-14",
+          "pivot_close": 31266.7,
+          "method": "F",
+          "prior_two_quarters": [
+            "202506",
+            "202503"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-08-14",
+          "pivot_close": 31266.7,
+          "method": "F",
+          "prior_two_quarters": [
+            "202506",
+            "202503"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-08-14",
+          "pivot_close": 31266.7,
+          "method": "F",
+          "prior_two_quarters": [
+            "202506",
+            "202503"
+          ]
+        }
+      ],
+      "spark": "▁▂▁▂▃▂▂▂▃▃▅▅▅▅▄▄▄▃▃▃▃▃▄▄▅▇▇▇▆▅▆▆▇▅▅▅▅▄▄▄▄▄▆▅▆▆▅▆▆▅▆▆▇▇▇██▇▇█",
+      "spark_marks": "c                                                          H"
+    },
+    {
+      "code": "032860",
+      "name": "더라미",
+      "market": "KOSDAQ",
+      "trough_date": "2026-05-15",
+      "peak_date": "2026-05-15",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-05-15",
+          "pivot_close": 1017.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202603",
+            "202512"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-05-15",
+          "pivot_close": 1017.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202603",
+            "202512"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2026-05-15",
+          "pivot_close": 1017.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202603",
+            "202512"
+          ]
+        }
+      ],
+      "spark": "▆▅▅██▇█▇▇██▇█▇▇▇▆█████▇▅▅▅▂▁▁▁▁",
+      "spark_marks": "                              c"
+    },
+    {
+      "code": "004545",
+      "name": "깨끗한나라우",
+      "market": "KOSPI",
+      "trough_date": "2026-05-11",
+      "peak_date": "2026-05-13",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-05-11",
+          "pivot_close": 9450.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-05-11",
+          "pivot_close": 9450.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2026-05-11",
+          "pivot_close": 9450.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        }
+      ],
+      "spark": "▅▆▄▅▆▅▅▅▄▅▅▅▅▅▅▇▆██▇▆▆▆▆▇▆▆▆▅▅▁▃▄",
+      "spark_marks": "                              c H"
+    },
+    {
+      "code": "002990",
+      "name": "금호건설",
+      "market": "KOSPI",
+      "trough_date": "2025-02-05",
+      "peak_date": "2026-04-28",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-11-25",
+          "pivot_close": 3585.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-11-25",
+          "pivot_close": 3585.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-02-21",
+          "pivot_close": 2715.0,
+          "method": "P",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        }
+      ],
+      "spark": "▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▂▂▁▁▂▃▃▃▃▃▃▃▃▃▄▄▄▅▄▄▃▄▃▃▃▄▄▄▄▅▅▅▅▅▅▅▇█▅▇█▇▆██",
+      "spark_marks": "     L c                                b                  H"
+    },
+    {
+      "code": "123890",
+      "name": "한국자산신탁",
+      "market": "KOSPI",
+      "trough_date": "2025-04-09",
+      "peak_date": "2026-02-25",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-11-25",
+          "pivot_close": 2390.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-11-25",
+          "pivot_close": 2390.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-11-25",
+          "pivot_close": 2390.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        }
+      ],
+      "spark": "▅▄▄▄▄▄▃▁▁▁▂▃▃▃▃▃▄▅▄▄▅▅▅▆▅▄▄▄▄▃▃▃▃▃▄▂▂▂▂▁▂▁▁▃▃▃▄▅▄▄▄▃▃▄▃▄▅▆▆█",
+      "spark_marks": "       L                                    c              H"
+    },
+    {
+      "code": "003530",
+      "name": "한화투자증권",
+      "market": "KOSPI",
+      "trough_date": "2025-04-09",
+      "peak_date": "2026-02-19",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-04-09",
+          "pivot_close": 2950.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-04-09",
+          "pivot_close": 2950.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-04-09",
+          "pivot_close": 2950.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        }
+      ],
+      "spark": "▁▁▁▁▁▁▁▁▁▁▁▁▁▂▂▃▃▄▇███▇██▇▆▅▆▆▅▅▅▅▇▇▆▇▆▅▅▅▅▅▅▅▄▄▄▄▃▄▄▄▄▄▆▇▇▇",
+      "spark_marks": "       c                                                   H"
+    },
+    {
+      "code": "067160",
+      "name": "SOOP",
+      "market": "KOSDAQ",
+      "trough_date": "2026-05-15",
+      "peak_date": "2026-05-15",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-05-15",
+          "pivot_close": 52600.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202603",
+            "202512"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-05-15",
+          "pivot_close": 52600.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202603",
+            "202512"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2026-05-15",
+          "pivot_close": 52600.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202603",
+            "202512"
+          ]
+        }
+      ],
+      "spark": "█▆▆▅▅▆█▇▇▇███████████▆▃▂▂▃▁▁▁▃▁",
+      "spark_marks": "                              c"
+    },
+    {
+      "code": "016250",
+      "name": "SGC E&C",
+      "market": "KOSDAQ",
+      "trough_date": "2024-12-09",
+      "peak_date": "2026-02-23",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-11-21",
+          "pivot_close": 13210.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-11-21",
+          "pivot_close": 13210.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-11-21",
+          "pivot_close": 13210.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        }
+      ],
+      "spark": "▅▅▄▃▃▃▁▂▃▂▂▂▂▂▃▃▄▃▄▄▃▄▅▆▆▇▆▇█▇▇▇▇▇▆▅▆▆▅▅▄▄▄▃▂▂▁▁▃▂▄▆▆▅▄▄▅▅▇▇",
+      "spark_marks": "     L                                         c           H"
+    },
+    {
+      "code": "340570",
+      "name": "티앤엘",
+      "market": "KOSDAQ",
+      "trough_date": "2026-01-19",
+      "peak_date": "2026-04-17",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-01-19",
+          "pivot_close": 43550.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-01-19",
+          "pivot_close": 43550.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2026-01-19",
+          "pivot_close": 43550.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        }
+      ],
+      "spark": "▃▃▂▂▂▂▂▂▂▂▃▃▃▂▂▂▁▁▁▁▁▁▁▃▃▃▅▅▅▄▄▅▅▅▅▅▅▅▃▄▃▃▄▃▃▃▂▂▃▃▄▃▃▄▃▃▄▆▆█",
+      "spark_marks": "                   c                                       H"
+    },
+    {
+      "code": "030210",
+      "name": "다올투자증권",
+      "market": "KOSPI",
+      "trough_date": "2024-12-09",
+      "peak_date": "2026-02-19",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-11-19",
+          "pivot_close": 3420.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-11-19",
+          "pivot_close": 3420.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-11-19",
+          "pivot_close": 3420.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        }
+      ],
+      "spark": "▂▂▁▁▁▁▁▂▅▄▃▄▂▂▂▂▂▄▂▆▃▃▇▅▅▅▅▆▆▇▇▇▇█▆▅▆▆▆▅▇▇▆▆▆▆▆▆▆▅▆▆▆▆▆▅▆▇▇█",
+      "spark_marks": "     L                                         c           H"
+    },
+    {
+      "code": "005960",
+      "name": "동부건설",
+      "market": "KOSPI",
+      "trough_date": "2025-04-07",
+      "peak_date": "2026-03-20",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-02-02",
+          "pivot_close": 5250.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-02-02",
+          "pivot_close": 5250.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-04-18",
+          "pivot_close": 3655.0,
+          "method": "P",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        }
+      ],
+      "spark": "▁▁▁▁▁▁▁▁▁▁▁▁▁▂▂▃▃▃▃▃▃▃▃▃▃▃▄▄▃▃▃▄▄▄▃▃▃▃▄▃▃▃▃▃▄▃▄▃▃▃▃▃▃▃▄▆█▇▅▆",
+      "spark_marks": "      L c                                           b      H"
+    },
+    {
+      "code": "036810",
+      "name": "에프에스티",
+      "market": "KOSDAQ",
+      "trough_date": "2024-12-09",
+      "peak_date": "2026-01-28",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-06-23",
+          "pivot_close": 16188.1,
+          "method": "F",
+          "prior_two_quarters": [
+            "202503",
+            "202412"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-06-23",
+          "pivot_close": 16188.1,
+          "method": "F",
+          "prior_two_quarters": [
+            "202503",
+            "202412"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-01-06",
+          "pivot_close": 16851.5,
+          "method": "P",
+          "prior_two_quarters": [
+            "202409",
+            "202406"
+          ]
+        }
+      ],
+      "spark": "▂▂▂▁▂▁▁▁▁▁▂▂▂▂▂▃▃▃▃▃▂▁▂▂▂▂▂▂▂▂▂▂▂▂▃▃▄▃▃▃▃▄▅▇▆▆█▇█▇█▅▅▅▅▆█▆▆▇",
+      "spark_marks": "     L   c                    b                            H"
+    },
+    {
+      "code": "322780",
+      "name": "코퍼스코리아",
+      "market": "KOSDAQ",
+      "trough_date": "2026-03-17",
+      "peak_date": "2026-04-14",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-03-17",
+          "pivot_close": 1385.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-03-17",
+          "pivot_close": 1385.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2026-03-17",
+          "pivot_close": 1385.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        }
+      ],
+      "spark": "███▇▆▆▆▆▅▅▅▅▃▂▂▃▂▂▃▂▁▁▁▁▁▁▁▁▁▁▁▂▁▁▁▁▁▃▂▄▄▃▄▃▃▃▄▅▅▅▅",
+      "spark_marks": "                              c                   H"
+    },
+    {
+      "code": "173940",
+      "name": "에프엔씨엔터",
+      "market": "KOSDAQ",
+      "trough_date": "2025-01-03",
+      "peak_date": "2026-04-20",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-03-26",
+          "pivot_close": 2775.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-03-26",
+          "pivot_close": 2775.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-03-26",
+          "pivot_close": 2775.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        }
+      ],
+      "spark": "▂▃▃▂▂▁▁▁▁▁▁▃▃▃▂▁▁▃▃▄▄▅▅▇▇▇▇▇▆▆▅▅▂▃▂▂▃▃▂▂▂▂▃▃▅▅▇█▇▇▇▅▅▄▄▅▆▅▅█",
+      "spark_marks": "     L        c                                            H"
+    },
+    {
+      "code": "128940",
+      "name": "한미약품",
+      "market": "KOSPI",
+      "trough_date": "2025-04-07",
+      "peak_date": "2026-02-11",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-08-11",
+          "pivot_close": 279000.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202503",
+            "202412"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-04-29",
+          "pivot_close": 247000.0,
+          "method": "P",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-04-29",
+          "pivot_close": 247000.0,
+          "method": "P",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        }
+      ],
+      "spark": "▂▂▁▁▁▁▁▁▁▁▁▁▂▂▂▂▂▂▃▂▂▂▂▂▂▂▂▂▂▂▂▂▂▃▂▂▃▄▄▃▄▃▅▆▆▇▆▆▆▅▆▆▆▆▇▆▅▇▆█",
+      "spark_marks": "       L   c                a                              H"
+    },
+    {
+      "code": "005740",
+      "name": "크라운해태홀딩스",
+      "market": "KOSPI",
+      "trough_date": "2024-12-09",
+      "peak_date": "2025-07-01",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-04-01",
+          "pivot_close": 5410.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-04-01",
+          "pivot_close": 5410.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-04-01",
+          "pivot_close": 5410.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        }
+      ],
+      "spark": "▃▃▃▃▂▁▂▂▂▂▂▁▂▂▂▂▂▂▂▂▂▂▂▂▁▁▁▂▂▂▁▁▂▁▁▂▁▂▂▂▁▂▂▃▃▃▃▃▄▄▄▄▇▆██████",
+      "spark_marks": "          L                          c                     H"
+    },
+    {
+      "code": "389650",
+      "name": "넥스트바이오메디컬",
+      "market": "KOSDAQ",
+      "trough_date": "2024-12-09",
+      "peak_date": "2025-12-04",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-06-18",
+          "pivot_close": 44950.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202503",
+            "202412"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-06-18",
+          "pivot_close": 44950.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202503",
+            "202412"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-05-22",
+          "pivot_close": 44500.0,
+          "method": "P",
+          "prior_two_quarters": [
+            "202503",
+            "202412"
+          ]
+        }
+      ],
+      "spark": "▁▁▁▁▁▂▂▂▃▃▂▃▃▃▃▃▄▄▄▃▃▃▂▂▂▂▃▃▂▂▂▃▂▃▃▃▃▃▃▃▄▅▄▄▄▅▅▇▇▇▆▆▆▆▅▅▅▅▇█",
+      "spark_marks": "      L                       c  b                         H"
+    },
+    {
+      "code": "365900",
+      "name": "브이씨",
+      "market": "KOSDAQ",
+      "trough_date": "2025-11-27",
+      "peak_date": "2026-04-21",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-01-21",
+          "pivot_close": 2795.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-01-21",
+          "pivot_close": 2795.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2026-01-21",
+          "pivot_close": 2795.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        }
+      ],
+      "spark": "▆▇▆▆▆▆▅▅▅▅▄▄▂▁▂▂▃▂▂▃▂▂▃▁▁▁▁▁▃▂▂▂▂▄▃▃▂▂▂▃▂▄▆▅▄▂▃▅▂▁▃▃▂▄█▆▆▅▆█",
+      "spark_marks": "              L               c                            H"
+    },
+    {
+      "code": "060850",
+      "name": "영림원소프트랩",
+      "market": "KOSDAQ",
+      "trough_date": "2025-04-08",
+      "peak_date": "2025-09-05",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-04-10",
+          "pivot_close": 5040.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-04-10",
+          "pivot_close": 5040.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-04-10",
+          "pivot_close": 5040.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        }
+      ],
+      "spark": "▄▄▃▃▃▃▃▃▂▂▂▂▂▂▁▂▂▃▃▃▃▃▃▃▄▄▃▃▄▄▄▄▄▄▅▆▆▆▆▆▇▇█▆▆▆▆▇▇▅▆▆▇▇██▇▇▇█",
+      "spark_marks": "             Lc                                            H"
+    },
+    {
+      "code": "241790",
+      "name": "티이엠씨씨엔에스",
+      "market": "KOSDAQ",
+      "trough_date": "2024-12-09",
+      "peak_date": "2026-05-06",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-04-03",
+          "pivot_close": 5000.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-04-03",
+          "pivot_close": 5000.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-04-03",
+          "pivot_close": 5000.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        }
+      ],
+      "spark": "▃▄▁▂▂▁▂▁▂▂▃▂▄▄▃▄▃▂▂▃▃▃▄▄▄▄▆▇▆▆▆▆▆▆▆▆███▇▇▇▅▅▅▅▅▆▅▅▆▇▇▄▆▆▆▆▇█",
+      "spark_marks": "    L           c                                          H"
+    },
+    {
+      "code": "318010",
+      "name": "팜스빌",
+      "market": "KOSDAQ",
+      "trough_date": "2025-03-26",
+      "peak_date": "2025-08-22",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-05-27",
+          "pivot_close": 3570.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202503",
+            "202412"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-05-27",
+          "pivot_close": 3570.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202503",
+            "202412"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-05-27",
+          "pivot_close": 3570.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202503",
+            "202412"
+          ]
+        }
+      ],
+      "spark": "▂▂▂▂▃▃▂▂▂▁▂▂▁▁▁▁▁▁▁▁▂▁▂▂▂▂▂▂▂▂▂▂▂▂▂▃▃▃▃▃▃▄▄▃▃▄▃▄▄▄▄▄▄▅▄▆▆▅▇█",
+      "spark_marks": "             L                 c                           H"
+    },
+    {
+      "code": "263050",
+      "name": "유틸렉스",
+      "market": "KOSDAQ",
+      "trough_date": "2026-02-04",
+      "peak_date": "2026-02-06",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-02-04",
+          "pivot_close": 683.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-02-04",
+          "pivot_close": 683.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2026-02-04",
+          "pivot_close": 683.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        }
+      ],
+      "spark": "▆▆▅▅▆▆███▇▆▆▇▆▅▄▄▃▂▂▃▂▁▁▂▁▂▁▁▁▁▂▆",
+      "spark_marks": "                              c H"
+    },
+    {
+      "code": "000725",
+      "name": "현대건설우",
+      "market": "KOSPI",
+      "trough_date": "2024-12-09",
+      "peak_date": "2026-04-08",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-01-08",
+          "pivot_close": 55400.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-01-08",
+          "pivot_close": 55400.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2026-01-08",
+          "pivot_close": 55400.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        }
+      ],
+      "spark": "▁▂▂▁▁▁▁▁▁▁▁▁▂▃▂▂▂▂▁▂▃▂▃▃▅▅▇▆▆▅▅▄▄▄▃▃▃▃▃▃▃▄▃▃▃▃▄▅▄▄▅▆▆▆▆█▇▇▇█",
+      "spark_marks": "     L                                          c          H"
+    },
+    {
+      "code": "073010",
+      "name": "케이에스피",
+      "market": "KOSDAQ",
+      "trough_date": "2026-03-31",
+      "peak_date": "2026-05-06",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-03-31",
+          "pivot_close": 3265.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-03-31",
+          "pivot_close": 3265.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2026-03-31",
+          "pivot_close": 3265.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        }
+      ],
+      "spark": "▂▂▂▂▃▃▃▃▂▂▂▁▂▂▁▂▂▂▂▂▂▂▁▂▂▂▂▁▁▁▁▁▁▁▁▁▁▁▁▁▂▂▂▃▃▄▅▅▆▇█████",
+      "spark_marks": "                              c                       H"
+    },
+    {
+      "code": "232830",
+      "name": "아이티센피엔에스",
+      "market": "KOSDAQ",
+      "trough_date": "2024-12-09",
+      "peak_date": "2026-05-13",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-03-04",
+          "pivot_close": 1931.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-03-06",
+          "pivot_close": 2420.0,
+          "method": "P",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-12-09",
+          "pivot_close": 2515.0,
+          "method": "P",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        }
+      ],
+      "spark": "▂▁▁▁▁▁▃▄▃▃▃▃▃▃▂▂▂▁▂▂▂▂▂▁▃▅▄▃▃▃▂▂▃▂▂▂▂▃▃▃▂▂▂▂▃▃▂▂▂▂▁▁▂▄▄▃▃▆▇█",
+      "spark_marks": "    L                                     c        b       H"
+    },
+    {
+      "code": "272290",
+      "name": "이녹스첨단소재",
+      "market": "KOSDAQ",
+      "trough_date": "2024-12-09",
+      "peak_date": "2026-02-09",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-11-24",
+          "pivot_close": 21700.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-11-24",
+          "pivot_close": 21700.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-11-24",
+          "pivot_close": 21700.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        }
+      ],
+      "spark": "▃▃▂▂▂▁▁▁▁▁▃▅▄▇▆▅▅▄▃▃▂▁▂▂▂▃▃▂▂▂▂▂▂▃▆▄▃▃▂▃▃▃▃▂▃▃▄▃▃▃▂▃▃▂▃▃▄▃▅█",
+      "spark_marks": "     L                                           c         H"
+    },
+    {
+      "code": "053800",
+      "name": "안랩",
+      "market": "KOSDAQ",
+      "trough_date": "2026-03-04",
+      "peak_date": "2026-04-16",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-03-04",
+          "pivot_close": 58000.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-03-04",
+          "pivot_close": 58000.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2026-03-04",
+          "pivot_close": 58000.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        }
+      ],
+      "spark": "▁▁▁▁▁▁▃▆▇███▄▅▅▄▃▅▅▅▆▇▇▆▆▆▇▆▆▃▃▄▅▃▃▅▅▃▄▄▃▃▂▃▄▃▃▁▁▂▁▁▁▁▂▂▃▂▃▆",
+      "spark_marks": "                             c                             H"
+    },
+    {
+      "code": "038680",
+      "name": "에스넷",
+      "market": "KOSDAQ",
+      "trough_date": "2026-03-04",
+      "peak_date": "2026-04-16",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-03-04",
+          "pivot_close": 2860.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-03-04",
+          "pivot_close": 2860.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2026-03-04",
+          "pivot_close": 2860.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        }
+      ],
+      "spark": "▂▂▂▂▂▂▂▃▂▂▂▂▂▂▂▂▁▂▂▂▂▂▂▂▂▂▂▂▁▁▁▁▁▁▁▁▁▁▁▂▁▂▁▂▃▃▃▃▂▄▃▃▃▃▄▄▄▇█▇",
+      "spark_marks": "                             c                             H"
+    },
+    {
+      "code": "304840",
+      "name": "피플바이오",
+      "market": "KOSDAQ",
+      "trough_date": "2026-03-04",
+      "peak_date": "2026-04-13",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-03-04",
+          "pivot_close": 671.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-03-04",
+          "pivot_close": 671.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2026-03-04",
+          "pivot_close": 671.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        }
+      ],
+      "spark": "▅▆▅▆▅▅▅▆▆▆▆▅▅▅▅▅▄▅▅▅▄▃▂▂▂▂▂▂▁▁▁▁▁▁▁▂▂▃▃▃▂▂▂▁▁▁▁▁▁▁▁▂▂▂▁▃▆▇█",
+      "spark_marks": "                              c                           H"
+    },
+    {
+      "code": "419080",
+      "name": "엔젯",
+      "market": "KOSDAQ",
+      "trough_date": "2026-03-31",
+      "peak_date": "2026-05-06",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-03-31",
+          "pivot_close": 4740.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-03-31",
+          "pivot_close": 4740.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2026-03-31",
+          "pivot_close": 4740.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        }
+      ],
+      "spark": "█▇▇▇▆▆▆▆▅▅▄▁▃▃▃▃▃▃▂▂▂▂▂▂▂▁▂▂▁▁▁▂▁▁▁▁▁▁▂▂▂▂▄▄▄▄▅▃▄▄▄▃▃▃▅",
+      "spark_marks": "                              c                       H"
+    },
+    {
+      "code": "486990",
+      "name": "노타",
+      "market": "KOSDAQ",
+      "trough_date": "2026-03-04",
+      "peak_date": "2026-03-16",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-03-04",
+          "pivot_close": 29200.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-03-04",
+          "pivot_close": 29200.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2026-03-04",
+          "pivot_close": 29200.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        }
+      ],
+      "spark": "███▇▆▆▆▆▇▇▇▆▆▅▅▄▄▄▄▄▄▄▃▃▃▄▅▄▄▃▁▂▂▁▂▄▇▇█",
+      "spark_marks": "                              c       H"
+    },
+    {
+      "code": "383800",
+      "name": "LX홀딩스",
+      "market": "KOSPI",
+      "trough_date": "2025-04-08",
+      "peak_date": "2025-07-02",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-04-09",
+          "pivot_close": 6000.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-04-09",
+          "pivot_close": 6000.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-04-09",
+          "pivot_close": 6000.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        }
+      ],
+      "spark": "▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▁▁▁▁▁▁▁▁▁▁▁▁▂▂▂▂▂▂▂▃▃▃▃▃▃▃▃▄▅▅▆██▇▇▇▇▇▇█▇██",
+      "spark_marks": "                    Lc                                     H"
+    },
+    {
+      "code": "009300",
+      "name": "삼아제약",
+      "market": "KOSDAQ",
+      "trough_date": "2026-03-04",
+      "peak_date": "2026-04-30",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-03-04",
+          "pivot_close": 15070.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-03-04",
+          "pivot_close": 15070.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2026-03-04",
+          "pivot_close": 15070.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        }
+      ],
+      "spark": "▂▂▂▂▂▃▄▄▅▅▃▅▅▅▄▆▆▆▆▆▇██▇▇▁▄▄▂▃▄▅▅▆▆▆▄▅▅▅▅▄▅▃▄▅▄▄▅▆▇███▇▇▇▇▇▇",
+      "spark_marks": "                        c                                  H"
+    },
+    {
+      "code": "067830",
+      "name": "세이브존I&C",
+      "market": "KOSPI",
+      "trough_date": "2024-12-09",
+      "peak_date": "2025-12-18",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-09-17",
+          "pivot_close": 2635.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202506",
+            "202503"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-09-17",
+          "pivot_close": 2635.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202506",
+            "202503"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-09-17",
+          "pivot_close": 2635.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202506",
+            "202503"
+          ]
+        }
+      ],
+      "spark": "▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▂▂▂▁▂▂▂▂▂▃▃▃▄▄▄▄▄▄▅▄▄▃▄▄▄▄▄▄▄▃▄▃▃▃▂▂▂▂▃▃█",
+      "spark_marks": "      L                                       c            H"
+    },
+    {
+      "code": "044180",
+      "name": "KD",
+      "market": "KOSDAQ",
+      "trough_date": "2026-03-23",
+      "peak_date": "2026-03-23",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-03-23",
+          "pivot_close": 205.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-03-23",
+          "pivot_close": 205.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2026-03-23",
+          "pivot_close": 205.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        }
+      ],
+      "spark": "▅█▆▇██▇▇▅▄▆▅▅▆▅▄▃▂▄▄▄▄▄▄▄▄▄▄▂▃▁",
+      "spark_marks": "                              c"
+    },
+    {
+      "code": "254490",
+      "name": "미래반도체",
+      "market": "KOSDAQ",
+      "trough_date": "2025-04-09",
+      "peak_date": "2026-05-14",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-04-24",
+          "pivot_close": 20050.0,
+          "method": "P",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-04-24",
+          "pivot_close": 20050.0,
+          "method": "P",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-04-24",
+          "pivot_close": 12740.0,
+          "method": "P",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        }
+      ],
+      "spark": "▂▁▁▂▁▁▁▂▁▂▂▂▂▂▂▂▂▃▃▄▄▄▃▃▃▃▃▃▄▄▃▄▄▄▃▃▃▂▃▃▂▂▃▃▃▃▃▄▄▅▃▄▄▄▃▃▄▄▅█",
+      "spark_marks": "     L  c                                               b  H"
+    },
+    {
+      "code": "176750",
+      "name": "듀켐바이오",
+      "market": "KOSDAQ",
+      "trough_date": "2025-01-23",
+      "peak_date": "2025-03-24",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-01-23",
+          "pivot_close": 7360.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202409",
+            "202406"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-01-23",
+          "pivot_close": 7360.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202409",
+            "202406"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-01-23",
+          "pivot_close": 7360.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202409",
+            "202406"
+          ]
+        }
+      ],
+      "spark": "▅▃▅▅▆▇█▇▂▂▁▂▁▁▁▁▁▁▂▂▂▁▁▁▁▁▁▁▁▁▂▄▄▄▅▆▆▅▅▅▆▆▆▅▅▆▆▅▆▅▅▅▅▅▆▆▇█▇█",
+      "spark_marks": "                          c                                H"
+    },
+    {
+      "code": "077970",
+      "name": "STX엔진",
+      "market": "KOSPI",
+      "trough_date": "2024-12-09",
+      "peak_date": "2026-04-29",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-07-07",
+          "pivot_close": 20300.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202503",
+            "202412"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-07-07",
+          "pivot_close": 20300.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202503",
+            "202412"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-07-07",
+          "pivot_close": 20300.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202503",
+            "202412"
+          ]
+        }
+      ],
+      "spark": "▁▁▁▂▁▁▁▁▁▂▂▂▃▃▃▃▃▂▁▂▃▃▂▃▂▃▂▂▂▁▂▃▅▅▇▇▇▆▅▆▅▅▄▄▅▆▆▅▆▅▅▄▅▄▄▅▅▅▅█",
+      "spark_marks": "    L                     c                                H"
+    },
+    {
+      "code": "037710",
+      "name": "광주신세계",
+      "market": "KOSPI",
+      "trough_date": "2025-04-07",
+      "peak_date": "2026-02-23",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-11-24",
+          "pivot_close": 30500.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-11-24",
+          "pivot_close": 30500.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-11-24",
+          "pivot_close": 30500.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        }
+      ],
+      "spark": "▃▃▄▃▃▃▂▁▁▁▂▂▂▂▂▂▂▂▃▃▃▃▄▅▆▆▅▄▄▃▃▃▃▃▄▄▄▄▃▄▃▃▃▄▄▄▄▄▄▅▅▅▄▄▄▄▄▄▆█",
+      "spark_marks": "       L                                    c              H"
+    },
+    {
+      "code": "263020",
+      "name": "디케이앤디",
+      "market": "KOSDAQ",
+      "trough_date": "2026-03-04",
+      "peak_date": "2026-04-28",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-03-04",
+          "pivot_close": 2690.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-03-04",
+          "pivot_close": 2690.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2026-03-04",
+          "pivot_close": 2690.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        }
+      ],
+      "spark": "▅▄▄▅▄▄▅▅▅▅▅▄▆▆▅▅▅▅▅▅▅▆▆▆▄▄▁▂▃▂▇▆▅▅▅▆▇▆▇▇▇▇▆▇▆▆▆▇▆█▇█████▇▇▇▇",
+      "spark_marks": "                         c                                 H"
+    },
+    {
+      "code": "406820",
+      "name": "뷰티스킨",
+      "market": "KOSDAQ",
+      "trough_date": "2026-04-07",
+      "peak_date": "2026-05-14",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-04-07",
+          "pivot_close": 1772.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-04-07",
+          "pivot_close": 1772.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2026-04-07",
+          "pivot_close": 1772.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        }
+      ],
+      "spark": "▄▄▄▃▃▃▂▂▂▂▂▂▂▂▁▂▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▂▂▁▁▁▁▃▄▅▅▅▅▄▄▄▇███",
+      "spark_marks": "                             c                         H"
+    },
+    {
+      "code": "417200",
+      "name": "LS머트리얼즈",
+      "market": "KOSDAQ",
+      "trough_date": "2025-04-09",
+      "peak_date": "2026-04-29",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-12-17",
+          "pivot_close": 12800.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-12-17",
+          "pivot_close": 12800.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-05-14",
+          "pivot_close": 11440.0,
+          "method": "P",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        }
+      ],
+      "spark": "▂▁▁▂▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▃▂▂▁▂▂▂▂▂▂▂▂▃▄▄▄▅▄▇█▅▅▅▇█",
+      "spark_marks": "      L   c                             b                  H"
+    },
+    {
+      "code": "031210",
+      "name": "서울보증보험",
+      "market": "KOSPI",
+      "trough_date": "2025-04-08",
+      "peak_date": "2026-02-20",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-04-11",
+          "pivot_close": 31950.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-04-11",
+          "pivot_close": 31950.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-04-11",
+          "pivot_close": 31950.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        }
+      ],
+      "spark": "▁▂▂▁▁▁▁▁▁▂▂▁▁▁▁▂▃▃▄▄▄▄▄▄▃▃▄▄▄▄▄▄▄▇▇▇▇▆▆▆▆▆█▇▆▆▆▆▆▆▆▆▆▅▅▆▆▆▇█",
+      "spark_marks": "    Lc                                                     H"
+    },
+    {
+      "code": "004450",
+      "name": "삼화왕관",
+      "market": "KOSPI",
+      "trough_date": "2026-05-15",
+      "peak_date": "2026-05-15",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-05-15",
+          "pivot_close": 27050.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202603",
+            "202512"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-05-15",
+          "pivot_close": 27050.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202603",
+            "202512"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2026-05-15",
+          "pivot_close": 27050.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202603",
+            "202512"
+          ]
+        }
+      ],
+      "spark": "▃▂▂▂▂▃▃▃▃▃▄▄▄▆▆▆▆▇▆███▇▇▄▄▃▂▁▁▁",
+      "spark_marks": "                              c"
+    },
+    {
+      "code": "246250",
+      "name": "에스엘에스바이오",
+      "market": "KOSDAQ",
+      "trough_date": "2025-04-09",
+      "peak_date": "2025-05-19",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-04-09",
+          "pivot_close": 1466.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-04-09",
+          "pivot_close": 1466.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-04-09",
+          "pivot_close": 1466.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        }
+      ],
+      "spark": "▂▂▂▂▂▂▂▂▂▂▂▁▂▂▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▂▂▂▂▂▂▁▂▂▂▁▂▅▄█████",
+      "spark_marks": "                             c                         H"
+    },
+    {
+      "code": "038530",
+      "name": "케이바이오랩스",
+      "market": "KOSDAQ",
+      "trough_date": "2024-12-09",
+      "peak_date": "2026-02-12",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-11-17",
+          "pivot_close": 1345.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-11-17",
+          "pivot_close": 1345.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-04-07",
+          "pivot_close": 1270.0,
+          "method": "P",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        }
+      ],
+      "spark": "▃▄▂▃▂▂▁▁▁▁█▃▂▂▂▂▂▁▁▁▁▃▄▄▃▂▆▄▅▅▃▃▄▇▆▅▆▅▄▄▃▃▃▃▁▁▃▃▃▃▂▂▃▂▂▁▁▁▄█",
+      "spark_marks": "     L             c                           b           H"
+    },
+    {
+      "code": "206400",
+      "name": "베노티앤알",
+      "market": "KOSDAQ",
+      "trough_date": "2026-05-14",
+      "peak_date": "2026-05-15",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-05-14",
+          "pivot_close": 1033.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-05-14",
+          "pivot_close": 1033.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2026-05-14",
+          "pivot_close": 1033.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        }
+      ],
+      "spark": "▅▅▄▄▄▅▅▅▅▅▄▄▆▆▆▆▅▅▅▅██▇█▆▆▄▂▁▁▁▁",
+      "spark_marks": "                              cH"
+    },
+    {
+      "code": "071280",
+      "name": "로체시스템즈",
+      "market": "KOSDAQ",
+      "trough_date": "2026-03-31",
+      "peak_date": "2026-05-06",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-03-31",
+          "pivot_close": 7190.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-03-31",
+          "pivot_close": 7190.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2026-03-31",
+          "pivot_close": 7190.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        }
+      ],
+      "spark": "██▇▇▇▇▇▇▇▆▅▂▄▅▃▄▅▄▃▃▄▄▃▃▂▂▃▂▂▁▁▂▁▁▁▁▂▂▂▃▃▄▅▅▅▅▅▅▇▇▆▆▆▆▇",
+      "spark_marks": "                              c                       H"
+    },
+    {
+      "code": "279600",
+      "name": "미디어젠",
+      "market": "KOSDAQ",
+      "trough_date": "2026-05-12",
+      "peak_date": "2026-05-13",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-05-12",
+          "pivot_close": 4750.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-05-12",
+          "pivot_close": 4750.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2026-05-12",
+          "pivot_close": 4750.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        }
+      ],
+      "spark": "▇█▇█▇██▇▇▇▇▇▆▇▆▇▆▇▆▇▆▆▆▆▅▅▄▂▃▂▁▂",
+      "spark_marks": "                              cH"
+    },
+    {
+      "code": "001120",
+      "name": "LX인터내셔널",
+      "market": "KOSPI",
+      "trough_date": "2025-02-03",
+      "peak_date": "2026-04-29",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-01-02",
+          "pivot_close": 32000.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-01-02",
+          "pivot_close": 32000.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-04-25",
+          "pivot_close": 26200.0,
+          "method": "P",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        }
+      ],
+      "spark": "▂▂▁▁▁▁▁▁▂▁▁▁▁▁▁▁▁▁▁▁▁▂▂▂▂▃▃▃▂▂▂▂▂▃▃▂▂▂▂▂▂▂▃▃▃▃▃▃▄▄▅▆▇▅▆▇▇█▇█",
+      "spark_marks": "     L         c                            b              H"
+    },
+    {
+      "code": "000810",
+      "name": "삼성화재",
+      "market": "KOSPI",
+      "trough_date": "2025-04-09",
+      "peak_date": "2025-12-11",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-04-14",
+          "pivot_close": 348500.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-04-14",
+          "pivot_close": 348500.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-04-14",
+          "pivot_close": 348500.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        }
+      ],
+      "spark": "▃▃▃▃▃▃▂▁▁▁▁▁▁▁▂▂▂▂▂▃▃▆▅▆▅▅▅▅▇█▇▇▅▄▅▅▅▆▅▆▆▇▇▆▆▆▆▆▆▆▆▅███▇▇███",
+      "spark_marks": "         Lc                                                H"
+    },
+    {
+      "code": "251120",
+      "name": "바이오에프디엔씨",
+      "market": "KOSDAQ",
+      "trough_date": "2025-04-07",
+      "peak_date": "2025-06-25",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-04-07",
+          "pivot_close": 12260.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-04-07",
+          "pivot_close": 12260.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-04-07",
+          "pivot_close": 12260.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        }
+      ],
+      "spark": "▂▂▂▂▂▂▂▂▁▂▂▂▂▂▂▂▂▂▁▁▁▁▁▁▁▁▁▁▂▂▂▂▂▂▂▂▂▃▃▂▃▃▃▃▄▄▅▄▄▄▅▄▄▅▄▅▆███",
+      "spark_marks": "                     c                                     H"
+    },
+    {
+      "code": "079170",
+      "name": "한창산업",
+      "market": "KOSDAQ",
+      "trough_date": "2026-05-15",
+      "peak_date": "2026-05-15",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-05-15",
+          "pivot_close": 6160.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202603",
+            "202512"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-05-15",
+          "pivot_close": 6160.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202603",
+            "202512"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2026-05-15",
+          "pivot_close": 6160.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202603",
+            "202512"
+          ]
+        }
+      ],
+      "spark": "▃▃▃▃▃▃▂▂█▇▇█▇▇▇▇▆▇▇▇▇▇▇▄▃▃▄▃▃▃▁",
+      "spark_marks": "                              c"
+    },
+    {
+      "code": "025870",
+      "name": "신라에스지",
+      "market": "KOSDAQ",
+      "trough_date": "2026-05-15",
+      "peak_date": "2026-05-15",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-05-15",
+          "pivot_close": 3930.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202603",
+            "202512"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-05-15",
+          "pivot_close": 3930.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202603",
+            "202512"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2026-05-15",
+          "pivot_close": 3930.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202603",
+            "202512"
+          ]
+        }
+      ],
+      "spark": "▆▅▆▆▆███▇▇▇█████▇▇▆▇▇▇▇▅▄▄▃▂▁▁▁",
+      "spark_marks": "                              c"
+    },
+    {
+      "code": "001840",
+      "name": "이화공영",
+      "market": "KOSDAQ",
+      "trough_date": "2025-03-24",
+      "peak_date": "2025-12-22",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-09-22",
+          "pivot_close": 1616.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202506",
+            "202503"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-09-22",
+          "pivot_close": 1616.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202506",
+            "202503"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-09-22",
+          "pivot_close": 1616.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202506",
+            "202503"
+          ]
+        }
+      ],
+      "spark": "██▄▅▄▄▃▃▂▁▁▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂",
+      "spark_marks": "        L                                 c                H"
+    },
+    {
+      "code": "091340",
+      "name": "S&K폴리텍",
+      "market": "KOSDAQ",
+      "trough_date": "2026-03-04",
+      "peak_date": "2026-05-04",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-03-04",
+          "pivot_close": 2065.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-03-04",
+          "pivot_close": 2065.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2026-03-04",
+          "pivot_close": 2065.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        }
+      ],
+      "spark": "▃▃▃▄▃▃▄▄▄▄▃▄▄▄▄▄▄▄▄▃▄▄▄▄▃▁▂▃▂▂▃▃▃▃▂▃▂▆▅▅▆▅▅▆▇▆▆▇▇▇██████████",
+      "spark_marks": "                        c                                  H"
+    },
+    {
+      "code": "003060",
+      "name": "에이프로젠바이오로직스",
+      "market": "KOSPI",
+      "trough_date": "2026-05-11",
+      "peak_date": "2026-05-14",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-05-11",
+          "pivot_close": 2900.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-05-11",
+          "pivot_close": 2900.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2026-05-11",
+          "pivot_close": 2900.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        }
+      ],
+      "spark": "▆▇▇▆▆▅▅▄▃▃▃▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▃▁▄██",
+      "spark_marks": "                              c  H"
+    },
+    {
+      "code": "239890",
+      "name": "피엔에이치테크",
+      "market": "KOSDAQ",
+      "trough_date": "2026-03-04",
+      "peak_date": "2026-04-22",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-03-04",
+          "pivot_close": 4360.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-03-04",
+          "pivot_close": 4360.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2026-03-04",
+          "pivot_close": 4360.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        }
+      ],
+      "spark": "▄▃▃▄▄▄▄▄▄▄▄▃▃▄▃▃▄▄▄▄▄▄▅▅▅▄▄▃▁▃▁▂▃▃▃▃▃▃▃▄▃▄▃▄▃▂▃▂▁▂▂▃▄▅▄▅▆▇▇█",
+      "spark_marks": "                           c                               H"
+    },
+    {
+      "code": "089470",
+      "name": "HDC현대EP",
+      "market": "KOSPI",
+      "trough_date": "2024-12-09",
+      "peak_date": "2026-02-12",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-11-17",
+          "pivot_close": 4015.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-11-17",
+          "pivot_close": 4015.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-11-17",
+          "pivot_close": 4015.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        }
+      ],
+      "spark": "▃▃▃▂▂▂▁▁▂▁▁▁▁▁▁▁▂▂▂▂▁▁▁▂▂▂▂▃▄▃▃▃▃▄▄▄▄▄▄▄▄▄▄▄▄▄▃▂▃▄▄▄▅▅▅▅▅▆▆█",
+      "spark_marks": "     L                                         c           H"
+    },
+    {
+      "code": "215380",
+      "name": "우정바이오",
+      "market": "KOSDAQ",
+      "trough_date": "2025-04-09",
+      "peak_date": "2026-03-13",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2025-12-08",
+          "pivot_close": 2075.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2025-12-08",
+          "pivot_close": 2075.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202509",
+            "202506"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2025-04-24",
+          "pivot_close": 1551.0,
+          "method": "P",
+          "prior_two_quarters": [
+            "202412",
+            "202409"
+          ]
+        }
+      ],
+      "spark": "▂▁▁▁▁▁▁▁▁▁▁▁▁▁▂▂▂▂▃▃▂▂▂▂▂▂▁▁▂▂▁▃▂▂▂▂▂▂▂▂▄▅▄▄▄▄▄▃▂▂▃▃▄▅▆▅▅▅█▇",
+      "spark_marks": "      L  c                                  b              H"
+    },
+    {
+      "code": "093240",
+      "name": "형지엘리트",
+      "market": "KOSPI",
+      "trough_date": "2026-05-12",
+      "peak_date": "2026-05-13",
+      "variants": [
+        {
+          "drawdown": 0.12,
+          "pivot_date": "2026-05-12",
+          "pivot_close": 840.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.2,
+          "pivot_date": "2026-05-12",
+          "pivot_close": 840.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        },
+        {
+          "drawdown": 0.33,
+          "pivot_date": "2026-05-12",
+          "pivot_close": 840.0,
+          "method": "F",
+          "prior_two_quarters": [
+            "202512",
+            "202509"
+          ]
+        }
+      ],
+      "spark": "▇▆▆▇▅▅▅█▅▅▇▆▇▇▇▇█▇▇▆▇▆▆▆▅▅▄▃▃▁▁▂",
+      "spark_marks": "                              cH"
+    }
+  ]
+}

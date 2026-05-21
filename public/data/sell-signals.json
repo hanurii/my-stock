@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-15T00:04:51.694Z",
+  "generated_at": "2026-05-15T02:49:18.893Z",
   "target_codes": [
     "000660"
   ],
@@ -18,8 +18,8 @@
       "holding_weeks": 0.57,
       "high_price": 1994000,
       "high_price_date": "2026-05-14",
-      "ma50": 1163100,
-      "ma200": null,
+      "ma50": 1162160,
+      "ma200": 733738,
       "strategy": {
         "cut_loss_price": 1770428,
         "take_profit_1_price": 2309254,
@@ -74,6 +74,63 @@
         "reasons": [
           "잘못 매수한 종목 (진입 시점에 적절한 모양(base)이 없었음 — 최근 5주 내 신고가 갱신 — 횡보·조정 없는 모멘텀 추격)",
           "권장 액션: 본전 회복 시 즉시 매도 또는 손절선 도달까지 대기. 닻 내림 효과 주의 — '지금 이 가격에 새로 산다면 살 것인가?'로 재평가."
+        ]
+      },
+      "peak": {
+        "ma50": 1162160,
+        "ma200_approx": 733738,
+        "ma200_slope_pct": 250.72,
+        "price_vs_ma50_pct": 63.83,
+        "price_vs_ma200_pct": 159.49,
+        "current_high_price": 1995000,
+        "current_high_date": "2026-05-15",
+        "drawdown_from_high_pct": -4.56,
+        "recent_volume_avg": 6524343,
+        "volume_avg_60d": 4642610,
+        "recent_volume_ratio": 1.41,
+        "high_day_volume_ratio": 0.62,
+        "distribution_days_in_5d": 1,
+        "consecutive_down_days": 2,
+        "largest_up_day_pct": 12.77,
+        "monitor_alerts_count": 1,
+        "monitor_alerts_critical": [
+          "PBR 8배 돌파"
+        ],
+        "signals": [
+          {
+            "id": "ma200_far",
+            "label": "200일선 +70%+ 괴리 (너무 멀어짐)",
+            "book_category": "최후의 정점",
+            "hit": true,
+            "detail": "200일선 대비 +159.5% (책 기준 ≥ 70%)",
+            "severity": "strong"
+          },
+          {
+            "id": "low_volume_high",
+            "label": "거래량 적은 신고가",
+            "book_category": "약세 징후",
+            "hit": true,
+            "detail": "신고가일(20260515) 거래량이 60일 평균의 62% (책 기준 < 80%)",
+            "severity": "weak"
+          },
+          {
+            "id": "monitor_thesis_break",
+            "label": "종목별 thesis 알람",
+            "book_category": "thesis",
+            "hit": true,
+            "detail": "1건: PBR 8배 돌파",
+            "severity": "medium"
+          }
+        ],
+        "hit_count": 3
+      },
+      "peak_verdict": {
+        "verdict": "TRIM",
+        "reasons": [
+          "지지선 또는 200일선 신호 hit (강 1) — 분할 매도 검토",
+          "[최후의 정점] 200일선 +70%+ 괴리 (너무 멀어짐): 200일선 대비 +159.5% (책 기준 ≥ 70%)",
+          "[약세 징후] 거래량 적은 신고가: 신고가일(20260515) 거래량이 60일 평균의 62% (책 기준 < 80%)",
+          "[thesis] 종목별 thesis 알람: 1건: PBR 8배 돌파"
         ]
       }
     }

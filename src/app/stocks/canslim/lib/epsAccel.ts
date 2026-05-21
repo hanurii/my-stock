@@ -1,17 +1,10 @@
-export type EpsAccelQuality = "none" | "recovery" | "mild" | "strong" | "explosive";
+export type EpsAccelQuality = "none" | "mild" | "strong" | "explosive";
 
 export const EPS_ACCEL_QUALITY_META: Record<
   EpsAccelQuality,
   { label: string; color: string; bg: string; weight: string; icon: string }
 > = {
   none: { label: "—", color: "var(--on-surface-variant)", bg: "transparent", weight: "", icon: "" },
-  recovery: {
-    label: "회복 (가속 아님)",
-    color: "var(--on-surface-variant)",
-    bg: "rgba(168,181,208,0.10)",
-    weight: "",
-    icon: "↻",
-  },
   mild: {
     label: "가속",
     color: "#6ee7b7",

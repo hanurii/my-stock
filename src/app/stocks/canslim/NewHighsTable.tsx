@@ -7,11 +7,20 @@ export interface NSource {
   url: string;
 }
 
+export interface NAxisScore {
+  value: number;
+  rationale: string;
+}
+
 export interface NCommentary {
-  summary: string | null;
-  new_product: string | null;
-  new_management: string | null;
-  new_high_reason: string | null;
+  core_product: string;
+  scores: {
+    competitive_advantage: NAxisScore;
+    revenue_contribution: NAxisScore;
+    sector_impact: NAxisScore;
+  };
+  total_score: number;
+  tier: "A" | "B" | "C" | "D";
   sources: NSource[];
   researched_at: string;
 }
@@ -20,59 +29,67 @@ export interface NCandidate {
   code: string;
   name: string;
   market: string;
-  a_score: number;
-  a_score_tier: string;
+  market_cap_eok: number;
   current_price: number;
-  current_date: string;
-  high_52w: number;
-  high_52w_date: string;
-  pct_from_52w_high: number;
+  c_score: number | null;
+  c_score_tier: string | null;
   n_commentary: NCommentary | null;
 }
 
-const EMPTY_COMMENTARY: NCommentary = {
-  summary: null,
-  new_product: null,
-  new_management: null,
-  new_high_reason: null,
-  sources: [],
-  researched_at: "",
-};
-
-type SortKey = "pct_from_52w_high";
+type SortKey = "total_score" | "competitive_advantage" | "revenue_contribution" | "sector_impact" | "c_score";
 
 interface Props {
   candidates: NCandidate[];
 }
 
+const TIER_META: Record<"A" | "B" | "C" | "D", { label: string; mark: string; color: string }> = {
+  A: { label: "강력 신제품", mark: "🅐", color: "#10b981" },
+  B: { label: "검증 신제품", mark: "🅑", color: "#34d399" },
+  C: { label: "부분 신제품", mark: "🅒", color: "#e9c176" },
+  D: { label: "약함", mark: "🅓", color: "#ffb4ab" },
+};
+
 function fmtPrice(n: number): string {
   return n.toLocaleString();
 }
 
-function pctColor(pct: number): string {
-  if (pct >= 0) return "#10b981";
-  if (pct >= -2) return "#34d399";
-  if (pct >= -5) return "#a8b5d0";
+function fmtCap(eok: number): string {
+  if (!eok) return "—";
+  if (eok >= 10000) return `${(eok / 10000).toFixed(1)}조`;
+  return `${eok.toLocaleString()}억`;
+}
+
+function axisColor(value: number, max: number): string {
+  const ratio = value / max;
+  if (ratio >= 0.85) return "#10b981";
+  if (ratio >= 0.6) return "#34d399";
+  if (ratio >= 0.4) return "#a8b5d0";
+  if (ratio >= 0.2) return "#e9c176";
   return "#ffb4ab";
 }
 
-function pctLabel(pct: number): string {
-  if (pct === 0) return "당일 신고가";
-  if (pct >= -1) return "신고가 근접";
-  if (pct >= -3) return "신고가권";
-  if (pct >= -5) return "근접권";
-  return "미달";
-}
-
 export function NewHighsTable({ candidates }: Props) {
-  const [sortKey, setSortKey] = useState<SortKey>("pct_from_52w_high");
+  const [sortKey, setSortKey] = useState<SortKey>("total_score");
   const [sortDesc, setSortDesc] = useState(true);
   const [expandedCode, setExpandedCode] = useState<string | null>(null);
 
   const sorted = useMemo(() => {
     return [...candidates].sort((a, b) => {
-      const av = a[sortKey];
-      const bv = b[sortKey];
+      const get = (c: NCandidate): number | null => {
+        if (sortKey === "c_score") return c.c_score;
+        const nc = c.n_commentary;
+        if (!nc) return null;
+        if (sortKey === "total_score") return nc.total_score;
+        if (sortKey === "competitive_advantage") return nc.scores.competitive_advantage.value;
+        if (sortKey === "revenue_contribution") return nc.scores.revenue_contribution.value;
+        if (sortKey === "sector_impact") return nc.scores.sector_impact.value;
+        return null;
+      };
+      const av = get(a);
+      const bv = get(b);
+      if (av === null && bv === null) return 0;
+      if (av === null) return 1;
+      if (bv === null) return -1;
       return sortDesc ? bv - av : av - bv;
     });
   }, [candidates, sortKey, sortDesc]);
@@ -93,27 +110,50 @@ export function NewHighsTable({ candidates }: Props) {
         <thead>
           <tr className="text-[11px] text-on-surface-variant/70 border-b border-on-surface/10">
             <th className="text-left py-2.5 pr-3 font-normal">종목명</th>
-            <th className="text-left py-2.5 px-3 font-normal">핵심 요약</th>
-            <th className="text-center py-2.5 px-2 font-normal" title="신제품">신제품</th>
-            <th className="text-center py-2.5 px-2 font-normal" title="신경영">신경영</th>
-            <th className="text-right py-2.5 px-3 font-normal">현재가</th>
-            <th className="text-right py-2.5 px-3 font-normal">52주 신고가 (도달일)</th>
+            <th className="text-left py-2.5 px-3 font-normal">핵심 신제품</th>
             <th
-              className="text-right py-2.5 px-3 font-normal cursor-pointer hover:text-on-surface"
-              onClick={() => toggleSort("pct_from_52w_high")}
+              className="text-right py-2.5 px-2 font-normal cursor-pointer hover:text-on-surface whitespace-nowrap"
+              onClick={() => toggleSort("competitive_advantage")}
+              title="경쟁 우위 (15점)"
             >
-              신고가 대비 {sortArrow("pct_from_52w_high")}
+              경쟁 {sortArrow("competitive_advantage")}
             </th>
+            <th
+              className="text-right py-2.5 px-2 font-normal cursor-pointer hover:text-on-surface whitespace-nowrap"
+              onClick={() => toggleSort("revenue_contribution")}
+              title="현재 매출 기여 (10점)"
+            >
+              매출 {sortArrow("revenue_contribution")}
+            </th>
+            <th
+              className="text-right py-2.5 px-2 font-normal cursor-pointer hover:text-on-surface whitespace-nowrap"
+              onClick={() => toggleSort("sector_impact")}
+              title="섹터·시장 임팩트 (5점)"
+            >
+              섹터 {sortArrow("sector_impact")}
+            </th>
+            <th
+              className="text-right py-2.5 px-3 font-normal cursor-pointer hover:text-on-surface whitespace-nowrap"
+              onClick={() => toggleSort("total_score")}
+            >
+              N 점수 {sortArrow("total_score")}
+            </th>
+            <th
+              className="text-right py-2.5 px-3 font-normal cursor-pointer hover:text-on-surface whitespace-nowrap"
+              onClick={() => toggleSort("c_score")}
+              title="C 점수"
+            >
+              C {sortArrow("c_score")}
+            </th>
+            <th className="text-right py-2.5 px-3 font-normal whitespace-nowrap">시총</th>
             <th className="w-8" />
           </tr>
         </thead>
         <tbody>
           {sorted.map((c) => {
-            const pct = c.pct_from_52w_high;
+            const nc = c.n_commentary;
             const isExpanded = expandedCode === c.code;
-            const commentary = c.n_commentary ?? EMPTY_COMMENTARY;
-            const hasProduct = !!commentary.new_product;
-            const hasManagement = !!commentary.new_management;
+            const tier = nc ? TIER_META[nc.tier] : null;
             return (
               <Fragment key={c.code}>
                 <tr
@@ -126,32 +166,61 @@ export function NewHighsTable({ candidates }: Props) {
                     <div className="flex items-baseline gap-2">
                       <span className="font-medium text-on-surface">{c.name}</span>
                       <span className="text-[11px] text-on-surface-variant/50 font-mono">{c.code}</span>
+                      <span className="text-[10px] text-on-surface-variant/40">{c.market}</span>
                     </div>
                   </td>
-                  <td className="py-3 px-3 text-xs text-on-surface-variant max-w-[280px]">
-                    {commentary.summary ?? <span className="text-on-surface-variant/40 italic">—</span>}
+                  <td className="py-3 px-3 text-xs text-on-surface-variant max-w-[260px]">
+                    {nc ? (
+                      <span className="line-clamp-2">{nc.core_product}</span>
+                    ) : (
+                      <span className="text-on-surface-variant/40 italic">미조사</span>
+                    )}
                   </td>
-                  <td className="text-center py-3 px-2">
-                    <Indicator on={hasProduct} icon="rocket_launch" color="#95d3ba" title={hasProduct ? "신제품 카탈리스트 확인" : "확인된 신제품 없음"} />
+                  <td className="text-right py-3 px-2 text-xs">
+                    {nc ? (
+                      <span style={{ color: axisColor(nc.scores.competitive_advantage.value, 15) }}>
+                        {nc.scores.competitive_advantage.value}
+                        <span className="text-on-surface-variant/40">/15</span>
+                      </span>
+                    ) : "—"}
                   </td>
-                  <td className="text-center py-3 px-2">
-                    <Indicator on={hasManagement} icon="groups" color="#e9c176" title={hasManagement ? "신경영 카탈리스트 확인" : "확인된 신경영 없음"} />
+                  <td className="text-right py-3 px-2 text-xs">
+                    {nc ? (
+                      <span style={{ color: axisColor(nc.scores.revenue_contribution.value, 10) }}>
+                        {nc.scores.revenue_contribution.value}
+                        <span className="text-on-surface-variant/40">/10</span>
+                      </span>
+                    ) : "—"}
                   </td>
-                  <td className="text-right py-3 px-3 text-on-surface-variant">
-                    {fmtPrice(c.current_price)}
-                  </td>
-                  <td className="text-right py-3 px-3 text-on-surface-variant/80 text-xs">
-                    {fmtPrice(c.high_52w)} <span className="text-on-surface-variant/40">({c.high_52w_date})</span>
+                  <td className="text-right py-3 px-2 text-xs">
+                    {nc ? (
+                      <span style={{ color: axisColor(nc.scores.sector_impact.value, 5) }}>
+                        {nc.scores.sector_impact.value}
+                        <span className="text-on-surface-variant/40">/5</span>
+                      </span>
+                    ) : "—"}
                   </td>
                   <td className="text-right py-3 px-3">
-                    <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded" style={{ backgroundColor: `${pctColor(pct)}20` }}>
-                      <span className="font-bold text-xs" style={{ color: pctColor(pct) }}>
-                        {pct === 0 ? "0%" : `${pct.toFixed(2)}%`}
-                      </span>
-                      <span className="text-[10px]" style={{ color: pctColor(pct) }}>
-                        {pctLabel(pct)}
-                      </span>
-                    </div>
+                    {nc && tier ? (
+                      <div
+                        className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded"
+                        style={{ backgroundColor: `${tier.color}20` }}
+                      >
+                        <span className="text-xs" style={{ color: tier.color }}>{tier.mark}</span>
+                        <span className="font-bold text-xs" style={{ color: tier.color }}>
+                          {nc.total_score}
+                          <span className="text-on-surface-variant/40 font-normal">/30</span>
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-on-surface-variant/40 text-xs">—</span>
+                    )}
+                  </td>
+                  <td className="text-right py-3 px-3 text-xs text-on-surface-variant">
+                    {c.c_score !== null ? c.c_score.toFixed(0) : "—"}
+                  </td>
+                  <td className="text-right py-3 px-3 text-xs text-on-surface-variant/70 whitespace-nowrap">
+                    {fmtCap(c.market_cap_eok)}
                   </td>
                   <td className="text-right py-3 pl-1 pr-2 text-on-surface-variant/40">
                     <span className="material-symbols-outlined text-base">
@@ -161,7 +230,7 @@ export function NewHighsTable({ candidates }: Props) {
                 </tr>
                 {isExpanded && (
                   <tr className="bg-surface-container/30 border-b border-on-surface/5">
-                    <td colSpan={8} className="p-5">
+                    <td colSpan={9} className="p-5">
                       <ExpandedDetail candidate={c} />
                     </td>
                   </tr>
@@ -175,40 +244,45 @@ export function NewHighsTable({ candidates }: Props) {
   );
 }
 
-function Indicator({ on, icon, color, title }: { on: boolean; icon: string; color: string; title: string }) {
-  return (
-    <span
-      title={title}
-      className="material-symbols-outlined text-lg"
-      style={{ color: on ? color : "var(--on-surface-variant)", opacity: on ? 1 : 0.25 }}
-    >
-      {on ? icon : "remove"}
-    </span>
-  );
-}
-
 function ExpandedDetail({ candidate }: { candidate: NCandidate }) {
-  const { new_product, new_management, new_high_reason, sources, researched_at } =
-    candidate.n_commentary ?? EMPTY_COMMENTARY;
+  const nc = candidate.n_commentary;
+  if (!nc) {
+    return (
+      <p className="text-xs text-on-surface-variant/60 italic">
+        이 종목은 아직 N 점수 조사가 완료되지 않았습니다.
+      </p>
+    );
+  }
+  const { scores, sources, researched_at, core_product } = nc;
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
+      <div>
+        <p className="text-[11px] text-on-surface-variant/60 mb-1">핵심 신제품</p>
+        <p className="text-sm text-on-surface font-medium">{core_product}</p>
+        <p className="text-[11px] text-on-surface-variant/60 mt-2">
+          현재가 <span className="text-on-surface-variant">{fmtPrice(candidate.current_price)}</span>원
+        </p>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <CommentaryCard
-          icon="rocket_launch"
-          title="신제품"
-          body={new_product}
+        <AxisCard
+          title="① 경쟁 우위"
+          value={scores.competitive_advantage.value}
+          max={15}
+          rationale={scores.competitive_advantage.rationale}
           accent="#95d3ba"
         />
-        <CommentaryCard
-          icon="groups"
-          title="신경영"
-          body={new_management}
+        <AxisCard
+          title="② 현재 매출 기여"
+          value={scores.revenue_contribution.value}
+          max={10}
+          rationale={scores.revenue_contribution.rationale}
           accent="#e9c176"
         />
-        <CommentaryCard
-          icon="trending_up"
-          title="신고가 이유"
-          body={new_high_reason}
+        <AxisCard
+          title="③ 섹터·시장 임팩트"
+          value={scores.sector_impact.value}
+          max={5}
+          rationale={scores.sector_impact.rationale}
           accent="#a8b5d0"
         />
       </div>
@@ -229,56 +303,44 @@ function ExpandedDetail({ candidate }: { candidate: NCandidate }) {
               </a>
             ))}
           </div>
-          <p className="text-[10px] text-on-surface-variant/40 mt-2">
-            조사일 {researched_at}
-          </p>
         </div>
+      )}
+      {researched_at && (
+        <p className="text-[10px] text-on-surface-variant/40">조사일 {researched_at}</p>
       )}
     </div>
   );
 }
 
-function CommentaryCard({
-  icon,
+function AxisCard({
   title,
-  body,
+  value,
+  max,
+  rationale,
   accent,
 }: {
-  icon: string;
   title: string;
-  body: string | null;
+  value: number;
+  max: number;
+  rationale: string;
   accent: string;
 }) {
-  const isEmpty = !body;
+  const color = axisColor(value, max);
   return (
-    <div
-      className={`rounded-lg p-3 ${
-        isEmpty
-          ? "bg-on-surface/[0.03] border border-on-surface/5"
-          : "bg-surface-container/40"
-      }`}
-    >
-      <div className="flex items-center gap-1.5 mb-2">
-        <span
-          className="material-symbols-outlined text-base"
-          style={{ color: isEmpty ? "var(--on-surface-variant)" : accent }}
-        >
-          {icon}
-        </span>
-        <span
-          className="text-xs font-medium"
-          style={{ color: isEmpty ? "var(--on-surface-variant)" : "var(--on-surface)" }}
-        >
-          {title}
+    <div className="bg-surface-container/40 rounded-lg p-3">
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-xs font-medium text-on-surface">{title}</span>
+        <span className="text-xs font-bold" style={{ color }}>
+          {value}<span className="text-on-surface-variant/40 font-normal">/{max}</span>
         </span>
       </div>
-      <p
-        className={`text-xs leading-relaxed ${
-          isEmpty ? "text-on-surface-variant/40 italic" : "text-on-surface-variant"
-        }`}
-      >
-        {isEmpty ? "확인된 카탈리스트 없음" : body}
-      </p>
+      <div className="h-1 bg-on-surface/10 rounded-full overflow-hidden mb-2">
+        <div
+          className="h-full rounded-full"
+          style={{ width: `${(value / max) * 100}%`, backgroundColor: accent }}
+        />
+      </div>
+      <p className="text-xs text-on-surface-variant leading-relaxed">{rationale}</p>
     </div>
   );
 }
