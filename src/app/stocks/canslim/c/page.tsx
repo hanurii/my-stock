@@ -53,8 +53,15 @@ export default async function CanslimCPage() {
 
   const main = data.candidates.filter((c) => passesCGate(c.criteria.C));
 
-  const marketGo = data.market_status.passed;
-  const marketColor = marketGo ? "#95d3ba" : "#ffb4ab";
+  const tierCounts = (() => {
+    const counts: Record<string, number> = { 강력: 0, 좋음: 0, 중립: 0, 약함: 0 };
+    for (const c of main) {
+      const t = c.c_score_tier ?? (c.c_score !== undefined ? (c.c_score >= 80 ? "강력" : c.c_score >= 70 ? "좋음" : c.c_score >= 50 ? "중립" : "약함") : null);
+      if (t) counts[t]++;
+    }
+    return counts;
+  })();
+  const hasScores = main.some((c) => c.c_score !== undefined);
 
   return (
     <div className="space-y-10">
@@ -66,52 +73,51 @@ export default async function CanslimCPage() {
           윌리엄 오닐의 첫 글자 &lsquo;C&rsquo; — 분기 주당순이익이 전년 동기 대비 얼마나 크게 늘었는가.
         </p>
         <p className="text-xs text-on-surface-variant/60 mt-1.5">
-          노출 조건: 분기 EPS YoY <strong className="text-on-surface-variant">+{USER_C_THRESHOLD}% 이상</strong> AND <strong className="text-on-surface-variant">매출 동반</strong>(분기 매출 +25% OR 3분기 매출 가속). 흑자전환은 절댓값 분모 공식으로 함께 평가.
+          노출 조건: 분기 EPS YoY <strong className="text-on-surface-variant">+{USER_C_THRESHOLD}% 이상</strong> AND <strong className="text-on-surface-variant">매출 동반</strong>(분기 매출 +25% OR 3분기 매출 가속) AND EPS 가속 중.
         </p>
         <p className="text-xs text-on-surface-variant/50 mt-1">
           생성일: {data.generated_at} · 평가 {data.evaluated_count.toLocaleString()}종목 · 노출 {main.length}종목
         </p>
       </header>
 
-      {/* 시장 추세 미니배너 (M 원칙 미리보기) */}
-      <section
-        className="rounded-xl ghost-border p-4 flex items-center gap-3"
-        style={{ backgroundColor: `${marketColor}10` }}
-      >
-        <span className="material-symbols-outlined text-2xl" style={{ color: marketColor }}>
-          {marketGo ? "trending_up" : "trending_down"}
-        </span>
-        <div className="flex-1">
-          <p className="text-sm font-medium text-on-surface">
-            시장 추세(M): <span style={{ color: marketColor }}>{data.market_status.value}</span>
-          </p>
-          <p className="text-xs text-on-surface-variant/70 mt-0.5">{data.market_status.detail}</p>
-        </div>
-      </section>
-
-      {/* 참고 임계값 가이드 */}
+      {/* C 점수 4축 안내 */}
       <section className="bg-surface-container-low rounded-xl ghost-border p-4">
-        <h3 className="text-sm font-serif font-bold text-on-surface mb-3 flex items-center gap-2">
-          <span className="material-symbols-outlined text-base text-primary">straighten</span>
-          분기 EPS YoY 참고선
+        <h3 className="text-sm font-serif font-bold text-on-surface mb-1 flex items-center gap-2">
+          <span className="material-symbols-outlined text-base text-primary">scoreboard</span>
+          C 점수 — 4축 100점 만점
+          <span className="text-[11px] text-on-surface-variant/60 font-normal ml-1">
+            · 필터 통과 종목 사이의 우선순위
+          </span>
         </h3>
+        <p className="text-[11px] text-on-surface-variant/60 mb-3">
+          오닐 책 무게중심을 반영해 EPS 자체 평가에 74점을 할당. 매출 검증과 경영진이 나머지 26점.
+        </p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-          <div className="bg-surface-container/50 rounded-lg p-2.5">
-            <p className="text-on-surface-variant/60 mb-0.5">사용자 컷오프</p>
-            <p className="text-on-surface font-medium">+{USER_C_THRESHOLD}% 이상</p>
-          </div>
-          <div className="bg-surface-container/50 rounded-lg p-2.5">
-            <p className="text-on-surface-variant/60 mb-0.5">권장 (O&apos;Neil)</p>
-            <p className="text-on-surface font-medium">+25~30%</p>
-          </div>
-          <div className="bg-surface-container/50 rounded-lg p-2.5">
-            <p className="text-on-surface-variant/60 mb-0.5">우수</p>
-            <p className="text-on-surface font-medium">+40~100%</p>
-          </div>
-          <div className="bg-surface-container/50 rounded-lg p-2.5">
-            <p className="text-on-surface-variant/60 mb-0.5">최고</p>
-            <p className="text-on-surface font-medium">+100% 이상</p>
-          </div>
+          {[
+            { axis: "① 분기 EPS YoY 폭", max: 39, hint: "+25% 부터 시작, +100%↑ 만점" },
+            { axis: "② EPS 가속 폭", max: 35, hint: "▲14 · ▲▲26 · 🔥31 + 3분기 +4" },
+            { axis: "③ 매출 가속", max: 19, hint: "+25% 10 / 3분기 +6 / ⛔ +3" },
+            { axis: "④ 경영진 품질", max: 7, hint: "워치리스트 우수 7 · 전문 4" },
+          ].map((a) => (
+            <div key={a.axis} className="bg-surface-container/50 rounded-lg p-2.5">
+              <p className="text-on-surface-variant/60 mb-0.5">{a.axis}</p>
+              <p className="text-on-surface font-medium">{a.max}점 만점</p>
+              <p className="text-[10px] text-on-surface-variant/50 mt-0.5">{a.hint}</p>
+            </div>
+          ))}
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2 text-[11px]">
+          {[
+            { tier: "🅐 강력", range: "80+", color: "#10b981" },
+            { tier: "🅑 좋음", range: "70~79", color: "#34d399" },
+            { tier: "🅒 중립", range: "50~69", color: "#e9c176" },
+            { tier: "🅓 약함", range: "<50", color: "#ffb4ab" },
+          ].map((t) => (
+            <span key={t.tier} className="inline-flex items-center gap-1.5 px-2 py-1 rounded" style={{ backgroundColor: `${t.color}20`, color: t.color }}>
+              <span className="font-bold">{t.tier}</span>
+              <span className="opacity-80">{t.range}</span>
+            </span>
+          ))}
         </div>
       </section>
 
@@ -125,16 +131,15 @@ export default async function CanslimCPage() {
           </span>
         </h3>
         <p className="text-[11px] text-on-surface-variant/60 mb-3">
-          가속 폭 Δ = (이번 분기 EPS YoY %) − (직전 분기 EPS YoY %). 직전 분기 YoY가 음수였다가 양수로 회복한 케이스는 진짜 가속이 아닌 &quot;회복&quot;으로 분류 (페이지 노출 제외).
+          가속 폭 Δ = (이번 분기 EPS YoY %) − (직전 분기 EPS YoY %). YoY 는 절댓값 분모 공식이라 적자→흑자 턴어라운드도 같은 척도로 mild/strong/explosive 중 하나에 분류된다.
         </p>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-          {(["mild", "strong", "explosive", "recovery"] as const).map((q) => {
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+          {(["mild", "strong", "explosive"] as const).map((q) => {
             const meta = EPS_ACCEL_QUALITY_META[q];
             const ranges: Record<string, string> = {
               mild: "0 < Δ ≤ 25%p",
               strong: "25 < Δ ≤ 100%p",
               explosive: "Δ > 100%p",
-              recovery: "직전 YoY 음수 → 양수",
             };
             return (
               <div
@@ -161,9 +166,8 @@ export default async function CanslimCPage() {
         </h3>
         <p className="text-on-surface-variant"><strong className="text-on-surface">매출 +25% 이상</strong>: 이번 분기 매출 YoY ≥ 25% 종목 (이미 페이지 노출 조건의 일부, 토글로 좁히기 가능).</p>
         <p className="text-on-surface-variant"><strong className="text-on-surface">매출 3분기 가속</strong>: 최근 3분기 매출 YoY 성장률이 단조 증가 (이미 페이지 노출 조건의 일부).</p>
-        <p className="text-on-surface-variant"><strong className="text-on-surface">EPS 가속 중</strong>: 가속 폭이 mild(0~25%p) / strong(25~100%p) / explosive(100%p+) 중 하나인 종목. dip 회복은 제외 (O&apos;Neil 책 기준 #3 가장 중요).</p>
+        <p className="text-on-surface-variant"><strong className="text-on-surface">EPS 가속 중</strong>: 가속 폭이 mild(0~25%p) / strong(25~100%p) / explosive(100%p+) 중 하나인 종목 (O&apos;Neil 책 기준 #3 가장 중요).</p>
         <p className="text-on-surface-variant"><strong className="text-on-surface">12M EPS 신고점</strong>: 최근 12개월 4개 분기 EPS가 그 이전 모든 분기의 신고점에 근접·돌파.</p>
-        <p className="text-on-surface-variant"><strong className="text-on-surface">경고 없음</strong>: 2분기 연속 EPS 감소·심각 둔화·증자 희석 이력 없음.</p>
         <p className="text-emerald-300"><strong>⛔ 절대 매도 금지</strong>: 매출+EPS 모두 최근 3분기 가속 — O&apos;Neil 책 기준 #4 (배지로 자동 부여, 필터 X).</p>
       </section>
 
@@ -173,6 +177,26 @@ export default async function CanslimCPage() {
           <span className="material-symbols-outlined text-primary">trending_up</span>
           분기 EPS YoY +{USER_C_THRESHOLD}% 이상 ({main.length}종목)
         </h3>
+        {hasScores && (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
+            {([
+              { key: "강력", color: "#10b981", mark: "🅐" },
+              { key: "좋음", color: "#34d399", mark: "🅑" },
+              { key: "중립", color: "#e9c176", mark: "🅒" },
+              { key: "약함", color: "#ffb4ab", mark: "🅓" },
+            ] as const).map((t) => (
+              <div key={t.key} className="bg-surface-container-low rounded-lg p-3 ghost-border">
+                <p className="text-[11px] text-on-surface-variant/70 mb-1">
+                  <span style={{ color: t.color }}>{t.mark}</span> {t.key}
+                </p>
+                <p className="text-xl font-serif font-bold" style={{ color: t.color }}>
+                  {tierCounts[t.key]}
+                  <span className="text-xs text-on-surface-variant/50 ml-1">종목</span>
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
         <CanslimTable
           candidates={main.map((c) => ({ ...c, market_cap_rank: rankByCode.get(c.code) }))}
         />

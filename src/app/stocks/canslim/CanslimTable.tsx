@@ -24,10 +24,23 @@ export interface CCriterion {
   eps_new_high: boolean;
   consecutive_decline_quarters: number;
   severe_decel: boolean;
-  is_turnaround: boolean;
   dilution_flag: boolean | null;
   latest_is_preliminary?: boolean;
   preliminary_rcept_no?: string | null;
+}
+
+export type CScoreTier = "강력" | "좋음" | "중립" | "약함";
+
+export interface CScoreBreakdown {
+  yoy: number;
+  accel: number;
+  sales: number;
+}
+
+export interface CScoreNotes {
+  yoy: string;
+  accel: string;
+  sales: string;
 }
 
 export interface CanslimCandidate {
@@ -39,13 +52,50 @@ export interface CanslimCandidate {
   per: number | null;
   pbr: number | null;
   current_price: number;
+  pct_from_52w_high: number | null;
   criteria: {
     C: CCriterion;
   };
+  c_score?: number;
+  c_score_tier?: CScoreTier;
+  c_score_breakdown?: CScoreBreakdown;
+  c_score_notes?: CScoreNotes;
+  management_quality?: string | null;
 }
 
-type SortKey = "yoy_pct" | "accel_delta_pp" | "sales_yoy_pct" | "latest_eps" | "market_cap";
+type SortKey =
+  | "c_score"
+  | "yoy_pct"
+  | "accel_delta_pp"
+  | "sales_yoy_pct"
+  | "latest_eps"
+  | "market_cap"
+  | "pct_from_52w_high";
 type MarketFilter = "ALL" | "KOSPI" | "KOSDAQ";
+type TierFilter = "ALL" | CScoreTier;
+
+const TIER_META: Record<CScoreTier, { color: string; bg: string; mark: string }> = {
+  강력: { color: "#10b981", bg: "rgba(16,185,129,0.18)", mark: "🅐" },
+  좋음: { color: "#34d399", bg: "rgba(52,211,153,0.15)", mark: "🅑" },
+  중립: { color: "#e9c176", bg: "rgba(233,193,118,0.15)", mark: "🅒" },
+  약함: { color: "#ffb4ab", bg: "rgba(255,180,171,0.15)", mark: "🅓" },
+};
+
+function tierOf(score: number | undefined): CScoreTier | null {
+  if (score === undefined || score === null) return null;
+  if (score >= 80) return "강력";
+  if (score >= 70) return "좋음";
+  if (score >= 50) return "중립";
+  return "약함";
+}
+
+function scoreColor(score: number | undefined): string {
+  if (score === undefined || score === null) return "var(--on-surface-variant)";
+  if (score >= 80) return "#10b981";
+  if (score >= 70) return "#34d399";
+  if (score >= 50) return "#e9c176";
+  return "#ffb4ab";
+}
 
 interface Props {
   candidates: CanslimCandidate[];
@@ -79,19 +129,32 @@ function deltaColor(n: number | null): string {
 }
 
 export function CanslimTable({ candidates }: Props) {
+  const hasScores = useMemo(() => candidates.some((c) => c.c_score !== undefined), [candidates]);
   const [marketFilter, setMarketFilter] = useState<MarketFilter>("ALL");
-  const [sortKey, setSortKey] = useState<SortKey>("yoy_pct");
+  const [tierFilter, setTierFilter] = useState<TierFilter>("ALL");
+  const [sortKey, setSortKey] = useState<SortKey>(hasScores ? "c_score" : "yoy_pct");
   const [sortDesc, setSortDesc] = useState(true);
   const [salesAccompanyOnly, setSalesAccompanyOnly] = useState(false);
   const [salesAccel3qOnly, setSalesAccel3qOnly] = useState(false);
   const [newHighOnly, setNewHighOnly] = useState(false);
   const [accelOnly, setAccelOnly] = useState(false);
-  const [noWarningOnly, setNoWarningOnly] = useState(false);
   const [expandedCode, setExpandedCode] = useState<string | null>(null);
+
+  const tierCounts = useMemo(() => {
+    const counts: Record<CScoreTier, number> = { 강력: 0, 좋음: 0, 중립: 0, 약함: 0 };
+    for (const c of candidates) {
+      const t = c.c_score_tier ?? tierOf(c.c_score);
+      if (t) counts[t]++;
+    }
+    return counts;
+  }, [candidates]);
 
   const filtered = useMemo(() => {
     let arr = candidates;
     if (marketFilter !== "ALL") arr = arr.filter((c) => c.market === marketFilter);
+    if (tierFilter !== "ALL") {
+      arr = arr.filter((c) => (c.c_score_tier ?? tierOf(c.c_score)) === tierFilter);
+    }
     if (salesAccompanyOnly) {
       arr = arr.filter((c) => c.criteria.C.sales_yoy_pct !== null && c.criteria.C.sales_yoy_pct >= 25);
     }
@@ -105,13 +168,6 @@ export function CanslimTable({ candidates }: Props) {
         return q === "mild" || q === "strong" || q === "explosive";
       });
     }
-    if (noWarningOnly) {
-      arr = arr.filter((c) => {
-        const cr = c.criteria.C;
-        return cr.consecutive_decline_quarters < 2 && !cr.severe_decel && !cr.dilution_flag;
-      });
-    }
-
     return [...arr].sort((a, b) => {
       const av = readSortValue(a, sortKey);
       const bv = readSortValue(b, sortKey);
@@ -120,29 +176,9 @@ export function CanslimTable({ candidates }: Props) {
       if (bv === null) return -1;
       return sortDesc ? bv - av : av - bv;
     });
-  }, [candidates, marketFilter, salesAccompanyOnly, salesAccel3qOnly, newHighOnly, accelOnly, noWarningOnly, sortKey, sortDesc]);
+  }, [candidates, marketFilter, tierFilter, salesAccompanyOnly, salesAccel3qOnly, newHighOnly, accelOnly, sortKey, sortDesc]);
 
-  const SortHeader = ({ k, label }: { k: SortKey; label: string }) => (
-    <button
-      onClick={() => {
-        if (sortKey === k) setSortDesc(!sortDesc);
-        else {
-          setSortKey(k);
-          setSortDesc(true);
-        }
-      }}
-      className={`text-left flex items-center gap-1 ${
-        sortKey === k ? "text-primary" : "text-on-surface-variant/70 hover:text-on-surface-variant"
-      }`}
-    >
-      {label}
-      {sortKey === k && (
-        <span className="material-symbols-outlined text-sm">
-          {sortDesc ? "arrow_downward" : "arrow_upward"}
-        </span>
-      )}
-    </button>
-  );
+  const sortHeaderProps = { sortKey, sortDesc, setSortKey, setSortDesc };
 
   return (
     <div>
@@ -168,8 +204,31 @@ export function CanslimTable({ candidates }: Props) {
         <FilterToggle on={salesAccel3qOnly} onChange={setSalesAccel3qOnly} label="매출 3분기 가속" />
         <FilterToggle on={newHighOnly} onChange={setNewHighOnly} label="12M EPS 신고점" />
         <FilterToggle on={accelOnly} onChange={setAccelOnly} label="EPS 가속 중" />
-        <FilterToggle on={noWarningOnly} onChange={setNoWarningOnly} label="경고 없음" />
       </div>
+
+      {hasScores && (
+        <div className="flex flex-wrap items-center gap-1 mb-3 rounded-md bg-surface-container-low p-1 w-fit">
+          {(["ALL", "강력", "좋음", "중립", "약함"] as TierFilter[]).map((t) => {
+            const count = t === "ALL" ? candidates.length : tierCounts[t as CScoreTier];
+            const meta = t === "ALL" ? null : TIER_META[t as CScoreTier];
+            return (
+              <button
+                key={t}
+                onClick={() => setTierFilter(t)}
+                className={`px-3 py-1.5 rounded text-xs transition-all flex items-center gap-1.5 ${
+                  tierFilter === t
+                    ? "bg-primary/15 text-primary"
+                    : "text-on-surface-variant/70 hover:bg-surface-container/50"
+                }`}
+              >
+                {meta && <span style={{ color: meta.color }}>{meta.mark}</span>}
+                <span>{t === "ALL" ? "전체" : t}</span>
+                <span className="text-[10px] text-on-surface-variant/50">({count})</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {/* 테이블 */}
       <div className="bg-surface-container-low rounded-xl ghost-border overflow-hidden">
@@ -178,29 +237,37 @@ export function CanslimTable({ candidates }: Props) {
             <thead className="bg-surface-container/40 text-xs">
               <tr className="text-left">
                 <th className="px-3 py-2.5 font-medium text-on-surface-variant/70">종목</th>
+                {hasScores && (
+                  <th className="px-3 py-2.5 font-medium">
+                    <SortHeader k="c_score" label="C 점수" {...sortHeaderProps} />
+                  </th>
+                )}
                 <th className="px-3 py-2.5 font-medium">
-                  <SortHeader k="yoy_pct" label="분기 EPS YoY" />
+                  <SortHeader k="yoy_pct" label="분기 EPS YoY" {...sortHeaderProps} />
                 </th>
                 <th className="px-3 py-2.5 font-medium">
-                  <SortHeader k="latest_eps" label="최근 EPS" />
+                  <SortHeader k="latest_eps" label="최근 EPS" {...sortHeaderProps} />
                 </th>
                 <th className="px-3 py-2.5 font-medium text-on-surface-variant/70 hidden sm:table-cell">분기</th>
                 <th className="px-3 py-2.5 font-medium hidden md:table-cell">
-                  <SortHeader k="accel_delta_pp" label="EPS 가속" />
+                  <SortHeader k="accel_delta_pp" label="EPS 가속" {...sortHeaderProps} />
                 </th>
                 <th className="px-3 py-2.5 font-medium hidden md:table-cell">
-                  <SortHeader k="sales_yoy_pct" label="매출 가속" />
+                  <SortHeader k="sales_yoy_pct" label="매출 가속" {...sortHeaderProps} />
                 </th>
                 <th className="px-3 py-2.5 font-medium text-on-surface-variant/70 hidden lg:table-cell">신호</th>
                 <th className="px-3 py-2.5 font-medium hidden lg:table-cell">
-                  <SortHeader k="market_cap" label="시총" />
+                  <SortHeader k="pct_from_52w_high" label="신고점 대비" {...sortHeaderProps} />
+                </th>
+                <th className="px-3 py-2.5 font-medium hidden lg:table-cell">
+                  <SortHeader k="market_cap" label="시총" {...sortHeaderProps} />
                 </th>
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="px-3 py-8 text-center text-on-surface-variant/60 text-sm">
+                  <td colSpan={9 + (hasScores ? 1 : 0)} className="px-3 py-8 text-center text-on-surface-variant/60 text-sm">
                     조건에 맞는 종목이 없습니다.
                   </td>
                 </tr>
@@ -208,6 +275,8 @@ export function CanslimTable({ candidates }: Props) {
               {filtered.map((c) => {
                 const cr = c.criteria.C;
                 const isOpen = expandedCode === c.code;
+                const tier = c.c_score_tier ?? tierOf(c.c_score);
+                const tierMeta = tier ? TIER_META[tier] : null;
                 return (
                   <Fragment key={c.code}>
                     <tr
@@ -224,14 +293,34 @@ export function CanslimTable({ candidates }: Props) {
                           </span>
                         </div>
                       </td>
+                      {hasScores && (
+                        <td className="px-3 py-2.5">
+                          {c.c_score !== undefined ? (
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-base" style={{ color: scoreColor(c.c_score) }}>
+                                {c.c_score}
+                              </span>
+                              <span className="text-[10px] text-on-surface-variant/60">/100</span>
+                              {tier && tierMeta && (
+                                <span
+                                  className="text-[10px] px-1.5 py-0.5 rounded font-bold"
+                                  style={{ backgroundColor: tierMeta.bg, color: tierMeta.color }}
+                                  title="C 4축 합산 등급"
+                                >
+                                  {tierMeta.mark} {tier}
+                                </span>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-on-surface-variant/50 text-xs">—</span>
+                          )}
+                        </td>
+                      )}
                       <td className="px-3 py-2.5 font-medium" style={{ color: pctColor(cr.yoy_pct) }}>
                         <div className="flex items-center gap-1.5">
                           <span className={cr.yoy_pct !== null && cr.yoy_pct >= 100 ? "font-bold" : ""}>
                             {fmtPct(cr.yoy_pct)}
                           </span>
-                          {cr.is_turnaround && (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-tertiary/15 text-tertiary font-medium">흑자전환</span>
-                          )}
                           {cr.latest_is_preliminary && (
                             <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400 font-medium" title="잠정실적 기반 (분기보고서 미공시)">잠정</span>
                           )}
@@ -263,11 +352,7 @@ export function CanslimTable({ candidates }: Props) {
                             <div
                               className="inline-flex items-center gap-1.5 px-2 py-1 rounded"
                               style={{ backgroundColor: meta.bg }}
-                              title={
-                                q === "recovery"
-                                  ? "직전 분기 dip에서 양수 회복 — 진짜 가속 아님"
-                                  : "O'Neil 책 기준 #3: EPS 증가율의 직전 분기 대비 가속 폭"
-                              }
+                              title="O'Neil 책 기준 #3: EPS 증가율의 직전 분기 대비 가속 폭"
                             >
                               <span style={{ color: meta.color }} className="text-[11px]">{meta.icon}</span>
                               <span className={meta.weight} style={{ color: meta.color }}>
@@ -317,6 +402,19 @@ export function CanslimTable({ candidates }: Props) {
                         </div>
                       </td>
                       <td className="px-3 py-2.5 hidden lg:table-cell text-xs">
+                        {c.pct_from_52w_high !== null && c.pct_from_52w_high !== undefined ? (
+                          <span
+                            className="font-medium"
+                            style={{ color: c.pct_from_52w_high >= -3 ? "#10b981" : c.pct_from_52w_high >= -15 ? "#a8b5d0" : "#ffb4ab" }}
+                            title="52주 신고점 대비 현재가 비율 (음수 = 신고점 아래)"
+                          >
+                            {c.pct_from_52w_high > 0 ? "+" : ""}{c.pct_from_52w_high.toFixed(1)}%
+                          </span>
+                        ) : (
+                          <span className="text-on-surface-variant/50">—</span>
+                        )}
+                      </td>
+                      <td className="px-3 py-2.5 hidden lg:table-cell text-xs">
                         <div className="flex flex-col leading-tight">
                           <span className="text-on-surface-variant">{fmtCap(c.market_cap_eok)}</span>
                           {c.market_cap_rank !== undefined && (
@@ -327,8 +425,35 @@ export function CanslimTable({ candidates }: Props) {
                     </tr>
                     {isOpen && (
                       <tr className="bg-surface-container/10 border-t border-on-surface/5">
-                        <td colSpan={8} className="px-3 py-4 text-xs text-on-surface-variant">
+                        <td colSpan={9 + (hasScores ? 1 : 0)} className="px-3 py-4 text-xs text-on-surface-variant">
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                            {c.c_score_breakdown && c.c_score_notes && (
+                              <div className="md:col-span-2">
+                                <p className="font-medium text-on-surface mb-2 flex items-center gap-2">
+                                  <span className="material-symbols-outlined text-sm text-primary">scoreboard</span>
+                                  C 점수 3축 분해 ({c.c_score}/100)
+                                </p>
+                                <ul className="space-y-1.5">
+                                  {[
+                                    { key: "yoy" as const, label: "① 분기 EPS YoY 폭", max: 42 },
+                                    { key: "accel" as const, label: "② EPS 가속 폭", max: 38 },
+                                    { key: "sales" as const, label: "③ 매출 가속", max: 20 },
+                                  ].map((axis) => {
+                                    const s = c.c_score_breakdown![axis.key];
+                                    const note = c.c_score_notes![axis.key];
+                                    return (
+                                      <li key={axis.key} className="flex items-baseline gap-2 leading-relaxed">
+                                        <span className="text-on-surface-variant w-36 shrink-0">{axis.label}</span>
+                                        <span className="font-mono font-medium" style={{ color: scoreColor((s / axis.max) * 100) }}>
+                                          {s}/{axis.max}
+                                        </span>
+                                        <span className="text-on-surface-variant/60">— {note}</span>
+                                      </li>
+                                    );
+                                  })}
+                                </ul>
+                              </div>
+                            )}
                             <div>
                               <p className="font-medium text-on-surface mb-2 flex items-center gap-2 flex-wrap">
                                 <span className="material-symbols-outlined text-sm text-primary">show_chart</span>
@@ -341,11 +466,7 @@ export function CanslimTable({ candidates }: Props) {
                                     <span
                                       className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] ${meta.weight}`}
                                       style={{ backgroundColor: meta.bg, color: meta.color }}
-                                      title={
-                                        q === "recovery"
-                                          ? "직전 분기 dip에서 회복한 케이스 (진짜 가속 아님)"
-                                          : `EPS 가속 폭 ${cr.accel_delta_pp?.toFixed(1)}%p (O'Neil 책 기준 #3)`
-                                      }
+                                      title={`EPS 가속 폭 ${cr.accel_delta_pp?.toFixed(1)}%p (O'Neil 책 기준 #3)`}
                                     >
                                       <span>{meta.icon}</span>
                                       <span>{meta.label}</span>
@@ -414,6 +535,9 @@ export function CanslimTable({ candidates }: Props) {
                                 </p>
                               </div>
                             )}
+                            <p className="md:col-span-2 mt-2 text-[10px] text-on-surface-variant/50 leading-relaxed">
+                              * 표시된 모든 % 는 <strong>작년 같은 분기 대비(YoY)</strong> 값입니다 — 직전 분기 대비가 아님 (예: 2026.03 항목은 vs 2025.03). 분모(작년 EPS)가 ±100원 미만일 땐 100원으로 floor 처리해 폭주 억제.
+                            </p>
                           </div>
                         </td>
                       </tr>
@@ -431,12 +555,52 @@ export function CanslimTable({ candidates }: Props) {
 
 function readSortValue(c: CanslimCandidate, k: SortKey): number | null {
   const cr = c.criteria.C;
+  if (k === "c_score") return c.c_score ?? null;
   if (k === "yoy_pct") return cr.yoy_pct;
   if (k === "accel_delta_pp") return cr.accel_delta_pp;
   if (k === "sales_yoy_pct") return cr.sales_yoy_pct;
   if (k === "latest_eps") return cr.latest_eps;
   if (k === "market_cap") return c.market_cap_eok;
+  if (k === "pct_from_52w_high") return c.pct_from_52w_high;
   return null;
+}
+
+function SortHeader({
+  k,
+  label,
+  sortKey,
+  sortDesc,
+  setSortKey,
+  setSortDesc,
+}: {
+  k: SortKey;
+  label: string;
+  sortKey: SortKey;
+  sortDesc: boolean;
+  setSortKey: (k: SortKey) => void;
+  setSortDesc: (d: boolean) => void;
+}) {
+  return (
+    <button
+      onClick={() => {
+        if (sortKey === k) setSortDesc(!sortDesc);
+        else {
+          setSortKey(k);
+          setSortDesc(true);
+        }
+      }}
+      className={`text-left flex items-center gap-1 ${
+        sortKey === k ? "text-primary" : "text-on-surface-variant/70 hover:text-on-surface-variant"
+      }`}
+    >
+      {label}
+      {sortKey === k && (
+        <span className="material-symbols-outlined text-sm">
+          {sortDesc ? "arrow_downward" : "arrow_upward"}
+        </span>
+      )}
+    </button>
+  );
 }
 
 function FilterToggle({ on, onChange, label }: { on: boolean; onChange: (v: boolean) => void; label: string }) {
