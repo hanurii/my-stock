@@ -1,7 +1,7 @@
 {
   "code": "000660",
   "name": "SK하이닉스",
-  "last_checked": "2026-05-21T09:08:17.864+09:00",
+  "last_checked": "2026-05-21T15:52:26.482+09:00",
   "metrics": [
     {
       "id": "pbr",
@@ -14,30 +14,30 @@
     },
     {
       "id": "op_margin",
-      "label": "분기 영업이익률 (2025)",
-      "value": 48.59,
-      "display": "48.6%",
+      "label": "분기 영업이익률",
+      "value": null,
+      "display": "—",
       "threshold": "30% 이하",
       "hit": false,
-      "tone": "good"
+      "tone": "neutral"
     },
     {
       "id": "affiliate_ratio",
       "label": "계열사 거래 매출 비율 (1년)",
-      "value": 5.675,
-      "display": "5.675%",
+      "value": null,
+      "display": "—",
       "threshold": "매출의 7% 초과",
       "hit": false,
-      "tone": "good"
+      "tone": "neutral"
     },
     {
       "id": "affiliate_yoy_pp",
       "label": "계열사 거래 비율 YoY 변화",
-      "value": -1.581,
-      "display": "-1.58%p",
+      "value": null,
+      "display": "—",
       "threshold": "+2%p 이상 급증",
       "hit": false,
-      "tone": "good"
+      "tone": "neutral"
     },
     {
       "id": "sk_square_disposal",
@@ -51,20 +51,20 @@
     {
       "id": "sk_square_ratio",
       "label": "SK스퀘어 보유 비율",
-      "value": 20.07,
-      "display": "20.07%",
+      "value": null,
+      "display": "—",
       "threshold": "19% 이하로 감소",
       "hit": false,
-      "tone": "good"
+      "tone": "neutral"
     },
     {
       "id": "sk_square_change_pp",
       "label": "SK스퀘어 기초→기말 변화",
-      "value": 0,
-      "display": "0%p",
+      "value": null,
+      "display": "—",
       "threshold": "-0.1%p 이상 감소",
       "hit": false,
-      "tone": "good"
+      "tone": "neutral"
     }
   ],
   "alerts": [
@@ -73,6 +73,36 @@
       "type": "pbr",
       "title": "PBR 8배 돌파",
       "message": "현재 10.53배 — 매도 트리거 도달"
+    },
+    {
+      "severity": "warn",
+      "type": "op_margin_missing",
+      "title": "분기 영업이익률 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
+    },
+    {
+      "severity": "warn",
+      "type": "affiliate_ratio_missing",
+      "title": "계열사 거래 매출 비율 (1년) 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
+    },
+    {
+      "severity": "warn",
+      "type": "affiliate_yoy_pp_missing",
+      "title": "계열사 거래 비율 YoY 변화 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
+    },
+    {
+      "severity": "warn",
+      "type": "sk_square_ratio_missing",
+      "title": "SK스퀘어 보유 비율 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
+    },
+    {
+      "severity": "warn",
+      "type": "sk_square_change_pp_missing",
+      "title": "SK스퀘어 기초→기말 변화 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
     }
   ],
   "news_hits": [],
@@ -80,18 +110,6 @@
     {
       "label": "PER/PEG/PBR 스코어",
       "ref": "public/data/growth-watchlist.json"
-    },
-    {
-      "label": "분기 영업이익률 (2025)",
-      "ref": "DART 20260317000635"
-    },
-    {
-      "label": "계열사 거래 비율 (365일 누적, 4건)",
-      "ref": "DART 특수관계인내부거래·출자계열사거래 20260423000751, 20260423000249, 20260227002517 외"
-    },
-    {
-      "label": "SK스퀘어(주) 보유 비율 (2025)",
-      "ref": "DART 20260317000635 (hyslrSttus)"
     }
   ]
 }

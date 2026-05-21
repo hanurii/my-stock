@@ -1,7 +1,7 @@
 {
   "code": "088130",
   "name": "동아엘텍",
-  "last_checked": "2026-05-21T09:12:41.929+09:00",
+  "last_checked": "2026-05-21T15:54:09.246+09:00",
   "metrics": [
     {
       "id": "no_capital_issuance",
@@ -15,20 +15,20 @@
     {
       "id": "op_margin_collapse",
       "label": "❌ 분기 영업이익률 후퇴",
-      "value": 19.44,
-      "display": "19.4%",
+      "value": null,
+      "display": "—",
       "threshold": "12% 이하",
       "hit": false,
-      "tone": "good"
+      "tone": "neutral"
     },
     {
       "id": "op_margin_strong",
       "label": "✅ 분기 영업이익률 견조",
-      "value": 19.44,
-      "display": "19.4%",
+      "value": null,
+      "display": "—",
       "threshold": "18% 이상",
-      "hit": true,
-      "tone": "good"
+      "hit": false,
+      "tone": "neutral"
     },
     {
       "id": "per_value_zone",
@@ -60,27 +60,48 @@
   ],
   "alerts": [
     {
-      "severity": "info",
-      "type": "op_margin_strong",
-      "title": "✅ 분기 영업이익률 견조 18% 이상",
-      "message": "현재 19.4% — 매수 시그널 (분할 진입 검토 권장)"
+      "severity": "warn",
+      "type": "op_margin_collapse_missing",
+      "title": "❌ 분기 영업이익률 후퇴 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
+    },
+    {
+      "severity": "warn",
+      "type": "op_margin_strong_missing",
+      "title": "✅ 분기 영업이익률 견조 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
     },
     {
       "severity": "info",
       "type": "per_value_zone",
       "title": "✅ PER 본격 저평가 3.5배 이하",
       "message": "현재 2.89배 — 매수 시그널 (분할 진입 검토 권장)"
+    },
+    {
+      "severity": "info",
+      "type": "news_keyword_hit",
+      "title": "매수 시그널 키워드 매칭 뉴스 1건 (관찰 신호 0건 — 키워드 단순 매칭만)",
+      "message": "매수 시그널 모니터링 키워드 기준 최근 7일 매칭. 호재 명시 phrase로 등록되어 있으나 본문 직접 확인 권장."
     }
   ],
-  "news_hits": [],
+  "news_hits": [
+    {
+      "keyword": "OLED 8.6세대 양산",
+      "date": "2026-05-21",
+      "title": "삼성D, 8.6세대 OLED 수율 90% 돌파…맥북 프로 패널 양산 '청신호' - 디일렉",
+      "url": "https://news.google.com/rss/articles/CBMiZkFVX3lxTE4xUWNCM3ZwYU5WcklyTmJLMVpzVEsyYUVoQ21za21xcUp6VW1KNWlzcm1zNERhOEl2OFJNWDZDdEdzZDBva1gtRHI4bzZGemEzdHozMDd6dGp5RU9ScnB3OVc1WVhYQQ?oc=5",
+      "severity": "info",
+      "signals": []
+    }
+  ],
   "sources": [
     {
       "label": "PER/PEG/PBR 스코어",
       "ref": "public/data/growth-watchlist.json"
     },
     {
-      "label": "분기 영업이익률 (2025)",
-      "ref": "DART 20260316001316"
+      "label": "뉴스 RSS",
+      "ref": "news.google.com/rss (7일)"
     }
   ]
 }
