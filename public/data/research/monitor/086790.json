@@ -1,13 +1,13 @@
 {
   "code": "086790",
   "name": "하나금융지주",
-  "last_checked": "2026-05-21T21:17:07.687+09:00",
+  "last_checked": "2026-05-22T09:04:18.671+09:00",
   "metrics": [
     {
       "id": "pbr",
       "label": "PBR",
-      "value": 0.7,
-      "display": "0.70배",
+      "value": 0.73,
+      "display": "0.73배",
       "threshold": "1.0 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "pbr_premium_pp",
       "label": "4대 지주 평균 대비 PBR 프리미엄",
-      "value": -0.063,
-      "display": "-0.063pp",
+      "value": -0.047,
+      "display": "-0.047pp",
       "threshold": "+0.10pp 이상",
       "hit": false,
       "tone": "good"
@@ -24,8 +24,8 @@
     {
       "id": "foreign_ratio",
       "label": "외국인 지분율",
-      "value": 68.2,
-      "display": "68.20%",
+      "value": 68.08,
+      "display": "68.08%",
       "threshold": "65% 이하",
       "hit": false,
       "tone": "good"
@@ -42,29 +42,29 @@
     {
       "id": "dividend_qoq_change",
       "label": "분기배당 QoQ 변화율",
-      "value": null,
-      "display": "—",
+      "value": 14.03,
+      "display": "14.0%",
       "threshold": "동결 또는 감소",
       "hit": false,
-      "tone": "neutral"
+      "tone": "good"
     },
     {
       "id": "buyback_program_status",
-      "label": "자사주 프로그램 마지막 활동 후 경과일",
-      "value": 730,
-      "display": "730일",
+      "label": "자사주 프로그램 (마지막 소각결정 · 진행 중)",
+      "value": 28,
+      "display": "28일",
       "threshold": "180일+ (프로그램 중단)",
-      "hit": true,
-      "tone": "bad"
+      "hit": false,
+      "tone": "good"
     },
     {
       "id": "quarterly_net_income",
       "label": "최근 분기 순이익",
-      "value": null,
-      "display": "—",
+      "value": 40366,
+      "display": "40,366억",
       "threshold": "분기 적자 전환",
       "hit": false,
-      "tone": "neutral"
+      "tone": "good"
     },
     {
       "id": "pf_loss_disclosure",
@@ -87,22 +87,10 @@
   ],
   "alerts": [
     {
-      "severity": "warn",
-      "type": "dividend_qoq_change_missing",
-      "title": "분기배당 QoQ 변화율 데이터 미수집",
-      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
-    },
-    {
-      "severity": "bad",
-      "type": "buyback_program_status",
-      "title": "자사주 프로그램 마지막 활동 후 경과일 180일+ (프로그램 중단)",
-      "message": "현재 730일 — 매도 트리거 도달"
-    },
-    {
-      "severity": "warn",
-      "type": "quarterly_net_income_missing",
-      "title": "최근 분기 순이익 데이터 미수집",
-      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
+      "severity": "info",
+      "type": "all_clear",
+      "title": "모든 매도 트리거 범위 내",
+      "message": "현재 지표·공시·뉴스 기준 즉각 매도 사유 없음. 보유 유지."
     }
   ],
   "news_hits": [],
@@ -113,11 +101,23 @@
     },
     {
       "label": "4대 지주 평균 PBR 비교 (3종목)",
-      "ref": "peers: 316140, 105560, 055550 / avg 0.763"
+      "ref": "peers: 316140, 105560, 055550 / avg 0.777"
+    },
+    {
+      "label": "분기 배당 결정 (사업보고서 (2025.12))",
+      "ref": "DART 20260316001292 (alotMatter)"
     },
     {
       "label": "외국인 순매수 누적 (20일)",
       "ref": "네이버 dealTrendInfos / history 2026-05-21"
+    },
+    {
+      "label": "최근 분기 순이익 (2025-FY)",
+      "ref": "DART 20260316001292 (fnlttSinglAcntAll)"
+    },
+    {
+      "label": "자사주 프로그램 마지막 활동 (2026-04-24 · 소각결정) — 누적 취득 9 / 결과 3 / 소각 15",
+      "ref": "DART 20260424800402"
     }
   ]
 }

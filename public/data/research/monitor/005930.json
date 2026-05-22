@@ -1,13 +1,13 @@
 {
   "code": "005930",
   "name": "삼성전자",
-  "last_checked": "2026-05-21T21:16:34.804+09:00",
+  "last_checked": "2026-05-22T09:03:45.499+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 41.79,
-      "display": "41.79배",
+      "value": 45.34,
+      "display": "45.34배",
       "threshold": "35배 돌파",
       "hit": true,
       "tone": "bad"
@@ -15,11 +15,11 @@
     {
       "id": "buyback_gap",
       "label": "자사주 소각 공시 공백",
-      "value": 730,
-      "display": "730일",
+      "value": 52,
+      "display": "52일",
       "threshold": "180일 경과",
-      "hit": true,
-      "tone": "bad"
+      "hit": false,
+      "tone": "good"
     },
     {
       "id": "samsung_life_disposal",
@@ -33,38 +33,38 @@
     {
       "id": "lee_jae_yong_ratio",
       "label": "이재용 지분 비율",
-      "value": null,
-      "display": "—",
+      "value": 1.65,
+      "display": "1.65%",
       "threshold": "1.4% 이하로 감소",
       "hit": false,
-      "tone": "neutral"
+      "tone": "good"
     },
     {
       "id": "lee_jae_yong_change_pp",
       "label": "이재용 기초→기말 변화",
-      "value": null,
-      "display": "—",
+      "value": 0.02,
+      "display": "0.02%p",
       "threshold": "-0.1%p 이상 감소",
       "hit": false,
-      "tone": "neutral"
+      "tone": "good"
     },
     {
       "id": "family_sell_count",
       "label": "일가 매도 공시 (90일)",
-      "value": null,
-      "display": "—",
+      "value": 2,
+      "display": "2건",
       "threshold": "매도 건수 1건+",
-      "hit": false,
-      "tone": "neutral"
+      "hit": true,
+      "tone": "bad"
     },
     {
       "id": "family_sell_shares",
       "label": "일가 누적 매도 주식수 (90일)",
-      "value": null,
-      "display": "—",
+      "value": 15206633,
+      "display": "1,521만주",
       "threshold": "500만주 이상",
-      "hit": false,
-      "tone": "neutral"
+      "hit": true,
+      "tone": "bad"
     }
   ],
   "alerts": [
@@ -72,37 +72,19 @@
       "severity": "bad",
       "type": "per",
       "title": "PER 35배 돌파",
-      "message": "현재 41.79배 — 매도 트리거 도달"
+      "message": "현재 45.34배 — 매도 트리거 도달"
     },
     {
       "severity": "bad",
-      "type": "buyback_gap",
-      "title": "자사주 소각 공시 공백 180일 경과",
-      "message": "현재 730일 — 매도 트리거 도달"
+      "type": "family_sell_count",
+      "title": "일가 매도 공시 (90일) 매도 건수 1건+",
+      "message": "현재 2건 — 매도 트리거 도달"
     },
     {
-      "severity": "warn",
-      "type": "lee_jae_yong_ratio_missing",
-      "title": "이재용 지분 비율 데이터 미수집",
-      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
-    },
-    {
-      "severity": "warn",
-      "type": "lee_jae_yong_change_pp_missing",
-      "title": "이재용 기초→기말 변화 데이터 미수집",
-      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
-    },
-    {
-      "severity": "warn",
-      "type": "family_sell_count_missing",
-      "title": "일가 매도 공시 (90일) 데이터 미수집",
-      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
-    },
-    {
-      "severity": "warn",
-      "type": "family_sell_shares_missing",
-      "title": "일가 누적 매도 주식수 (90일) 데이터 미수집",
-      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
+      "severity": "bad",
+      "type": "family_sell_shares",
+      "title": "일가 누적 매도 주식수 (90일) 500만주 이상",
+      "message": "현재 1,521만주 — 매도 트리거 도달"
     },
     {
       "severity": "warn",
@@ -114,9 +96,9 @@
   "news_hits": [
     {
       "keyword": "메모리 가격 하락",
-      "date": "2026-05-18",
-      "title": "한국 메모리 반도체 업계, 2026년 하반기 가격 하락 대비 필요성 제기 - Traders Union",
-      "url": "https://news.google.com/rss/articles/CBMipwFBVV95cUxQQjRFd3VsRm1Tc2JMQVhKYnluMXlVYlQySHNRWVNWaEtFZFQxY3p6cjZMWWxnU2ZtclNNUWJ1eG5iTndLWm1tZ2hralJYUkxLd2ROdWdjXzBRSlBWbjRuVFZGckJYQUVZc0lpVm5fNEdJUE9zWVVsaVpZcVc4VTlvXy0xRWxNOERad2lVUEhKVzEtdW4xbzczcUVQN1R1Z2FfZXlXbWY1MA?oc=5",
+      "date": "2026-05-21",
+      "title": "아직은 '작은 먹구름'…내년 메모리 반도체 가격 하락 전망 - KB Think",
+      "url": "https://news.google.com/rss/articles/CBMickFVX3lxTE1zcGkzZ3V2azBZVF9felFsaldGLXFvS2l6aGlOa1dTOU5CU2ZXaF9oM1dfT0hCNXlaNXZPTllhSmVzenhGY2FHenR4Z0R0amNvQzgxSmwtSmxYbnFrSUNZd25yWk16ZUV6TmlQdHpnYVdKdw?oc=5",
       "severity": "warn",
       "signals": [
         "하락"
@@ -125,8 +107,8 @@
     {
       "keyword": "메모리 가격 하락",
       "date": "2026-05-18",
-      "title": "전 삼성 사장 경고: 내년 하반기 메모리 가격 하락할 수도 - TradingKey",
-      "url": "https://news.google.com/rss/articles/CBMizgFBVV95cUxQd0t4LVB0Q3pvbVJOUGZ3UzdBTzkyOHRSV0JIbU9ZbWNkSFlBcUg3Rk1qRXhWYmZxWEFZVERGTDAwY2FuelNfWVZyY3lSc2dqZjF5REJYMTl0QXBKaHVRTkNuNXZhemdudWQwVG81blFaNmJjZ1ZpS19TVjAwd2hWVnExNWpEMmh3ZVRoRDJqNVlnLTYwaGhaeEhjT3RNeS1UX0U1WnJXQWFhZjFtQVl1dE13M01SeXZRUW1YSjcxdEVpcmhWWEtKYlVXUlJlZw?oc=5",
+      "title": "한국 메모리 반도체 업계, 2026년 하반기 가격 하락 대비 필요성 제기 - Traders Union",
+      "url": "https://news.google.com/rss/articles/CBMipwFBVV95cUxQQjRFd3VsRm1Tc2JMQVhKYnluMXlVYlQySHNRWVNWaEtFZFQxY3p6cjZMWWxnU2ZtclNNUWJ1eG5iTndLWm1tZ2hralJYUkxLd2ROdWdjXzBRSlBWbjRuVFZGckJYQUVZc0lpVm5fNEdJUE9zWVVsaVpZcVc4VTlvXy0xRWxNOERad2lVUEhKVzEtdW4xbzczcUVQN1R1Z2FfZXlXbWY1MA?oc=5",
       "severity": "warn",
       "signals": [
         "하락"
@@ -137,6 +119,18 @@
     {
       "label": "PER/PEG/PBR 스코어",
       "ref": "public/data/watchlist.json"
+    },
+    {
+      "label": "이재용 보유 비율 (2025)",
+      "ref": "DART 20260310002820 (hyslrSttus)"
+    },
+    {
+      "label": "최근 자사주 소각 공시 (2026-03-31)",
+      "ref": "DART 20260331800004"
+    },
+    {
+      "label": "일가 매도 2건 총 15,206,633주 (최대: 홍라희 2026-04-13 -15,000,000주 시간외매매(-))",
+      "ref": "DART 최대주주등소유주식변동신고서 20260413800802"
     },
     {
       "label": "뉴스 RSS",

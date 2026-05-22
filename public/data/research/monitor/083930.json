@@ -1,13 +1,13 @@
 {
   "code": "083930",
   "name": "아바코",
-  "last_checked": "2026-05-21T21:16:12.403+09:00",
+  "last_checked": "2026-05-22T09:03:10.377+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 6.68,
-      "display": "6.68배",
+      "value": 7.27,
+      "display": "7.27배",
       "threshold": "15배 돌파",
       "hit": false,
       "tone": "good"
@@ -24,34 +24,28 @@
     {
       "id": "supply_gap",
       "label": "수주 공백",
-      "value": null,
-      "display": "—",
+      "value": 92,
+      "display": "92일",
       "threshold": "90일 경과",
-      "hit": false,
-      "tone": "neutral"
+      "hit": true,
+      "tone": "bad"
     },
     {
       "id": "related_party",
-      "label": "대명ENG 매입 비율",
-      "value": null,
-      "display": "—",
+      "label": "대명ENG 매입 (2025)",
+      "value": 7.94,
+      "display": "7.94%",
       "threshold": "매출의 10% 초과",
       "hit": false,
-      "tone": "neutral"
+      "tone": "good"
     }
   ],
   "alerts": [
     {
-      "severity": "warn",
-      "type": "supply_gap_missing",
-      "title": "수주 공백 데이터 미수집",
-      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
-    },
-    {
-      "severity": "warn",
-      "type": "related_party_missing",
-      "title": "대명ENG 매입 비율 데이터 미수집",
-      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
+      "severity": "bad",
+      "type": "supply_gap",
+      "title": "수주 공백 90일 경과",
+      "message": "현재 92일 — 매도 트리거 도달"
     }
   ],
   "news_hits": [],
@@ -59,6 +53,14 @@
     {
       "label": "PER/PEG/PBR 스코어",
       "ref": "public/data/growth-watchlist.json"
+    },
+    {
+      "label": "최근 공급계약 공시",
+      "ref": "DART 20260219900327"
+    },
+    {
+      "label": "대명ENG 매입 비율",
+      "ref": "DART 20260319001344 (사업보고서 (2025.12))"
     }
   ]
 }

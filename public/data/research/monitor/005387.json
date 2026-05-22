@@ -1,13 +1,13 @@
 {
   "code": "005387",
   "name": "현대차2우B",
-  "last_checked": "2026-05-21T21:17:48.958+09:00",
+  "last_checked": "2026-05-22T09:07:15.413+09:00",
   "metrics": [
     {
       "id": "price",
       "label": "우선주 종가",
-      "value": 248000,
-      "display": "248,000원",
+      "value": 266000,
+      "display": "266,000원",
       "threshold": "320,000원 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "per",
       "label": "PER",
-      "value": 6.55,
-      "display": "6.55배",
+      "value": 7.03,
+      "display": "7.03배",
       "threshold": "9배 돌파",
       "hit": false,
       "tone": "good"
@@ -24,8 +24,8 @@
     {
       "id": "pref_discount",
       "label": "보통주 대비 디스카운트",
-      "value": 58.11,
-      "display": "58.1%",
+      "value": 60.06,
+      "display": "60.1%",
       "threshold": "30% 이하로 축소",
       "hit": false,
       "tone": "good"
@@ -33,20 +33,20 @@
     {
       "id": "buyback_gap",
       "label": "자사주 소각 공시 공백",
-      "value": 730,
-      "display": "730일",
+      "value": 393,
+      "display": "393일",
       "threshold": "365일 경과",
       "hit": true,
       "tone": "bad"
     },
     {
       "id": "op_margin",
-      "label": "분기 영업이익률",
-      "value": null,
-      "display": "—",
+      "label": "분기 영업이익률 (2025)",
+      "value": 6.16,
+      "display": "6.2%",
       "threshold": "4% 미만",
       "hit": false,
-      "tone": "neutral"
+      "tone": "warn"
     }
   ],
   "alerts": [
@@ -54,18 +54,18 @@
       "severity": "bad",
       "type": "buyback_gap",
       "title": "자사주 소각 공시 공백 365일 경과",
-      "message": "현재 730일 — 매도 트리거 도달"
+      "message": "현재 393일 — 매도 트리거 도달"
     },
     {
       "severity": "warn",
-      "type": "op_margin_missing",
-      "title": "분기 영업이익률 데이터 미수집",
-      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
+      "type": "op_margin",
+      "title": "분기 영업이익률 (2025) 임계 근접",
+      "message": "현재 6.2% (임계 4% 미만)"
     },
     {
       "severity": "info",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 2건 (관찰 신호 0건 — 키워드 단순 매칭만)",
+      "title": "리스크 키워드 매칭 뉴스 1건 (관찰 신호 0건 — 키워드 단순 매칭만)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
@@ -77,14 +77,6 @@
       "url": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxOT2FBVDBsbVNnMGd5eVRnS3FpOVg4QXFpU3g4ZTdyMVVuMmE4MDR5WHBiUVpXejRXakRZbEtlQ0NjVnoyT3Fsbmt0X0hOeW5TbHdWN3pRbmVGbUZELVZrN1JNRkNtSlNOTmRTN3BXMHlueElRSGIwZDdoZGFteXViRGJ2VkpkaXY5?oc=5",
       "severity": "info",
       "signals": []
-    },
-    {
-      "keyword": "현대차 관세 부담",
-      "date": "2026-05-14",
-      "title": "\"관세 파고 넘는 HEV\".. 현대차, 실적 부담에도 시장 평가 '맑음' - 청년일보",
-      "url": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE9NSDk1OHVKcGdhalF5bk5MczBCQ3NwU3ZKTnFlendrRXVnOW5IY212aHBfYmVCdkJSSGtMckk2M0ktc0l5QjQ1LXNGb0d0MW1ld1l6QzJoNHZvODJkYi1RT0hlVVlQS0k?oc=5",
-      "severity": "info",
-      "signals": []
     }
   ],
   "sources": [
@@ -93,8 +85,16 @@
       "ref": "public/data/watchlist.json"
     },
     {
+      "label": "분기 영업이익률 (2025)",
+      "ref": "DART 20260318001394"
+    },
+    {
+      "label": "최근 자사주 소각 공시 (2025-04-24)",
+      "ref": "DART 20250424800336"
+    },
+    {
       "label": "보통주-우선주 디스카운트 (2026-05-21)",
-      "ref": "네이버 lastClose 005380/005387: 592,000원/248,000원"
+      "ref": "네이버 lastClose 005380/005387: 666,000원/266,000원"
     },
     {
       "label": "뉴스 RSS",
