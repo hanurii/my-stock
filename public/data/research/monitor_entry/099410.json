@@ -1,7 +1,7 @@
 {
   "code": "099410",
   "name": "동방선기",
-  "last_checked": "2026-05-22T17:46:26.016+09:00",
+  "last_checked": "2026-05-22T20:52:04.839+09:00",
   "metrics": [
     {
       "id": "no_capital_issuance",
@@ -33,11 +33,11 @@
     {
       "id": "per_value_zone",
       "label": "✅ PER 저평가",
-      "value": 7.95,
-      "display": "7.95배",
+      "value": 8.15,
+      "display": "8.15배",
       "threshold": "8.0배 이하 (현 9.67배)",
-      "hit": true,
-      "tone": "good"
+      "hit": false,
+      "tone": "warn"
     },
     {
       "id": "buyback_action",
@@ -66,24 +66,40 @@
       "message": "현재 22.2% — 매수 시그널 (분할 진입 검토 권장)"
     },
     {
-      "severity": "info",
+      "severity": "warn",
       "type": "per_value_zone",
-      "title": "✅ PER 저평가 8.0배 이하 (현 9.67배)",
-      "message": "현재 7.95배 — 매수 시그널 (분할 진입 검토 권장)"
+      "title": "✅ PER 저평가 임계 근접",
+      "message": "현재 8.15배 (임계 8.0배 이하 (현 9.67배))"
     },
     {
       "severity": "info",
       "type": "news_keyword_hit",
-      "title": "매수 시그널 키워드 매칭 뉴스 2건 (관찰 신호 0건 — 키워드 단순 매칭만)",
+      "title": "매수 시그널 키워드 매칭 뉴스 4건 (관찰 신호 0건 — 키워드 단순 매칭만)",
       "message": "매수 시그널 모니터링 키워드 기준 최근 7일 매칭. 호재 명시 phrase로 등록되어 있으나 본문 직접 확인 권장."
     }
   ],
   "news_hits": [
     {
       "keyword": "조선 슈퍼사이클",
+      "date": "2026-05-22",
+      "title": "조선업 슈퍼사이클에 ‘하투 먹구름’ - 충청메트로",
+      "url": "https://news.google.com/rss/articles/CBMia0FVX3lxTFBUXzlkdHFnOFhqbEFiRDhGTVVhbEpSQkhaRDU1OG05QkxNMXhQRDNkOTJERlpHaEswX0NZSDlJX2s1U0wwcGhmQTJfOUJnOS1wVVhpanU5bGo0LTJjRDZNYkI1U2VvR1FhaV9v?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "조선 슈퍼사이클",
       "date": "2026-05-18",
       "title": "'슈퍼사이클' K-조선, 3사 누적 수주 28조원…'성과급 논쟁'은 리스크 - v.daum.net",
       "url": "https://news.google.com/rss/articles/CBMiS0FVX3lxTE5HLTdhcERwMlpjM3ZlSFBkMnM0U0RlMnJxaHFTdTlzN2lOWkhmMHlnMUtCbTN0OFExZS1BUGtnUng0NTdmb29kYkFWZw?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "조선 슈퍼사이클",
+      "date": "2026-05-19",
+      "title": "K조선 슈퍼사이클 2막…중동 리스크에 다시 시작된 ‘수주 랠리’ - 아시아타임즈",
+      "url": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE9ZT0VucERVQTdfakZDdVZoaW4zYUxxb3hmdE1HT2l3X1lrOGdyQWtjdUNiUzBIZWVyVDloY3VtdnRrZ2FWMlNGelU1elE3dTRVZXhRdm1sM3lCWWZZcGc?oc=5",
       "severity": "info",
       "signals": []
     },
