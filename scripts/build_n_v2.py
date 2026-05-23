@@ -871,20 +871,102 @@ N: dict[str, dict] = {
 }
 
 
+def auto_score_from_c(c: dict, criteria_c: dict | None = None) -> dict:
+    """자동 채점 fallback — N 사전(학습 지식)에 없는 종목 대상.
+
+    매출 데이터 기반 보수적 추정:
+      - 매출 기여 (10점): 매출 YoY 폭 기반
+      - 경쟁 우위 (15점): 데이터 없음 → 기본 3 (정성 평가 미보유, 보수적)
+      - 섹터 임팩트 (5점): 시총·시장 기반 기본 2
+
+    auto_scored=True 플래그로 정성 평가 (N 사전) 와 구분 가능.
+    """
+    cr = criteria_c or {}
+    sales_yoy = cr.get("sales_yoy_pct")
+    sales_accel = cr.get("sales_accel_3q", False)
+    eps_quality = cr.get("eps_accel_quality")
+
+    # ① 경쟁 우위 (15점) — 데이터 없음, 보수적 3점
+    comp_v = 3
+    comp_r = "자동 채점 (정성 평가 미보유) — 기본 3점"
+
+    # ② 매출 기여 (10점) — 매출 YoY 기반
+    if sales_yoy is None:
+        rev_v, rev_r = 2, "매출 YoY 데이터 없음"
+    elif sales_yoy >= 100:
+        rev_v, rev_r = 10, f"매출 YoY +{sales_yoy:.1f}% (≥+100%)"
+    elif sales_yoy >= 50:
+        rev_v, rev_r = 7, f"매출 YoY +{sales_yoy:.1f}% (+50~+100%)"
+    elif sales_yoy >= 25:
+        rev_v, rev_r = 5, f"매출 YoY +{sales_yoy:.1f}% (+25~+50%)"
+    else:
+        rev_v, rev_r = 3, f"매출 YoY +{sales_yoy:.1f}% (<+25%)"
+    # 매출 3분기 가속 시 +1
+    if sales_accel:
+        rev_v = min(10, rev_v + 1)
+        rev_r += " · 3분기 가속 +1"
+
+    # ③ 섹터 임팩트 (5점) — 시총 기반 보수적 추정
+    cap = c.get("market_cap_eok", 0) or 0
+    if cap >= 100000:  # 10조+
+        sec_v, sec_r = 3, f"대형주 시총 {cap/10000:.1f}조"
+    elif cap >= 10000:  # 1조+
+        sec_v, sec_r = 2, f"중형주 시총 {cap/10000:.1f}조"
+    else:
+        sec_v, sec_r = 2, f"소형주 시총 {cap:,}억 — 기본 2점"
+
+    # EPS 폭발 가속 시 섹터 임팩트 +1 보너스 (시장 주목도)
+    if eps_quality == "explosive":
+        sec_v = min(5, sec_v + 1)
+        sec_r += " · EPS 폭발 +1"
+
+    total = comp_v + rev_v + sec_v
+    if total >= 24: tier = "A"
+    elif total >= 18: tier = "B"
+    elif total >= 10: tier = "C"
+    else: tier = "D"
+
+    return {
+        "core_product": "(자동 채점 — 정성 평가 미보유)",
+        "scores": {
+            "competitive_advantage": {"value": comp_v, "rationale": comp_r},
+            "revenue_contribution":  {"value": rev_v,  "rationale": rev_r},
+            "sector_impact":         {"value": sec_v,  "rationale": sec_r},
+        },
+        "total_score": total,
+        "tier": tier,
+        "sources": [],
+        "researched_at": TODAY,
+        "auto_scored": True,
+    }
+
+
 def main() -> int:
     inp = json.loads(INPUT.read_text(encoding="utf-8"))
     inputs = inp["candidates"]
 
+    # 풀스캔 결과에서 criteria.C 도 같이 가져오기 (자동 채점 매출 데이터용)
+    c_data_path = ROOT / "public" / "data" / "can-slim-candidates.json"
+    criteria_by_code: dict[str, dict] = {}
+    if c_data_path.exists():
+        try:
+            cd = json.loads(c_data_path.read_text(encoding="utf-8"))
+            for x in cd.get("candidates", []):
+                criteria_by_code[x["code"]] = x.get("criteria", {}).get("C", {})
+        except Exception:
+            pass
+
     out_candidates = []
-    scored, unscored = 0, 0
+    scored, unscored, auto_scored = 0, 0, 0
     for c in inputs:
         code = c["code"]
         n_comm = N.get(code)
         if n_comm:
             scored += 1
         else:
-            unscored += 1
-            n_comm = None
+            # 자동 채점 fallback
+            n_comm = auto_score_from_c(c, criteria_by_code.get(code))
+            auto_scored += 1
         out_candidates.append({
             "code": code,
             "name": c["name"],
@@ -895,6 +977,7 @@ def main() -> int:
             "c_score_tier": c["c_score_tier"],
             "n_commentary": n_comm,
         })
+    unscored = 0  # 모두 자동 채점됨
 
     # 점수 내림차순 정렬 (점수 없으면 끝으로)
     def sort_key(c):
@@ -921,8 +1004,9 @@ def main() -> int:
         "input_track": "C 게이트 통과 (passesCGate)",
         "c_input_total": len(inputs),
         "scored_count": scored,
+        "auto_scored_count": auto_scored,
         "unscored_count": unscored,
-        "scoring_version": "v2_30pt_product_only",
+        "scoring_version": "v2_30pt_product_only_with_autoscore",
         "score_axes": {
             "competitive_advantage_max": 15,
             "revenue_contribution_max": 10,
@@ -935,7 +1019,7 @@ def main() -> int:
 
     OUTPUT.write_text(json.dumps(output, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"저장: {OUTPUT.relative_to(ROOT)}")
-    print(f"채점 {scored} / 미조사 {unscored} = 총 {len(inputs)}")
+    print(f"채점 {scored} (정성) + {auto_scored} (자동 fallback) / 미조사 {unscored} = 총 {len(inputs)}")
     print(f"등급 분포: {tier_counts}")
     return 0
 
