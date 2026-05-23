@@ -14,7 +14,7 @@ import path from "path";
 const CIK = "0001067983"; // Berkshire Hathaway
 const SUBMISSIONS_URL = `https://data.sec.gov/submissions/CIK${CIK}.json`;
 const ARCHIVES_BASE = "https://www.sec.gov/Archives/edgar/data/1067983";
-const UA = "my-stock-app contact@example.com";
+const UA = "my-stock-app hanul95210@gmail.com";
 const REQUEST_DELAY_MS = 500;
 const MAX_HISTORY = 4;
 
