@@ -146,6 +146,17 @@ export default async function CanslimRankingPage() {
     sScoreByCode.set(sc.code, sc.s_score);
   }
 
+  // 각 letter screener 의 데이터 생성일 (사용자 표시용)
+  const generatedAt: Record<Principle, string | null> = {
+    C: data?.generated_at ?? null,
+    A: aData?.generated_at ?? null,
+    N: nData?.generated_at ?? null,
+    S: sData?.generated_at ?? null,
+    L: lData?.generated_at ?? null,
+    I: null,
+    M: data?.generated_at ?? null,  // M은 풀스캔 시 KOSPI 추세 판정
+  };
+
   const candidates: RankingCandidate[] = (data?.candidates ?? [])
     .filter((c) => passesCGate(c.criteria.C))
     .map((c) => {
@@ -203,6 +214,7 @@ export default async function CanslimRankingPage() {
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 text-[11px]">
           {PRINCIPLES.map((p) => {
             const max = PRINCIPLE_MAX[p];
+            const gen = generatedAt[p];
             return (
               <div
                 key={p}
@@ -212,6 +224,12 @@ export default async function CanslimRankingPage() {
                 <span className="text-on-surface-variant/70">{PRINCIPLE_LABELS[p]}</span>
                 <span className="text-on-surface-variant/50 text-[10px] mt-0.5">
                   {max !== null ? `${max}점 만점` : "미산정"}
+                </span>
+                <span
+                  className="text-on-surface-variant/40 text-[9px] mt-0.5 tabular-nums"
+                  title="이 원칙 점수의 데이터 기준 일자"
+                >
+                  {gen ?? "—"}
                 </span>
               </div>
             );
