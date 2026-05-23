@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 import io
 import json
+import os
 import sys
 import time
 from datetime import datetime
@@ -52,10 +53,12 @@ _load_dotenv()
 
 from canslim_lib.fetch import (  # noqa: E402
     fetch_annual,
+    fetch_dart_annual_financials,
     fetch_dart_quarterly_eps_history,
     fetch_dart_quarterly_sales_history,
     fetch_integration,
     fetch_majorstock_holding,
+    fetch_naver_day_chart,
     fetch_preliminary_quarter,
     fetch_quarter,
     fetch_stock_list,
@@ -67,7 +70,7 @@ from canslim_lib.fetch import (  # noqa: E402
     yahoo_symbol,
 )
 from canslim_lib.pykrx_universe import fetch_universe_with_cap  # noqa: E402
-from canslim_lib import stock_cache  # noqa: E402
+from canslim_lib import pdata, stock_cache  # noqa: E402
 from canslim_lib.criteria import (  # noqa: E402
     A_ROE_MIN,
     C_QUARTERLY_EPS_MIN,
@@ -177,7 +180,9 @@ def _light_c_eligible(quarter_eps: list[tuple[str, float]]) -> bool:
     엄격 보수 — false negative (실제 C 통과 가능 종목을 스킵) 를 피하기 위해
     아래 모든 조건이 충족된 경우에만 False 반환:
       1) Naver 5분기 이상 보유
-      2) Naver 최신 분기가 최근 6개월 이내 (DART 가 더 새 분기 보유 가능성 낮음)
+      2) Naver 최신 분기가 최근 4개월 이내 (그 이상이면 DART 가 새 분기 보유 가능성 ↑.
+         한국 분기보고서 마감 45일 + Naver 업데이트 lag 2~4주 = 약 2~3개월 이내라면
+         새 분기가 아직 없을 가능성. 4개월 이상이면 다음 분기 마감 지났을 가능성 高.)
       3) 최신 EPS > 0 (적자면 잠정실적 흑자전환 가능성 보존)
       4) yoy_eps != 0 (분모 0 모호 케이스 보존)
       5) latest_yoy < 25% (C gate 임계 미달)
@@ -188,7 +193,7 @@ def _light_c_eligible(quarter_eps: list[tuple[str, float]]) -> bool:
     latest_period, latest_eps = quarter_eps[-1]
     _, yoy_eps = quarter_eps[-5]
 
-    if not _is_period_recent(latest_period, months_back=6):
+    if not _is_period_recent(latest_period, months_back=4):
         return True
     if latest_eps <= 0:
         return True
@@ -206,7 +211,7 @@ def collect_raw_data(
     market: str,
     corp_map: dict[str, str],
     min_price: int = 0,
-    min_market_cap_eok: int = 2000,
+    min_market_cap_eok: int = 0,
     min_turnover_eok: float = 30.0,
     skip_tier2_if_c_ineligible: bool = True,
 ) -> dict | None:
@@ -384,6 +389,207 @@ def collect_raw_data(
     }
 
 
+# ─────────────────────────────────────────────────────────────────────────
+# collect_raw_data_v2 — 하이브리드 (Naver + DART)
+#   - 시세/시총/거래량: pdata (공공데이터포털)
+#   - OHLCV + 외인: api.stock.naver.com (별개 host, rate limit 분리)
+#   - 연간 EPS/ROE/매출: Naver fetch_annual (1 호출, 다년치 한번에)
+#   - 분기 EPS/매출: Naver fetch_quarter (1 호출, 5분기) + DART backfill (캐시 hit이면 free)
+#   - 잠정실적/5%룰: DART (대안 없음)
+#   기존 collect_raw_data 와 동일한 반환 shape 유지 → evaluate_with_rs 변경 불필요
+#
+# DART 호출 양: 종목당 잠정 1 + 5%룰 1 + 분기 backfill (캐시 활용) = 일일 운영 시 ~3 호출
+# ─────────────────────────────────────────────────────────────────────────
+
+def collect_raw_data_v2(
+    code: str,
+    name: str,
+    market: str,
+    price_info: dict,
+    item_info: dict | None,
+    corp_map: dict[str, str],
+    min_price: int = 0,
+    min_market_cap_eok: int = 0,
+    min_turnover_eok: float = 30.0,
+    skip_tier2_if_c_ineligible: bool = True,
+) -> dict | None:
+    """v2.1: 하이브리드 (Naver fetch_annual/quarter + DART backfill/잠정/5%룰).
+
+    Args:
+      price_info: pdata.fetch_pdata_price_info(basDt)[code] — 시세/시총/거래량/상장주식수
+      item_info: pdata.fetch_pdata_item_info(basDt)[code] — crno/법인명 (None 가능)
+      corp_map: DART corp_code 매핑 (resolve_corp_code 용 — 우선주 fallback)
+    """
+    # ─── 1) 시총 / 가격 컷오프 (pdata 사용) ─────────────────
+    if not price_info:
+        return None
+    market_cap = price_info.get("market_cap_eok") or 0
+    if market_cap < min_market_cap_eok:
+        return {"_skipped_small_cap": True, "market_cap_eok": market_cap}
+
+    current_price = price_info.get("clpr") or 0
+    if min_price > 0 and current_price > 0 and current_price < min_price:
+        return {"_skipped_low_price": True, "price": current_price}
+
+    # ─── 2) api.stock.naver.com day chart (OHLCV + 외인 시계열) ──
+    chart_raw = fetch_naver_day_chart(code, days_back=400)
+    if not chart_raw:
+        chart = {"closes": [], "volumes": [], "timestamps": [], "foreign_rates": []}
+    else:
+        chart = chart_raw
+
+    closes = chart["closes"]
+    volumes = chart["volumes"]
+    chart_valid = bool(closes and volumes and len(closes) >= 5)
+
+    # ─── 3) 30일 평균 거래대금 컷오프 ─────────────────────
+    if chart_valid:
+        n_days = min(len(closes), 30)
+        turnover_sum = sum(closes[i] * volumes[i] for i in range(-n_days, 0))
+        avg_turnover_eok = turnover_sum / n_days / 1e8
+    else:
+        avg_turnover_eok = price_info.get("trPrc_eok") or 0.0
+
+    if chart_valid and min_turnover_eok > 0 and avg_turnover_eok < min_turnover_eok:
+        return {
+            "_skipped_low_turnover": True,
+            "market_cap_eok": market_cap,
+            "turnover_eok": avg_turnover_eok,
+        }
+
+    # ─── 4) 외국인지분율 (마지막 유효값) ──────────────────
+    foreign_ownership = 0.0
+    if chart.get("foreign_rates"):
+        for r in reversed(chart["foreign_rates"]):
+            if r is not None:
+                foreign_ownership = r
+                break
+
+    # ─── 5) corp_code resolve ────────────────────────────
+    corp_code, common_code = resolve_corp_code(code, corp_map)
+
+    # ─── 6) Naver fetch_annual — 연간 EPS/ROE/매출/순이익 (1회 호출, 다년치) ──
+    current_year = datetime.now().year
+    ann = fetch_annual(code)
+    annual_eps = get_row_values(ann, "EPS") if ann else []
+    annual_roe = get_row_values(ann, "ROE") if ann else []
+    annual_ni_rows = get_row_values(ann, "당기순이익") if ann else []
+    # 잠정실적 발행주식수 계산용 (key: period, value: 억원)
+    annual_ni_eok: dict[str, float] = {p: v for p, v in annual_ni_rows}
+
+    # ─── 7) Naver fetch_quarter (5분기) — 분기 EPS/매출 ──
+    qtr = fetch_quarter(code)
+    quarter_eps = get_row_values(qtr, "EPS") if qtr else []
+    quarter_sales = get_row_values(qtr, "매출액") if qtr else []
+
+    # ─── 7-1) DART 분기 backfill (캐시 hit 시 무료, miss 시 호출) ──
+    # Naver 5분기 부족분 보강 + Q1 마감 후 최신 분기 확정값 추가
+    # cached 무료라 자유롭게 호출, miss 시에만 DART hit
+    if corp_code and quarter_eps:
+        naver_latest_year = int(quarter_eps[-1][0][:4]) if quarter_eps[-1][0][:4].isdigit() else current_year
+        dart_eps_combined: list[tuple[str, float]] = []
+        dart_sales_combined: list[tuple[str, float]] = []
+        # 과거 보강 (Naver latest_year - 1) + 최신 확정 (current_year)
+        years_to_fetch = {naver_latest_year - 1}
+        if current_year >= naver_latest_year:
+            years_to_fetch.add(current_year)
+        for yr in years_to_fetch:
+            eps_y = fetch_dart_quarterly_eps_history(corp_code, yr)
+            sales_y = fetch_dart_quarterly_sales_history(corp_code, yr)
+            if eps_y:
+                dart_eps_combined.extend(eps_y)
+            if sales_y:
+                dart_sales_combined.extend(sales_y)
+        if dart_eps_combined:
+            quarter_eps = merge_naver_dart_quarters(quarter_eps, dart_eps_combined)
+        if dart_sales_combined:
+            # DART 매출 단위 정규화: 원 → 억원
+            dart_sales_eok = [(p, v / 1e8) for p, v in dart_sales_combined]
+            quarter_sales = merge_naver_dart_quarters(quarter_sales, dart_sales_eok)
+
+    # ─── 8) Tier 2 게이트 (잠정실적 + 5%룰 호출 여부 결정) ──
+    do_tier2 = (not skip_tier2_if_c_ineligible) or _light_c_eligible(quarter_eps)
+    tier2_skipped = not do_tier2
+
+    # ─── 9) (Tier 2) 잠정실적 보강 ────────────────────────
+    preliminary_period: str | None = None
+    preliminary_rcept_no: str | None = None
+    if do_tier2 and corp_code and quarter_eps:
+        last_period = quarter_eps[-1][0]
+        if len(last_period) == 6 and last_period[:4].isdigit():
+            last_year = int(last_period[:4])
+            last_q = int(last_period[4:]) // 3
+            next_q = last_q + 1
+            next_year = last_year
+            if next_q > 4:
+                next_q = 1
+                next_year += 1
+            pre = fetch_preliminary_quarter(corp_code, next_year, next_q)
+            if pre and pre.get("revenue_eok", 0) > 0 and pre.get("net_income_eok", 0) != 0:
+                # 발행주식수 계산:
+                #  1순위: DART annual NI / EPS (자사주·우선주 가중평균 반영)
+                #  2순위: pdata lstgStCnt
+                shares = None
+                if annual_eps:
+                    latest_yk = annual_eps[-1][0]
+                    eps_latest = annual_eps[-1][1]
+                    ni_latest = annual_ni_eok.get(latest_yk)
+                    if ni_latest and eps_latest and ni_latest > 0 and eps_latest > 0:
+                        shares = ni_latest * 1e8 / eps_latest
+                if shares is None:
+                    shares = price_info.get("lstgStCnt")
+                if shares and shares > 0:
+                    preliminary_eps = pre["net_income_eok"] * 1e8 / shares
+                    quarter_eps.append((pre["period_key"], preliminary_eps))
+                    quarter_sales.append((pre["period_key"], pre["revenue_eok"]))
+                    quarter_eps.sort()
+                    quarter_sales.sort()
+                    preliminary_period = pre["period_key"]
+                    preliminary_rcept_no = pre["rcept_no"]
+
+    # ─── 10) (Tier 2) 5%룰 institutional ───────────────────
+    institutional = fetch_majorstock_holding(corp_code) if (do_tier2 and corp_code) else None
+
+    # ─── 11) PER 계산 (UI 표시용) ──────────────────────────
+    # Naver fetch_integration 안 쓰므로 PBR/배당수익률은 미산정 (점수 산정엔 무관)
+    per: float | None = None
+    if current_price and annual_eps:
+        eps_latest = annual_eps[-1][1]
+        if eps_latest > 0:
+            per = round(current_price / eps_latest, 2)
+
+    # ─── 12) ig dict (legacy 호환) ────────────────────────
+    ig = {
+        "market_cap_eok": market_cap,
+        "per": per,
+        "pbr": None,  # Naver integration 미사용 → 미산정 (점수 무관)
+        "dividend_yield": 0.0,
+        "foreign_ownership": foreign_ownership,
+        "price": current_price or 0,
+    }
+
+    # ─── 13) 12M 수익률 ───────────────────────────────────
+    twelve_m_return = (closes[-1] - closes[0]) / closes[0] * 100 if closes and closes[0] > 0 else 0.0
+
+    return {
+        "code": code,
+        "name": name,
+        "market": market,
+        "ig": ig,
+        "annual_eps": annual_eps,
+        "annual_roe": annual_roe,
+        "quarter_eps": quarter_eps,
+        "quarter_sales": quarter_sales,
+        "preliminary_period": preliminary_period,
+        "preliminary_rcept_no": preliminary_rcept_no,
+        "chart": chart,
+        "institutional": institutional,
+        "twelve_m_return": twelve_m_return,
+        "avg_turnover_eok_30d": round(avg_turnover_eok, 2),
+        "tier2_skipped": tier2_skipped,
+    }
+
+
 def evaluate_with_rs(
     raw: dict,
     kospi_closes: list[float],
@@ -491,8 +697,10 @@ def main() -> None:
     parser.add_argument("--merge", action="store_true", help="기존 JSON candidates에 머지 (offset > 0 일 때 유용)")
     parser.add_argument("--min-price", type=int, default=0,
                         help="(레거시) 현재가가 이 KRW 미만이면 스킵. 오닐 $20 룰의 한국 적용은 --min-cap + --min-turnover 사용 권장")
-    parser.add_argument("--min-cap", type=int, default=2000,
-                        help="시가총액 최소 (억원, default 2000) — 오닐 $20 룰의 한국 적용 (기관 진입 가능 사이즈)")
+    parser.add_argument("--min-cap", type=int, default=0,
+                        help="시가총액 최소 (억원, default 0 = 컷오프 없음). "
+                             "검증 결과 2,000억 default 컷오프가 C-통과 종목 83개(시총 < 2,000억)를 사전 제외해 "
+                             "A등급 1개, B등급 13개, C 점수 90+ 강력 tier 7개가 누락됐음. 컷오프 제거가 합리적.")
     parser.add_argument("--min-turnover", type=float, default=30.0,
                         help="일평균 거래대금 최소 (억원, 30일, default 30) — 오닐 $20 룰의 한국 적용 (기관 유동성)")
     parser.add_argument("--worker", type=int, default=None,
@@ -510,6 +718,9 @@ def main() -> None:
     parser.add_argument("--no-tier2-skip", action="store_true",
                         help="C 부적격 종목에도 DART backfill·잠정실적·5%%룰 호출 (기존 동작). "
                              "default: Naver-only 데이터로 C gate 통과 불가 확정 종목은 DART 전면 스킵.")
+    parser.add_argument("--legacy-v1", action="store_true",
+                        help="m.stock.naver.com 기반 v1 collect_raw_data 사용 (legacy/rollback). "
+                             "default: v2 — pdata + api.stock.naver.com + DART 일원화 (m.stock.naver.com 호출 0).")
     args = parser.parse_args()
 
     if args.clear_cache:
@@ -523,6 +734,13 @@ def main() -> None:
 
     is_worker = args.worker is not None and args.workers_total is not None
     is_reduce = args.reduce
+
+    # DART rate limit (분당 1000 IP 합산) — 워커 모드면 워커별 cap 분할
+    # CANSLIM_DART_RATE_LIMIT 환경변수 미설정 시에만 자동 분할
+    if is_worker and "CANSLIM_DART_RATE_LIMIT" not in os.environ:
+        per_worker = max(50, 800 // args.workers_total)
+        os.environ["CANSLIM_DART_RATE_LIMIT"] = str(per_worker)
+        print(f"⚙️  DART rate limit: 워커당 {per_worker}/분 (총 {per_worker * args.workers_total}/분, 서버 한도 1000/분)")
 
     print("🎯 CAN SLIM 스크리너 (한국 보정판 v1)\n")
     print(f"  임계값: C +{C_QUARTERLY_EPS_MIN}%, A +{A_ANNUAL_EPS_MIN}%/ROE {A_ROE_MIN}%+, "
@@ -605,7 +823,13 @@ def main() -> None:
             market = "KOSDAQ"
 
         # 단일 종목 모드: 사용자가 명시한 종목이므로 항상 Tier 2 전체 fetch
-        raw = collect_raw_data(code, code, market, corp_map, skip_tier2_if_c_ineligible=False)
+        if args.legacy_v1:
+            raw = collect_raw_data(code, code, market, corp_map, skip_tier2_if_c_ineligible=False)
+        else:
+            basDt = pdata._latest_available_basDt()
+            pi = pdata.fetch_pdata_price_info(basDt).get(code, {}) if basDt else {}
+            mi = pdata.fetch_pdata_item_info(basDt).get(code) if basDt else None
+            raw = collect_raw_data_v2(code, code, market, pi, mi, corp_map, skip_tier2_if_c_ineligible=False)
         if not raw:
             print(f"  {code}: 데이터 수집 실패")
             return
@@ -615,6 +839,21 @@ def main() -> None:
 
     # 전체 스캔 또는 워커 슬라이스: 2-pass (reduce 모드는 이 블록 건너뜀)
     if not _reduce_path:
+        # ── v2 모드: pdata batch preload (1회 호출로 전체 종목 시세/시총/메타) ──
+        pdata_price: dict = {}
+        pdata_meta: dict = {}
+        if not args.legacy_v1:
+            print("\n🏛  공공데이터포털 batch preload (getStockPriceInfo + getItemInfo)")
+            basDt = pdata._latest_available_basDt()
+            if basDt:
+                print(f"  최근 영업일: {basDt}")
+                pdata_price = pdata.fetch_pdata_price_info(basDt)
+                pdata_meta = pdata.fetch_pdata_item_info(basDt)
+                print(f"  price_info: {len(pdata_price)}종목, item_info: {len(pdata_meta)}종목")
+            else:
+                print("  ⚠️ pdata 응답 실패 — legacy v1 모드로 fallback")
+                args.legacy_v1 = True
+
         print("\n📋 종목 리스트 수집 (pykrx + 시총 동봉)...")
         universe = fetch_universe_with_cap(args.market)
         kospi_n = sum(1 for u in universe if u["market"] == "KOSPI")
@@ -633,9 +872,16 @@ def main() -> None:
 
         full_universe_size = len(universe)
         if is_worker:
-            # 워커 모드: interleaved 슬라이스 (universe[w::N]) — 균등 분배.
+            # 워커 모드: limit + offset 먼저 적용 후 interleaved 슬라이스 (universe[w::N]) — 균등 분배.
+            if args.offset:
+                universe = universe[args.offset:]
+            if args.limit:
+                universe = universe[: args.limit]
+            limited_size = len(universe)
             universe = universe[args.worker::args.workers_total]
-            print(f"  → Worker {args.worker}/{args.workers_total}: {len(universe)}/{full_universe_size} 종목 슬라이스")
+            scope = f"{limited_size}/{full_universe_size}" if (args.limit or args.offset) else f"{full_universe_size}"
+            print(f"  → Worker {args.worker}/{args.workers_total}: {len(universe)}/{scope} 종목 슬라이스 "
+                  f"(offset {args.offset}, limit {args.limit or '없음'})")
         else:
             if args.offset:
                 universe = universe[args.offset:]
@@ -651,6 +897,27 @@ def main() -> None:
         start = time.time()
         cache_hit_count = 0
 
+        def _collect(s: dict) -> dict | None:
+            """v2 또는 legacy v1 호출 분기."""
+            if args.legacy_v1:
+                return collect_raw_data(
+                    s["code"], s["name"], s["market"], corp_map,
+                    min_price=args.min_price,
+                    min_market_cap_eok=args.min_cap,
+                    min_turnover_eok=args.min_turnover,
+                    skip_tier2_if_c_ineligible=not args.no_tier2_skip,
+                )
+            return collect_raw_data_v2(
+                s["code"], s["name"], s["market"],
+                pdata_price.get(s["code"]) or {},
+                pdata_meta.get(s["code"]),
+                corp_map,
+                min_price=args.min_price,
+                min_market_cap_eok=args.min_cap,
+                min_turnover_eok=args.min_turnover,
+                skip_tier2_if_c_ineligible=not args.no_tier2_skip,
+            )
+
         for i, s in enumerate(universe):
             err_msg = ""
             try:
@@ -663,24 +930,12 @@ def main() -> None:
                         raw = cached
                         cache_hit_count += 1
                     else:
-                        raw = collect_raw_data(
-                            s["code"], s["name"], s["market"], corp_map,
-                            min_price=args.min_price,
-                            min_market_cap_eok=args.min_cap,
-                            min_turnover_eok=args.min_turnover,
-                            skip_tier2_if_c_ineligible=not args.no_tier2_skip,
-                        )
+                        raw = _collect(s)
                         # _skipped_* 키가 있으면 캐시 안 함 — 다른 실행의 cap/turnover 임계값에서 재평가 필요
                         if raw is not None and not any(k.startswith("_skipped") for k in raw):
                             stock_cache.put(s["code"], raw)
                 else:
-                    raw = collect_raw_data(
-                        s["code"], s["name"], s["market"], corp_map,
-                        min_price=args.min_price,
-                        min_market_cap_eok=args.min_cap,
-                        min_turnover_eok=args.min_turnover,
-                        skip_tier2_if_c_ineligible=not args.no_tier2_skip,
-                    )
+                    raw = _collect(s)
             except Exception as e:
                 raw = None
                 err_msg = repr(e)

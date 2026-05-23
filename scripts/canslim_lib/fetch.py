@@ -251,6 +251,107 @@ def get_row_values(parsed: dict[str, Any], title: str, only_confirmed: bool = Tr
     return out
 
 
+# ── Naver day chart (api.stock.naver.com) — OHLCV + 외국인지분율 시계열 ──
+# m.stock.naver.com 과 별개 host = rate limit 풀 분리 (8 워커 동시 hit OK).
+# 1년 일봉 ~245일 + foreignRetentionRate 시계열 (1회 호출).
+
+NAVER_CHART_API = "https://api.stock.naver.com/chart/domestic/item"
+
+
+def fetch_naver_day_chart(code: str, days_back: int = 400) -> dict[str, list] | None:
+    """api.stock.naver.com 일별 차트. OHLCV + 외국인지분율 시계열.
+
+    Args:
+      code: 6자리 종목코드 ("005930").
+      days_back: 오늘 기준 며칠 전부터. default 400 (~13개월, 영업일 ~270개).
+
+    Returns:
+      {
+        "timestamps": list[int],       # epoch seconds (Asia/Seoul 종가 시각 16:00 KST)
+        "closes":     list[float],     # 종가
+        "opens":      list[float],
+        "highs":      list[float],
+        "lows":       list[float],
+        "volumes":    list[int],       # 누적 거래량
+        "foreign_rates": list[float | None],  # 외국인지분율 (%) — null 가능
+        "dates":      list[str],       # YYYY-MM-DD
+      }
+      실패 시 None.
+    """
+    from datetime import datetime as _dt, timedelta as _td, timezone as _tz
+    today = _dt.now()
+    start = (today - _td(days=days_back)).strftime("%Y%m%d") + "0900"
+    end = today.strftime("%Y%m%d") + "1600"
+    url = f"{NAVER_CHART_API}/{code}/day?startDateTime={start}&endDateTime={end}"
+
+    host = "api.stock.naver.com"
+    _politeness_wait(host)
+    try:
+        resp = _session.get(url, headers={"User-Agent": UA}, timeout=15)
+        _LAST_REQUEST_AT[host] = time.time()
+        if resp.status_code != 200:
+            return None
+        data = resp.json()
+    except (_requests.RequestException, OSError, ValueError):
+        _LAST_REQUEST_AT[host] = time.time()
+        return None
+    if not isinstance(data, list) or not data:
+        return None
+
+    kst = _tz(_td(hours=9))
+    timestamps: list[int] = []
+    dates: list[str] = []
+    closes: list[float] = []
+    opens: list[float] = []
+    highs: list[float] = []
+    lows: list[float] = []
+    volumes: list[int] = []
+    foreign_rates: list[float | None] = []
+
+    for row in data:
+        ld = row.get("localDate")
+        cp = row.get("closePrice")
+        if not ld or cp is None:
+            continue
+        try:
+            dt_iso = f"{ld[:4]}-{ld[4:6]}-{ld[6:8]}"
+            ts = int(_dt.strptime(ld + " 16:00", "%Y%m%d %H:%M").replace(tzinfo=kst).timestamp())
+        except (ValueError, TypeError):
+            continue
+        try:
+            close_v = float(cp)
+        except (ValueError, TypeError):
+            continue
+        timestamps.append(ts)
+        dates.append(dt_iso)
+        closes.append(close_v)
+        opens.append(float(row.get("openPrice") or close_v))
+        highs.append(float(row.get("highPrice") or close_v))
+        lows.append(float(row.get("lowPrice") or close_v))
+        try:
+            volumes.append(int(row.get("accumulatedTradingVolume") or 0))
+        except (ValueError, TypeError):
+            volumes.append(0)
+        fr = row.get("foreignRetentionRate")
+        try:
+            foreign_rates.append(float(fr) if fr is not None else None)
+        except (ValueError, TypeError):
+            foreign_rates.append(None)
+
+    if not timestamps:
+        return None
+    return {
+        "timestamps": timestamps,
+        "dates": dates,
+        "closes": closes,
+        "opens": opens,
+        "highs": highs,
+        "lows": lows,
+        "volumes": volumes,
+        "foreign_rates": foreign_rates,
+    }
+
+
 # ── Yahoo Finance: 가격 시계열 ──
 
 def yahoo_symbol(code: str, market: str) -> str:
@@ -323,11 +424,42 @@ def dart_mark_exhausted(key: str) -> None:
         _DART_EXHAUSTED.add(key)
 
 
+# DART 분당 1000회 제한 (서버 측 IP 단위 — 초과 시 IP 자동 차단)
+# 안전 마진: 분당 800회로 제한 (sliding window, process-local 카운터)
+# 멀티 워커 모드는 IP 합산이라 환경변수 CANSLIM_DART_RATE_LIMIT 으로 워커별 cap 조정 필요
+# 예: 8 워커 = 워커당 100 (총 800), 4 워커 = 200 (총 800), 단일 = 800
+_DART_RATE_WINDOW = 60.0  # 초
+_DART_RATE_LIMIT = int(os.environ.get("CANSLIM_DART_RATE_LIMIT", "800"))
+_dart_call_times: list[float] = []  # 최근 호출 시각 (sliding window, process-local)
+
+
+def _dart_rate_limit_wait() -> None:
+    """sliding window 기반 throttle — 최근 60초 내 호출이 _DART_RATE_LIMIT 도달 시 대기."""
+    now = time.time()
+    # 윈도우 밖 호출 제거
+    cutoff = now - _DART_RATE_WINDOW
+    while _dart_call_times and _dart_call_times[0] < cutoff:
+        _dart_call_times.pop(0)
+    if len(_dart_call_times) >= _DART_RATE_LIMIT:
+        # 가장 오래된 호출이 60초 지날 때까지 대기
+        wait = _dart_call_times[0] + _DART_RATE_WINDOW - now + 0.1
+        if wait > 0:
+            time.sleep(wait)
+        # 재정리
+        now = time.time()
+        cutoff = now - _DART_RATE_WINDOW
+        while _dart_call_times and _dart_call_times[0] < cutoff:
+            _dart_call_times.pop(0)
+    _dart_call_times.append(time.time())
+
+
 def dart_get(endpoint: str, params: dict[str, str]) -> list[dict[str, Any]] | None:
     """DART OpenAPI 호출. 'list' 반환. status 020(한도초과) 시 다음 키로 페일오버.
 
+    Rate limit: 분당 800회 cap (서버 한도 1000, 초과 시 IP 자동 차단).
     정상 흐름 불변(키 1개·정상 응답이면 기존과 동일). 020일 때만 키 교체·재시도.
     """
+    _dart_rate_limit_wait()  # 호출 전 throttle
     keys = [k for k in _dart_keys() if k not in _DART_EXHAUSTED]
     if not keys:
         return None
@@ -406,6 +538,7 @@ def load_corp_code_map() -> dict[str, str]:
 def _extract_quarterly_account_row(
     items: list[dict[str, Any]],
     candidates_substrings: list[str],
+    exclude_substrings: tuple[str, ...] = (),
 ) -> dict[str, float] | None:
     """fnlttSinglAcntAll 응답에서 후보 계정 중 하나의 행을 찾아 분기 단일/전년 동기 단일 추출.
 
@@ -424,9 +557,13 @@ def _extract_quarterly_account_row(
                 continue
             name = (it.get("account_nm") or "").strip()
             normalized = name.replace(" ", "")
-            if sub in normalized:
-                target = it
-                break
+            if sub not in normalized:
+                continue
+            # EXCLUDE: 매칭됐어도 제외 키워드 포함 시 skip (계속영업/중단영업 단독 행 제외)
+            if any(ex in normalized for ex in exclude_substrings):
+                continue
+            target = it
+            break
         if target:
             break
     if not target:
@@ -448,11 +585,19 @@ def _extract_quarterly_account_row(
 def _extract_quarterly_eps_row(items: list[dict[str, Any]]) -> dict[str, float] | None:
     """기본주당이익 행 추출 (호환 wrapper).
 
-    SK하이닉스처럼 적자 분기에 "기본주당분기순이익(손실)" 행으로 표기되는 케이스 포함.
+    적자 분기에 "주당손실"로 표기되는 케이스 (롯데케미칼·SK하이닉스 등) 포함.
+    보통주/우선주 분리 표기(한진칼, 호텔신라 등)는 보통주 우선 매칭.
+    EXCLUDE: 계속영업/중단영업 단독 행은 제외 (전체 손익만 잡음).
     """
     return _extract_quarterly_account_row(
         items,
         [
+            # 보통주 분리 표기 (한진칼·호텔신라 등). 가장 먼저 매칭해 우선주 행 흡수 방지.
+            "기본주당보통주순이익",
+            "기본주당보통주순손익",
+            "기본및희석보통주당이익",  # 호텔신라
+            "기본및희석보통주당손익",
+            # 표준 패턴 (흑자)
             "기본주당이익",
             "기본주당순이익",
             "기본주당분기순이익",
@@ -461,7 +606,13 @@ def _extract_quarterly_eps_row(items: list[dict[str, Any]]) -> dict[str, float] 
             "주당순이익",
             "주당분기순이익",
             "기본주당손익",
+            "기본주당순손익",  # 대한전선 등
+            # 적자 패턴 (롯데케미칼 등)
+            "기본및희석주당손실",
+            "기본주당손실",
+            "주당손실",
         ],
+        exclude_substrings=("계속영업", "중단영업"),
     )
 
 
@@ -524,29 +675,39 @@ def _fetch_dart_quarterly_account_history(
     corp_code: str,
     base_year: int,
     extractor,
-) -> list[tuple[str, float]]:
+) -> list[tuple[str, float]] | None:
     """DART 분기 보고서 3개를 호출해 분기별 단일 금액 6개 (해당년 Q1/Q2/Q3 + 전년 Q1/Q2/Q3) 추출.
 
     사업보고서(11011)는 누적 빼기 필요해 제외. 사업보고서로 추출되는 분기는 Naver 5분기로 커버.
     extractor: _extract_quarterly_eps_row 또는 _extract_quarterly_sales_row 등 callable.
+
+    Returns None if all sub-calls failed (connection error / quota) — 호출자가 cache 안 함.
+    Returns [] if responses OK but no data extractable — negative cache 가능.
     """
     quarter_map = {"11013": "03", "11012": "06", "11014": "09"}
     out: dict[str, float] = {}
+    any_ok = False  # 한 번이라도 정상 응답 (items is not None) 받았는지
 
     for reprt_code, q_suffix in quarter_map.items():
-        items = dart_get("fnlttSinglAcntAll", {
+        items_cfs = dart_get("fnlttSinglAcntAll", {
             "corp_code": corp_code,
             "bsns_year": str(base_year),
             "reprt_code": reprt_code,
             "fs_div": "CFS",
         })
+        if items_cfs is not None:
+            any_ok = True
+        items = items_cfs
         if not items:
-            items = dart_get("fnlttSinglAcntAll", {
+            items_ofs = dart_get("fnlttSinglAcntAll", {
                 "corp_code": corp_code,
                 "bsns_year": str(base_year),
                 "reprt_code": reprt_code,
                 "fs_div": "OFS",
             })
+            if items_ofs is not None:
+                any_ok = True
+            items = items_ofs
         if not items:
             continue
         row = extractor(items)
@@ -557,17 +718,227 @@ def _fetch_dart_quarterly_account_history(
         if "prior" in row:
             out[f"{base_year - 1}{q_suffix}"] = row["prior"]
 
+    # 모든 호출 connection failure 면 None 반환 (재시도 보장)
+    if not any_ok:
+        return None
     return sorted(out.items())
 
 
+def _extract_annual_net_income_row(items: list[dict]) -> dict[str, float] | None:
+    """사업보고서(11011) 손익계산서에서 연간 당기순이익 행 추출.
+
+    한국 사업보고서는 당기순이익 표기 다양: '당기순이익', '당기순이익(손실)', '연결당기순이익' 등.
+    1차: 표준 단일 행 ('당기순이익' 변형, EXCLUDE 적용)
+    2차 fallback: 계속영업+중단영업 합산 (롯데케미칼처럼 단일 '당기순이익' 행 없는 케이스)
+    """
+    EXCLUDE = ("주당", "계속영업", "중단영업", "법인세", "비지배", "포괄", "영업이익", "영업손익", "영업외")
+
+    # 1차 — 표준 단일 행
+    for it in items:
+        if it.get("sj_div") not in ("IS", "CIS"):
+            continue
+        nm = (it.get("account_nm") or "").strip().replace(" ", "")
+        if "당기순이익" not in nm and "당기순손익" not in nm:
+            continue
+        if any(ex in nm for ex in EXCLUDE):
+            continue
+        th = it.get("thstrm_amount")
+        fr = it.get("frmtrm_amount")
+        out: dict[str, float] = {}
+        try:
+            if th not in (None, "-", ""):
+                out["current"] = float(str(th).replace(",", ""))
+        except (ValueError, TypeError):
+            pass
+        try:
+            if fr not in (None, "-", ""):
+                out["prior"] = float(str(fr).replace(",", ""))
+        except (ValueError, TypeError):
+            pass
+        if out:
+            return out
+
+    # 2차 — fallback: 계속영업 + 중단영업 합산
+    cont_th = cont_fr = disc_th = disc_fr = None
+    for it in items:
+        if it.get("sj_div") not in ("IS", "CIS"):
+            continue
+        nm = (it.get("account_nm") or "").strip().replace(" ", "")
+        is_cont = "계속영업당기순이익" in nm or "계속영업당기순손익" in nm
+        is_disc = "중단영업당기순이익" in nm or "중단영업당기순손익" in nm
+        if not (is_cont or is_disc):
+            continue
+        if "주당" in nm or "법인세" in nm or "비지배" in nm:
+            continue
+        try:
+            th = float(str(it.get("thstrm_amount")).replace(",", "")) if it.get("thstrm_amount") not in (None, "-", "") else None
+        except (ValueError, TypeError):
+            th = None
+        try:
+            fr = float(str(it.get("frmtrm_amount")).replace(",", "")) if it.get("frmtrm_amount") not in (None, "-", "") else None
+        except (ValueError, TypeError):
+            fr = None
+        if is_cont:
+            if cont_th is None: cont_th = th
+            if cont_fr is None: cont_fr = fr
+        elif is_disc:
+            if disc_th is None: disc_th = th
+            if disc_fr is None: disc_fr = fr
+
+    if cont_th is not None or disc_th is not None:
+        out: dict[str, float] = {}
+        th_sum = (cont_th or 0) + (disc_th or 0)
+        fr_sum = (cont_fr or 0) + (disc_fr or 0)
+        if th_sum != 0:
+            out["current"] = th_sum
+        if fr_sum != 0:
+            out["prior"] = fr_sum
+        if out:
+            return out
+
+    return None
+
+
+def _extract_annual_equity_row(items: list[dict]) -> dict[str, float] | None:
+    """사업보고서(11011) 재무상태표에서 자본총계 행 추출. 당기말/전기말 둘 다.
+
+    부채및자본총계 등 다른 행과 구분 — '자본총계' 정확 매칭.
+    """
+    for it in items:
+        if it.get("sj_div") != "BS":
+            continue
+        nm = (it.get("account_nm") or "").strip().replace(" ", "")
+        if nm != "자본총계":
+            continue
+        th = it.get("thstrm_amount")
+        fr = it.get("frmtrm_amount")
+        out: dict[str, float] = {}
+        try:
+            if th not in (None, "-", ""):
+                out["current"] = float(str(th).replace(",", ""))
+        except (ValueError, TypeError):
+            pass
+        try:
+            if fr not in (None, "-", ""):
+                out["prior"] = float(str(fr).replace(",", ""))
+        except (ValueError, TypeError):
+            pass
+        if out:
+            return out
+    return None
+
+
+def fetch_dart_annual_financials(corp_code: str, year: int) -> dict | None:
+    """사업보고서(11011)에서 연간 재무 종합 추출 + ROE 계산.
+
+    캐시: dart_cache.get_annual_financials (과거연도 영구, 현재연도 24h).
+    None / 빈 결과도 캐시 (negative cache).
+
+    Returns:
+      {
+        "year": year,
+        "eps": float | None,         # 기본주당이익 (원)
+        "ni_eok": float | None,      # 당기순이익 (억원)
+        "equity_eok": float | None,  # 자본총계 당기말 (억원)
+        "equity_prior_eok": float | None,  # 전기말 자본총계 (억원)
+        "sales_eok": float | None,   # 연간 매출액 (억원)
+        "roe_avg": float | None,     # ROE 평균자본 기준 (%)
+        "roe_end": float | None,     # ROE 기말자본 기준 (%)
+        "fs_div": "CFS" | "OFS",
+      }
+    """
+    from canslim_lib import dart_cache
+    cached = dart_cache.get_annual_financials(corp_code, year)
+    if cached:  # 빈 dict는 dart_cache가 이미 무시 처리
+        return cached
+
+    # connection failure (dart_get None) vs "정상 응답 + 데이터 없음" ([]) 구분
+    all_failed = True
+    for fs_div in ("CFS", "OFS"):
+        items = dart_get("fnlttSinglAcntAll", {
+            "corp_code": corp_code, "bsns_year": str(year),
+            "reprt_code": "11011", "fs_div": fs_div,
+        })
+        if items is None:
+            continue  # connection error / quota — 이 fs_div 실패
+        all_failed = False  # 정상 응답 한 번이라도 받음
+        if not items:
+            continue  # 응답 OK but 데이터 없음
+
+        ni_row = _extract_annual_net_income_row(items)
+        equity_row = _extract_annual_equity_row(items)
+        eps_row = _extract_quarterly_eps_row(items)
+        sales_row = _extract_quarterly_sales_row(items)
+
+        if not ni_row or not equity_row:
+            continue  # 핵심 데이터 부족 — 다음 fs_div 시도
+
+        ni = ni_row.get("current")
+        equity = equity_row.get("current")
+        equity_prior = equity_row.get("prior")
+
+        roe_end = None
+        roe_avg = None
+        if ni and equity:
+            roe_end = round(ni / equity * 100, 2)
+            if equity_prior:
+                roe_avg = round(ni / ((equity + equity_prior) / 2) * 100, 2)
+
+        result = {
+            "year": year,
+            "eps": eps_row.get("current") if eps_row else None,
+            "ni_eok": round(ni / 1e8, 2) if ni else None,
+            "equity_eok": round(equity / 1e8, 2) if equity else None,
+            "equity_prior_eok": round(equity_prior / 1e8, 2) if equity_prior else None,
+            "sales_eok": round(sales_row.get("current") / 1e8, 2) if sales_row and sales_row.get("current") else None,
+            "roe_avg": roe_avg,
+            "roe_end": roe_end,
+            "fs_div": fs_div,
+        }
+        dart_cache.put_annual_financials(corp_code, year, result)
+        return result
+
+    # 모든 fs_div 처리 후
+    if all_failed:
+        # connection failure — cache 안 함 (재시도 보장)
+        return None
+    # 정상 응답이지만 데이터 추출 실패 — negative cache 가능
+    dart_cache.put_annual_financials(corp_code, year, {})
+    return None
+
+
 def fetch_dart_quarterly_eps_history(corp_code: str, base_year: int) -> list[tuple[str, float]]:
-    """DART에서 base_year 와 (base_year-1) 의 분기별 단일 EPS 6분기 조회."""
-    return _fetch_dart_quarterly_account_history(corp_code, base_year, _extract_quarterly_eps_row)
+    """DART에서 base_year 와 (base_year-1) 의 분기별 단일 EPS 6분기 조회.
+
+    캐시: dart_cache.get_quarter_eps (과거연도 영구, 현재연도 24h TTL).
+    connection failure 시 (None) cache put 안 함 — 다음 풀스캔 재시도.
+    """
+    from canslim_lib import dart_cache
+    cached = dart_cache.get_quarter_eps(corp_code, base_year)
+    if cached:
+        return cached
+    data = _fetch_dart_quarterly_account_history(corp_code, base_year, _extract_quarterly_eps_row)
+    if data is None:
+        return []  # 호출자엔 빈 list 반환 (안전), cache 안 함
+    dart_cache.put_quarter_eps(corp_code, base_year, data)
+    return data
 
 
 def fetch_dart_quarterly_sales_history(corp_code: str, base_year: int) -> list[tuple[str, float]]:
-    """DART에서 base_year 와 (base_year-1) 의 분기별 단일 매출액 6분기 조회."""
-    return _fetch_dart_quarterly_account_history(corp_code, base_year, _extract_quarterly_sales_row)
+    """DART에서 base_year 와 (base_year-1) 의 분기별 단일 매출액 6분기 조회.
+
+    캐시: dart_cache.get_quarter_sales (과거연도 영구, 현재연도 24h TTL).
+    connection failure 시 (None) cache put 안 함.
+    """
+    from canslim_lib import dart_cache
+    cached = dart_cache.get_quarter_sales(corp_code, base_year)
+    if cached:
+        return cached
+    data = _fetch_dart_quarterly_account_history(corp_code, base_year, _extract_quarterly_sales_row)
+    if data is None:
+        return []
+    dart_cache.put_quarter_sales(corp_code, base_year, data)
+    return data
 
 
 # ── DART: 잠정실적 (영업(잠정)실적 공정공시) 파싱 ──
@@ -593,15 +964,20 @@ def _fetch_disclosure_html(rcept_no: str) -> str | None:
         return None
 
 
-def find_preliminary_disclosure(corp_code: str, year: int, quarter: int) -> str | None:
+def find_preliminary_disclosure(corp_code: str, year: int, quarter: int) -> tuple[str | None, bool]:
     """주어진 분기의 잠정실적 공시 rcept_no 찾기.
 
     quarter: 1, 2, 3, 4. 분기 종료월(3/6/9/12) 기준 +1~2개월 내 공시 검색.
     가장 최근 비정정 공시 우선, 없으면 정정 공시 사용.
+
+    Returns: (rcept_no | None, list_ok: bool)
+      list_ok=False: dart_get list 호출 자체 실패 (connection error)
+      list_ok=True, rcept_no=None: 조회 성공 + 잠정실적 없음 (정당한 negative)
+      list_ok=True, rcept_no=str: 잠정실적 발견
     """
     end_month = quarter * 3
     if end_month >= 13:
-        return None
+        return None, True
     start_month = end_month + 1
     end_search_month = end_month + 3
     end_y = year if end_search_month <= 12 else year + 1
@@ -610,15 +986,17 @@ def find_preliminary_disclosure(corp_code: str, year: int, quarter: int) -> str 
     end_de = f"{end_y}{end_search_month_norm:02d}28"
 
     items = dart_get("list", {"corp_code": corp_code, "bgn_de": bgn_de, "end_de": end_de, "page_count": "100"})
+    if items is None:
+        return None, False  # connection failure — 호출자가 cache 안 함
     if not items:
-        return None
+        return None, True  # 정상 응답 + 공시 없음
     matches = [it for it in items if "잠정" in (it.get("report_nm") or "") and "영업" in (it.get("report_nm") or "")]
     if not matches:
-        return None
+        return None, True
     # 최신 비정정 우선
     primary = [m for m in matches if "기재정정" not in (m.get("report_nm") or "") and "[첨부추가]" not in (m.get("report_nm") or "")]
     target = primary[0] if primary else matches[0]
-    return target.get("rcept_no")
+    return target.get("rcept_no"), True
 
 
 def parse_preliminary_results(html: str) -> dict[str, float] | None:
@@ -682,25 +1060,45 @@ def parse_preliminary_results(html: str) -> dict[str, float] | None:
 def fetch_preliminary_quarter(corp_code: str, year: int, quarter: int) -> dict | None:
     """corp_code 의 (year, quarter) 잠정실적 가져오기.
 
+    캐시:
+      - 과거 분기 (year < 현재년 또는 현재년 < 현재분기): 영구
+      - 현재 진행 분기: 6h TTL (재정정 가능성)
+      - None 결과도 캐시 (negative cache)
+
     Returns: {"period_key": "YYYYQ", "revenue_eok": float, "net_income_eok": float, "rcept_no": str} 또는 None.
     """
-    rcept_no = find_preliminary_disclosure(corp_code, year, quarter)
+    from canslim_lib import dart_cache
+    cached = dart_cache.get_preliminary_quarter(corp_code, year, quarter)
+    if cached:  # 빈 dict는 dart_cache가 이미 무시 처리
+        return cached
+
+    rcept_no, list_ok = find_preliminary_disclosure(corp_code, year, quarter)
+    if not list_ok:
+        # connection failure — cache 안 함 (재시도 보장)
+        return None
     if not rcept_no:
+        # 정상 응답 + 잠정실적 없음 — 정당한 negative cache
+        dart_cache.put_preliminary_quarter(corp_code, year, quarter, {})
         return None
     html = _fetch_disclosure_html(rcept_no)
     if not html:
+        # document.xml fetch 실패 — cache 안 함
         return None
     parsed = parse_preliminary_results(html)
     if not parsed:
+        # HTML 받았지만 단위 파싱 실패 — negative cache (계속 시도해도 실패)
+        dart_cache.put_preliminary_quarter(corp_code, year, quarter, {})
         return None
     period_key = f"{year}{quarter * 3:02d}"
-    return {
+    result = {
         "period_key": period_key,
         "revenue_eok": parsed["revenue_eok"],
         "net_income_eok": parsed["net_income_eok"],
         "rcept_no": rcept_no,
         "unit_detected": parsed["unit_detected"],
     }
+    dart_cache.put_preliminary_quarter(corp_code, year, quarter, result)
+    return result
 
 
 def merge_naver_dart_quarters(
@@ -720,6 +1118,9 @@ def merge_naver_dart_quarters(
 def fetch_majorstock_holding(corp_code: str) -> dict[str, Any] | None:
     """DART 5%룰 대량보유 공시(majorstock)로 기관 합산 보유율 + 최근 1년 추세 계산.
 
+    캐시: dart_cache.get_majorstock (7d TTL — 5%룰 보고 변경 시 stale 가능).
+    None / 빈 결과도 캐시 (negative cache).
+
     Returns:
       {
         "institutional_pct": float,    # 보고자별 최종 보유율 합산
@@ -727,11 +1128,19 @@ def fetch_majorstock_holding(corp_code: str) -> dict[str, Any] | None:
         "reporters": int,               # 보고자 수
       }
     """
+    from canslim_lib import dart_cache
+    cached = dart_cache.get_majorstock(corp_code)
+    if cached:  # dart_cache 가 __none__ sentinel 무시 처리
+        return cached
+
     items = dart_get("majorstock", {"corp_code": corp_code})
     if items is None:
+        # connection failure — cache 안 함 (재시도)
         return None
     if not items:
-        return {"institutional_pct": 0.0, "recent_trend": "flat", "reporters": 0}
+        result = {"institutional_pct": 0.0, "recent_trend": "flat", "reporters": 0}
+        dart_cache.put_majorstock(corp_code, result)
+        return result
 
     # 보고자별 최신 보고일자 + 보유율 추출 (rcept_dt 가장 큰 항목 사용)
     by_reporter: dict[str, dict[str, Any]] = {}
@@ -772,11 +1181,13 @@ def fetch_majorstock_holding(corp_code: str) -> dict[str, Any] | None:
     else:
         trend = "flat"
 
-    return {
+    result = {
         "institutional_pct": institutional_pct,
         "recent_trend": trend,
         "reporters": len(by_reporter),
     }
+    dart_cache.put_majorstock(corp_code, result)
+    return result
 
 
 def sleep(ms: int) -> None:
