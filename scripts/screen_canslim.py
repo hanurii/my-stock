@@ -212,7 +212,7 @@ def collect_raw_data(
     corp_map: dict[str, str],
     min_price: int = 0,
     min_market_cap_eok: int = 0,
-    min_turnover_eok: float = 30.0,
+    min_turnover_eok: float = 0.0,
     skip_tier2_if_c_ineligible: bool = True,
 ) -> dict | None:
     """1차 패스: 종목별 원시 데이터 수집. RS는 아직 계산하지 않음.
@@ -410,7 +410,7 @@ def collect_raw_data_v2(
     corp_map: dict[str, str],
     min_price: int = 0,
     min_market_cap_eok: int = 0,
-    min_turnover_eok: float = 30.0,
+    min_turnover_eok: float = 0.0,
     skip_tier2_if_c_ineligible: bool = True,
 ) -> dict | None:
     """v2.1: 하이브리드 (Naver fetch_annual/quarter + DART backfill/잠정/5%룰).
@@ -701,8 +701,11 @@ def main() -> None:
                         help="시가총액 최소 (억원, default 0 = 컷오프 없음). "
                              "검증 결과 2,000억 default 컷오프가 C-통과 종목 83개(시총 < 2,000억)를 사전 제외해 "
                              "A등급 1개, B등급 13개, C 점수 90+ 강력 tier 7개가 누락됐음. 컷오프 제거가 합리적.")
-    parser.add_argument("--min-turnover", type=float, default=30.0,
-                        help="일평균 거래대금 최소 (억원, 30일, default 30) — 오닐 $20 룰의 한국 적용 (기관 유동성)")
+    parser.add_argument("--min-turnover", type=float, default=0.0,
+                        help="일평균 거래대금 최소 (억원, 30일, default 0 = 컷오프 없음). "
+                             "검증 결과 30억 default 컷오프가 C-통과 종목 75개(거래대금 < 30억)를 사전 제외해 "
+                             "A등급 1개(코스맥스엔비티), B등급 9개, c_score 80+ 우량 5개(인터로조·제이티·제이투케이바이오 등) 누락됐음. "
+                             "투자 실행 시점에 사용자가 직접 유동성 판단.")
     parser.add_argument("--worker", type=int, default=None,
                         help="병렬 작업자 인덱스 (0-base). --workers-total 과 함께 사용. universe[worker::workers_total] 슬라이스를 Pass 1 만 처리하고 .cache/canslim_worker_NN.json 에 저장.")
     parser.add_argument("--workers-total", type=int, default=None,
