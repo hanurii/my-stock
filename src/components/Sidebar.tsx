@@ -11,8 +11,6 @@ const navItems = [
   { href: "/stocks", label: "저평가 우량주", icon: "stars" },
   { href: "/stocks/canslim", label: "CAN SLIM 발굴", icon: "auto_graph" },
   { href: "/research", label: "종목 심층 분석", icon: "lab_research" },
-  { href: "/musings", label: "고민 한 스푼", icon: "psychology" },
-  { href: "/discipline", label: "감정 다스리기", icon: "self_improvement" },
   { href: "/bio", label: "바이오주 모니터링", icon: "biotech" },
   { href: "/bio/research", label: "바이오 7대 기준", icon: "science" },
 ];
@@ -93,9 +91,21 @@ export function Sidebar() {
         </div>
 
         <nav className="flex-1 mt-4">
-          {navItems.map((item) => {
-            const isActive = pathname === item.href;
-            const fillPercent = isActive ? scrollProgress * 100 : 0;
+          {(() => {
+            const activeHref = navItems
+              .map((i) => i.href)
+              .filter(
+                (h) =>
+                  pathname === h ||
+                  (h !== "/" && pathname.startsWith(h + "/")),
+              )
+              .reduce(
+                (longest, h) => (h.length > longest.length ? h : longest),
+                "",
+              );
+            return navItems.map((item) => {
+              const isActive = item.href === activeHref;
+              const fillPercent = isActive ? scrollProgress * 100 : 0;
 
             return (
               <Link
@@ -134,7 +144,8 @@ export function Sidebar() {
                 <span className="text-sm font-medium relative z-10">{item.label}</span>
               </Link>
             );
-          })}
+            });
+          })()}
         </nav>
 
         <div className="mt-auto p-6 border-t border-outline-variant/15">

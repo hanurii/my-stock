@@ -4,23 +4,18 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const tabs = [
-  { href: "/stocks/watchlist", label: "저평가 배당주", icon: "paid" },
-  { href: "/stocks/growth", label: "저평가 성장주", icon: "trending_up" },
-  { href: "/stocks/oil-expert", label: "오일전문가 포트폴리오", icon: "local_fire_department" },
-  { href: "/stocks/growth-screen", label: "성장주 스크리닝", icon: "screen_search_desktop" },
-  { href: "/stocks/berkshire", label: "버핏 포트폴리오", icon: "account_balance" },
-  { href: "/stocks/megacap", label: "메가캡 우량주", icon: "stars" },
-  { href: "/stocks/etf-finder", label: "ETF 파인더", icon: "donut_small" },
+  { href: "/principles", label: "투자 원칙", icon: "balance" },
+  { href: "/principles/musings", label: "고민 한 스푼", icon: "psychology" },
+  { href: "/principles/discipline", label: "감정 다스리기", icon: "self_improvement" },
 ];
 
-export function StocksTabs({ berkshireIsNew }: { berkshireIsNew: boolean }) {
+export function PrinciplesTabs() {
   const pathname = usePathname();
 
   return (
     <div className="flex gap-1 bg-surface-container-low rounded-xl p-1.5 ghost-border overflow-x-auto scrollbar-hide">
       {tabs.map((tab) => {
         const isActive = pathname === tab.href;
-        const showNew = tab.href === "/stocks/berkshire" && berkshireIsNew;
 
         return (
           <Link
@@ -34,11 +29,6 @@ export function StocksTabs({ berkshireIsNew }: { berkshireIsNew: boolean }) {
           >
             <span className="material-symbols-outlined text-lg">{tab.icon}</span>
             <span>{tab.label}</span>
-            {showNew && (
-              <span className="absolute -top-1.5 -right-1 text-[9px] font-bold bg-tertiary text-surface px-1.5 py-0.5 rounded-full leading-none">
-                NEW
-              </span>
-            )}
           </Link>
         );
       })}

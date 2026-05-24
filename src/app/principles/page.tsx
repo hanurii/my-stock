@@ -602,7 +602,7 @@ export default function PrinciplesPage() {
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
           <Link
-            href="/discipline"
+            href="/principles/discipline"
             className="bg-surface-container/50 hover:bg-surface-container rounded-lg p-4 transition-colors block"
           >
             <span className="material-symbols-outlined text-primary/70 text-xl mb-1 block">
@@ -626,7 +626,7 @@ export default function PrinciplesPage() {
             </p>
           </Link>
           <Link
-            href="/musings"
+            href="/principles/musings"
             className="bg-surface-container/50 hover:bg-surface-container rounded-lg p-4 transition-colors block"
           >
             <span className="material-symbols-outlined text-primary/70 text-xl mb-1 block">
