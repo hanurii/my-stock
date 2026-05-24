@@ -8,8 +8,6 @@ const navItems = [
   { href: "/principles", label: "투자 원칙", icon: "balance" },
   { href: "/journal", label: "매매일지", icon: "history_edu" },
   { href: "/", label: "거시경제 리포트", icon: "auto_graph" },
-  { href: "/macro/foreign-flow", label: "외인 자본 흐름", icon: "trending_up" },
-  { href: "/macro/hot-sectors", label: "핫 섹터/테마", icon: "local_fire_department" },
   { href: "/stocks", label: "저평가 우량주", icon: "stars" },
   { href: "/stocks/canslim", label: "CAN SLIM 발굴", icon: "auto_graph" },
   { href: "/research", label: "종목 심층 분석", icon: "lab_research" },
