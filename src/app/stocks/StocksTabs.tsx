@@ -8,8 +8,6 @@ const tabs = [
   { href: "/stocks/growth", label: "저평가 성장주", icon: "trending_up" },
   { href: "/stocks/oil-expert", label: "오일전문가 포트폴리오", icon: "local_fire_department" },
   { href: "/stocks/growth-screen", label: "성장주 스크리닝", icon: "screen_search_desktop" },
-  { href: "/stocks/canslim/c", label: "CAN SLIM C", icon: "auto_graph", matchPrefix: "/stocks/canslim/c" },
-  { href: "/stocks/canslim/a", label: "CAN SLIM A", icon: "stacked_bar_chart", matchPrefix: "/stocks/canslim/a" },
   { href: "/stocks/berkshire", label: "버핏 포트폴리오", icon: "account_balance" },
   { href: "/stocks/megacap", label: "메가캡 우량주", icon: "stars" },
   { href: "/stocks/etf-finder", label: "ETF 파인더", icon: "donut_small" },

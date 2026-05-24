@@ -11,6 +11,7 @@ const navItems = [
   { href: "/macro/foreign-flow", label: "외인 자본 흐름", icon: "trending_up" },
   { href: "/macro/hot-sectors", label: "핫 섹터/테마", icon: "local_fire_department" },
   { href: "/stocks", label: "저평가 우량주", icon: "stars" },
+  { href: "/stocks/canslim", label: "CAN SLIM 발굴", icon: "auto_graph" },
   { href: "/research", label: "종목 심층 분석", icon: "lab_research" },
   { href: "/musings", label: "고민 한 스푼", icon: "psychology" },
   { href: "/discipline", label: "감정 다스리기", icon: "self_improvement" },
