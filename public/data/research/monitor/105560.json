@@ -1,7 +1,7 @@
 {
   "code": "105560",
   "name": "KB금융",
-  "last_checked": "2026-05-26T15:48:22.214+09:00",
+  "last_checked": "2026-05-26T18:02:46.839+09:00",
   "metrics": [
     {
       "id": "pbr",
@@ -100,27 +100,9 @@
       "type": "pbr_premium_pp",
       "title": "4대 지주 평균 대비 PBR 프리미엄 +0.20pp 이상",
       "message": "현재 0.287pp — 매도 트리거 도달"
-    },
-    {
-      "severity": "warn",
-      "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 1건 (관찰 신호 1건 포함)",
-      "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
-  "news_hits": [
-    {
-      "keyword": "KB국민은행 제재",
-      "date": "2026-05-19",
-      "title": "KB국민은행, 전세대출 사기 보고 지연…금감원 과태료 제재 - 핀포인트뉴스",
-      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE9LQkcwLUpSTmlRNTBiLXJmVDNkZFJiT2JZcHExclBfclgtRHlsNk02T1AyMjE4Tld3aXRJUllpX1BJa2U0LWRqM1NWZjdkWWhwS1lsUmtaMm5mcHJfUnhFWml3WE5jWDZ0YnVZcTV2Zl9Xb0nSAXdBVV95cUxOZGFuM3pkSTdnSTJRdU90TEprMFhmeXNZYmZpclpiX0w4ODIyZFJjM0xlNFlxemIxZlM4MXU4eC1FVVdSeGFIVFI1S1p1eXEtWW9scGJVQVdLR2tEd1FDWEt1YVA3UGo0eWFNTlJkY2xUZEdVeThnVQ?oc=5",
-      "severity": "warn",
-      "signals": [
-        "지연",
-        "제재"
-      ]
-    }
-  ],
+  "news_hits": [],
   "sources": [
     {
       "label": "PER/PEG/PBR 스코어",
@@ -157,10 +139,6 @@
     {
       "label": "분기 ROE 연환산 (2025-FY · 9.6%)",
       "ref": "DART 20260324000835 (fnlttSinglAcntAll: 자본총계+분기순이익)"
-    },
-    {
-      "label": "뉴스 RSS",
-      "ref": "news.google.com/rss (7일)"
     }
   ]
 }

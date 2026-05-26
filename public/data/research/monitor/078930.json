@@ -1,7 +1,7 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-05-26T15:49:49.648+09:00",
+  "last_checked": "2026-05-26T18:03:21.999+09:00",
   "metrics": [
     {
       "id": "per",
@@ -60,8 +60,8 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 105.57,
-      "display": "105.57$",
+      "value": 105.8,
+      "display": "105.80$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
@@ -77,7 +77,7 @@
     {
       "severity": "bad",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 12건 (부정 시그널 1건 포함)",
+      "title": "리스크 키워드 매칭 뉴스 11건 (부정 시그널 1건 포함)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
@@ -148,6 +148,14 @@
     },
     {
       "keyword": "중동 긴장 완화",
+      "date": "2026-05-26",
+      "title": "李 \"환율 상승, 외인 자금 이동 영향\"…중동 긴장 완화에 1504원 마감 [김혜란의 FX",
+      "url": "https://news.google.com/rss/articles/CBMiU0FVX3lxTE9tcWw0Nld6SUQ5RWlDcGNSLTRfc3FnUk5WazYzeUVJWmpDaTBXNkhmN3JVWnpEV2VEanJDTEdnaG9yNGpDSmFqVXE3UG52aWJEU3pv?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "중동 긴장 완화",
       "date": "2026-05-25",
       "title": "중동 긴장 완화 기대에 국제유가 급락, 이란 협상 진전 소식에 시장 숨 고르기 - 미디어파인",
       "url": "https://news.google.com/rss/articles/CBMibkFVX3lxTFBuLW1wTjF4V25yQzZSNFN4WlRKUFNNQzg4VUN5elJNdUdhWWZkUm04TW5tYVRsVXdYLVFOYVFqZ1U4Qk5pdFlZT2tJbFZBbWFGWkZnd0lGYjNaWDkwbE1zV2FqZkZFWDFSYXh1b1dR?oc=5",
@@ -163,22 +171,6 @@
       "url": "https://news.google.com/rss/articles/CBMiVEFVX3lxTFBYcFZrbnVDRUo3ZjRYNmFjamlsMzJBYlBaMUlaZXJaZWNhZ01mYktzZzBHUmlnRlMzV0F3NVlIR25TNXZsMldrMGVRcVhLV2hicjAzQQ?oc=5",
       "severity": "info",
       "signals": []
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-05-25",
-      "title": "대만 증시, AI 열풍·중동 긴장 완화에 또 사상 최고치 - 헤럴드경제",
-      "url": "https://news.google.com/rss/articles/CBMiVkFVX3lxTFAyZk9QMjNmU2RsYzBlZnNvdVBtcDRISW1OX2dCMDJRSm1Ub1UwZk5TcldyQ1o0R3NfNG80Vkc0enE0d2V3UWk2a082RFBXOEFiTV95YUxB?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-05-23",
-      "title": "美·이란, '휴전 60일 연장·핵 협상' 막판 조율…중동 긴장 완화 기대 - 뉴시스",
-      "url": "https://news.google.com/rss/articles/CBMiYkFVX3lxTE1tZzhrdmo3aHVLejRSaEtxWWpOWW50bzBqeWpNazJXVkRYZllUN0R3OXVNMUtPc1I3ckp2SHI3aE53Yk04WHFKdWdpZWVib3JjdzhIQmZXT01DWEdibW91ZjF3?oc=5",
-      "severity": "info",
-      "signals": []
     }
   ],
   "sources": [
@@ -187,7 +179,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 95.2 USD (2026-05-26, 7일 평균 105.57)",
+      "label": "Brent 원유 종가 96.81 USD (2026-05-26, 7일 평균 105.8)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
