@@ -1,7 +1,7 @@
 {
   "code": "000660",
   "name": "SK하이닉스",
-  "last_checked": "2026-05-29T09:12:36.212+09:00",
+  "last_checked": "2026-05-29T15:55:03.529+09:00",
   "metrics": [
     {
       "id": "pbr",
@@ -24,17 +24,17 @@
     {
       "id": "affiliate_ratio",
       "label": "계열사 거래 매출 비율 (1년)",
-      "value": 5.675,
-      "display": "5.675%",
+      "value": 6.124,
+      "display": "6.124%",
       "threshold": "매출의 7% 초과",
       "hit": false,
-      "tone": "good"
+      "tone": "warn"
     },
     {
       "id": "affiliate_yoy_pp",
       "label": "계열사 거래 비율 YoY 변화",
-      "value": -1.581,
-      "display": "-1.58%p",
+      "value": -1.132,
+      "display": "-1.13%p",
       "threshold": "+2%p 이상 급증",
       "hit": false,
       "tone": "good"
@@ -73,6 +73,12 @@
       "type": "pbr",
       "title": "PBR 8배 돌파",
       "message": "현재 13.81배 — 매도 트리거 도달"
+    },
+    {
+      "severity": "warn",
+      "type": "affiliate_ratio",
+      "title": "계열사 거래 매출 비율 (1년) 임계 근접",
+      "message": "현재 6.124% (임계 매출의 7% 초과)"
     }
   ],
   "news_hits": [],
@@ -86,8 +92,8 @@
       "ref": "DART 20260317000635"
     },
     {
-      "label": "계열사 거래 비율 (365일 누적, 4건)",
-      "ref": "DART 특수관계인내부거래·출자계열사거래 20260423000751, 20260423000249, 20260227002517 외"
+      "label": "계열사 거래 비율 (365일 누적, 5건)",
+      "ref": "DART 특수관계인내부거래·출자계열사거래 20260529000534, 20260423000751, 20260423000249 외"
     },
     {
       "label": "SK스퀘어(주) 보유 비율 (2025)",

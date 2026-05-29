@@ -1,13 +1,13 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-05-29T09:16:49.660+09:00",
+  "last_checked": "2026-05-29T15:58:41.333+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 5.16,
-      "display": "5.16배",
+      "value": 5.21,
+      "display": "5.21배",
       "threshold": "10배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "dividend_yield",
       "label": "배당수익률",
-      "value": 4.18,
-      "display": "4.18%",
+      "value": 4.14,
+      "display": "4.14%",
       "threshold": "3.5% 이하",
       "hit": false,
       "tone": "good"
@@ -60,8 +60,8 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 101.2,
-      "display": "101.20$",
+      "value": 98.61,
+      "display": "98.61$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
@@ -77,11 +77,19 @@
     {
       "severity": "info",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 7건 (관찰 신호 0건 — 키워드 단순 매칭만)",
+      "title": "리스크 키워드 매칭 뉴스 9건 (관찰 신호 0건 — 키워드 단순 매칭만)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
   "news_hits": [
+    {
+      "keyword": "이란 미국 합의",
+      "date": "2026-05-29",
+      "title": "미국 “미-이란 종전 잠정 합의 보도 맞다…트럼프 승인만 남아” - 한겨레",
+      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE5PbGY0Z1lERVRJWnJoX0dZcWh3N2ZFRkFyRDR2eXg3QV9aTl8xaGQ0ZkxkMkRhZEp5WVhMcDVzbDNlM1RCaDhBT2ZjbFc3X1lKT0xIY2RjYlFUOFM2bWRwcGZVS1dPTjZTbk5sZHBKVTBsV28?oc=5",
+      "severity": "info",
+      "signals": []
+    },
     {
       "keyword": "이란 미국 합의",
       "date": "2026-05-26",
@@ -100,9 +108,17 @@
     },
     {
       "keyword": "이란 미국 합의",
+      "date": "2026-05-29",
+      "title": "\"미국-이란 종전합의 초안 협의\"‥트럼프 승인 아직 - MBC 뉴스",
+      "url": "https://news.google.com/rss/articles/CBMieEFVX3lxTE9fOHpGZ0t0QTFUV0dnMFBDMnVYaDdUQ01SQUFuNmNuVkF0Z1dvRHBmRWRmUWI0eU9rZnVyU2pDN1NkZG1OOGR0Vkl0Z0ZNVFNySkEwMndqb3hwNHdlWFhLdC0zUHVJREJqNTRSWjAzZC1PRGsyM0wzcdIBeEFVX3lxTE95UXRyUjBGNFMxTXgyUVJsRVRra0w5cnY2WHJvLW16cGhaUXVuTnlhaFplT096OVNvWVJmNkdtNVV6b1d0VFBrcVBxLVZSTjA4LWh4MzAydlZBSS1Yc2RlX2k5enZkQjVsaWRodlQ5OEhhLXl4X01uUg?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "중동 긴장 완화",
       "date": "2026-05-28",
-      "title": "\"미국·이란, 60일 휴전 연장·핵협상 MOU 합의\" - v.daum.net",
-      "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE9YWTBrRzh6bTFNbDR6bTJTRjhHWnYxVW12UWJEQ0pzdzg0cm1rVmx1UFF6azU1TVNSb1lTYmQ1S2JvY1JENmlnUDlUdUtFR1k?oc=5",
+      "title": "중동 긴장 완화 기대감에 뉴욕증시 랠리…3대 지수 나란히 최고가 - 뉴시안",
+      "url": "https://news.google.com/rss/articles/CBMibkFVX3lxTE9mZVhTZnFBZk1lZG9rcENRc1dGWEhPVklZZHlNTUt0OTduOTFheFlmRmlzN0hfRkJGa1pCYWo5VUE4VXZyWGFKRy1PM2JucXhJaVloeGhWMVJiNS1WZlJPWTc1MDdXb1NnTWhWU29n0gFuQVVfeXFMT2ZlWFNmcUFmTWVkb2twQ1FzV0ZYSE9WSVlkeU1NS3Q5N245MWF4WWZGaXM3SF9GQkZrWkJhajlVQThVdnJYYUpHLU8zYm5xeElpWWh4aFYxUmI1LVZmUk9ZNzUwN1dvU2dNaFZTb2c?oc=5",
       "severity": "info",
       "signals": []
     },
@@ -145,7 +161,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 92.12 USD (2026-05-29, 7일 평균 101.2)",
+      "label": "Brent 원유 종가 91.52 USD (2026-05-29, 7일 평균 98.61)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
