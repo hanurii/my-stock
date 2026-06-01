@@ -1,22 +1,22 @@
 {
   "code": "005387",
   "name": "현대차2우B",
-  "last_checked": "2026-06-01T20:03:11.850+09:00",
+  "last_checked": "2026-06-02T00:24:32.763+09:00",
   "metrics": [
     {
       "id": "price",
       "label": "우선주 종가",
-      "value": 272000,
-      "display": "272,000원",
+      "value": 295500,
+      "display": "295,500원",
       "threshold": "320,000원 돌파",
       "hit": false,
-      "tone": "good"
+      "tone": "warn"
     },
     {
       "id": "per",
       "label": "PER",
-      "value": 7.19,
-      "display": "7.19배",
+      "value": 7.81,
+      "display": "7.81배",
       "threshold": "9배 돌파",
       "hit": false,
       "tone": "good"
@@ -50,6 +50,12 @@
     }
   ],
   "alerts": [
+    {
+      "severity": "warn",
+      "type": "price",
+      "title": "우선주 종가 임계 근접",
+      "message": "현재 295,500원 (임계 320,000원 돌파)"
+    },
     {
       "severity": "bad",
       "type": "buyback_gap",
