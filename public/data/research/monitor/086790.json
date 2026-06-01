@@ -1,7 +1,7 @@
 {
   "code": "086790",
   "name": "하나금융지주",
-  "last_checked": "2026-06-01T17:34:13.057+09:00",
+  "last_checked": "2026-06-01T20:02:32.646+09:00",
   "metrics": [
     {
       "id": "pbr",
@@ -33,11 +33,11 @@
     {
       "id": "foreign_net_buy_4w",
       "label": "최근 20거래일 외국인 순매수",
-      "value": 50078,
-      "display": "5만주",
+      "value": -146318,
+      "display": "-15만주",
       "threshold": "순매도 전환",
-      "hit": false,
-      "tone": "good"
+      "hit": true,
+      "tone": "bad"
     },
     {
       "id": "dividend_qoq_change",
@@ -87,6 +87,12 @@
   ],
   "alerts": [
     {
+      "severity": "bad",
+      "type": "foreign_net_buy_4w",
+      "title": "최근 20거래일 외국인 순매수 순매도 전환",
+      "message": "현재 -15만주 — 매도 트리거 도달"
+    },
+    {
       "severity": "info",
       "type": "news_keyword_hit",
       "title": "리스크 키워드 매칭 뉴스 1건 (관찰 신호 0건 — 키워드 단순 매칭만)",
@@ -118,7 +124,7 @@
     },
     {
       "label": "외국인 순매수 누적 (20일)",
-      "ref": "네이버 dealTrendInfos / history 2026-05-29"
+      "ref": "네이버 dealTrendInfos / history 2026-06-01"
     },
     {
       "label": "최근 분기 순이익 (2025-FY)",
