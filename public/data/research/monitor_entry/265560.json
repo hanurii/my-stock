@@ -1,7 +1,7 @@
 {
   "code": "265560",
   "name": "영화테크",
-  "last_checked": "2026-06-02T00:24:59.513+09:00",
+  "last_checked": "2026-06-02T09:19:26.676+09:00",
   "metrics": [
     {
       "id": "no_capital_issuance",
@@ -42,8 +42,8 @@
     {
       "id": "new_supply_contract",
       "label": "✅ 신규 단일판매·공급계약",
-      "value": 118,
-      "display": "118일 전",
+      "value": 119,
+      "display": "119일 전",
       "threshold": "최근 7일 내 신규",
       "hit": false,
       "tone": "neutral"
@@ -51,11 +51,11 @@
     {
       "id": "buyback_action",
       "label": "✅ 자사주 매입·소각 신규 (90일)",
-      "value": 1,
-      "display": "1건",
+      "value": 0,
+      "display": "0건",
       "threshold": "1건 이상",
-      "hit": true,
-      "tone": "good"
+      "hit": false,
+      "tone": "neutral"
     }
   ],
   "alerts": [
@@ -76,12 +76,6 @@
       "type": "per_value_zone",
       "title": "✅ PER 저평가 5.0배 이하",
       "message": "현재 4.13배 — 매수 시그널 (분할 진입 검토 권장)"
-    },
-    {
-      "severity": "info",
-      "type": "buyback_action",
-      "title": "✅ 자사주 매입·소각 신규 (90일) 1건 이상",
-      "message": "현재 1건 — 매수 시그널 (분할 진입 검토 권장)"
     }
   ],
   "news_hits": [],
