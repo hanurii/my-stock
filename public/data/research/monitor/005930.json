@@ -1,7 +1,7 @@
 {
   "code": "005930",
   "name": "삼성전자",
-  "last_checked": "2026-06-03T19:28:19.185+09:00",
+  "last_checked": "2026-06-03T22:18:49.989+09:00",
   "metrics": [
     {
       "id": "per",
@@ -15,11 +15,11 @@
     {
       "id": "buyback_gap",
       "label": "자사주 소각 공시 공백",
-      "value": 64,
-      "display": "64일",
+      "value": 730,
+      "display": "730일",
       "threshold": "180일 경과",
-      "hit": false,
-      "tone": "good"
+      "hit": true,
+      "tone": "bad"
     },
     {
       "id": "samsung_life_disposal",
@@ -33,38 +33,38 @@
     {
       "id": "lee_jae_yong_ratio",
       "label": "이재용 지분 비율",
-      "value": 1.65,
-      "display": "1.65%",
+      "value": null,
+      "display": "—",
       "threshold": "1.4% 이하로 감소",
       "hit": false,
-      "tone": "good"
+      "tone": "neutral"
     },
     {
       "id": "lee_jae_yong_change_pp",
       "label": "이재용 기초→기말 변화",
-      "value": 0.02,
-      "display": "0.02%p",
+      "value": null,
+      "display": "—",
       "threshold": "-0.1%p 이상 감소",
       "hit": false,
-      "tone": "good"
+      "tone": "neutral"
     },
     {
       "id": "family_sell_count",
       "label": "일가 매도 공시 (90일)",
-      "value": 2,
-      "display": "2건",
+      "value": null,
+      "display": "—",
       "threshold": "매도 건수 1건+",
-      "hit": true,
-      "tone": "bad"
+      "hit": false,
+      "tone": "neutral"
     },
     {
       "id": "family_sell_shares",
       "label": "일가 누적 매도 주식수 (90일)",
-      "value": 15206633,
-      "display": "1,521만주",
+      "value": null,
+      "display": "—",
       "threshold": "500만주 이상",
-      "hit": true,
-      "tone": "bad"
+      "hit": false,
+      "tone": "neutral"
     }
   ],
   "alerts": [
@@ -76,15 +76,33 @@
     },
     {
       "severity": "bad",
-      "type": "family_sell_count",
-      "title": "일가 매도 공시 (90일) 매도 건수 1건+",
-      "message": "현재 2건 — 매도 트리거 도달"
+      "type": "buyback_gap",
+      "title": "자사주 소각 공시 공백 180일 경과",
+      "message": "현재 730일 — 매도 트리거 도달"
     },
     {
-      "severity": "bad",
-      "type": "family_sell_shares",
-      "title": "일가 누적 매도 주식수 (90일) 500만주 이상",
-      "message": "현재 1,521만주 — 매도 트리거 도달"
+      "severity": "warn",
+      "type": "lee_jae_yong_ratio_missing",
+      "title": "이재용 지분 비율 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
+    },
+    {
+      "severity": "warn",
+      "type": "lee_jae_yong_change_pp_missing",
+      "title": "이재용 기초→기말 변화 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
+    },
+    {
+      "severity": "warn",
+      "type": "family_sell_count_missing",
+      "title": "일가 매도 공시 (90일) 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
+    },
+    {
+      "severity": "warn",
+      "type": "family_sell_shares_missing",
+      "title": "일가 누적 매도 주식수 (90일) 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
     }
   ],
   "news_hits": [],
@@ -92,18 +110,6 @@
     {
       "label": "PER/PEG/PBR 스코어",
       "ref": "public/data/watchlist.json"
-    },
-    {
-      "label": "이재용 보유 비율 (2025)",
-      "ref": "DART 20260310002820 (hyslrSttus)"
-    },
-    {
-      "label": "최근 자사주 소각 공시 (2026-03-31)",
-      "ref": "DART 20260331800004"
-    },
-    {
-      "label": "일가 매도 2건 총 15,206,633주 (최대: 홍라희 2026-04-13 -15,000,000주 시간외매매(-))",
-      "ref": "DART 최대주주등소유주식변동신고서 20260413800802"
     }
   ]
 }

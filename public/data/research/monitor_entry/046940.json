@@ -1,7 +1,7 @@
 {
   "code": "046940",
   "name": "우원개발",
-  "last_checked": "2026-06-03T19:32:23.407+09:00",
+  "last_checked": "2026-06-03T22:20:33.231+09:00",
   "metrics": [
     {
       "id": "no_capital_issuance",
@@ -15,20 +15,20 @@
     {
       "id": "op_margin_collapse",
       "label": "❌ 분기 영업이익률 급락 (일회성 검증)",
-      "value": 17.85,
-      "display": "17.9%",
+      "value": null,
+      "display": "—",
       "threshold": "5% 이하 (2024 0.93% 회귀)",
       "hit": false,
-      "tone": "good"
+      "tone": "neutral"
     },
     {
       "id": "op_margin_sustained",
       "label": "✅ 분기 영업이익률 지속",
-      "value": 17.85,
-      "display": "17.9%",
+      "value": null,
+      "display": "—",
       "threshold": "12% 이상",
-      "hit": true,
-      "tone": "good"
+      "hit": false,
+      "tone": "neutral"
     },
     {
       "id": "per_value_zone",
@@ -42,28 +42,34 @@
     {
       "id": "new_supply_contract",
       "label": "✅ 신규 SOC 수주 공시",
-      "value": 5,
-      "display": "5일 전",
+      "value": null,
+      "display": "—",
       "threshold": "최근 7일 내 신규",
-      "hit": true,
-      "tone": "good"
+      "hit": false,
+      "tone": "neutral"
     },
     {
       "id": "correction_disclosure",
       "label": "✅ 사업보고서 정정 공시 (노이즈 해소)",
-      "value": 13,
-      "display": "13건",
+      "value": 0,
+      "display": "0건",
       "threshold": "정정본 1건+",
-      "hit": true,
-      "tone": "good"
+      "hit": false,
+      "tone": "neutral"
     }
   ],
   "alerts": [
     {
-      "severity": "info",
-      "type": "op_margin_sustained",
-      "title": "✅ 분기 영업이익률 지속 12% 이상",
-      "message": "현재 17.9% — 매수 시그널 (분할 진입 검토 권장)"
+      "severity": "warn",
+      "type": "op_margin_collapse_missing",
+      "title": "❌ 분기 영업이익률 급락 (일회성 검증) 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
+    },
+    {
+      "severity": "warn",
+      "type": "op_margin_sustained_missing",
+      "title": "✅ 분기 영업이익률 지속 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
     },
     {
       "severity": "info",
@@ -72,16 +78,10 @@
       "message": "현재 1.29배 — 매수 시그널 (분할 진입 검토 권장)"
     },
     {
-      "severity": "info",
-      "type": "new_supply_contract",
-      "title": "✅ 신규 SOC 수주 공시 최근 7일 내 신규",
-      "message": "현재 5일 전 — 매수 시그널 (분할 진입 검토 권장)"
-    },
-    {
-      "severity": "info",
-      "type": "correction_disclosure",
-      "title": "✅ 사업보고서 정정 공시 (노이즈 해소) 정정본 1건+",
-      "message": "현재 13건 — 매수 시그널 (분할 진입 검토 권장)"
+      "severity": "warn",
+      "type": "new_supply_contract_missing",
+      "title": "✅ 신규 SOC 수주 공시 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
     }
   ],
   "news_hits": [],
@@ -89,18 +89,6 @@
     {
       "label": "PER/PEG/PBR 스코어",
       "ref": "public/data/growth-watchlist.json"
-    },
-    {
-      "label": "최근 공급계약 공시",
-      "ref": "DART 20260529900476"
-    },
-    {
-      "label": "분기 영업이익률 (2025)",
-      "ref": "DART 20260319001259"
-    },
-    {
-      "label": "사업보고서 정정 공시 13건 (최근: 2026-05-29)",
-      "ref": "DART 20260529900476 — 매칭 키워드: 기재정정"
     }
   ]
 }

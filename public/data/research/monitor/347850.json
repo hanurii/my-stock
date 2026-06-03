@@ -1,7 +1,7 @@
 {
   "code": "347850",
   "name": "디앤디파마텍",
-  "last_checked": "2026-06-03T19:32:04.405+09:00",
+  "last_checked": "2026-06-03T22:20:21.207+09:00",
   "metrics": [
     {
       "id": "pbr",
@@ -15,26 +15,26 @@
     {
       "id": "ceo_founder_ratio",
       "label": "이슬기 CEO 지분 비율",
-      "value": 12.99,
-      "display": "12.99%",
+      "value": null,
+      "display": "—",
       "threshold": "10% 이하로 감소",
       "hit": false,
-      "tone": "good"
+      "tone": "neutral"
     },
     {
       "id": "capital_issuance",
       "label": "신규 자본조달 (CB/BW/EB/유증) 90일",
-      "value": 2,
-      "display": "2건",
+      "value": 0,
+      "display": "0건",
       "threshold": "발행 공시 1건+",
-      "hit": true,
-      "tone": "bad"
+      "hit": false,
+      "tone": "good"
     },
     {
       "id": "op_margin",
-      "label": "분기 영업이익률 (2025)",
-      "value": -790.97,
-      "display": "-791.0%",
+      "label": "분기 영업이익률 (정보용)",
+      "value": null,
+      "display": "—",
       "threshold": "-2000% 이하 악화 (이례적)",
       "hit": false,
       "tone": "neutral"
@@ -57,10 +57,16 @@
       "message": "현재 49.41배 (임계 50배 돌파)"
     },
     {
-      "severity": "bad",
-      "type": "capital_issuance",
-      "title": "신규 자본조달 (CB/BW/EB/유증) 90일 발행 공시 1건+",
-      "message": "현재 2건 — 매도 트리거 도달"
+      "severity": "warn",
+      "type": "ceo_founder_ratio_missing",
+      "title": "이슬기 CEO 지분 비율 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
+    },
+    {
+      "severity": "warn",
+      "type": "op_margin_missing",
+      "title": "분기 영업이익률 (정보용) 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
     },
     {
       "severity": "info",
@@ -74,7 +80,7 @@
       "keyword": "디앤디파마텍 DD01 48주",
       "date": "2026-06-02",
       "title": "디앤디파마텍,MASH 치료제 'DD01' 미국임상 2상 48주 조직생검 결과 발표 - 약업신문",
-      "url": "https://news.google.com/rss/articles/CBMiZkFVX3lxTE96eUhBZDFPTWIxTkpQUS1KYVg3Y2pJZEdKU2ZiNGJOMXVXcmM5RTh3U0RLcGNOdFc1UmRxSWhUcC1XZllXakhhZkZoazA3MVJUT04zOVg3Y3RUNE9lb1NVOElpQ1A2Zw?oc=5",
+      "url": "https://news.google.com/rss/articles/CBMickFVX3lxTFBtbkRoQ2xSeXlXcDZrLTVsN0tkQkJrQ01Ub3NraFN5eUtzVEVQMnAwNlAxN0JSVWhUaWQwaFUzTlNocDJzdFJ1OVVoMG1vaHZ4UzJHblFVMW5tVVk1bFNCdW1MMlZkR2xjLXFuQWJIN1ZJUQ?oc=5",
       "severity": "info",
       "signals": []
     },
@@ -91,18 +97,6 @@
     {
       "label": "PER/PEG/PBR 스코어",
       "ref": "public/data/naver-m-stock.json"
-    },
-    {
-      "label": "분기 영업이익률 (2025)",
-      "ref": "DART 20260320001088"
-    },
-    {
-      "label": "이슬기 보유 비율 (2025)",
-      "ref": "DART 20260320001088 (hyslrSttus)"
-    },
-    {
-      "label": "자본조달 공시 2건 (최근: 2026-04-22 [첨부정정]주요사항보고서(전환사채권발행결정))",
-      "ref": "DART 20260422000145"
     },
     {
       "label": "ClinicalTrials.gov 임상 5건 (30일 status 변경 0건)",

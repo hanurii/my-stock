@@ -1,7 +1,7 @@
 {
   "code": "083930",
   "name": "아바코",
-  "last_checked": "2026-06-03T19:27:40.750+09:00",
+  "last_checked": "2026-06-03T22:18:26.788+09:00",
   "metrics": [
     {
       "id": "per",
@@ -24,28 +24,34 @@
     {
       "id": "supply_gap",
       "label": "수주 공백",
-      "value": 104,
-      "display": "104일",
+      "value": null,
+      "display": "—",
       "threshold": "90일 경과",
-      "hit": true,
-      "tone": "bad"
+      "hit": false,
+      "tone": "neutral"
     },
     {
       "id": "related_party",
-      "label": "대명ENG 매입 (2025)",
-      "value": 7.94,
-      "display": "7.94%",
+      "label": "대명ENG 매입 비율",
+      "value": null,
+      "display": "—",
       "threshold": "매출의 10% 초과",
       "hit": false,
-      "tone": "good"
+      "tone": "neutral"
     }
   ],
   "alerts": [
     {
-      "severity": "bad",
-      "type": "supply_gap",
-      "title": "수주 공백 90일 경과",
-      "message": "현재 104일 — 매도 트리거 도달"
+      "severity": "warn",
+      "type": "supply_gap_missing",
+      "title": "수주 공백 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
+    },
+    {
+      "severity": "warn",
+      "type": "related_party_missing",
+      "title": "대명ENG 매입 비율 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
     }
   ],
   "news_hits": [],
@@ -53,14 +59,6 @@
     {
       "label": "PER/PEG/PBR 스코어",
       "ref": "public/data/growth-watchlist.json"
-    },
-    {
-      "label": "최근 공급계약 공시",
-      "ref": "DART 20260219900327"
-    },
-    {
-      "label": "대명ENG 매입 비율",
-      "ref": "DART 20260319001344 (사업보고서 (2025.12))"
     }
   ]
 }

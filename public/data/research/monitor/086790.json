@@ -1,7 +1,7 @@
 {
   "code": "086790",
   "name": "하나금융지주",
-  "last_checked": "2026-06-03T19:28:51.107+09:00",
+  "last_checked": "2026-06-03T22:19:23.035+09:00",
   "metrics": [
     {
       "id": "pbr",
@@ -42,29 +42,29 @@
     {
       "id": "dividend_qoq_change",
       "label": "분기배당 QoQ 변화율",
-      "value": 14.03,
-      "display": "14.0%",
+      "value": null,
+      "display": "—",
       "threshold": "동결 또는 감소",
       "hit": false,
-      "tone": "good"
+      "tone": "neutral"
     },
     {
       "id": "buyback_program_status",
-      "label": "자사주 프로그램 (마지막 소각결정 · 후속 대기)",
-      "value": 40,
-      "display": "40일",
+      "label": "자사주 프로그램 마지막 활동 후 경과일",
+      "value": 730,
+      "display": "730일",
       "threshold": "180일+ (프로그램 중단)",
-      "hit": false,
-      "tone": "good"
+      "hit": true,
+      "tone": "bad"
     },
     {
       "id": "quarterly_net_income",
       "label": "최근 분기 순이익",
-      "value": 40366,
-      "display": "40,366억",
+      "value": null,
+      "display": "—",
       "threshold": "분기 적자 전환",
       "hit": false,
-      "tone": "good"
+      "tone": "neutral"
     },
     {
       "id": "pf_loss_disclosure",
@@ -93,6 +93,24 @@
       "message": "현재 -9만주 — 매도 트리거 도달"
     },
     {
+      "severity": "warn",
+      "type": "dividend_qoq_change_missing",
+      "title": "분기배당 QoQ 변화율 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
+    },
+    {
+      "severity": "bad",
+      "type": "buyback_program_status",
+      "title": "자사주 프로그램 마지막 활동 후 경과일 180일+ (프로그램 중단)",
+      "message": "현재 730일 — 매도 트리거 도달"
+    },
+    {
+      "severity": "warn",
+      "type": "quarterly_net_income_missing",
+      "title": "최근 분기 순이익 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
+    },
+    {
       "severity": "info",
       "type": "news_keyword_hit",
       "title": "리스크 키워드 매칭 뉴스 1건 (관찰 신호 0건 — 키워드 단순 매칭만)",
@@ -119,20 +137,8 @@
       "ref": "peers: 316140, 105560, 055550 / avg 0.78"
     },
     {
-      "label": "분기 배당 결정 (사업보고서 (2025.12))",
-      "ref": "DART 20260316001292 (alotMatter)"
-    },
-    {
       "label": "외국인 순매수 누적 (20일)",
       "ref": "네이버 dealTrendInfos / history 2026-06-02"
-    },
-    {
-      "label": "최근 분기 순이익 (2025-FY)",
-      "ref": "DART 20260316001292 (fnlttSinglAcntAll)"
-    },
-    {
-      "label": "자사주 프로그램 마지막 활동 (2026-04-24 · 소각결정) — 누적 취득 9 / 결과 3 / 소각 15",
-      "ref": "DART 20260424800402"
     },
     {
       "label": "뉴스 RSS",

@@ -1,7 +1,7 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-06-03T19:31:56.127+09:00",
+  "last_checked": "2026-06-03T22:20:15.448+09:00",
   "metrics": [
     {
       "id": "per",
@@ -33,11 +33,11 @@
     {
       "id": "separate_net_loss",
       "label": "별도 분기 순이익",
-      "value": 2499,
-      "display": "2,499억",
+      "value": null,
+      "display": "—",
       "threshold": "적자 전환",
       "hit": false,
-      "tone": "good"
+      "tone": "neutral"
     },
     {
       "id": "debt_guarantee_count",
@@ -51,17 +51,17 @@
     {
       "id": "buyback_acquisition",
       "label": "자사주 취득결정 공시 (90일·긍정)",
-      "value": 1,
-      "display": "1건",
+      "value": 0,
+      "display": "0건",
       "threshold": "공시 1건+ (재평가 신호)",
-      "hit": true,
-      "tone": "good"
+      "hit": false,
+      "tone": "neutral"
     },
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 95.59,
-      "display": "95.59$",
+      "value": 95.44,
+      "display": "95.44$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
@@ -69,15 +69,15 @@
   ],
   "alerts": [
     {
-      "severity": "info",
-      "type": "buyback_acquisition",
-      "title": "자사주 취득결정 공시 (90일·긍정) 공시 1건+ (재평가 신호)",
-      "message": "현재 1건 — 긍정 시그널 발생 (재평가 검토)"
+      "severity": "warn",
+      "type": "separate_net_loss_missing",
+      "title": "별도 분기 순이익 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
     },
     {
       "severity": "warn",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 10건 (관찰 신호 1건 포함)",
+      "title": "리스크 키워드 매칭 뉴스 3건 (관찰 신호 1건 포함)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
@@ -94,14 +94,6 @@
     },
     {
       "keyword": "이란 미국 합의",
-      "date": "2026-05-29",
-      "title": "미국 “미-이란 종전 잠정 합의 보도 맞다…트럼프 승인만 남아” - 한겨레",
-      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE5PbGY0Z1lERVRJWnJoX0dZcWh3N2ZFRkFyRDR2eXg3QV9aTl8xaGQ0ZkxkMkRhZEp5WVhMcDVzbDNlM1RCaDhBT2ZjbFc3X1lKT0xIY2RjYlFUOFM2bWRwcGZVS1dPTjZTbk5sZHBKVTBsV28?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "이란 미국 합의",
       "date": "2026-06-01",
       "title": "트럼프 \"미국에 유리한 합의로 마무리될 것\"···\"이란, 미국과의 대화 중단, 레바논에서 이스라엘 범죄 지속\" - 대구MBC",
       "url": "https://news.google.com/rss/articles/CBMiTEFVX3lxTE9nWGd2djZjXzR2WHFGdVh4YUduN2c3YU81WWIySDdweXFmMENHNms4bHhHSS1yNHhhS1NaWWlBc2dGR3VqYV84WG9ncUU?oc=5",
@@ -115,54 +107,6 @@
       "url": "https://news.google.com/rss/articles/CBMidEFVX3lxTFB3Zm1vQnNYZUFJYnpRdXhPajRvQnJqYVpLMlpOelBDOTJGSlBsU0NRbUlycEt0RDY0SlR6X1U0ZTdrYTZLYndPbDhVa0VUeEJ1Y3ZPMlhDX00xeUtFRWFmemZMdXZTUl9hMnZaYnBLWTJTMDNa0gF0QVVfeXFMTkVoVjh4Ml9NdnpSWHhOai1OSG1waEd3SE5TQVNIYnlCR0FZbmJxd1pOQkEwQUFXWTh6Vmhlc3hmTjRIZWFVZEJlajRuTUJBWFoyejVGWi12VnpuMUhVUExaMlJLaFNMOXpzZmxBcnpPNk8zSnc?oc=5",
       "severity": "info",
       "signals": []
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-05-29",
-      "title": "AI 훈풍·중동 긴장 완화에 美증시 사상 최고치 - 경향신문",
-      "url": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE9PSi1Gd1c0THh2aG5vR0RkbDg3d1lxTTEwZzdNbDhMVXAzc2JvSS1WT3pkZGN5UjViemlQZTItcVdXb01tNFJZdFhnNmFrNnE2cWI4ZXg5ZHUzd9IBX0FVX3lxTE5CNU5qMm1IRndDcFZkZ2hlNmtYVjF4cTZtSkZadWdEZm14V1RsYTF2TF9zYnZ4bGZsRnpXRl9sX2Vnc3JEclVLN29EMy1TRmtvbXdhaXJWTENVLUw5OFNn?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-06-03",
-      "title": "일본은행 총재 \"중동 긴장 점진적 완화시 금리 인상 필요\" - 블루밍비트",
-      "url": "https://news.google.com/rss/articles/CBMiUEFVX3lxTE0yN3h5RENLWFRSdkw1Mnc3aldLMHZ6VzllbmFYc1pJNVc3RXhpRW9CeTAtODhYdkxTdHJfMEN1Ym1NTk9WeGpuR3g2aHUwQ2Y3?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-06-02",
-      "title": "이스라엘·레바논, 美 중재로 평화협정 협상 재개...중동 긴장 완화 주목 - KBC광주방송",
-      "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTFBtOUlKUkV3N2VhUjJra0JGNHcxRVJyMkNQdkp2TlR3Z2JEVmVfMVQtUjV4bGJETHg2aHJIZnh6T1ExT0ZZeXNWbDVMVklhRGFxRG9wQ0JyZjJBSHNyOGR4WA?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-05-27",
-      "title": "뉴욕증시 3대 지수 올해 첫 동시 최고치… 중동 긴장 완화에 투자심리↑ - 한국일보",
-      "url": "https://news.google.com/rss/articles/CBMibkFVX3lxTE1FckFtblNFX3VXaUZJYm1EU3UwTU11aDVpNVloSWp4Qm51bmE1NnM5cE50U3h0NXVJRHFYUDdwZ2oxU3d2d2N6a2NmUHpSbWpkbWlURmxacmViNjl2a0o5UndHa0xxRGJSMUFlWEdn0gFzQVVfeXFMTUZSUllZMzcybFBFVUhhbmlWc2RjZlZTM3dKMUZlN3ZMTnhEOXBHMS1zYzN0TWNnd0xSMllRZ1NQZVhlSUtPT0RqUE1ua2sxTy1EdkNHd1l0X1ZNQlp5X1BBell0OE5JM0ptNl9ocXhRWEN1NA?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-05-29",
-      "title": "미국 뉴욕증시, 중동 긴장 완화·AI 투자 열풍에 사상 최고치 경신 - thefairnews.co.kr",
-      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE5WVlEwbksxV1F5NGFIZ2RKekhGVEVFV2NoUHE0STJ6UHE1SXdIeXU5NTR3c240bWZVMkZLUXBYdWVNNTN0ZU9PVDVoUjFidE9UeGYyR3RhaVBRVWFiYXR6ZGJRT3RnQU14aUJ4czBNdWI?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-05-29",
-      "title": "삼성중공업, 2만8150원으로 숨 고르기…중동 긴장 완화 기대 속 조선주 방향성 주목 - CBC뉴스",
-      "url": "https://news.google.com/rss/articles/CBMiY0FVX3lxTE9sZ3pkd0Z1YXhXRWxsb1NFOUlTM3E2OUtmVDl6eGtTcmJDTmlqczVnMW9rNFNEWURjc251MjlCbE92UzF5ZTJ6cjljQi1ZOWZQMExJUmNVZ3lQTXhjTU1BLXBCdw?oc=5",
-      "severity": "info",
-      "signals": []
     }
   ],
   "sources": [
@@ -171,7 +115,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 98.53 USD (2026-06-03, 7일 평균 95.59)",
+      "label": "Brent 원유 종가 97.45 USD (2026-06-03, 7일 평균 95.44)",
       "ref": "Yahoo Finance BZ=F"
     },
     {

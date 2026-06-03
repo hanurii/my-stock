@@ -1,7 +1,7 @@
 {
   "code": "099410",
   "name": "동방선기",
-  "last_checked": "2026-06-03T19:32:28.774+09:00",
+  "last_checked": "2026-06-03T22:20:36.444+09:00",
   "metrics": [
     {
       "id": "no_capital_issuance",
@@ -15,20 +15,20 @@
     {
       "id": "op_margin_collapse",
       "label": "❌ 분기 영업이익률 급락 (관리종목 이력)",
-      "value": 22.18,
-      "display": "22.2%",
+      "value": null,
+      "display": "—",
       "threshold": "12% 이하",
       "hit": false,
-      "tone": "good"
+      "tone": "neutral"
     },
     {
       "id": "op_margin_strong",
       "label": "✅ 분기 영업이익률 견조",
-      "value": 22.18,
-      "display": "22.2%",
+      "value": null,
+      "display": "—",
       "threshold": "18% 이상",
-      "hit": true,
-      "tone": "good"
+      "hit": false,
+      "tone": "neutral"
     },
     {
       "id": "per_value_zone",
@@ -51,8 +51,8 @@
     {
       "id": "new_supply_contract",
       "label": "✅ 신규 단일판매·공급계약",
-      "value": 180,
-      "display": "180일 전",
+      "value": null,
+      "display": "—",
       "threshold": "최근 7일 내 신규",
       "hit": false,
       "tone": "neutral"
@@ -60,16 +60,28 @@
   ],
   "alerts": [
     {
-      "severity": "info",
-      "type": "op_margin_strong",
-      "title": "✅ 분기 영업이익률 견조 18% 이상",
-      "message": "현재 22.2% — 매수 시그널 (분할 진입 검토 권장)"
+      "severity": "warn",
+      "type": "op_margin_collapse_missing",
+      "title": "❌ 분기 영업이익률 급락 (관리종목 이력) 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
+    },
+    {
+      "severity": "warn",
+      "type": "op_margin_strong_missing",
+      "title": "✅ 분기 영업이익률 견조 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
     },
     {
       "severity": "info",
       "type": "per_value_zone",
       "title": "✅ PER 저평가 8.0배 이하 (현 9.67배)",
       "message": "현재 6.48배 — 매수 시그널 (분할 진입 검토 권장)"
+    },
+    {
+      "severity": "warn",
+      "type": "new_supply_contract_missing",
+      "title": "✅ 신규 단일판매·공급계약 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
     }
   ],
   "news_hits": [],
@@ -77,10 +89,6 @@
     {
       "label": "PER/PEG/PBR 스코어",
       "ref": "public/data/growth-watchlist.json"
-    },
-    {
-      "label": "분기 영업이익률 (2025)",
-      "ref": "DART 20260323001236"
     }
   ]
 }

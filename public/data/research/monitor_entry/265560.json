@@ -1,34 +1,34 @@
 {
   "code": "265560",
   "name": "영화테크",
-  "last_checked": "2026-06-03T19:32:17.230+09:00",
+  "last_checked": "2026-06-03T22:20:30.271+09:00",
   "metrics": [
     {
       "id": "no_capital_issuance",
       "label": "❌ 신규 자본조달 공시 (CB/BW/유증, 90일)",
-      "value": 1,
-      "display": "1건",
+      "value": 0,
+      "display": "0건",
       "threshold": "1건 이상",
-      "hit": true,
-      "tone": "bad"
-    },
-    {
-      "id": "op_margin_collapse",
-      "label": "❌ 분기 영업이익률 후퇴",
-      "value": 16.61,
-      "display": "16.6%",
-      "threshold": "10% 이하",
       "hit": false,
       "tone": "good"
     },
     {
+      "id": "op_margin_collapse",
+      "label": "❌ 분기 영업이익률 후퇴",
+      "value": null,
+      "display": "—",
+      "threshold": "10% 이하",
+      "hit": false,
+      "tone": "neutral"
+    },
+    {
       "id": "op_margin_strong",
       "label": "✅ 분기 영업이익률 견조",
-      "value": 16.61,
-      "display": "16.6%",
+      "value": null,
+      "display": "—",
       "threshold": "16% 이상",
-      "hit": true,
-      "tone": "good"
+      "hit": false,
+      "tone": "neutral"
     },
     {
       "id": "per_value_zone",
@@ -42,8 +42,8 @@
     {
       "id": "new_supply_contract",
       "label": "✅ 신규 단일판매·공급계약",
-      "value": 120,
-      "display": "120일 전",
+      "value": null,
+      "display": "—",
       "threshold": "최근 7일 내 신규",
       "hit": false,
       "tone": "neutral"
@@ -60,22 +60,28 @@
   ],
   "alerts": [
     {
-      "severity": "bad",
-      "type": "no_capital_issuance",
-      "title": "❌ 신규 자본조달 공시 (CB/BW/유증, 90일) 1건 이상",
-      "message": "현재 1건 — 매수 보류 권장 (펀더멘털 훼손·희석 발생)"
+      "severity": "warn",
+      "type": "op_margin_collapse_missing",
+      "title": "❌ 분기 영업이익률 후퇴 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
     },
     {
-      "severity": "info",
-      "type": "op_margin_strong",
-      "title": "✅ 분기 영업이익률 견조 16% 이상",
-      "message": "현재 16.6% — 매수 시그널 (분할 진입 검토 권장)"
+      "severity": "warn",
+      "type": "op_margin_strong_missing",
+      "title": "✅ 분기 영업이익률 견조 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
     },
     {
       "severity": "info",
       "type": "per_value_zone",
       "title": "✅ PER 저평가 5.0배 이하",
       "message": "현재 4.04배 — 매수 시그널 (분할 진입 검토 권장)"
+    },
+    {
+      "severity": "warn",
+      "type": "new_supply_contract_missing",
+      "title": "✅ 신규 단일판매·공급계약 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
     }
   ],
   "news_hits": [],
@@ -83,18 +89,6 @@
     {
       "label": "PER/PEG/PBR 스코어",
       "ref": "public/data/growth-watchlist.json"
-    },
-    {
-      "label": "최근 공급계약 공시",
-      "ref": "DART 20260203900963"
-    },
-    {
-      "label": "분기 영업이익률 (2025)",
-      "ref": "DART 20260318001678"
-    },
-    {
-      "label": "자본조달 공시 1건 (최근: 2026-04-28 주요사항보고서(유상증자결정))",
-      "ref": "DART 20260428000604"
     }
   ]
 }
