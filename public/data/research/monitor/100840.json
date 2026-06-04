@@ -1,34 +1,34 @@
 {
   "code": "100840",
   "name": "SNT에너지",
-  "last_checked": "2026-06-03T22:18:59.117+09:00",
+  "last_checked": "2026-06-04T10:42:53.727+09:00",
   "metrics": [
     {
       "id": "op_margin",
-      "label": "분기 영업이익률",
-      "value": null,
-      "display": "—",
+      "label": "분기 영업이익률 (2025)",
+      "value": 18.36,
+      "display": "18.4%",
       "threshold": "10% 이하",
       "hit": false,
-      "tone": "neutral"
+      "tone": "good"
     },
     {
       "id": "supply_gap",
       "label": "수주 공백",
-      "value": null,
-      "display": "—",
+      "value": 98,
+      "display": "98일",
       "threshold": "180일 경과",
       "hit": false,
-      "tone": "neutral"
+      "tone": "good"
     },
     {
       "id": "snt_holdings_ratio",
       "label": "SNT홀딩스 지분 비율",
-      "value": null,
-      "display": "—",
+      "value": 54.36,
+      "display": "54.36%",
       "threshold": "50% 이하로 감소",
       "hit": false,
-      "tone": "neutral"
+      "tone": "good"
     },
     {
       "id": "snt_holdings_eb",
@@ -42,24 +42,25 @@
   ],
   "alerts": [
     {
-      "severity": "warn",
-      "type": "op_margin_missing",
-      "title": "분기 영업이익률 데이터 미수집",
-      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
-    },
-    {
-      "severity": "warn",
-      "type": "supply_gap_missing",
-      "title": "수주 공백 데이터 미수집",
-      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
-    },
-    {
-      "severity": "warn",
-      "type": "snt_holdings_ratio_missing",
-      "title": "SNT홀딩스 지분 비율 데이터 미수집",
-      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
+      "severity": "info",
+      "type": "all_clear",
+      "title": "모든 매도 트리거 범위 내",
+      "message": "현재 지표·공시·뉴스 기준 즉각 매도 사유 없음. 보유 유지."
     }
   ],
   "news_hits": [],
-  "sources": []
+  "sources": [
+    {
+      "label": "최근 공급계약 공시",
+      "ref": "DART 20260226801031"
+    },
+    {
+      "label": "분기 영업이익률 (2025)",
+      "ref": "DART 20260220002472"
+    },
+    {
+      "label": "(주)SNT홀딩스 보유 비율 (2025)",
+      "ref": "DART 20260220002472 (hyslrSttus)"
+    }
+  ]
 }
