@@ -483,16 +483,15 @@ def collect_raw_data_v2(
     quarter_sales = get_row_values(qtr, "매출액") if qtr else []
 
     # ─── 7-1) DART 분기 backfill (캐시 hit 시 무료, miss 시 호출) ──
-    # Naver 5분기 부족분 보강 + Q1 마감 후 최신 분기 확정값 추가
-    # cached 무료라 자유롭게 호출, miss 시에만 DART hit
+    # Naver 5분기 부족분 보강 + Q1 마감 후 최신 분기 확정값 추가.
+    # 각 fetch_dart_quarterly_eps_history(corp, yr) 호출이 (yr-1, yr) 6분기를 반환하므로
+    # 3년치 호출이면 ≥12분기 시계열 보장. 과거 연도는 영구 캐시라 두 번째 풀스캔부터 무료.
+    # 이전 정책 ({naver_latest_year-1, current_year}) 은 시점에 따라 시계열 길이가 흔들려
+    # YoY history 의 prior 위치가 잘못 잡히는 문제가 있었음 → 고정 3년으로 변경.
     if corp_code and quarter_eps:
-        naver_latest_year = int(quarter_eps[-1][0][:4]) if quarter_eps[-1][0][:4].isdigit() else current_year
         dart_eps_combined: list[tuple[str, float]] = []
         dart_sales_combined: list[tuple[str, float]] = []
-        # 과거 보강 (Naver latest_year - 1) + 최신 확정 (current_year)
-        years_to_fetch = {naver_latest_year - 1}
-        if current_year >= naver_latest_year:
-            years_to_fetch.add(current_year)
+        years_to_fetch = {current_year - 2, current_year - 1, current_year}
         for yr in years_to_fetch:
             eps_y = fetch_dart_quarterly_eps_history(corp_code, yr)
             sales_y = fetch_dart_quarterly_sales_history(corp_code, yr)

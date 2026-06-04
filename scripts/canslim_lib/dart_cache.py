@@ -107,6 +107,23 @@ def put_quarter_sales(corp_code: str, year: int, data: list[tuple[str, float]] |
     _write(_quarter_path(corp_code, year, "sales"), data)
 
 
+def get_quarter_ni(corp_code: str, year: int) -> list[tuple[str, float]] | None:
+    """분기 당기순이익. EPS·매출과 동일 TTL 정책."""
+    p = _quarter_path(corp_code, year, "ni")
+    if _is_fresh(p, _quarter_ttl_hours(year)):
+        data = _read(p)
+        if data:
+            return [tuple(row) for row in data]
+    return None
+
+
+def put_quarter_ni(corp_code: str, year: int, data: list[tuple[str, float]] | None) -> None:
+    """data=None 또는 빈 [] 은 캐시 안 함."""
+    if not data:
+        return
+    _write(_quarter_path(corp_code, year, "ni"), data)
+
+
 # ── 연간 재무 종합 (EPS·NI·자본·매출·ROE) ─────────────────────
 
 def _annual_path(corp_code: str, year: int) -> Path:

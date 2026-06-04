@@ -671,14 +671,39 @@ def _extract_quarterly_sales_row(items: list[dict[str, Any]]) -> dict[str, float
     return out if out else None
 
 
+def _extract_quarterly_ni_row(items: list[dict[str, Any]]) -> dict[str, float] | None:
+    """분기 당기순이익 행 추출.
+
+    연간 NI 추출(_extract_annual_net_income_row) 의 후보 패턴을 분기 컨텍스트에서 재사용.
+    EXCLUDE: "주당"·"계속영업"·"중단영업"·"법인세"·"비지배"·"포괄"·"영업이익"·"영업손익"·"영업외".
+    적자 분기(NI 음수) 도 부호 보존.
+    """
+    return _extract_quarterly_account_row(
+        items,
+        ["당기순이익", "당기순손익", "분기순이익", "반기순이익"],
+        exclude_substrings=(
+            "주당", "계속영업", "중단영업", "법인세", "비지배",
+            "포괄", "영업이익", "영업손익", "영업외",
+        ),
+    )
+
+
 def _fetch_dart_quarterly_account_history(
     corp_code: str,
     base_year: int,
     extractor,
 ) -> list[tuple[str, float]] | None:
-    """DART 분기 보고서 3개를 호출해 분기별 단일 금액 6개 (해당년 Q1/Q2/Q3 + 전년 Q1/Q2/Q3) 추출.
+    """DART 분기 + 사업보고서 4개를 호출해 분기별 단일 금액 추출.
 
-    사업보고서(11011)는 누적 빼기 필요해 제외. 사업보고서로 추출되는 분기는 Naver 5분기로 커버.
+    호출 구성:
+      - 11013/11012/11014 (1분기·반기·3분기 보고서) → 단일 분기 thstrm_amount/frmtrm_q_amount
+        → 해당년 Q1/Q2/Q3 + 전년 Q1/Q2/Q3 직접 추출
+      - 11011 (사업보고서) → 연간 thstrm_amount(당기)/frmtrm_amount(전기)
+        → Q4 = 연간 − (Q1 + Q2 + Q3) 로 도출. 전년 Q4 도 동일 산식.
+
+    EPS 의 경우 연간 EPS 는 가중평균 발행주식수 기반이라 분기 단순합과 미세 차이 가능.
+    YoY 비교 정도엔 영향 없음. 매출은 단순 누적이라 정확.
+
     extractor: _extract_quarterly_eps_row 또는 _extract_quarterly_sales_row 등 callable.
 
     Returns None if all sub-calls failed (connection error / quota) — 호출자가 cache 안 함.
@@ -717,6 +742,46 @@ def _fetch_dart_quarterly_account_history(
             out[f"{base_year}{q_suffix}"] = row["current"]
         if "prior" in row:
             out[f"{base_year - 1}{q_suffix}"] = row["prior"]
+
+    # 사업보고서(11011)로 Q4 도출 — 연간값 − 누적 1~3분기 합 = 4분기 단독
+    items_cfs_ann = dart_get("fnlttSinglAcntAll", {
+        "corp_code": corp_code,
+        "bsns_year": str(base_year),
+        "reprt_code": "11011",
+        "fs_div": "CFS",
+    })
+    if items_cfs_ann is not None:
+        any_ok = True
+    items_ann = items_cfs_ann
+    if not items_ann:
+        items_ofs_ann = dart_get("fnlttSinglAcntAll", {
+            "corp_code": corp_code,
+            "bsns_year": str(base_year),
+            "reprt_code": "11011",
+            "fs_div": "OFS",
+        })
+        if items_ofs_ann is not None:
+            any_ok = True
+        items_ann = items_ofs_ann
+
+    if items_ann:
+        row_ann = extractor(items_ann)
+        if row_ann:
+            # current: 당기 연간, prior: 전기 연간
+            annual_curr = row_ann.get("current")
+            annual_prior = row_ann.get("prior")
+            # base_year Q4
+            q1 = out.get(f"{base_year}03")
+            q2 = out.get(f"{base_year}06")
+            q3 = out.get(f"{base_year}09")
+            if annual_curr is not None and None not in (q1, q2, q3):
+                out[f"{base_year}12"] = annual_curr - (q1 + q2 + q3)
+            # base_year - 1 Q4
+            p1 = out.get(f"{base_year - 1}03")
+            p2 = out.get(f"{base_year - 1}06")
+            p3 = out.get(f"{base_year - 1}09")
+            if annual_prior is not None and None not in (p1, p2, p3):
+                out[f"{base_year - 1}12"] = annual_prior - (p1 + p2 + p3)
 
     # 모든 호출 connection failure 면 None 반환 (재시도 보장)
     if not any_ok:
@@ -938,6 +1003,24 @@ def fetch_dart_quarterly_sales_history(corp_code: str, base_year: int) -> list[t
     if data is None:
         return []
     dart_cache.put_quarter_sales(corp_code, base_year, data)
+    return data
+
+
+def fetch_dart_quarterly_ni_history(corp_code: str, base_year: int) -> list[tuple[str, float]]:
+    """DART에서 base_year 와 인접 연도의 분기별 단일 당기순이익 조회.
+
+    EPS·매출과 동일한 _fetch_dart_quarterly_account_history 인프라 활용 →
+    분기보고서 3개(11013/11012/11014) + 사업보고서(11011) Q4 도출까지 자동.
+    캐시: dart_cache.get_quarter_ni (과거연도 영구, 현재연도 24h TTL).
+    """
+    from canslim_lib import dart_cache
+    cached = dart_cache.get_quarter_ni(corp_code, base_year)
+    if cached:
+        return cached
+    data = _fetch_dart_quarterly_account_history(corp_code, base_year, _extract_quarterly_ni_row)
+    if data is None:
+        return []
+    dart_cache.put_quarter_ni(corp_code, base_year, data)
     return data
 
 

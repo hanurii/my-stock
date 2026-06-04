@@ -35,6 +35,35 @@ def _fmt_pct(v: float) -> str:
 
 
 # ─────────────────────────────────────────────────
+# 분기 시계열 prior 매칭 (전년 동기 정확 탐색)
+# ─────────────────────────────────────────────────
+# 이전엔 quarterly_eps[i-4] 식의 단순 인덱스로 prior 를 잡았으나,
+# DART backfill 범위가 좁아 시계열에 구멍이 생기면 "인덱스 -4" 가 1년 전이 아니라
+# 2년 전 분기를 가리키는 사고가 발생함 (예: 삼지전자 037460). 그래서 period_key
+# (YYYYMM) 기준 정확 매칭으로 바꿈. prior 가 시계열에 없으면 그 시점 YoY 는 계산
+# 보류(None) — 잘못된 분모로 가짜 YoY 만들지 않음.
+
+def _yoy_prior_key(curr_key: str) -> str | None:
+    """'202506' → '202206'. 형식 오류면 None."""
+    if not isinstance(curr_key, str) or len(curr_key) != 6 or not curr_key[:4].isdigit():
+        return None
+    return f"{int(curr_key[:4]) - 1}{curr_key[4:]}"
+
+
+def _find_yoy_prior(series: list[tuple[str, float]], curr_idx: int) -> int | None:
+    """series[curr_idx] 의 정확한 전년 동기 위치. 없으면 None."""
+    if curr_idx < 0 or curr_idx >= len(series):
+        return None
+    prior_key = _yoy_prior_key(series[curr_idx][0])
+    if prior_key is None:
+        return None
+    for j in range(curr_idx - 1, -1, -1):
+        if series[j][0] == prior_key:
+            return j
+    return None
+
+
+# ─────────────────────────────────────────────────
 # C: Current Quarterly Earnings
 # ─────────────────────────────────────────────────
 
@@ -49,9 +78,14 @@ def evaluate_c(quarterly_eps: list[tuple[str, float]]) -> tuple[bool, str, str]:
     if len(quarterly_eps) < 5:
         return False, "데이터 부족", f"분기 EPS 데이터 {len(quarterly_eps)}개 — YoY 비교에 5개 필요"
 
-    latest_key, latest_eps = quarterly_eps[-1]
-    # 전년 동기 (4분기 전)
-    yoy_key, yoy_eps = quarterly_eps[-5]
+    last_idx = len(quarterly_eps) - 1
+    latest_key, latest_eps = quarterly_eps[last_idx]
+
+    # 전년 동기 (period_key 기준 정확 매칭)
+    yoy_idx = _find_yoy_prior(quarterly_eps, last_idx)
+    if yoy_idx is None:
+        return False, "데이터 부족", f"{latest_key} 의 전년 동기 ({_yoy_prior_key(latest_key)}) 가 시계열에 없음"
+    yoy_key, yoy_eps = quarterly_eps[yoy_idx]
 
     if yoy_eps <= 0:
         if latest_eps > 0:
@@ -61,17 +95,21 @@ def evaluate_c(quarterly_eps: list[tuple[str, float]]) -> tuple[bool, str, str]:
     growth = (latest_eps - yoy_eps) / yoy_eps * 100
     passed = growth >= C_QUARTERLY_EPS_MIN
 
-    # 가속 체크
+    # 직전 분기 가속 체크 — 직전 분기는 시계열의 -2 위치 그대로 OK
+    # (시계열이 시간순 정렬이고 구멍 있어도 "직전" 의미는 시계열 상 바로 이전 분기로 정의)
     accel_note = ""
-    if len(quarterly_eps) >= 6:
-        prev_q_key, prev_q_eps = quarterly_eps[-2]
-        yoy_prev_key, yoy_prev_eps = quarterly_eps[-6]
-        if yoy_prev_eps > 0:
-            prev_growth = (prev_q_eps - yoy_prev_eps) / yoy_prev_eps * 100
-            if growth > prev_growth:
-                accel_note = f", 직전분기 {_fmt_pct(prev_growth)} → 가속"
-            else:
-                accel_note = f", 직전분기 {_fmt_pct(prev_growth)} → 둔화"
+    if len(quarterly_eps) >= 2:
+        prev_idx = last_idx - 1
+        prev_q_key, prev_q_eps = quarterly_eps[prev_idx]
+        yoy_prev_idx = _find_yoy_prior(quarterly_eps, prev_idx)
+        if yoy_prev_idx is not None:
+            _, yoy_prev_eps = quarterly_eps[yoy_prev_idx]
+            if yoy_prev_eps > 0:
+                prev_growth = (prev_q_eps - yoy_prev_eps) / yoy_prev_eps * 100
+                if growth > prev_growth:
+                    accel_note = f", 직전분기 {_fmt_pct(prev_growth)} → 가속"
+                else:
+                    accel_note = f", 직전분기 {_fmt_pct(prev_growth)} → 둔화"
 
     value = _fmt_pct(growth)
     detail = f"{yoy_key} EPS {yoy_eps:.0f} → {latest_key} {latest_eps:.0f} = YoY {value}{accel_note}"
@@ -110,37 +148,46 @@ def evaluate_c_detailed(
     if len(quarterly_eps) < 5:
         return out
 
-    latest_key, latest_eps = quarterly_eps[-1]
-    yoy_key, yoy_eps = quarterly_eps[-5]
+    last_idx = len(quarterly_eps) - 1
+    latest_key, latest_eps = quarterly_eps[last_idx]
     out["latest_quarter"] = latest_key
     out["latest_eps"] = latest_eps
 
+    # 전년 동기 (period_key 정확 매칭)
+    yoy_idx = _find_yoy_prior(quarterly_eps, last_idx)
+    yoy_eps = quarterly_eps[yoy_idx][1] if yoy_idx is not None else None
+
     # YoY % 계산: 절댓값 분모 공식 + floor 적용 (분모 |prior| 이 너무 작으면 EPS_DENOMINATOR_FLOOR
     # 로 대체해 32000% 같은 폭주 억제). 단 현재 분기가 적자(latest_eps <= 0)면 C 부적격이므로 None 유지.
-    if latest_eps > 0 and yoy_eps != 0:
+    if latest_eps > 0 and yoy_eps is not None and yoy_eps != 0:
         denom = max(abs(yoy_eps), EPS_DENOMINATOR_FLOOR)
         yoy = (latest_eps - yoy_eps) / denom * 100
         out["yoy_pct"] = round(yoy, 2)
 
     # 직전 분기 YoY (가속 비교용)
-    if len(quarterly_eps) >= 6:
-        _, prev_q_eps = quarterly_eps[-2]
-        _, yoy_prev_eps = quarterly_eps[-6]
-        if prev_q_eps > 0 and yoy_prev_eps != 0:
-            denom = max(abs(yoy_prev_eps), EPS_DENOMINATOR_FLOOR)
-            prev_yoy = (prev_q_eps - yoy_prev_eps) / denom * 100
-            out["prev_yoy_pct"] = round(prev_yoy, 2)
-            if out["yoy_pct"] is not None:
-                out["accel_delta_pp"] = round(out["yoy_pct"] - prev_yoy, 2)
-                if prev_yoy > 0 and out["yoy_pct"] <= prev_yoy / 3:
-                    out["severe_decel"] = True
+    if len(quarterly_eps) >= 2:
+        prev_idx = last_idx - 1
+        _, prev_q_eps = quarterly_eps[prev_idx]
+        yoy_prev_idx = _find_yoy_prior(quarterly_eps, prev_idx)
+        if yoy_prev_idx is not None:
+            _, yoy_prev_eps = quarterly_eps[yoy_prev_idx]
+            if prev_q_eps > 0 and yoy_prev_eps != 0:
+                denom = max(abs(yoy_prev_eps), EPS_DENOMINATOR_FLOOR)
+                prev_yoy = (prev_q_eps - yoy_prev_eps) / denom * 100
+                out["prev_yoy_pct"] = round(prev_yoy, 2)
+                if out["yoy_pct"] is not None:
+                    out["accel_delta_pp"] = round(out["yoy_pct"] - prev_yoy, 2)
+                    if prev_yoy > 0 and out["yoy_pct"] <= prev_yoy / 3:
+                        out["severe_decel"] = True
 
+    # 연속 감소 분기 — 정확한 전년 동기 비교만 누적, prior 못 찾으면 streak 중단
     decline_streak = 0
-    for i in range(len(quarterly_eps) - 1, max(len(quarterly_eps) - 9, 3), -1):
-        if i - 4 < 0:
+    for i in range(last_idx, max(last_idx - 8, -1), -1):
+        prior_idx = _find_yoy_prior(quarterly_eps, i)
+        if prior_idx is None:
             break
         _, curr = quarterly_eps[i]
-        _, prior = quarterly_eps[i - 4]
+        _, prior = quarterly_eps[prior_idx]
         if prior > 0 and curr < prior:
             decline_streak += 1
         else:
@@ -156,11 +203,14 @@ def evaluate_c_detailed(
             out["eps_new_high"] = new_high_count >= 3
 
     if quarterly_sales and len(quarterly_sales) >= 5:
-        latest_sales_key, latest_sales = quarterly_sales[-1]
-        _, yoy_sales = quarterly_sales[-5]
-        if yoy_sales > 0:
-            denom = max(yoy_sales, SALES_DENOMINATOR_FLOOR)
-            out["sales_yoy_pct"] = round((latest_sales - yoy_sales) / denom * 100, 2)
+        last_s_idx = len(quarterly_sales) - 1
+        latest_sales_key, latest_sales = quarterly_sales[last_s_idx]
+        yoy_s_idx = _find_yoy_prior(quarterly_sales, last_s_idx)
+        if yoy_s_idx is not None:
+            _, yoy_sales = quarterly_sales[yoy_s_idx]
+            if yoy_sales > 0:
+                denom = max(yoy_sales, SALES_DENOMINATOR_FLOOR)
+                out["sales_yoy_pct"] = round((latest_sales - yoy_sales) / denom * 100, 2)
 
     # 가속 판정 헬퍼 — strict 단조 가속만 인정.
     # 최근 3분기 YoY 가 a < b < c 로 점차 빨라지고 최신이 양수여야 가속.
@@ -173,16 +223,19 @@ def evaluate_c_detailed(
         last3 = [v for _, v in history[-3:]]
         return last3[-1] > 0 and last3[0] < last3[1] < last3[2]
 
-    # EPS 분기별 YoY 추세 (최근 5분기까지 — 작년 동기 비교 포인트 포함)
+    # EPS 분기별 YoY 추세 (최근 5분기 — 정확한 전년 동기 매칭만 사용)
     # 최소 5분기 데이터로 1개 YoY 점 표시 (가속 판정은 _is_accel 이 3점 미만이면 False 반환).
     # 적자 분기도 포함 (절댓값 분모 공식으로 적자 심화/감소/턴어라운드 모두 의미 있음).
+    # prior 못 찾는 분기는 history 에서 빠짐 (잘못된 분모로 가짜 YoY 만들지 않음).
     if len(quarterly_eps) >= 5:
         eps_hist: list[tuple[str, float]] = []
-        for i in range(len(quarterly_eps) - 1, max(len(quarterly_eps) - 6, 3), -1):
-            if i - 4 < 0:
-                break
+        # 최신 5분기까지 (구멍 있어도 가능한 점만 수집)
+        for i in range(last_idx, max(last_idx - 5, -1), -1):
+            prior_idx = _find_yoy_prior(quarterly_eps, i)
+            if prior_idx is None:
+                continue
             curr_key, curr = quarterly_eps[i]
-            _, prior = quarterly_eps[i - 4]
+            _, prior = quarterly_eps[prior_idx]
             if prior != 0:
                 denom = max(abs(prior), EPS_DENOMINATOR_FLOOR)
                 eps_hist.append((curr_key, round((curr - prior) / denom * 100, 2)))
@@ -205,14 +258,16 @@ def evaluate_c_detailed(
         elif delta > 0:
             out["eps_accel_quality"] = "mild"
 
-    # 매출 분기별 YoY 추세 (최근 5분기까지 — 작년 동기 비교 포인트 포함)
+    # 매출 분기별 YoY 추세 (최근 5분기 — 정확한 전년 동기 매칭만 사용)
     if quarterly_sales and len(quarterly_sales) >= 5:
         sales_hist: list[tuple[str, float]] = []
-        for i in range(len(quarterly_sales) - 1, max(len(quarterly_sales) - 6, 3), -1):
-            if i - 4 < 0:
-                break
+        last_s_idx = len(quarterly_sales) - 1
+        for i in range(last_s_idx, max(last_s_idx - 5, -1), -1):
+            prior_idx = _find_yoy_prior(quarterly_sales, i)
+            if prior_idx is None:
+                continue
             curr_key, curr = quarterly_sales[i]
-            _, prior = quarterly_sales[i - 4]
+            _, prior = quarterly_sales[prior_idx]
             if prior > 0:
                 denom = max(prior, SALES_DENOMINATOR_FLOOR)
                 sales_hist.append((curr_key, round((curr - prior) / denom * 100, 2)))

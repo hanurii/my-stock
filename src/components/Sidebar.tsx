@@ -10,6 +10,8 @@ const navItems = [
   { href: "/", label: "거시경제 리포트", icon: "auto_graph" },
   { href: "/stocks", label: "저평가 우량주", icon: "stars" },
   { href: "/stocks/canslim", label: "CAN SLIM 발굴", icon: "auto_graph" },
+  { href: "/stocks/trend-template", label: "트렌드 템플레이트", icon: "trending_up" },
+  { href: "/stocks/hero-profile", label: "Hero Profile", icon: "military_tech" },
   { href: "/research", label: "종목 심층 분석", icon: "lab_research" },
   { href: "/bio", label: "바이오주 모니터링", icon: "biotech" },
   { href: "/bio/research", label: "바이오 7대 기준", icon: "science" },
