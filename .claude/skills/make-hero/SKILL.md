@@ -77,6 +77,15 @@ python scripts/screen_trend_template_code33.py
 - `trend-template-code33.json` + 콘솔 표
 - 소요: ~1분
 
+### 6.5단계 — KIS 통합시세로 신고가·현재가 정확화
+```
+python scripts/refine_with_kis_nxt.py
+```
+- C 게이트 통과 ~210종목의 `current_price` + `pct_from_52w_high` 를 KIS 통합시세(KRX 정규장 + NXT 애프터) 로 갱신
+- `can-slim-candidates.json` / `trend-template-candidates.json` / `trend-template-c-scored.json` 세 파일 동시 갱신
+- KIS 키 (`.env` 의 `KIS_APP_KEY`·`KIS_APP_SECRET`) 없으면 자동 skip → KRX 종가 그대로 두고 메시지 출력
+- 소요: ~30-60초 (병렬 4워커 + 글로벌 throttle, KIS rate limit 초당 ~8회 안전 마진)
+
 ### 7단계 — 자동 git commit + push
 ```
 git status --short        # 사용자 미커밋 변경 있나 확인
@@ -86,6 +95,7 @@ git add public/data/can-slim-candidates.json public/data/can-slim-l-candidates.j
 git commit -m "chore: daily hero refresh YYYY-MM-DD"
 git push
 ```
+- 6.5단계가 돌았으면 `can-slim-candidates.json` 의 `_kis_refined_at` 필드가 갱신돼 있음 — 커밋 메시지에 "(NXT 통합시세 반영)" 같이 명시해도 좋음
 - 시작 시 `git status` 결과에 다른 변경이 있으면 **commit 보류 + 사용자에게 어떤 파일인지 보고**
 - 데이터 파일만 명시적 staging (코드 변경 자동 포함 X)
 - Vercel 이 자동 배포 트리거

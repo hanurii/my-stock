@@ -324,7 +324,20 @@ export function TrendTemplateTable({ rows }: Props) {
               <th className="px-2 py-2 text-center text-[11px] font-medium text-on-surface-variant/80">시장</th>
               <SortHeader k="market_cap" label="시총" />
               <th className="px-2 py-2 text-right text-[11px] font-medium text-on-surface-variant/80">유통주식수</th>
-              <SortHeader k="from_high" label="신고가 대비" />
+              <th
+                onClick={() => toggleSort("from_high")}
+                title="C 게이트 통과 종목은 KIS 통합시세(KRX+NXT) 기준, 그 외는 KRX 정규장 종가 기준."
+                className="px-2 py-2 cursor-pointer hover:bg-surface-container-high transition-colors text-right text-[11px] font-medium text-on-surface-variant/80"
+              >
+                <span className="inline-flex items-center gap-0.5">
+                  신고가 대비
+                  {sortKey === "from_high" && (
+                    <span className="material-symbols-outlined text-[14px] leading-none">
+                      {sortDesc ? "arrow_drop_down" : "arrow_drop_up"}
+                    </span>
+                  )}
+                </span>
+              </th>
               <SortHeader k="rs" label="RS" />
               <SortHeader k="c_score" label="C 점수" />
               <th className="px-2 py-2 text-center text-[11px] font-medium text-on-surface-variant/80">등급/게이트</th>

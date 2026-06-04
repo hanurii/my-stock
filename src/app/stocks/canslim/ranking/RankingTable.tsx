@@ -114,7 +114,10 @@ export function RankingTable({ candidates }: Props) {
                     />
                   </th>
                 ))}
-                <th className="px-3 py-2.5 font-medium hidden md:table-cell text-right">
+                <th
+                  className="px-3 py-2.5 font-medium hidden md:table-cell text-right"
+                  title="C 게이트 통과 종목은 KIS 통합시세(KRX+NXT) 기준, 그 외는 KRX 정규장 종가 기준."
+                >
                   <SortHeader
                     k="pct_from_52w_high"
                     label="신고점 대비"

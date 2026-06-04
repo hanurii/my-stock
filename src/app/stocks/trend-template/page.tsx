@@ -269,6 +269,10 @@ export default async function TrendTemplatePage() {
         <p style={{ color: "#a8b5d0" }}>
           <strong>★ 5M↑</strong>: 200일선이 5개월(약 110거래일) 전보다 위 — Minervini 권장 우수 조건.
         </p>
+        <p className="text-on-surface-variant/70 mt-2 pt-2 border-t border-outline-variant/15">
+          <span className="material-symbols-outlined text-[13px] align-middle mr-0.5">info</span>
+          C 게이트 통과 종목은 <strong className="text-on-surface-variant">KIS 통합시세 (KRX 정규장 + NXT 애프터 종가)</strong> 기준이고, 그 외 종목은 KRX 정규장 종가 기준입니다.
+        </p>
       </section>
 
       {/* 메인 표 */}

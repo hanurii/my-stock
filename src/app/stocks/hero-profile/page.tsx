@@ -240,6 +240,10 @@ export default async function HeroProfilePage() {
             </ul>
           </div>
         </div>
+        <p className="text-[10px] text-on-surface-variant/55 mt-3 pt-2 border-t border-amber-500/15">
+          <span className="material-symbols-outlined text-[12px] align-middle mr-0.5">info</span>
+          C 게이트 통과 종목은 <strong className="text-on-surface-variant">KIS 통합시세 (KRX 정규장 + NXT 애프터 종가)</strong> 기준이고, 그 외 종목은 KRX 정규장 종가 기준입니다.
+        </p>
       </section>
 
       {/* 카운트 카드 */}
