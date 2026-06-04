@@ -1,0 +1,112 @@
+---
+name: make-hero
+description: >
+  매일 한 마디로 /stocks/hero-profile 페이지를 갱신하는 통합 자동화 스킬.
+  C 메인은 DART 새 공시·신규 상장 종목만 증분 갱신(나머지는 캐시 hit), 가격
+  기반 지표(트렌드 1단계 + L)는 매일 풀 갱신, 트렌드 2·3단계(C 점수·코드 33)
+  재산출, 마지막에 자동 git commit + push (Vercel 재배포 트리거). 사용자가
+  "/make-hero", "오늘 hero 갱신", "랭킹 갱신해줘" 등을 요청할 때 사용.
+---
+
+# /make-hero — 매일 Hero Profile 갱신
+
+매일 한 마디로 ranking 페이지·hero-profile 페이지가 최신 데이터로 새로 그려지도록
+끝까지 자동화한다. **A·N·S·I 는 일상 갱신 안 함** (별도 트리거).
+
+## 불변 원칙
+
+- **순서 엄수**: 1 → 2 → 3 → 4 → 5 → 6 → 7. 각 단계 실패 시 즉시 abort + 어디서 실패했는지 보고.
+- **컷오프 보호**: 스크리너 컷오프(시총·거래대금) 절대 추가 금지 ([screener-no-cutoff] 메모리).
+- **자동 commit 안전장치**: 시작 시 `git status` 확인 → 사용자 미커밋 변경 있으면 commit 보류 + 사용자에게 어떤 변경인지 보고. 작업 결과 파일만 명시적으로 staging.
+- **환각 금지**: 결과 종목 수·점수는 콘솔 출력 그대로 보고. 추측·요약 금지.
+
+## 사전 조건
+
+- `.env` 의 `DART_API_KEY` 설정
+- 어제 풀스캔 결과 `public/data/can-slim-candidates.json` 존재 (없으면 1단계가 신규 상장 = 전 종목으로 폴백 — 시간 늘어남)
+
+## 실행 절차 (7단계)
+
+### 1단계 — DART 새 공시 + 신규 상장 종목 식별 (증분)
+```
+python scripts/canslim_incremental_check.py
+```
+- DART list.json 으로 어제~오늘 정기보고서·잠정실적 공시 종목 추출
+- 현재 universe ∖ 이전 candidates = 신규 상장 종목
+- 합집합의 `.cache/canslim_stocks/<code>.json` 만 삭제
+- **체크**: 콘솔의 "갱신 대상 K종목" 메시지 — 평일 보통 50~150개, 사업보고서 마감 시기엔 200+
+- 소요: 5-15초
+
+### 2단계 — C 메인 풀스캔 (대부분 캐시 hit)
+```
+python scripts/screen_canslim.py --save
+```
+- 1단계에서 무효화한 K종목만 새로 fetch, 나머지는 stock_cache hit
+- `can-slim-candidates.json` 갱신
+- 소요: ~5-10분 (캐시 hit 효과)
+
+### 3단계 — 트렌드 1단계 (전 종목 일봉 갱신)
+```
+python scripts/screen_trend_template.py --save
+```
+- 가격 데이터는 매일 새로 받음 (캐시 X)
+- `trend-template-candidates.json` 갱신
+- 소요: ~1분
+
+### 4단계 — L 점수 갱신 (트렌드 RS 차용)
+```
+python scripts/fetch_l_rs.py
+```
+- 3단계 결과의 RS 를 lookup만, 자체 호출 없음
+- `can-slim-l-candidates.json` 갱신
+- 소요: 즉시 (1초 미만)
+
+### 5단계 — 트렌드 2단계 (C 점수)
+```
+python scripts/screen_trend_template_c_score.py
+```
+- 트렌드 통과 종목(~190) C 점수 — DART 캐시 hit
+- `trend-template-c-scored.json` 갱신
+- 소요: ~3분
+
+### 6단계 — 트렌드 3단계 (코드 33)
+```
+python scripts/screen_trend_template_code33.py
+```
+- EPS·매출·순이익률 3분기 가속 판별
+- `trend-template-code33.json` + 콘솔 표
+- 소요: ~1분
+
+### 7단계 — 자동 git commit + push
+```
+git status --short        # 사용자 미커밋 변경 있나 확인
+git add public/data/can-slim-candidates.json public/data/can-slim-l-candidates.json \
+        public/data/trend-template-candidates.json public/data/trend-template-c-scored.json \
+        public/data/trend-template-code33.json
+git commit -m "chore: daily hero refresh YYYY-MM-DD"
+git push
+```
+- 시작 시 `git status` 결과에 다른 변경이 있으면 **commit 보류 + 사용자에게 어떤 파일인지 보고**
+- 데이터 파일만 명시적 staging (코드 변경 자동 포함 X)
+- Vercel 이 자동 배포 트리거
+
+총 소요: 평일 평균 **10-15분**.
+
+## 결과 확인 (스킬 끝나면)
+
+- `/stocks/canslim/ranking` 의 generated_at 이 오늘로 갱신
+- `/stocks/hero-profile` 종목 수 변화
+- 콘솔 마지막에 코드 33 통과 종목 표 표시
+
+## 안전 / 검증
+
+- **각 단계 실패 시 abort**: 다음 단계 진행 안 함. 단 2단계(C 메인) 실패 시 트렌드 파이프라인(3~6)은 그대로 진행 가능 — 트렌드는 메인 C 결과 의존 없음.
+- **DART API 한도**: 분당 1000. 1단계 list.json 호출은 페이지 ≤ 10회 안전.
+- **`stock_cache` TTL 24h**: 1단계가 명시 무효화한 종목 외에도 24h 지난 캐시는 자연 갱신 (이중 안전망).
+- **자동 commit 거부 케이스**: 사용자 미커밋 변경 / 충돌 / push 거부 (origin 새 커밋) → 사용자 보고 후 멈춤.
+
+## 안 하는 것
+
+- A·N·S·I 매일 갱신 (사업보고서 마감 시기 등 특정 시점만 명시 호출)
+- GitHub Actions 등 백그라운드 스케줄러 (말 한 마디 트리거 방식만)
+- 메인 candidates.json 의 부분 머지 (screen_canslim.py 가 풀스캔 후 통째 재작성하므로 머지 불필요)
