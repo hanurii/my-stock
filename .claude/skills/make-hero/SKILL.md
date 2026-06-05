@@ -39,9 +39,12 @@ python scripts/canslim_incremental_check.py
 
 ### 2단계 — C 메인 풀스캔 (대부분 캐시 hit)
 ```
-python scripts/screen_canslim.py --save
+python scripts/screen_canslim.py --save --cache-ttl-hours 72
 ```
-- 1단계에서 무효화한 K종목만 새로 fetch, 나머지는 stock_cache hit
+- 1단계에서 무효화한 K종목만 새로 fetch, 나머지는 stock_cache hit (TTL 72h)
+- TTL 72h 인 이유: /make-hero 가 1-2일 주기로 호출되므로 24h 기본값은 매번 만료.
+  분기 EPS·매출·NI 같은 펀더 데이터는 며칠 stale 해도 무방. 가격 데이터는 트렌드
+  1단계가 매일 새로 받으므로 안전 (cache 영향 없음).
 - `can-slim-candidates.json` 갱신
 - 소요: ~5-10분 (캐시 hit 효과)
 
