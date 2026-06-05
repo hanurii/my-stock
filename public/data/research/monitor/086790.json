@@ -1,13 +1,13 @@
 {
   "code": "086790",
   "name": "하나금융지주",
-  "last_checked": "2026-06-05T18:00:54.458+09:00",
+  "last_checked": "2026-06-05T21:11:11.568+09:00",
   "metrics": [
     {
       "id": "pbr",
       "label": "PBR",
-      "value": 0.74,
-      "display": "0.74배",
+      "value": 0.75,
+      "display": "0.75배",
       "threshold": "1.0 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "pbr_premium_pp",
       "label": "4대 지주 평균 대비 PBR 프리미엄",
-      "value": -0.067,
-      "display": "-0.067pp",
+      "value": -0.097,
+      "display": "-0.097pp",
       "threshold": "+0.10pp 이상",
       "hit": false,
       "tone": "good"
@@ -24,8 +24,8 @@
     {
       "id": "foreign_ratio",
       "label": "외국인 지분율",
-      "value": 68.18,
-      "display": "68.18%",
+      "value": 68.21,
+      "display": "68.21%",
       "threshold": "65% 이하",
       "hit": false,
       "tone": "good"
@@ -33,11 +33,11 @@
     {
       "id": "foreign_net_buy_4w",
       "label": "최근 20거래일 외국인 순매수",
-      "value": 2204,
-      "display": "2,204주",
+      "value": -165208,
+      "display": "-17만주",
       "threshold": "순매도 전환",
-      "hit": false,
-      "tone": "good"
+      "hit": true,
+      "tone": "bad"
     },
     {
       "id": "dividend_qoq_change",
@@ -87,10 +87,10 @@
   ],
   "alerts": [
     {
-      "severity": "info",
-      "type": "all_clear",
-      "title": "모든 매도 트리거 범위 내",
-      "message": "현재 지표·공시·뉴스 기준 즉각 매도 사유 없음. 보유 유지."
+      "severity": "bad",
+      "type": "foreign_net_buy_4w",
+      "title": "최근 20거래일 외국인 순매수 순매도 전환",
+      "message": "현재 -17만주 — 매도 트리거 도달"
     }
   ],
   "news_hits": [],
@@ -101,7 +101,7 @@
     },
     {
       "label": "4대 지주 평균 PBR 비교 (3종목)",
-      "ref": "peers: 316140, 105560, 055550 / avg 0.807"
+      "ref": "peers: 316140, 105560, 055550 / avg 0.847"
     },
     {
       "label": "분기 배당 결정 (사업보고서 (2025.12))",
@@ -109,7 +109,7 @@
     },
     {
       "label": "외국인 순매수 누적 (20일)",
-      "ref": "네이버 dealTrendInfos / history 2026-06-04"
+      "ref": "네이버 dealTrendInfos / history 2026-06-05"
     },
     {
       "label": "최근 분기 순이익 (2025-FY)",

@@ -1,7 +1,7 @@
 {
   "code": "175330",
   "name": "JB금융지주",
-  "last_checked": "2026-06-05T18:03:14.209+09:00",
+  "last_checked": "2026-06-05T21:14:00.097+09:00",
   "metrics": [
     {
       "id": "pbr",
@@ -24,8 +24,8 @@
     {
       "id": "foreign_ratio",
       "label": "외국인 지분율",
-      "value": 34.6,
-      "display": "34.60%",
+      "value": 34.56,
+      "display": "34.56%",
       "threshold": "25% 이하",
       "hit": false,
       "tone": "good"
@@ -33,7 +33,7 @@
     {
       "id": "foreign_net_buy_4w",
       "label": "최근 20거래일 외국인 순매수",
-      "value": 866471,
+      "value": 871919,
       "display": "87만주",
       "threshold": "순매도 전환",
       "hit": false,
@@ -109,24 +109,9 @@
       "type": "buyback_program_status",
       "title": "자사주 프로그램 (마지막 소각결정 · 후속 지연) 임계 근접",
       "message": "현재 120일 (임계 180일+ (1,550억 트랜치 미집행))"
-    },
-    {
-      "severity": "info",
-      "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 1건 (관찰 신호 0건 — 키워드 단순 매칭만)",
-      "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
-  "news_hits": [
-    {
-      "keyword": "지방은행 부실",
-      "date": "2026-05-29",
-      "title": "지방은행 부실채권 1%대…충당금 방어력도 약화 - 서울경제TV",
-      "url": "https://news.google.com/rss/articles/CBMiZEFVX3lxTFBJR29hRnd2c2piSjM3dmxHMnVIZXJtd1JreWJ3RzEzTFpxSXp4aURiR3NIbGtuSXJKS1REa0IzaFVSeUhMMXN0TUloR2VIOGRlWTBuWmw5MEhJaXBWZGhMWXhXUnM?oc=5",
-      "severity": "info",
-      "signals": []
-    }
-  ],
+  "news_hits": [],
   "sources": [
     {
       "label": "PER/PEG/PBR 스코어",
@@ -142,7 +127,7 @@
     },
     {
       "label": "외국인 순매수 누적 (20일)",
-      "ref": "네이버 dealTrendInfos / history 2026-06-04"
+      "ref": "네이버 dealTrendInfos / history 2026-06-05"
     },
     {
       "label": "최근 분기 순이익 (2025-FY)",
@@ -159,10 +144,6 @@
     {
       "label": "분기 ROE 연환산 (2025-FY · 11.82%)",
       "ref": "DART 20260318001225 (fnlttSinglAcntAll: 자본총계+분기순이익)"
-    },
-    {
-      "label": "뉴스 RSS",
-      "ref": "news.google.com/rss (7일)"
     }
   ]
 }
