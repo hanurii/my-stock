@@ -1,7 +1,7 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-06-09T17:58:27.062+09:00",
+  "last_checked": "2026-06-09T21:10:58.270+09:00",
   "metrics": [
     {
       "id": "per",
@@ -60,8 +60,8 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 94.82,
-      "display": "94.82$",
+      "value": 94.84,
+      "display": "94.84$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
@@ -77,7 +77,7 @@
     {
       "severity": "warn",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 8건 (관찰 신호 5건 포함)",
+      "title": "리스크 키워드 매칭 뉴스 8건 (관찰 신호 4건 포함)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
@@ -85,12 +85,18 @@
     {
       "keyword": "중동 긴장 완화",
       "date": "2026-06-09",
-      "title": "중동 긴장 완화 속 유럽 증시 혼조세 - Investing.com 한국어",
-      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE5xZTM3MzFaY3lZRjhKaEhUVzNhX1NPTG9vLUM1ZUFjOFFpVk5xT3BqbHF4MUVjTGpKX3NmYWFMYmdFVEEyQVhLa0lYRVR2U21yOU1HOXJjc1RncGNfWWdnb3RxSjdqY25OY2d1MFhiTVY?oc=5",
-      "severity": "warn",
-      "signals": [
-        "혼조"
-      ]
+      "title": "중동 긴장 완화에 TSX 선물 상승 - Investing.com 한국어",
+      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE16Nmg1b2lTTFFmaVhpR2o3bVpBSVVLc2k1UVBsWXZJYlo5eHgydnRjZFVPZENhOHMyQjJER0ZpaHJzX3VVQnA5WkFVcDdpWUptR0ZENUFLXzFCektWR3l4QUlURHV0TGlHSk0zSDZHS0E?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "중동 긴장 완화",
+      "date": "2026-06-09",
+      "title": "중동 긴장 완화되나…트럼프 “이란과 종전 협상, 2~3일 내 가능” - 쿠키뉴스",
+      "url": "https://news.google.com/rss/articles/CBMiY0FVX3lxTE1jQTVQTC1CRmRWT1lEcTd5QlpYLUJCU3lBSC1BQjVyVkcwa1p0TjlzZ3g3NlBPczExbE01Sjl5WFRJa2VDX1NKbWd4OVZ5Q28xcFgxMGlhZ21pYWZIS2hyXzBiaw?oc=5",
+      "severity": "info",
+      "signals": []
     },
     {
       "keyword": "중동 긴장 완화",
@@ -147,14 +153,6 @@
       "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE5VWDJ6WFhiakt0V1dDeEdpbEtweldwNnIzTVlDUW9sU1B0VEdsZDluNFFjS1JsT1lWTlE1VzdubUczcWpZNHVqVjlOd3duVjJ5RS15bGhzMUhzajliV1R6Qg?oc=5",
       "severity": "info",
       "signals": []
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-06-09",
-      "title": "30만전자·200만닉스 회복…중동 긴장 완화·美 반도체주 강세 - 한국경제",
-      "url": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE5pX3VsTklCTTRWc1haOTVha3liUE9IRHJteTFoZXdibnFKRko4c1dHQUhHcktnNXZnVVoxUWNldTR0anNUYjg0emtLV2E5b3NBTjFMS1Jzb1JpUdIBVEFVX3lxTE1sN1hzendlZmlFZW9VQ2RGRUxBRFJCQ3p5TFVTNmZhUDFQdkV6TFZ0ckN1ZXlwWGJCMUp6akNfSnQyTlVwZG05c0Z6NTE4ZXRjNEZlaQ?oc=5",
-      "severity": "info",
-      "signals": []
     }
   ],
   "sources": [
@@ -163,7 +161,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 92.61 USD (2026-06-09, 7일 평균 94.82)",
+      "label": "Brent 원유 종가 92.72 USD (2026-06-09, 7일 평균 94.84)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
