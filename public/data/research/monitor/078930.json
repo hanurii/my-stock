@@ -1,7 +1,7 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-06-11T16:32:56.709+09:00",
+  "last_checked": "2026-06-11T18:59:45.400+09:00",
   "metrics": [
     {
       "id": "per",
@@ -60,8 +60,8 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 93.98,
-      "display": "93.98$",
+      "value": 93.9,
+      "display": "93.90$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
@@ -128,6 +128,16 @@
     },
     {
       "keyword": "중동 긴장 완화",
+      "date": "2026-06-09",
+      "title": "중동 긴장 완화에도 불구하고 TSX 하락 - Investing.com 한국어",
+      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE16Nmg1b2lTTFFmaVhpR2o3bVpBSVVLc2k1UVBsWXZJYlo5eHgydnRjZFVPZENhOHMyQjJER0ZpaHJzX3VVQnA5WkFVcDdpWUptR0ZENUFLXzFCektWR3l4QUlURHV0TGlHSk0zSDZHS0E?oc=5",
+      "severity": "warn",
+      "signals": [
+        "하락"
+      ]
+    },
+    {
+      "keyword": "중동 긴장 완화",
       "date": "2026-06-08",
       "title": "EU·파키스탄·중동 국가들, 이스라엘·이란 교전 재개에 ‘긴장 완화’ 촉구 - VOA 한국어 홈페이지",
       "url": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxNSm9YYlN3eU5hSXA4OGNySW56ZmVKbFZpck41VDdsLWJ0U1hxYnd1SkUyRkQ3QjlTUVNCZTQyMFNWbWFFTGZjR1FqR014WEkxWkV5NXVhdWJMWS1EbjdlaXEzNDgxeWk2QkFSOHBsTUozd0pHa0dETWlpbm1VM1BEYW1QeUFEeWt4dVdzOTJEX1h3WFFMallmQW5WMHNCM2V3OE8zSFU3Zmdzd9IBrAFBVV95cUxNODlocnI5QVRobTNVQThZa2NYQTVUQTFNZk5XbGhDaVpZMDY5MGZmVTVZWHFmME94UlZQT0t4SHZLYWt6VFA4TW9WTjNVeWtTb3Zkd2NibWd1WnNOX1UwaDdpenp2VDhxd1dlLTZGdWs1bXBvWjZYcDNuWS1DY2lHeG5iWEZoc1RhRnBWeDJ4WmdpWjVxM0I1MXd5VmJsRlVkelpEeXlIazd2VldB?oc=5",
@@ -136,12 +146,12 @@
     },
     {
       "keyword": "중동 긴장 완화",
-      "date": "2026-06-09",
-      "title": "중동 긴장 완화에도 불구하고 TSX 하락 - Investing.com 한국어",
-      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE16Nmg1b2lTTFFmaVhpR2o3bVpBSVVLc2k1UVBsWXZJYlo5eHgydnRjZFVPZENhOHMyQjJER0ZpaHJzX3VVQnA5WkFVcDdpWUptR0ZENUFLXzFCektWR3l4QUlURHV0TGlHSk0zSDZHS0E?oc=5",
+      "date": "2026-06-08",
+      "title": "중동 긴장 완화에 국제유가 상승폭 축소…브렌트유 94달러선 마감 - 서울경제TV",
+      "url": "https://news.google.com/rss/articles/CBMiZEFVX3lxTFBCRFJWbGl1Mm9xUGNWUTEwUEFaTmNFMURQWEUwczd0Z0hPMEJfTGY4S3BwdldEblUyRmJPMGJQLTBDRTF2SEYxMFhCWERUNGRsQmt1TDhiX1AzTk5MVXl6dDhMUlc?oc=5",
       "severity": "warn",
       "signals": [
-        "하락"
+        "축소"
       ]
     },
     {
@@ -163,16 +173,6 @@
       "signals": [
         "급락"
       ]
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-06-08",
-      "title": "뉴욕금값, 중동 긴장 완화·금리 향방에 주목하며 약세…금 선물 0.04%↓ - v.daum.net",
-      "url": "https://news.google.com/rss/articles/CBMiVEFVX3lxTE8ydXZDS0Z0QkR4MURjR0dKRW5rNld1T2VMSWlPNEZ1YzNza2VvT05uM0dYN2MzeVdRb1dIRmw5akVGakpYblEwLXNoNFowY215NjhQSw?oc=5",
-      "severity": "warn",
-      "signals": [
-        "약세"
-      ]
     }
   ],
   "sources": [
@@ -181,7 +181,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 93.12 USD (2026-06-11, 7일 평균 93.98)",
+      "label": "Brent 원유 종가 92.59 USD (2026-06-11, 7일 평균 93.9)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
