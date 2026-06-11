@@ -1,13 +1,13 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-06-10T21:24:18.606+09:00",
+  "last_checked": "2026-06-11T09:20:12.538+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 5.22,
-      "display": "5.22배",
+      "value": 5.13,
+      "display": "5.13배",
       "threshold": "10배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "dividend_yield",
       "label": "배당수익률",
-      "value": 4.13,
-      "display": "4.13%",
+      "value": 4.21,
+      "display": "4.21%",
       "threshold": "3.5% 이하",
       "hit": false,
       "tone": "good"
@@ -24,8 +24,8 @@
     {
       "id": "price_high",
       "label": "주가",
-      "value": 73800,
-      "display": "73,800원",
+      "value": 72600,
+      "display": "72,600원",
       "threshold": "85,000원+ 돌파",
       "hit": false,
       "tone": "good"
@@ -60,8 +60,8 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 94.34,
-      "display": "94.34$",
+      "value": 94.72,
+      "display": "94.72$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
@@ -77,7 +77,7 @@
     {
       "severity": "bad",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 8건 (부정 시그널 5건 포함)",
+      "title": "리스크 키워드 매칭 뉴스 9건 (부정 시그널 5건 포함)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
@@ -104,6 +104,16 @@
     },
     {
       "keyword": "중동 긴장 완화",
+      "date": "2026-06-09",
+      "title": "국제유가, 중동긴장 완화 조짐에 급락…WTI 3.4%↓ - v.daum.net",
+      "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE1pbkZBWDAxNEJwZW10d1ZVNUNMbHlMbWNKS0pZNE1ZNm1Mc0hwOENrVHdVVzk2YzU5R0FxZkdNdUwzWEhlZTVmTE5RR0h1UDQ?oc=5",
+      "severity": "bad",
+      "signals": [
+        "급락"
+      ]
+    },
+    {
+      "keyword": "중동 긴장 완화",
       "date": "2026-06-10",
       "title": "중동 긴장 완화·중국 수요 쇼크에 국제유가 급락…WTI 3.4%↓ - 에너지코리아뉴스",
       "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTFBfajFTQVBaX2luM0lwMkNvNUV6eUxnU0tYdl9LMlE4ZGZhc1BLZGgtZFo3N3M3dFEwY0Rkd3M1ZXhTMkM2RlFxdHJBNjA2N1hpODRhUzdBUHNOSG9CQnpuUDlRNjNvYm8zcWF4Z2FBUVI?oc=5",
@@ -115,40 +125,11 @@
     {
       "keyword": "중동 긴장 완화",
       "date": "2026-06-09",
-      "title": "국제유가, 중동 긴장 완화·中 수요 둔화에 급락…WTI 3.4%↓ - ebn.co.kr",
-      "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE1STFRqSFItYXdzMFRibGxELXpwM3U4TERCVm9QVGhTV0JzbzlfQnNTZFpnM1FVYXRYZ3hkd2R3cXIxX3B3YkxpcU90Mm9feXQ2dnJoWG8yd2dEald4NEJGLXd2Z0dJNF9w?oc=5",
-      "severity": "bad",
-      "signals": [
-        "급락"
-      ]
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-06-09",
-      "title": "중동 긴장 완화 기대 속 브렌트유 7주 만에 최저 - 블로터",
-      "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE9rdmNNUjlOa2lORHV0RE1DNG9KQWJ3NXBrbFBLVnJTRTI3THhta1E3Q0NmMk1Bd1dYSTJNWTFHZ0l0b0J6ZmtaZm5xR3Q4R3BGSXhlQW1leW5mS3M0RjdQOGpiMHF3bWJu0gFsQVVfeXFMT0FNUGJHWnlFZUZNMC1qREltXzFxTk1uNXcxM0Q1OEktc19haU11U0VUVEdRZVVfWFpITnYxU0g3VTlNVWpyS2ZkeWdNd0diTnlYSzZGd28tbW5adUVSMzJ2ZWlnMld6QWRfTGNf?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-06-09",
-      "title": "국제유가 급락…중동 긴장 완화 기대·중국 원유 수요 감소 - 머니투데이 - 머니투데이",
-      "url": "https://news.google.com/rss/articles/CBMibkFVX3lxTE00aVR5RXNxa2JnTmZjUHZSd2ZSR18zSHp6UmJOcGRTOHR3UGVHTUtYajhlcjNzVEo5QTBMel9yN3RBS1pjLV9QSTQ5dGpLOF85dnlMZW1Xd21GNE1OWGh4S1F4RUJVT2pJS25odFV30gFuQVVfeXFMTTRpVHlFc3FrYmdOZmNQdlJ3ZlJHXzNIenpSYk5wZFM4dHdQZUdNS1hqOGVyM3NUSjlBMEx6X3I3dEFLWmMtX1BJNDl0aks4Xzl2eUxlbVd3bUY0TU5YaHhLUXhFQlVPaklLbmh0VXc?oc=5",
-      "severity": "bad",
-      "signals": [
-        "급락"
-      ]
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-06-09",
-      "title": "국제유가 하락, 중동지역 긴장 완화와 중국 수요 감소에 영향 - 비즈니스포스트",
-      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE8tcmRxWjBkVzZ0dF8wb2NhRGNib1BGUjFuRFpTd1lxYUJMMmNmVndBVFE5M0hnMXJxVVBLUWE3QkRzUklKUjUwZllZRkFnencxQ2p6UWVsUEk1Y2k4blNwZUlHUXJjWnNmZGhyMFRjX1p0UU0?oc=5",
+      "title": "중동 긴장 완화 속 유럽 증시 혼조세 - Investing.com 한국어",
+      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE5xZTM3MzFaY3lZRjhKaEhUVzNhX1NPTG9vLUM1ZUFjOFFpVk5xT3BqbHF4MUVjTGpKX3NmYWFMYmdFVEEyQVhLa0lYRVR2U21yOU1HOXJjc1RncGNfWWdnb3RxSjdqY25OY2d1MFhiTVY?oc=5",
       "severity": "warn",
       "signals": [
-        "감소",
-        "하락"
+        "혼조"
       ]
     },
     {
@@ -158,6 +139,36 @@
       "url": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxNSm9YYlN3eU5hSXA4OGNySW56ZmVKbFZpck41VDdsLWJ0U1hxYnd1SkUyRkQ3QjlTUVNCZTQyMFNWbWFFTGZjR1FqR014WEkxWkV5NXVhdWJMWS1EbjdlaXEzNDgxeWk2QkFSOHBsTUozd0pHa0dETWlpbm1VM1BEYW1QeUFEeWt4dVdzOTJEX1h3WFFMallmQW5WMHNCM2V3OE8zSFU3Zmdzd9IBrAFBVV95cUxNODlocnI5QVRobTNVQThZa2NYQTVUQTFNZk5XbGhDaVpZMDY5MGZmVTVZWHFmME94UlZQT0t4SHZLYWt6VFA4TW9WTjNVeWtTb3Zkd2NibWd1WnNOX1UwaDdpenp2VDhxd1dlLTZGdWs1bXBvWjZYcDNuWS1DY2lHeG5iWEZoc1RhRnBWeDJ4WmdpWjVxM0I1MXd5VmJsRlVkelpEeXlIazd2VldB?oc=5",
       "severity": "info",
       "signals": []
+    },
+    {
+      "keyword": "중동 긴장 완화",
+      "date": "2026-06-05",
+      "title": "국제유가, 중동 긴장완화 기대감에 하락…WTI 2.7%↓ - 연합뉴스",
+      "url": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE9wN3RSUF9uWFpjQmVwU0hQZUpLYTJ1VlpXUENFaWFFZHVHUlhjU0JnX0JndWhFZXBQN2lvN3hBVHRDd0U1dmlJc3pzcHgxb2hjcGU5UWJCSHBCR03SAWBBVV95cUxOMWliNXlndS1NLUFMYVlvNDRmeDdudExWM05MTno0LXJ4am1ZQlVDb1ZTT0VWb29iTlRabTRXMmlSY3RfanItR2xBQ09QV1BwM3FKQXJEQ1VQVkpfUlhYQ00?oc=5",
+      "severity": "warn",
+      "signals": [
+        "하락"
+      ]
+    },
+    {
+      "keyword": "중동 긴장 완화",
+      "date": "2026-06-09",
+      "title": "중동 긴장 완화에도 불구하고 TSX 하락 - Investing.com 한국어",
+      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE16Nmg1b2lTTFFmaVhpR2o3bVpBSVVLc2k1UVBsWXZJYlo5eHgydnRjZFVPZENhOHMyQjJER0ZpaHJzX3VVQnA5WkFVcDdpWUptR0ZENUFLXzFCektWR3l4QUlURHV0TGlHSk0zSDZHS0E?oc=5",
+      "severity": "warn",
+      "signals": [
+        "하락"
+      ]
+    },
+    {
+      "keyword": "중동 긴장 완화",
+      "date": "2026-06-09",
+      "title": "국제유가, 중동 긴장 완화 기대에 급락…브렌트유 2.97%↓, WTI 3.4%↓ - v.daum.net",
+      "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTFBLb1NoemNXdU5NS1ctZXdDcXpWVE1iWmgxa0J3N0U4cWxmdkRLeEFwTlhTQ1hZZ0RPaERNQ3dFZ0ROenQ0TF8waXBfRU9lZ1U?oc=5",
+      "severity": "bad",
+      "signals": [
+        "급락"
+      ]
     }
   ],
   "sources": [
@@ -166,7 +177,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 92.75 USD (2026-06-10, 7일 평균 94.34)",
+      "label": "Brent 원유 종가 95.43 USD (2026-06-11, 7일 평균 94.72)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
