@@ -1,13 +1,13 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-06-12T09:24:07.760+09:00",
+  "last_checked": "2026-06-12T16:23:01.355+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 5.33,
-      "display": "5.33배",
+      "value": 5.21,
+      "display": "5.21배",
       "threshold": "10배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "dividend_yield",
       "label": "배당수익률",
-      "value": 4.04,
-      "display": "4.04%",
+      "value": 4.14,
+      "display": "4.14%",
       "threshold": "3.5% 이하",
       "hit": false,
       "tone": "good"
@@ -60,8 +60,8 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 93.39,
-      "display": "93.39$",
+      "value": 92.28,
+      "display": "92.28$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
@@ -83,19 +83,11 @@
     {
       "severity": "bad",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 7건 (부정 시그널 3건 포함)",
+      "title": "리스크 키워드 매칭 뉴스 8건 (부정 시그널 3건 포함)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
   "news_hits": [
-    {
-      "keyword": "이란 미국 합의",
-      "date": "2026-06-11",
-      "title": "이란 파르스 통신 \"미국과 합의 문안 아직 승인 안돼\"(상보) - 연합인포맥스",
-      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE9LUlFSN3BnNlR5RzJ5ZEpzRTJ4THNodndrTnNPd181aFNSQzlZLUNFTFFGeHBPUWFCYmtmcXBfWThnZ1dlaGpyWnZjOFdkeGNrb3pwQXdYVEpnYW5BQ25zNzdlTjJ5c1VNTTFKak83YUg?oc=5",
-      "severity": "info",
-      "signals": []
-    },
     {
       "keyword": "중동 긴장 완화",
       "date": "2026-06-11",
@@ -106,9 +98,27 @@
     },
     {
       "keyword": "중동 긴장 완화",
-      "date": "2026-06-11",
-      "title": "원/달러 환율 \"중동 긴장 완화에 1510원 중심 등락 전망\" - the-biz.co.kr",
-      "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTFBtajIxdllEZ2ZpdzZ2T2JCdFkxUUZHT0NjLUt1N1Y4VDhqdHpEbUQzN180dEFvaE1mR2RNYlQwNWJqVy1udmJ1TXp2N3ZoSXlTTUlSTTlkY0kyU0N6V1ZqNzJwNmlGdHFXcjV0Vg?oc=5",
+      "date": "2026-06-12",
+      "title": "비트코인, 9500만원선 회복... 중동 긴장 완화에 투자심리 개선 - 한양경제",
+      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE5GMTczWEotZ3dDaHhKdUE3UzExZzl6S21YRkZyQ1NrTF9JaVRReGs4OG9DWHlGZF91NEJrSTBYSFJiMmU0RUhaVHZFUDExTVJrcDVJYXJJRXZtNVF6ZlQ3cDFoYU1rUnBiakYxcjRSd2I?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "중동 긴장 완화",
+      "date": "2026-06-12",
+      "title": "중동 긴장 완화에 유가 하락…산업계 변수 확대 - 이데일리",
+      "url": "https://news.google.com/rss/articles/CBMigAFBVV95cUxNTDBZZE42S1VIMUoyWkxIdjhZYnE1NnB4WHByOEVKQ3RVdVpfWTZyNExKRFJ6WTVZWnpiSTZlNTVEREpkQ3NDOUJoTm9VVUd1T2xoQXl1VGoxUmZTbjFkQk5DaHFTZXBOS21VbTZ2LWVpQjVUUm91cURGSm1IRHprcQ?oc=5",
+      "severity": "warn",
+      "signals": [
+        "하락"
+      ]
+    },
+    {
+      "keyword": "중동 긴장 완화",
+      "date": "2026-06-12",
+      "title": "중동 긴장 완화에 코스피 8,300선 회복…반도체주가 상승 주도 - 산경투데이",
+      "url": "https://news.google.com/rss/articles/CBMidEFVX3lxTE9SRUxfMnprRWlONkVpTVhMeHhXbHdYQnJjR0JlMFBWWUxuN01sYWp0Ums1bU1PYUdWenJKMjFYcEJLOHVvSWRCQzVxN0RtOVdTU3RJZTVRUG1hYV9YbV8wLW1DMm1ZeGFhQnhkQTJvaDBha0t60gF0QVVfeXFMT1JFTF8yemtFaU42RWlNWEx4eFdsd1hCcmNHQmUwUFZZTG43TWxhanRSazVtTU9hR1Z6ckoyMVhwQks4dW9JZEJDNXE3RG05V1NTdEllNVFQbWFhX1htXzAtbUMybVl4YWFCeGRBMm9oMGFrS3o?oc=5",
       "severity": "info",
       "signals": []
     },
@@ -135,8 +145,8 @@
     {
       "keyword": "중동 긴장 완화",
       "date": "2026-06-11",
-      "title": "UAE·이란, 전쟁 후 첫 대면 회담…중동 긴장 완화 신호탄 되나 - 데일리안",
-      "url": "https://news.google.com/rss/articles/CBMiVkFVX3lxTE0yMEtZSjl6U3BoZk9CTjRrbVhKSHZtdVl2dUJzd1hQYkQwb0I5bXNHSGJQQWY3cEU4clZrQ0JtLWlXV1dCaFNWQjMxeUdhWmtwVmFzbnJ30gH7AUFVX3lxTE54WVVQWG9rdDdMUk1SbXNveVhraEtQa0trY0lpeWRvNWtyZDNReVJCb0ZGN0JiclRVTTNCVmxIdnVSR2FxbmQxVmVkSGdRVndQQWxvUzdyYkRKdEJUOFFOQXA1YjVuanQyamwwSm9XV1JjRzVWODlJZGV5V3RsX3JIT3lQUWFDU3hfNi1KTEFXeGFhMEdPcENibnpILTkwclRVVDZ5c3pXcTZPWnB3b0hTbXNhbjJOcTFJd1U0MnhJQ05tbU5ySmVhRXVnMnFRWXBLZEM0dVV2NUNSRTlIUmdvYk9TUXh3Zy13QVhBQjZfTXhCQjF3dGdaZFh3?oc=5",
+      "title": "원/달러 환율 \"중동 긴장 완화에 1510원 중심 등락 전망\" - the-biz.co.kr",
+      "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTFBtajIxdllEZ2ZpdzZ2T2JCdFkxUUZHT0NjLUt1N1Y4VDhqdHpEbUQzN180dEFvaE1mR2RNYlQwNWJqVy1udmJ1TXp2N3ZoSXlTTUlSTTlkY0kyU0N6V1ZqNzJwNmlGdHFXcjV0Vg?oc=5",
       "severity": "info",
       "signals": []
     },
@@ -157,7 +167,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 89.02 USD (2026-06-12, 7일 평균 93.39)",
+      "label": "Brent 원유 종가 88.67 USD (2026-06-12, 7일 평균 92.28)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
