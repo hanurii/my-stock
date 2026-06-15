@@ -1,16 +1,16 @@
 {
   "code": "347850",
   "name": "디앤디파마텍",
-  "last_checked": "2026-06-15T09:14:09.067+09:00",
+  "last_checked": "2026-06-15T18:21:42.105+09:00",
   "metrics": [
     {
       "id": "pbr",
       "label": "PBR (극고평가)",
-      "value": 54.41,
-      "display": "54.41배",
+      "value": 48.47,
+      "display": "48.47배",
       "threshold": "50배 돌파",
-      "hit": true,
-      "tone": "bad"
+      "hit": false,
+      "tone": "warn"
     },
     {
       "id": "ceo_founder_ratio",
@@ -24,8 +24,8 @@
     {
       "id": "capital_issuance",
       "label": "신규 자본조달 (CB/BW/EB/유증) 90일",
-      "value": 2,
-      "display": "2건",
+      "value": 3,
+      "display": "3건",
       "threshold": "발행 공시 1건+",
       "hit": true,
       "tone": "bad"
@@ -51,16 +51,16 @@
   ],
   "alerts": [
     {
-      "severity": "bad",
+      "severity": "warn",
       "type": "pbr",
-      "title": "PBR (극고평가) 50배 돌파",
-      "message": "현재 54.41배 — 매도 트리거 도달"
+      "title": "PBR (극고평가) 임계 근접",
+      "message": "현재 48.47배 (임계 50배 돌파)"
     },
     {
       "severity": "bad",
       "type": "capital_issuance",
       "title": "신규 자본조달 (CB/BW/EB/유증) 90일 발행 공시 1건+",
-      "message": "현재 2건 — 매도 트리거 도달"
+      "message": "현재 3건 — 매도 트리거 도달"
     }
   ],
   "news_hits": [],
@@ -78,8 +78,8 @@
       "ref": "DART 20260320001088 (hyslrSttus)"
     },
     {
-      "label": "자본조달 공시 2건 (최근: 2026-04-22 [첨부정정]주요사항보고서(전환사채권발행결정))",
-      "ref": "DART 20260422000145"
+      "label": "자본조달 공시 3건 (최근: 2026-06-15 주요사항보고서(자기전환사채만기전취득결정))",
+      "ref": "DART 20260615000170"
     },
     {
       "label": "ClinicalTrials.gov 임상 5건 (30일 status 변경 0건)",
