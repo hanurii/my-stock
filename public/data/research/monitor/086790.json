@@ -1,13 +1,13 @@
 {
   "code": "086790",
   "name": "하나금융지주",
-  "last_checked": "2026-06-16T19:48:27.069+09:00",
+  "last_checked": "2026-06-16T22:29:31.901+09:00",
   "metrics": [
     {
       "id": "pbr",
       "label": "PBR",
-      "value": 0.79,
-      "display": "0.79배",
+      "value": 0.8,
+      "display": "0.80배",
       "threshold": "1.0 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "pbr_premium_pp",
       "label": "4대 지주 평균 대비 PBR 프리미엄",
-      "value": -0.057,
-      "display": "-0.057pp",
+      "value": -0.06,
+      "display": "-0.060pp",
       "threshold": "+0.10pp 이상",
       "hit": false,
       "tone": "good"
@@ -95,11 +95,19 @@
     {
       "severity": "info",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 1건 (관찰 신호 0건 — 키워드 단순 매칭만)",
+      "title": "리스크 키워드 매칭 뉴스 2건 (관찰 신호 0건 — 키워드 단순 매칭만)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
   "news_hits": [
+    {
+      "keyword": "하나은행 충당금",
+      "date": "2026-06-16",
+      "title": "'중앙그룹 자금 쇼크' 하나은행, 충당금 부담에 2분기 실적 영향받나 - 인사이트코리아",
+      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE9UWHR5R0pGRFpPUkl3aWUxZll2SVhBaDd3NUdUS0gyci1kWnZwbS1vNHVqWE96TUxVek5NVWtWUDJRZmp3MTlVcGtUTXVLU0JXQi1xcnBleXVydVIwZFB3a3p0Z1N1N1dfazdGOVp6NXRWMzTSAXdBVV95cUxQTmxDTmpBdWpLc3NPMm82MS1nMkVFOHN5OURFZVZqTUV1dUVueWlhazlBSWZObkdJdzJ3RjNnQ2hIdmI3V1RHWlk2ZlZSblNnelFTUjBKTnpfRlphOHE4TDYweVNzZGlFZVJOVEloSnRBTE5pM19CTQ?oc=5",
+      "severity": "info",
+      "signals": []
+    },
     {
       "keyword": "한국은행 기준금리 인하",
       "date": "2026-06-12",
@@ -116,7 +124,7 @@
     },
     {
       "label": "4대 지주 평균 PBR 비교 (3종목)",
-      "ref": "peers: 316140, 105560, 055550 / avg 0.847"
+      "ref": "peers: 316140, 105560, 055550 / avg 0.86"
     },
     {
       "label": "분기 배당 결정 (사업보고서 (2025.12))",
