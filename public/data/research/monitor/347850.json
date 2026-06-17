@@ -1,13 +1,13 @@
 {
   "code": "347850",
   "name": "디앤디파마텍",
-  "last_checked": "2026-06-17T09:21:28.449+09:00",
+  "last_checked": "2026-06-17T17:28:49.393+09:00",
   "metrics": [
     {
       "id": "pbr",
       "label": "PBR (극고평가)",
-      "value": 55.05,
-      "display": "55.05배",
+      "value": 63.51,
+      "display": "63.51배",
       "threshold": "50배 돌파",
       "hit": true,
       "tone": "bad"
@@ -15,26 +15,26 @@
     {
       "id": "ceo_founder_ratio",
       "label": "이슬기 CEO 지분 비율",
-      "value": 12.99,
-      "display": "12.99%",
+      "value": null,
+      "display": "—",
       "threshold": "10% 이하로 감소",
       "hit": false,
-      "tone": "good"
+      "tone": "neutral"
     },
     {
       "id": "capital_issuance",
       "label": "신규 자본조달 (CB/BW/EB/유증) 90일",
-      "value": 3,
-      "display": "3건",
+      "value": 0,
+      "display": "0건",
       "threshold": "발행 공시 1건+",
-      "hit": true,
-      "tone": "bad"
+      "hit": false,
+      "tone": "good"
     },
     {
       "id": "op_margin",
-      "label": "분기 영업이익률 (2025)",
-      "value": -790.97,
-      "display": "-791.0%",
+      "label": "분기 영업이익률 (정보용)",
+      "value": null,
+      "display": "—",
       "threshold": "-2000% 이하 악화 (이례적)",
       "hit": false,
       "tone": "neutral"
@@ -54,13 +54,19 @@
       "severity": "bad",
       "type": "pbr",
       "title": "PBR (극고평가) 50배 돌파",
-      "message": "현재 55.05배 — 매도 트리거 도달"
+      "message": "현재 63.51배 — 매도 트리거 도달"
     },
     {
-      "severity": "bad",
-      "type": "capital_issuance",
-      "title": "신규 자본조달 (CB/BW/EB/유증) 90일 발행 공시 1건+",
-      "message": "현재 3건 — 매도 트리거 도달"
+      "severity": "warn",
+      "type": "ceo_founder_ratio_missing",
+      "title": "이슬기 CEO 지분 비율 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
+    },
+    {
+      "severity": "warn",
+      "type": "op_margin_missing",
+      "title": "분기 영업이익률 (정보용) 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
     }
   ],
   "news_hits": [],
@@ -68,18 +74,6 @@
     {
       "label": "PER/PEG/PBR 스코어",
       "ref": "public/data/naver-m-stock.json"
-    },
-    {
-      "label": "분기 영업이익률 (2025)",
-      "ref": "DART 20260320001088"
-    },
-    {
-      "label": "이슬기 보유 비율 (2025)",
-      "ref": "DART 20260320001088 (hyslrSttus)"
-    },
-    {
-      "label": "자본조달 공시 3건 (최근: 2026-06-15 주요사항보고서(자기전환사채만기전취득결정))",
-      "ref": "DART 20260615000170"
     },
     {
       "label": "ClinicalTrials.gov 임상 5건 (30일 status 변경 0건)",

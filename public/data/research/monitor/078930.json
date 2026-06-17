@@ -1,13 +1,13 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-06-17T09:21:20.160+09:00",
+  "last_checked": "2026-06-17T17:28:43.668+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 5.52,
-      "display": "5.52배",
+      "value": 5.24,
+      "display": "5.24배",
       "threshold": "10배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "dividend_yield",
       "label": "배당수익률",
-      "value": 3.91,
-      "display": "3.91%",
+      "value": 4.12,
+      "display": "4.12%",
       "threshold": "3.5% 이하",
       "hit": false,
       "tone": "good"
@@ -33,35 +33,35 @@
     {
       "id": "separate_net_loss",
       "label": "별도 분기 순이익",
-      "value": 2499,
-      "display": "2,499억",
+      "value": null,
+      "display": "—",
       "threshold": "적자 전환",
       "hit": false,
-      "tone": "good"
+      "tone": "neutral"
     },
     {
       "id": "debt_guarantee_count",
       "label": "자회사 채무보증결정 공시 (90일)",
-      "value": 1,
-      "display": "1건",
+      "value": 0,
+      "display": "0건",
       "threshold": "공시 1건+",
-      "hit": true,
-      "tone": "bad"
+      "hit": false,
+      "tone": "good"
     },
     {
       "id": "buyback_acquisition",
       "label": "자사주 취득결정 공시 (90일·긍정)",
-      "value": 1,
-      "display": "1건",
+      "value": 0,
+      "display": "0건",
       "threshold": "공시 1건+ (재평가 신호)",
-      "hit": true,
-      "tone": "good"
+      "hit": false,
+      "tone": "neutral"
     },
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 88.45,
-      "display": "88.45$",
+      "value": 86.19,
+      "display": "86.19$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
@@ -69,21 +69,15 @@
   ],
   "alerts": [
     {
-      "severity": "bad",
-      "type": "debt_guarantee_count",
-      "title": "자회사 채무보증결정 공시 (90일) 공시 1건+",
-      "message": "현재 1건 — 매도 트리거 도달"
-    },
-    {
-      "severity": "info",
-      "type": "buyback_acquisition",
-      "title": "자사주 취득결정 공시 (90일·긍정) 공시 1건+ (재평가 신호)",
-      "message": "현재 1건 — 긍정 시그널 발생 (재평가 검토)"
+      "severity": "warn",
+      "type": "separate_net_loss_missing",
+      "title": "별도 분기 순이익 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
     },
     {
       "severity": "bad",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 10건 (부정 시그널 2건 포함)",
+      "title": "리스크 키워드 매칭 뉴스 10건 (부정 시그널 1건 포함)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
@@ -108,9 +102,17 @@
     },
     {
       "keyword": "중동 긴장 완화",
-      "date": "2026-06-16",
-      "title": "씨티, 중동 긴장 완화에 천연가스 가격 전망 하향 조정 - Investing.com 한국어",
-      "url": "https://news.google.com/rss/articles/CBMid0FVX3lxTFBjNW90WXpOME5BeVZXVm53eWVBX1NxdnVYYWl1bV9EdGppeUlXYXB5bUdMc19uZUV4bVZJZG9pczBpczFXWXozXzV2WUZLNVlndmpRZXptWnhtSGg1SDlESDBtM3lwSDZJbThjN09QS1hveDRScG1B?oc=5",
+      "date": "2026-06-17",
+      "title": "중동 긴장 완화에 숨 돌린 제약바이오업계 \"공급망 안정 신호\" - 프라임경제",
+      "url": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE1zVFBaYlI4MHZMU3BVNTUtY25sQnpVeDBka25XVTZZcDR2Y0V3QnpNeXJ5VGF6VVQwQkdqWEZKMXFpNFROR0lxaHdaeDRWTDZaTU5zSTNKLU0yTFQ4UUVoVHNTak0?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "중동 긴장 완화",
+      "date": "2026-06-17",
+      "title": "국제유가 3개월 만에 최저치…중동 긴장 완화에 ‘80달러선’ 붕괴 - ppss.kr",
+      "url": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE91SldZbDNhTFZqc0p4aXJPQjlsVVZIN2I1SHFNUGFlVThMam5yS2czZ1c2eXVYVDdyQmR0YjZLM2NoTjV0RjV6T0pqSzJwR3k3QXRrbGFuZDVxVDBkNmlob2xPdEc?oc=5",
       "severity": "info",
       "signals": []
     },
@@ -125,8 +127,8 @@
     {
       "keyword": "중동 긴장 완화",
       "date": "2026-06-16",
-      "title": "중동 긴장 완화에 코스피 8700선 회복…외국인 매수세 힘 보탰다 - 서울뉴스통신",
-      "url": "https://news.google.com/rss/articles/CBMia0FVX3lxTE5wbUtadTdUX0JXMFgwMjktQjY3N29mRGk5bjVhSVpkdTBKdHNHVG0wTWR5dS1ja0VaUDFKdkw3R1VNOUp4VmEwT1g5d3FxRVEwcnNmc05RNDZnSWdYWUlaeDZ5U0c5c2thcUF3?oc=5",
+      "title": "씨티, 중동 긴장 완화에 천연가스 가격 전망 하향 조정 - Investing.com 한국어",
+      "url": "https://news.google.com/rss/articles/CBMid0FVX3lxTFBjNW90WXpOME5BeVZXVm53eWVBX1NxdnVYYWl1bV9EdGppeUlXYXB5bUdMc19uZUV4bVZJZG9pczBpczFXWXozXzV2WUZLNVlndmpRZXptWnhtSGg1SDlESDBtM3lwSDZJbThjN09QS1hveDRScG1B?oc=5",
       "severity": "info",
       "signals": []
     },
@@ -134,19 +136,9 @@
       "keyword": "중동 긴장 완화",
       "date": "2026-06-15",
       "title": "중동 긴장 완화에 국내 유류 가격 안정세 이어질까 - v.daum.net",
-      "url": "https://news.google.com/rss/articles/CBMiS0FVX3lxTE91S2std1lxRlNUNjlybGNMMG5Kd3pKZEt6NE4tR0JhN1BVdG5fMmpweGYxX0pDRjRENDdlMFQ3WXQzQTU1ZHZESEhvUQ?oc=5",
+      "url": "https://news.google.com/rss/articles/CBMiVEFVX3lxTE1WNXFQMThlcWwtak5mbWR1ZEUwbUQ0d1kwX2ZZelNQTEpCNDIyald2WlI3Ml9OTFJ6d0R5RXA3ZkNMQlBJMXlhSm5LZ2NlaUpoZVZ1cg?oc=5",
       "severity": "info",
       "signals": []
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-06-16",
-      "title": "금값, 중동 긴장 완화에도 상승세 유지…유가 급락에 인플레이션 우려 완화 - 블루밍비트",
-      "url": "https://news.google.com/rss/articles/CBMiUEFVX3lxTE9Cb0N4VklYc2JVRXJ3QnFoVnRRX0FaUWlXN3Z6cjQtZ1JOR2xFMDNvWmF3VDYteEJ6cXZkdnZJeWhEeXc0RzBaSlBqUmZMTjlh?oc=5",
-      "severity": "bad",
-      "signals": [
-        "급락"
-      ]
     },
     {
       "keyword": "중동 긴장 완화",
@@ -158,21 +150,19 @@
     },
     {
       "keyword": "중동 긴장 완화",
-      "date": "2026-06-12",
-      "title": "중동 긴장 완화 기대·스페이스X 19% 급등…뉴욕증시 동반 상승 - 조세일보",
-      "url": "https://news.google.com/rss/articles/CBMiX0FVX3lxTFBfWkRUbU1kMGtEdkZHcEZMRDJEYVpoSlJMY3Y5MDFyaFFVaG5PV1ZHSEN5Y1ltVUhHdXJ6Z0VTMFBGY3k2ZVJudDZnVU1JTzc1OHk5c1hnR0FWbWpTZU5v?oc=5",
+      "date": "2026-06-15",
+      "title": "중동 긴장 완화에 투자심리 회복…코스피 8500선 재탈환 - 서울뉴스통신",
+      "url": "https://news.google.com/rss/articles/CBMia0FVX3lxTE1pVVRyWmwwbS1nTmphMFZrd3NwNjY2SWpJbGphWW4tMEtWbVpJdXk1Z0I4QUZBaFNJTzkyZmoyWkVFRG1EMkVnRWVpYjAtSzRCTWlBZWZiNzA5eXotYk5feHFHTElhUmp6aXNJ?oc=5",
       "severity": "info",
       "signals": []
     },
     {
       "keyword": "중동 긴장 완화",
-      "date": "2026-06-15",
-      "title": "중동 긴장 완화에 원화 강세…환율 1,511.1원으로 하락 마감 - 산경투데이",
-      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE8zenA1Tkxac2U2bjdmSGtQZ0ZBNV9mbUstV1NaUElxdkdVWWFPQW9XaVRBc2thcWwtWnRsc251LS1LR0xyNDVvUHVENFlFekQ5aTU2ZFpYbDZwQ2dZUnEzX0x3WWFuSFFHTEYwdWx3aEfSAXRBVV95cUxPUXU3b010SGpmWVVncWN1T0VqekV2cTd0SHcybTBGYnhEQXFyeXBZb2NsNWtUa3gxc1g2VG1DVW13TENJVDVFTkJSR2ZiTXVYS2tncDZCanQyYkUzbG9SZmRzWjZyTjR1cFBnLUNhaDlCMExwbg?oc=5",
-      "severity": "warn",
-      "signals": [
-        "하락"
-      ]
+      "date": "2026-06-12",
+      "title": "중동 긴장 완화 기대·스페이스X 19% 급등…뉴욕증시 동반 상승 - 조세일보",
+      "url": "https://news.google.com/rss/articles/CBMiX0FVX3lxTFBfWkRUbU1kMGtEdkZHcEZMRDJEYVpoSlJMY3Y5MDFyaFFVaG5PV1ZHSEN5Y1ltVUhHdXJ6Z0VTMFBGY3k2ZVJudDZnVU1JTzc1OHk5c1hnR0FWbWpTZU5v?oc=5",
+      "severity": "info",
+      "signals": []
     }
   ],
   "sources": [
@@ -181,7 +171,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 79.46 USD (2026-06-17, 7일 평균 88.45)",
+      "label": "Brent 원유 종가 78.94 USD (2026-06-17, 7일 평균 86.19)",
       "ref": "Yahoo Finance BZ=F"
     },
     {

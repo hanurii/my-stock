@@ -1,7 +1,7 @@
 {
   "code": "105560",
   "name": "KB금융",
-  "last_checked": "2026-06-17T09:19:54.468+09:00",
+  "last_checked": "2026-06-17T17:28:07.985+09:00",
   "metrics": [
     {
       "id": "pbr",
@@ -42,56 +42,56 @@
     {
       "id": "dividend_qoq_change",
       "label": "분기배당 QoQ 변화율",
-      "value": 37.59,
-      "display": "37.6%",
+      "value": null,
+      "display": "—",
       "threshold": "동결 또는 감소",
       "hit": false,
-      "tone": "good"
+      "tone": "neutral"
     },
     {
       "id": "buyback_cancellation_gap",
       "label": "자사주 소각결정 후 경과일",
-      "value": 55,
-      "display": "55일",
+      "value": 730,
+      "display": "730일",
       "threshold": "365일 후속 부재",
-      "hit": false,
-      "tone": "good"
+      "hit": true,
+      "tone": "bad"
     },
     {
       "id": "quarterly_net_income",
       "label": "최근 분기 순이익",
-      "value": 58407,
-      "display": "58,407억",
+      "value": null,
+      "display": "—",
       "threshold": "1.3조 이하 (Q1’26 1.89조 대비 -30%)",
       "hit": false,
-      "tone": "good"
+      "tone": "neutral"
     },
     {
       "id": "group_nim",
       "label": "그룹 NIM",
-      "value": 2.26,
-      "display": "2.26%",
+      "value": null,
+      "display": "—",
       "threshold": "1.7% 이하",
       "hit": false,
-      "tone": "good"
+      "tone": "neutral"
     },
     {
       "id": "npl_ratio",
       "label": "NPL 비율",
-      "value": 0.99,
-      "display": "0.99%",
+      "value": null,
+      "display": "—",
       "threshold": "0.5% 돌파",
-      "hit": true,
-      "tone": "bad"
+      "hit": false,
+      "tone": "neutral"
     },
     {
       "id": "quarterly_roe",
       "label": "ROE (사업보고서 기준 연환산)",
-      "value": 9.6,
-      "display": "9.60%",
+      "value": null,
+      "display": "—",
       "threshold": "10% 이하",
-      "hit": true,
-      "tone": "bad"
+      "hit": false,
+      "tone": "neutral"
     }
   ],
   "alerts": [
@@ -106,45 +106,66 @@
       "type": "pbr_premium_pp",
       "title": "4대 지주 평균 대비 PBR 프리미엄 +0.20pp 이상",
       "message": "현재 0.313pp — 매도 트리거 도달"
+    },
+    {
+      "severity": "warn",
+      "type": "dividend_qoq_change_missing",
+      "title": "분기배당 QoQ 변화율 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
+    },
+    {
+      "severity": "bad",
+      "type": "buyback_cancellation_gap",
+      "title": "자사주 소각결정 후 경과일 365일 후속 부재",
+      "message": "현재 730일 — 매도 트리거 도달"
+    },
+    {
+      "severity": "warn",
+      "type": "quarterly_net_income_missing",
+      "title": "최근 분기 순이익 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
+    },
+    {
+      "severity": "info",
+      "type": "news_keyword_hit",
+      "title": "리스크 키워드 매칭 뉴스 2건 (관찰 신호 0건 — 키워드 단순 매칭만)",
+      "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
-  "news_hits": [],
+  "news_hits": [
+    {
+      "keyword": "KB국민은행 충당금",
+      "date": "2026-06-17",
+      "title": "ELS 과징금 대폭 감경…KB국민은행, ‘충당금 환입·리딩뱅크 탈환’ 두 마리 토끼 - 녹색경제신문",
+      "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE5TSEsxd2ZnTE9qRnNhTXFONGNyMXlwNC1oOXI5NC1MN0RoazBZcUpnc3BjQnpJVFVXUGdsbmlYSlhoZXZPTmJaMV9NUHk1ZUVXcFo3OWhMTnRBUHY1U04yWFItbVBJWlZx?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "한국은행 기준금리 인하",
+      "date": "2026-06-12",
+      "title": "한국은행, 기준금리 추가 인하 예고… 경기 위험 대응 강화 - 미디어써치",
+      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTFBuR0RraENEblRsaThQMi1JaDVOUzkzZUVNYWtvWXZlbm5jRm1DdXVmTGtDdzQ0ZlhjNTV2RW1MemV6b180UHZfeVU5X05kSU1wd0hRSm1DU3prSUJDT05adHBFREhFYVQ0VWZwMy1YQlE?oc=5",
+      "severity": "info",
+      "signals": []
+    }
+  ],
   "sources": [
     {
       "label": "PER/PEG/PBR 스코어",
       "ref": "public/data/watchlist.json"
     },
     {
-      "label": "최근 자사주 소각 공시 (2026-04-23)",
-      "ref": "DART 20260423800583"
-    },
-    {
       "label": "4대 지주 평균 PBR 비교 (3종목)",
       "ref": "peers: 086790, 316140, 055550 / avg 0.767"
-    },
-    {
-      "label": "분기 배당 결정 ([기재정정]사업보고서 (2025.12))",
-      "ref": "DART 20260324000835 (alotMatter)"
     },
     {
       "label": "외국인 순매수 누적 (20일)",
       "ref": "네이버 dealTrendInfos / history 2026-06-16"
     },
     {
-      "label": "최근 분기 순이익 (2025-FY)",
-      "ref": "DART 20260324000835 (fnlttSinglAcntAll)"
-    },
-    {
-      "label": "NIM (2025-FY · 그룹 2.26%·은행 1.74%)",
-      "ref": "DART 20260324000835 (본문 정규식 추출)"
-    },
-    {
-      "label": "여신 건전성 (2025-FY · NPL 0.99%·연체 0.28%)",
-      "ref": "DART 20260324000835 (본문 정규식 추출)"
-    },
-    {
-      "label": "분기 ROE 연환산 (2025-FY · 9.6%)",
-      "ref": "DART 20260324000835 (fnlttSinglAcntAll: 자본총계+분기순이익)"
+      "label": "뉴스 RSS",
+      "ref": "news.google.com/rss (7일)"
     }
   ]
 }
