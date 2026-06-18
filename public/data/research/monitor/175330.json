@@ -1,13 +1,13 @@
 {
   "code": "175330",
   "name": "JB금융지주",
-  "last_checked": "2026-06-17T21:54:07.142+09:00",
+  "last_checked": "2026-06-18T09:20:36.921+09:00",
   "metrics": [
     {
       "id": "pbr",
       "label": "PBR",
-      "value": 0.87,
-      "display": "0.87배",
+      "value": 0.84,
+      "display": "0.84배",
       "threshold": "1.1배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "pbr_premium_pp",
       "label": "지방지주 평균 대비 PBR 프리미엄",
-      "value": 0.36,
-      "display": "0.360pp",
+      "value": 0.34,
+      "display": "0.340pp",
       "threshold": "+0.50pp 이상",
       "hit": false,
       "tone": "good"
@@ -42,29 +42,29 @@
     {
       "id": "dividend_qoq_change",
       "label": "분기배당 QoQ 변화율",
-      "value": null,
-      "display": "—",
+      "value": 14.57,
+      "display": "14.6%",
       "threshold": "동결 또는 감소",
       "hit": false,
-      "tone": "neutral"
+      "tone": "good"
     },
     {
       "id": "buyback_program_status",
-      "label": "자사주 프로그램 마지막 활동 후 경과일",
-      "value": 730,
-      "display": "730일",
+      "label": "자사주 프로그램 (마지막 소각결정 · 후속 지연)",
+      "value": 133,
+      "display": "133일",
       "threshold": "180일+ (1,550억 트랜치 미집행)",
-      "hit": true,
-      "tone": "bad"
+      "hit": false,
+      "tone": "warn"
     },
     {
       "id": "quarterly_net_income",
       "label": "최근 분기 순이익",
-      "value": null,
-      "display": "—",
+      "value": 7300,
+      "display": "7,300억",
       "threshold": "분기 적자 전환",
       "hit": false,
-      "tone": "neutral"
+      "tone": "good"
     },
     {
       "id": "pf_loss_disclosure",
@@ -87,20 +87,20 @@
     {
       "id": "npl_ratio",
       "label": "NPL 비율",
-      "value": null,
-      "display": "—",
+      "value": 1.12,
+      "display": "1.12%",
       "threshold": "1.5% 돌파 (지방지주 기준)",
       "hit": false,
-      "tone": "neutral"
+      "tone": "good"
     },
     {
       "id": "quarterly_roe",
       "label": "ROE (사업보고서 기준 연환산)",
-      "value": null,
-      "display": "—",
+      "value": 11.82,
+      "display": "11.82%",
       "threshold": "8% 이하",
       "hit": false,
-      "tone": "neutral"
+      "tone": "good"
     }
   ],
   "alerts": [
@@ -112,21 +112,9 @@
     },
     {
       "severity": "warn",
-      "type": "dividend_qoq_change_missing",
-      "title": "분기배당 QoQ 변화율 데이터 미수집",
-      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
-    },
-    {
-      "severity": "bad",
       "type": "buyback_program_status",
-      "title": "자사주 프로그램 마지막 활동 후 경과일 180일+ (1,550억 트랜치 미집행)",
-      "message": "현재 730일 — 매도 트리거 도달"
-    },
-    {
-      "severity": "warn",
-      "type": "quarterly_net_income_missing",
-      "title": "최근 분기 순이익 데이터 미수집",
-      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
+      "title": "자사주 프로그램 (마지막 소각결정 · 후속 지연) 임계 근접",
+      "message": "현재 133일 (임계 180일+ (1,550억 트랜치 미집행))"
     }
   ],
   "news_hits": [],
@@ -137,11 +125,31 @@
     },
     {
       "label": "4대 지주 평균 PBR 비교 (1종목)",
-      "ref": "peers: 138930 / avg 0.51"
+      "ref": "peers: 138930 / avg 0.5"
+    },
+    {
+      "label": "분기 배당 결정 (사업보고서 (2025.12))",
+      "ref": "DART 20260318001225 (alotMatter)"
     },
     {
       "label": "외국인 순매수 누적 (20일)",
       "ref": "네이버 dealTrendInfos / history 2026-06-17"
+    },
+    {
+      "label": "최근 분기 순이익 (2025-FY)",
+      "ref": "DART 20260318001225 (fnlttSinglAcntAll)"
+    },
+    {
+      "label": "자사주 프로그램 마지막 활동 (2026-02-05 · 소각결정) — 누적 취득 9 / 결과 0 / 소각 9",
+      "ref": "DART 20260205800888"
+    },
+    {
+      "label": "여신 건전성 (2025-FY · NPL 1.12%·연체 1.46%)",
+      "ref": "DART 20260318001225 (본문 정규식 추출)"
+    },
+    {
+      "label": "분기 ROE 연환산 (2025-FY · 11.82%)",
+      "ref": "DART 20260318001225 (fnlttSinglAcntAll: 자본총계+분기순이익)"
     }
   ]
 }

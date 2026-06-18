@@ -1,7 +1,7 @@
 {
   "code": "099410",
   "name": "동방선기",
-  "last_checked": "2026-06-17T21:54:49.654+09:00",
+  "last_checked": "2026-06-18T09:21:33.054+09:00",
   "metrics": [
     {
       "id": "no_capital_issuance",
@@ -15,26 +15,26 @@
     {
       "id": "op_margin_collapse",
       "label": "❌ 분기 영업이익률 급락 (관리종목 이력)",
-      "value": null,
-      "display": "—",
+      "value": 22.18,
+      "display": "22.2%",
       "threshold": "12% 이하",
       "hit": false,
-      "tone": "neutral"
+      "tone": "good"
     },
     {
       "id": "op_margin_strong",
       "label": "✅ 분기 영업이익률 견조",
-      "value": null,
-      "display": "—",
+      "value": 22.18,
+      "display": "22.2%",
       "threshold": "18% 이상",
-      "hit": false,
-      "tone": "neutral"
+      "hit": true,
+      "tone": "good"
     },
     {
       "id": "per_value_zone",
       "label": "✅ PER 저평가",
-      "value": 7.14,
-      "display": "7.14배",
+      "value": 7.17,
+      "display": "7.17배",
       "threshold": "8.0배 이하 (현 9.67배)",
       "hit": true,
       "tone": "good"
@@ -51,8 +51,8 @@
     {
       "id": "new_supply_contract",
       "label": "✅ 신규 단일판매·공급계약",
-      "value": null,
-      "display": "—",
+      "value": 180,
+      "display": "180일 전",
       "threshold": "최근 7일 내 신규",
       "hit": false,
       "tone": "neutral"
@@ -60,28 +60,16 @@
   ],
   "alerts": [
     {
-      "severity": "warn",
-      "type": "op_margin_collapse_missing",
-      "title": "❌ 분기 영업이익률 급락 (관리종목 이력) 데이터 미수집",
-      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
-    },
-    {
-      "severity": "warn",
-      "type": "op_margin_strong_missing",
-      "title": "✅ 분기 영업이익률 견조 데이터 미수집",
-      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
+      "severity": "info",
+      "type": "op_margin_strong",
+      "title": "✅ 분기 영업이익률 견조 18% 이상",
+      "message": "현재 22.2% — 매수 시그널 (분할 진입 검토 권장)"
     },
     {
       "severity": "info",
       "type": "per_value_zone",
       "title": "✅ PER 저평가 8.0배 이하 (현 9.67배)",
-      "message": "현재 7.14배 — 매수 시그널 (분할 진입 검토 권장)"
-    },
-    {
-      "severity": "warn",
-      "type": "new_supply_contract_missing",
-      "title": "✅ 신규 단일판매·공급계약 데이터 미수집",
-      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
+      "message": "현재 7.17배 — 매수 시그널 (분할 진입 검토 권장)"
     },
     {
       "severity": "warn",
@@ -104,6 +92,14 @@
     {
       "keyword": "조선 슈퍼사이클",
       "date": "2026-06-16",
+      "title": "\"삼미금속, 조선 슈퍼사이클 수혜 본격화\" - IBK證 - 뉴스핌",
+      "url": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE1RTHZPYkRxbTJYZmxmaE5sNnctNlVjbTNoNVhKNlN4VkhNRlVJeEZsT0szWDlGZm9TYlVVOGl3Q1lHeFhmR0hkSldrMnVsQzdLampoa1FLTDJia2Za?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "조선 슈퍼사이클",
+      "date": "2026-06-16",
       "title": "신조선가지수 9주 연속 상승...중고선가(5년), 신조선가 크게 뚫어버린 탱커, 마치 2007년 슈퍼사이클 - 쉬핑뉴스넷",
       "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTFBNX1E2ZmhHdUY3djhFa1lpby01RXlybm0tVkZwNDRkUVBSc1FBaTZhNE5xRlJzU2hORjJFX29Rd29HdUhKUzJfc2tHanF0dzRsZTFFcE5lOHpHMHROY2htMzZUb3ZzQlA3R1ZRSHBLNWE5dDQ?oc=5",
       "severity": "info",
@@ -116,20 +112,16 @@
       "url": "https://news.google.com/rss/articles/CBMia0FVX3lxTE5JWk1UZlhYVThENjJXRlR2Q2MwMTFCYVNzWlNmV0dnTHgyN2dYUGM0YVJzMVFtN3dpR3I3dmVTY1l3dnp0ZnNwWVpybnpXajF4V3h4QmQycXlSbkEtd1lEUnhuN2lIdC12NFRn?oc=5",
       "severity": "info",
       "signals": []
-    },
-    {
-      "keyword": "조선 슈퍼사이클",
-      "date": "2026-06-16",
-      "title": "\"삼미금속, 조선 슈퍼사이클 수혜 본격화\" - IBK證 - 뉴스핌",
-      "url": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE1RTHZPYkRxbTJYZmxmaE5sNnctNlVjbTNoNVhKNlN4VkhNRlVJeEZsT0szWDlGZm9TYlVVOGl3Q1lHeFhmR0hkSldrMnVsQzdLampoa1FLTDJia2Za?oc=5",
-      "severity": "info",
-      "signals": []
     }
   ],
   "sources": [
     {
       "label": "PER/PEG/PBR 스코어",
       "ref": "public/data/growth-watchlist.json"
+    },
+    {
+      "label": "분기 영업이익률 (2025)",
+      "ref": "DART 20260323001236"
     },
     {
       "label": "뉴스 RSS",

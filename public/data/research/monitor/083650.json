@@ -1,52 +1,52 @@
 {
   "code": "083650",
   "name": "비에이치아이",
-  "last_checked": "2026-06-17T21:53:24.847+09:00",
+  "last_checked": "2026-06-18T09:17:40.747+09:00",
   "metrics": [
     {
       "id": "op_margin",
-      "label": "분기 영업이익률",
-      "value": null,
-      "display": "—",
+      "label": "분기 영업이익률 (2025)",
+      "value": 9.75,
+      "display": "9.8%",
       "threshold": "7% 이하",
       "hit": false,
-      "tone": "neutral"
+      "tone": "warn"
     },
     {
       "id": "supply_gap",
       "label": "수주 공백",
-      "value": null,
-      "display": "—",
+      "value": 13,
+      "display": "13일",
       "threshold": "90일 경과",
       "hit": false,
-      "tone": "neutral"
+      "tone": "good"
     },
     {
       "id": "park_eun_mi_ratio",
       "label": "박은미 지분 비율",
-      "value": null,
-      "display": "—",
+      "value": 16.8,
+      "display": "16.80%",
       "threshold": "15% 이하로 감소",
       "hit": false,
-      "tone": "neutral"
+      "tone": "good"
     },
     {
       "id": "owner_sell_count",
       "label": "오너 일가 매도 공시 (90일)",
-      "value": null,
-      "display": "—",
+      "value": 0,
+      "display": "0건",
       "threshold": "매도 건수 1건+",
       "hit": false,
-      "tone": "neutral"
+      "tone": "good"
     },
     {
       "id": "owner_sell_shares",
       "label": "오너 일가 누적 매도",
-      "value": null,
-      "display": "—",
+      "value": 0,
+      "display": "0주",
       "threshold": "50만주 이상",
       "hit": false,
-      "tone": "neutral"
+      "tone": "good"
     },
     {
       "id": "bhi_construction_disclosure",
@@ -61,35 +61,24 @@
   "alerts": [
     {
       "severity": "warn",
-      "type": "op_margin_missing",
-      "title": "분기 영업이익률 데이터 미수집",
-      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
-    },
-    {
-      "severity": "warn",
-      "type": "supply_gap_missing",
-      "title": "수주 공백 데이터 미수집",
-      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
-    },
-    {
-      "severity": "warn",
-      "type": "park_eun_mi_ratio_missing",
-      "title": "박은미 지분 비율 데이터 미수집",
-      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
-    },
-    {
-      "severity": "warn",
-      "type": "owner_sell_count_missing",
-      "title": "오너 일가 매도 공시 (90일) 데이터 미수집",
-      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
-    },
-    {
-      "severity": "warn",
-      "type": "owner_sell_shares_missing",
-      "title": "오너 일가 누적 매도 데이터 미수집",
-      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
+      "type": "op_margin",
+      "title": "분기 영업이익률 (2025) 임계 근접",
+      "message": "현재 9.8% (임계 7% 이하)"
     }
   ],
   "news_hits": [],
-  "sources": []
+  "sources": [
+    {
+      "label": "최근 공급계약 공시",
+      "ref": "DART 20260605900607"
+    },
+    {
+      "label": "분기 영업이익률 (2025)",
+      "ref": "DART 20260320000821"
+    },
+    {
+      "label": "박은미 보유 비율 (2025)",
+      "ref": "DART 20260320000821 (hyslrSttus)"
+    }
+  ]
 }
