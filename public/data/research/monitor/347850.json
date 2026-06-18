@@ -1,13 +1,13 @@
 {
   "code": "347850",
   "name": "디앤디파마텍",
-  "last_checked": "2026-06-18T09:21:08.947+09:00",
+  "last_checked": "2026-06-18T17:08:25.889+09:00",
   "metrics": [
     {
       "id": "pbr",
       "label": "PBR (극고평가)",
-      "value": 61.81,
-      "display": "61.81배",
+      "value": 63.63,
+      "display": "63.63배",
       "threshold": "50배 돌파",
       "hit": true,
       "tone": "bad"
@@ -54,16 +54,39 @@
       "severity": "bad",
       "type": "pbr",
       "title": "PBR (극고평가) 50배 돌파",
-      "message": "현재 61.81배 — 매도 트리거 도달"
+      "message": "현재 63.63배 — 매도 트리거 도달"
     },
     {
       "severity": "bad",
       "type": "capital_issuance",
       "title": "신규 자본조달 (CB/BW/EB/유증) 90일 발행 공시 1건+",
       "message": "현재 3건 — 매도 트리거 도달"
+    },
+    {
+      "severity": "info",
+      "type": "news_keyword_hit",
+      "title": "리스크 키워드 매칭 뉴스 2건 (관찰 신호 0건 — 키워드 단순 매칭만)",
+      "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
-  "news_hits": [],
+  "news_hits": [
+    {
+      "keyword": "디앤디파마텍 DD01 임상",
+      "date": "2026-06-18",
+      "title": "HistoIndex, 디앤디파마텍 MASH 치료제 DD01 임상 2상 AI 분석 결과 공개 - 바이오타임즈",
+      "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE0tU282UXo3aWNFR0JNY3J2UjloQ0Y2VjhqTWhEVGNhMW1hQUw5amJLRmttUzVZT2g4UHJMd3M0OXRjckpBOTR5X1VDd3V6enNpR3RDY1h3QzFZM1NJVTI2MmdSMC12UHhWSV93MQ?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "디앤디파마텍 FDA",
+      "date": "2026-06-18",
+      "title": "디앤디파마텍, 'MASH 환자 82%' 섬유화 개선 증명…\"美 FDA 승인 치료제 보다 뛰어나\" - 네이트",
+      "url": "https://news.google.com/rss/articles/CBMiU0FVX3lxTE80RUdkZkIyUzVSMUtiX3R5UFJDUEtPRzJtRTFmTVlqQkxpdnI2Tk0tN2JIWXM2MU52dXhYbm9yajIxTERCdklmU0NCekczVGlTUTlB?oc=5",
+      "severity": "info",
+      "signals": []
+    }
+  ],
   "sources": [
     {
       "label": "PER/PEG/PBR 스코어",
@@ -84,6 +107,10 @@
     {
       "label": "ClinicalTrials.gov 임상 5건 (30일 status 변경 0건)",
       "ref": "query.spons: D&D Pharmatech, Neuraly"
+    },
+    {
+      "label": "뉴스 RSS",
+      "ref": "news.google.com/rss (7일)"
     }
   ]
 }
