@@ -1,7 +1,7 @@
 {
   "code": "175330",
   "name": "JB금융지주",
-  "last_checked": "2026-06-18T21:32:18.994+09:00",
+  "last_checked": "2026-06-19T17:34:22.531+09:00",
   "metrics": [
     {
       "id": "pbr",
@@ -24,8 +24,8 @@
     {
       "id": "foreign_ratio",
       "label": "외국인 지분율",
-      "value": 33.92,
-      "display": "33.92%",
+      "value": 33.98,
+      "display": "33.98%",
       "threshold": "25% 이하",
       "hit": false,
       "tone": "good"
@@ -51,8 +51,8 @@
     {
       "id": "buyback_program_status",
       "label": "자사주 프로그램 (마지막 소각결정 · 후속 지연)",
-      "value": 133,
-      "display": "133일",
+      "value": 134,
+      "display": "134일",
       "threshold": "180일+ (1,550억 트랜치 미집행)",
       "hit": false,
       "tone": "warn"
@@ -114,10 +114,33 @@
       "severity": "warn",
       "type": "buyback_program_status",
       "title": "자사주 프로그램 (마지막 소각결정 · 후속 지연) 임계 근접",
-      "message": "현재 133일 (임계 180일+ (1,550억 트랜치 미집행))"
+      "message": "현재 134일 (임계 180일+ (1,550억 트랜치 미집행))"
+    },
+    {
+      "severity": "info",
+      "type": "news_keyword_hit",
+      "title": "리스크 키워드 매칭 뉴스 2건 (관찰 신호 0건 — 키워드 단순 매칭만)",
+      "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
-  "news_hits": [],
+  "news_hits": [
+    {
+      "keyword": "지방은행 부실",
+      "date": "2026-06-19",
+      "title": "캠코, 4천100억 펀드 조성…지방은행 부실채권 정리 돕는다 - 연합인포맥스",
+      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE9sM08yM1FQX0Q5UFVQNVdyZVN0aVhrTEgzOExibW1yamN4RmJiVzhXVi1xRGsyZ1RlaUM0TTJkZEVOY1VkNWVicFI4Y1p0aEQ0NzdPWjhJc194U2lVdzdYTnkyTUtuSl9iOGZfeUcyRUs?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "지방은행 부실",
+      "date": "2026-06-19",
+      "title": "캠코, 지방은행 부실채권 정리에 4100억 펀드 투입 - 아주경제",
+      "url": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE1hX1VDM0RNb2pGWjNSbXYyakVZbXVlczJmdWJMaXpoUmtVeXlPU0xWVlVEMGJUR3l2QXdNOWs2akUzS2N3N2t6Z3Y2MC0tUnFEYUN6MmxMN0p5QdIBWEFVX3lxTE4wYm1rS3Q5V0tCb1JBZ180RXhMN0Nvd1BoYWJvSlBYRk9YZWRlTFZsU01leHEyWmc5bkxhTXh4OF9NanlyU2tVX0ZYQlBYZTN4bFJ0WW9qQVQ?oc=5",
+      "severity": "info",
+      "signals": []
+    }
+  ],
   "sources": [
     {
       "label": "PER/PEG/PBR 스코어",
@@ -150,6 +173,10 @@
     {
       "label": "분기 ROE 연환산 (2025-FY · 11.82%)",
       "ref": "DART 20260318001225 (fnlttSinglAcntAll: 자본총계+분기순이익)"
+    },
+    {
+      "label": "뉴스 RSS",
+      "ref": "news.google.com/rss (7일)"
     }
   ]
 }
