@@ -188,6 +188,15 @@ def fetch_integrated_price(code: str, token: str | None = None,
         except (ValueError, TypeError):
             return None
 
+    def _f(key: str) -> float | None:
+        v = out.get(key)
+        if v is None or v == "":
+            return None
+        try:
+            return float(str(v).replace(",", ""))
+        except (ValueError, TypeError):
+            return None
+
     cur = _i("stck_prpr")
     if cur is None or cur <= 0:
         return None
@@ -199,5 +208,15 @@ def fetch_integrated_price(code: str, token: str | None = None,
         "low": _i("stck_lwpr"),
         "high_52w": _i("w52_hgpr"),
         "low_52w": _i("w52_lwpr"),
+        "foreign_rate": _f("hts_frgn_ehrt"),  # 외국인 소진율 (%)
         "market_div": market_div,
     }
+
+
+def fetch_foreign_rate(code: str, token: str | None = None) -> float | None:
+    """외국인 소진율(%) 단건 조회 — inquire-price hts_frgn_ehrt.
+
+    ohlcv_matrix.refresh_foreign 에서 전 종목 외인 캐시 갱신용 (단일 프로세스).
+    """
+    info = fetch_integrated_price(code, token=token, market_div="UN")
+    return info.get("foreign_rate") if info else None

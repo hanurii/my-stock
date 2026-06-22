@@ -22,8 +22,10 @@ description: >
 
 ## 사전 조건
 
-- `.env` 의 `DART_API_KEY` 설정
+- `.env` 의 `DART_API_KEY`(공시·펀더) + `DATA_GO_KR_KEY`(공공데이터 일봉, 행렬 필수) 설정
+- `.env` 의 `KIS_APP_KEY`·`KIS_APP_SECRET` (외인소진율 + 6.5단계 통합시세; 없으면 외인 갱신·6.5 자동 skip)
 - 어제 풀스캔 결과 `public/data/can-slim-candidates.json` 존재 (없으면 1단계가 신규 상장 = 전 종목으로 폴백 — 시간 늘어남)
+- OHLCV 행렬 최초 1회 백필 필요: `pwsh -File scripts/canslim_parallel.ps1` 첫 실행이 ~400영업일을 채움(~5분). 이후엔 증분(영업일 1개)만.
 
 ## 실행 절차 (7단계)
 
@@ -37,24 +39,36 @@ python scripts/canslim_incremental_check.py
 - **체크**: 콘솔의 "갱신 대상 K종목" 메시지 — 평일 보통 50~150개, 사업보고서 마감 시기엔 200+
 - 소요: 5-15초
 
-### 2단계 — C 메인 풀스캔 (대부분 캐시 hit)
+### 2단계 — C 메인 풀스캔 (배치 OHLCV 행렬 + 10워커 병렬)
 ```
-python scripts/screen_canslim.py --save --cache-ttl-hours 72
+pwsh -NoProfile -File scripts/canslim_parallel.ps1
 ```
-- 1단계에서 무효화한 K종목만 새로 fetch, 나머지는 stock_cache hit (TTL 72h)
-- TTL 72h 인 이유: /make-hero 가 1-2일 주기로 호출되므로 24h 기본값은 매번 만료.
-  분기 EPS·매출·NI 같은 펀더 데이터는 며칠 stale 해도 무방. 가격 데이터는 트렌드
-  1단계가 매일 새로 받으므로 안전 (cache 영향 없음).
-- `can-slim-candidates.json` 갱신
-- 소요: ~5-10분 (캐시 hit 효과)
+- 내부 4단계 자동 실행:
+  1. **OHLCV 행렬 + 외인 갱신** (`ohlcv_matrix.py --update --foreign`, 단일 프로세스)
+     - 가격은 공공데이터포털(pdata) basDt 1회 호출로 전 종목 일봉을 받아 누적 행렬에 추가.
+       종목별 Naver 일봉 루프 제거 → 매일 최신 1영업일만 fetch. **비수정주가라 일별 등락률로
+       수정주가 복원**(액면분할 종목 가짜 추세 방지).
+     - 외인소진율은 KIS `inquire-price`(hts_frgn_ehrt)로 미보유/만료(7일) 종목만 갱신.
+  2. **연간 재무 prewarm** (`screen_canslim.py --prewarm-annual`, 단일 프로세스)
+     - 연간 EPS/ROE(A기준)는 Naver(분할조정값)가 정확해 유지하되, 워커 병렬 시 Naver
+       동시 호출이 스로틀링되므로 **워커 전에 단일 프로세스로 45일 캐시를 미리 데움**.
+       정상일엔 캐시 hit 으로 수초, 최초/45일마다만 ~7분.
+  3. **10워커 병렬 Pass 1** (`canslim_worker.ps1`, universe 슬라이스 분할, 캐시 TTL 72h)
+     - 가격=행렬, 연간=prewarm 캐시, **분기 EPS/매출(C기준)=DART**(분기 YoY 는 Naver 와 일치
+       검증됨). 캐시 미스 종목도 워커 안에선 Naver 호출 0 → 병렬 차단 위험 없음.
+     - DART rate limit 은 워커당 자동 분할(800/N).
+  4. **reduce 병합 + 저장** (`screen_canslim.py --reduce` → `can-slim-candidates.json`)
+- 워커/창 수 조정: `-Workers 8`, 외인 갱신 생략: `-SkipForeign`.
+- KIS 키 없으면 외인 갱신 자동 skip(기존 캐시 사용), DATA_GO_KR_KEY 없으면 행렬 갱신 실패 → abort.
+- 소요: 정상일 ~3-5분 (행렬·연간·외인 캐시 hit + 병렬). 최초 1회만 행렬 백필(~5분)+연간 prewarm(~7분).
 
-### 3단계 — 트렌드 1단계 (전 종목 일봉 갱신)
+### 3단계 — 트렌드 1단계 (전 종목 일봉 = 배치 행렬)
 ```
 python scripts/screen_trend_template.py --save
 ```
-- 가격 데이터는 매일 새로 받음 (캐시 X)
+- 일봉은 2단계에서 갱신된 OHLCV 행렬을 읽음(종목별 Naver 호출 제거, Yahoo 폴백 유지).
 - `trend-template-candidates.json` 갱신
-- 소요: ~1분
+- 소요: ~30초 (행렬 조회 + 병렬 12워커)
 
 ### 4단계 — L 점수 갱신 (트렌드 RS 차용)
 ```
@@ -103,7 +117,7 @@ git push
 - 데이터 파일만 명시적 staging (코드 변경 자동 포함 X)
 - Vercel 이 자동 배포 트리거
 
-총 소요: 평일 평균 **10-15분**.
+총 소요: 평일 평균 **5-8분** (행렬 캐시 hit + 2단계 병렬). 행렬 최초 백필 날만 +5분.
 
 ## 결과 확인 (스킬 끝나면)
 
@@ -114,8 +128,10 @@ git push
 ## 안전 / 검증
 
 - **각 단계 실패 시 abort**: 다음 단계 진행 안 함. 단 2단계(C 메인) 실패 시 트렌드 파이프라인(3~6)은 그대로 진행 가능 — 트렌드는 메인 C 결과 의존 없음.
-- **DART API 한도**: 분당 1000. 1단계 list.json 호출은 페이지 ≤ 10회 안전.
-- **`stock_cache` TTL 24h**: 1단계가 명시 무효화한 종목 외에도 24h 지난 캐시는 자연 갱신 (이중 안전망).
+- **DART API 한도**: 분당 1000. 1단계 list.json ≤ 10회. 2단계 워커는 워커당 800/N 으로 자동 분할(합산 ≤ 800).
+- **`stock_cache` TTL 72h**: 워커가 72h 캐시를 쓰므로 1단계 명시 무효화 종목 + 72h 만료분만 재fetch.
+- **워커 내 Naver 호출 0**: 가격=행렬(공공데이터), 외인=KIS, 연간=prewarm 캐시, 분기=DART. 워커 병렬 구간에서 Naver 종목별 호출이 없어 차단 위험 제거. (연간만 Naver 인 이유: 액면분할 조정 EPS 정확도 — 단일 프로세스 prewarm 으로 동시성 회피.)
+- **OHLCV 수정주가**: pdata 는 비수정주가라 일별 등락률(fltRt) 역체이닝으로 복원. pykrx 는 현재 KRX 엔드포인트와 불호환이라 미사용.
 - **자동 commit 거부 케이스**: 사용자 미커밋 변경 / 충돌 / push 거부 (origin 새 커밋) → 사용자 보고 후 멈춤.
 
 ## 안 하는 것

@@ -70,7 +70,7 @@ from canslim_lib.fetch import (  # noqa: E402
     yahoo_symbol,
 )
 from canslim_lib.pykrx_universe import fetch_universe_with_cap  # noqa: E402
-from canslim_lib import pdata, stock_cache  # noqa: E402
+from canslim_lib import ohlcv_matrix, pdata, stock_cache  # noqa: E402
 from canslim_lib.criteria import (  # noqa: E402
     A_ROE_MIN,
     C_QUARTERLY_EPS_MIN,
@@ -392,14 +392,35 @@ def collect_raw_data(
 # ─────────────────────────────────────────────────────────────────────────
 # collect_raw_data_v2 — 하이브리드 (Naver + DART)
 #   - 시세/시총/거래량: pdata (공공데이터포털)
-#   - OHLCV + 외인: api.stock.naver.com (별개 host, rate limit 분리)
-#   - 연간 EPS/ROE/매출: Naver fetch_annual (1 호출, 다년치 한번에)
-#   - 분기 EPS/매출: Naver fetch_quarter (1 호출, 5분기) + DART backfill (캐시 hit이면 free)
+#   - OHLCV + 외인: 배치 OHLCV 행렬(pdata) + KIS (종목별 Naver 일봉 루프 제거)
+#   - 연간 EPS/ROE (A기준): Naver fetch_annual — 단, 분할조정 EPS 라 DART as-filed 보다
+#     정확(액면분할 종목 다년 성장률). 장기(45일) 캐시로 워커 병렬 시 Naver 호출 최소화.
+#   - 분기 EPS/매출 (C기준): DART (분기 YoY 는 DART 와 Naver 가 일치 검증됨, 병렬 안전)
 #   - 잠정실적/5%룰: DART (대안 없음)
 #   기존 collect_raw_data 와 동일한 반환 shape 유지 → evaluate_with_rs 변경 불필요
-#
-# DART 호출 양: 종목당 잠정 1 + 5%룰 1 + 분기 backfill (캐시 활용) = 일일 운영 시 ~3 호출
 # ─────────────────────────────────────────────────────────────────────────
+
+_ANNUAL_CACHE_DIR = ROOT / ".cache" / "naver_annual"
+
+
+def _fetch_annual_cached(code: str, ttl_days: float = 45.0) -> dict | None:
+    """Naver 연간 재무 — 장기 파일 캐시. 연간 데이터는 yearly 갱신이라 45일 stale 무방.
+    워커 병렬 시 캐시 hit 으로 Naver 호출을 거의 안 해 스로틀링 회피."""
+    p = _ANNUAL_CACHE_DIR / f"{code}.json"
+    try:
+        if p.exists() and (time.time() - p.stat().st_mtime) < ttl_days * 86400:
+            return json.loads(p.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        pass
+    ann = fetch_annual(code)
+    if ann:
+        try:
+            _ANNUAL_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+            p.write_text(json.dumps(ann, ensure_ascii=False), encoding="utf-8")
+        except OSError:
+            pass
+    return ann
+
 
 def collect_raw_data_v2(
     code: str,
@@ -431,8 +452,8 @@ def collect_raw_data_v2(
     if min_price > 0 and current_price > 0 and current_price < min_price:
         return {"_skipped_low_price": True, "price": current_price}
 
-    # ─── 2) api.stock.naver.com day chart (OHLCV + 외인 시계열) ──
-    chart_raw = fetch_naver_day_chart(code, days_back=400)
+    # ─── 2) 배치 OHLCV 행렬 (pdata 일봉 + KIS 외인) — Naver 종목 루프 대체 ──
+    chart_raw = ohlcv_matrix.get_series(code, days_back=400)
     if not chart_raw:
         chart = {"closes": [], "volumes": [], "timestamps": [], "foreign_rates": []}
     else:
@@ -468,43 +489,40 @@ def collect_raw_data_v2(
     # ─── 5) corp_code resolve ────────────────────────────
     corp_code, common_code = resolve_corp_code(code, corp_map)
 
-    # ─── 6) Naver fetch_annual — 연간 EPS/ROE/매출/순이익 (1회 호출, 다년치) ──
+    # ─── 6) 연간 재무 (EPS/ROE/순이익) — Naver(분할조정), 45일 장기 캐시 ──
+    # DART as-filed EPS 는 액면분할 종목의 다년 성장률(A기준)을 왜곡(예: 1:5 분할 →
+    # 과거 EPS 5배). Naver 는 분할조정 EPS 라 A 판정이 정확(검증: C 0 flips, A 는 DART 사용 시
+    # 분할종목에서 flip). 따라서 연간만 Naver 유지하되 장기 캐시로 워커 병렬 호출 최소화.
     current_year = datetime.now().year
-    ann = fetch_annual(code)
+    ann = _fetch_annual_cached(code)
     annual_eps = get_row_values(ann, "EPS") if ann else []
     annual_roe = get_row_values(ann, "ROE") if ann else []
-    annual_ni_rows = get_row_values(ann, "당기순이익") if ann else []
     # 잠정실적 발행주식수 계산용 (key: period, value: 억원)
-    annual_ni_eok: dict[str, float] = {p: v for p, v in annual_ni_rows}
+    annual_ni_eok: dict[str, float] = {p: v for p, v in (get_row_values(ann, "당기순이익") if ann else [])}
 
-    # ─── 7) Naver fetch_quarter (5분기) — 분기 EPS/매출 ──
-    qtr = fetch_quarter(code)
-    quarter_eps = get_row_values(qtr, "EPS") if qtr else []
-    quarter_sales = get_row_values(qtr, "매출액") if qtr else []
+    # ─── 7) DART 분기 재무 (EPS/매출) — Naver fetch_quarter 대체 ──
+    # 각 fetch_dart_quarterly_*(corp, yr) 호출이 (yr-1, yr) 6분기를 반환 → 3년치면 ≥12분기.
+    # 과거연도 영구 캐시. 중복 분기는 dict 로 dedup(동일 분기 값 동일).
+    quarter_eps: list[tuple[str, float]] = []
+    quarter_sales: list[tuple[str, float]] = []
+    if corp_code:
+        eps_map: dict[str, float] = {}
+        sales_map: dict[str, float] = {}
+        for yr in (current_year - 2, current_year - 1, current_year):
+            for p, v in (fetch_dart_quarterly_eps_history(corp_code, yr) or []):
+                eps_map[p] = v
+            for p, v in (fetch_dart_quarterly_sales_history(corp_code, yr) or []):
+                sales_map[p] = v / 1e8  # DART 매출 단위 정규화: 원 → 억원
+        quarter_eps = sorted(eps_map.items())
+        quarter_sales = sorted(sales_map.items())
 
-    # ─── 7-1) DART 분기 backfill (캐시 hit 시 무료, miss 시 호출) ──
-    # Naver 5분기 부족분 보강 + Q1 마감 후 최신 분기 확정값 추가.
-    # 각 fetch_dart_quarterly_eps_history(corp, yr) 호출이 (yr-1, yr) 6분기를 반환하므로
-    # 3년치 호출이면 ≥12분기 시계열 보장. 과거 연도는 영구 캐시라 두 번째 풀스캔부터 무료.
-    # 이전 정책 ({naver_latest_year-1, current_year}) 은 시점에 따라 시계열 길이가 흔들려
-    # YoY history 의 prior 위치가 잘못 잡히는 문제가 있었음 → 고정 3년으로 변경.
-    if corp_code and quarter_eps:
-        dart_eps_combined: list[tuple[str, float]] = []
-        dart_sales_combined: list[tuple[str, float]] = []
-        years_to_fetch = {current_year - 2, current_year - 1, current_year}
-        for yr in years_to_fetch:
-            eps_y = fetch_dart_quarterly_eps_history(corp_code, yr)
-            sales_y = fetch_dart_quarterly_sales_history(corp_code, yr)
-            if eps_y:
-                dart_eps_combined.extend(eps_y)
-            if sales_y:
-                dart_sales_combined.extend(sales_y)
-        if dart_eps_combined:
-            quarter_eps = merge_naver_dart_quarters(quarter_eps, dart_eps_combined)
-        if dart_sales_combined:
-            # DART 매출 단위 정규화: 원 → 억원
-            dart_sales_eok = [(p, v / 1e8) for p, v in dart_sales_combined]
-            quarter_sales = merge_naver_dart_quarters(quarter_sales, dart_sales_eok)
+    # 폴백: DART 분기 실패면 Naver 로 보강.
+    if not quarter_eps:
+        qtr = fetch_quarter(code)
+        if qtr:
+            quarter_eps = get_row_values(qtr, "EPS")
+            if not quarter_sales:
+                quarter_sales = get_row_values(qtr, "매출액")
 
     # ─── 8) Tier 2 게이트 (잠정실적 + 5%룰 호출 여부 결정) ──
     do_tier2 = (not skip_tier2_if_c_ineligible) or _light_c_eligible(quarter_eps)
@@ -723,11 +741,28 @@ def main() -> None:
     parser.add_argument("--legacy-v1", action="store_true",
                         help="m.stock.naver.com 기반 v1 collect_raw_data 사용 (legacy/rollback). "
                              "default: v2 — pdata + api.stock.naver.com + DART 일원화 (m.stock.naver.com 호출 0).")
+    parser.add_argument("--prewarm-annual", action="store_true",
+                        help="연간 재무(Naver) 캐시를 단일 프로세스로 미리 갱신 후 종료. 워커 병렬 실행 전에 "
+                             "호출하면 워커가 연간 캐시 hit 으로 Naver 스로틀링을 피함.")
     args = parser.parse_args()
 
     if args.clear_cache:
         n = stock_cache.clear()
         print(f"🗑  종목 캐시 {n}개 삭제됨")
+
+    # 연간 캐시 prewarm (단일 프로세스, 워커 실행 전) — Naver 동시성 회피
+    if args.prewarm_annual:
+        universe = fetch_universe_with_cap(args.market)
+        print(f"🔥 연간 재무 캐시 prewarm: {len(universe)}종목 (단일 프로세스)")
+        t0 = time.time()
+        warmed = 0
+        for i, s in enumerate(universe):
+            if _fetch_annual_cached(s["code"]):
+                warmed += 1
+            if (i + 1) % 300 == 0:
+                print(f"  ... {i + 1}/{len(universe)} ({warmed} 성공, {time.time() - t0:.0f}초)")
+        print(f"✅ 연간 prewarm 완료: {warmed}/{len(universe)} ({time.time() - t0:.0f}초)")
+        return
 
     # 워치리스트 경영진 품질 매핑 (C 점수 축 ④ 산출용)
     management_map = load_watchlist_management()

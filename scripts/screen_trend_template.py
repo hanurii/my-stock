@@ -42,10 +42,10 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from canslim_lib.fetch import (  # noqa: E402
-    fetch_naver_day_chart,
     fetch_yahoo_chart,
     yahoo_symbol,
 )
+from canslim_lib import ohlcv_matrix  # noqa: E402
 from canslim_lib.pykrx_universe import fetch_universe_with_cap  # noqa: E402
 from canslim_lib.criteria import evaluate_m  # noqa: E402
 from canslim_lib.trend_template import (  # noqa: E402
@@ -74,10 +74,10 @@ MIN_RS_COMPARISON_POOL = 100         # RS 표본 < 100 이면 RS = None
 # ──────────────────────────────────────────────────
 
 def _fetch_closes(code: str, market: str) -> tuple[list[float], list[str]] | None:
-    """네이버 우선, 실패 시 야후 폴백. (closes, dates) 반환."""
-    naver = fetch_naver_day_chart(code, days_back=NAVER_DAYS_BACK)
-    if naver and len(naver.get("closes") or []) >= MIN_CLOSES_FOR_TT:
-        return naver["closes"], naver["dates"]
+    """배치 OHLCV 행렬 우선, 부족 시 야후 폴백. (closes, dates) 반환."""
+    mtx = ohlcv_matrix.get_series(code, days_back=NAVER_DAYS_BACK)
+    if mtx and len(mtx.get("closes") or []) >= MIN_CLOSES_FOR_TT:
+        return mtx["closes"], mtx["dates"]
 
     sym = yahoo_symbol(code, market)
     yh = fetch_yahoo_chart(sym, YAHOO_RANGE_FALLBACK, "1d")
@@ -89,8 +89,8 @@ def _fetch_closes(code: str, market: str) -> tuple[list[float], list[str]] | Non
         return yh["closes"], dates
 
     # 둘 다 부족 — 그래도 가용한 만큼 반환 (orchestrator 가 데이터 부족으로 fail 처리)
-    if naver and naver.get("closes"):
-        return naver["closes"], naver["dates"]
+    if mtx and mtx.get("closes"):
+        return mtx["closes"], mtx["dates"]
     if yh and yh.get("closes"):
         dates = [
             datetime.fromtimestamp(t, KST).strftime("%Y-%m-%d")

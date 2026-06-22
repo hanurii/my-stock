@@ -1,9 +1,11 @@
 # canslim_worker.ps1 — 단일 워커 실행
-# 사용법: .\scripts\canslim_worker.ps1 0    (10개 워커 중 0번)
-#         .\scripts\canslim_worker.ps1 3 12 (12개 워커 중 3번)
+# 사용법: .\scripts\canslim_worker.ps1 0       (10개 워커 중 0번)
+#         .\scripts\canslim_worker.ps1 3 12    (12개 워커 중 3번)
+#         .\scripts\canslim_worker.ps1 0 10 72 (캐시 TTL 72h)
 param(
     [Parameter(Mandatory=$true)][int]$WorkerIndex,
-    [int]$WorkersTotal = 10
+    [int]$WorkersTotal = 10,
+    [double]$CacheTtlHours = 72
 )
 
 $RepoRoot = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Definition)
@@ -17,4 +19,4 @@ Write-Host ""
 
 $env:PYTHONIOENCODING = 'utf-8'
 $env:PYTHONUNBUFFERED = '1'
-python -u scripts/screen_canslim.py --worker $WorkerIndex --workers-total $WorkersTotal
+python -u scripts/screen_canslim.py --worker $WorkerIndex --workers-total $WorkersTotal --cache-ttl-hours $CacheTtlHours
