@@ -1,7 +1,7 @@
 {
   "code": "175330",
   "name": "JB금융지주",
-  "last_checked": "2026-06-19T21:52:58.454+09:00",
+  "last_checked": "2026-06-22T09:16:08.035+09:00",
   "metrics": [
     {
       "id": "pbr",
@@ -51,8 +51,8 @@
     {
       "id": "buyback_program_status",
       "label": "자사주 프로그램 (마지막 소각결정 · 후속 지연)",
-      "value": 134,
-      "display": "134일",
+      "value": 137,
+      "display": "137일",
       "threshold": "180일+ (1,550억 트랜치 미집행)",
       "hit": false,
       "tone": "warn"
@@ -114,16 +114,26 @@
       "severity": "warn",
       "type": "buyback_program_status",
       "title": "자사주 프로그램 (마지막 소각결정 · 후속 지연) 임계 근접",
-      "message": "현재 134일 (임계 180일+ (1,550억 트랜치 미집행))"
+      "message": "현재 137일 (임계 180일+ (1,550억 트랜치 미집행))"
     },
     {
-      "severity": "info",
+      "severity": "warn",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 4건 (관찰 신호 0건 — 키워드 단순 매칭만)",
+      "title": "리스크 키워드 매칭 뉴스 5건 (관찰 신호 1건 포함)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
   "news_hits": [
+    {
+      "keyword": "JB금융 충당금 적립",
+      "date": "2026-06-21",
+      "title": "JB금융, 외국인 대출 1조 돌파…충당금 적립 축소 속 잠재리스크 경계 - 네이트",
+      "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE8xRzZhd1A5VDgyb3Y2YURQZldaOWxYY3hVNU52RnZic2FZUmtkcmxpclVBcjZScWJHZDllWjF2ZkI4S1FHdC1FRDlvY0dzcWtGMnNXY0lPbkdmTW5uMERTVg?oc=5",
+      "severity": "warn",
+      "signals": [
+        "축소"
+      ]
+    },
     {
       "keyword": "지방은행 부실",
       "date": "2026-06-19",
@@ -135,16 +145,16 @@
     {
       "keyword": "지방은행 부실",
       "date": "2026-06-19",
-      "title": "캠코, 4,100억 원 펀드로 지방은행 부실채권 정리 속도 높인다 - 뉴스타운",
-      "url": "https://news.google.com/rss/articles/CBMibkFVX3lxTE1BYzYzRWtlMmR2ZW43MWRUeFdMQVdRRm1EMXhBMDZnY2dkWUUxRHZtT3VubmxpTkhmd0xoNDlEeGx6TjBva3ozTDA1Tm0yWGVjRHBwS0ZqNUZ3T1RpelRFZ2pmZTF5TUF1WWtjN0ln?oc=5",
+      "title": "캠코, 지방은행 부실채권 정리 지원…4100억 규모 금융안정 펀드 조성 - v.daum.net",
+      "url": "https://news.google.com/rss/articles/CBMiRkFVX3lxTE5qanFYX2JBVEtlNEQyUHlSSmoxcURSMnFYajNqNVViZm56U0QwRDgtNFgtT0w1YkYtOGVlc0F6QURjZ2g2S2c?oc=5",
       "severity": "info",
       "signals": []
     },
     {
       "keyword": "지방은행 부실",
       "date": "2026-06-19",
-      "title": "캠코, 지방은행 부실채권 정리에 4100억 펀드 투입 - 아주경제",
-      "url": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE1hX1VDM0RNb2pGWjNSbXYyakVZbXVlczJmdWJMaXpoUmtVeXlPU0xWVlVEMGJUR3l2QXdNOWs2akUzS2N3N2t6Z3Y2MC0tUnFEYUN6MmxMN0p5QdIBWEFVX3lxTE4wYm1rS3Q5V0tCb1JBZ180RXhMN0Nvd1BoYWJvSlBYRk9YZWRlTFZsU01leHEyWmc5bkxhTXh4OF9NanlyU2tVX0ZYQlBYZTN4bFJ0WW9qQVQ?oc=5",
+      "title": "캠코, 4,100억 원 펀드로 지방은행 부실채권 정리 속도 높인다 - 뉴스타운",
+      "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE5zZWtxX0x2bGZQZm91NHphVmY0RnIybXJEM3NEYktLUDV5UUxzYUhoRFNzUkdpMUZwakVhWm1BN3VCZzRkX3JuWGV3eldjM0h6UTRhNVk3QXRodWNCZkl3bDI0cjg3eFQ0?oc=5",
       "severity": "info",
       "signals": []
     },
