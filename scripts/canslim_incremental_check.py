@@ -133,12 +133,33 @@ def main() -> None:
         prev_codes.discard("")
     else:
         prev_codes = set()
-        print("  ⚠️ 이전 can-slim-candidates.json 없음 — 전체 universe 가 신규로 처리됨")
-    new_listed = universe_codes - prev_codes
-    print(f"  신규 상장 종목: {len(new_listed)}개")
+
+    # ── 안전장치 1: 이전 결과 없음 가드 ───────────────────────────
+    # can-slim-candidates.json 이 없거나 비면 prev_codes 가 비어 전체 universe 가
+    # "신규 상장"으로 분류되고 → stock_cache 가 통째로 삭제(콜드 재수집 ~20-30분).
+    # 이 경우 신규상장 무효화를 건너뛰고 DART 공시 기반 무효화만 진행한다.
+    if not prev_codes:
+        new_listed: set[str] = set()
+        print("  ⚠️ 이전 can-slim-candidates.json 없음/비어있음 — 신규상장 무효화 건너뜀")
+        print("     (전체 캐시 wipe 방지. DART 새 공시 무효화만 진행)")
+    else:
+        new_listed = universe_codes - prev_codes
+        print(f"  신규 상장 종목: {len(new_listed)}개")
 
     invalidate = changed_stock_codes | new_listed
     print(f"\n🎯 갱신 대상 (DART 새 공시 ∪ 신규 상장): {len(invalidate)}종목")
+
+    # ── 안전장치 2: 폭주 가드 ─────────────────────────────────────
+    # 정상일 무효화 대상은 50~150 (사업보고서 마감기 200+). universe 의 30% 또는
+    # 절대 500종목을 넘으면 로직 이상으로 보고 삭제하지 않고 중단(캐시 보존).
+    runaway_cap = max(500, int(len(universe_codes) * 0.30))
+    if len(invalidate) > runaway_cap:
+        print(
+            f"\n🛑 무효화 대상이 비정상적으로 많음: {len(invalidate)}종목 "
+            f"(임계 {runaway_cap}). 캐시를 보존하고 중단합니다."
+        )
+        print("   DART 조회/매핑 또는 이전 candidates 파일을 점검하세요. (캐시 삭제 0건)")
+        sys.exit(2)
 
     if args.dry_run:
         print("\n[dry-run] 캐시 삭제 안 함. 대상 종목 일부 미리보기:")
