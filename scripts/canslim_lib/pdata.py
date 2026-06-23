@@ -175,7 +175,10 @@ def fetch_pdata_price_info(basDt: str | None = None) -> dict[str, dict]:
         # → mrktCtg 기준으로 필터 안 함 (외인+한국 다 포함). 호출자가 자기 universe 로 필터.
         out[code] = row
 
-    cache_path.write_text(json.dumps(out, ensure_ascii=False), encoding="utf-8")
+    # 빈 결과는 캐시하지 않음 — 미공개 영업일(포털 업로드 지연)을 빈 캐시로 굳히면
+    # 나중에 데이터가 올라와도 빈 캐시가 반환돼 갱신이 조용히 깨짐.
+    if out:
+        cache_path.write_text(json.dumps(out, ensure_ascii=False), encoding="utf-8")
     return out
 
 
@@ -222,7 +225,9 @@ def fetch_pdata_item_info(basDt: str | None = None) -> dict[str, dict]:
             continue
         out[code] = row
 
-    cache_path.write_text(json.dumps(out, ensure_ascii=False), encoding="utf-8")
+    # 빈 결과는 캐시하지 않음 (미공개 영업일 빈 캐시 굳힘 방지 — price 쪽과 동일)
+    if out:
+        cache_path.write_text(json.dumps(out, ensure_ascii=False), encoding="utf-8")
     return out
 
 
