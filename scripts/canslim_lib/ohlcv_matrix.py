@@ -175,6 +175,109 @@ def update_to_latest(window: int = DEFAULT_TRADING_DAYS, verbose: bool = True) -
     return {"days": len(day_list), "codes": written, "sec": round(sec, 1)}
 
 
+# ── 최근일 FDR 보충 (pdata 업로드 지연 메우기) ───────────────
+
+def _matrix_latest_date() -> str | None:
+    """현재 매트릭스(시계열)의 마지막 날짜(ISO). 대표 종목(삼성)에서 확인."""
+    s = get_series("005930")
+    return s["dates"][-1] if s and s.get("dates") else None
+
+
+def fill_recent_via_fdr(through: str | None = None, max_workers: int = 12,
+                        verbose: bool = True) -> dict:
+    """pdata 가 아직 안 준 최근 영업일을 FDR(FinanceDataReader)로 채워 매트릭스에 추가.
+
+    pdata(공공데이터포털)는 T-1~T-2 지연이라 "어제 종가"가 늦게 들어옴. FDR 은 KRX
+    기반이라 당일/전일까지 보유. FDR 수정주가 close 는 pdata 복원 close 와 일치 검증됨.
+    종목별 호출이라 병렬(기본 12). through=None 이면 FDR 가용 최신일까지.
+
+    Returns: {"appended_days": N, "updated_codes": M, "through": date, "sec": s}
+    """
+    import concurrent.futures as _cf
+    try:
+        import FinanceDataReader as _fdr
+    except ImportError:
+        if verbose:
+            print("⏭️  fill_recent_via_fdr: FinanceDataReader 없음 → skip")
+        return {"appended_days": 0, "updated_codes": 0}
+
+    t0 = time.time()
+    last = _matrix_latest_date()
+    if not last:
+        if verbose:
+            print("⚠️  매트릭스가 비어있음 — 먼저 update_to_latest 필요")
+        return {"appended_days": 0, "updated_codes": 0}
+
+    codes = [p.stem for p in SERIES_DIR.glob("*.json")]
+    if verbose:
+        print(f"📈 FDR 최근일 보충: 매트릭스 최신 {last} 이후 ~{through or 'FDR최신'} "
+              f"({len(codes)}종목, 병렬 {max_workers})")
+
+    start = last  # last 포함 fetch 후 last 초과분만 append
+    _KST_ = _KST
+
+    def _one(code: str):
+        try:
+            df = _fdr.DataReader(code, start, through) if through else _fdr.DataReader(code, start)
+        except Exception:
+            return code, []
+        bars = []
+        for idx, row in df.iterrows():
+            d = str(idx.date())
+            if d <= last:
+                continue  # 이미 보유분
+            cp = row.get("Close")
+            if cp is None or (isinstance(cp, float) and cp != cp):  # NaN
+                continue
+            try:
+                ts = int(datetime.strptime(d.replace("-", "") + " 16:00", "%Y%m%d %H:%M")
+                         .replace(tzinfo=_KST_).timestamp())
+            except ValueError:
+                ts = 0
+            o = row.get("Open"); h = row.get("High"); l = row.get("Low"); v = row.get("Volume")
+            bars.append({
+                "date": d, "ts": ts, "close": float(cp),
+                "open": float(o) if o == o and o else float(cp),
+                "high": float(h) if h == h and h else float(cp),
+                "low": float(l) if l == l and l else float(cp),
+                "volume": int(v) if v == v and v else 0,
+            })
+        return code, bars
+
+    updated = 0
+    days_seen: set[str] = set()
+    with _cf.ThreadPoolExecutor(max_workers=max_workers) as ex:
+        for code, bars in ex.map(_one, codes):
+            if not bars:
+                continue
+            p = SERIES_DIR / f"{code}.json"
+            try:
+                s = json.loads(p.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                continue
+            changed = False
+            for b in bars:
+                if s["dates"] and b["date"] <= s["dates"][-1]:
+                    continue
+                s["dates"].append(b["date"]); s["timestamps"].append(b["ts"])
+                s["closes"].append(round(b["close"], 2)); s["opens"].append(round(b["open"], 2))
+                s["highs"].append(round(b["high"], 2)); s["lows"].append(round(b["low"], 2))
+                s["volumes"].append(b["volume"])
+                days_seen.add(b["date"]); changed = True
+            if changed:
+                p.write_text(json.dumps(s, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+                updated += 1
+
+    _series_mem.clear()  # 디스크 갱신 → 메모리 캐시 무효화
+    sec = time.time() - t0
+    new_through = max(days_seen) if days_seen else last
+    if verbose:
+        print(f"✅ FDR 보충: {len(days_seen)}일({sorted(days_seen)}) × {updated}종목 추가, "
+              f"최신 {new_through} ({sec:.1f}초)")
+    return {"appended_days": len(days_seen), "updated_codes": updated,
+            "through": new_through, "sec": round(sec, 1)}
+
+
 # ── 조회 (워커에서 종목별) ───────────────────────────────────
 
 def get_series(code: str, days_back: int | None = None) -> dict | None:
@@ -332,10 +435,17 @@ def _main() -> None:
     ap.add_argument("--foreign-ttl", type=float, default=7.0, help="외인 캐시 TTL(일)")
     ap.add_argument("--foreign-max", type=int, default=None,
                     help="1회 외인 갱신 상한 (콜드 스윕 분산용, 기본 무제한)")
+    ap.add_argument("--fill-fdr", nargs="?", const="__latest__", default=None,
+                    metavar="THROUGH",
+                    help="pdata 미공개 최근 영업일을 FDR로 보충. 날짜(YYYY-MM-DD) 지정 시 그날까지, "
+                         "생략 시 FDR 가용 최신일까지. update 와 함께 쓰면 update 후 실행.")
     args = ap.parse_args()
 
     if args.update:
         update_to_latest(window=args.window)
+    if args.fill_fdr is not None:
+        through = None if args.fill_fdr == "__latest__" else args.fill_fdr
+        fill_recent_via_fdr(through=through)
     if args.foreign:
         # universe = 최신 pdata 전 종목
         latest = pdata._latest_available_basDt()

@@ -463,6 +463,11 @@ def collect_raw_data_v2(
     volumes = chart["volumes"]
     chart_valid = bool(closes and volumes and len(closes) >= 5)
 
+    # current_price 는 행렬 최신 종가 우선(pdata clpr 은 T-1~T-2 지연; 행렬은 FDR 보충 시
+    # 당일/전일까지). 행렬 없으면 pdata clpr 폴백. (KIS 보정 단계가 상위 종목은 추가 갱신.)
+    if chart_valid:
+        current_price = closes[-1]
+
     # ─── 3) 30일 평균 거래대금 컷오프 ─────────────────────
     if chart_valid:
         n_days = min(len(closes), 30)
