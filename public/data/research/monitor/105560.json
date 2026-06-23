@@ -1,7 +1,7 @@
 {
   "code": "105560",
   "name": "KB금융",
-  "last_checked": "2026-06-23T21:10:33.769+09:00",
+  "last_checked": "2026-06-24T08:58:39.064+09:00",
   "metrics": [
     {
       "id": "pbr",
@@ -102,9 +102,9 @@
       "message": "현재 0.273pp — 매도 트리거 도달"
     },
     {
-      "severity": "info",
+      "severity": "warn",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 1건 (관찰 신호 0건 — 키워드 단순 매칭만)",
+      "title": "리스크 키워드 매칭 뉴스 2건 (관찰 신호 1건 포함)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
@@ -116,6 +116,16 @@
       "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE5TSEsxd2ZnTE9qRnNhTXFONGNyMXlwNC1oOXI5NC1MN0RoazBZcUpnc3BjQnpJVFVXUGdsbmlYSlhoZXZPTmJaMV9NUHk1ZUVXcFo3OWhMTnRBUHY1U04yWFItbVBJWlZx?oc=5",
       "severity": "info",
       "signals": []
+    },
+    {
+      "keyword": "KB국민은행 제재",
+      "date": "2026-06-18",
+      "title": "KB국민은행, 외환 제재 필터링 인프라 재구축 - 전자신문",
+      "url": "https://news.google.com/rss/articles/CBMiTkFVX3lxTFAzSFpleF9RNHc2UURCV2xlWWwwX2ZZOUYzck5Hb2VRV21kY0EtejdoS2pjbDNySDhqS1U3dHhkcHZIUGRBeTQzTVp4SURrZw?oc=5",
+      "severity": "warn",
+      "signals": [
+        "제재"
+      ]
     }
   ],
   "sources": [
