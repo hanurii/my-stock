@@ -1,13 +1,13 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-06-25T09:15:20.450+09:00",
+  "last_checked": "2026-06-25T15:48:06.712+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 4.85,
-      "display": "4.85배",
+      "value": 4.62,
+      "display": "4.62배",
       "threshold": "10배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "dividend_yield",
       "label": "배당수익률",
-      "value": 4.45,
-      "display": "4.45%",
+      "value": 4.67,
+      "display": "4.67%",
       "threshold": "3.5% 이하",
       "hit": false,
       "tone": "good"
@@ -60,11 +60,11 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 78.55,
-      "display": "78.55$",
+      "value": 77.12,
+      "display": "77.12$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
-      "tone": "good"
+      "tone": "warn"
     }
   ],
   "alerts": [
@@ -81,6 +81,12 @@
       "message": "현재 1건 — 긍정 시그널 발생 (재평가 검토)"
     },
     {
+      "severity": "warn",
+      "type": "oil_price_brent",
+      "title": "Brent 7일 평균 (두바이유 대용) 임계 근접",
+      "message": "현재 77.12$ (임계 70달러 이하 (정유 매크로 약화))"
+    },
+    {
       "severity": "bad",
       "type": "news_keyword_hit",
       "title": "리스크 키워드 매칭 뉴스 14건 (부정 시그널 1건 포함)",
@@ -90,9 +96,19 @@
   "news_hits": [
     {
       "keyword": "두바이유 하락",
-      "date": "2026-06-22",
+      "date": "2026-06-25",
+      "title": "두바이유 가격, 전쟁 이전 수준까지 하락 - 에너지플랫폼뉴스",
+      "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE12UHRnZUl5UGNmd2lDT0ZSNkduU1Q4Tzc4WlBUd1RDTmQ2QVRhNmZKQlRXSTFCVG8xUDBENFpCZDEteVZHZ3VCcEhvOW9zc2ZJT0ZMb04wVFk1bjVjYU5HM19yNHBVdmVhRm1EcNIBcEFVX3lxTE1vcVlLbUdrZ29NRzhERUh5YmhJODg3TnFWVFNpM3k4eUc4VDlrak1lUlRVUnFIZEI4UENLVGF5c0RQSi03ZkIyRERpY2dESmhqX0xoU2JiQl9hSVNXdE9MTVg1VTlIckpFVGZ2Q1Z3NGU?oc=5",
+      "severity": "warn",
+      "signals": [
+        "하락"
+      ]
+    },
+    {
+      "keyword": "두바이유 하락",
+      "date": "2026-06-23",
       "title": "두바이유 나흘째 하락…국내 휘발유가는 연일 상승 - 아이뉴스24",
-      "url": "https://news.google.com/rss/articles/CBMiS0FVX3lxTFB3cWVQdjRjcm9SUnJvbkRNblB5WEpwOWNVR1g4d2dsZ1k0TUMyY1VVTC0zN1ZqclZNSjN2bWJ0NTlRRDQtLW16dlhXSQ?oc=5",
+      "url": "https://news.google.com/rss/articles/CBMiVEFVX3lxTE5ZYXp2VDJHekxXRGQyOXBUVzRtLUhMOXdmRnE5ZE5XQlc3eEgtNmtfdlk0Y0VFaFZsVlBNM2M0RGRrYnJHcjBadzVZdkRITHFRY0xPTQ?oc=5",
       "severity": "warn",
       "signals": [
         "하락"
@@ -116,14 +132,6 @@
     },
     {
       "keyword": "이란 미국 합의",
-      "date": "2026-06-24",
-      "title": "트럼프 \"이란 핵사찰단에 미국인 포함\"...이란 \"합의 없었다\" - 한국일보",
-      "url": "https://news.google.com/rss/articles/CBMibkFVX3lxTE9GbEQyMGUtMW96OE5LUlk4dHFQaVVLeWRMUHJGRmFuUGRSWURiSG85T0FiczJnWENyUmRrOFYwZ0ZzRWNpYUhLUEZ2Xy1fMmxDVGRGcGpvTzJjTkZVSHFzd0ZpU0VPQ3RFb2w5TkFR0gFzQVVfeXFMUE5JeThNV3V1bnBiTjFYVVJiNWdadWxnVjY0dndQbTQ2VUZyM1AwZXVGckozZGgwRUVXNi1hZzdpMjJHTmwwZVZ3T1hDOFNOYmRnNGRxdlFnUEJWOEE1Wml2WTU2b2ZZaEJZc1hTajlYNU5Ddw?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "이란 미국 합의",
       "date": "2026-06-25",
       "title": "이란 \"미국과 최종 합의 전엔 IAEA 사찰 거부\" - 서울뉴스통신",
       "url": "https://news.google.com/rss/articles/CBMia0FVX3lxTE96SzVJb1dtSTlOd1pHSm4tWjY1eU44SWNjYWlBTERRYXFrNlI2UVVEQTlxSWRCbXBHV2FqcmRtVWw0TGQ1bWFac2JOVVdWSm9GWndyNU5YLWxGbTZXR3BlZkdhcF8tby1tU29N?oc=5",
@@ -133,16 +141,8 @@
     {
       "keyword": "이란 미국 합의",
       "date": "2026-06-24",
-      "title": "이란 협상단장 \"중동 전쟁 종식 합의는 '미국의 패배 선언'\" - MBC 뉴스",
-      "url": "https://news.google.com/rss/articles/CBMidEFVX3lxTFBXZlpQUnJtOWlXQ01nZGdqTVBhM1ZVTDU3OENjMHBpSjJ2VmhnbE9BMGxYUWIzZ0hWLWt6aDVoSTNmOVJ5U0lGWmpBaHg2X2c5YkFKWHJ6LU16MGx4MGtDOTg0V0xMYndBN3NPZUtmdVVkQk1R0gF0QVVfeXFMTy1OV2RSTGVnUTh2dlhqcklqQmRyRDNfaFVFakNBd3VFRVgyaWVuSlgzMnY1NzhDeWxMU2pNWG02UDRidW9EMVFLLTBlUlQ2WWFfNXU3eXhtVUlJUkhaaS10elo4ZmlaSWtpNTVkYXU4YkV4Zmk?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-06-24",
-      "title": "독일 6월 Ifo 경기지수 85.6·0.6P↑…\"중동 긴장 완화 기대\" - 뉴시스",
-      "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE5LZHlYRWZCeUdHdUQ5X24xWFJtSTVHTVJiV0pMNWdKU3gwMnlGUm9qRE9hSXFwUFFjOVF3Q1d0ZnM2LUNMazU0WnlucnlITnBJQTVES3VUZzBjNndpbkZrU9IBeEFVX3lxTE9lRGZ4eXZJak9pVG9GV0s0ZGs0NHhfV1pPbUlsTU53MDEzNERmdHQ3YWxUNWRSRExzLTd3a2g4cjFZMEJkVFN6VUZNMmVGUVlDdVdQaHBjZHl6a181VjZEZUVNT0xCckNubUR4akFxUDg3eGlGZ2NQVw?oc=5",
+      "title": "트럼프 \"이란 핵사찰단에 미국인 포함\"...이란 \"합의 없었다\" - 한국일보",
+      "url": "https://news.google.com/rss/articles/CBMibkFVX3lxTE9GbEQyMGUtMW96OE5LUlk4dHFQaVVLeWRMUHJGRmFuUGRSWURiSG85T0FiczJnWENyUmRrOFYwZ0ZzRWNpYUhLUEZ2Xy1fMmxDVGRGcGpvTzJjTkZVSHFzd0ZpU0VPQ3RFb2w5TkFR0gFzQVVfeXFMUE5JeThNV3V1bnBiTjFYVVJiNWdadWxnVjY0dndQbTQ2VUZyM1AwZXVGckozZGgwRUVXNi1hZzdpMjJHTmwwZVZ3T1hDOFNOYmRnNGRxdlFnUEJWOEE1Wml2WTU2b2ZZaEJZc1hTajlYNU5Ddw?oc=5",
       "severity": "info",
       "signals": []
     },
@@ -155,6 +155,14 @@
       "signals": [
         "급락"
       ]
+    },
+    {
+      "keyword": "중동 긴장 완화",
+      "date": "2026-06-24",
+      "title": "독일 6월 Ifo 경기지수 85.6·0.6P↑…\"중동 긴장 완화 기대\" - 뉴시스",
+      "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE5LZHlYRWZCeUdHdUQ5X24xWFJtSTVHTVJiV0pMNWdKU3gwMnlGUm9qRE9hSXFwUFFjOVF3Q1d0ZnM2LUNMazU0WnlucnlITnBJQTVES3VUZzBjNndpbkZrU9IBeEFVX3lxTE9lRGZ4eXZJak9pVG9GV0s0ZGs0NHhfV1pPbUlsTU53MDEzNERmdHQ3YWxUNWRSRExzLTd3a2g4cjFZMEJkVFN6VUZNMmVGUVlDdVdQaHBjZHl6a181VjZEZUVNT0xCckNubUR4akFxUDg3eGlGZ2NQVw?oc=5",
+      "severity": "info",
+      "signals": []
     },
     {
       "keyword": "중동 긴장 완화",
@@ -211,7 +219,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 73.32 USD (2026-06-25, 7일 평균 78.55)",
+      "label": "Brent 원유 종가 72.75 USD (2026-06-25, 7일 평균 77.12)",
       "ref": "Yahoo Finance BZ=F"
     },
     {

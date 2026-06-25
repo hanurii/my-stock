@@ -1,16 +1,16 @@
 {
   "code": "347850",
   "name": "디앤디파마텍",
-  "last_checked": "2026-06-25T09:15:25.967+09:00",
+  "last_checked": "2026-06-25T15:48:12.305+09:00",
   "metrics": [
     {
       "id": "pbr",
       "label": "PBR (극고평가)",
-      "value": 53.23,
-      "display": "53.23배",
+      "value": 49.94,
+      "display": "49.94배",
       "threshold": "50배 돌파",
-      "hit": true,
-      "tone": "bad"
+      "hit": false,
+      "tone": "warn"
     },
     {
       "id": "ceo_founder_ratio",
@@ -51,10 +51,10 @@
   ],
   "alerts": [
     {
-      "severity": "bad",
+      "severity": "warn",
       "type": "pbr",
-      "title": "PBR (극고평가) 50배 돌파",
-      "message": "현재 53.23배 — 매도 트리거 도달"
+      "title": "PBR (극고평가) 임계 근접",
+      "message": "현재 49.94배 (임계 50배 돌파)"
     },
     {
       "severity": "bad",
@@ -71,10 +71,10 @@
   ],
   "news_hits": [
     {
-      "keyword": "디앤디파마텍 FDA",
-      "date": "2026-06-18",
-      "title": "디앤디파마텍, 'MASH 환자 82%' 섬유화 개선 증명…\"美 FDA 승인 치료제 보다 뛰어나\" - 프라임경제",
-      "url": "https://news.google.com/rss/articles/CBMickFVX3lxTE1WQndBYnZ1MUJ0QlBtZjNPQV82RGlFTXRJQjlWWU1BX3l2SEI3dEdJN0JrY2pISHhabTc1bnBTUUtqcGZiTExzYmZDY0p4UTJFT0RhVTdlZXJpQnM5VURkUTJ6SGRKMjU2WVdTLTk0WHdhUQ?oc=5",
+      "keyword": "디앤디파마텍 DD01 임상",
+      "date": "2026-06-25",
+      "title": "디앤디파마텍, MASH 치료제 ‘DD01’ 임상 성과…기술이전 기대감 높인다 - 브릿지경제",
+      "url": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE92RkFncUpYNmstVU1IaGJLLXQ0aFUzWV9LalpldGEybktORC1XWlJ4dUtBbEUtOWxxN1YtSmZIUmJSSTcyd1pzRWFINVB3ZzRORG8yY3VyU1BQdw?oc=5",
       "severity": "info",
       "signals": []
     }
