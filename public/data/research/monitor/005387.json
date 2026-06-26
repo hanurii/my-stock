@@ -1,7 +1,7 @@
 {
   "code": "005387",
   "name": "현대차2우B",
-  "last_checked": "2026-06-25T20:43:45.914+09:00",
+  "last_checked": "2026-06-26T09:11:09.363+09:00",
   "metrics": [
     {
       "id": "price",
@@ -24,8 +24,8 @@
     {
       "id": "pref_discount",
       "label": "보통주 대비 디스카운트",
-      "value": 58.15,
-      "display": "58.1%",
+      "value": 56.36,
+      "display": "56.4%",
       "threshold": "30% 이하로 축소",
       "hit": false,
       "tone": "good"
@@ -33,8 +33,8 @@
     {
       "id": "buyback_gap",
       "label": "자사주 소각 공시 공백",
-      "value": 427,
-      "display": "427일",
+      "value": 428,
+      "display": "428일",
       "threshold": "365일 경과",
       "hit": true,
       "tone": "bad"
@@ -54,7 +54,7 @@
       "severity": "bad",
       "type": "buyback_gap",
       "title": "자사주 소각 공시 공백 365일 경과",
-      "message": "현재 427일 — 매도 트리거 도달"
+      "message": "현재 428일 — 매도 트리거 도달"
     },
     {
       "severity": "warn",
@@ -65,7 +65,7 @@
     {
       "severity": "info",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 4건 (관찰 신호 0건 — 키워드 단순 매칭만)",
+      "title": "리스크 키워드 매칭 뉴스 3건 (관찰 신호 0건 — 키워드 단순 매칭만)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
@@ -93,14 +93,6 @@
       "url": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE43cTgxdm1hakNyTEpFLWJqSDFyNjAxT0t2UjVOZldDcU0wQ25zc2ZkQ0dNNGxSRUFqc1dIbFktVjY4VzN2X2tlaWJwX1dYLW5iWG1oRDRrYkVPdURiZnk5a3BYU0M?oc=5",
       "severity": "info",
       "signals": []
-    },
-    {
-      "keyword": "현대차 지배구조 개편",
-      "date": "2026-06-19",
-      "title": "현대차, 주주친화 본격 행보…지배구조 개편 명분쌓나 - 아이뉴스24",
-      "url": "https://news.google.com/rss/articles/CBMiVkFVX3lxTE9RZHNYSS11ekR6OEdLcERiS3Myb0U4QU02YTNtamRQeHN5Y29tZFRRT0locF9mWF9CVHdsRVNyQUFmQTZyZFJ5OTZ6NjY3UU9MT1JCblVB?oc=5",
-      "severity": "info",
-      "signals": []
     }
   ],
   "sources": [
@@ -118,7 +110,7 @@
     },
     {
       "label": "보통주-우선주 디스카운트 (2026-06-25)",
-      "ref": "네이버 lastClose 005380/005387: 509,000원/213,000원"
+      "ref": "네이버 lastClose 005380/005387: 503,000원/219,500원"
     },
     {
       "label": "뉴스 RSS",
