@@ -1,7 +1,7 @@
 {
   "code": "099410",
   "name": "동방선기",
-  "last_checked": "2026-06-26T17:48:07.602+09:00",
+  "last_checked": "2026-06-26T21:05:53.192+09:00",
   "metrics": [
     {
       "id": "no_capital_issuance",
@@ -33,8 +33,8 @@
     {
       "id": "per_value_zone",
       "label": "✅ PER 저평가",
-      "value": 5.7,
-      "display": "5.70배",
+      "value": 5.31,
+      "display": "5.31배",
       "threshold": "8.0배 이하 (현 9.67배)",
       "hit": true,
       "tone": "good"
@@ -69,41 +69,10 @@
       "severity": "info",
       "type": "per_value_zone",
       "title": "✅ PER 저평가 8.0배 이하 (현 9.67배)",
-      "message": "현재 5.70배 — 매수 시그널 (분할 진입 검토 권장)"
-    },
-    {
-      "severity": "info",
-      "type": "news_keyword_hit",
-      "title": "매수 시그널 키워드 매칭 뉴스 3건 (관찰 신호 0건 — 키워드 단순 매칭만)",
-      "message": "매수 시그널 모니터링 키워드 기준 최근 7일 매칭. 호재 명시 phrase로 등록되어 있으나 본문 직접 확인 권장."
+      "message": "현재 5.31배 — 매수 시그널 (분할 진입 검토 권장)"
     }
   ],
-  "news_hits": [
-    {
-      "keyword": "조선 슈퍼사이클",
-      "date": "2026-06-26",
-      "title": "한화엔진·STX엔진·HD현대마린엔진 강세…엔진주, 조선 슈퍼사이클 기대감에 주목 - CBC뉴스",
-      "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE9GQnFUYjFfZFdha2p5QWowa1hiYXBYdE52WDg1TnNZNHFNT1RoZXVfVDdyQm5reC0wanlDZGF4bjNxcHI2RXd3YXlLdVVFd3NCcng3cjZTem9QMGh6T00zbWVWZDBqWjlW?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "조선 슈퍼사이클",
-      "date": "2026-06-22",
-      "title": "조선 3사 영업이익률 두 자릿수…수익성 슈퍼사이클 진입 - 팩트인뉴스",
-      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE0xN3hDbTdBWDJ1NG1fc21NNEVvaDlRRmxJTkJ4Z1ZFdnp0YnVmMWJVR05tR2ZqczBHNzV5eGlOZGw1aTZIeXlUaDM2amFkUTZqTlgyZjFsWXdINnhDREVwUGJ1THlVZE43c2xFSDVRS2o?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "조선 슈퍼사이클",
-      "date": "2026-06-22",
-      "title": "조선 빅3, 올 2Q 영업이익률 모두 '두자릿수' 전망…\"질적 슈퍼사이클 진입\" - 뉴시스",
-      "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE1ZSl81eEp0bDFwRE9yeWlNZFJHY0lVWTB5UDdYMUFUbjVfMVpsblI2LWUzd0kwMUtvTVBHTmszYmd4QTB2YUs4Q1gwNms5VzNWdDVPQTFQY1hvYzhuVU16MdIBeEFVX3lxTE5jaDFhZHk3UzFranlVMHpFRDNNcjBBZ05xUHlnU0Z4ckFsV0hiMndmTUNIQUxxVXdJeXFlY0pJaDB5OEZEWU9KZjdqaEsya1FuRGU1MnU4YldFZnRJUEpyRGpmUGlhbC1DelpNelhwd3RFNGdEX2tITQ?oc=5",
-      "severity": "info",
-      "signals": []
-    }
-  ],
+  "news_hits": [],
   "sources": [
     {
       "label": "PER/PEG/PBR 스코어",
@@ -112,10 +81,6 @@
     {
       "label": "분기 영업이익률 (2025)",
       "ref": "DART 20260323001236"
-    },
-    {
-      "label": "뉴스 RSS",
-      "ref": "news.google.com/rss (7일)"
     }
   ]
 }
