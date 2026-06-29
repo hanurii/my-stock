@@ -2,6 +2,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
+import pytest
 from canslim_lib.vcp_audit import (
     volume_ma,
     audit_prior_advance,
@@ -9,6 +10,7 @@ from canslim_lib.vcp_audit import (
     audit_contraction_volumes,
     audit_dry_point,
     audit_breakout,
+    load_series,
 )
 
 
@@ -80,3 +82,24 @@ def test_audit_breakout_clean_vs_detector():
     assert r["pass"] is True
     assert not any(c["date"] == "d2" for c in r["clean_candidates"])  # d2 연장 8%>5 → 제외
     assert "d1" in r["detector_flags"]                                # d1 거래량 300≥base×1.4
+
+
+def test_load_series_cache_path():
+    # 캐시에 있는 종목(빌드 환경 의존) — 없으면 skip
+    s = load_series("064290")
+    if s is None:
+        pytest.skip("064290 캐시 없음(환경 의존)")
+    for k in ("dates", "opens", "highs", "lows", "closes", "volumes"):
+        assert k in s and len(s[k]) > 0
+
+
+def test_load_series_fdr_path_smoke():
+    # FDR 네트워크 — 실패/미설치 시 skip
+    try:
+        s = load_series("005930", start="2019-01-02", end="2019-06-28")
+    except Exception as e:
+        pytest.skip(f"FDR 사용 불가: {e}")
+    if s is None:
+        pytest.skip("FDR 반환 없음(네트워크/데이터)")
+    assert len(s["closes"]) > 50          # 버퍼 포함 충분
+    assert s["dates"][-1] <= "2019-06-28"

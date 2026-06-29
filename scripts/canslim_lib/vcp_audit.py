@@ -6,7 +6,43 @@
 """
 from __future__ import annotations
 
+from datetime import datetime, timedelta  # noqa: E402
+
 from canslim_lib.vcp import zigzag, find_contractions, evaluate_vcp, DEFAULT_PARAMS  # noqa: E402
+from canslim_lib import ohlcv_matrix  # noqa: E402
+
+
+def load_series(code: str, start: str | None = None, end: str | None = None,
+                fdr_buffer_days: int = 80) -> dict | None:
+    """start/end 없으면 캐시, 있으면 FDR(start−버퍼~end). 키 통일."""
+    if not start and not end:
+        s = ohlcv_matrix.get_series(code)
+        if not s or not s.get("closes"):
+            return None
+        # 캐시에 opens가 항상 있음(ohlcv_matrix). 키만 추려 반환.
+        return {k: s.get(k, []) for k in ("dates", "opens", "highs", "lows", "closes", "volumes")}
+    try:
+        import FinanceDataReader as fdr
+    except ImportError:
+        return None
+    # start 이전 버퍼(달력일 환산 ~1.5배)
+    s_dt = datetime.strptime(start, "%Y-%m-%d") - timedelta(days=int(fdr_buffer_days * 1.5))
+    try:
+        df = fdr.DataReader(code, s_dt.strftime("%Y-%m-%d"), end)
+    except Exception:
+        return None
+    if df is None or len(df) == 0:
+        return None
+    out = {"dates": [], "opens": [], "highs": [], "lows": [], "closes": [], "volumes": []}
+    for idx, row in df.iterrows():
+        out["dates"].append(str(idx.date()))
+        out["opens"].append(float(row.get("Open") or row.get("Close")))
+        out["highs"].append(float(row.get("High") or row.get("Close")))
+        out["lows"].append(float(row.get("Low") or row.get("Close")))
+        out["closes"].append(float(row["Close"]))
+        v = row.get("Volume")
+        out["volumes"].append(int(v) if v == v and v else 0)
+    return out
 
 
 def volume_ma(volumes: list[float], window: int = 50) -> list[float]:
