@@ -19,37 +19,45 @@ DEFAULT_PARAMS: dict = {
     "max_flag_depth": 20.0,
     "breakout_vol_mult": 1.4,
     "near_pivot_pct": 5.0,
+    "min_flag_pullback": 3.0,
 }
 
 
-def find_flagpole(highs: list[float], lows: list[float], max_flagpole_days: int) -> dict:
-    """구간 최고 고가(깃발 고점)와 그 직전 max_flagpole_days 경계 안의 최저
-    저점(깃대 시작)을 찾아 상승률·기간을 계산한다."""
+def find_flagpole(highs: list[float], lows: list[float], max_flagpole_days: int,
+                  min_flag_pullback: float | None = None) -> dict:
+    """깃발 천장(피벗)과 그 직전 max_flagpole_days 경계 안의 최저 저점(깃대 시작)을
+    찾아 상승률·기간을 계산한다.
+
+    min_flag_pullback 가 주어지면 피벗을 '그 뒤로 그만큼(%) 이상 눌린 가장 높은
+    고점'으로 한정한다(돌파 봉처럼 뒤에 눌림이 없는 봉은 피벗이 되지 않음 →
+    신고가 돌파가 breakout 으로 정상 인식된다). None 이면 구간 최고 고가(하위호환).
+    """
     if not highs or not lows:
         return {"flag_high_idx": 0, "flag_high": 0.0,
                 "pole_start_idx": 0, "pole_start_low": 0.0,
                 "flagpole_gain_pct": 0.0, "flagpole_days": 0}
     n = len(highs)
-    flag_high_idx = max(range(n), key=lambda i: highs[i])
+    if min_flag_pullback is None:
+        flag_high_idx = max(range(n), key=lambda i: highs[i])
+    else:
+        pb = min_flag_pullback / 100.0
+        cand = [i for i in range(n - 1)
+                if min(lows[i + 1:]) <= highs[i] * (1 - pb)]
+        flag_high_idx = (max(cand, key=lambda i: highs[i]) if cand
+                         else max(range(n), key=lambda i: highs[i]))
     flag_high = highs[flag_high_idx]
     window_start = max(0, flag_high_idx - max_flagpole_days)
-    # 깃발 고점 바는 제외하고 그 이전 구간에서 최저 저점 탐색
-    search_end = flag_high_idx  # exclusive 상한
+    search_end = flag_high_idx
     if search_end <= window_start:
-        # 고점이 구간 시작 → 깃대 형성 불가
-        return {
-            "flag_high_idx": flag_high_idx, "flag_high": flag_high,
-            "pole_start_idx": flag_high_idx, "pole_start_low": flag_high,  # sentinel: no valid pole start
-            "flagpole_gain_pct": 0.0, "flagpole_days": 0,
-        }
+        return {"flag_high_idx": flag_high_idx, "flag_high": flag_high,
+                "pole_start_idx": flag_high_idx, "pole_start_low": flag_high,  # sentinel: no valid pole start
+                "flagpole_gain_pct": 0.0, "flagpole_days": 0}
     pole_start_idx = min(range(window_start, search_end), key=lambda i: lows[i])
     pole_start_low = lows[pole_start_idx]
     gain = (flag_high - pole_start_low) / pole_start_low * 100.0 if pole_start_low > 0 else 0.0
-    return {
-        "flag_high_idx": flag_high_idx, "flag_high": flag_high,
-        "pole_start_idx": pole_start_idx, "pole_start_low": pole_start_low,
-        "flagpole_gain_pct": gain, "flagpole_days": flag_high_idx - pole_start_idx,
-    }
+    return {"flag_high_idx": flag_high_idx, "flag_high": flag_high,
+            "pole_start_idx": pole_start_idx, "pole_start_low": pole_start_low,
+            "flagpole_gain_pct": gain, "flagpole_days": flag_high_idx - pole_start_idx}
 
 
 def _mean(xs: list[float]) -> float | None:
@@ -83,7 +91,7 @@ def evaluate_power_play(series: dict, params: dict | None = None) -> dict:
         base["reason"] = "base_too_short"
         return base
 
-    fp = find_flagpole(highs, lows, p["max_flagpole_days"])
+    fp = find_flagpole(highs, lows, p["max_flagpole_days"], p["min_flag_pullback"])
     fhi = fp["flag_high_idx"]
     psi = fp["pole_start_idx"]
     flag_high = fp["flag_high"]

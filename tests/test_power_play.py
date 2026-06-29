@@ -186,13 +186,12 @@ def test_evaluate_rejects_volume_not_drying():
 
 def test_status_breakout_on_pivot_break_with_volume():
     s = _clean_htf()
-    # 피벗(=기존 깃발 최고가 111.1) 위로 종가 돌파 + 대량거래 1일 추가.
-    # evaluate_power_play의 pivot_price = max(highs) 이므로, 이 바의 high를
-    # 기존 최고가(111.1)보다 낮게(111.0) 설정해 피벗이 이동하지 않도록 한다.
-    # close > high 는 합성 테스트 데이터에서만 허용되는 의도적 값이다.
-    s["closes"].append(112.0)   # 기존 pivot 111.1 초과
-    s["highs"].append(111.0)    # 111.1보다 낮아야 기존 pole-top이 pivot 유지
-    s["lows"].append(110.0)
+    # 피벗(≈111.1, 깃발 천장)을 종가(112.0)로 돌파 + 대량거래(6000) 1일 추가.
+    # 새 봉의 high(113.0)는 구간 신고가지만 min_flag_pullback 로직에 의해
+    # 피벗 후보에서 제외 → 기존 깃발 천장(111.1)이 피벗으로 유지된다.
+    s["closes"].append(112.0)   # pivot 111.1 초과
+    s["highs"].append(113.0)    # 신고가 — 하지만 뒤에 눌림 없으므로 피벗 아님
+    s["lows"].append(111.0)
     s["volumes"].append(6000)   # pole 평균(3000)의 1.4배(=4200) 이상
     s["dates"].append("dN")
     r = evaluate_power_play(s)
@@ -214,8 +213,8 @@ def test_status_failed_on_flag_breakdown():
 
 def test_status_actionable_near_pivot_with_dryup():
     s = _clean_htf()
-    # 마지막 종가가 피벗(110) 0~5% 아래 + 거래량 마름 유지
-    s["closes"].append(107.0)   # (110-107)/110 = 2.7%
+    # 마지막 종가가 피벗(≈111.1) 0~5% 아래 + 거래량 마름 유지
+    s["closes"].append(107.0)   # (111.1-107)/111.1 ≈ 3.7%
     s["highs"].append(108.0)
     s["lows"].append(106.0)
     s["volumes"].append(500)
@@ -223,3 +222,26 @@ def test_status_actionable_near_pivot_with_dryup():
     r = evaluate_power_play(s)
     assert r["status"] == "actionable"
     assert 0 <= r["pct_to_pivot"] <= 5
+
+
+def test_find_flagpole_excludes_fresh_breakout_bar():
+    # 깃대 50→110(idx0~5), 깃발로 ~100까지 눌림(idx6~9), 마지막 바가 신고가 115로 돌파.
+    # 피벗은 돌파봉(115)이 아니라 직전 깃발 천장(110)이어야 한다.
+    highs = [52, 70, 90, 105, 110, 110, 104, 102, 101, 103, 115]
+    lows  = [50, 66, 86, 100, 108, 107,  99,  98,  97,  99, 112]
+    fp = find_flagpole(highs, lows, max_flagpole_days=40, min_flag_pullback=3.0)
+    assert fp["flag_high"] == 110          # 신고가 115가 아니라 깃발 천장 110
+    assert fp["flag_high_idx"] in (4, 5)   # 110을 찍은 봉
+    # 3-인자 호출(하위호환)은 여전히 구간 최고 고가(115)를 잡는다
+    fp_old = find_flagpole(highs, lows, max_flagpole_days=40)
+    assert fp_old["flag_high"] == 115
+
+
+def test_evaluate_breakout_with_physical_new_high():
+    # 깔끔한 HTF에 '물리적으로 정상인' 신고가 돌파봉(고가>종가)을 붙여도 breakout.
+    s = _clean_htf()
+    s["closes"].append(112.0); s["highs"].append(113.0); s["lows"].append(111.0)
+    s["volumes"].append(6000); s["dates"].append("dN")
+    r = evaluate_power_play(s)
+    assert r["status"] == "breakout"
+    assert r["entry_ready"] is True
