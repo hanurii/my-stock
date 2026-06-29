@@ -80,8 +80,21 @@
 
 ### 4.2 깃발 고점·깃대 탐지
 
-1. **깃발 고점(flag_high)** = 최근 구간의 최고 고가 지점. 이 지점이 깃발(횡보)의
-   시작이자 **피벗(돌파 매수점)** 의 기준.
+1. **깃발 고점(flag_high) = 피벗(돌파 매수점)** = **"뒤에 눌림이 나온 가장 높은
+   고점"**. 단순 "구간 최고 고가"가 아니다.
+   > **중요(돌파가 잡히려면):** 교과서적 돌파일(신고가로 깃발 천장을 뚫는 날)은
+   > 그날 고가가 곧 구간 신고가가 된다. 피벗을 "구간 최고 고가"로 잡으면 피벗이
+   > **돌파 봉 자신**으로 옮겨가 "종가 > 피벗"이 영영 성립하지 않고(자기보다 높을
+   > 수 없으므로) 깃발 길이도 0이 되어 패턴이 미검출된다. find-vcp가 피벗을
+   > "마지막 **확정된** 스윙 고점(진행 중 봉 제외)"으로 잡는 것과 같은 이유로,
+   > 여기서도 피벗을 **그 뒤로 되돌림(눌림)이 확인된 고점**으로 한정한다. 현재
+   > 돌파 봉은 "뒤에 눌림 없음"이라 피벗 후보가 아니며, 직전 깃발 천장이 피벗으로
+   > 남아 **돌파(breakout)가 정상 인식**된다.
+   - 구현: 피벗 후보 = `min(이후 저가들) ≤ 고가 × (1 − min_flag_pullback/100)` 를
+     만족하는 고점(= 그 뒤로 `min_flag_pullback`%(기본 3) 이상 눌린 고점). 후보 중
+     **가장 높은 고가**가 `flag_high`. (후보가 없으면 구간 최고 고가로 폴백.)
+   - `min_flag_pullback`(기본 3%)은 CLI 인자로 노출. 매우 타이트한 깃발은 이 값을
+     낮춰 잡는다.
 2. **깃대 시작 저점(pole_start_low)** = `flag_high` 직전 `≤max_flagpole_days`
    (기본 40거래일) 구간 안의 최저 저점.
 3. **깃대 상승률** `flagpole_gain_pct` = `(flag_high − pole_start_low)/
@@ -90,20 +103,33 @@
    탐지 구간을 `flag_high` 직전 `max_flagpole_days`(기본 40=8주)로 한정했으므로
    `flagpole_days ≤ 8주`는 **구조적으로 항상 보장**된다(별도 reason 불필요).
 
-### 4.3 깃대 거래량 (조건 ③)
+### 4.3 조용한 베이스 / 깃대(상승) 구간 분리 — 거래량 (조건 ③④의 토대)
 
-- **기준 거래량 `quiet_vol_avg`** = 깃대 시작 저점 *직전* "조용한 구간"
-  (기본 최근 `quiet_window`=20거래일, pole 이전)의 평균 거래량. 분모로 사용.
-- **`flagpole_vol_ratio`** = 깃대 구간 **평균** 거래량 / `quiet_vol_avg`.
+> **중요(구현 정합성):** 깃대 시작 저점(`pole_start_idx`)은 파워 플레이의 전형적
+> 구조상 **조용한 베이스의 바닥**이며, 흔히 lookback 구간의 맨 앞쪽에 온다.
+> 따라서 "저점 *직전*" 구간에서 조용·거래량을 재면 데이터가 비어 항상 실패한다.
+> 대신 **저점(`pole_start_idx`)을 기준으로 그 직후를 두 구간으로 나눈다**:
+> - **조용한 베이스** = `[pole_start_idx, pole_start_idx + quiet_window)`
+>   (기본 `quiet_window`=20거래일; `flag_high` 를 넘지 않게 자른다). 종목이
+>   바닥에서 횡보하던 구간.
+> - **깃대 상승** = `[조용한 베이스 끝, flag_high]`. 바닥을 박차고 오른 급등 구간.
+
+- **`quiet_vol_avg`** = 조용한 베이스 구간 평균 거래량(분모).
+- **`pole_vol_avg`** = 깃대 상승 구간 평균 거래량(상승 구간이 비면 `[pole_start_idx,
+  flag_high]` 전체로 폴백). 돌파·dryup 계산에도 이 값을 분모로 일관 사용.
+- **`flagpole_vol_ratio`** = `pole_vol_avg / quiet_vol_avg`.
 - 조건: `flagpole_vol_ratio ≥ pole_vol_mult`(기본 1.5) — "대규모 거래량을
   수반한 폭발"의 기계 번역. 불충족 시 reason `pole_volume_weak`.
 
 ### 4.4 조용한 출발 / 말기 베이스 제외 (조건 ④)
 
-- 깃대 시작 저점 *직전* `quiet_window`(기본 20거래일) 구간의 가격 상승률
-  `pre_pole_gain_pct` 가 작아야(= 폭등 전 조용) 성립.
-- 조건: `pre_pole_gain_pct ≤ max_pre_pole_gain`(기본 30%). 초과 시 = 이미
-  연장된(late-stage) 종목으로 보고 제외, reason `not_quiet_before_pole`.
+- **조용한 베이스 구간**(§4.3 정의)의 가격 변동폭
+  `pre_pole_gain_pct` = `(구간 최고 고가 − 구간 최저 저점)/구간 최저 저점 × 100`
+  이 작아야(= 폭등 전 바닥에서 조용히 횡보) 성립.
+- 조건: `pre_pole_gain_pct ≤ max_pre_pole_gain`(기본 30%). 초과 시 = 바닥부터
+  이미 꾸준히 오른 말기(late-stage)·연장 종목으로 보고 제외, reason
+  `not_quiet_before_pole`.
+- 조용한 베이스 구간이 비면(데이터 부족) 거절하지 않는다(`cond_quiet=True`).
 
 ### 4.5 깃발(횡보) 판정 (조건 ⑤⑥)
 
@@ -114,9 +140,10 @@
    - 미달 시 `flag_too_short`, 초과 시 `flag_too_long`.
 2. **깊이** `flag_depth_pct` = `(flag_high − 깃발 내 최저저점)/flag_high × 100`.
    - `≤ max_flag_depth`(기본 **20**; 저가주 예외 CLI로 25). 초과 시 `flag_too_deep`.
-3. **거래량 마름** `volume_dryup_ratio` = 최근 5거래일 평균 거래량 / 깃대 구간
-   평균 거래량. 깃발 후반(돌파 전) 거래량이 줄어야 함 → 성립 조건은 `< 1.0`
-   (또는 별도 기준). 안 마르면 `volume_not_drying`.
+3. **거래량 마름** `volume_dryup_ratio` = 최근 5거래일 평균 거래량 / 깃대 상승
+   구간 평균 거래량(`pole_vol_avg`, §4.3). 깃발 후반(돌파 전) 거래량이 줄어야
+   함 → 성립 조건은 `≤ 1.0`(§4.6 actionable 게이트와 동일 경계). 안 마르면
+   `volume_not_drying`.
 4. **타이트(`tightness_pct`)** = 최근 10거래일 (고−저)/종가 평균(%). **보고용
    지표로만 기록**, 합격 게이트로 쓰지 않는다(§4.0-3 근거).
 
@@ -153,7 +180,7 @@
   "asof": "2026-06-29",
   "source": "sepa-trend-candidates.json",
   "params": { "min_flagpole_gain": 100, "max_flagpole_days": 40,
-              "pole_vol_mult": 1.5, "max_pre_pole_gain": 30,
+              "pole_vol_mult": 1.5, "max_pre_pole_gain": 30, "min_flag_pullback": 3,
               "min_flag_days": 8, "max_flag_days": 30, "max_flag_depth": 20,
               "breakout_vol_mult": 1.4, "near_pivot_pct": 5, "lookback_days": 120 },
   "pattern_count": 0,        // pattern_detected true 개수
@@ -207,9 +234,9 @@
 - `--in`(default `public/data/sepa-trend-candidates.json`)
 - `--out`(default `public/data/sepa-power-play-candidates.json`)
 - `--min-flagpole-gain`(100), `--max-flagpole-days`(40), `--pole-vol-mult`(1.5),
-  `--max-pre-pole-gain`(30), `--min-flag-days`(8), `--max-flag-days`(30),
-  `--max-flag-depth`(20), `--breakout-vol-mult`(1.4), `--near-pivot-pct`(5),
-  `--lookback-days`(120)
+  `--max-pre-pole-gain`(30), `--min-flag-pullback`(3), `--min-flag-days`(8),
+  `--max-flag-days`(30), `--max-flag-depth`(20), `--breakout-vol-mult`(1.4),
+  `--near-pivot-pct`(5), `--lookback-days`(120)
 - `--ticker`(단일 종목 디버그, 저장 안 함)
 
 ## 7. 불변 원칙 (기존 SEPA 스킬과 동일)
