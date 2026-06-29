@@ -96,3 +96,26 @@ def test_evaluate_vcp_breakout_status():
     s["volumes"][-1] = 5000           # 돌파 거래량 급증
     r = evaluate_vcp(s)
     assert r["status"] == "breakout"
+    assert r["pivot_price"] == 88.0
+    # entry_ready: breakout이고 vcp_detected도 True면 entry_ready=True여야 함
+    assert r["entry_ready"] == (r["vcp_detected"] and r["status"] in ("breakout", "actionable"))
+
+
+def test_evaluate_vcp_records_reason_on_non_monotone():
+    # 수축이 확대(더 깊어지는) 베이스: VCP 아님, reason 기록돼야
+    # 첫 수축 ~25%, 둘째 수축 ~30%로 더 깊어짐(단조 수렴 실패)
+    # 베이스 길이 충분히 확보, 거래량 마름 조건도 충족
+    seg = []
+    seg += [100, 92, 84, 78, 75]      # 고점100 → -25% 수축
+    seg += [80, 86, 90, 88]           # 회복 ~90
+    seg += [85, 80, 75, 70, 63]       # 고점90 → -30% 수축(더 깊어짐 → 단조 위반)
+    seg += [68, 72, 75]               # 약간 회복
+    # 거래량: 후반을 초반보다 낮게(거래량 마름 조건 우회 목적)
+    s = _series_from_closes(seg)
+    n = len(s["volumes"])
+    third = n // 3
+    s["volumes"] = [1500] * third + [1000] * third + [600] * (n - 2 * third)
+    r = evaluate_vcp(s)
+    assert r["vcp_detected"] is False
+    assert r["reason"] is not None        # null이면 안 됨(§7 근거 출력 불변원칙)
+    assert r["entry_ready"] is False

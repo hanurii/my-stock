@@ -95,7 +95,7 @@ def evaluate_vcp(series: dict, params: dict | None = None) -> dict:
         "vcp_detected": False, "num_contractions": 0, "contractions": [],
         "base_length_days": 0, "base_depth_pct": None, "pivot_price": None,
         "pct_to_pivot": None, "volume_dryup_ratio": None, "tightness_pct": None,
-        "status": "forming", "swings": [], "reason": None,
+        "status": "forming", "swings": [], "reason": None, "entry_ready": False,
     }
     if len(closes) < p["min_base_days"]:
         base["reason"] = "no_data" if not closes else "base_too_short"
@@ -160,6 +160,15 @@ def evaluate_vcp(series: dict, params: dict | None = None) -> dict:
     base["vcp_detected"] = bool(cond_count and cond_mono and cond_volcontract and cond_final_tight)
     if base["vcp_detected"]:
         base["base_depth_pct"] = round(max(contractions), 2)
+    else:
+        if not cond_count:
+            base["reason"] = "contraction_count_not_2_6"
+        elif not cond_mono:
+            base["reason"] = "not_monotone_contraction"
+        elif not cond_volcontract:
+            base["reason"] = "volume_not_drying"
+        else:  # not cond_final_tight
+            base["reason"] = "final_contraction_too_deep"
 
     # 상태 판정
     last_vol = bv[-1] if bv else 0.0
@@ -172,9 +181,12 @@ def evaluate_vcp(series: dict, params: dict | None = None) -> dict:
     elif (
         base["pct_to_pivot"] is not None
         and 0 <= base["pct_to_pivot"] <= p["near_pivot_pct"]
-        and (base["volume_dryup_ratio"] or 9.9) <= 1.0
+        and (base["volume_dryup_ratio"] if base["volume_dryup_ratio"] is not None else 9.9) <= 1.0
     ):
         base["status"] = "actionable"
     else:
         base["status"] = "forming"
+    base["entry_ready"] = bool(
+        base["vcp_detected"] and base["status"] in ("breakout", "actionable")
+    )
     return base

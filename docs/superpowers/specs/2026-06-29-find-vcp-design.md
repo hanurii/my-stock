@@ -83,7 +83,7 @@
    평균 거래량(거래량이 마름).
 4. **최종 수축 타이트**: 마지막 수축 깊이 ≤ **`--max-final-depth 10`**(%).
 
-성립 안 하면 `vcp_detected=false` + `reason`(어느 조건 불충족) 기록.
+성립 안 하면 `vcp_detected=false` + `reason`(어느 조건 불충족) 기록. vcp_detected=false 시 reason 에 첫 불충족 조건을 기록한다(count/monotone/volume/final_depth) — §7 근거 출력 불변원칙.
 
 ### 4.5 피벗·상태 판정
 - **기준 거래량 `base_vol_avg`** = 베이스 구간 평균 거래량(베이스가 50거래일보다
@@ -104,6 +104,8 @@
 > 임계값(zigzag-pct, max-final-depth, 돌파 거래량 배수 1.4, 근접 5% 등)은 전부
 > CLI 인자로 노출해 튜닝 가능하게 한다. 위 숫자는 미너비니 책 기반 기본값.
 
+**entry_ready** = `vcp_detected AND status ∈ {breakout, actionable}`. '살 자리' 신호는 진짜 VCP 종목에만 부여한다(비VCP의 돌파/근접은 entry_ready=false). 요약·정렬은 entry_ready 우선.
+
 ## 5. 출력 스키마
 
 `public/data/sepa-vcp-candidates.json`:
@@ -116,12 +118,14 @@
   "params": { "zigzag_pct": 8, "max_final_depth": 10, "breakout_vol_mult": 1.4,
               "lookback_days": 120 },
   "vcp_count": 0,            // vcp_detected true 개수
+  "entry_ready_count": 0,   // entry_ready true 개수(진짜 VCP + 살 자리)
   "status_distribution": { "breakout": 0, "actionable": 0, "forming": 0, "failed": 0 },
   "candidates": [
     {
       "code": "240810", "name": "원익IPS", "market": "KOSDAQ",
       "current_price": 0, "rs": 99,
       "vcp_detected": true,
+      "entry_ready": true,   // vcp_detected AND status ∈ {breakout, actionable}
       "num_contractions": 3,
       "contractions": [22.5, 13.1, 7.4],     // 시간순 깊이%
       "base_length_days": 41,
@@ -132,14 +136,15 @@
       "tightness_pct": 3.1,
       "status": "actionable",
       "swings": [ {"date":"...","price":0,"kind":"high"}, ... ],  // 근거
-      "reason": null          // vcp_detected=false 일 때만 사유
+      "reason": null          // vcp_detected=true 시 null; false 시 불충족 조건명 기록(모든 false 경로에서 채워짐)
     }
   ]
 }
 ```
 
 - `candidates`는 입력 종목 전부 포함(vcp 불성립도 reason과 함께) — 환각 방지·디버그용.
-- 정렬: `status`(breakout→actionable→forming→failed) → `pct_to_pivot` 오름차순.
+- `reason`은 `vcp_detected=false`인 모든 경로에서 채워진다(no_data/base_too_short/contraction_count_not_2_6/not_monotone_contraction/volume_not_drying/final_contraction_too_deep/no_series/eval_error:*).
+- 정렬: `entry_ready` 우선(true→false), 그 다음 `status`(breakout→actionable→forming→failed) → `pct_to_pivot` 오름차순.
 
 ## 6. 구성 요소(코드 구조)
 

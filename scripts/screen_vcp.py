@@ -35,6 +35,10 @@ def run(args, out_path: Path) -> None:
     in_path = Path(args.inp) if args.inp else IN_PATH
     if not in_path.is_absolute():
         in_path = ROOT / in_path
+    if not in_path.exists():
+        print(f"❌ 입력 파일 없음: {in_path.relative_to(ROOT)}\n"
+              f"   먼저 find-trend-template 을 실행해 sepa-trend-candidates.json 을 생성하세요.")
+        sys.exit(1)
     data = json.loads(in_path.read_text(encoding="utf-8"))
     passers = [c for c in data.get("candidates", []) if c.get("all_pass")]
     if args.ticker:
@@ -51,19 +55,29 @@ def run(args, out_path: Path) -> None:
         s = ohlcv_matrix.get_series(code)
         if not s or not s.get("closes"):
             r = {"vcp_detected": False, "status": "forming", "reason": "no_series",
-                 "num_contractions": 0, "contractions": [], "pivot_price": None,
-                 "pct_to_pivot": None, "volume_dryup_ratio": None, "tightness_pct": None,
-                 "base_length_days": 0, "base_depth_pct": None, "swings": []}
+                 "entry_ready": False, "num_contractions": 0, "contractions": [],
+                 "pivot_price": None, "pct_to_pivot": None, "volume_dryup_ratio": None,
+                 "tightness_pct": None, "base_length_days": 0, "base_depth_pct": None,
+                 "swings": []}
         else:
-            r = evaluate_vcp(s, params)
+            try:
+                r = evaluate_vcp(s, params)
+            except Exception as e:  # 한 종목 오류가 전체 런을 멈추지 않게
+                r = {"vcp_detected": False, "status": "failed", "reason": f"eval_error:{type(e).__name__}",
+                     "entry_ready": False, "num_contractions": 0, "contractions": [],
+                     "pivot_price": None, "pct_to_pivot": None, "volume_dryup_ratio": None,
+                     "tightness_pct": None, "base_length_days": 0, "base_depth_pct": None, "swings": []}
         out_cands.append({
             "code": code, "name": c.get("name"), "market": c.get("market"),
             "current_price": c.get("current_price"), "rs": c.get("rs"),
             **r,
         })
 
-    out_cands.sort(key=lambda x: (STATUS_ORDER.get(x["status"], 9),
-                                  x["pct_to_pivot"] if x["pct_to_pivot"] is not None else 1e9))
+    out_cands.sort(key=lambda x: (
+        0 if x.get("entry_ready") else 1,
+        STATUS_ORDER.get(x["status"], 9),
+        x["pct_to_pivot"] if x["pct_to_pivot"] is not None else 1e9,
+    ))
     dist = {k: sum(1 for x in out_cands if x["status"] == k)
             for k in ("breakout", "actionable", "forming", "failed")}
     output = {
@@ -72,6 +86,7 @@ def run(args, out_path: Path) -> None:
         "source": in_path.name,
         "params": params,
         "vcp_count": sum(1 for x in out_cands if x["vcp_detected"]),
+        "entry_ready_count": sum(1 for x in out_cands if x.get("entry_ready")),
         "status_distribution": dist,
         "candidates": out_cands,
     }
@@ -81,14 +96,18 @@ def run(args, out_path: Path) -> None:
         out_path.write_text(json.dumps(output, ensure_ascii=False, indent=2), encoding="utf-8")
         print(f"\n💾 저장: {out_path.relative_to(ROOT)}")
 
+    er = output["entry_ready_count"]
     print(f"\n[VCP 요약] 입력 {len(passers)}종목 | VCP {output['vcp_count']} | "
+          f"진입가능(entry_ready) {er} | "
           f"breakout {dist['breakout']} · actionable {dist['actionable']} · "
           f"forming {dist['forming']} · failed {dist['failed']}")
-    for x in out_cands:
-        if x["status"] in ("breakout", "actionable"):
-            print(f"  [{x['status']:10s}] {x['code']} {str(x['name'])[:12]:12s} "
-                  f"T={x['num_contractions']} 피벗 {x['pivot_price']} "
-                  f"→ {x['pct_to_pivot']}% dryup {x['volume_dryup_ratio']}")
+    shown = [x for x in out_cands if x.get("entry_ready")]
+    if not shown:
+        print("  (진입 가능 종목 없음 — VCP 통과 + 돌파/근접 동시 충족 없음)")
+    for x in shown:
+        print(f"  [{x['status']:10s}] {x['code']} {str(x['name'])[:12]:12s} "
+              f"T={x['num_contractions']} 피벗 {x['pivot_price']} "
+              f"→ {x['pct_to_pivot']}% dryup {x['volume_dryup_ratio']}")
 
 
 def main():
