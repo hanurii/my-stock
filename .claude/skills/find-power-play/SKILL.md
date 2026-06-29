@@ -33,6 +33,8 @@ python scripts/screen_power_play.py
 - `--min-flag-days 8` / `--max-flag-days 30` / `--max-flag-depth 20` : 깃발 튜닝
   (저가주는 `--max-flag-depth 25`).
 - `--min-flag-pullback 3` : 깃발 최소 눌림폭(%) — 깃발 천장 대비 최소 되돌림.
+- `--lookback-days 120` : 깃대·깃발을 탐색하는 되돌아보는 기간(거래일).
+- `--breakout-vol-mult 1.4` / `--near-pivot-pct 5` : 돌파/근접(actionable) 판정 임계값 튜닝.
 - `--out PATH` : 출력 경로 변경.
 
 ## 결과 확인
@@ -41,6 +43,7 @@ python scripts/screen_power_play.py
   forming(형성 중) · failed(깃발 붕괴).
 - `entry_ready` 종목이 다음 단계(리스크·진입) 후보.
 - 불성립 종목도 `reason`과 함께 전부 포함(환각 방지·디버그).
+- `status` 는 패턴 성립 여부와 무관하게 가격 위치(돌파/근접/형성/붕괴)로 결정된다. 따라서 `pattern_detected=false` 인 종목도 breakout/actionable 로 표시될 수 있으며, '살 자리(entry_ready)' 는 패턴까지 성립한 종목에만 부여된다(요약의 breakout·actionable 개수 ≠ entry_ready).
 
 ## 안 하는 것
 - VCP 베이스 탐지(그건 find-vcp) · 전 종목 스캔(트렌드 통과 종목만) ·
