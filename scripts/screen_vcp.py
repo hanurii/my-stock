@@ -31,7 +31,7 @@ OUT_PATH = ROOT / "public" / "data" / "sepa-vcp-candidates.json"
 STATUS_ORDER = {"breakout": 0, "actionable": 1, "forming": 2, "failed": 3}
 
 
-def run(args) -> None:
+def run(args, out_path: Path) -> None:
     in_path = Path(args.inp) if args.inp else IN_PATH
     if not in_path.is_absolute():
         in_path = ROOT / in_path
@@ -77,9 +77,9 @@ def run(args) -> None:
     }
 
     if not args.ticker:
-        OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-        OUT_PATH.write_text(json.dumps(output, ensure_ascii=False, indent=2), encoding="utf-8")
-        print(f"\n💾 저장: {OUT_PATH.relative_to(ROOT)}")
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_path.write_text(json.dumps(output, ensure_ascii=False, indent=2), encoding="utf-8")
+        print(f"\n💾 저장: {out_path.relative_to(ROOT)}")
 
     print(f"\n[VCP 요약] 입력 {len(passers)}종목 | VCP {output['vcp_count']} | "
           f"breakout {dist['breakout']} · actionable {dist['actionable']} · "
@@ -92,7 +92,6 @@ def run(args) -> None:
 
 
 def main():
-    global OUT_PATH
     ap = argparse.ArgumentParser(description="find-vcp — VCP 베이스·피벗 탐지")
     ap.add_argument("--in", dest="inp", default=None, help=f"입력(default {IN_PATH.name})")
     ap.add_argument("--out", dest="out", default=None, help=f"출력(default {OUT_PATH.name})")
@@ -103,8 +102,10 @@ def main():
     ap.add_argument("--breakout-vol-mult", type=float, default=DEFAULT_PARAMS["breakout_vol_mult"])
     args = ap.parse_args()
     if args.out:
-        OUT_PATH = Path(args.out) if Path(args.out).is_absolute() else ROOT / args.out
-    run(args)
+        out_path = Path(args.out) if Path(args.out).is_absolute() else ROOT / args.out
+    else:
+        out_path = OUT_PATH
+    run(args, out_path)
 
 
 if __name__ == "__main__":
