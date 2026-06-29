@@ -53,3 +53,104 @@ def test_find_flagpole_single_element_returns_sentinel():
 def test_find_flagpole_empty_returns_sentinel():
     fp = find_flagpole([], [], max_flagpole_days=40)
     assert fp["flagpole_gain_pct"] == 0.0
+
+
+from canslim_lib.power_play import evaluate_power_play
+
+
+def _series(closes, highs=None, lows=None, vols=None):
+    n = len(closes)
+    highs = highs if highs is not None else [c * 1.01 for c in closes]
+    lows = lows if lows is not None else [c * 0.99 for c in closes]
+    vols = vols if vols is not None else [1000] * n
+    dates = [f"2026-01-{i+1:03d}" for i in range(n)]
+    return {"dates": dates, "closes": closes, "highs": highs, "lows": lows, "volumes": vols}
+
+
+def _clean_htf():
+    """조용(20일 저변동) → 8주 내 +120% 깃대(대량거래) → 좁고 얕은 깃발(~10%)."""
+    quiet = [50 + (i % 2) for i in range(20)]          # 50~51 횡보(조용)
+    pole = [52, 58, 66, 75, 85, 95, 104, 110]          # 50→110 (+120%), 8일
+    flag = [108, 106, 105, 104, 103, 105, 106, 107, 106, 105]  # 고점110 대비 ~5.5% 얕은 깃발
+    closes = quiet + pole + flag
+    highs = [c * 1.01 for c in closes]
+    lows = [c * 0.99 for c in closes]
+    # 거래량: 조용 낮음(800) → 깃대 대량(3000) → 깃발 마름(500)
+    vols = [800]*len(quiet) + [3000]*len(pole) + [500]*len(flag)
+    return {"dates": [f"d{i}" for i in range(len(closes))],
+            "closes": closes, "highs": highs, "lows": lows, "volumes": vols}
+
+
+def test_evaluate_detects_clean_htf():
+    r = evaluate_power_play(_clean_htf())
+    assert r["pattern_detected"] is True
+    assert r["reason"] is None
+    assert r["flagpole_gain_pct"] >= 100.0
+    assert r["flag_depth_pct"] <= 20.0
+    assert r["flagpole_vol_ratio"] >= 1.5
+    assert r["pivot_price"] is not None
+
+
+def test_evaluate_rejects_short_total_series():
+    r = evaluate_power_play(_series([100, 101, 99, 102, 100]))
+    assert r["pattern_detected"] is False
+    assert r["reason"] == "base_too_short"
+
+
+def test_evaluate_rejects_weak_flagpole_gain():
+    s = _clean_htf()
+    # 깃대 상승률만 죽인다: 깃대를 +30%짜리로 교체(저점50→고점65)
+    quiet = [50 + (i % 2) for i in range(20)]
+    pole = [52, 55, 58, 60, 62, 63, 64, 65]
+    flag = [64, 63, 62, 63, 64, 63, 62, 63, 64, 63]
+    closes = quiet + pole + flag
+    s = _series(closes, vols=[800]*20 + [3000]*8 + [500]*10)
+    r = evaluate_power_play(s)
+    assert r["pattern_detected"] is False
+    assert r["reason"] == "pole_gain_too_small"
+
+
+def test_evaluate_rejects_weak_pole_volume():
+    s = _clean_htf()
+    # 깃대 거래량을 조용 구간과 동일하게(800) → 대량거래 조건 실패
+    s["volumes"] = [800]*20 + [800]*8 + [500]*10
+    r = evaluate_power_play(s)
+    assert r["pattern_detected"] is False
+    assert r["reason"] == "pole_volume_weak"
+
+
+def test_evaluate_rejects_not_quiet_before_pole():
+    # 폭등 직전 20일이 이미 +50% 상승(말기 베이스) → not_quiet_before_pole
+    pre = [50 + i*1.3 for i in range(20)]   # 50→약74.7 (+49%)
+    pole = [76, 84, 92, 100, 110, 120, 130, 150]   # 74.7→150 추가 폭등
+    flag = [148, 146, 145, 144, 145, 146, 147, 146, 145, 144]
+    closes = pre + pole + flag
+    s = _series(closes, vols=[800]*20 + [3000]*8 + [500]*10)
+    r = evaluate_power_play(s)
+    assert r["pattern_detected"] is False
+    assert r["reason"] == "not_quiet_before_pole"
+
+
+def test_evaluate_rejects_deep_flag():
+    s = _clean_htf()
+    # 깃발 저점을 깊게: 110고점 대비 -30% (77)까지 빠짐
+    quiet = [50 + (i % 2) for i in range(20)]
+    pole = [52, 58, 66, 75, 85, 95, 104, 110]
+    flag = [105, 98, 90, 82, 77, 80, 85, 88, 90, 92]   # 깊은 조정 ~30%
+    closes = quiet + pole + flag
+    s = _series(closes, vols=[800]*20 + [3000]*8 + [500]*10)
+    r = evaluate_power_play(s)
+    assert r["pattern_detected"] is False
+    assert r["reason"] == "flag_too_deep"
+
+
+def test_evaluate_rejects_too_long_flag():
+    s = _clean_htf()
+    quiet = [50 + (i % 2) for i in range(20)]
+    pole = [52, 58, 66, 75, 85, 95, 104, 110]
+    flag = [106]*35   # 6주(30일) 초과 횡보
+    closes = quiet + pole + flag
+    s = _series(closes, vols=[800]*20 + [3000]*8 + [500]*35)
+    r = evaluate_power_play(s)
+    assert r["pattern_detected"] is False
+    assert r["reason"] == "flag_too_long"
