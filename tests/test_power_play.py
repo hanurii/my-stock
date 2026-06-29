@@ -9,7 +9,7 @@ def test_default_params_has_required_keys():
     for k in ("lookback_days", "min_flagpole_gain", "max_flagpole_days",
               "pole_vol_mult", "quiet_window", "max_pre_pole_gain",
               "min_flag_days", "max_flag_days", "max_flag_depth",
-              "breakout_vol_mult", "near_pivot_pct", "min_total_days"):
+              "breakout_vol_mult", "near_pivot_pct", "min_total_days", "min_flag_pullback"):
         assert k in DEFAULT_PARAMS
     assert DEFAULT_PARAMS["min_flagpole_gain"] == 100.0
     assert DEFAULT_PARAMS["max_flagpole_days"] == 40
@@ -245,3 +245,24 @@ def test_evaluate_breakout_with_physical_new_high():
     r = evaluate_power_play(s)
     assert r["status"] == "breakout"
     assert r["entry_ready"] is True
+
+
+def test_entry_ready_false_for_non_pattern_breakout():
+    # 깃대 상승률 < 100% (non-pattern)이지만 돌파 신호(breakout/actionable)는 나타나는 경우,
+    # entry_ready는 False여야 한다 (pattern_detected=False 때문).
+    quiet = [50 + (i % 2) for i in range(20)]      # 50~51 횡보(조용)
+    pole = [52, 58, 63, 68, 72, 76, 78, 80]        # 50→80 (+60%), sub-100%
+    flag = [78, 77, 78, 79, 78, 77, 78, 79]        # 얕은 깃발
+    closes = quiet + pole + flag
+    s = _series(closes, vols=[800]*20 + [3000]*8 + [500]*8)
+    # 깃발 천장(79) 근처에서 종가 상승 + 대량거래로 breakout 신호 생성
+    s["closes"].append(82.0)
+    s["highs"].append(83.0)
+    s["lows"].append(81.0)
+    s["volumes"].append(6000)
+    s["dates"].append("dN")
+    r = evaluate_power_play(s)
+    assert r["pattern_detected"] is False
+    assert r["reason"] == "pole_gain_too_small"
+    assert r["status"] in ("breakout", "actionable")
+    assert r["entry_ready"] is False
