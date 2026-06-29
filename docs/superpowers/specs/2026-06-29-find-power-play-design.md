@@ -87,7 +87,8 @@
 3. **깃대 상승률** `flagpole_gain_pct` = `(flag_high − pole_start_low)/
    pole_start_low × 100`. **≥ `min_flagpole_gain`(기본 100)** 이어야 함.
 4. **깃대 기간** `flagpole_days` = `pole_start_low`→`flag_high` 거래일 수.
-   **≤ `max_flagpole_days`(기본 40 = 8주)** 이어야 함.
+   탐지 구간을 `flag_high` 직전 `max_flagpole_days`(기본 40=8주)로 한정했으므로
+   `flagpole_days ≤ 8주`는 **구조적으로 항상 보장**된다(별도 reason 불필요).
 
 ### 4.3 깃대 거래량 (조건 ③)
 
@@ -185,7 +186,7 @@
 
 - `candidates`는 입력 종목 전부 포함(불성립도 reason과 함께) — 환각 방지·디버그용.
 - `reason`은 `pattern_detected=false`인 모든 경로에서 채워진다
-  (no_data / no_series / base_too_short / pole_gain_too_small / pole_too_slow /
+  (no_data / no_series / base_too_short / pole_gain_too_small /
   pole_volume_weak / not_quiet_before_pole / flag_too_short / flag_too_long /
   flag_too_deep / volume_not_drying / eval_error:*).
 - 정렬: `entry_ready` 우선(true→false) → `status`(breakout→actionable→
