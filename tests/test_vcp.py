@@ -2,7 +2,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
-from canslim_lib.vcp import zigzag
+from canslim_lib.vcp import zigzag, find_contractions
 
 
 def test_zigzag_picks_alternating_pivots_from_peak():
@@ -25,3 +25,21 @@ def test_zigzag_ignores_subthreshold_noise():
     piv = zigzag(values, pct=8.0)
     lows = [p for _, p, k in piv if k == "low"]
     assert 97 not in lows
+
+
+def test_find_contractions_high_to_low_depths():
+    pivots = [
+        (0, 100.0, "high"), (5, 75.0, "low"),
+        (10, 90.0, "high"), (15, 78.0, "low"),
+        (20, 86.0, "high"), (25, 80.0, "low"),
+    ]
+    depths = find_contractions(pivots)
+    # (100-75)/100=25, (90-78)/90=13.33, (86-80)/86=6.98
+    assert len(depths) == 3
+    assert abs(depths[0] - 25.0) < 1e-6
+    assert abs(depths[1] - 13.3333) < 1e-3
+    assert abs(depths[2] - 6.9767) < 1e-3
+
+
+def test_find_contractions_empty_when_no_pairs():
+    assert find_contractions([(0, 100.0, "high")]) == []

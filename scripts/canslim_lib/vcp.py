@@ -58,3 +58,14 @@ def zigzag(values: list[float], pct: float) -> list[tuple[int, float, str]]:
     closing = "high" if direction == 1 else "low"
     pivots.append((ext_idx, ext_val, closing))
     return pivots
+
+
+def find_contractions(pivots: list[tuple[int, float, str]]) -> list[float]:
+    """인접한 (고점 → 바로 다음 저점) 쌍의 되돌림 깊이%를 시간순으로."""
+    depths: list[float] = []
+    for a, b in zip(pivots, pivots[1:]):
+        if a[2] == "high" and b[2] == "low":
+            high, low = a[1], b[1]
+            if high > 0:
+                depths.append((high - low) / high * 100.0)
+    return depths
