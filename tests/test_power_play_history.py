@@ -87,3 +87,26 @@ def test_classify_branches():
 def test_post_breakout_outcome_is_reused_from_vcp_history():
     from canslim_lib.vcp_history import post_breakout_outcome as _orig
     assert post_breakout_outcome is _orig
+
+
+def test_post_breakout_outcome_reused_numbers():
+    # 재사용한 vcp_history.post_breakout_outcome 가 이 모듈 import 경로로도 동일 동작.
+    s = {
+        "dates": ["d0", "d1", "d2", "d3"],
+        "closes": [100.0, 110.0, 95.0, 130.0],
+        "highs":  [100.0, 112.0, 96.0, 132.0],
+        "lows":   [100.0, 108.0, 94.0, 128.0],
+        "volumes": [1, 1, 1, 1],
+    }
+    o = post_breakout_outcome(s, "d0", stop_pct=8.0, target_pct=20.0)
+    assert o["breakout_close"] == 100.0
+    assert o["days_since"] == 3
+    assert o["gain_since_pct"] == 30.0
+    assert o["max_gain_pct"] == 32.0
+    assert o["max_drawdown_pct"] == -5.0
+    assert o["good_breakout"] is True
+
+
+def test_post_breakout_outcome_missing_date_returns_none():
+    s = {"dates": ["d0"], "closes": [100.0], "highs": [100.0], "lows": [100.0], "volumes": [1]}
+    assert post_breakout_outcome(s, "zzz") is None
