@@ -103,14 +103,26 @@ as-of 리플레이를 시간순으로 훑어, 다음을 만족하는 날 D를 **
       "num_events": 1,
       "most_recent_event_date": "2026-04-10",
       "events": [
-        { "date": "2026-04-10", "pivot_price": 0, "contractions": [22.1, 11.3, 6.8],
+        { "date": "2026-04-10", "confirm_date": "2026-04-09",
+          "pivot_price": 0, "contractions": [22.1, 11.3, 6.8],
           "breakout_close": 0, "days_since": 52, "gain_since_pct": 0,
           "max_gain_pct": 0, "max_drawdown_pct": 0, "good_breakout": true }
       ]
+    },
+    {
+      "code": "000660", "name": "SK하이닉스", "market": "KOSPI", "rs": 95,
+      "classification": "no_vcp_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": [],
+      "reason": "no_series"
     }
   ]
 }
 ```
+- 각 이벤트 객체에는 `"confirm_date"` 키가 있으며, 돌파 직전에 `vcp_detected=true`였던
+  가장 가까운 날짜(= 이벤트 근거)를 나타낸다.
+- no-series(시세 없음) 종목은 이벤트 없이 `classification: "no_vcp_found"` + `"reason": "no_series"` 키를 추가로 갖는다.
 - `stocks`는 입력 종목 전부 포함(이벤트 없으면 `no_vcp_found`·events []).
 - 정렬: `classification`(re_basing → recent_breakout → extended → no_vcp_found) → rs 내림차순.
 
@@ -118,7 +130,7 @@ as-of 리플레이를 시간순으로 훑어, 다음을 만족하는 날 D를 **
 - **`scripts/canslim_lib/vcp_history.py`** (순수, 단위 테스트 가능):
   `replay_vcp(series, scan_days, params) -> list[dict]`,
   `find_breakout_events(replay, confirm_lookback) -> list[dict]`,
-  `post_breakout_outcome(series, event_date, params) -> dict`,
+  `post_breakout_outcome(series, event_date, stop_pct=8.0, target_pct=20.0) -> dict | None`,
   `classify(events, replay, recent_days) -> str`.
   `evaluate_vcp`(기존)만 호출, 새 판정 로직 없음.
 - **`scripts/screen_vcp_history.py`** — CLI: 입력 코드 결정 → 종목별 위 4단계 →

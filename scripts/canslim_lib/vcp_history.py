@@ -87,6 +87,9 @@ def post_breakout_outcome(series: dict, event_date: str,
     gain_since = (closes[-1] - bc) / bc * 100.0
     max_gain = max(((h - bc) / bc * 100.0 for h in after_h), default=0.0)
     max_dd = min(((c - bc) / bc * 100.0 for c in after_c), default=0.0)
+    # good_breakout: 손절은 intrabar low, 목표는 intrabar high 기준(체결 가정).
+    # 같은 바에서 둘 다 닿으면 손절 우선(보수적). max_drawdown_pct(=close 기준)와
+    # 판정 기준이 달라 둘이 어긋나 보일 수 있음(의도된 차이).
     good = False
     for h, l in zip(after_h, after_l):
         if (l - bc) / bc * 100.0 <= -stop_pct:
