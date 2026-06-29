@@ -2,7 +2,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
-from canslim_lib.vcp import zigzag, find_contractions
+from canslim_lib.vcp import zigzag, find_contractions, evaluate_vcp
 
 
 def test_zigzag_picks_alternating_pivots_from_peak():
@@ -43,3 +43,56 @@ def test_find_contractions_high_to_low_depths():
 
 def test_find_contractions_empty_when_no_pairs():
     assert find_contractions([(0, 100.0, "high")]) == []
+
+
+# ---------------------------------------------------------------------------
+# Task 3: evaluate_vcp tests
+# ---------------------------------------------------------------------------
+
+def _series_from_closes(closes):
+    # highs/lows = 종가 ±0.5%, volumes 균일(거래량 마름 테스트는 개별 지정)
+    highs = [c * 1.005 for c in closes]
+    lows = [c * 0.995 for c in closes]
+    vols = [1000] * len(closes)
+    dates = [f"2026-01-{i+1:02d}" for i in range(len(closes))]
+    return {"dates": dates, "closes": closes, "highs": highs, "lows": lows, "volumes": vols}
+
+
+def _vcp_closes():
+    # 고점100 → -25% → 회복 → -13% → 회복 → -7% (수축 수렴) → 피벗 근처
+    seg = []
+    seg += [100, 92, 84, 78, 75]          # -25%
+    seg += [80, 86, 90]                    # 회복
+    seg += [88, 84, 80, 78.3]              # -13% (90->78.3)
+    seg += [82, 86, 88]                    # 회복
+    seg += [87, 85, 83, 80.8]              # -8.18% (88->80.8, crosses 8% zigzag threshold)
+    seg += [84, 86]                        # 피벗(88) 향해 접근
+    return seg
+
+
+def test_evaluate_vcp_detects_contracting_base():
+    s = _series_from_closes(_vcp_closes())
+    # 거래량 마름: 후반 1/3 거래량을 낮춤
+    third = len(s["volumes"]) // 3
+    s["volumes"] = [1500]*third + [1000]*third + [600]*(len(s["volumes"])-2*third)
+    r = evaluate_vcp(s)
+    assert r["vcp_detected"] is True
+    assert 2 <= r["num_contractions"] <= 6
+    # 수축이 대체로 얕아지는 수열
+    assert r["contractions"][0] > r["contractions"][-1]
+    assert r["pivot_price"] is not None
+
+
+def test_evaluate_vcp_rejects_short_base():
+    s = _series_from_closes([100, 98, 99, 97, 98])  # 5일 < min_base_days
+    r = evaluate_vcp(s)
+    assert r["vcp_detected"] is False
+    assert r["reason"] == "base_too_short"
+
+
+def test_evaluate_vcp_breakout_status():
+    closes = _vcp_closes() + [89.0]   # 피벗(88) 위로 돌파
+    s = _series_from_closes(closes)
+    s["volumes"][-1] = 5000           # 돌파 거래량 급증
+    r = evaluate_vcp(s)
+    assert r["status"] == "breakout"
