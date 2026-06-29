@@ -182,3 +182,44 @@ def test_evaluate_rejects_volume_not_drying():
     r = evaluate_power_play(s)
     assert r["pattern_detected"] is False
     assert r["reason"] == "volume_not_drying"
+
+
+def test_status_breakout_on_pivot_break_with_volume():
+    s = _clean_htf()
+    # 피벗(=기존 깃발 최고가 111.1) 위로 종가 돌파 + 대량거래 1일 추가.
+    # evaluate_power_play의 pivot_price = max(highs) 이므로, 이 바의 high를
+    # 기존 최고가(111.1)보다 낮게(111.0) 설정해 피벗이 이동하지 않도록 한다.
+    # close > high 는 합성 테스트 데이터에서만 허용되는 의도적 값이다.
+    s["closes"].append(112.0)   # 기존 pivot 111.1 초과
+    s["highs"].append(111.0)    # 111.1보다 낮아야 기존 pole-top이 pivot 유지
+    s["lows"].append(110.0)
+    s["volumes"].append(6000)   # pole 평균(3000)의 1.4배(=4200) 이상
+    s["dates"].append("dN")
+    r = evaluate_power_play(s)
+    assert r["status"] == "breakout"
+    assert r["entry_ready"] == (r["pattern_detected"] and r["status"] in ("breakout", "actionable"))
+
+
+def test_status_failed_on_flag_breakdown():
+    s = _clean_htf()
+    # 깃발 저점을 깊게 깨고 종가가 그 아래로 → failed
+    s["closes"].append(70.0)
+    s["highs"].append(72.0)
+    s["lows"].append(69.0)
+    s["volumes"].append(2000)
+    s["dates"].append("dN")
+    r = evaluate_power_play(s)
+    assert r["status"] == "failed"
+
+
+def test_status_actionable_near_pivot_with_dryup():
+    s = _clean_htf()
+    # 마지막 종가가 피벗(110) 0~5% 아래 + 거래량 마름 유지
+    s["closes"].append(107.0)   # (110-107)/110 = 2.7%
+    s["highs"].append(108.0)
+    s["lows"].append(106.0)
+    s["volumes"].append(500)
+    s["dates"].append("dN")
+    r = evaluate_power_play(s)
+    assert r["status"] == "actionable"
+    assert 0 <= r["pct_to_pivot"] <= 5
