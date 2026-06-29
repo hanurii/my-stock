@@ -1,13 +1,13 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-06-26T21:02:33.787+09:00",
+  "last_checked": "2026-06-29T09:11:18.531+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 4.49,
-      "display": "4.49배",
+      "value": 4.52,
+      "display": "4.52배",
       "threshold": "10배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "dividend_yield",
       "label": "배당수익률",
-      "value": 4.8,
-      "display": "4.80%",
+      "value": 4.77,
+      "display": "4.77%",
       "threshold": "3.5% 이하",
       "hit": false,
       "tone": "good"
@@ -24,8 +24,8 @@
     {
       "id": "price_high",
       "label": "주가",
-      "value": 64200,
-      "display": "64,200원",
+      "value": 62500,
+      "display": "62,500원",
       "threshold": "85,000원+ 돌파",
       "hit": false,
       "tone": "good"
@@ -60,8 +60,8 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 76.71,
-      "display": "76.71$",
+      "value": 75.53,
+      "display": "75.53$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "warn"
@@ -84,18 +84,167 @@
       "severity": "warn",
       "type": "oil_price_brent",
       "title": "Brent 7일 평균 (두바이유 대용) 임계 근접",
-      "message": "현재 76.71$ (임계 70달러 이하 (정유 매크로 약화))"
+      "message": "현재 75.53$ (임계 70달러 이하 (정유 매크로 약화))"
+    },
+    {
+      "severity": "bad",
+      "type": "news_keyword_hit",
+      "title": "리스크 키워드 매칭 뉴스 16건 (부정 시그널 1건 포함)",
+      "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
-  "news_hits": [],
+  "news_hits": [
+    {
+      "keyword": "두바이유 하락",
+      "date": "2026-06-25",
+      "title": "두바이유 가격, 전쟁 이전 수준까지 하락 - 에너지플랫폼뉴스",
+      "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE12UHRnZUl5UGNmd2lDT0ZSNkduU1Q4Tzc4WlBUd1RDTmQ2QVRhNmZKQlRXSTFCVG8xUDBENFpCZDEteVZHZ3VCcEhvOW9zc2ZJT0ZMb04wVFk1bjVjYU5HM19yNHBVdmVhRm1EcNIBcEFVX3lxTE1vcVlLbUdrZ29NRzhERUh5YmhJODg3TnFWVFNpM3k4eUc4VDlrak1lUlRVUnFIZEI4UENLVGF5c0RQSi03ZkIyRERpY2dESmhqX0xoU2JiQl9hSVNXdE9MTVg1VTlIckpFVGZ2Q1Z3NGU?oc=5",
+      "severity": "warn",
+      "signals": [
+        "하락"
+      ]
+    },
+    {
+      "keyword": "정제마진 하락",
+      "date": "2026-06-28",
+      "title": "NH투자證 “S-Oil, 유가 하락에도 정제마진 강세 여전…목표가 15만원 유지” - v.daum.net",
+      "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE9YRzQzUWVhMWFnODRwMGNKbnBWWHBMVnBUSHdYUXNpMmstdXlSQ3NlQ2U3TXpPSkdXdlo5R2FuZVpENUl0OFo0d1Nhb1FjdFU?oc=5",
+      "severity": "warn",
+      "signals": [
+        "하락"
+      ]
+    },
+    {
+      "keyword": "정제마진 하락",
+      "date": "2026-06-28",
+      "title": "NH證 \"S-Oil, 유가 하락에도 정제마진 강세…목표가 15만원\" - 뉴스1",
+      "url": "https://news.google.com/rss/articles/CBMiX0FVX3lxTE9FYzFaVlJ4b2JfeG5FdTZRYkdoRHhJRW1oYTE5VzFGcWhGMGRva3Vac25ONVBXbE5zLXpXTzN0XzZ6aW4wYWZqOHlhaXY0dEhtMWE0R3EyMGdWNWJKeFNR?oc=5",
+      "severity": "warn",
+      "signals": [
+        "하락"
+      ]
+    },
+    {
+      "keyword": "정제마진 하락",
+      "date": "2026-06-28",
+      "title": "NH투자증권 \"S-Oil, 유가 하락에도 정제마진 강세\" - 컨슈머타임스",
+      "url": "https://news.google.com/rss/articles/CBMiakFVX3lxTE13NGhxR0VnSUNIaTNVZGdZMDJyWkM3SkZUZDNGem1nYS1Kci1jLXlqTFdrUlBBLU95bFE2SVhlQk91YVZoa3B2ajQ1OUpEMnU2R1Q1VFYwaGVUWUM5TE1IcTUyMkQwLVVZX0E?oc=5",
+      "severity": "warn",
+      "signals": [
+        "하락"
+      ]
+    },
+    {
+      "keyword": "이란 미국 합의",
+      "date": "2026-06-28",
+      "title": "美언론 \"미국-이란, 공격 중단 및 금주 회담 합의\" - 연합뉴스",
+      "url": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE0wS3YyUDRpeEQySUtIYnhaOVhIN2VNQjdjNmZ1NzIybDNsU1hJSlp0Yzg2cFIwS1FuclJncUdURTRJYV85OEk4RnhmdEpIdWZLR3l5YkhieHpqdHPSAWBBVV95cUxPR0RBMC1TSXZWWnRKM1cwR3BuX2ROTDktcjJzUk91a0NfS1NXdG0zaEFiS0NTWDBsdDJwWjY4eFhrWERzZWtxTDJLaHpLaHF6alBHZlU0TWFxU3V0UHJRTlE?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "이란 미국 합의",
+      "date": "2026-06-28",
+      "title": "\"‘호르무즈 충돌’ 미국·이란, 공격 중단 합의…이번주 회담\" - JTBC",
+      "url": "https://news.google.com/rss/articles/CBMiVEFVX3lxTE8tWTBQeUlfanZyNzF0aXc0UjM1WnJkUmdmNVBZX2tyZkpqekZmZkI0Q3BOTUNBNjhIWDJoLWpiY2RzSHlJenh4VUFFU1AySER1Q1ZlWQ?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "이란 미국 합의",
+      "date": "2026-06-28",
+      "title": "\"미국-이란, 공격 중단·30일 회담 합의\" - MBC 뉴스",
+      "url": "https://news.google.com/rss/articles/CBMidEFVX3lxTE9mS3J3WkxPdG5reEp3b1FNRGV6dThuc19Fb0NVNWVXTENhWmJVc3Y3eXozQU1OZVpyMGRONVZJNnFVR3NVOFczNGMya05LVXppZWJyaVc4Z3htN1l1Yk9FMHlpQlg1UjVXXzBJU3lFS1BxY1900gF0QVVfeXFMT0JoVzJnVnBzV211N216SHN2SGZqUjdlNERQZ1c2WVJ0TEZWcnBOd29SazBWLWJ5Rkw2N055aEgyQkpHTFJiMUswSHRhdGpvNkpyaTJsVFdpcXJIRXZSS293UlF6eno0OVBPc3RkRGZ3MVZpVHE?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "이란 미국 합의",
+      "date": "2026-06-28",
+      "title": "美언론 \"미국-이란, 공격 중단 및 금주 회담 개최 합의\"(종합) - v.daum.net",
+      "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTFBSWEpoUUg4TnBlb0ZhZHBZcng5bGZYT1FnMG43cmo1X2NOUFlHcXJtaGduNXZBVEQ0dG91bWdOaXZNV0xPZFRoOGVreGdkcVU?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "이란 미국 합의",
+      "date": "2026-06-28",
+      "title": "\"미국·이란, 공격 상호 중단 및 이번 주 회담 개최 합의\" - 조선일보",
+      "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxNU1Bpa1djRjRRcXdRaDVNb2xfVFJWVUlLQ3dVSG1jWUYxankyUEdFakdXUzFsQzRZTmV5dUhNS01mZXpZY1NBNk1FdzFPQUJteVZGQS1JMTEzUjJYNjI3VlliejYzbkJEVzFNOXhwaHZ2S3ZUcnI0VExkZXN2ZWtFMjV4MEQ?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "이란 미국 합의",
+      "date": "2026-06-28",
+      "title": "\"미국·이란, 공격 중단 합의...30일 카타르 도하에서 실무 회담\" - YTN",
+      "url": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE5lTmYtdDRRdG16alhIZ2pjT3BHQ3hMUmlHRU5GdnpMaW5NWlZvbnBubnRFdEFDdVUyeWx3X3ZiOEU2NUluMldrY1JJMUJaU055ZWoyTEJOVkR5MGYtR2c?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "이란 미국 합의",
+      "date": "2026-06-28",
+      "title": "미 언론 “미국-이란, 공격 중단 및 이번 주 회담 합의” - KBS 뉴스",
+      "url": "https://news.google.com/rss/articles/CBMiW0FVX3lxTFB0TGZzdURlUWZlOFotS1ZCMG5EdnpmZGV4RWVnMlY2aDV0QnNvMW9hSm1faF9jOV83S3c0RmJDczdnM2loVU1aem42NUVIRzB1c0c4bkY4TlBvZFk?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "이란 미국 합의",
+      "date": "2026-06-28",
+      "title": "美 악시오스 “미국-이란, 공격 중단 및 이번주 회담 개최 합의” - 중앙일보",
+      "url": "https://news.google.com/rss/articles/CBMiVkFVX3lxTE8xQkxIbzRMYkJLMDJMVDhZU1llY1Y0aXJGdVZBajNiaEQ3ellyYmUzQjJJR2YxWTUycDRBSEhsXzI3SlptQk1CcEFYVmxOTTU4VzRSQWRB?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "이란 미국 합의",
+      "date": "2026-06-28",
+      "title": "미국·이란, 공격 중단 및 만남 합의···“30일 도하에서 회담” - 경향신문",
+      "url": "https://news.google.com/rss/articles/CBMiWkFVX3lxTFBnOHVNWTJROWlQQzBxUW9uN0pHTEU5X3ZBdnFQVWlLV1lmdnhKZHM2NkNEMWtpNEN3ZHQ0c3BjOE5mdUxvdy14SGhFdnVhMjNiV3BBcUYyUnhyQdIBX0FVX3lxTE1CU2s1OUtyekZFYWNlb09oVVNzOXRiRnRGUm9FenhwQV82VS03QWJTU2tISGVYTUZUVFFmZ1cyNVBJdXRzdzBuZjhjS09Cd2ptMGk4V2JyVE1HVWNWY0o4?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "중동 긴장 완화",
+      "date": "2026-06-28",
+      "title": "중동 긴장 완화에 해외여행 심리 ‘꿈틀’…모두투어 예약률 32%↑ - 뉴시스",
+      "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE40MG9RZGtOU3VkMEhjRll3eDFyX2dGQ3pMaGJlODhCVU9yQU1uSU5ydTBfUlBlamV5RW0zYXZ1eHBTQlBEUlM0ZGhmLXVsYkJyM19xTXFRdHBxNi0wZkRMU9IBeEFVX3lxTFBsRWM5RUlCNG45cmc4aWluNFV5eno0NG1PWVRZQ0RKaHg5bUVxZENPaE1xOHlYUlBTZ1VVOVFuTzJKUm9paWhMSnJacjlEUHVEU2tjNTdBMktKRmNkd1AtYkV6R0hWbGZ0cW5fbWdnQzY4M05RS24xUw?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "중동 긴장 완화",
+      "date": "2026-06-22",
+      "title": "뉴욕증시, 중동 긴장 완화에도 혼조…AI 비용 부담에 나스닥 급락 - 산경투데이",
+      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE9xLV9IMkJtSFRPVkF4TEN2a1RfZ0JRYkFNTDF5R0lIYm1TMlNoVXhTeUFSN1FjT2FrY2VhbmdKY3d3LWFCVDRZTzg5cW1MaHItXzc0bVZ5ejRpbEptQUl6emZhODlXVkhqQWRONlhJLU3SAXRBVV95cUxNWWZLQmtSYkVtbGZyVG9EU1pZeGpiWUV0X1A4dGt0UGRnREpvYzU3OURZZHNicFFVeHFJd2o2VDVGUXJ1M0xSSkd2M2tycDRxVGFGNkl1X21XQWxkMnIya3c1Ym1raExuLTBMRWxRWG54cDRDZw?oc=5",
+      "severity": "bad",
+      "signals": [
+        "급락"
+      ]
+    },
+    {
+      "keyword": "중동 긴장 완화",
+      "date": "2026-06-23",
+      "title": "중동 긴장 완화에…국제유가, 4개월 만에 최저치 - 데일리안",
+      "url": "https://news.google.com/rss/articles/CBMiVkFVX3lxTE1MVXVNMFh6YjFReFhBLU1KMXMwT1Z5UGd0b0RFYWFUZEJ1YnNNZlk5Zk9QWVEwd0ZQaDB3XzNvaFY2c2dwYjEzOXZROTcxSTlJdGNFUkFn0gGPAkFVX3lxTFBPMG5QVTJhNUhucE5hNGNjckFGTlB5TTNVYzZRSWlnSFNDWkdvN2FPVklCUFBHVWxaUlpkbHk1cGlkTW9OQWhVNW1GWE9UTlg2aXBlakozRUpCRHgyMWZVZnpDNy11eVY0Z053SDY1NFRCRFpaekZrNE9IZVJSMDVJWEI2Z05wLUJnNWtveUxvQ1pqVDZsakFIWWVTek8tU29sc29vYmY1U3oyMHpFZTlyQlNUT1dpYnlVSGI2NHUtaWRwVXJKMktFX2x5SWMxZFk5djVLbVN5NUZidFJrcUlIMm0zT1FSeWdTYkt1Q3JEbWstLUlZQldoSVU5bU1UTzQ1NjZSTFR5VnhlQVE0RzQ?oc=5",
+      "severity": "info",
+      "signals": []
+    }
+  ],
   "sources": [
     {
       "label": "PER/PEG/PBR 스코어",
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 73.61 USD (2026-06-26, 7일 평균 76.71)",
+      "label": "Brent 원유 종가 72.92 USD (2026-06-29, 7일 평균 75.53)",
       "ref": "Yahoo Finance BZ=F"
+    },
+    {
+      "label": "뉴스 RSS",
+      "ref": "news.google.com/rss (7일)"
     }
   ]
 }
