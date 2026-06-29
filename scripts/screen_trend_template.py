@@ -422,12 +422,15 @@ def run_full_scan(args: argparse.Namespace) -> None:
     }
 
     if args.save:
-        OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-        OUTPUT_PATH.write_text(
+        out_path = Path(args.out) if args.out else OUTPUT_PATH
+        if not out_path.is_absolute():
+            out_path = ROOT / out_path
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_path.write_text(
             json.dumps(output, ensure_ascii=False, indent=2),
             encoding="utf-8",
         )
-        print(f"\n💾 저장: {OUTPUT_PATH.relative_to(ROOT)}")
+        print(f"\n💾 저장: {out_path.relative_to(ROOT)}")
         print(f"   (총 {len(candidates)}종목, 8개 통과 {pass_count}종목)")
     else:
         # 상위 20개만 콘솔 미리보기
@@ -460,6 +463,9 @@ def main():
                              f"--limit 시범 시 30 정도로 낮추면 산출됨.")
     parser.add_argument("--save", action="store_true",
                         help=f"결과를 {OUTPUT_PATH.name} 에 저장")
+    parser.add_argument("--out", default=None,
+                        help=f"저장 경로 (default: {OUTPUT_PATH.relative_to(ROOT)}). "
+                             f"상대경로면 프로젝트 루트 기준. SEPA 등 별도 산출 파일 분리용.")
     args = parser.parse_args()
 
     if args.ticker:
