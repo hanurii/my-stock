@@ -1,13 +1,13 @@
 {
   "code": "105560",
   "name": "KB금융",
-  "last_checked": "2026-06-29T19:15:47.691+09:00",
+  "last_checked": "2026-06-29T22:10:11.911+09:00",
   "metrics": [
     {
       "id": "pbr",
       "label": "PBR",
-      "value": 0.94,
-      "display": "0.94배",
+      "value": 0.96,
+      "display": "0.96배",
       "threshold": "1.1배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "pbr_premium_pp",
       "label": "4대 지주 평균 대비 PBR 프리미엄",
-      "value": 0.287,
-      "display": "0.287pp",
+      "value": 0.28,
+      "display": "0.280pp",
       "threshold": "+0.20pp 이상",
       "hit": true,
       "tone": "bad"
@@ -24,8 +24,8 @@
     {
       "id": "foreign_ratio",
       "label": "외국인 지분율",
-      "value": 80.06,
-      "display": "80.06%",
+      "value": 80.03,
+      "display": "80.03%",
       "threshold": "70% 이하",
       "hit": false,
       "tone": "good"
@@ -99,16 +99,24 @@
       "severity": "bad",
       "type": "pbr_premium_pp",
       "title": "4대 지주 평균 대비 PBR 프리미엄 +0.20pp 이상",
-      "message": "현재 0.287pp — 매도 트리거 도달"
+      "message": "현재 0.280pp — 매도 트리거 도달"
     },
     {
       "severity": "info",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 1건 (관찰 신호 0건 — 키워드 단순 매칭만)",
+      "title": "리스크 키워드 매칭 뉴스 2건 (관찰 신호 0건 — 키워드 단순 매칭만)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
   "news_hits": [
+    {
+      "keyword": "KB금융 부실채권",
+      "date": "2026-06-29",
+      "title": "KB금융, 포용금융에 6.9조 푼다… 4,500억 부실채권 선제 소각 - 아이러브PC방",
+      "url": "https://news.google.com/rss/articles/CBMickFVX3lxTFBFTGc2WlBZLUx6QlY5Z2RNR1hnejZBc2NGa01YWGNNak41ZmY3Q2FaMHo1dzI1Ul9sYWJ6OElIY3MtVU4zYXhyaTRoVzNtNTBVamY0QWsyai12alhTckR3UElmUDdodndlaXg0bzBOWFFNUdIBckFVX3lxTFBFTGc2WlBZLUx6QlY5Z2RNR1hnejZBc2NGa01YWGNNak41ZmY3Q2FaMHo1dzI1Ul9sYWJ6OElIY3MtVU4zYXhyaTRoVzNtNTBVamY0QWsyai12alhTckR3UElmUDdodndlaXg0bzBOWFFNUQ?oc=5",
+      "severity": "info",
+      "signals": []
+    },
     {
       "keyword": "KB금융 부실채권",
       "date": "2026-06-29",
@@ -129,7 +137,7 @@
     },
     {
       "label": "4대 지주 평균 PBR 비교 (3종목)",
-      "ref": "peers: 086790, 316140, 055550 / avg 0.653"
+      "ref": "peers: 086790, 316140, 055550 / avg 0.68"
     },
     {
       "label": "분기 배당 결정 ([기재정정]사업보고서 (2025.12))",
