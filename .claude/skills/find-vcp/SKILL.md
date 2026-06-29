@@ -1,0 +1,40 @@
+---
+name: find-vcp
+description: >
+  SEPA 2단계. 1단계(find-trend-template) 통과 종목의 일봉에서 미너비니 VCP(변동성
+  수축 패턴) 베이스를 탐지하고 피벗(돌파 매수점)·진입상태(breakout/actionable/
+  forming/failed)를 산출해 sepa-vcp-candidates.json 에 저장한다. OHLCV 캐시만 사용,
+  수급·공유 파일 무접촉. 사용자가 "/find-vcp", "VCP 찾아줘", "베이스·피벗 분석",
+  "SEPA 2단계" 등을 요청할 때 사용.
+---
+
+# find-vcp — SEPA 2단계: VCP 베이스·피벗 탐지
+
+`find-trend-template`(SEPA 1단계) 통과 종목에 대해 미너비니 **VCP(변동성 수축
+패턴)** 를 탐지한다. 정의·근거: `docs/superpowers/specs/2026-06-29-find-vcp-design.md`.
+
+## 사전 조건
+- **최신 데이터로 돌리려면 먼저 `update-data` → `find-trend-template`** 실행.
+- 입력 `public/data/sepa-trend-candidates.json` 존재(= find-trend-template 산출).
+
+## 실행 (1줄)
+```
+python scripts/screen_vcp.py
+```
+- 산출: `public/data/sepa-vcp-candidates.json`
+- 콘솔: 상태 분포 + breakout/actionable 종목 표.
+
+### 옵션
+- `--ticker CODE` : 단일 종목 디버그(저장 안 함).
+- `--zigzag-pct 8` / `--max-final-depth 10` / `--breakout-vol-mult 1.4` /
+  `--lookback-days 120` : VCP 임계값 튜닝(기본값은 미너비니 개념 기반 추정).
+- `--out PATH` : 출력 경로 변경.
+
+## 결과 확인
+- `status_distribution` : breakout(돌파 중) · actionable(피벗 근접+거래량 마름) ·
+  forming(형성 중) · failed(수렴 실패).
+- `actionable`/`breakout` 종목이 다음 단계(리스크·진입) 후보.
+
+## 안 하는 것
+- 전 종목 스캔(트렌드 통과 종목만) · 공유 파일 갱신 · 수급 신호 · 자동 commit.
+- 프로젝트 5신호(눌림목 재가속) — 별도. 이번은 교과서 VCP만.
