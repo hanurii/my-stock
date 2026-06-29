@@ -8,6 +8,7 @@ from canslim_lib.vcp_audit import (
     audit_contractions,
     audit_contraction_volumes,
     audit_dry_point,
+    audit_breakout,
 )
 
 
@@ -59,3 +60,21 @@ def test_audit_dry_point_min_on_right():
     r = audit_dry_point(base_vols, base_ma50, base_dates, right_frac=0.5)
     assert r["min_vol_vs_ma50_pct"] == 40.0
     assert r["date"] == "d3"
+
+
+def test_audit_breakout_clean_vs_detector():
+    # 피벗 100. b1 이후: d0 전일종가95 → d1 종가105(첫돌파·양봉·거래량2배·연장5%)
+    series = {
+        "dates":  ["d0", "d1", "d2"],
+        "closes": [95.0, 105.0, 108.0],
+        "opens":  [96.0, 101.0, 107.0],
+        "highs":  [97.0, 106.0, 109.0],
+        "lows":   [94.0, 100.0, 106.0],
+        "volumes":[100.0, 300.0, 120.0],
+    }
+    ma50 = [150.0, 150.0, 150.0]   # d1 거래량 300/150 = 200%
+    params = {"breakout_vol": 1.4, "near": 5.0, "base_vol_cap": 50}
+    r = audit_breakout(series, pivot=100.0, b1=0, ma50=ma50, params=params)
+    # d1: 첫돌파(전일95≤100), 양봉(105>101), vol 200%≥140%, 연장 5%≤5 → clean
+    assert any(c["date"] == "d1" for c in r["clean_candidates"])
+    assert r["pass"] is True

@@ -6,7 +6,7 @@
 """
 from __future__ import annotations
 
-from canslim_lib.vcp import zigzag, find_contractions  # noqa: E402
+from canslim_lib.vcp import zigzag, find_contractions, evaluate_vcp, DEFAULT_PARAMS  # noqa: E402
 
 
 def volume_ma(volumes: list[float], window: int = 50) -> list[float]:
@@ -80,3 +80,80 @@ def audit_dry_point(base_vols, base_ma50, base_dates, right_frac: float) -> dict
             best_pct, best_date = pct, base_dates[k] if k < len(base_dates) else None
     return {"min_vol_vs_ma50_pct": round(best_pct, 2) if best_pct is not None else None,
             "date": best_date}
+
+
+def audit_breakout(series, pivot, b1, ma50, params) -> dict:
+    """b1 이후 종가>피벗인 날들에 대한 돌파 감사.
+
+    Returns:
+        pivot: 피벗 가격
+        detector_flags: 현 검출기 규칙(종가>피벗 AND 거래량≥base_vol_avg×breakout_vol)인 날짜 목록
+        clean_candidates: 책 정의 클린 돌파 날짜·지표 목록
+        pass: clean_candidates 비어있지 않음
+    """
+    closes = series["closes"]; opens = series["opens"]; vols = series["volumes"]; dates = series["dates"]
+    n = len(closes)
+    if pivot is None:
+        return {"pivot": None, "detector_flags": [], "clean_candidates": [], "pass": False}
+    cap = params.get("base_vol_cap", 50)
+    base_vols = vols[max(0, b1 - cap + 1):b1 + 1]
+    base_vol_avg = (sum(base_vols) / len(base_vols)) if base_vols else 0.0
+    bv = params.get("breakout_vol", 1.4); near = params.get("near", 5.0)
+    detector_flags, clean = [], []
+    for i in range(b1 + 1, n):
+        if closes[i] <= pivot:
+            continue
+        m = ma50[i] if i < len(ma50) and ma50[i] else None
+        vol_vs = round(vols[i] / m * 100.0, 2) if m else None
+        up = closes[i] > opens[i]
+        ext = round((closes[i] - pivot) / pivot * 100.0, 2)
+        first = closes[i - 1] <= pivot if i > 0 else True
+        rec = {"date": dates[i], "vol_vs_ma50_pct": vol_vs, "up_candle": up,
+               "extension_pct": ext, "first_cross": first}
+        if base_vol_avg and vols[i] >= base_vol_avg * bv:
+            detector_flags.append(dates[i])
+        if first and up and (vol_vs is not None and vol_vs >= bv * 100.0) and ext <= near:
+            clean.append(rec)
+    return {"pivot": round(pivot, 2), "detector_flags": detector_flags,
+            "clean_candidates": clean, "pass": len(clean) > 0}
+
+
+def audit_item(series, b0, b1, params, meta) -> dict:
+    """한 종목의 VCP 책 충실도 성적표 (5개 축 종합).
+
+    evaluate_vcp 를 재사용해 검출기 평결 + 피벗을 가져오고,
+    나머지 축은 Task 1·2 부품으로 직접 계산한다.
+    """
+    closes = series["closes"]; vols = series["volumes"]; dates = series["dates"]
+    ma50 = volume_ma(vols, params.get("vol_ma_window", 50))
+    base_closes = closes[b0:b1 + 1]
+    base_vols = vols[b0:b1 + 1]; base_ma50 = ma50[b0:b1 + 1]; base_dates = dates[b0:b1 + 1]
+
+    adv = audit_prior_advance(closes, b0, params.get("prior_lookback", 60))
+    con = audit_contractions(base_closes, params.get("zigzag_pct", 8.0), params.get("mono_tol", 1.15))
+    cvol = audit_contraction_volumes(base_vols, base_ma50, con["swings"], params.get("mono_tol", 1.15))
+    dry = audit_dry_point(base_vols, base_ma50, base_dates, params.get("right_frac", 0.34))
+
+    # 검출기 평결 + 피벗 (기존 evaluate_vcp 재사용, b1 기준)
+    ev_params = {k: params.get(k, DEFAULT_PARAMS[k]) for k in
+                 ("lookback_days", "zigzag_pct", "max_final_depth", "breakout_vol_mult", "near_pivot_pct")}
+    sub = {k: series[k][:b1 + 1] for k in ("dates", "closes", "highs", "lows", "volumes", "opens") if series.get(k)}
+    ev = evaluate_vcp(sub, ev_params)
+    bo = audit_breakout(series, ev.get("pivot_price"), b1, ma50, params)
+
+    axes = {
+        "prior_advance": {**adv, "pass": (adv["value_pct"] is not None and adv["value_pct"] >= params.get("min_advance", 25.0))},
+        "contractions": {"depths": con["depths"], "count": con["count"], "shrinking": con["shrinking"],
+                         "pass": (2 <= con["count"] <= 6 and con["shrinking"])},
+        "contraction_volumes": {**cvol, "pass": (cvol["decreasing"] and cvol["last_below_ma50"])},
+        "dry_point": {**dry, "pass": (dry["min_vol_vs_ma50_pct"] is not None
+                                      and dry["min_vol_vs_ma50_pct"] <= params.get("dry_max", 0.7) * 100.0)},
+        "breakout": bo,
+    }
+    return {
+        "code": meta.get("code"), "name": meta.get("name"), "source": meta.get("source"),
+        "base_start": dates[b0] if b0 < len(dates) else None,
+        "base_end": dates[b1] if b1 < len(dates) else None,
+        "detector_verdict": {"vcp_detected": ev.get("vcp_detected"), "status_at_b1": ev.get("status")},
+        "axes": axes,
+    }
