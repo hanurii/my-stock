@@ -25,6 +25,10 @@ DEFAULT_PARAMS: dict = {
 def find_flagpole(highs: list[float], lows: list[float], max_flagpole_days: int) -> dict:
     """구간 최고 고가(깃발 고점)와 그 직전 max_flagpole_days 경계 안의 최저
     저점(깃대 시작)을 찾아 상승률·기간을 계산한다."""
+    if not highs or not lows:
+        return {"flag_high_idx": 0, "flag_high": 0.0,
+                "pole_start_idx": 0, "pole_start_low": 0.0,
+                "flagpole_gain_pct": 0.0, "flagpole_days": 0}
     n = len(highs)
     flag_high_idx = max(range(n), key=lambda i: highs[i])
     flag_high = highs[flag_high_idx]
@@ -35,7 +39,7 @@ def find_flagpole(highs: list[float], lows: list[float], max_flagpole_days: int)
         # 고점이 구간 시작 → 깃대 형성 불가
         return {
             "flag_high_idx": flag_high_idx, "flag_high": flag_high,
-            "pole_start_idx": flag_high_idx, "pole_start_low": flag_high,
+            "pole_start_idx": flag_high_idx, "pole_start_low": flag_high,  # sentinel: no valid pole start
             "flagpole_gain_pct": 0.0, "flagpole_days": 0,
         }
     pole_start_idx = min(range(window_start, search_end), key=lambda i: lows[i])

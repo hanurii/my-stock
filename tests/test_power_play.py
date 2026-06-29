@@ -41,3 +41,15 @@ def test_find_flagpole_respects_window_cap():
     # 경계 = 46-40 = 6 이후의 최저 저점(38), 10이 아님
     assert fp["pole_start_low"] == 38
     assert fp["flagpole_days"] <= 40
+
+
+def test_find_flagpole_single_element_returns_sentinel():
+    fp = find_flagpole([100.0], [90.0], max_flagpole_days=40)
+    assert fp["flagpole_gain_pct"] == 0.0
+    assert fp["flagpole_days"] == 0
+    assert fp["flag_high_idx"] == 0
+
+
+def test_find_flagpole_empty_returns_sentinel():
+    fp = find_flagpole([], [], max_flagpole_days=40)
+    assert fp["flagpole_gain_pct"] == 0.0
