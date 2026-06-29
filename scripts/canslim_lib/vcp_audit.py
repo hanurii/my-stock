@@ -82,7 +82,7 @@ def audit_dry_point(base_vols, base_ma50, base_dates, right_frac: float) -> dict
             "date": best_date}
 
 
-def audit_breakout(series, pivot, b1, ma50, params) -> dict:
+def audit_breakout(series, pivot, b1, ma50, params, b0: int = 0) -> dict:
     """b1 이후 종가>피벗인 날들에 대한 돌파 감사.
 
     Returns:
@@ -96,7 +96,7 @@ def audit_breakout(series, pivot, b1, ma50, params) -> dict:
     if pivot is None:
         return {"pivot": None, "detector_flags": [], "clean_candidates": [], "pass": False}
     cap = params.get("base_vol_cap", 50)
-    base_vols = vols[max(0, b1 - cap + 1):b1 + 1]
+    base_vols = vols[max(b0, b1 - cap + 1):b1 + 1]
     base_vol_avg = (sum(base_vols) / len(base_vols)) if base_vols else 0.0
     bv = params.get("breakout_vol", 1.4); near = params.get("near", 5.0)
     detector_flags, clean = [], []
@@ -107,7 +107,7 @@ def audit_breakout(series, pivot, b1, ma50, params) -> dict:
         vol_vs = round(vols[i] / m * 100.0, 2) if m else None
         up = closes[i] > opens[i]
         ext = round((closes[i] - pivot) / pivot * 100.0, 2)
-        first = closes[i - 1] <= pivot if i > 0 else True
+        first = closes[i - 1] <= pivot
         rec = {"date": dates[i], "vol_vs_ma50_pct": vol_vs, "up_candle": up,
                "extension_pct": ext, "first_cross": first}
         if base_vol_avg and vols[i] >= base_vol_avg * bv:
@@ -137,9 +137,9 @@ def audit_item(series, b0, b1, params, meta) -> dict:
     # 검출기 평결 + 피벗 (기존 evaluate_vcp 재사용, b1 기준)
     ev_params = {k: params.get(k, DEFAULT_PARAMS[k]) for k in
                  ("lookback_days", "zigzag_pct", "max_final_depth", "breakout_vol_mult", "near_pivot_pct")}
-    sub = {k: series[k][:b1 + 1] for k in ("dates", "closes", "highs", "lows", "volumes", "opens") if series.get(k)}
+    sub = {k: series[k][:b1 + 1] for k in ("dates", "closes", "highs", "lows", "volumes", "opens") if k in series}
     ev = evaluate_vcp(sub, ev_params)
-    bo = audit_breakout(series, ev.get("pivot_price"), b1, ma50, params)
+    bo = audit_breakout(series, ev.get("pivot_price"), b1, ma50, params, b0=b0)
 
     axes = {
         "prior_advance": {**adv, "pass": (adv["value_pct"] is not None and adv["value_pct"] >= params.get("min_advance", 25.0))},

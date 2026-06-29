@@ -78,3 +78,5 @@ def test_audit_breakout_clean_vs_detector():
     # d1: 첫돌파(전일95≤100), 양봉(105>101), vol 200%≥140%, 연장 5%≤5 → clean
     assert any(c["date"] == "d1" for c in r["clean_candidates"])
     assert r["pass"] is True
+    assert not any(c["date"] == "d2" for c in r["clean_candidates"])  # d2 연장 8%>5 → 제외
+    assert "d1" in r["detector_flags"]                                # d1 거래량 300≥base×1.4
