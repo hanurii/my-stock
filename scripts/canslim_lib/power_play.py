@@ -140,7 +140,7 @@ def evaluate_power_play(series: dict, params: dict | None = None) -> dict:
     cond_flag_min = flag_len >= p["min_flag_days"]
     cond_flag_max = flag_len <= p["max_flag_days"]
     cond_flag_depth = flag_depth <= p["max_flag_depth"]
-    cond_dryup = base["volume_dryup_ratio"] is not None and base["volume_dryup_ratio"] < 1.0
+    cond_dryup = base["volume_dryup_ratio"] is not None and base["volume_dryup_ratio"] <= 1.0
 
     if not cond_gain:
         base["reason"] = "pole_gain_too_small"

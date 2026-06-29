@@ -2,7 +2,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
-from canslim_lib.power_play import DEFAULT_PARAMS, find_flagpole
+from canslim_lib.power_play import DEFAULT_PARAMS, find_flagpole, evaluate_power_play
 
 
 def test_default_params_has_required_keys():
@@ -55,9 +55,6 @@ def test_find_flagpole_empty_returns_sentinel():
     assert fp["flagpole_gain_pct"] == 0.0
 
 
-from canslim_lib.power_play import evaluate_power_play
-
-
 def _series(closes, highs=None, lows=None, vols=None):
     n = len(closes)
     highs = highs if highs is not None else [c * 1.01 for c in closes]
@@ -89,6 +86,7 @@ def test_evaluate_detects_clean_htf():
     assert r["flag_depth_pct"] <= 20.0
     assert r["flagpole_vol_ratio"] >= 1.5
     assert r["pivot_price"] is not None
+    assert r["entry_ready"] == (r["pattern_detected"] and r["status"] in ("breakout", "actionable"))
 
 
 def test_evaluate_rejects_short_total_series():
@@ -98,7 +96,6 @@ def test_evaluate_rejects_short_total_series():
 
 
 def test_evaluate_rejects_weak_flagpole_gain():
-    s = _clean_htf()
     # 깃대 상승률만 죽인다: 깃대를 +30%짜리로 교체(저점50→고점65)
     quiet = [50 + (i % 2) for i in range(20)]
     pole = [52, 55, 58, 60, 62, 63, 64, 65]
@@ -154,3 +151,34 @@ def test_evaluate_rejects_too_long_flag():
     r = evaluate_power_play(s)
     assert r["pattern_detected"] is False
     assert r["reason"] == "flag_too_long"
+
+
+def test_evaluate_no_data():
+    r = evaluate_power_play({"closes": [], "highs": [], "lows": [], "volumes": [], "dates": []})
+    assert r["pattern_detected"] is False
+    assert r["reason"] == "no_data"
+
+
+def test_evaluate_rejects_short_flag():
+    # gain/pole-volume/quiet 모두 통과, flag가 3일로 min_flag_days(8) 미달
+    quiet = [50 + (i % 2) for i in range(20)]  # 50~51 횡보(조용)
+    pole = [52, 58, 66, 75, 85, 95, 104, 110]  # +120% 깃대
+    flag = [108, 106, 105]                       # 3일 → flag_too_short
+    closes = quiet + pole + flag
+    s = _series(closes, vols=[800]*20 + [3000]*8 + [500]*3)
+    r = evaluate_power_play(s)
+    assert r["pattern_detected"] is False
+    assert r["reason"] == "flag_too_short"
+
+
+def test_evaluate_rejects_volume_not_drying():
+    # gain/pole-volume/quiet/flag-length/flag-depth 모두 통과,
+    # 깃발 최근 5일 거래량이 깃대 거래량보다 높아 volume_not_drying
+    quiet = [50 + (i % 2) for i in range(20)]  # 50~51 횡보(조용)
+    pole = [52, 58, 66, 75, 85, 95, 104, 110]  # +120% 깃대, 거래량 3000
+    flag = [108] * 8                             # 8일 깃발, 깊이 ~2.8%, 거래량 5000
+    closes = quiet + pole + flag
+    s = _series(closes, vols=[800]*20 + [3000]*8 + [5000]*8)
+    r = evaluate_power_play(s)
+    assert r["pattern_detected"] is False
+    assert r["reason"] == "volume_not_drying"
