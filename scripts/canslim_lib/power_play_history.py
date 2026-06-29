@@ -77,12 +77,12 @@ def classify(events: list[dict], replay: list[dict], recent_days: int = 10) -> s
         "extended"         - 오래 전 돌파 후 계속 상승세 (새 pattern 없음)
     """
     if not events:
-        return "no_pattern_found"
+        return "no_power_play_found"
     idx = events[-1]["replay_idx"]
     days_since = (len(replay) - 1) - idx
     if days_since <= recent_days:
         return "recent_breakout"
-    later_pattern = any(replay[k].get("pattern_detected") for k in range(idx + 1, len(replay)))
+    later_pattern = any(replay[k]["pattern_detected"] for k in range(idx + 1, len(replay)))
     if later_pattern and replay[-1].get("status") in ("forming", "actionable"):
         return "re_basing"
     return "extended"

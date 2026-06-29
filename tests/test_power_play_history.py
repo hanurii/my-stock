@@ -65,3 +65,25 @@ def test_integration_real_series_produces_event():
     assert len(evs) >= 1                               # 이음새가 실제 이벤트를 만든다
     assert evs[-1]["date"] == s["dates"][-1]           # 돌파일에 이벤트
     assert evs[-1]["flagpole_gain_pct"] is not None    # 근거 지표 캡처됨
+
+
+def test_classify_branches():
+    assert classify([], [], recent_days=10) == "no_power_play_found"
+    # 최근 돌파: 이벤트가 replay 끝에서 days_since<=recent_days
+    rep = [{"pattern_detected": False, "status": "breakout"}] * 12
+    ev_recent = [{"replay_idx": 9}]                    # len-1-9 = 2 <= 10
+    assert classify(ev_recent, rep, recent_days=10) == "recent_breakout"
+    # 연장: 오래 전 돌파, 이후 새 패턴 없음
+    ev_old = [{"replay_idx": 0}]                       # days_since = 11 > 10
+    rep_ext = [{"pattern_detected": False, "status": "extended_dummy"}] * 12
+    assert classify(ev_old, rep_ext, recent_days=10) == "extended"
+    # 재베이스: 오래 전 돌파 후 pattern_detected 재출현 + 마지막 forming
+    rep_reb = [{"pattern_detected": False, "status": "breakout"}] * 12
+    rep_reb[5] = {"pattern_detected": True, "status": "forming"}
+    rep_reb[-1] = {"pattern_detected": False, "status": "forming"}
+    assert classify(ev_old, rep_reb, recent_days=10) == "re_basing"
+
+
+def test_post_breakout_outcome_is_reused_from_vcp_history():
+    from canslim_lib.vcp_history import post_breakout_outcome as _orig
+    assert post_breakout_outcome is _orig
