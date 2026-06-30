@@ -2,19 +2,52 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
-from canslim_lib.power_play import DEFAULT_PARAMS, find_flagpole, evaluate_power_play
+from canslim_lib.power_play import DEFAULT_PARAMS, find_flagpole, evaluate_power_play, find_pivot_contraction
 
 
 def test_default_params_has_required_keys():
     for k in ("lookback_days", "min_flagpole_gain", "max_flagpole_days",
-              "pole_vol_mult", "quiet_window", "max_pre_pole_gain",
               "min_flag_days", "max_flag_days", "max_flag_depth",
               "breakout_vol_mult", "near_pivot_pct", "min_total_days",
-              "min_flag_pullback", "flag_window"):
+              "min_flag_pullback", "tight_pct", "contraction_grace"):
         assert k in DEFAULT_PARAMS
     assert DEFAULT_PARAMS["min_flagpole_gain"] == 90.0
     assert DEFAULT_PARAMS["max_flagpole_days"] == 70
-    assert DEFAULT_PARAMS["flag_window"] == 45
+    assert DEFAULT_PARAMS["tight_pct"] == 18.0
+    assert DEFAULT_PARAMS["contraction_grace"] == 3
+    assert "flag_window" not in DEFAULT_PARAMS
+
+
+def test_find_pivot_contraction_picks_final_tight_over_wide_base():
+    # 앞부분 넓은 변동(고가 130까지) + 뒤 10봉 타이트 수축(고가 108, 범위 ~9%).
+    # 피벗은 옛 넓은 천장(130/125)이 아니라 최종 타이트 수축 천장(108)이어야 한다.
+    highs = [120, 130, 110, 125, 108, 108, 107, 108, 106, 108, 107, 108, 106, 107, 103]
+    lows  = [100, 108,  98, 103,  99, 100, 101, 102, 100, 101, 102, 100, 101, 102,  99]
+    fhi = find_pivot_contraction(highs, lows, min_len=8, max_len=30,
+                                 tight_pct=18.0, grace=3, pb_pct=3.0)
+    assert fhi is not None
+    assert highs[fhi] == 108            # 타이트 수축 천장
+    assert highs[fhi] not in (130, 125)  # 옛 넓은 천장 아님
+
+
+def test_find_pivot_contraction_none_when_no_tight_window():
+    # 계속 큰 폭으로 출렁여 어떤 최근 창도 타이트(≤tight_pct)하지 않음 → None
+    highs = [100, 130, 105, 135, 108, 140, 110, 145, 112, 150, 115, 155]
+    lows  = [80, 100,  82, 102,  84, 104,  86, 106,  88, 108,  90, 110]
+    fhi = find_pivot_contraction(highs, lows, min_len=8, max_len=30,
+                                 tight_pct=8.0, grace=3, pb_pct=3.0)
+    assert fhi is None
+
+
+def test_find_pivot_contraction_excludes_fresh_breakout_bar():
+    # 타이트 수축(고가 110) 뒤 마지막 봉이 신고가 130로 돌파.
+    # 피벗은 돌파봉(130, 뒤에 눌림 없음)이 아니라 수축 천장(110)이어야 한다.
+    highs = [108, 110, 107, 109, 108, 110, 106, 109, 108, 110, 130]
+    lows  = [100, 101,  99, 100,  98, 101,  97, 100,  99, 101, 125]
+    fhi = find_pivot_contraction(highs, lows, min_len=8, max_len=30,
+                                 tight_pct=18.0, grace=3, pb_pct=3.0)
+    assert fhi is not None
+    assert highs[fhi] == 110        # 신고가 130 아님
 
 
 def test_find_flagpole_flag_window_restricts_pivot_to_recent():
