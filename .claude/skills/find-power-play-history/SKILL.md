@@ -37,6 +37,8 @@ python scripts/screen_power_play_history.py
   re_basing(돌파 후 2차 베이스) / no_power_play_found(검출 0=미스 의심 또는 패턴 없음).
 - `events[].date` 를 차트로 열어 "진짜 파워 플레이 돌파였나" 눈으로 확인 = 진짜 검증.
 - `events[].confirm_date`·`flagpole_gain_pct`·`flag_depth_pct` = 돌파 근거.
+- 이벤트가 있으면 events[] 에 gain_since_pct · max_gain_pct · good_breakout (돌파 후 성과, ⚠️ 생존자 편향) 도 담긴다.
+- 시세가 없는 종목은 classification: no_power_play_found + reason: "no_series" 로 표시된다.
 - 집계 수익률은 **생존자 편향으로 과대** — 보조 지표로만.
 
 ## 안 하는 것

@@ -135,7 +135,7 @@ def run(args, out_path: Path) -> None:
         ev = st["events"][-1] if st["events"] else None
         tail = (f"최근 {ev['date']} 피벗 {ev['pivot_price']} → 현재 {ev.get('gain_since_pct')}% "
                 f"(최대 {ev.get('max_gain_pct')}%, {ev.get('days_since')}일 경과)") if ev else "-"
-        print(f"  [{st['classification']:18s}] {st['code']} {str(st['name'])[:12]:12s} "
+        print(f"  [{st['classification']:19s}] {st['code']} {str(st['name'])[:12]:12s} "
               f"RS{st.get('rs')} | {tail}")
     agg = summary["agg"]
     print(f"\n[집계·참고용] 돌파후 수익률 중앙 {agg['median_gain_since_pct']}% · "

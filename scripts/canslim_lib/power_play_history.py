@@ -71,7 +71,7 @@ def classify(events: list[dict], replay: list[dict], recent_days: int = 10) -> s
         recent_days: 최근으로 판단할 범위 (기본값 10)
 
     Returns:
-        "no_pattern_found" - 돌파 이벤트 없음
+        "no_power_play_found" - 돌파 이벤트 없음
         "recent_breakout"  - 최근 돌파 (days_since <= recent_days)
         "re_basing"        - 오래 전 돌파 후 pattern 재출현 중 (마지막 상태가 forming/actionable)
         "extended"         - 오래 전 돌파 후 계속 상승세 (새 pattern 없음)
