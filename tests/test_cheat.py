@@ -226,4 +226,5 @@ def test_entry_ready_false_for_non_pattern_breakout():
     r = evaluate_cheat(s)
     assert r["pattern_detected"] is False
     assert r["reason"] == "cup_too_shallow"
+    assert r["status"] in ("breakout", "actionable")
     assert r["entry_ready"] is False
