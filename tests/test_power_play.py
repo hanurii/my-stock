@@ -9,10 +9,24 @@ def test_default_params_has_required_keys():
     for k in ("lookback_days", "min_flagpole_gain", "max_flagpole_days",
               "pole_vol_mult", "quiet_window", "max_pre_pole_gain",
               "min_flag_days", "max_flag_days", "max_flag_depth",
-              "breakout_vol_mult", "near_pivot_pct", "min_total_days", "min_flag_pullback"):
+              "breakout_vol_mult", "near_pivot_pct", "min_total_days",
+              "min_flag_pullback", "flag_window"):
         assert k in DEFAULT_PARAMS
-    assert DEFAULT_PARAMS["min_flagpole_gain"] == 100.0
-    assert DEFAULT_PARAMS["max_flagpole_days"] == 40
+    assert DEFAULT_PARAMS["min_flagpole_gain"] == 90.0
+    assert DEFAULT_PARAMS["max_flagpole_days"] == 70
+    assert DEFAULT_PARAMS["flag_window"] == 45
+
+
+def test_find_flagpole_flag_window_restricts_pivot_to_recent():
+    # 옛 고점(인덱스1=200)과 최근 깃발 천장(인덱스 12=110)이 공존.
+    # flag_window=8 이면 최근 8봉만 보므로 피벗은 옛 200이 아니라 최근 110.
+    highs = [50, 200, 60, 55, 58, 57, 59, 58, 100, 110, 104, 102, 101, 103]
+    lows  = [48, 150, 58, 53, 56, 55, 57, 56,  98, 108, 100,  99,  98, 100]
+    fp = find_flagpole(highs, lows, max_flagpole_days=70, min_flag_pullback=3.0, flag_window=6)
+    assert fp["flag_high"] == 110          # 최근 창의 깃발 천장
+    # flag_window=None(하위호환)이면 전체 최고가(200)
+    fp_all = find_flagpole(highs, lows, max_flagpole_days=70, min_flag_pullback=3.0)
+    assert fp_all["flag_high"] == 200
 
 
 def test_find_flagpole_detects_doubling():

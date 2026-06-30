@@ -9,8 +9,8 @@ from __future__ import annotations
 DEFAULT_PARAMS: dict = {
     "lookback_days": 120,
     "min_total_days": 20,
-    "min_flagpole_gain": 100.0,
-    "max_flagpole_days": 40,
+    "min_flagpole_gain": 90.0,
+    "max_flagpole_days": 70,
     "pole_vol_mult": 1.5,
     "quiet_window": 20,
     "max_pre_pole_gain": 30.0,
@@ -20,31 +20,35 @@ DEFAULT_PARAMS: dict = {
     "breakout_vol_mult": 1.4,
     "near_pivot_pct": 5.0,
     "min_flag_pullback": 3.0,
+    "flag_window": 45,
 }
 
 
 def find_flagpole(highs: list[float], lows: list[float], max_flagpole_days: int,
-                  min_flag_pullback: float | None = None) -> dict:
+                  min_flag_pullback: float | None = None,
+                  flag_window: int | None = None) -> dict:
     """깃발 천장(피벗)과 그 직전 max_flagpole_days 경계 안의 최저 저점(깃대 시작)을
     찾아 상승률·기간을 계산한다.
 
-    min_flag_pullback 가 주어지면 피벗을 '그 뒤로 그만큼(%) 이상 눌린 가장 높은
-    고점'으로 한정한다(돌파 봉처럼 뒤에 눌림이 없는 봉은 피벗이 되지 않음 →
-    신고가 돌파가 breakout 으로 정상 인식된다). None 이면 구간 최고 고가(하위호환).
+    flag_window 가 주어지면 피벗 후보 탐색을 최근 flag_window 개 봉으로 한정한다
+    (미너비니: 피벗=최근 가장 타이트한 깃발 천장 → 무관한 옛 고점 배제). None 이면
+    전체 구간(하위호환). min_flag_pullback 가 주어지면 '그 뒤로 그만큼(%) 이상 눌린'
+    고점만 후보(돌파 봉이 피벗을 가로채지 않음).
     """
     if not highs or not lows:
         return {"flag_high_idx": 0, "flag_high": 0.0,
                 "pole_start_idx": 0, "pole_start_low": 0.0,
                 "flagpole_gain_pct": 0.0, "flagpole_days": 0}
     n = len(highs)
+    lo = max(0, n - flag_window) if flag_window is not None else 0
     if min_flag_pullback is None:
-        flag_high_idx = max(range(n), key=lambda i: highs[i])
+        flag_high_idx = max(range(lo, n), key=lambda i: highs[i])
     else:
         pb = min_flag_pullback / 100.0
-        cand = [i for i in range(n - 1)
+        cand = [i for i in range(lo, n - 1)
                 if min(lows[i + 1:]) <= highs[i] * (1 - pb)]
         flag_high_idx = (max(cand, key=lambda i: highs[i]) if cand
-                         else max(range(n), key=lambda i: highs[i]))
+                         else max(range(lo, n), key=lambda i: highs[i]))
     flag_high = highs[flag_high_idx]
     window_start = max(0, flag_high_idx - max_flagpole_days)
     search_end = flag_high_idx
