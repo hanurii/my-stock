@@ -51,12 +51,19 @@ python scripts/screen_3c.py
   표시될 수 있으며, '살 자리(entry_ready)' 는 패턴까지 성립한 종목에만 부여된다
   (요약의 breakout·actionable 개수 ≠ entry_ready).
 
-## 현재 한계 (v1)
-- 현 버전은 컵 바닥을 lookback 전체 최저점으로 앵커한다. 입력이 트렌드 통과
-  종목(52주 신고가 부근)이라 이 앵커가 옛 저점에 잡히면 선반이 옛 고점 위로
-  올라가 `shelf_position_pct`가 100%를 넘고, 사실상 패턴이 잡히지 않는다
-  (2026-06-30 70종목 풀런: `pattern_count=0`). 이는 "3C가 희귀해서"가 아니라
-  앵커링 한계다. **"최근 컵" 앵커링으로의 재설계는 후속 작업**이다(설계 spec §9).
+## 현재 한계 (v2a)
+- 앵커링은 **v2a("왼쪽 테두리=옛 peak=lookback 최고가" 먼저)** 로 수정되어
+  `shelf_position_pct ≤ 100%` 가 구조적으로 보장되고, 신고가 종목은
+  `no_overhead_cup` 으로 정직하게 걸러진다. v1의 >100% 쓰레기 값은 사라졌다
+  (정의: `docs/superpowers/specs/2026-06-30-find-3c-v2-anchoring-design.md`).
+- 다만 게이트(컵 깊이 12~50%/35거래일, 선반 위치 ≤66% 등)는 아직 strict 라
+  트렌드 통과 종목 중 3C 후보가 매우 적다. **2026-06-30 70종목 풀런: `pattern_count=0`**
+  (주된 거절: `cup_too_short` 35·`no_overhead_cup` 19 — 입력이 신고가 부근이라 옛
+  peak가 최근 → 컵이 짧거나 없음 / `shelf_too_loose`·`shelf_too_short`·
+  `volume_not_drying` 등 ~16종목은 컵은 성립, 선반·거래량에서 탈락).
+- **책 3C 예시로 게이트를 보정하는 작업이 후속(Phase 2)** 이다
+  (v2a spec §8). 즉 현 v2a의 가치는 "산출 정상화"이며, "충분히 잡는" 검출기로
+  만드는 건 다음 단계다.
 
 ## 안 하는 것
 - VCP 베이스 탐지(find-vcp) · 파워 플레이(find-power-play) · 전 종목 스캔(트렌드
