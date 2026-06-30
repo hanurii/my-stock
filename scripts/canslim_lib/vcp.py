@@ -193,14 +193,18 @@ def evaluate_vcp(series: dict, params: dict | None = None) -> dict:
 
     bs = chain["base_start"]; depths = chain["depths"]; T = chain["count"]
 
-    # 피벗 = 횡보 천장(저항선): 베이스 구간에서 '돌파 바(마지막 봉)'를 제외한 종가 최고치.
-    #  - 평가당 1회만 산출하는 '안정 레벨'이다(바마다 갱신하는 러닝맥스 아님). 러닝맥스를 쓰면
-    #    closes[-2]<=pivot 이 항상 참이 되어 첫돌파 가드(_is_breakout)가 무효화된다(과거 회귀).
-    #  - 베이스 전체(base_start~돌파 직전)의 천장을 쓰므로 '계단식 VCP'에서 우측 회복이
-    #    마지막 수축 고점을 이미 넘었어도, 진짜 저항선(베이스 최고가) 최초 돌파를 정확히 잡는다.
-    #  - 종가 기준(고가 아님): 장중 스파이크 고가(예: 한솔케미칼 ~309500)를 천장으로 오인하지 않도록.
+    # 피벗 = 횡보 천장(저항선): 수축(횡보) 구간 종가 최고치 — 수축 끝(last_lo_idx)까지만.
+    #  - 수축 이후 회복·돌파 구간을 제외하므로 피벗이 고정된 저항선이 된다.
+    #    이미 천장 위에서 수일간 거래한 연장 종목은 closes[-2] > pivot 이므로
+    #    첫돌파 가드(closes[i-1]<=pivot)가 False → breakout 오탐 차단.
+    #  - 과거 버그(closes[bs:n-1]): 회복·연장 바가 포함돼 피벗이 float해 rises하면
+    #    closes[-2]<=pivot 이 항상 참이 되어 첫돌파 가드가 무효화됐다.
+    #  - 종가 기준(고가 아님): 장중 스파이크 고가(예: 한솔케미칼 ~309500)를 오인하지 않도록.
+    #  - '계단식 VCP'(우측 회복이 마지막 수축 고점을 넘은 경우): 수축 구간 내 최고가가
+    #    진짜 저항 천장이므로 최초 돌파를 정확히 포착한다.
     n = len(closes)
-    ceiling_seg = closes[bs:n - 1]
+    last_lo_idx = chain["last_lo_idx"]
+    ceiling_seg = closes[bs:last_lo_idx + 1]
     pivot = round(max(ceiling_seg), 2) if ceiling_seg else chain["pivot"]
 
     base["num_contractions"] = T

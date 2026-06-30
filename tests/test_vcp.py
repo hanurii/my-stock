@@ -189,3 +189,49 @@ def test_evaluate_vcp_extended_not_breakout():
     assert r["status"] != "breakout", (
         f"연장 종목이 breakout으로 잘못 분류됨: status={r['status']}, pivot={r['pivot_price']}"
     )
+
+
+# ---------------------------------------------------------------------------
+# Task-6 fix regression: 수축 구간 천장 고정 (above-ceiling 연장 오탐 차단)
+# ---------------------------------------------------------------------------
+
+def test_evaluate_vcp_above_ceiling_extended_not_breakout():
+    """수축 구간 천장(100) 위로 수일간 연장된 종목 → 첫돌파 가드 → status != breakout.
+
+    수정된 피벗: ceiling_seg = closes[bs:last_lo_idx+1] = 수축 구간만.
+    수축 구간 최고가 = 100(c1 시작 종가) → 피벗 = 100(고정).
+
+    천장 위 연장 구간(extended: 101.5→107.5)이 포함된 후 마지막 바가 신고가(109, 대량거래)여도:
+      closes[-2] = 107.5 > pivot(100) → 첫돌파 조건(closes[i-1]<=pivot) False → NOT breakout.
+
+    구 코드(ceiling_seg=closes[bs:n-1]): max(0..107.5) = 107.5 → pivot 107.5.
+      closes[-2] = 107.5 ≤ 107.5 항상 참(no-op) → breakout 오탐.
+    이 테스트가 그 회귀를 고정한다(above-ceiling guard).
+    """
+    c1 = [100.0, 96.0, 91.0, 86.0, 82.0, 78.0, 75.5, 75.0]   # 수축1: 100→75 = -25%
+    r1 = [78.0, 81.0, 84.0, 87.0, 89.0, 91.0, 92.0]            # 회복: →92
+    c2 = [90.0, 87.0, 84.0, 81.0, 79.0, 78.5, 78.2]            # 수축2: 92→78.2 ≈ -15%
+    r2 = [81.0, 84.0, 87.0, 90.0, 91.5]                         # 회복: 천장 아래
+    # 천장(100) 위 수일 연장: 수축 구간 피벗(100)을 이미 넘어 며칠 경과
+    extended = [101.5, 103.0, 104.5, 106.0, 107.5]
+    bo_ext = [109.0]                                             # 신고가 + 대량거래
+
+    closes = c1 + r1 + c2 + r2 + extended + bo_ext
+    n = len(closes)
+    opens = [c * 0.99 for c in closes]
+    opens[-1] = 108.0   # 시가도 천장 위 (near_pivot 도 실패하지만 첫돌파 가드가 1차)
+    highs = [c * 1.01 for c in closes]
+    lows  = [c * 0.99 for c in closes]
+    vols  = ([1200] * len(c1) + [800] * len(r1) + [600] * len(c2)
+             + [300] * len(r2) + [500] * len(extended) + [6000] * len(bo_ext))
+    assert len(vols) == n
+    dates = [f"2026-01-{i+1:02d}" for i in range(n)]
+    series = {"dates": dates, "closes": closes, "opens": opens,
+              "highs": highs, "lows": lows, "volumes": vols}
+    r = evaluate_vcp(series)
+    assert r["status"] != "breakout", (
+        f"천장 위 연장 종목이 breakout으로 오탐: status={r['status']}, pivot={r['pivot_price']}"
+    )
+    assert r["entry_ready"] is False, (
+        f"천장 위 연장 종목이 entry_ready=True: pivot={r['pivot_price']}"
+    )
