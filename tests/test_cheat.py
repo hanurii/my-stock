@@ -142,3 +142,88 @@ def test_evaluate_rejects_short_cup_base():
     closes = pre + decline + bottom + rally + shelf          # 16+24=40
     r = evaluate_cheat(_series(closes, vols=[1000]*(len(closes))))
     assert r["reason"] == "cup_too_short"
+
+
+def test_evaluate_rejects_loose_shelf():
+    # 선반 깊이 >12% → shelf_too_loose. 우측 선반을 85→72(~15%)까지 출렁이게.
+    decline = [100 - i * (30 / 21) for i in range(22)]
+    bottom = [70, 71, 70, 72]
+    rally = [74, 76, 78, 80, 82, 84, 85, 85]
+    shelf = [80, 76, 73, 72, 75, 78, 80, 78, 76, 74]        # 85 대비 ~15% 출렁
+    closes = decline + bottom + rally + shelf
+    r = evaluate_cheat(_series(closes, vols=[1000]*22 + [2000]*12 + [500]*10))
+    assert r["pattern_detected"] is False
+    assert r["reason"] == "shelf_too_loose"
+
+
+def test_evaluate_rejects_shelf_too_high_in_cup():
+    # 선반이 컵 상단(위치 >66%) → shelf_too_high_in_cup.
+    # 컵 100→70(깊이30), 선반 천장이 95 (위치=(95-70)/30=83%).
+    decline = [100 - i * (30 / 21) for i in range(22)]
+    bottom = [70, 71, 70, 72]
+    rally = [76, 82, 87, 91, 93, 94, 95, 95]                # 72→95 깊은 회복
+    shelf = [94, 93, 92, 93, 94, 93, 92, 93, 94, 93]        # 95 천장 좁은 선반
+    closes = decline + bottom + rally + shelf
+    r = evaluate_cheat(_series(closes, vols=[1000]*22 + [2000]*12 + [500]*10))
+    assert r["pattern_detected"] is False
+    assert r["reason"] == "shelf_too_high_in_cup"
+
+
+def test_status_breakout_on_pivot_break_with_volume():
+    s = _clean_3c()
+    # 선반 천장(≈85.85=85*1.01) 위로 종가 돌파 + 대량거래 1봉 추가.
+    # 새 봉 high(88)는 우측 신고가지만 마지막 봉이라 피벗 후보에서 제외된다.
+    s["closes"].append(87.0)
+    s["highs"].append(88.0)
+    s["lows"].append(86.0)
+    s["volumes"].append(4000)   # rally 평균(≈1923)의 1.4배(=2692) 이상
+    s["dates"].append("dN")
+    r = evaluate_cheat(s)
+    assert r["status"] == "breakout"
+    assert r["entry_ready"] == (r["pattern_detected"] and r["status"] in ("breakout", "actionable"))
+
+
+def test_status_actionable_near_pivot_with_dryup():
+    s = _clean_3c()
+    # 종가가 피벗(≈85.85) 0~5% 아래 + 거래량 마름 유지
+    s["closes"].append(83.0)    # (85.85-83)/85.85 ≈ 3.3%
+    s["highs"].append(84.0)
+    s["lows"].append(82.0)
+    s["volumes"].append(500)
+    s["dates"].append("dN")
+    r = evaluate_cheat(s)
+    assert r["status"] == "actionable"
+    assert 0 <= r["pct_to_pivot"] <= 5
+
+
+def test_status_failed_on_shelf_breakdown():
+    s = _clean_3c()
+    # 선반 영역(82~85) 아래 대폭 이탈 → shelf_depth>12% 로 failed.
+    # low=70.5 는 cup_low(69.3)보다 높아 컵 앵커를 유지하면서 선반 깊이를 ~18%로 확대.
+    # (원 brief 의 low=69.0 은 cup_low=69.3 보다 낮아 컵 구조가 무너져서 조정)
+    s["closes"].append(73.0)
+    s["highs"].append(74.0)
+    s["lows"].append(70.5)
+    s["volumes"].append(1500)
+    s["dates"].append("dN")
+    r = evaluate_cheat(s)
+    assert r["status"] == "failed"
+
+
+def test_entry_ready_false_for_non_pattern_breakout():
+    # 컵 너무 얕음(non-pattern)이지만 돌파 신호가 나타나면 entry_ready=False.
+    decline = [100 - i * (5 / 21) for i in range(22)]       # 깊이 ~5%
+    bottom = [95, 95.5, 95, 95.5]
+    rally = [96, 96.5, 97, 97.5, 98, 98, 98, 98]
+    shelf = [97.5, 97, 97.5, 97, 97.5, 97, 97.5, 97]
+    closes = decline + bottom + rally + shelf
+    s = _series(closes, vols=[1000]*22 + [2000]*12 + [500]*8)
+    s["closes"].append(99.0)
+    s["highs"].append(100.0)
+    s["lows"].append(98.0)
+    s["volumes"].append(4000)
+    s["dates"].append("dN")
+    r = evaluate_cheat(s)
+    assert r["pattern_detected"] is False
+    assert r["reason"] == "cup_too_shallow"
+    assert r["entry_ready"] is False
