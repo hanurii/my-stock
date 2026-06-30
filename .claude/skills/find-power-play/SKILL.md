@@ -33,6 +33,11 @@ python scripts/screen_power_play.py
 - 콘솔: 상태 분포 + entry_ready 종목 표(깃대 상승률·기간, 깃발 깊이·길이, 피벗).
 
 ### 옵션
+- `--universe all` : **전수 스캔** — 트렌드 통과뿐 아니라 평가된 전 종목(컷오프 없음)을
+  대상으로 파워 플레이 탐지. 산출 `public/data/sepa-power-play-all-candidates.json`.
+  (기본 `--universe trend` 는 트렌드 통과 종목만 → `sepa-power-play-candidates.json`.)
+  하이타이트플래그는 추세 템플릿 미통과 종목에서도 나올 수 있어, `/stocks/sepa` 페이지가
+  트렌드 섹션과 별도로 전수 섹션을 함께 보여준다.
 - `--ticker CODE` : 단일 종목 디버그(저장 안 함).
 - `--min-flagpole-gain 90` / `--max-flagpole-days 70` : 깃대(14주 내 90%↑) 튜닝.
   (미너비니 본인 예시 BBY는 13주/135%; 기본값 90%/70d는 넉넉한 허용 범위.)

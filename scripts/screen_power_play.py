@@ -1,8 +1,10 @@
 # scripts/screen_power_play.py
-"""find-power-play — SEPA 패턴: 트렌드 통과 종목의 파워 플레이(High Tight Flag) 탐지.
+"""find-power-play — SEPA 패턴: 파워 플레이(High Tight Flag) 탐지.
 
-입력: public/data/sepa-trend-candidates.json (all_pass 종목)
-출력: public/data/sepa-power-play-candidates.json
+입력: public/data/sepa-trend-candidates.json
+출력:
+  - --universe trend(기본): 트렌드 통과(all_pass) 종목 → sepa-power-play-candidates.json
+  - --universe all       : 전수(평가된 전 종목, 컷오프 없음) → sepa-power-play-all-candidates.json
 정의: docs/superpowers/specs/2026-06-29-find-power-play-design.md
 """
 from __future__ import annotations
@@ -28,6 +30,7 @@ from canslim_lib.power_play import evaluate_power_play, DEFAULT_PARAMS  # noqa: 
 KST = timezone(timedelta(hours=9))
 IN_PATH = ROOT / "public" / "data" / "sepa-trend-candidates.json"
 OUT_PATH = ROOT / "public" / "data" / "sepa-power-play-candidates.json"
+ALL_OUT_PATH = ROOT / "public" / "data" / "sepa-power-play-all-candidates.json"
 STATUS_ORDER = {"breakout": 0, "actionable": 1, "forming": 2, "failed": 3}
 
 EMPTY = {
@@ -48,9 +51,11 @@ def run(args, out_path: Path) -> None:
               f"   먼저 find-trend-template 을 실행해 sepa-trend-candidates.json 을 생성하세요.")
         sys.exit(1)
     data = json.loads(in_path.read_text(encoding="utf-8"))
-    passers = [c for c in data.get("candidates", []) if c.get("all_pass")]
+    all_cands = data.get("candidates", [])
+    # --universe all: 전수 스캔(all_pass 필터·컷오프 없음). 기본(trend): 트렌드 통과만.
+    targets = all_cands if args.universe == "all" else [c for c in all_cands if c.get("all_pass")]
     if args.ticker:
-        passers = [c for c in passers if c.get("code") == args.ticker]
+        targets = [c for c in targets if c.get("code") == args.ticker]
 
     params = {
         "lookback_days": args.lookback_days,
@@ -67,7 +72,7 @@ def run(args, out_path: Path) -> None:
         "flag_window": args.flag_window,
     }
     out_cands = []
-    for c in passers:
+    for c in targets:
         code = c["code"]
         s = ohlcv_matrix.get_series(code)
         if not s or not s.get("closes"):
@@ -107,7 +112,7 @@ def run(args, out_path: Path) -> None:
         print(f"\n💾 저장: {out_path.relative_to(ROOT)}")
 
     er = output["entry_ready_count"]
-    print(f"\n[파워플레이 요약] 입력 {len(passers)}종목 | 패턴 {output['pattern_count']} | "
+    print(f"\n[파워플레이 요약] 입력 {len(targets)}종목 | 패턴 {output['pattern_count']} | "
           f"진입가능(entry_ready) {er} | "
           f"breakout {dist['breakout']} · actionable {dist['actionable']} · "
           f"forming {dist['forming']} · failed {dist['failed']}")
@@ -124,7 +129,10 @@ def run(args, out_path: Path) -> None:
 def main():
     ap = argparse.ArgumentParser(description="find-power-play — 파워 플레이(High Tight Flag) 탐지")
     ap.add_argument("--in", dest="inp", default=None, help=f"입력(default {IN_PATH.name})")
-    ap.add_argument("--out", dest="out", default=None, help=f"출력(default {OUT_PATH.name})")
+    ap.add_argument("--out", dest="out", default=None,
+                    help=f"출력(default: trend={OUT_PATH.name}, all={ALL_OUT_PATH.name})")
+    ap.add_argument("--universe", choices=["trend", "all"], default="trend",
+                    help="trend=트렌드 통과만(기본) · all=전수 스캔(컷오프 없음)")
     ap.add_argument("--ticker", default=None, help="단일 종목 디버그(저장 안 함)")
     ap.add_argument("--lookback-days", type=int, default=DEFAULT_PARAMS["lookback_days"])
     ap.add_argument("--min-flagpole-gain", type=float, default=DEFAULT_PARAMS["min_flagpole_gain"])
@@ -142,7 +150,7 @@ def main():
     if args.out:
         out_path = Path(args.out) if Path(args.out).is_absolute() else ROOT / args.out
     else:
-        out_path = OUT_PATH
+        out_path = ALL_OUT_PATH if args.universe == "all" else OUT_PATH
     run(args, out_path)
 
 
