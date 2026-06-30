@@ -20,8 +20,45 @@ DEFAULT_PARAMS: dict = {
     "breakout_vol_mult": 1.4,
     "near_pivot_pct": 5.0,
     "min_flag_pullback": 3.0,
-    "flag_window": 45,
+    "tight_pct": 18.0,
+    "contraction_grace": 3,
 }
+
+
+def find_pivot_contraction(highs: list[float], lows: list[float], min_len: int,
+                           max_len: int, tight_pct: float, grace: int,
+                           pb_pct: float) -> int | None:
+    """가장 최근의 '타이트 수축'(변동폭 ≤ tight_pct%) 창을 찾아, 그 안에서
+    '뒤에 pb_pct% 이상 눌린 가장 높은 고점'(=저항/피벗; 돌파 봉 아님)의 인덱스를
+    반환한다. 돌파 봉 grace개는 창 끝에서 제외(돌파 직전 수축을 잡기 위함).
+    어떤 창도 못 찾으면 None. (미너비니: 피벗=최종 가장 타이트한 수축의 천장.)
+    """
+    if not highs or not lows:
+        return None
+    n = len(highs)
+    pb = pb_pct / 100.0
+    lo_end = max(min_len - 1, n - 1 - grace)
+    for end in range(n - 1, lo_end - 1, -1):
+        best = None
+        for L in range(min_len, max_len + 1):
+            st = end - L + 1
+            if st < 0:
+                break
+            lo = min(lows[st:end + 1]); hi = max(highs[st:end + 1])
+            if lo <= 0:
+                continue
+            rng = (hi - lo) / lo * 100.0
+            if rng <= tight_pct:
+                best = (st, end)        # 타이트 유지되는 한 더 길게
+            else:
+                break
+        if best:
+            st, e = best
+            cand = [i for i in range(st, e + 1)
+                    if i < n - 1 and min(lows[i + 1:]) <= highs[i] * (1 - pb)]
+            if cand:
+                return max(cand, key=lambda i: highs[i])
+    return None
 
 
 def find_flagpole(highs: list[float], lows: list[float], max_flagpole_days: int,
@@ -95,12 +132,24 @@ def evaluate_power_play(series: dict, params: dict | None = None) -> dict:
         base["reason"] = "base_too_short"
         return base
 
-    fp = find_flagpole(highs, lows, p["max_flagpole_days"], p["min_flag_pullback"], p["flag_window"])
-    fhi = fp["flag_high_idx"]
-    psi = fp["pole_start_idx"]
-    flag_high = fp["flag_high"]
-    base["flagpole_gain_pct"] = round(fp["flagpole_gain_pct"], 2)
-    base["flagpole_days"] = fp["flagpole_days"]
+    fhi = find_pivot_contraction(highs, lows, p["min_flag_days"], p["max_flag_days"],
+                                 p["tight_pct"], p["contraction_grace"], p["min_flag_pullback"])
+    if fhi is None:
+        base["reason"] = "no_contraction"
+        return base
+    flag_high = highs[fhi]
+    # 깃대 저점 = 피벗 직전 max_flagpole_days 구간 최저 저점
+    ws = max(0, fhi - p["max_flagpole_days"])
+    if fhi <= ws:
+        psi = fhi
+        pole_start_low = flag_high
+        flagpole_gain = 0.0
+    else:
+        psi = min(range(ws, fhi), key=lambda i: lows[i])
+        pole_start_low = lows[psi]
+        flagpole_gain = (flag_high - pole_start_low) / pole_start_low * 100.0 if pole_start_low > 0 else 0.0
+    base["flagpole_gain_pct"] = round(flagpole_gain, 2)
+    base["flagpole_days"] = fhi - psi
     base["pole_start_date"] = dates[psi] if psi < len(dates) else None
     base["flag_high_date"] = dates[fhi] if fhi < len(dates) else None
     base["pivot_price"] = round(flag_high, 2)
@@ -141,7 +190,7 @@ def evaluate_power_play(series: dict, params: dict | None = None) -> dict:
         base["pre_pole_gain_pct"] = round(pre_gain, 2)
 
     # --- 하드 게이트 3개 판정 (조용·깃대거래량·dryup 는 소프트, 게이트 아님) ---
-    cond_gain = fp["flagpole_gain_pct"] >= p["min_flagpole_gain"]
+    cond_gain = round(flagpole_gain, 2) >= p["min_flagpole_gain"]
     cond_flag_min = flag_len >= p["min_flag_days"]
     cond_flag_max = flag_len <= p["max_flag_days"]
     cond_flag_depth = flag_depth <= p["max_flag_depth"]
