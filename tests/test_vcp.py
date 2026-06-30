@@ -2,7 +2,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
-from canslim_lib.vcp import zigzag, find_contractions, evaluate_vcp
+from canslim_lib.vcp import zigzag, find_contractions, evaluate_vcp, volume_ma, adaptive_zigzag
 
 
 def test_zigzag_picks_alternating_pivots_from_peak():
@@ -43,6 +43,19 @@ def test_find_contractions_high_to_low_depths():
 
 def test_find_contractions_empty_when_no_pairs():
     assert find_contractions([(0, 100.0, "high")]) == []
+
+
+def test_volume_ma_trailing():
+    assert volume_ma([10, 20, 30, 40, 50], window=3) == [10, 15, 20, 30, 40]
+
+
+def test_adaptive_zigzag_catches_tight_swings_that_fixed8_misses():
+    # 타이트 시계열(스윙 ~4%): 고정 8%는 수축을 못 잡고, 적응형은 잡는다
+    closes = [100, 104, 100, 96, 100, 104, 100, 96, 100, 104]
+    fixed = [k for _, _, k in zigzag(closes, 8.0)]
+    adapt = [k for _, _, k in adaptive_zigzag(closes, k=1.0)]
+    # 고정 8%는 교대 스윙이 거의 없음(시작/끝 정도), 적응형은 더 많은 교대 스윙
+    assert adapt.count("high") + adapt.count("low") > fixed.count("high") + fixed.count("low")
 
 
 # ---------------------------------------------------------------------------

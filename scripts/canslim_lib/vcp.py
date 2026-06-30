@@ -14,6 +14,8 @@ DEFAULT_PARAMS: dict = {
     "breakout_vol_mult": 1.4,
     "near_pivot_pct": 5.0,
     "base_vol_cap": 50,
+    "zigzag_k": 4.0,
+    "dry_max": 0.7,
 }
 
 
@@ -58,6 +60,26 @@ def zigzag(values: list[float], pct: float) -> list[tuple[int, float, str]]:
     closing = "high" if direction == 1 else "low"
     pivots.append((ext_idx, ext_val, closing))
     return pivots
+
+
+def volume_ma(volumes: list[float], window: int = 50) -> list[float]:
+    """Trailing moving average of volumes. Handles partial windows."""
+    out: list[float] = []
+    for i in range(len(volumes)):
+        seg = volumes[max(0, i - window + 1):i + 1]
+        out.append(sum(seg) / len(seg) if seg else 0.0)
+    return out
+
+
+def adaptive_zigzag(values: list[float], k: float = 4.0) -> list[tuple[int, float, str]]:
+    """베이스 변동성(평균 일간 절대등락%)에 비례한 임계로 zigzag 실행. 하한 없음."""
+    n = len(values)
+    if n < 2:
+        return zigzag(values, 8.0)
+    rets = [abs(values[i] / values[i - 1] - 1) * 100.0 for i in range(1, n) if values[i - 1]]
+    vol = (sum(rets) / len(rets)) if rets else 0.0
+    thr = k * vol if vol > 0 else 8.0
+    return zigzag(values, thr)
 
 
 def find_contractions(pivots: list[tuple[int, float, str]]) -> list[float]:
