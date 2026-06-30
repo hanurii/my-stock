@@ -193,11 +193,15 @@ def evaluate_vcp(series: dict, params: dict | None = None) -> dict:
 
     bs = chain["base_start"]; depths = chain["depths"]; T = chain["count"]
 
-    # 피벗: 마지막 수축 고점(chain["pivot"]) = close 기준 zigzag 고점 = 저항선.
-    # max(closes[last_lo:-1])은 현재 바 직전 종가를 포함하므로 closes[-2]<=pivot이
-    # 항상 참이 되어 첫돌파 가드(_is_breakout의 closes[i-1]<=pivot 조건)가 무효화된다.
-    # 안정 피벗(수축 고점)을 사용해야 "진짜 저항선을 최초 돌파"인지 검증할 수 있다.
-    pivot = chain["pivot"]
+    # 피벗 = 횡보 천장(저항선): 베이스 구간에서 '돌파 바(마지막 봉)'를 제외한 종가 최고치.
+    #  - 평가당 1회만 산출하는 '안정 레벨'이다(바마다 갱신하는 러닝맥스 아님). 러닝맥스를 쓰면
+    #    closes[-2]<=pivot 이 항상 참이 되어 첫돌파 가드(_is_breakout)가 무효화된다(과거 회귀).
+    #  - 베이스 전체(base_start~돌파 직전)의 천장을 쓰므로 '계단식 VCP'에서 우측 회복이
+    #    마지막 수축 고점을 이미 넘었어도, 진짜 저항선(베이스 최고가) 최초 돌파를 정확히 잡는다.
+    #  - 종가 기준(고가 아님): 장중 스파이크 고가(예: 한솔케미칼 ~309500)를 천장으로 오인하지 않도록.
+    n = len(closes)
+    ceiling_seg = closes[bs:n - 1]
+    pivot = round(max(ceiling_seg), 2) if ceiling_seg else chain["pivot"]
 
     base["num_contractions"] = T
     base["contractions"] = depths
@@ -216,16 +220,21 @@ def evaluate_vcp(series: dict, params: dict | None = None) -> dict:
 
     cond_count = 2 <= T <= 6
     cond_mono = all(depths[i] <= depths[i - 1] * p["contraction_tol"] for i in range(1, T)) if T >= 2 else False
+    # 순(net) 수축 가드: 마지막 수축이 첫 수축보다 '실제로' 얕아야 한다(변동성 수축의 본질).
+    # cond_mono는 단계마다 tol(1.15) 만큼 깊어지는 것을 허용하므로 [11.8,13.4,13.2,14.2]처럼
+    # 평탄/확장하는 가짜 수축(예: 기가비스)을 통과시킨다 → 순수축 조건으로 정밀도를 높인다.
+    cond_converge = depths[-1] < depths[0] if T >= 2 else False
     third = max(1, len(bv) // 3)
     right_ratios = [bv[i] / base_ma50[i] for i in range(len(bv))[-third:] if i < len(base_ma50) and base_ma50[i]]
     dry_min = min(right_ratios) if right_ratios else 9.9
     cond_dry = dry_min <= p["dry_max"]
-    base["vcp_detected"] = bool(cond_count and cond_mono and cond_dry)
+    base["vcp_detected"] = bool(cond_count and cond_mono and cond_converge and cond_dry)
     if base["vcp_detected"]:
         base["base_depth_pct"] = round(max(depths), 2)
     else:
         base["reason"] = ("contraction_count_not_2_6" if not cond_count
                           else "not_monotone_contraction" if not cond_mono
+                          else "contraction_not_converging" if not cond_converge
                           else "volume_not_drying")
 
     base_low = min(bl) if bl else last_close
