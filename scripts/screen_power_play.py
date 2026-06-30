@@ -64,6 +64,7 @@ def run(args, out_path: Path) -> None:
         "max_flag_depth": args.max_flag_depth,
         "breakout_vol_mult": args.breakout_vol_mult,
         "near_pivot_pct": args.near_pivot_pct,
+        "flag_window": args.flag_window,
     }
     out_cands = []
     for c in passers:
@@ -136,6 +137,7 @@ def main():
     ap.add_argument("--max-flag-depth", type=float, default=DEFAULT_PARAMS["max_flag_depth"])
     ap.add_argument("--breakout-vol-mult", type=float, default=DEFAULT_PARAMS["breakout_vol_mult"])
     ap.add_argument("--near-pivot-pct", type=float, default=DEFAULT_PARAMS["near_pivot_pct"])
+    ap.add_argument("--flag-window", type=int, default=DEFAULT_PARAMS["flag_window"])
     args = ap.parse_args()
     if args.out:
         out_path = Path(args.out) if Path(args.out).is_absolute() else ROOT / args.out
