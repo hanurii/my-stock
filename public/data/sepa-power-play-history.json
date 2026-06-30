@@ -1,0 +1,946 @@
+{
+  "generated_at": "2026-06-30 13:21",
+  "asof": "2026-06-29",
+  "source": "sepa-power-play-candidates.json",
+  "input_filter": "all",
+  "scan_days": 250,
+  "params": {
+    "lookback_days": 120,
+    "min_flagpole_gain": 90.0,
+    "max_flagpole_days": 70,
+    "pole_vol_mult": 1.5,
+    "max_pre_pole_gain": 30.0,
+    "min_flag_pullback": 3.0,
+    "min_flag_days": 8,
+    "max_flag_days": 30,
+    "max_flag_depth": 20.0,
+    "breakout_vol_mult": 1.4,
+    "near_pivot_pct": 5.0,
+    "flag_window": 45,
+    "confirm_lookback": 5,
+    "recent_days": 10,
+    "stop_pct": 8.0,
+    "target_pct": 20.0
+  },
+  "caveat": "집계 수익률은 추세 통과(RS 강세) 종목만 본 결과라 생존자 편향으로 과대평가됨. 검출기 신뢰의 보조 지표일 뿐, 결정적 검증은 이벤트 날짜를 차트로 눈 대조하는 것.",
+  "summary": {
+    "n_stocks": 70,
+    "n_with_events": 12,
+    "n_no_power_play_found": 58,
+    "total_events": 15,
+    "agg": {
+      "median_gain_since_pct": 60.32,
+      "median_max_gain_pct": 89.85,
+      "good_breakout_rate": 0.333
+    }
+  },
+  "stocks": [
+    {
+      "code": "000660",
+      "name": "SK하이닉스",
+      "market": "KOSPI",
+      "rs": 99,
+      "classification": "re_basing",
+      "num_events": 1,
+      "most_recent_event_date": "2026-01-28",
+      "events": [
+        {
+          "date": "2026-01-28",
+          "confirm_date": "2026-01-27",
+          "pivot_price": 787705.29,
+          "flagpole_gain_pct": 136.59,
+          "flag_depth_pct": 8.13,
+          "breakout_close": 840704.0,
+          "days_since": 100,
+          "gain_since_pct": 212.6,
+          "max_gain_pct": 255.28,
+          "max_drawdown_pct": -4.03,
+          "good_breakout": true
+        }
+      ]
+    },
+    {
+      "code": "034730",
+      "name": "SK",
+      "market": "KOSPI",
+      "rs": 98,
+      "classification": "re_basing",
+      "num_events": 1,
+      "most_recent_event_date": "2026-05-22",
+      "events": [
+        {
+          "date": "2026-05-22",
+          "confirm_date": "2026-05-21",
+          "pivot_price": 599910.95,
+          "flagpole_gain_pct": 110.93,
+          "flag_depth_pct": 18.0,
+          "breakout_close": 641937.15,
+          "days_since": 24,
+          "gain_since_pct": 22.29,
+          "max_gain_pct": 37.55,
+          "max_drawdown_pct": -10.9,
+          "good_breakout": false
+        }
+      ]
+    },
+    {
+      "code": "241770",
+      "name": "메카로",
+      "market": "KOSDAQ",
+      "rs": 97,
+      "classification": "re_basing",
+      "num_events": 1,
+      "most_recent_event_date": "2025-10-29",
+      "events": [
+        {
+          "date": "2025-10-29",
+          "confirm_date": "2025-10-28",
+          "pivot_price": 26503.52,
+          "flagpole_gain_pct": 146.99,
+          "flag_depth_pct": 19.43,
+          "breakout_close": 28103.71,
+          "days_since": 162,
+          "gain_since_pct": 51.05,
+          "max_gain_pct": 70.83,
+          "max_drawdown_pct": -27.92,
+          "good_breakout": false
+        }
+      ]
+    },
+    {
+      "code": "089970",
+      "name": "브이엠",
+      "market": "KOSDAQ",
+      "rs": 99,
+      "classification": "extended",
+      "num_events": 1,
+      "most_recent_event_date": "2026-05-12",
+      "events": [
+        {
+          "date": "2026-05-12",
+          "confirm_date": "2026-05-07",
+          "pivot_price": 58311.22,
+          "flagpole_gain_pct": 145.48,
+          "flag_depth_pct": 9.44,
+          "breakout_close": 60009.58,
+          "days_since": 32,
+          "gain_since_pct": 76.81,
+          "max_gain_pct": 93.14,
+          "max_drawdown_pct": -13.17,
+          "good_breakout": false
+        }
+      ]
+    },
+    {
+      "code": "005930",
+      "name": "삼성전자",
+      "market": "KOSPI",
+      "rs": 99,
+      "classification": "extended",
+      "num_events": 1,
+      "most_recent_event_date": "2026-06-01",
+      "events": [
+        {
+          "date": "2026-06-01",
+          "confirm_date": "2026-05-27",
+          "pivot_price": 299495.94,
+          "flagpole_gain_pct": 99.25,
+          "flag_depth_pct": 12.52,
+          "breakout_close": 348962.28,
+          "days_since": 19,
+          "gain_since_pct": -7.44,
+          "max_gain_pct": 7.32,
+          "max_drawdown_pct": -15.33,
+          "good_breakout": false
+        }
+      ]
+    },
+    {
+      "code": "095610",
+      "name": "테스",
+      "market": "KOSDAQ",
+      "rs": 99,
+      "classification": "extended",
+      "num_events": 2,
+      "most_recent_event_date": "2026-05-13",
+      "events": [
+        {
+          "date": "2026-05-11",
+          "confirm_date": "2026-05-08",
+          "pivot_price": 95001.14,
+          "flagpole_gain_pct": 116.9,
+          "flag_depth_pct": 12.43,
+          "breakout_close": 105188.61,
+          "days_since": 33,
+          "gain_since_pct": 70.84,
+          "max_gain_pct": 92.48,
+          "max_drawdown_pct": -0.58,
+          "good_breakout": false
+        },
+        {
+          "date": "2026-05-13",
+          "confirm_date": "2026-05-11",
+          "pivot_price": 95001.14,
+          "flagpole_gain_pct": 116.9,
+          "flag_depth_pct": 12.43,
+          "breakout_close": 122485.23,
+          "days_since": 31,
+          "gain_since_pct": 46.71,
+          "max_gain_pct": 65.29,
+          "max_drawdown_pct": -14.62,
+          "good_breakout": false
+        }
+      ]
+    },
+    {
+      "code": "240810",
+      "name": "원익IPS",
+      "market": "KOSDAQ",
+      "rs": 99,
+      "classification": "extended",
+      "num_events": 3,
+      "most_recent_event_date": "2026-01-26",
+      "events": [
+        {
+          "date": "2025-09-10",
+          "confirm_date": "2025-09-09",
+          "pivot_price": 43330.3,
+          "flagpole_gain_pct": 107.31,
+          "flag_depth_pct": 14.29,
+          "breakout_close": 44893.18,
+          "days_since": 192,
+          "gain_since_pct": 254.17,
+          "max_gain_pct": 308.29,
+          "max_drawdown_pct": -4.12,
+          "good_breakout": true
+        },
+        {
+          "date": "2025-10-24",
+          "confirm_date": "2025-10-23",
+          "pivot_price": 60595.77,
+          "flagpole_gain_pct": 134.45,
+          "flag_depth_pct": 17.16,
+          "breakout_close": 61494.6,
+          "days_since": 165,
+          "gain_since_pct": 158.56,
+          "max_gain_pct": 198.07,
+          "max_drawdown_pct": -7.81,
+          "good_breakout": true
+        },
+        {
+          "date": "2026-01-26",
+          "confirm_date": "2026-01-23",
+          "pivot_price": 84800.47,
+          "flagpole_gain_pct": 96.31,
+          "flag_depth_pct": 15.33,
+          "breakout_close": 85198.43,
+          "days_since": 102,
+          "gain_since_pct": 86.62,
+          "max_gain_pct": 115.14,
+          "max_drawdown_pct": 7.28,
+          "good_breakout": true
+        }
+      ]
+    },
+    {
+      "code": "222800",
+      "name": "심텍",
+      "market": "KOSDAQ",
+      "rs": 99,
+      "classification": "extended",
+      "num_events": 1,
+      "most_recent_event_date": "2025-10-23",
+      "events": [
+        {
+          "date": "2025-10-23",
+          "confirm_date": "2025-10-22",
+          "pivot_price": 56110.28,
+          "flagpole_gain_pct": 162.17,
+          "flag_depth_pct": 17.37,
+          "breakout_close": 58707.42,
+          "days_since": 166,
+          "gain_since_pct": 111.73,
+          "max_gain_pct": 144.09,
+          "max_drawdown_pct": -27.11,
+          "good_breakout": false
+        }
+      ]
+    },
+    {
+      "code": "067310",
+      "name": "하나마이크론",
+      "market": "KOSDAQ",
+      "rs": 99,
+      "classification": "extended",
+      "num_events": 1,
+      "most_recent_event_date": "2025-10-30",
+      "events": [
+        {
+          "date": "2025-10-30",
+          "confirm_date": "2025-10-29",
+          "pivot_price": 28367.13,
+          "flagpole_gain_pct": 172.56,
+          "flag_depth_pct": 17.81,
+          "breakout_close": 30812.87,
+          "days_since": 161,
+          "gain_since_pct": 60.32,
+          "max_gain_pct": 89.85,
+          "max_drawdown_pct": -26.63,
+          "good_breakout": false
+        }
+      ]
+    },
+    {
+      "code": "131290",
+      "name": "티에스이",
+      "market": "KOSDAQ",
+      "rs": 99,
+      "classification": "extended",
+      "num_events": 1,
+      "most_recent_event_date": "2026-04-17",
+      "events": [
+        {
+          "date": "2026-04-17",
+          "confirm_date": "2026-04-10",
+          "pivot_price": 126057.68,
+          "flagpole_gain_pct": 140.96,
+          "flag_depth_pct": 18.9,
+          "breakout_close": 163528.93,
+          "days_since": 47,
+          "gain_since_pct": 36.98,
+          "max_gain_pct": 72.79,
+          "max_drawdown_pct": -4.28,
+          "good_breakout": true
+        }
+      ]
+    },
+    {
+      "code": "019210",
+      "name": "와이지-원",
+      "market": "KOSDAQ",
+      "rs": 97,
+      "classification": "extended",
+      "num_events": 1,
+      "most_recent_event_date": "2026-05-18",
+      "events": [
+        {
+          "date": "2026-05-18",
+          "confirm_date": "2026-05-11",
+          "pivot_price": 17502.55,
+          "flagpole_gain_pct": 246.52,
+          "flag_depth_pct": 17.13,
+          "breakout_close": 19303.6,
+          "days_since": 28,
+          "gain_since_pct": 8.53,
+          "max_gain_pct": 31.07,
+          "max_drawdown_pct": -32.49,
+          "good_breakout": false
+        }
+      ]
+    },
+    {
+      "code": "005440",
+      "name": "현대지에프홀딩스",
+      "market": "KOSPI",
+      "rs": 91,
+      "classification": "extended",
+      "num_events": 1,
+      "most_recent_event_date": "2025-07-14",
+      "events": [
+        {
+          "date": "2025-07-14",
+          "confirm_date": "2025-07-11",
+          "pivot_price": 9505.25,
+          "flagpole_gain_pct": 99.61,
+          "flag_depth_pct": 13.25,
+          "breakout_close": 10434.24,
+          "days_since": 233,
+          "gain_since_pct": 46.15,
+          "max_gain_pct": 89.61,
+          "max_drawdown_pct": -30.17,
+          "good_breakout": false
+        }
+      ]
+    },
+    {
+      "code": "420770",
+      "name": "기가비스",
+      "market": "KOSDAQ",
+      "rs": 99,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "319660",
+      "name": "피에스케이",
+      "market": "KOSDAQ",
+      "rs": 99,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "049080",
+      "name": "기가레인",
+      "market": "KOSDAQ",
+      "rs": 99,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "005935",
+      "name": "삼성전자우",
+      "market": "KOSPI",
+      "rs": 99,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "009150",
+      "name": "삼성전기",
+      "market": "KOSPI",
+      "rs": 99,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "064290",
+      "name": "인텍플러스",
+      "market": "KOSDAQ",
+      "rs": 99,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "084370",
+      "name": "유진테크",
+      "market": "KOSDAQ",
+      "rs": 99,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "159010",
+      "name": "아스플로",
+      "market": "KOSDAQ",
+      "rs": 99,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "009155",
+      "name": "삼성전기우",
+      "market": "KOSPI",
+      "rs": 99,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "170920",
+      "name": "엘티씨",
+      "market": "KOSDAQ",
+      "rs": 99,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "402340",
+      "name": "SK스퀘어",
+      "market": "KOSPI",
+      "rs": 99,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "219130",
+      "name": "타이거일렉",
+      "market": "KOSDAQ",
+      "rs": 99,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "004170",
+      "name": "신세계",
+      "market": "KOSPI",
+      "rs": 98,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "031980",
+      "name": "피에스케이홀딩스",
+      "market": "KOSDAQ",
+      "rs": 98,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "025560",
+      "name": "미래산업",
+      "market": "KOSPI",
+      "rs": 98,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "226950",
+      "name": "올릭스",
+      "market": "KOSDAQ",
+      "rs": 98,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "093370",
+      "name": "후성",
+      "market": "KOSPI",
+      "rs": 98,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "007815",
+      "name": "코리아써우",
+      "market": "KOSPI",
+      "rs": 98,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "064850",
+      "name": "에프앤가이드",
+      "market": "KOSDAQ",
+      "rs": 98,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "290650",
+      "name": "엘앤씨바이오",
+      "market": "KOSDAQ",
+      "rs": 97,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "281820",
+      "name": "케이씨텍",
+      "market": "KOSPI",
+      "rs": 97,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "032830",
+      "name": "삼성생명",
+      "market": "KOSPI",
+      "rs": 97,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "069960",
+      "name": "현대백화점",
+      "market": "KOSPI",
+      "rs": 96,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "028260",
+      "name": "삼성물산",
+      "market": "KOSPI",
+      "rs": 96,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "900260",
+      "name": "로스웰",
+      "market": "KOSDAQ",
+      "rs": 95,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "03473K",
+      "name": "SK우",
+      "market": "KOSPI",
+      "rs": 95,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "002990",
+      "name": "금호건설",
+      "market": "KOSPI",
+      "rs": 95,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "009420",
+      "name": "한올바이오파마",
+      "market": "KOSPI",
+      "rs": 95,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "023530",
+      "name": "롯데쇼핑",
+      "market": "KOSPI",
+      "rs": 94,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "019010",
+      "name": "베뉴지",
+      "market": "KOSDAQ",
+      "rs": 94,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "005950",
+      "name": "이수화학",
+      "market": "KOSPI",
+      "rs": 94,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "041830",
+      "name": "인바디",
+      "market": "KOSDAQ",
+      "rs": 93,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "011560",
+      "name": "세보엠이씨",
+      "market": "KOSDAQ",
+      "rs": 93,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "049430",
+      "name": "코메론",
+      "market": "KOSDAQ",
+      "rs": 92,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "012510",
+      "name": "더존비즈온",
+      "market": "KOSPI",
+      "rs": 92,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "228340",
+      "name": "동양파일",
+      "market": "KOSDAQ",
+      "rs": 91,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "137080",
+      "name": "나래나노텍",
+      "market": "KOSDAQ",
+      "rs": 91,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "122640",
+      "name": "예스티",
+      "market": "KOSDAQ",
+      "rs": 91,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "037710",
+      "name": "광주신세계",
+      "market": "KOSPI",
+      "rs": 90,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "161390",
+      "name": "한국타이어앤테크놀로지",
+      "market": "KOSPI",
+      "rs": 90,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "057050",
+      "name": "현대홈쇼핑",
+      "market": "KOSPI",
+      "rs": 89,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "037760",
+      "name": "쎄니트",
+      "market": "KOSDAQ",
+      "rs": 88,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "094840",
+      "name": "슈프리마에이치큐",
+      "market": "KOSDAQ",
+      "rs": 87,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "483650",
+      "name": "달바글로벌",
+      "market": "KOSPI",
+      "rs": 87,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "005430",
+      "name": "한국공항",
+      "market": "KOSPI",
+      "rs": 87,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "311320",
+      "name": "지오엘리먼트",
+      "market": "KOSDAQ",
+      "rs": 87,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "101160",
+      "name": "월덱스",
+      "market": "KOSDAQ",
+      "rs": 86,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "000810",
+      "name": "삼성화재",
+      "market": "KOSPI",
+      "rs": 86,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "000400",
+      "name": "롯데손해보험",
+      "market": "KOSPI",
+      "rs": 84,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "001450",
+      "name": "현대해상",
+      "market": "KOSPI",
+      "rs": 84,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "003490",
+      "name": "대한항공",
+      "market": "KOSPI",
+      "rs": 83,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "036800",
+      "name": "나이스정보통신",
+      "market": "KOSDAQ",
+      "rs": 83,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "093190",
+      "name": "빅솔론",
+      "market": "KOSDAQ",
+      "rs": 83,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "005680",
+      "name": "삼영전자",
+      "market": "KOSPI",
+      "rs": 83,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "066980",
+      "name": "한성크린텍",
+      "market": "KOSDAQ",
+      "rs": 83,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "271560",
+      "name": "오리온",
+      "market": "KOSPI",
+      "rs": 82,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "001540",
+      "name": "안국약품",
+      "market": "KOSDAQ",
+      "rs": 81,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    },
+    {
+      "code": "192080",
+      "name": "더블유게임즈",
+      "market": "KOSPI",
+      "rs": 80,
+      "classification": "no_power_play_found",
+      "num_events": 0,
+      "most_recent_event_date": null,
+      "events": []
+    }
+  ]
+}
