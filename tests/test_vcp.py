@@ -2,7 +2,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
-from canslim_lib.vcp import zigzag, find_contractions, evaluate_vcp, volume_ma, adaptive_zigzag, find_contraction_chain
+from canslim_lib.vcp import zigzag, find_contractions, evaluate_vcp, volume_ma, adaptive_zigzag, find_contraction_chain, _is_breakout
 
 
 def test_zigzag_picks_alternating_pivots_from_peak():
@@ -152,3 +152,28 @@ def test_find_contraction_chain_pivot_is_last_high_and_shrinks():
 
 def test_find_contraction_chain_none_without_pairs():
     assert find_contraction_chain([(0, 100.0, "high")], tol=1.15) is None
+
+
+# ---------------------------------------------------------------------------
+# Task 3: _is_breakout tests
+# ---------------------------------------------------------------------------
+
+def test_is_breakout_clean_true():
+    closes = [95.0, 104.0]; opens = [96.0, 100.0]; vols = [100.0, 300.0]; ma50 = [150.0, 150.0]
+    p = {"breakout_vol_mult": 1.4, "near_pivot_pct": 5.0}
+    # 전일95≤100, 당일104>100(첫돌파), 양봉(104>100), vol300≥150×1.4=210, 연장4%≤5
+    assert _is_breakout(closes, opens, vols, ma50, pivot=100.0, p=p) is True
+
+
+def test_is_breakout_quiet_volume_false():
+    closes = [95.0, 104.0]; opens = [96.0, 100.0]; vols = [100.0, 120.0]; ma50 = [150.0, 150.0]
+    p = {"breakout_vol_mult": 1.4, "near_pivot_pct": 5.0}
+    # 거래량 120 < 210 → 조용한 돌파라 False
+    assert _is_breakout(closes, opens, vols, ma50, pivot=100.0, p=p) is False
+
+
+def test_is_breakout_extended_false():
+    closes = [108.0, 120.0]; opens = [107.0, 109.0]; vols = [100.0, 300.0]; ma50 = [150.0, 150.0]
+    p = {"breakout_vol_mult": 1.4, "near_pivot_pct": 5.0}
+    # 전일108>100이라 첫돌파 아님(이미 위) → False
+    assert _is_breakout(closes, opens, vols, ma50, pivot=100.0, p=p) is False

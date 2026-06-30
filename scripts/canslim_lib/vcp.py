@@ -116,6 +116,23 @@ def find_contraction_chain(swings: list[tuple[int, float, str]], tol: float = 1.
     }
 
 
+def _is_breakout(closes, opens, vols, ma50, pivot, p) -> bool:
+    """마지막 바가 돌파인가: 첫돌파+양봉+거래량터짐+근접."""
+    i = len(closes) - 1
+    if pivot is None or i < 1:
+        return False
+    if not (closes[i] > pivot and closes[i - 1] <= pivot):   # 첫돌파
+        return False
+    if not (closes[i] > opens[i]):                            # 양봉
+        return False
+    m = ma50[i] if i < len(ma50) else None
+    if not (m and vols[i] >= m * p["breakout_vol_mult"]):     # 거래량 터짐
+        return False
+    if (closes[i] - pivot) / pivot * 100.0 > p["near_pivot_pct"]:  # 피벗 근접
+        return False
+    return True
+
+
 def _mean(xs: list[float]) -> float | None:
     xs = [x for x in xs if x is not None]
     return sum(xs) / len(xs) if xs else None
