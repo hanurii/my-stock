@@ -9,12 +9,14 @@ from canslim_lib.cheat import DEFAULT_PARAMS, find_cheat_shelf, evaluate_cheat
 def test_default_params_has_required_keys():
     for k in ("lookback_days", "min_total_days", "min_cup_depth", "max_cup_depth",
               "min_cup_days", "min_shelf_pullback", "min_shelf_days", "max_shelf_days",
-              "max_shelf_depth", "max_shelf_position", "breakout_vol_mult", "near_pivot_pct"):
+              "max_shelf_depth", "min_shelf_position", "max_shelf_position",
+              "breakout_vol_mult", "near_pivot_pct"):
         assert k in DEFAULT_PARAMS
     assert DEFAULT_PARAMS["min_cup_depth"] == 12.0
     assert DEFAULT_PARAMS["max_shelf_position"] == 90.0
     assert DEFAULT_PARAMS["min_shelf_days"] == 2
-    assert DEFAULT_PARAMS["min_cup_days"] == 25
+    assert DEFAULT_PARAMS["min_cup_days"] == 17
+    assert DEFAULT_PARAMS["min_shelf_position"] == 25.0
 
 
 # ── find_cheat_shelf: 최근 컵 앵커링 ──────────────────────────────
@@ -165,7 +167,7 @@ def test_evaluate_rejects_short_cup_base():
     recovery = [80, 84, 88, 90]
     shelf = [89, 88, 89, 88, 89, 88]
     closes = pre + rim + decline + bottom + recovery + shelf  # 22+5+4+2+4+6 = 43
-    r = evaluate_cheat(_series(closes, vols=[1000]*len(closes)))
+    r = evaluate_cheat(_series(closes, vols=[1000]*len(closes)), {"min_cup_days": 25})
     # left_rim_idx=24, n=43 → cup_base_days=18 < 25
     assert r["pattern_detected"] is False
     assert r["reason"] == "cup_too_short"
@@ -205,6 +207,18 @@ def test_evaluate_rejects_volume_not_drying():
     r = evaluate_cheat(s)
     assert r["pattern_detected"] is False
     assert r["reason"] == "volume_not_drying"
+
+
+def test_evaluate_rejects_low_shelf():
+    # 옛 peak 100 → 가파른 하락 바닥 60(컵40%) → 바닥 직후 64 부근 즉시 반등(위치~10%).
+    rim = [98, 99, 100, 99, 98]
+    decline = [98 - i * (38 / 19) for i in range(20)]     # 98 → ~60
+    bottom = [60, 61, 60, 61, 60]                          # 5봉(n=40 확보)
+    shelf = [64, 63, 64, 63, 64, 63, 64, 63, 64, 63]      # 바닥 바로 위 64(위치 ~10%)
+    closes = rim + decline + bottom + shelf
+    r = evaluate_cheat(_series(closes, vols=[1000]*25 + [2000]*5 + [500]*10))
+    assert r["pattern_detected"] is False
+    assert r["reason"] == "shelf_too_low_in_cup"
 
 
 # ── evaluate_cheat: 상태 ──────────────────────────────────────────

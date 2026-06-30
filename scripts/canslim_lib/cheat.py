@@ -11,11 +11,12 @@ DEFAULT_PARAMS: dict = {
     "min_total_days": 40,
     "min_cup_depth": 12.0,
     "max_cup_depth": 50.0,
-    "min_cup_days": 25,        # was 35  (치트는 컵 완성 전 일찍 발동)
+    "min_cup_days": 17,        # was 25  (치트는 컵 완성 전 일찍 발동)
     "min_shelf_pullback": 3.0,
     "min_shelf_days": 2,       # was 5   (치트 멈춤은 짧다: NU 2일)
     "max_shelf_days": 25,
     "max_shelf_depth": 12.0,
+    "min_shelf_position": 25.0,  # 신규: 선반이 바닥 직후 V자 반등이 아니어야(치트는 회복 중간 이상)
     "max_shelf_position": 90.0,  # was 66.0 (완성 치트 포함)
     "breakout_vol_mult": 1.4,
     "near_pivot_pct": 5.0,
@@ -157,7 +158,8 @@ def evaluate_cheat(series: dict, params: dict | None = None) -> dict:
     cond_shelf_min = shelf_len >= p["min_shelf_days"]
     cond_shelf_max = shelf_len <= p["max_shelf_days"]
     cond_shelf_depth = shelf_depth <= p["max_shelf_depth"]
-    cond_shelf_pos = shelf_position <= p["max_shelf_position"]
+    cond_shelf_pos_lo = shelf_position >= p["min_shelf_position"]
+    cond_shelf_pos_hi = shelf_position <= p["max_shelf_position"]
     cond_dryup = base["volume_dryup_ratio"] is not None and base["volume_dryup_ratio"] <= 1.0
 
     if not cond_cup_min_depth:
@@ -172,7 +174,9 @@ def evaluate_cheat(series: dict, params: dict | None = None) -> dict:
         base["reason"] = "shelf_too_long"
     elif not cond_shelf_depth:
         base["reason"] = "shelf_too_loose"
-    elif not cond_shelf_pos:
+    elif not cond_shelf_pos_lo:
+        base["reason"] = "shelf_too_low_in_cup"
+    elif not cond_shelf_pos_hi:
         base["reason"] = "shelf_too_high_in_cup"
     elif not cond_dryup:
         base["reason"] = "volume_not_drying"

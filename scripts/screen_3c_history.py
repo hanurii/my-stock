@@ -66,7 +66,8 @@ def run(args, out_path: Path) -> None:
         "min_cup_depth": args.min_cup_depth, "max_cup_depth": args.max_cup_depth,
         "min_cup_days": args.min_cup_days, "min_shelf_pullback": args.min_shelf_pullback,
         "min_shelf_days": args.min_shelf_days, "max_shelf_days": args.max_shelf_days,
-        "max_shelf_depth": args.max_shelf_depth, "max_shelf_position": args.max_shelf_position,
+        "max_shelf_depth": args.max_shelf_depth,
+        "min_shelf_position": args.min_shelf_position, "max_shelf_position": args.max_shelf_position,
         "breakout_vol_mult": args.breakout_vol_mult, "near_pivot_pct": args.near_pivot_pct,
     }
 
@@ -158,6 +159,7 @@ def main():
     ap.add_argument("--min-shelf-days", type=int, default=DEFAULT_PARAMS["min_shelf_days"])
     ap.add_argument("--max-shelf-days", type=int, default=DEFAULT_PARAMS["max_shelf_days"])
     ap.add_argument("--max-shelf-depth", type=float, default=DEFAULT_PARAMS["max_shelf_depth"])
+    ap.add_argument("--min-shelf-position", type=float, default=DEFAULT_PARAMS["min_shelf_position"])
     ap.add_argument("--max-shelf-position", type=float, default=DEFAULT_PARAMS["max_shelf_position"])
     ap.add_argument("--breakout-vol-mult", type=float, default=DEFAULT_PARAMS["breakout_vol_mult"])
     ap.add_argument("--near-pivot-pct", type=float, default=DEFAULT_PARAMS["near_pivot_pct"])
