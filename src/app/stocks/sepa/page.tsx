@@ -156,6 +156,12 @@ export default async function SepaPage() {
         <p className="text-on-surface-variant">
           <strong className="text-on-surface">VCP</strong>(변동성 수축): 수축 횟수 + 위 코일·타이트 지표. <strong className="text-on-surface">파워 플레이</strong>(하이 타이트 플래그): 깃대 상승률·일수 + 깃발 깊이.
         </p>
+        <div className="text-on-surface-variant/85 bg-surface-container/30 rounded-lg px-3 py-2 leading-relaxed space-y-1">
+          <p className="text-on-surface font-medium">패턴별 &lsquo;확정&rsquo; 기준 — 아래를 <strong>모두</strong> 충족해야 패턴 확정(🔴/🟢). 하나라도 미달이면 형성중·미확정(🟡 또는 숨김).</p>
+          <p><strong className="text-on-surface">VCP</strong>: 수축 2~6회 + 갈수록 얕아지는 단조 수축 + 마지막 수축이 첫 수축보다 얕음(순 수렴) + 돌파 직전 최종 타이트 코일(종가 변동폭 ≤ 12% <em>그리고</em> 거래량 ≤ 50일 평균의 0.95배).</p>
+          <p><strong className="text-on-surface">파워 플레이</strong>: 깃대 14주(≤ 70거래일) 내 <strong>+90% 이상</strong> 급등 + 깃발(횡보) 길이 8~30일 + 깃발 깊이 ≤ 20%.</p>
+          <p><strong className="text-on-surface">3C</strong>(컵 완성 치트): 컵 깊이 12~50% + 컵 길이 ≥ 17일 + 선반(재횡보) 길이 2~25일·깊이 ≤ 12%·위치 컵 회복의 25~90% + 거래량 마름(≤ 50일 평균).</p>
+        </div>
         <p className="text-on-surface-variant/60 mt-1 pt-2 border-t border-outline-variant/15">
           각 섹션은 그 패턴을 만족(돌파·진입임박)하거나 곧 만족할(예의주시) 종목만 노출하며, 실패·원거리 종목은 숨깁니다. 데이터는 읽기 전용(별도 파이프라인이 생성).
         </p>
