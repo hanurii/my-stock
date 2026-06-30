@@ -53,6 +53,8 @@ def test_adaptive_zigzag_catches_tight_swings_that_fixed8_misses():
     # 타이트 시계열(스윙 ~4%): 고정 8%는 수축을 못 잡고, 적응형은 잡는다
     closes = [100, 104, 100, 96, 100, 104, 100, 96, 100, 104]
     fixed = [k for _, _, k in zigzag(closes, 8.0)]
+    # 시계열 평균 일간등락 ~4% → k=1.0이면 임계 ~4%(타이트 수축 포착).
+    # (브리프 k=2.0은 임계 ~8%로 고정과 같아져 적응 우위를 못 보이므로 k=1.0 사용.)
     adapt = [k for _, _, k in adaptive_zigzag(closes, k=1.0)]
     # 고정 8%는 교대 스윙이 거의 없음(시작/끝 정도), 적응형은 더 많은 교대 스윙
     assert adapt.count("high") + adapt.count("low") > fixed.count("high") + fixed.count("low")
