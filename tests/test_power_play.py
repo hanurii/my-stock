@@ -156,13 +156,13 @@ def test_evaluate_rejects_weak_flagpole_gain():
 
 def test_evaluate_rejects_deep_flag():
     # 하드 게이트: flag_depth > max_flag_depth(20%)
-    # 설계: 조용+깃대(+120%) → 타이트 수축(10봉, 피벗 확보) → 급락 3봉(피벗 고점 대비 ~24% 하락)
-    # find_pivot_contraction은 end=n-4(첫 급락봉 포함 직전)에서 타이트 수축을 찾아 fhi 반환.
-    # flag(fhi 이후)에 급락봉이 포함되어 flag_depth=~24% > 20% → flag_too_deep.
+    # 설계: 조용+깃대(+120%) → 타이트 수축(10봉, 유일 피크 확보) → 급락 3봉(피벗116.15 대비 ~28% 하락)
+    # tight[3]=115(high=116.15)가 수축 창 내 유일 최고점 → 동점 없이 fhi=31로 확정.
+    # flag(fhi 이후)에 급락봉이 포함되어 flag_depth=~28% > 20% → flag_too_deep.
     quiet = [50 + (i % 2) for i in range(20)]
     pole = [52, 58, 66, 75, 85, 95, 104, 110]
-    tight = [108, 109, 108, 110, 109, 108, 109, 110, 108, 109]  # 10봉 타이트 수축(범위~3%)
-    deep = [105, 90, 85]                                          # 급락 3봉(피벗111.1 대비 ~24%)
+    tight = [108, 109, 108, 115, 109, 108, 109, 108, 108, 109]  # 유일 피크: 4번째 봉(close=115, high=116.15)
+    deep = [105, 90, 85]                                          # 급락 3봉(피벗116.15 대비 ~28%)
     closes = quiet + pole + tight + deep
     s = _series(closes, vols=[800]*20 + [3000]*8 + [500]*10 + [500]*3)
     r = evaluate_power_play(s)

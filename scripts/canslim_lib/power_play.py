@@ -190,7 +190,7 @@ def evaluate_power_play(series: dict, params: dict | None = None) -> dict:
         base["pre_pole_gain_pct"] = round(pre_gain, 2)
 
     # --- 하드 게이트 3개 판정 (조용·깃대거래량·dryup 는 소프트, 게이트 아님) ---
-    cond_gain = flagpole_gain >= p["min_flagpole_gain"]
+    cond_gain = round(flagpole_gain, 2) >= p["min_flagpole_gain"]
     cond_flag_min = flag_len >= p["min_flag_days"]
     cond_flag_max = flag_len <= p["max_flag_days"]
     cond_flag_depth = flag_depth <= p["max_flag_depth"]
