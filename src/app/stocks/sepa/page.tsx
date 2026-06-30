@@ -1,6 +1,7 @@
 import fs from "fs/promises";
 import path from "path";
 import { SepaPatternTable } from "./SepaPatternTable";
+import { PositionSizeCalculator } from "./PositionSizeCalculator";
 import { PATTERNS, buildSection, type PatternConfig, type RawCandidate } from "./sepaPatterns";
 
 interface MarketStatus {
@@ -124,6 +125,20 @@ export default async function SepaPage() {
       <PatternSection config={PATTERNS.powerplayTrend} data={ppTrend} />
       <PatternSection config={PATTERNS.powerplayAll} data={ppAll} />
       <PatternSection config={PATTERNS.threeC} data={threeC} />
+
+      {/* 포지션 크기 계산기 */}
+      <section className="bg-surface-container-low rounded-xl ghost-border p-4 space-y-3">
+        <h3 className="text-lg font-serif font-bold text-on-surface flex items-center gap-2">
+          <span className="material-symbols-outlined text-primary">calculate</span>
+          포지션 크기 계산기 (미너비니 기준)
+        </h3>
+        <ul className="text-xs text-on-surface-variant/80 space-y-0.5 list-disc list-inside">
+          <li>한 매매 위험은 총 자본의 1.25~2.50%, 최대 손절 10%, 손실 평균 5~6% 이내.</li>
+          <li>한 종목 비중 50% 초과 금지 · 최고 종목엔 총포지션의 20~25%.</li>
+          <li>최대 종목 수 10~12개.</li>
+        </ul>
+        <PositionSizeCalculator />
+      </section>
 
       {/* 용어·배지 */}
       <section className="bg-surface-container-low rounded-xl ghost-border p-4 text-xs space-y-2">
