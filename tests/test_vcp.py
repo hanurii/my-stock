@@ -68,28 +68,29 @@ def test_adaptive_zigzag_catches_tight_swings_that_fixed8_misses():
 # ---------------------------------------------------------------------------
 
 def _vcp_series():
-    """VCP: 2수축 수렴 베이스(25%→15%) + 우측 거래량 마름 + 천장 피벗(100.0) 첫돌파 마지막 바.
+    """VCP: 2수축 수렴(25%→15%) + 돌파 직전 '타이트+마른 코일'(94.5~96, 피벗 96) + 첫돌파 바.
 
-    적응형 zigzag(k=4.0) 기본값 기준 임계≈12.2% → 수축1(25%)·수축2(15%) 모두 포착.
-    피벗 = 횡보 천장 = max(closes[base_start:-1]) = 100.0 (베이스 최고 종가, 돌파 바 제외 = 저항선).
-    베이스 우측 1/3 거래량 / MA50 최솟값 ≈ 0.35 < dry_max(0.82) 조건 충족.
-    돌파 바: 101(종가) > 100(천장 피벗) 첫돌파, opens[-1]=99.0(시가<피벗) 양봉, vol=6000 ≥ MA50×1.4.
+    인식: 적응형 ZigZag로 수축1(100→75=-25%)·수축2(92→78.2≈-15%) 포착(count2·net 수렴).
+    피벗 = detect_final_coil 의 코일 고점 = 96(돌파 바 직전 타이트 구간 종가 최고치).
+    돌파 바: 99(종가) > 96(피벗) 첫돌파, opens[-1]=95(<피벗, 양봉·근접), vol=6000 ≥ MA50×1.4.
+    코일·r2 거래량은 마름(300) → coil_dry_mean ≪ 0.9.
     """
-    c1 = [100.0, 96.0, 91.0, 86.0, 82.0, 78.0, 75.5, 75.0]   # 수축1: 100→75 = -25%
-    r1 = [78.0, 81.0, 84.0, 87.0, 89.0, 91.0, 92.0]            # 회복: →92
-    c2 = [90.0, 87.0, 84.0, 81.0, 79.0, 78.5, 78.2]            # 수축2: 92→78.2 ≈ -15%
-    r2 = [81.0, 84.0, 87.0, 90.0, 91.5]                         # 회복: 천장(100) 아래
-    bo = [101.0]                                                  # 돌파 바: 천장 100 첫돌파
+    c1   = [100.0, 96.0, 91.0, 86.0, 82.0, 78.0, 75.5, 75.0]   # 수축1: 100→75 = -25% (천장 100)
+    r1   = [78.0, 81.0, 84.0, 87.0, 89.0, 91.0, 92.0]           # 회복 →92
+    c2   = [90.0, 87.0, 84.0, 81.0, 79.0, 78.5, 78.2]           # 수축2: 92→78.2 ≈ -15%
+    r2   = [82.0, 87.0, 92.0, 95.0]                              # 회복: 코일 레벨로 복귀
+    coil = [95.5, 94.5, 95.0, 96.0, 95.5, 96.0]                 # 타이트 코일: 범위 1.56%, 고점=피벗 96
+    bo   = [99.0]                                                # 돌파 바: 96 첫돌파
 
-    closes = c1 + r1 + c2 + r2 + bo   # 총 28 봉
+    closes = c1 + r1 + c2 + r2 + coil + bo
     n = len(closes)
     opens = [c * 0.99 for c in closes]
-    opens[-1] = 99.0                   # 돌파 바 시가: 천장 아래 → 양봉·근접 확인
+    opens[-1] = 95.0                  # 돌파 바 시가: 피벗(96) 아래 → 양봉·근접 확인
     highs = [c * 1.01 for c in closes]
     lows = [c * 0.99 for c in closes]
-    # 거래량: 초반 1200 → 회복1 800 → 수축2 600 → 우측(r2) 300(마름) → 돌파 6000
+    # 거래량: 초반/회복 정상 → r2+coil 마름(300) → 돌파 6000
     vols = ([1200] * len(c1) + [800] * len(r1) + [600] * len(c2)
-            + [300] * len(r2) + [6000] * len(bo))
+            + [300] * (len(r2) + len(coil)) + [6000] * len(bo))
     assert len(vols) == n
     dates = [f"2026-01-{i+1:02d}" for i in range(n)]
     return {"dates": dates, "closes": closes, "opens": opens,
@@ -99,7 +100,7 @@ def _vcp_series():
 def test_evaluate_vcp_recognizes_and_breaks_out():
     r = evaluate_vcp(_vcp_series())
     assert r["vcp_detected"] is True
-    assert r["pivot_price"] is not None
+    assert r["pivot_price"] == 96.0          # 피벗 = 최종 타이트 코일 고점
     assert r["status"] == "breakout"
     assert r["entry_ready"] is True
 
@@ -168,6 +169,8 @@ def test_evaluate_vcp_extended_not_breakout():
     closes[-2]=95 < 100(천장) 이고 closes[-1]=96 < 100 → 첫돌파 조건 False → breakout 아님.
     러닝맥스(pivot=max(closes[last_lo:-1])=95) 코드에서는 closes[-2]=95<=95가 항상 참이라
     breakout으로 잘못 분류됨 — 이 테스트가 그 회귀를 고정한다.
+    # (코일 로직) 연장 회복 구간은 거래량을 동반(안 마름)하므로 detect_final_coil=None
+    # → 인식 실패(reason=no_tight_coil) → breakout 아님. '마른 코일 부재'가 가드.
     """
     c1 = [100.0, 96.0, 91.0, 86.0, 82.0, 78.0, 75.5, 75.0]   # 수축1: 100→75 = -25% (천장=100)
     r1 = [78.0, 81.0, 84.0, 87.0, 89.0, 91.0, 92.0]            # 회복: →92
@@ -182,7 +185,7 @@ def test_evaluate_vcp_extended_not_breakout():
     lows  = [c * 0.99 for c in closes]
     # 마지막 바 거래량 6000(터짐) — volume 조건이 통과해도 첫돌파 가드가 막아야 함
     vols  = ([1200] * len(c1) + [800] * len(r1) + [600] * len(c2)
-             + [300] * (len(r2_ext) - 1) + [6000])
+             + [1500] * (len(r2_ext) - 1) + [6000])
     assert len(vols) == n
     dates = [f"2026-01-{i+1:02d}" for i in range(n)]
     series = {"dates": dates, "closes": closes, "opens": opens,
@@ -210,6 +213,8 @@ def test_evaluate_vcp_above_ceiling_extended_not_breakout():
     구 코드(ceiling_seg=closes[bs:n-1]): max(0..107.5) = 107.5 → pivot 107.5.
       closes[-2] = 107.5 ≤ 107.5 항상 참(no-op) → breakout 오탐.
     이 테스트가 그 회귀를 고정한다(above-ceiling guard).
+    # (코일 로직) 천장 위 연장은 거래량 동반(안 마름) → detect_final_coil=None
+    # → 인식 실패 → breakout/entry_ready 아님.
     """
     c1 = [100.0, 96.0, 91.0, 86.0, 82.0, 78.0, 75.5, 75.0]   # 수축1: 100→75 = -25%
     r1 = [78.0, 81.0, 84.0, 87.0, 89.0, 91.0, 92.0]            # 회복: →92
@@ -226,7 +231,7 @@ def test_evaluate_vcp_above_ceiling_extended_not_breakout():
     highs = [c * 1.01 for c in closes]
     lows  = [c * 0.99 for c in closes]
     vols  = ([1200] * len(c1) + [800] * len(r1) + [600] * len(c2)
-             + [300] * len(r2) + [500] * len(extended) + [6000] * len(bo_ext))
+             + [300] * len(r2) + [1500] * len(extended) + [6000] * len(bo_ext))
     assert len(vols) == n
     dates = [f"2026-01-{i+1:02d}" for i in range(n)]
     series = {"dates": dates, "closes": closes, "opens": opens,

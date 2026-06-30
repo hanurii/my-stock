@@ -238,27 +238,27 @@ def evaluate_vcp(series: dict, params: dict | None = None) -> dict:
 
     bs = chain["base_start"]; depths = chain["depths"]; T = chain["count"]
 
-    # 피벗 = 횡보 천장(저항선): 수축(횡보) 구간 종가 최고치 — 수축 끝(last_lo_idx)까지만.
-    #  - 수축 이후 회복·돌파 구간을 제외하므로 피벗이 고정된 저항선이 된다.
-    #    이미 천장 위에서 수일간 거래한 연장 종목은 closes[-2] > pivot 이므로
-    #    첫돌파 가드(closes[i-1]<=pivot)가 False → breakout 오탐 차단.
-    #  - 과거 버그(closes[bs:n-1]): 회복·연장 바가 포함돼 피벗이 float해 rises하면
-    #    closes[-2]<=pivot 이 항상 참이 되어 첫돌파 가드가 무효화됐다.
-    #  - 종가 기준(고가 아님): 장중 스파이크 고가(예: 한솔케미칼 ~309500)를 오인하지 않도록.
-    #  - '계단식 VCP'(우측 회복이 마지막 수축 고점을 넘은 경우): 수축 구간 내 최고가가
-    #    진짜 저항 천장이므로 최초 돌파를 정확히 포착한다.
+    # 피벗 = 돌파 직전 '최종 타이트 코일'의 고점(종가 기준). 미너비니 표준:
+    # 피벗 = 마지막(가장 타이트한) 수축의 고점. 적응형 ZigZag는 이 마지막 ~2~5%
+    # 코일을 별도 스윙으로 못 잡으므로 detect_final_coil 로 직접 탐지한다.
+    #  - 코일은 현재(돌파) 바 직전 구간 → 피벗이 돌파 전 고정 저항선(첫돌파 가드 유효).
+    #  - 계단식 VCP(회복이 이전 수축 고점을 넘은 경우)도 마지막 코일 천장을 피벗으로 잡아
+    #    최초 돌파를 정확히 포착.
+    #  - 코일 없으면(연장·정상거래량 등) 피벗 None → VCP 아님(인식 게이트가 배제).
     n = len(closes)
-    last_lo_idx = chain["last_lo_idx"]
-    ceiling_seg = closes[bs:last_lo_idx + 1]
-    pivot = round(max(ceiling_seg), 2) if ceiling_seg else chain["pivot"]
+    ma50 = volume_ma(vols, 50)
+    coil = detect_final_coil(highs, lows, closes, vols, ma50, n - 1, p)
+    pivot = coil["pivot"] if coil else None
 
     base["num_contractions"] = T
     base["contractions"] = depths
     base["base_length_days"] = len(closes) - bs
-    bl = lows[bs:]; bv = vols[bs:]
-    ma50 = volume_ma(vols, 50)
-    base_ma50 = ma50[bs:]
+    bl = lows[bs:]
     last_close = closes[-1]
+    # 코일 진단 필드(가산 — 기존 13키 불변)
+    base["coil_len"] = coil["coil_len"] if coil else None
+    base["coil_dry_mean"] = coil["coil_dry_mean"] if coil else None
+    base["coil_range_pct"] = coil["coil_range_pct"] if coil else None
 
     base["pivot_price"] = pivot
     if pivot:
@@ -273,18 +273,17 @@ def evaluate_vcp(series: dict, params: dict | None = None) -> dict:
     # cond_mono는 단계마다 tol(1.15) 만큼 깊어지는 것을 허용하므로 [11.8,13.4,13.2,14.2]처럼
     # 평탄/확장하는 가짜 수축(예: 기가비스)을 통과시킨다 → 순수축 조건으로 정밀도를 높인다.
     cond_converge = depths[-1] < depths[0] if T >= 2 else False
-    third = max(1, len(bv) // 3)
-    right_ratios = [bv[i] / base_ma50[i] for i in range(len(bv))[-third:] if i < len(base_ma50) and base_ma50[i]]
-    dry_min = min(right_ratios) if right_ratios else 9.9
-    cond_dry = dry_min <= p["dry_max"]
-    base["vcp_detected"] = bool(cond_count and cond_mono and cond_converge and cond_dry)
+    # 우측 단일바 dry 게이트 → 최종 타이트 코일 존재(좁은 변동폭 AND 코일 전반 마름)로 대체.
+    # 코일이 없으면(연장·정상거래량) VCP 아님 — 연장 종목 자동 배제 + 피벗 부동 문제 해소.
+    cond_coil = coil is not None
+    base["vcp_detected"] = bool(cond_count and cond_mono and cond_converge and cond_coil)
     if base["vcp_detected"]:
         base["base_depth_pct"] = round(max(depths), 2)
     else:
         base["reason"] = ("contraction_count_not_2_6" if not cond_count
                           else "not_monotone_contraction" if not cond_mono
                           else "contraction_not_converging" if not cond_converge
-                          else "volume_not_drying")
+                          else "no_tight_coil")
 
     base_low = min(bl) if bl else last_close
     mono_violated = T >= 2 and depths[-1] > depths[-2] * p["contraction_tol"]
