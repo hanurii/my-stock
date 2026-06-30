@@ -132,9 +132,15 @@ export default async function SepaPage() {
           상태·지표
         </h3>
         <p className="text-on-surface-variant">
-          <strong style={{ color: "#ffb4ab" }}>🔴 돌파</strong>: 패턴 확정 + 당일 피벗 첫돌파 ·{" "}
-          <strong style={{ color: "#34d399" }}>🟢 진입임박</strong>: 패턴 확정 + 피벗 근접·거래량 마름 ·{" "}
-          <strong style={{ color: "#e9c176" }}>🟡 예의주시</strong>: 베이스 형성 중 + 피벗 12% 이내(곧 만족 가능).
+          <strong style={{ color: "#ffb4ab" }}>🔴 돌파</strong>: 패턴 확정 + 당일 피벗 첫돌파(거래량 터짐) ·{" "}
+          <strong style={{ color: "#34d399" }}>🟢 진입임박</strong>: 패턴 확정 + 피벗 코앞(약 5% 이내)·거래량 마름 ·{" "}
+          <strong style={{ color: "#e9c176" }}>🟡 예의주시</strong>: 형성 중 + 피벗 12% 이내(아직 매수엔 이름).
+        </p>
+        <p className="text-on-surface-variant/80 bg-surface-container/30 rounded-lg px-3 py-2 leading-relaxed">
+          <strong className="text-on-surface">진입임박 vs 예의주시</strong> — 둘 다 &ldquo;피벗 아래&rdquo;지만 <strong>무르익은 정도</strong>가 다릅니다.{" "}
+          <strong style={{ color: "#34d399" }}>🟢 진입임박</strong>은 패턴이 <em>확정</em>됐고 피벗 바로 아래(약 5% 이내)에서 거래량까지 말라 <strong className="text-on-surface">돌파 초읽기</strong> 상태 — 지금이 매수 준비 구간이고, 피벗을 뚫으면 바로 진입합니다.{" "}
+          <strong style={{ color: "#e9c176" }}>🟡 예의주시</strong>는 아직 이른 단계로, ① 패턴이 떴어도 베이스가 더 만들어지는 중(형성)이거나 ② 아직 미확정이지만 피벗 12% 이내로 다가오는 중 — <strong className="text-on-surface">관심종목에 담아 지켜볼 후보</strong>(바로 매수 아님).{" "}
+          한 종목은 보통 <strong style={{ color: "#e9c176" }}>예의주시</strong> → (무르익으면) <strong style={{ color: "#34d399" }}>진입임박</strong> → <strong style={{ color: "#ffb4ab" }}>돌파</strong> 순으로 승격됩니다.
         </p>
         <p className="text-on-surface-variant">
           <strong className="text-on-surface">피벗</strong>: 최소저항선(돌파 기준가). <strong className="text-on-surface">피벗대비</strong>: (현재가−피벗)/피벗 — 음수=피벗 아래(미달), 양수=피벗 위(돌파). 0에 가까울수록 진입 적기.
