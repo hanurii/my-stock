@@ -132,12 +132,24 @@ def evaluate_power_play(series: dict, params: dict | None = None) -> dict:
         base["reason"] = "base_too_short"
         return base
 
-    fp = find_flagpole(highs, lows, p["max_flagpole_days"], p["min_flag_pullback"], p["flag_window"])
-    fhi = fp["flag_high_idx"]
-    psi = fp["pole_start_idx"]
-    flag_high = fp["flag_high"]
-    base["flagpole_gain_pct"] = round(fp["flagpole_gain_pct"], 2)
-    base["flagpole_days"] = fp["flagpole_days"]
+    fhi = find_pivot_contraction(highs, lows, p["min_flag_days"], p["max_flag_days"],
+                                 p["tight_pct"], p["contraction_grace"], p["min_flag_pullback"])
+    if fhi is None:
+        base["reason"] = "no_contraction"
+        return base
+    flag_high = highs[fhi]
+    # 깃대 저점 = 피벗 직전 max_flagpole_days 구간 최저 저점
+    ws = max(0, fhi - p["max_flagpole_days"])
+    if fhi <= ws:
+        psi = fhi
+        pole_start_low = flag_high
+        flagpole_gain = 0.0
+    else:
+        psi = min(range(ws, fhi), key=lambda i: lows[i])
+        pole_start_low = lows[psi]
+        flagpole_gain = (flag_high - pole_start_low) / pole_start_low * 100.0 if pole_start_low > 0 else 0.0
+    base["flagpole_gain_pct"] = round(flagpole_gain, 2)
+    base["flagpole_days"] = fhi - psi
     base["pole_start_date"] = dates[psi] if psi < len(dates) else None
     base["flag_high_date"] = dates[fhi] if fhi < len(dates) else None
     base["pivot_price"] = round(flag_high, 2)
@@ -178,7 +190,7 @@ def evaluate_power_play(series: dict, params: dict | None = None) -> dict:
         base["pre_pole_gain_pct"] = round(pre_gain, 2)
 
     # --- 하드 게이트 3개 판정 (조용·깃대거래량·dryup 는 소프트, 게이트 아님) ---
-    cond_gain = fp["flagpole_gain_pct"] >= p["min_flagpole_gain"]
+    cond_gain = flagpole_gain >= p["min_flagpole_gain"]
     cond_flag_min = flag_len >= p["min_flag_days"]
     cond_flag_max = flag_len <= p["max_flag_days"]
     cond_flag_depth = flag_depth <= p["max_flag_depth"]

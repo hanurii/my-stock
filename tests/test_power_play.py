@@ -155,25 +155,33 @@ def test_evaluate_rejects_weak_flagpole_gain():
 
 
 def test_evaluate_rejects_deep_flag():
-    s = _clean_htf()
-    # 깃발 저점을 깊게: 110고점 대비 -30% (77)까지 빠짐
+    # 하드 게이트: flag_depth > max_flag_depth(20%)
+    # 설계: 조용+깃대(+120%) → 타이트 수축(10봉, 피벗 확보) → 급락 3봉(피벗 고점 대비 ~24% 하락)
+    # find_pivot_contraction은 end=n-4(첫 급락봉 포함 직전)에서 타이트 수축을 찾아 fhi 반환.
+    # flag(fhi 이후)에 급락봉이 포함되어 flag_depth=~24% > 20% → flag_too_deep.
     quiet = [50 + (i % 2) for i in range(20)]
     pole = [52, 58, 66, 75, 85, 95, 104, 110]
-    flag = [105, 98, 90, 82, 77, 80, 85, 88, 90, 92]   # 깊은 조정 ~30%
-    closes = quiet + pole + flag
-    s = _series(closes, vols=[800]*20 + [3000]*8 + [500]*10)
+    tight = [108, 109, 108, 110, 109, 108, 109, 110, 108, 109]  # 10봉 타이트 수축(범위~3%)
+    deep = [105, 90, 85]                                          # 급락 3봉(피벗111.1 대비 ~24%)
+    closes = quiet + pole + tight + deep
+    s = _series(closes, vols=[800]*20 + [3000]*8 + [500]*10 + [500]*3)
     r = evaluate_power_play(s)
     assert r["pattern_detected"] is False
     assert r["reason"] == "flag_too_deep"
 
 
 def test_evaluate_rejects_too_long_flag():
-    s = _clean_htf()
+    # 하드 게이트: flag_len > max_flag_days(30)
+    # 설계: 조용+깃대(+120%) → 타이트 피크(110, 1봉) + 타이트 꼬리([107]*29) + 와이드 3봉(grace 차단)
+    # grace봉(150/148/152)이 끝에 있어 end=n-1,n-2,n-3에서 수축 불가 → end=n-4에서만 수축 성공.
+    # end=n-4에서 L=30 최대창으로 피크(fhi=28)를 찾고, flag_len=60-28=32 > 30 → flag_too_long.
+    # 꼬리봉(107) 저점(105.93)이 피크 highs(111.1)*0.97=107.77 미만이라 피크만 pullback 후보.
     quiet = [50 + (i % 2) for i in range(20)]
     pole = [52, 58, 66, 75, 85, 95, 104, 110]
-    flag = [106]*35   # 6주(30일) 초과 횡보
-    closes = quiet + pole + flag
-    s = _series(closes, vols=[800]*20 + [3000]*8 + [500]*35)
+    tight = [110] + [107] * 29                    # 타이트 피크(1봉) + 타이트 꼬리(29봉)
+    wide_end = [150, 148, 152]                     # grace 3봉: 수축창이 여기서 끝나면 비타이트
+    closes = quiet + pole + tight + wide_end
+    s = _series(closes, vols=[800]*20 + [3000]*8 + [500]*30 + [500]*3)
     r = evaluate_power_play(s)
     assert r["pattern_detected"] is False
     assert r["reason"] == "flag_too_long"
@@ -186,12 +194,16 @@ def test_evaluate_no_data():
 
 
 def test_evaluate_rejects_short_flag():
-    # 하드 3개 게이트 중 gain/깃발깊이는 통과, flag가 3일로 min_flag_days(8) 미달
-    quiet = [50 + (i % 2) for i in range(20)]  # 50~51 횡보(조용)
-    pole = [52, 58, 66, 75, 85, 95, 104, 110]  # +120% 깃대
-    flag = [108, 106, 105]                       # 3일 → flag_too_short
+    # 하드 게이트: flag_len < min_flag_days(8)
+    # 설계: 조용(20봉)+깃대(8봉, +120%) → 타이트 7봉 깃발(108/109 교대)
+    # end=n-1에서 창 [27:35]: 깃대끝(110)+ 깃발7봉 → 범위~3.9% 타이트.
+    # pullback 조건: 깃대끝봉(fhi=27, highs=111.1)만 lows[28:]=106.92 ≤ 107.77 충족.
+    # flag_len = 34-27 = 7 < min_flag_days=8 → flag_too_short.
+    quiet = [50 + (i % 2) for i in range(20)]
+    pole = [52, 58, 66, 75, 85, 95, 104, 110]
+    flag = [108, 109, 108, 109, 108, 109, 108]   # 7봉 타이트 깃발(8일 미달)
     closes = quiet + pole + flag
-    s = _series(closes, vols=[800]*20 + [3000]*8 + [500]*3)
+    s = _series(closes, vols=[800]*20 + [3000]*8 + [500]*7)
     r = evaluate_power_play(s)
     assert r["pattern_detected"] is False
     assert r["reason"] == "flag_too_short"
@@ -306,3 +318,27 @@ def test_entry_ready_false_for_non_pattern_breakout():
     assert r["reason"] == "pole_gain_too_small"
     assert r["status"] in ("breakout", "actionable")
     assert r["entry_ready"] is False
+
+
+def test_evaluate_no_contraction_reason():
+    # 계속 큰 폭 출렁임 → 타이트 수축 없음 → no_contraction
+    closes = [100, 130, 105, 135, 108, 140, 110, 145, 112, 150, 115, 155,
+              118, 160, 120, 165, 122, 170, 124, 175, 126]
+    s = _series(closes)
+    r = evaluate_power_play(s)
+    assert r["pattern_detected"] is False
+    assert r["reason"] == "no_contraction"
+
+
+def test_evaluate_pivot_is_final_tight_contraction():
+    # 넓은 베이스(고140) 뒤에 타이트 수축(고115)이 중첩 → 피벗=115대(넓은 140 아님)
+    # pre(5봉) 추가: 총 n=20 ≥ min_total_days=20 충족(기존 15봉은 base_too_short였음).
+    pre = [50] * 5                                                  # min_total_days 충족용
+    wide = [120, 140, 110, 135, 112]
+    tight = [114, 113, 115, 112, 114, 113, 115, 112, 114, 110]    # ~타이트 수축(범위~6.7%)
+    closes = pre + wide + tight                                     # n=20
+    s = _series(closes)
+    r = evaluate_power_play(s)
+    # 피벗이 넓은 베이스 천장(>130, highs=141.4)이 아니라 타이트 수축대(~116=115*1.01)여야 한다
+    assert r["pivot_price"] is not None
+    assert r["pivot_price"] < 130
