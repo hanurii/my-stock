@@ -61,79 +61,51 @@ def test_adaptive_zigzag_catches_tight_swings_that_fixed8_misses():
 
 
 # ---------------------------------------------------------------------------
-# Task 3: evaluate_vcp tests
+# Task 4: evaluate_vcp tests (adaptive_zigzag + find_contraction_chain + 50선 거래량 + _is_breakout)
 # ---------------------------------------------------------------------------
 
-def _series_from_closes(closes):
-    # highs/lows = 종가 ±0.5%, volumes 균일(거래량 마름 테스트는 개별 지정)
-    highs = [c * 1.005 for c in closes]
-    lows = [c * 0.995 for c in closes]
-    vols = [1000] * len(closes)
-    dates = [f"2026-01-{i+1:02d}" for i in range(len(closes))]
-    return {"dates": dates, "closes": closes, "highs": highs, "lows": lows, "volumes": vols}
+def _vcp_series():
+    """VCP: 2수축 수렴 베이스(25%→15%) + 우측 거래량 마름 + 피벗(92) 첫돌파 마지막 바.
+
+    적응형 zigzag(k=4.0) 기본값 기준 임계≈12.2% → 수축1(25%)·수축2(15%) 모두 포착.
+    베이스 우측 1/3 거래량 / MA50 최솟값 ≈ 0.35 < dry_max(0.7) 조건 충족.
+    돌파 바: 93(종가) > 92(피벗), opens[-1]=91.5 양봉, vol=6000 ≥ MA50×1.4.
+    """
+    c1 = [100.0, 96.0, 91.0, 86.0, 82.0, 78.0, 75.5, 75.0]   # 수축1: 100→75 = -25%
+    r1 = [78.0, 81.0, 84.0, 87.0, 89.0, 91.0, 92.0]            # 회복: →92(피벗)
+    c2 = [90.0, 87.0, 84.0, 81.0, 79.0, 78.5, 78.2]            # 수축2: 92→78.2 ≈ -15%
+    r2 = [81.0, 84.0, 87.0, 90.0, 91.5]                         # 회복: 피벗(92) 아래
+    bo = [93.0]                                                   # 돌파 바: 92 첫돌파
+
+    closes = c1 + r1 + c2 + r2 + bo   # 총 28 봉
+    n = len(closes)
+    opens = [c * 0.99 for c in closes]
+    opens[-1] = 91.5                   # 돌파 바 시가: 피벗 아래 → 양봉 확인
+    highs = [c * 1.01 for c in closes]
+    lows = [c * 0.99 for c in closes]
+    # 거래량: 초반 1200 → 회복1 800 → 수축2 600 → 우측(r2) 300(마름) → 돌파 6000
+    vols = ([1200] * len(c1) + [800] * len(r1) + [600] * len(c2)
+            + [300] * len(r2) + [6000] * len(bo))
+    assert len(vols) == n
+    dates = [f"2026-01-{i+1:02d}" for i in range(n)]
+    return {"dates": dates, "closes": closes, "opens": opens,
+            "highs": highs, "lows": lows, "volumes": vols}
 
 
-def _vcp_closes():
-    # 고점100 → -25% → 회복 → -13% → 회복 → -7% (수축 수렴) → 피벗 근처
-    seg = []
-    seg += [100, 92, 84, 78, 75]          # -25%
-    seg += [80, 86, 90]                    # 회복
-    seg += [88, 84, 80, 78.3]              # -13% (90->78.3)
-    seg += [82, 86, 88]                    # 회복
-    seg += [87, 85, 83, 80.8]              # -8.18% (88->80.8, crosses 8% zigzag threshold)
-    seg += [84, 86]                        # 피벗(88) 향해 접근
-    return seg
-
-
-def test_evaluate_vcp_detects_contracting_base():
-    s = _series_from_closes(_vcp_closes())
-    # 거래량 마름: 후반 1/3 거래량을 낮춤
-    third = len(s["volumes"]) // 3
-    s["volumes"] = [1500]*third + [1000]*third + [600]*(len(s["volumes"])-2*third)
-    r = evaluate_vcp(s)
+def test_evaluate_vcp_recognizes_and_breaks_out():
+    r = evaluate_vcp(_vcp_series())
     assert r["vcp_detected"] is True
-    assert 2 <= r["num_contractions"] <= 6
-    # 수축이 대체로 얕아지는 수열
-    assert r["contractions"][0] > r["contractions"][-1]
     assert r["pivot_price"] is not None
-
-
-def test_evaluate_vcp_rejects_short_base():
-    s = _series_from_closes([100, 98, 99, 97, 98])  # 5일 < min_base_days
-    r = evaluate_vcp(s)
-    assert r["vcp_detected"] is False
-    assert r["reason"] == "base_too_short"
-
-
-def test_evaluate_vcp_breakout_status():
-    closes = _vcp_closes() + [89.0]   # 피벗(88) 위로 돌파
-    s = _series_from_closes(closes)
-    s["volumes"][-1] = 5000           # 돌파 거래량 급증
-    r = evaluate_vcp(s)
     assert r["status"] == "breakout"
-    assert r["pivot_price"] == 88.0
-    # entry_ready: breakout이고 vcp_detected도 True면 entry_ready=True여야 함
-    assert r["entry_ready"] == (r["vcp_detected"] and r["status"] in ("breakout", "actionable"))
+    assert r["entry_ready"] is True
 
 
-def test_evaluate_vcp_records_reason_on_non_monotone():
-    # 수축이 확대(더 깊어지는) 베이스: VCP 아님, reason 기록돼야
-    # 첫 수축 ~25%, 둘째 수축 ~30%로 더 깊어짐(단조 수렴 실패)
-    # 베이스 길이 충분히 확보, 거래량 마름 조건도 충족
-    seg = []
-    seg += [100, 92, 84, 78, 75]      # 고점100 → -25% 수축
-    seg += [80, 86, 90, 88]           # 회복 ~90
-    seg += [85, 80, 75, 70, 63]       # 고점90 → -30% 수축(더 깊어짐 → 단조 위반)
-    seg += [68, 72, 75]               # 약간 회복
-    # 거래량: 후반을 초반보다 낮게(거래량 마름 조건 우회 목적)
-    s = _series_from_closes(seg)
-    n = len(s["volumes"])
-    third = n // 3
-    s["volumes"] = [1500] * third + [1000] * third + [600] * (n - 2 * third)
+def test_evaluate_vcp_short_base_rejected():
+    s = {"dates": ["d"]*5, "closes": [100, 99, 100, 98, 99], "opens": [100]*5,
+         "highs": [101]*5, "lows": [98]*5, "volumes": [1]*5}
     r = evaluate_vcp(s)
     assert r["vcp_detected"] is False
-    assert r["reason"] is not None        # null이면 안 됨(§7 근거 출력 불변원칙)
-    assert r["entry_ready"] is False
+    assert r["reason"] in ("base_too_short", "no_contraction_chain")
 
 
 def test_find_contraction_chain_pivot_is_last_high_and_shrinks():

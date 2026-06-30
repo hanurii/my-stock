@@ -141,17 +141,19 @@ def _mean(xs: list[float]) -> float | None:
 def evaluate_vcp(series: dict, params: dict | None = None) -> dict:
     """VCP 종합 판정.
 
-    series 키: dates, closes, highs, lows, volumes.
+    series 키: dates, closes, highs, lows, opens, volumes.
     반환 dict 키: vcp_detected, num_contractions, contractions,
     base_length_days, base_depth_pct, pivot_price, pct_to_pivot,
-    volume_dryup_ratio, tightness_pct, status, swings, reason.
+    volume_dryup_ratio, tightness_pct, status, swings, reason, entry_ready.
     """
     p = {**DEFAULT_PARAMS, **(params or {})}
-    closes = (series.get("closes") or [])[-p["lookback_days"]:]
-    highs = (series.get("highs") or [])[-p["lookback_days"]:]
-    lows = (series.get("lows") or [])[-p["lookback_days"]:]
-    vols = (series.get("volumes") or [])[-p["lookback_days"]:]
-    dates = (series.get("dates") or [])[-p["lookback_days"]:]
+    lb = p["lookback_days"]
+    closes = (series.get("closes") or [])[-lb:]
+    highs = (series.get("highs") or [])[-lb:]
+    lows = (series.get("lows") or [])[-lb:]
+    vols = (series.get("volumes") or [])[-lb:]
+    opens = (series.get("opens") or [])[-lb:]
+    dates = (series.get("dates") or [])[-lb:]
 
     base: dict = {
         "vcp_detected": False, "num_contractions": 0, "contractions": [],
@@ -163,92 +165,54 @@ def evaluate_vcp(series: dict, params: dict | None = None) -> dict:
         base["reason"] = "no_data" if not closes else "base_too_short"
         return base
 
-    # 베이스 시작 = lookback 내 최고 종가 지점
-    start = max(range(len(closes)), key=lambda i: closes[i])
-    bc = closes[start:]
-    bh = highs[start:]
-    bl = lows[start:]
-    bv = vols[start:]
-    bd = dates[start:]
-    base["base_length_days"] = len(bc)
-    if len(bc) < p["min_base_days"]:
-        base["reason"] = "base_too_short"
+    swings = adaptive_zigzag(closes, p["zigzag_k"])
+    base["swings"] = [{"date": dates[i] if i < len(dates) else None, "price": round(pr, 2), "kind": k}
+                      for i, pr, k in swings]
+    chain = find_contraction_chain(swings, p["contraction_tol"])
+    if not chain:
+        base["reason"] = "no_contraction_chain"
         return base
 
-    swings = zigzag(bc, p["zigzag_pct"])
-    base["swings"] = [
-        {"date": bd[i] if i < len(bd) else None, "price": round(pr, 2), "kind": k}
-        for i, pr, k in swings
-    ]
-    contractions = find_contractions(swings)
-    base["contractions"] = [round(d, 2) for d in contractions]
-    base["num_contractions"] = len(contractions)
+    bs = chain["base_start"]; depths = chain["depths"]; T = chain["count"]; pivot = chain["pivot"]
+    base["num_contractions"] = T
+    base["contractions"] = depths
+    base["base_length_days"] = len(closes) - bs
+    bl = lows[bs:]; bv = vols[bs:]
+    ma50 = volume_ma(vols, 50)
+    base_ma50 = ma50[bs:]
+    last_close = closes[-1]
 
-    cap = p["base_vol_cap"]
-    base_vol_avg = _mean(bv[-cap:] if len(bv) > cap else bv) or 0.0
-    last_close = bc[-1]
-
-    # 피벗 = 마지막 확정된 "high" 스윙 가격
-    # swings[-1]은 진행 중인(미확정) 클로징 피벗이므로 제외; 없으면 클로징 피벗 사용
-    confirmed_highs = [pr for _, pr, k in swings[:-1] if k == "high"]
-    if not confirmed_highs:
-        confirmed_highs = [pr for _, pr, k in swings[-1:] if k == "high"]
-    pivot = confirmed_highs[-1] if confirmed_highs else None
-    base["pivot_price"] = round(pivot, 2) if pivot is not None else None
-    if pivot is not None:
+    base["pivot_price"] = pivot
+    if pivot:
         base["pct_to_pivot"] = round((pivot - last_close) / pivot * 100.0, 2)
-
-    base["volume_dryup_ratio"] = (
-        round((_mean(bv[-5:]) or 0.0) / base_vol_avg, 3) if base_vol_avg else None
-    )
-    tight = _mean(
-        [(bh[i] - bl[i]) / bc[i] * 100.0 for i in range(len(bc))[-10:] if bc[i]]
-    )
+    base["volume_dryup_ratio"] = (round((_mean(vols[-5:]) or 0.0) / ma50[-1], 3) if ma50 and ma50[-1] else None)
+    tight = _mean([(highs[i] - lows[i]) / closes[i] * 100.0 for i in range(len(closes))[-10:] if closes[i]])
     base["tightness_pct"] = round(tight, 2) if tight is not None else None
 
-    # VCP 4조건
-    T = len(contractions)
     cond_count = 2 <= T <= 6
-    cond_mono = (
-        all(contractions[i] <= contractions[i - 1] * p["contraction_tol"]
-            for i in range(1, T))
-        if T >= 2 else False
-    )
+    cond_mono = all(depths[i] <= depths[i - 1] * p["contraction_tol"] for i in range(1, T)) if T >= 2 else False
     third = max(1, len(bv) // 3)
-    early_vol = _mean(bv[:third]) or 0.0
-    late_vol = _mean(bv[-third:]) or 0.0
-    cond_volcontract = late_vol < early_vol
-    cond_final_tight = (contractions[-1] <= p["max_final_depth"]) if T >= 1 else False
-    base["vcp_detected"] = bool(cond_count and cond_mono and cond_volcontract and cond_final_tight)
+    right_ratios = [bv[i] / base_ma50[i] for i in range(len(bv))[-third:] if i < len(base_ma50) and base_ma50[i]]
+    dry_min = min(right_ratios) if right_ratios else 9.9
+    cond_dry = dry_min <= p["dry_max"]
+    base["vcp_detected"] = bool(cond_count and cond_mono and cond_dry)
     if base["vcp_detected"]:
-        base["base_depth_pct"] = round(max(contractions), 2)
+        base["base_depth_pct"] = round(max(depths), 2)
     else:
-        if not cond_count:
-            base["reason"] = "contraction_count_not_2_6"
-        elif not cond_mono:
-            base["reason"] = "not_monotone_contraction"
-        elif not cond_volcontract:
-            base["reason"] = "volume_not_drying"
-        else:  # not cond_final_tight
-            base["reason"] = "final_contraction_too_deep"
+        base["reason"] = ("contraction_count_not_2_6" if not cond_count
+                          else "not_monotone_contraction" if not cond_mono
+                          else "volume_not_drying")
 
-    # 상태 판정
-    last_vol = bv[-1] if bv else 0.0
     base_low = min(bl) if bl else last_close
-    mono_violated = T >= 2 and contractions[-1] > contractions[-2] * p["contraction_tol"]
-    if pivot is not None and last_close > pivot and base_vol_avg and last_vol >= base_vol_avg * p["breakout_vol_mult"]:
+    mono_violated = T >= 2 and depths[-1] > depths[-2] * p["contraction_tol"]
+    if _is_breakout(closes, opens, vols, ma50, pivot, p):
         base["status"] = "breakout"
     elif mono_violated or last_close < base_low:
         base["status"] = "failed"
-    elif (
-        base["pct_to_pivot"] is not None
-        and 0 <= base["pct_to_pivot"] <= p["near_pivot_pct"]
-        and (base["volume_dryup_ratio"] if base["volume_dryup_ratio"] is not None else 9.9) <= 1.0
-    ):
+    elif (base["pct_to_pivot"] is not None and 0 <= base["pct_to_pivot"] <= p["near_pivot_pct"]
+          and (base["volume_dryup_ratio"] if base["volume_dryup_ratio"] is not None else 9.9) <= 1.0):
         base["status"] = "actionable"
     else:
         base["status"] = "forming"
-    base["entry_ready"] = bool(
-        base["vcp_detected"] and base["status"] in ("breakout", "actionable")
-    )
+    base["entry_ready"] = bool(base["vcp_detected"] and base["status"] in ("breakout", "actionable"))
     return base
