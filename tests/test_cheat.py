@@ -12,8 +12,9 @@ def test_default_params_has_required_keys():
               "max_shelf_depth", "max_shelf_position", "breakout_vol_mult", "near_pivot_pct"):
         assert k in DEFAULT_PARAMS
     assert DEFAULT_PARAMS["min_cup_depth"] == 12.0
-    assert DEFAULT_PARAMS["max_shelf_position"] == 66.0
-    assert DEFAULT_PARAMS["min_shelf_days"] == 5
+    assert DEFAULT_PARAMS["max_shelf_position"] == 90.0
+    assert DEFAULT_PARAMS["min_shelf_days"] == 2
+    assert DEFAULT_PARAMS["min_cup_days"] == 25
 
 
 # ── find_cheat_shelf: 최근 컵 앵커링 ──────────────────────────────
@@ -155,17 +156,19 @@ def test_evaluate_rejects_deep_cup():
 
 
 def test_evaluate_rejects_short_cup_base():
-    # 옛 peak가 최근(베이스 기간 < 35) → cup_too_short. 앞을 낮게 패딩해 전체>=40,
-    # peak가 뒤쪽 idx에 오게.
-    pre = [60 + i * 0.05 for i in range(16)]              # 60~60.75 (peak 100보다 낮음)
-    rim = [98, 99, 100, 99, 98]                           # peak at idx 18
+    # 앞을 길게(낮게) 패딩해 n>=40 이면서, 옛 peak(global max)를 뒤쪽에 둬
+    # cup_base_days = (n-1) - left_rim_idx < 25 → cup_too_short.
+    pre = [60 + i * 0.02 for i in range(22)]      # 60~60.42, 22봉(peak보다 낮음)
+    rim = [98, 99, 100, 99, 98]                   # peak(global max) at idx 24
     decline = [96, 90, 84, 80]
     bottom = [76, 77]
     recovery = [80, 84, 88, 90]
     shelf = [89, 88, 89, 88, 89, 88]
-    closes = pre + rim + decline + bottom + recovery + shelf   # 16+5+4+2+4+6 = 37 ... 패딩 조정
+    closes = pre + rim + decline + bottom + recovery + shelf  # 22+5+4+2+4+6 = 43
     r = evaluate_cheat(_series(closes, vols=[1000]*len(closes)))
-    assert r["reason"] in ("cup_too_short", "base_too_short")
+    # left_rim_idx=24, n=43 → cup_base_days=18 < 25
+    assert r["pattern_detected"] is False
+    assert r["reason"] == "cup_too_short"
 
 
 def test_evaluate_rejects_shelf_too_high_in_cup():
@@ -176,7 +179,8 @@ def test_evaluate_rejects_shelf_too_high_in_cup():
     recovery = [76, 82, 87, 91, 93, 94, 95, 95]           # 70→95 깊은 회복
     shelf = [94, 93, 92, 93, 94, 93, 92, 93, 94, 93]
     closes = rim + decline + bottom + recovery + shelf
-    r = evaluate_cheat(_series(closes, vols=[1000]*25 + [2000]*12 + [500]*10))
+    r = evaluate_cheat(_series(closes, vols=[1000]*25 + [2000]*12 + [500]*10),
+                       {"max_shelf_position": 66})
     assert r["pattern_detected"] is False
     assert r["reason"] == "shelf_too_high_in_cup"
 

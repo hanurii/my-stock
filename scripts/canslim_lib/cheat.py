@@ -11,12 +11,12 @@ DEFAULT_PARAMS: dict = {
     "min_total_days": 40,
     "min_cup_depth": 12.0,
     "max_cup_depth": 50.0,
-    "min_cup_days": 35,
+    "min_cup_days": 25,        # was 35  (치트는 컵 완성 전 일찍 발동)
     "min_shelf_pullback": 3.0,
-    "min_shelf_days": 5,
+    "min_shelf_days": 2,       # was 5   (치트 멈춤은 짧다: NU 2일)
     "max_shelf_days": 25,
     "max_shelf_depth": 12.0,
-    "max_shelf_position": 66.0,
+    "max_shelf_position": 90.0,  # was 66.0 (완성 치트 포함)
     "breakout_vol_mult": 1.4,
     "near_pivot_pct": 5.0,
 }
@@ -30,7 +30,7 @@ def _sentinel() -> dict:
 
 def find_cheat_shelf(highs: list[float], lows: list[float],
                      min_shelf_pullback: float | None = None,
-                     min_shelf_days: int = 5) -> dict:
+                     min_shelf_days: int = 2) -> dict:
     """최근 컵 앵커링: 왼쪽 테두리(left_rim)=lookback 최고가(옛 peak) → 컵 바닥
     (cup_low)=그 이후 최저 저점 → 선반 고점(shelf_high)=컵 바닥 이후 '뒤에 눌림이
     확인된 최고 고가'(피벗). shelf_high ≤ left_rim_high 가 구조적으로 보장된다.
