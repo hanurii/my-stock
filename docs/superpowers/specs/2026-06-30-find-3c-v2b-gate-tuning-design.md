@@ -3,6 +3,9 @@
 작성일 2026-06-30 · 상태: 설계 승인됨, 구현 계획 대기
 선행: v1(`...-find-3c-design.md`), v2a 앵커링(`...-find-3c-v2-anchoring-design.md`).
 
+> **갱신(v2c):** 오라클 8종 확장으로 `min_cup_days` 25→17, 신규 `min_shelf_position`=25
+> (`shelf_too_low_in_cup`) 추가. 근거: `2026-06-30-find-3c-v2c-gate-refinement-design.md`.
+
 ## 0. 위치 (하이브리드 계획의 Phase 2)
 
 - Phase 1(v2a): 앵커링 수정 → 산출 정상화(완료).

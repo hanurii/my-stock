@@ -33,8 +33,8 @@ python scripts/screen_3c_history.py
 - `--confirm-lookback 5` : 돌파 직전 며칠 안에 3C 확인이 있어야 이벤트로 볼지.
 - `--recent-days 10` : 최근 돌파 분류 경계.
 - `--stop-pct 8` / `--target-pct 20` : good_breakout 경로 판정 손절·목표.
-- 3C 임계값(`--min-shelf-days`·`--max-shelf-position`·`--min-cup-days` 등)도 노출 —
-  find-3c 와 동일 검출기.
+- 3C 임계값(`--min-shelf-days`·`--max-shelf-position`·`--min-shelf-position`·
+  `--min-cup-days` 등)도 노출 — find-3c 와 동일 검출기(v2c).
 
 ## 결과 확인
 - `classification` : `re_basing`(돌파 후 2차 치트) · `recent_breakout`(최근 돌파) ·

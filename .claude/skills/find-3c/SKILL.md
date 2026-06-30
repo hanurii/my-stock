@@ -51,13 +51,18 @@ python scripts/screen_3c.py
   표시될 수 있으며, '살 자리(entry_ready)' 는 패턴까지 성립한 종목에만 부여된다
   (요약의 breakout·actionable 개수 ≠ entry_ready).
 
-## 현재 한계 / 적용 범위 (v2b)
+## 현재 한계 / 적용 범위 (v2c)
 - 앵커링(v2a)은 "왼쪽 테두리=옛 peak 먼저"라 `shelf_position_pct ≤ 100%` 보장,
   신고가 종목은 `no_overhead_cup` 으로 정직하게 걸러진다.
-- 게이트는 미너비니 책 3C 예시 **NU·GOOG·CRUS** 실데이터로 보정됨
-  (`min_shelf_days` 2·`max_shelf_position` 90·`min_cup_days` 25). 셋 다 컵·치트
-  피벗을 정확히 짚으며 NU·GOOG는 패턴 성립으로 검증(`tests/test_cheat_oracle.py`).
-  근거: `docs/superpowers/specs/2026-06-30-find-3c-v2b-gate-tuning-design.md`.
+- 게이트는 미너비니 책 3C 예시 **8종(NU·GOOG·JBLU·AAPL·CRUS·브이엠·두산)** 실데이터로
+  보정됨 — 핵심값 `min_shelf_days` 2·`max_shelf_position` 90·**`min_cup_days` 17**·
+  **`min_shelf_position` 25**. 8종 모두 컵·치트 피벗을 정확히 짚으며 NU·GOOG·JBLU·
+  AAPL·브이엠·두산은 패턴 성립으로 검증(`tests/test_cheat_oracle.py`). 근거:
+  `docs/superpowers/specs/2026-06-30-find-3c-v2c-gate-refinement-design.md`.
+- **`min_shelf_position`(25)** 게이트는 바닥 직후 V자 반등(선반 위치<25%)을
+  치트로 오인하는 걸 막는다(`shelf_too_low_in_cup`).
+- **의도적 미검출:** 진양폴리류(선반 깊이 ~20%로 느슨 + 위치 ~98%로 거의 핸들)는
+  "타이트한 치트 선반" 기준 밖이라 잡지 않는다(품질 우선).
 - **현재 한국 트렌드 통과 라이브 = `pattern_count` 0(또는 극소수).** 버그가 아니라
   **입력 집단 특성**이다: 트렌드 통과 종목은 *조정 없이 오른 신고가 부근 모멘텀
   리더*라, "옛 고점에서 조정 후 회복 중"인 3C와 구조적으로 반대다(대부분
