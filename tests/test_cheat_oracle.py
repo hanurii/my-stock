@@ -47,3 +47,36 @@ def test_oracle_crus_locates_cheat():
     assert 20 <= r["cup_depth_pct"] <= 27
     assert 7.2 <= r["pivot_price"] <= 7.6
     assert r["status"] in ("actionable", "forming", "breakout")
+
+
+# ── v2c 확장 오라클 ──────────────────────────────────────────────
+def test_oracle_jblu_pattern():
+    r = evaluate_cheat(load_asof("JBLU", "2014-11-03"))
+    assert r["pattern_detected"] is True
+    assert 11.0 <= r["pivot_price"] <= 12.5
+    assert 25 <= r["shelf_position_pct"] <= 90
+
+
+def test_oracle_aapl_pattern():
+    r = evaluate_cheat(load_asof("AAPL", "2004-08-12"))
+    assert r["pattern_detected"] is True
+    assert 80 <= r["shelf_position_pct"] <= 92
+
+
+def test_oracle_vm_pattern():   # 브이엠 089970
+    r = evaluate_cheat(load_asof("089970", "2021-03-19"))
+    assert r["pattern_detected"] is True
+    assert 20000 <= r["pivot_price"] <= 21500
+    assert 40 <= r["shelf_position_pct"] <= 55
+
+
+def test_oracle_doosan_pattern():   # 두산 000150
+    r = evaluate_cheat(load_asof("000150", "2021-07-02"))
+    assert r["pattern_detected"] is True
+    assert 90000 <= r["pivot_price"] <= 105000
+
+
+def test_oracle_jinyang_known_miss():   # 진양폴리 010640 — 의도적 미검출(느슨 선반)
+    r = evaluate_cheat(load_asof("010640", "2021-12-08"))
+    assert r["pattern_detected"] is False
+    assert r["reason"] == "shelf_too_loose"
