@@ -31,8 +31,9 @@ python scripts/screen_vcp.py
 - `--out PATH` : 출력 경로 변경.
 
 ## 결과 확인
-- **VCP 인식**: 적응형 ZigZag로 변동성 수축 연쇄를 탐지. 피벗(최소저항선) = 횡보 구간의 종가 천장.
+- **VCP 인식**: 적응형 ZigZag로 변동성 수축 연쇄를 탐지. 피벗(최소저항선) = 최종 타이트 코일(좁은 변동폭 AND 마른 거래량) 고점; 인식에 코일 존재 필수(코일 없으면 reason=no_tight_coil).
 - **돌파(status)**: 첫돌파(전일 종가≤피벗, 당일 종가>피벗) + 양봉(종가>시가) + 거래량터짐(거래량≥50일선×1.4) + 피벗근접 동시 충족.
+- **코일 진단 필드**: 출력 JSON에 `coil_len`(코일 길이/일), `coil_dry_mean`(코일 평균 거래량/MA50), `coil_range_pct`(코일 종가 변동폭%) 가산 필드 포함.
 - `status_distribution` : breakout(돌파 중) · actionable(피벗 근접+거래량 마름) ·
   forming(형성 중) · failed(수렴 실패).
 - `actionable`/`breakout` 종목이 다음 단계(리스크·진입) 후보.

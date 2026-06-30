@@ -161,16 +161,14 @@ def test_is_breakout_extended_false():
 # ---------------------------------------------------------------------------
 
 def test_evaluate_vcp_extended_not_breakout():
-    """베이스 천장(100) 미회복 연장 구간 → 첫돌파 가드 → status != breakout.
+    """베이스 천장 미회복 연장 구간 → 마른 코일 부재(coil=None) → status != breakout.
 
     PRODUCTION 경로(evaluate_vcp) 직접 구동 테스트.
-    피벗 = 횡보 천장 = max(closes[base_start:-1]) = 100 (수축1 고점 = 베이스 최고가, 안정 레벨).
-    회복이 수축2 고점(92)은 넘어 96까지 올라왔지만 베이스 천장(100)은 아직 못 넘은 상태.
-    closes[-2]=95 < 100(천장) 이고 closes[-1]=96 < 100 → 첫돌파 조건 False → breakout 아님.
-    러닝맥스(pivot=max(closes[last_lo:-1])=95) 코드에서는 closes[-2]=95<=95가 항상 참이라
-    breakout으로 잘못 분류됨 — 이 테스트가 그 회귀를 고정한다.
-    # (코일 로직) 연장 회복 구간은 거래량을 동반(안 마름)하므로 detect_final_coil=None
-    # → 인식 실패(reason=no_tight_coil) → breakout 아님. '마른 코일 부재'가 가드.
+    r2_ext 구간(81→96)은 거래량 1500(높음)을 동반한 회복이라 타이트+마른 코일 정의를
+    충족하지 않는다 → detect_final_coil=None → reason="no_tight_coil" → vcp_detected=False.
+    vcp_detected=False면 entry_ready=False이며, breakout 분류도 불가 → status != breakout 보장.
+    # (구 로직) 러닝맥스 pivot이나 천장 고정 pivot 방식은 첫돌파 조건으로 이를 처리했으나,
+    # 현재 로직에서는 '마른 코일 부재'가 인식 단계의 1차 가드이다.
     """
     c1 = [100.0, 96.0, 91.0, 86.0, 82.0, 78.0, 75.5, 75.0]   # 수축1: 100→75 = -25% (천장=100)
     r1 = [78.0, 81.0, 84.0, 87.0, 89.0, 91.0, 92.0]            # 회복: →92
@@ -183,7 +181,7 @@ def test_evaluate_vcp_extended_not_breakout():
     opens = [c * 0.99 for c in closes]
     highs = [c * 1.01 for c in closes]
     lows  = [c * 0.99 for c in closes]
-    # 마지막 바 거래량 6000(터짐) — volume 조건이 통과해도 첫돌파 가드가 막아야 함
+    # 마지막 바 거래량 6000(터짐) — volume 조건이 통과해도 coil=None(마른 코일 부재)이 막아야 함
     vols  = ([1200] * len(c1) + [800] * len(r1) + [600] * len(c2)
              + [1500] * (len(r2_ext) - 1) + [6000])
     assert len(vols) == n
@@ -202,19 +200,13 @@ def test_evaluate_vcp_extended_not_breakout():
 # ---------------------------------------------------------------------------
 
 def test_evaluate_vcp_above_ceiling_extended_not_breakout():
-    """수축 구간 천장(100) 위로 수일간 연장된 종목 → 첫돌파 가드 → status != breakout.
+    """수축 구간 천장(100) 위로 수일간 연장된 종목 → 마른 코일 부재(coil=None) → status != breakout.
 
-    수정된 피벗: ceiling_seg = closes[bs:last_lo_idx+1] = 수축 구간만.
-    수축 구간 최고가 = 100(c1 시작 종가) → 피벗 = 100(고정).
-
-    천장 위 연장 구간(extended: 101.5→107.5)이 포함된 후 마지막 바가 신고가(109, 대량거래)여도:
-      closes[-2] = 107.5 > pivot(100) → 첫돌파 조건(closes[i-1]<=pivot) False → NOT breakout.
-
-    구 코드(ceiling_seg=closes[bs:n-1]): max(0..107.5) = 107.5 → pivot 107.5.
-      closes[-2] = 107.5 ≤ 107.5 항상 참(no-op) → breakout 오탐.
-    이 테스트가 그 회귀를 고정한다(above-ceiling guard).
-    # (코일 로직) 천장 위 연장은 거래량 동반(안 마름) → detect_final_coil=None
-    # → 인식 실패 → breakout/entry_ready 아님.
+    extended 구간(101.5→107.5)은 거래량 1500(높음)을 동반한 상승이라 타이트+마른 코일
+    정의를 충족하지 않는다 → detect_final_coil=None → reason="no_tight_coil" → vcp_detected=False
+    → entry_ready=False, status != breakout.
+    # (구 로직) ceiling_seg 피벗(수축 구간 고정) 또는 above-ceiling 첫돌파 가드로 이 오탐을
+    # 막았으나, 현재 로직에서는 '마른 코일 부재'가 인식 단계의 1차 가드이다.
     """
     c1 = [100.0, 96.0, 91.0, 86.0, 82.0, 78.0, 75.5, 75.0]   # 수축1: 100→75 = -25%
     r1 = [78.0, 81.0, 84.0, 87.0, 89.0, 91.0, 92.0]            # 회복: →92
