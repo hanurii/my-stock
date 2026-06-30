@@ -19,7 +19,7 @@ def test_default_params_has_required_keys():
 
 def test_find_flagpole_flag_window_restricts_pivot_to_recent():
     # 옛 고점(인덱스1=200)과 최근 깃발 천장(인덱스 12=110)이 공존.
-    # flag_window=8 이면 최근 8봉만 보므로 피벗은 옛 200이 아니라 최근 110.
+    # flag_window=6 이면 최근 6봉(인덱스 8~13)만 보므로 피벗은 옛 200이 아니라 최근 110.
     highs = [50, 200, 60, 55, 58, 57, 59, 58, 100, 110, 104, 102, 101, 103]
     lows  = [48, 150, 58, 53, 56, 55, 57, 56,  98, 108, 100,  99,  98, 100]
     fp = find_flagpole(highs, lows, max_flagpole_days=70, min_flag_pullback=3.0, flag_window=6)
@@ -153,7 +153,7 @@ def test_evaluate_no_data():
 
 
 def test_evaluate_rejects_short_flag():
-    # gain/pole-volume/quiet 모두 통과, flag가 3일로 min_flag_days(8) 미달
+    # 하드 3개 게이트 중 gain/깃발깊이는 통과, flag가 3일로 min_flag_days(8) 미달
     quiet = [50 + (i % 2) for i in range(20)]  # 50~51 횡보(조용)
     pole = [52, 58, 66, 75, 85, 95, 104, 110]  # +120% 깃대
     flag = [108, 106, 105]                       # 3일 → flag_too_short

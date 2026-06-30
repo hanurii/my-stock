@@ -18,6 +18,7 @@ description: >
 > **핵심 게이트(3개):** 깃대 90%/14주 · 깃발 깊이(≤20%) · 깃발 길이(8~30거래일).
 > 조용한 출발(quiet)·깃대 거래량·거래량 마름(dryup)은 **보고용 지표(게이트 아님)** —
 > 콘솔·JSON에는 표시되지만 불합격 사유로 쓰이지 않는다.
+> 단, `volume_dryup_ratio`는 pattern_detected 불합격 사유엔 안 쓰이지만 actionable 상태 판정에는 쓰여 entry_ready에 간접 영향.
 > 미너비니 본인 예시 BBY는 13주/135% — 14주/90% 기준은 BBY보다 넉넉한 허용 범위.
 
 ## 사전 조건
@@ -51,7 +52,7 @@ python scripts/screen_power_play.py
   forming(형성 중) · failed(깃발 붕괴).
 - `entry_ready` 종목이 다음 단계(리스크·진입) 후보.
 - 불성립 종목도 `reason`과 함께 전부 포함(환각 방지·디버그).
-- `status` 는 패턴 성립 여부와 무관하게 가격 위치(돌파/근접/형성/붕괴)로 결정된다. 따라서 `pattern_detected=false` 인 종목도 breakout/actionable 로 표시될 수 있으며, '살 자리(entry_ready)' 는 패턴까지 성립한 종목에만 부여된다(요약의 breakout·actionable 개수 ≠ entry_ready).
+- `status` 는 패턴 성립 여부와 무관하게 가격 위치·거래량 조건(돌파/근접/형성/붕괴)으로 결정된다. 따라서 `pattern_detected=false` 인 종목도 breakout/actionable 로 표시될 수 있으며, '살 자리(entry_ready)' 는 패턴까지 성립한 종목에만 부여된다(요약의 breakout·actionable 개수 ≠ entry_ready).
 
 ## 안 하는 것
 - VCP 베이스 탐지(그건 find-vcp) · 전 종목 스캔(트렌드 통과 종목만) ·

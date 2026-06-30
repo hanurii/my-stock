@@ -4,7 +4,7 @@
 재생성: python scripts/_gen_pp_example_fixtures.py
 """
 from __future__ import annotations
-import json, sys
+import json
 from pathlib import Path
 import FinanceDataReader as fdr
 

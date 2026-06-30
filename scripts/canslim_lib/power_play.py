@@ -40,7 +40,7 @@ def find_flagpole(highs: list[float], lows: list[float], max_flagpole_days: int,
                 "pole_start_idx": 0, "pole_start_low": 0.0,
                 "flagpole_gain_pct": 0.0, "flagpole_days": 0}
     n = len(highs)
-    lo = max(0, n - flag_window) if flag_window is not None else 0
+    lo = max(0, n - flag_window) if (flag_window is not None and flag_window > 0) else 0
     if min_flag_pullback is None:
         flag_high_idx = max(range(lo, n), key=lambda i: highs[i])
     else:
