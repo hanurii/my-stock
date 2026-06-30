@@ -2,7 +2,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
-from canslim_lib.cheat import DEFAULT_PARAMS, find_cheat_shelf
+from canslim_lib.cheat import DEFAULT_PARAMS, find_cheat_shelf, evaluate_cheat
 
 
 def test_default_params_has_required_keys():
@@ -43,3 +43,102 @@ def test_find_cheat_shelf_empty_returns_sentinel():
     r = find_cheat_shelf([], [], min_shelf_pullback=3.0)
     assert r["cup_depth_pct"] == 0.0
     assert r["cup_base_days"] == 0
+
+
+def _series(closes, highs=None, lows=None, vols=None):
+    n = len(closes)
+    highs = highs if highs is not None else [c * 1.01 for c in closes]
+    lows = lows if lows is not None else [c * 0.99 for c in closes]
+    vols = vols if vols is not None else [1000] * n
+    dates = [f"d{i}" for i in range(n)]
+    return {"dates": dates, "closes": closes, "highs": highs, "lows": lows, "volumes": vols}
+
+
+def _clean_3c():
+    """왼쪽 하락(100→70, 30%) → 바닥 다지기 → 우측 반등(72→85) → 하단/중단(50%)
+    위치의 좁은 선반(85, 깊이 ~6%) → 거래량 마름. 총 44봉."""
+    decline = [100 - i * (30 / 21) for i in range(22)]       # 100→~70, 22봉
+    bottom = [70, 71, 70, 72]                                # 바닥 4봉
+    rally = [74, 76, 78, 80, 82, 84, 85, 85]                 # 72→85 반등 8봉
+    shelf = [84, 83, 82, 83, 84, 83, 82, 83, 84, 83]         # 85천장 대비 ~6% 좁은 선반 10봉
+    closes = decline + bottom + rally + shelf
+    n = len(closes)                                          # 44
+    highs = [c * 1.01 for c in closes]
+    lows = [c * 0.99 for c in closes]
+    # 선반 천장(idx≈28, 85)이 우측 최고가가 되도록, 그리고 그 뒤로 눌림이 있도록
+    # highs/lows 는 위 close 비율로 충분(선반에서 82까지 눌림 = 85*0.99=84.15 위지만
+    # close 82*0.99=81.18 로 85*0.99=84.15 대비 >3% 눌림 충족).
+    # 거래량: 좌측 하락 보통(1000) → 바닥+우측 반등 대량(2000) → 선반 마름(500)
+    vols = [1000] * 22 + [2000] * (4 + 8) + [500] * 10
+    return {"dates": [f"d{i}" for i in range(n)],
+            "closes": closes, "highs": highs, "lows": lows, "volumes": vols}
+
+
+def test_evaluate_detects_clean_3c():
+    r = evaluate_cheat(_clean_3c())
+    assert r["pattern_detected"] is True
+    assert r["reason"] is None
+    assert 12.0 <= r["cup_depth_pct"] <= 50.0
+    assert r["cup_base_days"] >= 35
+    assert r["shelf_depth_pct"] <= 12.0
+    assert r["shelf_position_pct"] <= 66.0
+    assert r["volume_dryup_ratio"] <= 1.0
+    assert r["pivot_price"] is not None
+    assert r["entry_ready"] == (r["pattern_detected"] and r["status"] in ("breakout", "actionable"))
+
+
+def test_evaluate_no_data():
+    r = evaluate_cheat({"closes": [], "highs": [], "lows": [], "volumes": [], "dates": []})
+    assert r["pattern_detected"] is False
+    assert r["reason"] == "no_data"
+
+
+def test_evaluate_rejects_short_total_series():
+    r = evaluate_cheat(_series([100, 99, 98, 99, 100]))
+    assert r["pattern_detected"] is False
+    assert r["reason"] == "base_too_short"
+
+
+def test_evaluate_rejects_shallow_cup():
+    # 컵 깊이 ~5% (<12%) → cup_too_shallow. 좌측 100→95 만 하락.
+    decline = [100 - i * (5 / 21) for i in range(22)]        # 100→~95
+    bottom = [95, 95.5, 95, 95.5]
+    rally = [96, 96.5, 97, 97.5, 98, 98, 97.5, 98]
+    shelf = [97.5, 97, 97.5, 97, 97.5, 97, 97.5, 97, 97.5, 97]
+    closes = decline + bottom + rally + shelf
+    r = evaluate_cheat(_series(closes, vols=[1000]*22 + [2000]*12 + [500]*10))
+    assert r["pattern_detected"] is False
+    assert r["reason"] == "cup_too_shallow"
+
+
+def test_evaluate_rejects_deep_cup():
+    # 컵 깊이 ~60% (>50%) → cup_too_deep. 좌측 100→40 하락.
+    decline = [100 - i * (60 / 21) for i in range(22)]       # 100→~40
+    bottom = [40, 41, 40, 42]
+    rally = [44, 46, 48, 50, 52, 54, 55, 55]
+    shelf = [54, 53, 52, 53, 54, 53, 52, 53, 54, 53]
+    closes = decline + bottom + rally + shelf
+    r = evaluate_cheat(_series(closes, vols=[1000]*22 + [2000]*12 + [500]*10))
+    assert r["pattern_detected"] is False
+    assert r["reason"] == "cup_too_deep"
+
+
+def test_evaluate_rejects_short_cup_base():
+    # 베이스 기간 < 35봉(V자). 전체 30봉, 좌측 짧은 하락.
+    decline = [100 - i * (30 / 9) for i in range(10)]        # 100→~70, 10봉
+    bottom = [70, 72]
+    rally = [74, 78, 82, 85]
+    shelf = [84, 83, 82, 83, 84, 83, 82, 84]                 # 8봉
+    closes = decline + bottom + rally + shelf                # 24봉 < min_total? -> 길이 보장 위해 패딩
+    # min_total_days(40) 미만이면 base_too_short 가 먼저 뜨므로, 좌측을 늘려
+    # 전체>=40 이되 베이스 기간(좌측테두리→현재)만 짧게 만들 수 없음(테두리=idx0).
+    # 대신 lookback 으로 앞을 잘라 베이스를 짧게: 좌측에 '더 높은 옛 고점'을 두지
+    # 않고 전체를 41봉으로 만들되 cup_base_days = n-1-left_rim_idx 를 <35 로:
+    # left_rim_idx 를 뒤로 밀려면 좌측 초반이 테두리보다 낮아야 한다.
+    # pre 값이 cup 바닥(70)보다 높고 왼쪽 테두리(100)보다 낮아야 cup 앵커가 올바른 위치를 잡는다.
+    # pre=60 계열이면 pre 자체가 최저점이 돼 cup 이 엉뚱하게 잡힘 → 75 계열 16봉으로 조정.
+    # n=40(>=min_total_days), left_rim_idx=16, cup_base_days=(39-16)=23 < 35 → cup_too_short.
+    pre = [75 + i * 0.1 for i in range(16)]                  # 75~76.5, 바닥(70)↑ · 테두리(100)↓
+    closes = pre + decline + bottom + rally + shelf          # 16+24=40
+    r = evaluate_cheat(_series(closes, vols=[1000]*(len(closes))))
+    assert r["reason"] == "cup_too_short"
