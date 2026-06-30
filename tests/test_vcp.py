@@ -65,12 +65,12 @@ def test_adaptive_zigzag_catches_tight_swings_that_fixed8_misses():
 # ---------------------------------------------------------------------------
 
 def _vcp_series():
-    """VCP: 2수축 수렴 베이스(25%→15%) + 우측 거래량 마름 + 피벗(91.5) 첫돌파 마지막 바.
+    """VCP: 2수축 수렴 베이스(25%→15%) + 우측 거래량 마름 + 피벗(92.0) 첫돌파 마지막 바.
 
     적응형 zigzag(k=4.0) 기본값 기준 임계≈12.2% → 수축1(25%)·수축2(15%) 모두 포착.
-    피벗=max(closes[last_lo_idx:-1])=91.5 (수축2 저점 78.2 이후 회복 최고 종가).
-    베이스 우측 1/3 거래량 / MA50 최솟값 ≈ 0.35 < dry_max(0.85) 조건 충족.
-    돌파 바: 93(종가) > 91.5(피벗), opens[-1]=91.5(시가≈피벗·갭업 없음) 양봉, vol=6000 ≥ MA50×1.4.
+    피벗=chain["pivot"]=92.0 (수축2 고점; close 기준 zigzag 고점 = 저항선).
+    베이스 우측 1/3 거래량 / MA50 최솟값 ≈ 0.35 < dry_max(0.82) 조건 충족.
+    돌파 바: 93(종가) > 92(피벗=수축2 고점), opens[-1]=91.5(시가<피벗·첫돌파) 양봉, vol=6000 ≥ MA50×1.4.
     """
     c1 = [100.0, 96.0, 91.0, 86.0, 82.0, 78.0, 75.5, 75.0]   # 수축1: 100→75 = -25%
     r1 = [78.0, 81.0, 84.0, 87.0, 89.0, 91.0, 92.0]            # 회복: →92(피벗)
@@ -150,3 +150,41 @@ def test_is_breakout_extended_false():
     p = {"breakout_vol_mult": 1.4, "near_pivot_pct": 5.0}
     # 전일108>100이라 첫돌파 아님(이미 위) → False
     assert _is_breakout(closes, opens, vols, ma50, pivot=100.0, p=p) is False
+
+
+# ---------------------------------------------------------------------------
+# Task-5 fix regression: 첫돌파 가드 복원 (안정 피벗 = 수축 고점)
+# ---------------------------------------------------------------------------
+
+def test_evaluate_vcp_extended_not_breakout():
+    """연장 종목: 수축 고점(92) 위에서 이미 여러 바 거래 → 첫돌파 가드 → status != breakout.
+
+    PRODUCTION 경로(evaluate_vcp) 직접 구동 테스트.
+    수축2 고점 = chain["pivot"] = 92. 회복이 92를 돌파해 95까지 이미 올라온 상태.
+    closes[-2]=95 > 92(안정 피벗) → 첫돌파 조건 False → breakout 아님.
+    broken 코드(pivot=max(closes[last_lo:-1])=95)에서는 closes[-2]=95<=95가 항상 참이라
+    breakout으로 잘못 분류됨 — 이 테스트가 그 회귀를 고정한다.
+    """
+    c1 = [100.0, 96.0, 91.0, 86.0, 82.0, 78.0, 75.5, 75.0]   # 수축1: 100→75 = -25%
+    r1 = [78.0, 81.0, 84.0, 87.0, 89.0, 91.0, 92.0]            # 회복: →92
+    c2 = [90.0, 87.0, 84.0, 81.0, 79.0, 78.5, 78.2]            # 수축2: 92→78.2 ≈ -15%
+    # 회복 후 수축 고점(92)을 이미 넘어 95·96까지 올라간 '연장' 구간.
+    # chain["pivot"]=92, closes[-2]=95 > 92 → 첫돌파 아님.
+    r2_ext = [81.0, 84.0, 87.0, 90.0, 92.5, 94.0, 95.0, 96.0]
+    closes = c1 + r1 + c2 + r2_ext
+    n = len(closes)
+    opens = [c * 0.99 for c in closes]
+    highs = [c * 1.01 for c in closes]
+    lows  = [c * 0.99 for c in closes]
+    # 마지막 바 거래량 6000(터짐) — volume 조건이 통과해도 첫돌파 가드가 막아야 함
+    vols  = ([1200] * len(c1) + [800] * len(r1) + [600] * len(c2)
+             + [300] * (len(r2_ext) - 1) + [6000])
+    assert len(vols) == n
+    dates = [f"2026-01-{i+1:02d}" for i in range(n)]
+    series = {"dates": dates, "closes": closes, "opens": opens,
+              "highs": highs, "lows": lows, "volumes": vols}
+    r = evaluate_vcp(series)
+    # 수축 고점(92) 위 전일 종가(95) → 첫돌파 아님 → breakout 금지
+    assert r["status"] != "breakout", (
+        f"연장 종목이 breakout으로 잘못 분류됨: status={r['status']}, pivot={r['pivot_price']}"
+    )

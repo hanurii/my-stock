@@ -115,7 +115,7 @@ def find_contraction_chain(swings: list[tuple[int, float, str]], tol: float = 1.
     return {
         "base_start": chain[0][0],
         "pivot": round(chain[-1][1], 2),
-        "last_lo_idx": chain[-1][2],   # 마지막 수축 저점 인덱스 (회복 구간 피벗 산출용)
+        "last_lo_idx": chain[-1][2],   # 마지막 수축 저점 인덱스 (참고용; 피벗은 chain["pivot"] 사용)
         "depths": [round(c[4], 2) for c in chain],
         "count": len(chain),
     }
@@ -192,12 +192,12 @@ def evaluate_vcp(series: dict, params: dict | None = None) -> dict:
         return base
 
     bs = chain["base_start"]; depths = chain["depths"]; T = chain["count"]
-    last_lo_idx = chain.get("last_lo_idx", bs)
 
-    # 피벗: 마지막 수축 저점 이후 회복 구간의 최고 종가.
-    # 종가 기준을 쓰는 이유: 장중 스파이크(당일 급등 후 하락 마감)가 피벗을 과도하게 높이지 않도록.
-    recovery_closes = closes[last_lo_idx:-1]
-    pivot = max(recovery_closes) if recovery_closes else chain["pivot"]
+    # 피벗: 마지막 수축 고점(chain["pivot"]) = close 기준 zigzag 고점 = 저항선.
+    # max(closes[last_lo:-1])은 현재 바 직전 종가를 포함하므로 closes[-2]<=pivot이
+    # 항상 참이 되어 첫돌파 가드(_is_breakout의 closes[i-1]<=pivot 조건)가 무효화된다.
+    # 안정 피벗(수축 고점)을 사용해야 "진짜 저항선을 최초 돌파"인지 검증할 수 있다.
+    pivot = chain["pivot"]
 
     base["num_contractions"] = T
     base["contractions"] = depths
