@@ -34,15 +34,22 @@ def load_series(code: str, start: str | None = None, end: str | None = None,
     if df is None or len(df) == 0:
         return None
     out = {"dates": [], "opens": [], "highs": [], "lows": [], "closes": [], "volumes": []}
-    for idx, row in df.iterrows():
-        out["dates"].append(str(idx.date()))
-        out["opens"].append(float(row.get("Open") or row.get("Close")))
-        out["highs"].append(float(row.get("High") or row.get("Close")))
-        out["lows"].append(float(row.get("Low") or row.get("Close")))
-        out["closes"].append(float(row["Close"]))
-        v = row.get("Volume")
-        out["volumes"].append(int(v) if v == v and v else 0)
-    return out
+    try:
+        for idx, row in df.iterrows():
+            cp = row.get("Close")
+            if cp is None or cp != cp:        # None 또는 NaN Close 행은 건너뜀
+                continue
+            cp = float(cp)
+            out["dates"].append(str(idx.date()))
+            out["closes"].append(cp)
+            out["opens"].append(float(row.get("Open") or cp))
+            out["highs"].append(float(row.get("High") or cp))
+            out["lows"].append(float(row.get("Low") or cp))
+            v = row.get("Volume")
+            out["volumes"].append(int(v) if v == v and v else 0)
+    except Exception:
+        return None
+    return out if out["closes"] else None
 
 
 def volume_ma(volumes: list[float], window: int = 50) -> list[float]:
