@@ -2,6 +2,11 @@
 
 작성일 2026-06-30 · 상태: 설계 승인됨, 구현 계획 대기
 
+> **갱신 이력:** 앵커링은 v2a("옛 peak 먼저")로 교체(`...-find-3c-v2-anchoring-design.md`),
+> 게이트 기본값은 v2b 책 오라클 보정으로 **min_shelf_days=2·max_shelf_position=90·
+> min_cup_days=25** 로 변경(`...-find-3c-v2b-gate-tuning-design.md`). 본 문서의 옛
+> 기본값(선반 길이 5·위치 66·컵 기간 35)은 역사적 기록.
+
 ## 1. 배경·목적
 
 마크 미너비니 SEPA(Specific Entry Point Analysis)를 한국 시장에 적용하는

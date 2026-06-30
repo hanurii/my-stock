@@ -51,19 +51,19 @@ python scripts/screen_3c.py
   표시될 수 있으며, '살 자리(entry_ready)' 는 패턴까지 성립한 종목에만 부여된다
   (요약의 breakout·actionable 개수 ≠ entry_ready).
 
-## 현재 한계 (v2a)
-- 앵커링은 **v2a("왼쪽 테두리=옛 peak=lookback 최고가" 먼저)** 로 수정되어
-  `shelf_position_pct ≤ 100%` 가 구조적으로 보장되고, 신고가 종목은
-  `no_overhead_cup` 으로 정직하게 걸러진다. v1의 >100% 쓰레기 값은 사라졌다
-  (정의: `docs/superpowers/specs/2026-06-30-find-3c-v2-anchoring-design.md`).
-- 다만 게이트(컵 깊이 12~50%/35거래일, 선반 위치 ≤66% 등)는 아직 strict 라
-  트렌드 통과 종목 중 3C 후보가 매우 적다. **2026-06-30 70종목 풀런: `pattern_count=0`**
-  (주된 거절: `cup_too_short` 35·`no_overhead_cup` 19 — 입력이 신고가 부근이라 옛
-  peak가 최근 → 컵이 짧거나 없음 / `shelf_too_loose`·`shelf_too_short`·
-  `volume_not_drying` 등 ~16종목은 컵은 성립, 선반·거래량에서 탈락).
-- **책 3C 예시로 게이트를 보정하는 작업이 후속(Phase 2)** 이다
-  (v2a spec §8). 즉 현 v2a의 가치는 "산출 정상화"이며, "충분히 잡는" 검출기로
-  만드는 건 다음 단계다.
+## 현재 한계 / 적용 범위 (v2b)
+- 앵커링(v2a)은 "왼쪽 테두리=옛 peak 먼저"라 `shelf_position_pct ≤ 100%` 보장,
+  신고가 종목은 `no_overhead_cup` 으로 정직하게 걸러진다.
+- 게이트는 미너비니 책 3C 예시 **NU·GOOG·CRUS** 실데이터로 보정됨
+  (`min_shelf_days` 2·`max_shelf_position` 90·`min_cup_days` 25). 셋 다 컵·치트
+  피벗을 정확히 짚으며 NU·GOOG는 패턴 성립으로 검증(`tests/test_cheat_oracle.py`).
+  근거: `docs/superpowers/specs/2026-06-30-find-3c-v2b-gate-tuning-design.md`.
+- **현재 한국 트렌드 통과 라이브 = `pattern_count` 0(또는 극소수).** 버그가 아니라
+  **입력 집단 특성**이다: 트렌드 통과 종목은 *조정 없이 오른 신고가 부근 모멘텀
+  리더*라, "옛 고점에서 조정 후 회복 중"인 3C와 구조적으로 반대다(대부분
+  `no_overhead_cup`·`cup_too_short`).
+- **한국 3C는 과거 조정·상승장 초입 종목에 있으며**, 이를 발굴하는 건
+  `find-3c-history`(과거 매 거래일 as-of 회고, 후속)의 몫이다.
 
 ## 안 하는 것
 - VCP 베이스 탐지(find-vcp) · 파워 플레이(find-power-play) · 전 종목 스캔(트렌드
