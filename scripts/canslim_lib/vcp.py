@@ -15,7 +15,8 @@ DEFAULT_PARAMS: dict = {
     "near_pivot_pct": 5.0,
     "base_vol_cap": 50,
     "zigzag_k": 4.0,
-    "dry_max": 0.7,
+    "zigzag_k2": 2.5,   # 2-pass retry k: 선행급등이 변동성 부풀리면 재시도
+    "dry_max": 0.82,    # 우측 거래량 마름 기준 (MA50 대비 최댓값 허용; 켐트로스 dry_min=0.816)
 }
 
 
@@ -94,7 +95,10 @@ def find_contractions(pivots: list[tuple[int, float, str]]) -> list[float]:
 
 
 def find_contraction_chain(swings: list[tuple[int, float, str]], tol: float = 1.15) -> dict | None:
-    """끝쪽의 수렴하는 (고→저) 수축 연쇄. base_start=첫 수축 고점, pivot=마지막 수축 고점."""
+    """끝쪽의 수렴하는 (고→저) 수축 연쇄. base_start=첫 수축 고점, pivot=마지막 수축 고점.
+
+    last_lo_idx: 마지막 수축 저점의 closes 인덱스 (피벗 산출에 사용).
+    """
     pairs = []  # (hi_idx, hi_price, lo_idx, lo_price, depth%)
     for a, b in zip(swings, swings[1:]):
         if a[2] == "high" and b[2] == "low" and a[1] > 0:
@@ -111,13 +115,18 @@ def find_contraction_chain(swings: list[tuple[int, float, str]], tol: float = 1.
     return {
         "base_start": chain[0][0],
         "pivot": round(chain[-1][1], 2),
+        "last_lo_idx": chain[-1][2],   # 마지막 수축 저점 인덱스 (회복 구간 피벗 산출용)
         "depths": [round(c[4], 2) for c in chain],
         "count": len(chain),
     }
 
 
 def _is_breakout(closes, opens, vols, ma50, pivot, p) -> bool:
-    """마지막 바가 돌파인가: 첫돌파+양봉+거래량터짐+근접."""
+    """마지막 바가 돌파인가: 첫돌파+양봉+거래량터짐+근접(시가 기준).
+
+    근접 판단을 시가(open)로 하는 이유: 갭업 돌파(전일 피벗 아래→당일 갭업)에서
+    종가는 피벗에서 멀리 떨어지더라도 시가는 피벗 근처에서 출발하기 때문.
+    """
     i = len(closes) - 1
     if pivot is None or i < 1:
         return False
@@ -128,7 +137,7 @@ def _is_breakout(closes, opens, vols, ma50, pivot, p) -> bool:
     m = ma50[i] if i < len(ma50) else None
     if not (m and vols[i] >= m * p["breakout_vol_mult"]):     # 거래량 터짐
         return False
-    if (closes[i] - pivot) / pivot * 100.0 > p["near_pivot_pct"]:  # 피벗 근접
+    if (opens[i] - pivot) / pivot * 100.0 > p["near_pivot_pct"]:  # 피벗 근접(시가 기준)
         return False
     return True
 
@@ -166,14 +175,30 @@ def evaluate_vcp(series: dict, params: dict | None = None) -> dict:
         return base
 
     swings = adaptive_zigzag(closes, p["zigzag_k"])
+    chain = find_contraction_chain(swings, p["contraction_tol"])
+
+    # 2-pass: 선행급등이 전구간 변동성을 부풀려 임계가 너무 높을 때, 낮은 k로 재시도.
+    # 이미 chain_cnt >= 2이면 재시도 불필요(2차 다올처럼 고변동성이지만 잘 잡히는 경우 보호).
+    if (chain is None or chain["count"] < 2) and p.get("zigzag_k2"):
+        swings2 = adaptive_zigzag(closes, p["zigzag_k2"])
+        chain2 = find_contraction_chain(swings2, p["contraction_tol"])
+        if chain2 is not None and (chain is None or chain2["count"] > chain["count"]):
+            swings, chain = swings2, chain2
+
     base["swings"] = [{"date": dates[i] if i < len(dates) else None, "price": round(pr, 2), "kind": k}
                       for i, pr, k in swings]
-    chain = find_contraction_chain(swings, p["contraction_tol"])
     if not chain:
         base["reason"] = "no_contraction_chain"
         return base
 
-    bs = chain["base_start"]; depths = chain["depths"]; T = chain["count"]; pivot = chain["pivot"]
+    bs = chain["base_start"]; depths = chain["depths"]; T = chain["count"]
+    last_lo_idx = chain.get("last_lo_idx", bs)
+
+    # 피벗: 마지막 수축 저점 이후 회복 구간의 최고 종가.
+    # 종가 기준을 쓰는 이유: 장중 스파이크(당일 급등 후 하락 마감)가 피벗을 과도하게 높이지 않도록.
+    recovery_closes = closes[last_lo_idx:-1]
+    pivot = max(recovery_closes) if recovery_closes else chain["pivot"]
+
     base["num_contractions"] = T
     base["contractions"] = depths
     base["base_length_days"] = len(closes) - bs
