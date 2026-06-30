@@ -78,9 +78,19 @@ python scripts/screen_trend_template.py --rs-min 80 --out public/data/sepa-trend
 
 ## 다음 단계 (SEPA 파이프라인)
 
-이 스킬 통과 종목은 SEPA의 다음 하위 스킬(베이스/VCP 패턴 분석, 진입 시점
-분석 등)의 입력이 된다. 트렌드 템플레이트는 **"추세가 살아있는 종목"** 만
-남기는 관문이고, 실제 매수 시점은 다음 단계에서 정성·패턴 분석으로 좁힌다.
+이 스킬(SEPA 1단계·관문) 통과 종목 = `sepa-trend-candidates.json` 은
+**세 형제 패턴 검출 스킬의 공통 입력**이다(서로 독립, 순서 무관·병렬 가능):
+
+- find-vcp        — 변동성 수축(VCP)             → sepa-vcp-candidates.json
+- find-power-play — 파워 플레이(High Tight Flag)  → sepa-power-play-candidates.json
+- find-3c         — 컵 완성 치트(Cup-Completion Cheat) → sepa-3c-candidates.json
+
+트렌드 템플레이트는 **"추세가 살아있는 종목"** 만 남기는 관문이고, 실제 매수
+시점은 이 패턴 분석에서 좁힌다.
+
+> **find-*-history 는 정기 파이프라인 단계가 아니다.** 패턴 알고리즘을 과거
+> 데이터로 회고·검증해 검출 로직을 더 견고히 다듬고 싶을 때만 필요에 따라
+> 돌리는 도구다(매 실행마다 X).
 
 ## 안 하는 것
 
