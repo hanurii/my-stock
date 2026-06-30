@@ -193,6 +193,8 @@ def test_evaluate_vcp_extended_not_breakout():
     assert r["status"] != "breakout", (
         f"연장 종목이 breakout으로 잘못 분류됨: status={r['status']}, pivot={r['pivot_price']}"
     )
+    assert r["vcp_detected"] is False
+    assert r["reason"] == "no_tight_coil"
 
 
 # ---------------------------------------------------------------------------
@@ -235,6 +237,8 @@ def test_evaluate_vcp_above_ceiling_extended_not_breakout():
     assert r["entry_ready"] is False, (
         f"천장 위 연장 종목이 entry_ready=True: pivot={r['pivot_price']}"
     )
+    assert r["vcp_detected"] is False
+    assert r["reason"] == "no_tight_coil"
 
 
 # ---------------------------------------------------------------------------

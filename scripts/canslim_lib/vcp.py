@@ -215,6 +215,7 @@ def evaluate_vcp(series: dict, params: dict | None = None) -> dict:
         "base_length_days": 0, "base_depth_pct": None, "pivot_price": None,
         "pct_to_pivot": None, "volume_dryup_ratio": None, "tightness_pct": None,
         "status": "forming", "swings": [], "reason": None, "entry_ready": False,
+        "coil_len": None, "coil_dry_mean": None, "coil_range_pct": None,
     }
     if len(closes) < p["min_base_days"]:
         base["reason"] = "no_data" if not closes else "base_too_short"
