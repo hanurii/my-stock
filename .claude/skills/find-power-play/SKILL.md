@@ -31,12 +31,16 @@ python scripts/screen_power_play.py
 ```
 - 산출: `public/data/sepa-power-play-candidates.json`
 - 콘솔: 상태 분포 + entry_ready 종목 표(깃대 상승률·기간, 깃발 깊이·길이, 피벗).
+- **피벗 = 최근 가장 타이트한 수축의 천장** — 넓은 베이스 고점이나 돌파 스파이크가 아닌,
+  깃발 내 `--tight-pct` 이하 수축 창에서 가장 최근 것의 고점을 피벗으로 사용한다.
+  수축이 없으면 `no_contraction` 사유로 패턴 불성립.
 
 ### 옵션
 - `--ticker CODE` : 단일 종목 디버그(저장 안 함).
 - `--min-flagpole-gain 90` / `--max-flagpole-days 70` : 깃대(14주 내 90%↑) 튜닝.
   (미너비니 본인 예시 BBY는 13주/135%; 기본값 90%/70d는 넉넉한 허용 범위.)
-- `--flag-window 45` : 피벗 후보를 최근 N봉으로 한정 — 무관한 옛 고점 배제.
+- `--tight-pct 18` : 타이트 수축 판정폭(%) — 깃발 내 수축 구간 고-저 범위가 이 값 이하인 창을 타이트 수축으로 인정.
+- `--contraction-grace 3` : 돌파 grace 봉 수 — 수축 종료 후 이 봉 이내 돌파면 유효로 인정.
 - `--pole-vol-mult 1.5` / `--max-pre-pole-gain 30` : 깃대 거래량·조용한 출발 튜닝
   (보고용; 게이트 아님).
 - `--min-flag-days 8` / `--max-flag-days 30` / `--max-flag-depth 20` : 깃발 튜닝
@@ -52,6 +56,9 @@ python scripts/screen_power_play.py
   forming(형성 중) · failed(깃발 붕괴).
 - `entry_ready` 종목이 다음 단계(리스크·진입) 후보.
 - 불성립 종목도 `reason`과 함께 전부 포함(환각 방지·디버그).
+  주요 불성립 사유: `no_flagpole`(깃대 없음), `flag_too_deep`(깃발 깊이 초과),
+  `flag_too_short`/`flag_too_long`(깃발 길이 벗어남), **`no_contraction`(현재 타이트 수축 없음)** —
+  강세 종목이 아직 타이트한 수축 국면에 들어서지 않은 경우 가장 흔한 사유.
 - `status` 는 패턴 성립 여부와 무관하게 가격 위치·거래량 조건(돌파/근접/형성/붕괴)으로 결정된다. 따라서 `pattern_detected=false` 인 종목도 breakout/actionable 로 표시될 수 있으며, '살 자리(entry_ready)' 는 패턴까지 성립한 종목에만 부여된다(요약의 breakout·actionable 개수 ≠ entry_ready).
 
 ## 안 하는 것
