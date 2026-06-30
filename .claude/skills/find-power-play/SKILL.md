@@ -38,6 +38,9 @@ python scripts/screen_power_play.py
   (기본 `--universe trend` 는 트렌드 통과 종목만 → `sepa-power-play-candidates.json`.)
   하이타이트플래그는 추세 템플릿 미통과 종목에서도 나올 수 있어, `/stocks/sepa` 페이지가
   트렌드 섹션과 별도로 전수 섹션을 함께 보여준다.
+  전수는 RS 약한 종목 노이즈가 많으므로 `--rs-min 80` 과 함께 쓰는 것을 권장
+  (페이지 전수 섹션은 `--universe all --rs-min 80` 산출 기준).
+- `--rs-min 80` : RS 강도 하한(이상만 평가) — 전수 스캔 노이즈 축소.
 - `--ticker CODE` : 단일 종목 디버그(저장 안 함).
 - `--min-flagpole-gain 90` / `--max-flagpole-days 70` : 깃대(14주 내 90%↑) 튜닝.
   (미너비니 본인 예시 BBY는 13주/135%; 기본값 90%/70d는 넉넉한 허용 범위.)

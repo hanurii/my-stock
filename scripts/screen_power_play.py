@@ -54,6 +54,8 @@ def run(args, out_path: Path) -> None:
     all_cands = data.get("candidates", [])
     # --universe all: 전수 스캔(all_pass 필터·컷오프 없음). 기본(trend): 트렌드 통과만.
     targets = all_cands if args.universe == "all" else [c for c in all_cands if c.get("all_pass")]
+    if args.rs_min:
+        targets = [c for c in targets if (c.get("rs") or 0) >= args.rs_min]
     if args.ticker:
         targets = [c for c in targets if c.get("code") == args.ticker]
 
@@ -133,6 +135,8 @@ def main():
                     help=f"출력(default: trend={OUT_PATH.name}, all={ALL_OUT_PATH.name})")
     ap.add_argument("--universe", choices=["trend", "all"], default="trend",
                     help="trend=트렌드 통과만(기본) · all=전수 스캔(컷오프 없음)")
+    ap.add_argument("--rs-min", dest="rs_min", type=float, default=0,
+                    help="RS 강도 하한(이상만 평가). 전수 스캔 노이즈 축소용(예: 80)")
     ap.add_argument("--ticker", default=None, help="단일 종목 디버그(저장 안 함)")
     ap.add_argument("--lookback-days", type=int, default=DEFAULT_PARAMS["lookback_days"])
     ap.add_argument("--min-flagpole-gain", type=float, default=DEFAULT_PARAMS["min_flagpole_gain"])

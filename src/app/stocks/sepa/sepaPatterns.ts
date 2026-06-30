@@ -172,6 +172,14 @@ const POWERPLAY_COLUMNS: PatternColumn[] = [
   { key: "tightness_pct", label: "타이트", kind: "tight" },
 ];
 
+// 파워 플레이 구조 형성: 실제 깃발(눌림 폭 > 0)이 있어야 예의주시 후보.
+// 신고가 부근에서 눌림 0%(flag_depth=0 → 피벗=현재가)인 퇴화 케이스를 노이즈로 제외.
+const powerPlayStructureOk = (raw: RawCandidate): boolean => {
+  const len = num(raw.flag_length_days);
+  const depth = num(raw.flag_depth_pct);
+  return len !== null && len > 0 && depth !== null && depth > 0;
+};
+
 export const PATTERNS = {
   vcp: {
     id: "vcp",
@@ -186,15 +194,15 @@ export const PATTERNS = {
     label: "파워 플레이 — 트렌드 통과 종목 중",
     file: "sepa-power-play-candidates.json",
     detectField: "pattern_detected",
-    structureOk: (raw) => num(raw.flag_length_days) !== null && (num(raw.flag_length_days) as number) > 0,
+    structureOk: powerPlayStructureOk,
     columns: POWERPLAY_COLUMNS,
   },
   powerplayAll: {
     id: "powerplay-all",
-    label: "파워 플레이 — 전체 종목 중",
+    label: "파워 플레이 — 전체 종목 중 (RS 80↑)",
     file: "sepa-power-play-all-candidates.json",
     detectField: "pattern_detected",
-    structureOk: (raw) => num(raw.flag_length_days) !== null && (num(raw.flag_length_days) as number) > 0,
+    structureOk: powerPlayStructureOk,
     columns: POWERPLAY_COLUMNS,
   },
   threeC: {

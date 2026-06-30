@@ -104,10 +104,12 @@ describe("buildSection", () => {
     expect(r.rows[0].tier).toBe("breakout");
   });
 
-  it("파워플레이: flag_length_days>0 이 structureOk", () => {
+  it("파워플레이 structureOk: 깃발 길이>0 AND 눌림>0 (눌림 0% 퇴화 깃발 제외)", () => {
     const cands: RawCandidate[] = [
-      { code: "P", name: "p", market: "KOSDAQ", current_price: 1, rs: 88, status: "forming", pivot_price: 100, pct_to_pivot: 6, pattern_detected: false, flag_length_days: 8 },
-      { code: "Q-hidden", name: "q", market: "KOSDAQ", current_price: 1, rs: 88, status: "forming", pivot_price: 100, pct_to_pivot: 6, pattern_detected: false, flag_length_days: 0 },
+      { code: "P", name: "p", market: "KOSDAQ", current_price: 1, rs: 88, status: "forming", pivot_price: 100, pct_to_pivot: 6, pattern_detected: false, flag_length_days: 8, flag_depth_pct: 5 },
+      { code: "Q-len0", name: "q", market: "KOSDAQ", current_price: 1, rs: 88, status: "forming", pivot_price: 100, pct_to_pivot: 6, pattern_detected: false, flag_length_days: 0, flag_depth_pct: 5 },
+      // 신고가 부근 퇴화: 눌림 0% + 피벗=현재가(pct 0) → 제외돼야 함
+      { code: "R-depth0", name: "r", market: "KOSDAQ", current_price: 1, rs: 88, status: "forming", pivot_price: 100, pct_to_pivot: 0, pattern_detected: false, flag_length_days: 44, flag_depth_pct: 0 },
     ];
     const r = buildSection(cands, PATTERNS.powerplayTrend);
     expect(r.rows.map((x) => x.code)).toEqual(["P"]);
