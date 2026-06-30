@@ -121,27 +121,6 @@ def test_evaluate_rejects_weak_flagpole_gain():
     assert r["reason"] == "pole_gain_too_small"
 
 
-def test_evaluate_rejects_weak_pole_volume():
-    s = _clean_htf()
-    # 깃대 거래량을 조용 구간과 동일하게(800) → 대량거래 조건 실패
-    s["volumes"] = [800]*20 + [800]*8 + [500]*10
-    r = evaluate_power_play(s)
-    assert r["pattern_detected"] is False
-    assert r["reason"] == "pole_volume_weak"
-
-
-def test_evaluate_rejects_not_quiet_before_pole():
-    # 폭등 직전 20일이 이미 +50% 상승(말기 베이스) → not_quiet_before_pole
-    pre = [50 + i*1.3 for i in range(20)]   # 50→약74.7 (+49%)
-    pole = [76, 84, 92, 100, 110, 120, 130, 150]   # 74.7→150 추가 폭등
-    flag = [148, 146, 145, 144, 145, 146, 147, 146, 145, 144]
-    closes = pre + pole + flag
-    s = _series(closes, vols=[800]*20 + [3000]*8 + [500]*10)
-    r = evaluate_power_play(s)
-    assert r["pattern_detected"] is False
-    assert r["reason"] == "not_quiet_before_pole"
-
-
 def test_evaluate_rejects_deep_flag():
     s = _clean_htf()
     # 깃발 저점을 깊게: 110고점 대비 -30% (77)까지 빠짐
@@ -185,17 +164,31 @@ def test_evaluate_rejects_short_flag():
     assert r["reason"] == "flag_too_short"
 
 
-def test_evaluate_rejects_volume_not_drying():
-    # gain/pole-volume/quiet/flag-length/flag-depth 모두 통과,
-    # 깃발 최근 5일 거래량이 깃대 거래량보다 높아 volume_not_drying
-    quiet = [50 + (i % 2) for i in range(20)]  # 50~51 횡보(조용)
-    pole = [52, 58, 66, 75, 85, 95, 104, 110]  # +120% 깃대, 거래량 3000
-    flag = [108] * 8                             # 8일 깃발, 깊이 ~2.8%, 거래량 5000
+def test_evaluate_gates_are_three_hard_only():
+    # 깃대 거래량 약하고(소프트) 조용출발 큰(소프트) 시계열이라도, 하드 3개
+    # (깃대≥90·깊이≤20·길이 8~30)만 충족하면 detected=True 여야 한다.
+    quiet = [50 + (i % 2) for i in range(20)]
+    pole = [52, 58, 66, 75, 85, 95, 104, 110]              # +120%
+    flag = [108, 106, 105, 104, 103, 105, 106, 107, 106, 105]
     closes = quiet + pole + flag
-    s = _series(closes, vols=[800]*20 + [3000]*8 + [5000]*8)
+    # 거래량을 '안 마르게'(돌파 전에도 높게) + 깃대 거래량도 약하게 만들어도 detected.
+    vols = [3000] * 20 + [3000] * 8 + [3000] * 10
+    s = _series(closes, vols=vols)
     r = evaluate_power_play(s)
-    assert r["pattern_detected"] is False
-    assert r["reason"] == "volume_not_drying"
+    assert r["pattern_detected"] is True
+    assert r["reason"] is None
+    # 소프트 신호는 출력되지만 게이트 아님
+    assert "volume_dryup_ratio" in r and "pre_pole_gain_pct" in r and "flagpole_vol_ratio" in r
+
+
+def test_evaluate_reason_set_has_no_removed_gates():
+    # 어떤 입력이든 삭제된 reason 은 절대 안 나온다(여러 합성 입력 스모크).
+    removed = {"not_quiet_before_pole", "pole_volume_weak", "volume_not_drying"}
+    for closes in ([100, 101, 99, 102, 100],                     # 너무 짧음
+                   _clean_htf()["closes"],                        # 깔끔 HTF
+                   [50 + (i % 2) for i in range(20)] + [52, 55, 58, 60, 62, 63, 64, 65] + [64, 63, 62, 63, 64, 63, 62, 63]):  # 약한 깃대
+        r = evaluate_power_play(_series(closes))
+        assert r["reason"] not in removed
 
 
 def test_status_breakout_on_pivot_break_with_volume():

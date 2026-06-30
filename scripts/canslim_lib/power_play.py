@@ -95,7 +95,7 @@ def evaluate_power_play(series: dict, params: dict | None = None) -> dict:
         base["reason"] = "base_too_short"
         return base
 
-    fp = find_flagpole(highs, lows, p["max_flagpole_days"], p["min_flag_pullback"])
+    fp = find_flagpole(highs, lows, p["max_flagpole_days"], p["min_flag_pullback"], p["flag_window"])
     fhi = fp["flag_high_idx"]
     psi = fp["pole_start_idx"]
     flag_high = fp["flag_high"]
@@ -135,39 +135,25 @@ def evaluate_power_play(series: dict, params: dict | None = None) -> dict:
     )
     base["tightness_pct"] = round(tight, 2) if tight is not None else None
 
-    # --- 조용한 출발(말기 베이스 제외): 조용한 베이스 구간의 변동폭 ---
+    # --- 조용한 출발(보고용 소프트 신호 — 게이트 아님): 조용한 베이스 구간 변동폭 ---
     if quiet_highs and quiet_lows and min(quiet_lows) > 0:
         pre_gain = (max(quiet_highs) - min(quiet_lows)) / min(quiet_lows) * 100.0
         base["pre_pole_gain_pct"] = round(pre_gain, 2)
-        cond_quiet = pre_gain <= p["max_pre_pole_gain"]
-    else:
-        cond_quiet = True  # 조용한 베이스 데이터 부족 → 의심의 이익(거절 안 함)
 
-    # --- 6조건 판정 ---
+    # --- 하드 게이트 3개 판정 (조용·깃대거래량·dryup 는 소프트, 게이트 아님) ---
     cond_gain = fp["flagpole_gain_pct"] >= p["min_flagpole_gain"]
-    cond_pole_vol = (
-        base["flagpole_vol_ratio"] is not None
-        and base["flagpole_vol_ratio"] >= p["pole_vol_mult"]
-    )
     cond_flag_min = flag_len >= p["min_flag_days"]
     cond_flag_max = flag_len <= p["max_flag_days"]
     cond_flag_depth = flag_depth <= p["max_flag_depth"]
-    cond_dryup = base["volume_dryup_ratio"] is not None and base["volume_dryup_ratio"] <= 1.0
 
     if not cond_gain:
         base["reason"] = "pole_gain_too_small"
-    elif not cond_pole_vol:
-        base["reason"] = "pole_volume_weak"
-    elif not cond_quiet:
-        base["reason"] = "not_quiet_before_pole"
     elif not cond_flag_min:
         base["reason"] = "flag_too_short"
     elif not cond_flag_max:
         base["reason"] = "flag_too_long"
     elif not cond_flag_depth:
         base["reason"] = "flag_too_deep"
-    elif not cond_dryup:
-        base["reason"] = "volume_not_drying"
     else:
         base["pattern_detected"] = True
 
