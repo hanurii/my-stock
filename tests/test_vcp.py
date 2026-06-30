@@ -2,7 +2,10 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
-from canslim_lib.vcp import zigzag, find_contractions, evaluate_vcp, volume_ma, adaptive_zigzag, find_contraction_chain, _is_breakout
+from canslim_lib.vcp import (
+    zigzag, find_contractions, evaluate_vcp, volume_ma,
+    adaptive_zigzag, find_contraction_chain, _is_breakout, detect_final_coil,
+)
 
 
 def test_zigzag_picks_alternating_pivots_from_peak():
@@ -235,3 +238,61 @@ def test_evaluate_vcp_above_ceiling_extended_not_breakout():
     assert r["entry_ready"] is False, (
         f"천장 위 연장 종목이 entry_ready=True: pivot={r['pivot_price']}"
     )
+
+
+# ---------------------------------------------------------------------------
+# Task 1: detect_final_coil 단위 테스트
+# ---------------------------------------------------------------------------
+
+# DEFAULT 코일 파라미터(테스트 고정값) — 함수에 명시 전달해 결합도 낮춤
+_CP = {"coil_tight_pct": 12.0, "coil_min_days": 3, "coil_max_days": 25, "coil_dry_max": 0.9}
+
+
+def test_detect_final_coil_tight_and_dry_returns_pivot():
+    # 마지막 6봉이 타이트 코일(94.5~96, 범위 1.56%), 거래량 마름(300 vs ma50 1000=0.3).
+    # 이전 구간은 변동폭 큼(70~96) → 코일 경계가 거기서 끊김. 현재(돌파) 바 = 인덱스 -1.
+    closes = [70, 78, 85, 90,  95.5, 94.5, 95.0, 96.0, 95.5, 96.0,  99.0]
+    vols   = [900, 900, 900, 900,  300, 300, 300, 300, 300, 300,  6000]
+    ma50   = [1000] * len(closes)
+    highs  = [c * 1.01 for c in closes]
+    lows   = [c * 0.99 for c in closes]
+    b1 = len(closes) - 1
+    coil = detect_final_coil(highs, lows, closes, vols, ma50, b1, _CP)
+    assert coil is not None
+    assert coil["pivot"] == 96.0            # 코일 내 종가 최고치 = 저항 천장
+    assert coil["coil_end"] == b1 - 1       # 현재(돌파) 바는 코일에서 제외
+    assert coil["coil_len"] >= 3
+    assert coil["coil_dry_mean"] <= 0.9
+
+
+def test_detect_final_coil_wide_range_returns_none():
+    # 직전 구간이 계속 넓게 움직임(타이트 코일 없음) → None.
+    closes = [70, 80, 72, 85, 75, 90, 78, 95, 80, 99]
+    vols   = [300] * len(closes)
+    ma50   = [1000] * len(closes)
+    highs  = [c * 1.01 for c in closes]
+    lows   = [c * 0.99 for c in closes]
+    coil = detect_final_coil(highs, lows, closes, vols, ma50, len(closes) - 1, _CP)
+    assert coil is None
+
+
+def test_detect_final_coil_not_dry_returns_none():
+    # 가격은 타이트하지만 거래량이 안 마름(1500 vs ma50 1000 = 1.5 > 0.9) → None.
+    closes = [70, 78, 85, 90,  95.5, 94.5, 95.0, 96.0, 95.5, 96.0,  99.0]
+    vols   = [900, 900, 900, 900,  1500, 1500, 1500, 1500, 1500, 1500,  6000]
+    ma50   = [1000] * len(closes)
+    highs  = [c * 1.01 for c in closes]
+    lows   = [c * 0.99 for c in closes]
+    coil = detect_final_coil(highs, lows, closes, vols, ma50, len(closes) - 1, _CP)
+    assert coil is None
+
+
+def test_detect_final_coil_too_short_returns_none():
+    # 타이트+마른 구간이 2봉뿐(coil_min_days=3 미만) → None.
+    closes = [70, 80, 60, 84,  95.5, 96.0,  99.0]   # 직전 95.5,96 두 봉만 타이트, 84는 범위 12.5%로 break
+    vols   = [300] * len(closes)
+    ma50   = [1000] * len(closes)
+    highs  = [c * 1.01 for c in closes]
+    lows   = [c * 0.99 for c in closes]
+    coil = detect_final_coil(highs, lows, closes, vols, ma50, len(closes) - 1, _CP)
+    assert coil is None

@@ -17,6 +17,11 @@ DEFAULT_PARAMS: dict = {
     "zigzag_k": 4.0,
     "zigzag_k2": 2.5,   # 2-pass retry k: 선행급등이 변동성 부풀리면 재시도
     "dry_max": 0.82,    # 우측 거래량 마름 기준 (MA50 대비 최댓값 허용; 켐트로스 dry_min=0.816)
+    # 최종 타이트 코일(돌파 직전 좁은 변동폭 AND 마른 거래량) 파라미터:
+    "coil_tight_pct": 12.0,   # 코일 종가 변동폭 상한(%) — Task3서 5예시로 보정
+    "coil_min_days": 3,       # 코일 최소 길이(책 "3~5일")
+    "coil_max_days": 25,      # 코일 최대 길이("최근" 구간 유지)
+    "coil_dry_max": 0.9,      # 코일 평균 거래량/MA50 상한(코일 전반이 마른지)
 }
 
 
@@ -140,6 +145,46 @@ def _is_breakout(closes, opens, vols, ma50, pivot, p) -> bool:
     if (opens[i] - pivot) / pivot * 100.0 > p["near_pivot_pct"]:  # 피벗 근접(시가 기준)
         return False
     return True
+
+
+def detect_final_coil(highs, lows, closes, vols, ma50, b1, p):
+    """돌파 직전의 '최종 타이트 코일' 탐지: 좁은 변동폭 AND 마른 거래량.
+
+    b1 = 현재(=돌파) 바 인덱스. 코일은 b1-1 부터 뒤로 누적하며, 코일 종가의
+    변동폭이 coil_tight_pct 이내로 유지되는 동안 포함한다(현재 바는 제외 →
+    피벗이 돌파 전 고정 저항선). 코일 길이는 coil_max_days 로 상한, coil_min_days
+    이상이어야 하며, 코일 전반의 평균 거래량/MA50 이 coil_dry_max 이하여야 한다.
+
+    반환: {coil_start, coil_end, pivot, coil_len, coil_dry_mean, coil_range_pct} 또는 None.
+    pivot = 코일 내 종가 최고치(장중 스파이크 회피 위해 종가 기준).
+    """
+    if b1 < 1:
+        return None
+    tight = p["coil_tight_pct"]
+    seg: list[float] = []          # 코일 종가 (최신→과거 누적)
+    idxs: list[int] = []
+    for i in range(b1 - 1, -1, -1):
+        if len(idxs) >= p["coil_max_days"]:
+            break
+        cand = seg + [closes[i]]
+        hi, lo = max(cand), min(cand)
+        if hi <= 0 or (hi - lo) / hi * 100.0 > tight:
+            break
+        seg = cand
+        idxs.append(i)
+    if len(idxs) < p["coil_min_days"]:
+        return None
+    ratios = [vols[k] / ma50[k] for k in idxs if k < len(ma50) and ma50[k]]
+    dry_mean = sum(ratios) / len(ratios) if ratios else 9.9
+    if dry_mean > p["coil_dry_max"]:
+        return None
+    pivot, low = max(seg), min(seg)
+    return {
+        "coil_start": min(idxs), "coil_end": max(idxs),
+        "pivot": round(pivot, 2), "coil_len": len(idxs),
+        "coil_dry_mean": round(dry_mean, 3),
+        "coil_range_pct": round((pivot - low) / pivot * 100.0, 2),
+    }
 
 
 def _mean(xs: list[float]) -> float | None:
