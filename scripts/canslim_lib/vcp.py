@@ -14,6 +14,15 @@ DEFAULT_PARAMS: dict = {
     "breakout_vol_mult": 1.4,
     "near_pivot_pct": 5.0,
     "base_vol_cap": 50,
+    "zigzag_k": 4.0,
+    "zigzag_k2": 2.5,   # 2-pass retry k: 선행급등이 변동성 부풀리면 재시도
+    "dry_max": 0.82,    # 우측 거래량 마름 기준 (MA50 대비 최댓값 허용; 켐트로스 dry_min=0.816)
+    # 최종 타이트 코일(돌파 직전 좁은 변동폭 AND 마른 거래량) 파라미터:
+    "coil_tight_pct": 12.0,   # 코일 종가 변동폭 상한(%) — Task3 5예시 보정(유지)
+    "coil_min_days": 3,       # 코일 최소 길이(책 "3~5일")
+    "coil_max_days": 12,      # 코일 최대 길이 — Task3 보정 25→12: 코일이 '최근 마른 구간'만
+                              # 잡도록 단축(25는 직전 고거래량 바까지 흡수해 dry_mean 부풀림→한솔 등 오탈락)
+    "coil_dry_max": 0.95,     # 코일 평균 거래량/MA50 상한 — Task3 보정 0.9→0.95(데브 0.890 여유·소폭만 완화)
 }
 
 
@@ -60,6 +69,26 @@ def zigzag(values: list[float], pct: float) -> list[tuple[int, float, str]]:
     return pivots
 
 
+def volume_ma(volumes: list[float], window: int = 50) -> list[float]:
+    """Trailing moving average of volumes. Handles partial windows."""
+    out: list[float] = []
+    for i in range(len(volumes)):
+        seg = volumes[max(0, i - window + 1):i + 1]
+        out.append(sum(seg) / len(seg) if seg else 0.0)
+    return out
+
+
+def adaptive_zigzag(values: list[float], k: float = 4.0) -> list[tuple[int, float, str]]:
+    """베이스 변동성(평균 일간 절대등락%)에 비례한 임계로 zigzag 실행. 하한 없음."""
+    n = len(values)
+    if n < 2:
+        return zigzag(values, 8.0)
+    rets = [abs(values[i] / values[i - 1] - 1) * 100.0 for i in range(1, n) if values[i - 1]]
+    vol = (sum(rets) / len(rets)) if rets else 0.0
+    thr = k * vol if vol > 0 else 8.0
+    return zigzag(values, thr)
+
+
 def find_contractions(pivots: list[tuple[int, float, str]]) -> list[float]:
     """인접한 (고점 → 바로 다음 저점) 쌍의 되돌림 깊이%를 시간순으로."""
     depths: list[float] = []
@@ -71,6 +100,94 @@ def find_contractions(pivots: list[tuple[int, float, str]]) -> list[float]:
     return depths
 
 
+def find_contraction_chain(swings: list[tuple[int, float, str]], tol: float = 1.15) -> dict | None:
+    """끝쪽의 수렴하는 (고→저) 수축 연쇄. base_start=첫 수축 고점, pivot=마지막 수축 고점.
+
+    last_lo_idx: 마지막 수축 저점의 closes 인덱스 (피벗 산출에 사용).
+    """
+    pairs = []  # (hi_idx, hi_price, lo_idx, lo_price, depth%)
+    for a, b in zip(swings, swings[1:]):
+        if a[2] == "high" and b[2] == "low" and a[1] > 0:
+            pairs.append((a[0], a[1], b[0], b[1], (a[1] - b[1]) / a[1] * 100.0))
+    if not pairs:
+        return None
+    chain = [pairs[-1]]
+    for prev in reversed(pairs[:-1]):
+        # 시간순으로 깊이가 얕아지는(수렴) 동안만 연쇄에 포함: later <= prev*tol
+        if chain[0][4] <= prev[4] * tol:
+            chain.insert(0, prev)
+        else:
+            break
+    return {
+        "base_start": chain[0][0],
+        "pivot": round(chain[-1][1], 2),
+        "last_lo_idx": chain[-1][2],   # 마지막 수축 저점 인덱스 (참고용; 피벗은 chain["pivot"] 사용)
+        "depths": [round(c[4], 2) for c in chain],
+        "count": len(chain),
+    }
+
+
+def _is_breakout(closes, opens, vols, ma50, pivot, p) -> bool:
+    """마지막 바가 돌파인가: 첫돌파+양봉+거래량터짐+근접(시가 기준).
+
+    근접 판단을 시가(open)로 하는 이유: 갭업 돌파(전일 피벗 아래→당일 갭업)에서
+    종가는 피벗에서 멀리 떨어지더라도 시가는 피벗 근처에서 출발하기 때문.
+    """
+    i = len(closes) - 1
+    if pivot is None or i < 1:
+        return False
+    if not (closes[i] > pivot and closes[i - 1] <= pivot):   # 첫돌파
+        return False
+    if not (closes[i] > opens[i]):                            # 양봉
+        return False
+    m = ma50[i] if i < len(ma50) else None
+    if not (m and vols[i] >= m * p["breakout_vol_mult"]):     # 거래량 터짐
+        return False
+    if (opens[i] - pivot) / pivot * 100.0 > p["near_pivot_pct"]:  # 피벗 근접(시가 기준)
+        return False
+    return True
+
+
+def detect_final_coil(highs, lows, closes, vols, ma50, b1, p):
+    """돌파 직전의 '최종 타이트 코일' 탐지: 좁은 변동폭 AND 마른 거래량.
+
+    b1 = 현재(=돌파) 바 인덱스. 코일은 b1-1 부터 뒤로 누적하며, 코일 종가의
+    변동폭이 coil_tight_pct 이내로 유지되는 동안 포함한다(현재 바는 제외 →
+    피벗이 돌파 전 고정 저항선). 코일 길이는 coil_max_days 로 상한, coil_min_days
+    이상이어야 하며, 코일 전반의 평균 거래량/MA50 이 coil_dry_max 이하여야 한다.
+
+    반환: {coil_start, coil_end, pivot, coil_len, coil_dry_mean, coil_range_pct} 또는 None.
+    pivot = 코일 내 종가 최고치(장중 스파이크 회피 위해 종가 기준).
+    """
+    if b1 < 1:
+        return None
+    tight = p["coil_tight_pct"]
+    seg: list[float] = []          # 코일 종가 (최신→과거 누적)
+    idxs: list[int] = []
+    for i in range(b1 - 1, -1, -1):
+        if len(idxs) >= p["coil_max_days"]:
+            break
+        cand = seg + [closes[i]]
+        hi, lo = max(cand), min(cand)
+        if hi <= 0 or (hi - lo) / hi * 100.0 > tight:
+            break
+        seg = cand
+        idxs.append(i)
+    if len(idxs) < p["coil_min_days"]:
+        return None
+    ratios = [vols[k] / ma50[k] for k in idxs if k < len(ma50) and ma50[k]]
+    dry_mean = sum(ratios) / len(ratios) if ratios else 9.9
+    if dry_mean > p["coil_dry_max"]:
+        return None
+    pivot, low = max(seg), min(seg)
+    return {
+        "coil_start": min(idxs), "coil_end": max(idxs),
+        "pivot": round(pivot, 2), "coil_len": len(idxs),
+        "coil_dry_mean": round(dry_mean, 3),
+        "coil_range_pct": round((pivot - low) / pivot * 100.0, 2),
+    }
+
+
 def _mean(xs: list[float]) -> float | None:
     xs = [x for x in xs if x is not None]
     return sum(xs) / len(xs) if xs else None
@@ -79,114 +196,107 @@ def _mean(xs: list[float]) -> float | None:
 def evaluate_vcp(series: dict, params: dict | None = None) -> dict:
     """VCP 종합 판정.
 
-    series 키: dates, closes, highs, lows, volumes.
+    series 키: dates, closes, highs, lows, opens, volumes.
     반환 dict 키: vcp_detected, num_contractions, contractions,
     base_length_days, base_depth_pct, pivot_price, pct_to_pivot,
-    volume_dryup_ratio, tightness_pct, status, swings, reason.
+    volume_dryup_ratio, tightness_pct, status, swings, reason, entry_ready.
     """
     p = {**DEFAULT_PARAMS, **(params or {})}
-    closes = (series.get("closes") or [])[-p["lookback_days"]:]
-    highs = (series.get("highs") or [])[-p["lookback_days"]:]
-    lows = (series.get("lows") or [])[-p["lookback_days"]:]
-    vols = (series.get("volumes") or [])[-p["lookback_days"]:]
-    dates = (series.get("dates") or [])[-p["lookback_days"]:]
+    lb = p["lookback_days"]
+    closes = (series.get("closes") or [])[-lb:]
+    highs = (series.get("highs") or [])[-lb:]
+    lows = (series.get("lows") or [])[-lb:]
+    vols = (series.get("volumes") or [])[-lb:]
+    opens = (series.get("opens") or [])[-lb:]
+    dates = (series.get("dates") or [])[-lb:]
 
     base: dict = {
         "vcp_detected": False, "num_contractions": 0, "contractions": [],
         "base_length_days": 0, "base_depth_pct": None, "pivot_price": None,
         "pct_to_pivot": None, "volume_dryup_ratio": None, "tightness_pct": None,
         "status": "forming", "swings": [], "reason": None, "entry_ready": False,
+        "coil_len": None, "coil_dry_mean": None, "coil_range_pct": None,
     }
     if len(closes) < p["min_base_days"]:
         base["reason"] = "no_data" if not closes else "base_too_short"
         return base
 
-    # 베이스 시작 = lookback 내 최고 종가 지점
-    start = max(range(len(closes)), key=lambda i: closes[i])
-    bc = closes[start:]
-    bh = highs[start:]
-    bl = lows[start:]
-    bv = vols[start:]
-    bd = dates[start:]
-    base["base_length_days"] = len(bc)
-    if len(bc) < p["min_base_days"]:
-        base["reason"] = "base_too_short"
+    swings = adaptive_zigzag(closes, p["zigzag_k"])
+    chain = find_contraction_chain(swings, p["contraction_tol"])
+
+    # 2-pass: 선행급등이 전구간 변동성을 부풀려 임계가 너무 높을 때, 낮은 k로 재시도.
+    # 이미 chain_cnt >= 2이면 재시도 불필요(2차 다올처럼 고변동성이지만 잘 잡히는 경우 보호).
+    if (chain is None or chain["count"] < 2) and p.get("zigzag_k2"):
+        swings2 = adaptive_zigzag(closes, p["zigzag_k2"])
+        chain2 = find_contraction_chain(swings2, p["contraction_tol"])
+        if chain2 is not None and (chain is None or chain2["count"] > chain["count"]):
+            swings, chain = swings2, chain2
+
+    base["swings"] = [{"date": dates[i] if i < len(dates) else None, "price": round(pr, 2), "kind": k}
+                      for i, pr, k in swings]
+    if not chain:
+        base["reason"] = "no_contraction_chain"
         return base
 
-    swings = zigzag(bc, p["zigzag_pct"])
-    base["swings"] = [
-        {"date": bd[i] if i < len(bd) else None, "price": round(pr, 2), "kind": k}
-        for i, pr, k in swings
-    ]
-    contractions = find_contractions(swings)
-    base["contractions"] = [round(d, 2) for d in contractions]
-    base["num_contractions"] = len(contractions)
+    bs = chain["base_start"]; depths = chain["depths"]; T = chain["count"]
 
-    cap = p["base_vol_cap"]
-    base_vol_avg = _mean(bv[-cap:] if len(bv) > cap else bv) or 0.0
-    last_close = bc[-1]
+    # 피벗 = 돌파 직전 '최종 타이트 코일'의 고점(종가 기준). 미너비니 표준:
+    # 피벗 = 마지막(가장 타이트한) 수축의 고점. 적응형 ZigZag는 이 마지막 ~2~5%
+    # 코일을 별도 스윙으로 못 잡으므로 detect_final_coil 로 직접 탐지한다.
+    #  - 코일은 현재(돌파) 바 직전 구간 → 피벗이 돌파 전 고정 저항선(첫돌파 가드 유효).
+    #  - 계단식 VCP(회복이 이전 수축 고점을 넘은 경우)도 마지막 코일 천장을 피벗으로 잡아
+    #    최초 돌파를 정확히 포착.
+    #  - 코일 없으면(연장·정상거래량 등) 피벗 None → VCP 아님(인식 게이트가 배제).
+    n = len(closes)
+    ma50 = volume_ma(vols, 50)
+    coil = detect_final_coil(highs, lows, closes, vols, ma50, n - 1, p)
+    pivot = coil["pivot"] if coil else None
 
-    # 피벗 = 마지막 확정된 "high" 스윙 가격
-    # swings[-1]은 진행 중인(미확정) 클로징 피벗이므로 제외; 없으면 클로징 피벗 사용
-    confirmed_highs = [pr for _, pr, k in swings[:-1] if k == "high"]
-    if not confirmed_highs:
-        confirmed_highs = [pr for _, pr, k in swings[-1:] if k == "high"]
-    pivot = confirmed_highs[-1] if confirmed_highs else None
-    base["pivot_price"] = round(pivot, 2) if pivot is not None else None
-    if pivot is not None:
+    base["num_contractions"] = T
+    base["contractions"] = depths
+    base["base_length_days"] = len(closes) - bs
+    bl = lows[bs:]
+    last_close = closes[-1]
+    # 코일 진단 필드(가산 — 기존 13키 불변)
+    base["coil_len"] = coil["coil_len"] if coil else None
+    base["coil_dry_mean"] = coil["coil_dry_mean"] if coil else None
+    base["coil_range_pct"] = coil["coil_range_pct"] if coil else None
+
+    base["pivot_price"] = pivot
+    if pivot:
         base["pct_to_pivot"] = round((pivot - last_close) / pivot * 100.0, 2)
-
-    base["volume_dryup_ratio"] = (
-        round((_mean(bv[-5:]) or 0.0) / base_vol_avg, 3) if base_vol_avg else None
-    )
-    tight = _mean(
-        [(bh[i] - bl[i]) / bc[i] * 100.0 for i in range(len(bc))[-10:] if bc[i]]
-    )
+    base["volume_dryup_ratio"] = (round((_mean(vols[-5:]) or 0.0) / ma50[-1], 3) if ma50 and ma50[-1] else None)
+    tight = _mean([(highs[i] - lows[i]) / closes[i] * 100.0 for i in range(len(closes))[-10:] if closes[i]])
     base["tightness_pct"] = round(tight, 2) if tight is not None else None
 
-    # VCP 4조건
-    T = len(contractions)
     cond_count = 2 <= T <= 6
-    cond_mono = (
-        all(contractions[i] <= contractions[i - 1] * p["contraction_tol"]
-            for i in range(1, T))
-        if T >= 2 else False
-    )
-    third = max(1, len(bv) // 3)
-    early_vol = _mean(bv[:third]) or 0.0
-    late_vol = _mean(bv[-third:]) or 0.0
-    cond_volcontract = late_vol < early_vol
-    cond_final_tight = (contractions[-1] <= p["max_final_depth"]) if T >= 1 else False
-    base["vcp_detected"] = bool(cond_count and cond_mono and cond_volcontract and cond_final_tight)
+    cond_mono = all(depths[i] <= depths[i - 1] * p["contraction_tol"] for i in range(1, T)) if T >= 2 else False
+    # 순(net) 수축 가드: 마지막 수축이 첫 수축보다 '실제로' 얕아야 한다(변동성 수축의 본질).
+    # cond_mono는 단계마다 tol(1.15) 만큼 깊어지는 것을 허용하므로 [11.8,13.4,13.2,14.2]처럼
+    # 평탄/확장하는 가짜 수축(예: 기가비스)을 통과시킨다 → 순수축 조건으로 정밀도를 높인다.
+    cond_converge = depths[-1] < depths[0] if T >= 2 else False
+    # 우측 단일바 dry 게이트 → 최종 타이트 코일 존재(좁은 변동폭 AND 코일 전반 마름)로 대체.
+    # 코일이 없으면(연장·정상거래량) VCP 아님 — 연장 종목 자동 배제 + 피벗 부동 문제 해소.
+    cond_coil = coil is not None
+    base["vcp_detected"] = bool(cond_count and cond_mono and cond_converge and cond_coil)
     if base["vcp_detected"]:
-        base["base_depth_pct"] = round(max(contractions), 2)
+        base["base_depth_pct"] = round(max(depths), 2)
     else:
-        if not cond_count:
-            base["reason"] = "contraction_count_not_2_6"
-        elif not cond_mono:
-            base["reason"] = "not_monotone_contraction"
-        elif not cond_volcontract:
-            base["reason"] = "volume_not_drying"
-        else:  # not cond_final_tight
-            base["reason"] = "final_contraction_too_deep"
+        base["reason"] = ("contraction_count_not_2_6" if not cond_count
+                          else "not_monotone_contraction" if not cond_mono
+                          else "contraction_not_converging" if not cond_converge
+                          else "no_tight_coil")
 
-    # 상태 판정
-    last_vol = bv[-1] if bv else 0.0
     base_low = min(bl) if bl else last_close
-    mono_violated = T >= 2 and contractions[-1] > contractions[-2] * p["contraction_tol"]
-    if pivot is not None and last_close > pivot and base_vol_avg and last_vol >= base_vol_avg * p["breakout_vol_mult"]:
+    mono_violated = T >= 2 and depths[-1] > depths[-2] * p["contraction_tol"]
+    if _is_breakout(closes, opens, vols, ma50, pivot, p):
         base["status"] = "breakout"
     elif mono_violated or last_close < base_low:
         base["status"] = "failed"
-    elif (
-        base["pct_to_pivot"] is not None
-        and 0 <= base["pct_to_pivot"] <= p["near_pivot_pct"]
-        and (base["volume_dryup_ratio"] if base["volume_dryup_ratio"] is not None else 9.9) <= 1.0
-    ):
+    elif (base["pct_to_pivot"] is not None and 0 <= base["pct_to_pivot"] <= p["near_pivot_pct"]
+          and (base["volume_dryup_ratio"] if base["volume_dryup_ratio"] is not None else 9.9) <= 1.0):
         base["status"] = "actionable"
     else:
         base["status"] = "forming"
-    base["entry_ready"] = bool(
-        base["vcp_detected"] and base["status"] in ("breakout", "actionable")
-    )
+    base["entry_ready"] = bool(base["vcp_detected"] and base["status"] in ("breakout", "actionable"))
     return base
