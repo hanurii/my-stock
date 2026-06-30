@@ -57,7 +57,12 @@ def run(args) -> None:
         for e in ex:
             if str(e.get("code", "")).strip() in ("", "000000"):
                 continue
-            s = vcp_audit.load_series(e["code"], e.get("start"), e.get("end"))
+            be = e.get("breakout_date") or e.get("end")
+            try:
+                fetch_end = (datetime.strptime(be, "%Y-%m-%d") + timedelta(days=30)).strftime("%Y-%m-%d") if be else None
+            except (ValueError, TypeError):
+                fetch_end = be
+            s = vcp_audit.load_series(e["code"], e.get("start"), fetch_end)
             if not s:
                 items.append({"code": e["code"], "source": "example", "note": "데이터 로드 실패(FDR)"})
                 continue
@@ -65,7 +70,7 @@ def run(args) -> None:
             if b0 is None:
                 items.append({"code": e["code"], "source": "example", "note": "기간 인덱스 실패(start)"})
                 continue
-            b1 = _idx_on_or_before(s["dates"], e.get("breakout_date") or e["end"])
+            b1 = _idx_on_or_before(s["dates"], e.get("end"))   # 베이스 끝 = end (돌파일 아님)
             if b1 is None:
                 items.append({"code": e["code"], "source": "example", "note": "기간 인덱스 실패(end)"})
                 continue
