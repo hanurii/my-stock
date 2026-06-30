@@ -24,46 +24,58 @@ DEFAULT_PARAMS: dict = {
 
 def _sentinel() -> dict:
     return {"cup_low_idx": 0, "cup_low": 0.0, "left_rim_idx": 0, "left_rim_high": 0.0,
-            "shelf_high_idx": 0, "shelf_high": 0.0, "cup_depth_pct": 0.0, "cup_base_days": 0}
+            "shelf_high_idx": 0, "shelf_high": 0.0, "cup_depth_pct": 0.0, "cup_base_days": 0,
+            "no_overhead_cup": True}
 
 
 def find_cheat_shelf(highs: list[float], lows: list[float],
-                     min_shelf_pullback: float | None = None) -> dict:
-    """컵 바닥을 먼저 앵커(전체 최저점)하고, 그 이전 최고가=왼쪽 테두리,
-    바닥 이후(우측)에서 '뒤에 눌림이 확인된 최고 고가'=선반 고점(피벗)을 찾는다.
+                     min_shelf_pullback: float | None = None,
+                     min_shelf_days: int = 5) -> dict:
+    """최근 컵 앵커링: 왼쪽 테두리(left_rim)=lookback 최고가(옛 peak) → 컵 바닥
+    (cup_low)=그 이후 최저 저점 → 선반 고점(shelf_high)=컵 바닥 이후 '뒤에 눌림이
+    확인된 최고 고가'(피벗). shelf_high ≤ left_rim_high 가 구조적으로 보장된다.
 
-    치트 선반은 옛 고점(왼쪽 테두리)보다 낮으므로, 파워플레이처럼 '구간 전체 최고
-    고가'를 피벗으로 잡으면 안 된다(왼쪽 테두리를 잡아버림). 그래서 바닥 기준 앵커.
+    옛 peak 가 너무 최근(left_rim_idx ≥ n-1-min_shelf_days)이거나 회복 구간이 비면
+    컵이 없다고 보고 sentinel(no_overhead_cup=True)을 반환한다(신고가/무조정).
     """
     if not highs or not lows:
         return _sentinel()
     n = len(highs)
-    cup_low_idx = min(range(n), key=lambda i: lows[i])
-    cup_low = lows[cup_low_idx]
-    left_rim_idx = max(range(0, cup_low_idx + 1), key=lambda i: highs[i])
+    left_rim_idx = max(range(n), key=lambda i: highs[i])
     left_rim_high = highs[left_rim_idx]
-
+    # 옛 peak 뒤로 컵+선반이 들어설 자리가 없음 → 컵 없음(신고가/무조정)
+    if left_rim_idx >= n - 1 - min_shelf_days:
+        s = _sentinel()
+        s["left_rim_idx"] = left_rim_idx
+        s["left_rim_high"] = left_rim_high
+        return s
+    cup_low_idx = min(range(left_rim_idx, n), key=lambda i: lows[i])
+    cup_low = lows[cup_low_idx]
+    if cup_low_idx >= n - 1:                       # 회복 구간 비어 있음
+        s = _sentinel()
+        s["left_rim_idx"] = left_rim_idx
+        s["left_rim_high"] = left_rim_high
+        s["cup_low_idx"] = cup_low_idx
+        s["cup_low"] = cup_low
+        return s
     right = range(cup_low_idx + 1, n)
     if min_shelf_pullback is None:
-        cand = list(right[:-1]) if len(right) > 1 else []
+        cand = [i for i in right if i < n - 1]
     else:
         pb = min_shelf_pullback / 100.0
-        cand = [i for i in right
-                if i < n - 1 and min(lows[i + 1:]) <= highs[i] * (1 - pb)]
+        cand = [i for i in right if i < n - 1 and min(lows[i + 1:]) <= highs[i] * (1 - pb)]
     if cand:
         shelf_high_idx = max(cand, key=lambda i: highs[i])
-    elif len(right) > 0:
-        shelf_high_idx = max(right, key=lambda i: highs[i])
     else:
-        shelf_high_idx = cup_low_idx
+        shelf_high_idx = max(right, key=lambda i: highs[i])
     shelf_high = highs[shelf_high_idx]
-
     cup_depth_pct = (left_rim_high - cup_low) / left_rim_high * 100.0 if left_rim_high > 0 else 0.0
     cup_base_days = (n - 1) - left_rim_idx
     return {"cup_low_idx": cup_low_idx, "cup_low": cup_low,
             "left_rim_idx": left_rim_idx, "left_rim_high": left_rim_high,
             "shelf_high_idx": shelf_high_idx, "shelf_high": shelf_high,
-            "cup_depth_pct": cup_depth_pct, "cup_base_days": cup_base_days}
+            "cup_depth_pct": cup_depth_pct, "cup_base_days": cup_base_days,
+            "no_overhead_cup": False}
 
 
 def _mean(xs: list[float]) -> float | None:
@@ -98,7 +110,10 @@ def evaluate_cheat(series: dict, params: dict | None = None) -> dict:
         base["reason"] = "base_too_short"
         return base
 
-    cs = find_cheat_shelf(highs, lows, p["min_shelf_pullback"])
+    cs = find_cheat_shelf(highs, lows, p["min_shelf_pullback"], p["min_shelf_days"])
+    if cs.get("no_overhead_cup"):
+        base["reason"] = "no_overhead_cup"
+        return base
     lri, cli, shi = cs["left_rim_idx"], cs["cup_low_idx"], cs["shelf_high_idx"]
     left_rim, cup_low, shelf_high = cs["left_rim_high"], cs["cup_low"], cs["shelf_high"]
     base["cup_depth_pct"] = round(cs["cup_depth_pct"], 2)
