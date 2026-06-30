@@ -93,6 +93,29 @@ def find_contractions(pivots: list[tuple[int, float, str]]) -> list[float]:
     return depths
 
 
+def find_contraction_chain(swings: list[tuple[int, float, str]], tol: float = 1.15) -> dict | None:
+    """끝쪽의 수렴하는 (고→저) 수축 연쇄. base_start=첫 수축 고점, pivot=마지막 수축 고점."""
+    pairs = []  # (hi_idx, hi_price, lo_idx, lo_price, depth%)
+    for a, b in zip(swings, swings[1:]):
+        if a[2] == "high" and b[2] == "low" and a[1] > 0:
+            pairs.append((a[0], a[1], b[0], b[1], (a[1] - b[1]) / a[1] * 100.0))
+    if not pairs:
+        return None
+    chain = [pairs[-1]]
+    for prev in reversed(pairs[:-1]):
+        # 시간순으로 깊이가 얕아지는(수렴) 동안만 연쇄에 포함: later <= prev*tol
+        if chain[0][4] <= prev[4] * tol:
+            chain.insert(0, prev)
+        else:
+            break
+    return {
+        "base_start": chain[0][0],
+        "pivot": round(chain[-1][1], 2),
+        "depths": [round(c[4], 2) for c in chain],
+        "count": len(chain),
+    }
+
+
 def _mean(xs: list[float]) -> float | None:
     xs = [x for x in xs if x is not None]
     return sum(xs) / len(xs) if xs else None

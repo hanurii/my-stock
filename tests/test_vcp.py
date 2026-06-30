@@ -2,7 +2,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
-from canslim_lib.vcp import zigzag, find_contractions, evaluate_vcp, volume_ma, adaptive_zigzag
+from canslim_lib.vcp import zigzag, find_contractions, evaluate_vcp, volume_ma, adaptive_zigzag, find_contraction_chain
 
 
 def test_zigzag_picks_alternating_pivots_from_peak():
@@ -134,3 +134,21 @@ def test_evaluate_vcp_records_reason_on_non_monotone():
     assert r["vcp_detected"] is False
     assert r["reason"] is not None        # null이면 안 됨(§7 근거 출력 불변원칙)
     assert r["entry_ready"] is False
+
+
+def test_find_contraction_chain_pivot_is_last_high_and_shrinks():
+    # 수축 깊이 25% → 13% → 7% (수렴), 마지막 수축 고점=피벗
+    swings = [
+        (0, 100.0, "high"), (5, 75.0, "low"),
+        (10, 90.0, "high"), (15, 78.3, "low"),
+        (20, 88.0, "high"), (25, 81.8, "low"),
+    ]
+    r = find_contraction_chain(swings, tol=1.15)
+    assert r["count"] == 3
+    assert r["base_start"] == 0          # 첫 수축 고점 인덱스
+    assert r["pivot"] == 88.0            # 마지막 수축 고점 = 최소저항선
+    assert r["depths"][0] > r["depths"][-1]
+
+
+def test_find_contraction_chain_none_without_pairs():
+    assert find_contraction_chain([(0, 100.0, "high")], tol=1.15) is None
