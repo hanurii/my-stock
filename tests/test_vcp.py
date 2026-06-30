@@ -189,7 +189,7 @@ def test_evaluate_vcp_extended_not_breakout():
     series = {"dates": dates, "closes": closes, "opens": opens,
               "highs": highs, "lows": lows, "volumes": vols}
     r = evaluate_vcp(series)
-    # 수축 고점(92) 위 전일 종가(95) → 첫돌파 아님 → breakout 금지
+    # 연장 회복 구간이 거래량 동반(안 마름) → detect_final_coil=None → reason=no_tight_coil → breakout 금지
     assert r["status"] != "breakout", (
         f"연장 종목이 breakout으로 잘못 분류됨: status={r['status']}, pivot={r['pivot_price']}"
     )
