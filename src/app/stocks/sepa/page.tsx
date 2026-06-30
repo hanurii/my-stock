@@ -137,7 +137,7 @@ export default async function SepaPage() {
           <strong style={{ color: "#e9c176" }}>🟡 예의주시</strong>: 베이스 형성 중 + 피벗 12% 이내(곧 만족 가능).
         </p>
         <p className="text-on-surface-variant">
-          <strong className="text-on-surface">피벗</strong>: 최소저항선(돌파 기준가). <strong className="text-on-surface">피벗대비</strong>: (피벗−현재가)/피벗 — 0에 가까울수록 진입 적기.
+          <strong className="text-on-surface">피벗</strong>: 최소저항선(돌파 기준가). <strong className="text-on-surface">피벗대비</strong>: (현재가−피벗)/피벗 — 음수=피벗 아래(미달), 양수=피벗 위(돌파). 0에 가까울수록 진입 적기.
         </p>
         <p className="text-on-surface-variant">
           <strong className="text-on-surface">VCP</strong>: 수축 횟수·베이스 깊이·코일 길이/마름(거래량/50일선)·타이트. <strong className="text-on-surface">파워 플레이</strong>: 깃대 상승률·일수·깃발 깊이.

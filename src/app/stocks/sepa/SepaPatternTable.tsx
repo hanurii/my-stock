@@ -166,7 +166,8 @@ export function SepaPatternTable({ rows, columns }: Props) {
                 <td className="px-2 py-2 text-right text-on-surface-variant">{fmtPrice(r.current_price)}</td>
                 <td className="px-2 py-2 text-right text-on-surface-variant">{fmtPrice(r.pivot_price)}</td>
                 <td className="px-2 py-2 text-right" style={{ color: pivotColor(r.pct_to_pivot) }}>
-                  {fmtPct(r.pct_to_pivot, 1)}
+                  {/* 표시 부호 반전: 음수=현재가가 피벗 아래(미달), 양수=피벗 위(돌파). 데이터(pct_to_pivot)는 (피벗−현재가)/피벗. */}
+                  {fmtPct(r.pct_to_pivot === null ? null : -r.pct_to_pivot, 1)}
                 </td>
                 {columns.map((c) => (
                   <td key={c.key} className="px-2 py-2 text-right text-on-surface-variant">
