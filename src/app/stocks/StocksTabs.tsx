@@ -11,6 +11,7 @@ const tabs = [
   { href: "/stocks/berkshire", label: "버핏 포트폴리오", icon: "account_balance" },
   { href: "/stocks/megacap", label: "메가캡 우량주", icon: "stars" },
   { href: "/stocks/etf-finder", label: "ETF 파인더", icon: "donut_small" },
+  { href: "/stocks/sepa", label: "SEPA 셋업", icon: "candlestick_chart" },
 ];
 
 export function StocksTabs({ berkshireIsNew }: { berkshireIsNew: boolean }) {
