@@ -90,7 +90,7 @@ export function SepaPatternTable({ rows, columns }: Props) {
       };
       const av = get(a);
       const bv = get(b);
-      const primary = sortDesc ? bv - av : av - bv;
+      const primary = av === bv ? 0 : (sortDesc ? bv - av : av - bv);
       if (primary !== 0) return primary;
       // 보조: 티어 → 피벗 근접 → RS
       if (TIER_ORDER[a.tier] !== TIER_ORDER[b.tier]) return TIER_ORDER[a.tier] - TIER_ORDER[b.tier];
