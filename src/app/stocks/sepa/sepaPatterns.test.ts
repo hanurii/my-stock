@@ -3,6 +3,7 @@ import {
   classify,
   sortRows,
   buildSection,
+  fmtCell,
   PATTERNS,
   WATCH_PCT,
   type ClassifiedRow,
@@ -110,5 +111,37 @@ describe("buildSection", () => {
     ];
     const r = buildSection(cands, PATTERNS.powerplayTrend);
     expect(r.rows.map((x) => x.code)).toEqual(["P"]);
+  });
+});
+
+describe("fmtCell", () => {
+  it("pct=부호 있는 증감(+ 상승)", () => {
+    expect(fmtCell(26.36, "pct")).toBe("+26.4%");
+    expect(fmtCell(-5, "pct")).toBe("-5.0%");
+  });
+  it("depth/tight=크기(+ 부호 없이)", () => {
+    expect(fmtCell(26.36, "depth")).toBe("26.4%");
+    expect(fmtCell(10.96, "tight")).toBe("11.0%");
+  });
+  it("null → —", () => {
+    expect(fmtCell(null, "depth")).toBe("—");
+    expect(fmtCell(undefined, "pct")).toBe("—");
+  });
+  it("ratio/int/days/price", () => {
+    expect(fmtCell(0.634, "ratio")).toBe("0.63");
+    expect(fmtCell(5, "int")).toBe("5");
+    expect(fmtCell(53, "days")).toBe("53일");
+    expect(fmtCell(29500, "price")).toBe("29,500");
+  });
+});
+
+describe("PATTERNS 컬럼 kind — 깊이는 부호 없는 depth", () => {
+  it("VCP 베이스깊이·파워플레이 깃발깊이 = depth, 깃대상승 = pct", () => {
+    const vcpDepth = PATTERNS.vcp.columns.find((c) => c.key === "base_depth_pct");
+    const ppFlagDepth = PATTERNS.powerplayTrend.columns.find((c) => c.key === "flag_depth_pct");
+    const ppPoleGain = PATTERNS.powerplayTrend.columns.find((c) => c.key === "flagpole_gain_pct");
+    expect(vcpDepth?.kind).toBe("depth");
+    expect(ppFlagDepth?.kind).toBe("depth");
+    expect(ppPoleGain?.kind).toBe("pct");
   });
 });

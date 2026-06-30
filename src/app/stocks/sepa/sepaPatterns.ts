@@ -34,7 +34,8 @@ export interface ClassifiedRow {
 export interface PatternColumn {
   key: string;
   label: string;
-  kind: "pct" | "price" | "int" | "ratio" | "days" | "tight";
+  // pct=부호 있는 증감(+/−) · depth/tight=크기(부호 없는 양수 %) · price/int/ratio/days
+  kind: "pct" | "depth" | "price" | "int" | "ratio" | "days" | "tight";
 }
 
 export interface PatternConfig {
@@ -142,8 +143,10 @@ export function fmtCell(value: unknown, kind: PatternColumn["kind"]): string {
     case "price":
       return fmtPrice(n);
     case "pct":
+      return fmtPct(n, 1);                       // 부호 있는 증감(+상승/−하락)
+    case "depth":
     case "tight":
-      return fmtPct(n, 1);
+      return n === null ? "—" : `${n.toFixed(1)}%`;  // 크기(깊이·타이트): + 부호 없이 표기
     case "ratio":
       return n === null ? "—" : n.toFixed(2);
     case "int":
@@ -156,7 +159,7 @@ export function fmtCell(value: unknown, kind: PatternColumn["kind"]): string {
 // ── 패턴 레지스트리 ─────────────────────────────────────
 const VCP_COLUMNS: PatternColumn[] = [
   { key: "num_contractions", label: "수축", kind: "int" },
-  { key: "base_depth_pct", label: "베이스깊이", kind: "pct" },
+  { key: "base_depth_pct", label: "베이스깊이", kind: "depth" },
   { key: "coil_len", label: "코일길이", kind: "int" },
   { key: "coil_dry_mean", label: "코일마름", kind: "ratio" },
   { key: "tightness_pct", label: "타이트", kind: "tight" },
@@ -165,7 +168,7 @@ const VCP_COLUMNS: PatternColumn[] = [
 const POWERPLAY_COLUMNS: PatternColumn[] = [
   { key: "flagpole_gain_pct", label: "깃대상승", kind: "pct" },
   { key: "flagpole_days", label: "깃대일수", kind: "days" },
-  { key: "flag_depth_pct", label: "깃발깊이", kind: "pct" },
+  { key: "flag_depth_pct", label: "깃발깊이", kind: "depth" },
   { key: "tightness_pct", label: "타이트", kind: "tight" },
 ];
 

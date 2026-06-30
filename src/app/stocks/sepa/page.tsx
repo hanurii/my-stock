@@ -140,7 +140,15 @@ export default async function SepaPage() {
           <strong className="text-on-surface">피벗</strong>: 최소저항선(돌파 기준가). <strong className="text-on-surface">피벗대비</strong>: (현재가−피벗)/피벗 — 음수=피벗 아래(미달), 양수=피벗 위(돌파). 0에 가까울수록 진입 적기.
         </p>
         <p className="text-on-surface-variant">
-          <strong className="text-on-surface">VCP</strong>: 수축 횟수·베이스 깊이·코일 길이/마름(거래량/50일선)·타이트. <strong className="text-on-surface">파워 플레이</strong>: 깃대 상승률·일수·깃발 깊이.
+          <strong className="text-on-surface">코일</strong>: 돌파 직전 주가가 좁고 조용하게 응축되는 마지막 구간(폭발 직전 최종 타이트 수축).{" "}
+          <strong className="text-on-surface">코일길이</strong>: 그 구간이 며칠짜리인지(거래일) — 짧을수록(미너비니 통상 3~5일) 응축이 잘 된 셋업.{" "}
+          <strong className="text-on-surface">코일마름</strong>: 코일 평균 거래량 ÷ 50일 평균 거래량 — 1보다 작을수록 거래량 고갈(예: 0.3=평소의 30%), 검출기는 0.95 이하만 코일로 인정. 낮을수록 좋은 신호.
+        </p>
+        <p className="text-on-surface-variant">
+          <strong className="text-on-surface">타이트</strong>: 최근 약 10거래일 일중 변동폭((고−저)/종가) 평균(%) — 작을수록 가격이 조밀하게 붙어 움직임(변동성 압축). <strong className="text-on-surface">베이스깊이</strong>: 베이스가 고점 대비 가장 깊게 조정된 폭(%) — 미너비니 통상 15~30%.
+        </p>
+        <p className="text-on-surface-variant">
+          <strong className="text-on-surface">VCP</strong>(변동성 수축): 수축 횟수 + 위 코일·타이트 지표. <strong className="text-on-surface">파워 플레이</strong>(하이 타이트 플래그): 깃대 상승률·일수 + 깃발 깊이.
         </p>
         <p className="text-on-surface-variant/60 mt-1 pt-2 border-t border-outline-variant/15">
           각 섹션은 그 패턴을 만족(돌파·진입임박)하거나 곧 만족할(예의주시) 종목만 노출하며, 실패·원거리 종목은 숨깁니다. 데이터는 읽기 전용(별도 파이프라인이 생성).
