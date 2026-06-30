@@ -11,7 +11,7 @@ description: >
 # find-vcp — SEPA 2단계: VCP 베이스·피벗 탐지
 
 `find-trend-template`(SEPA 1단계) 통과 종목에 대해 미너비니 **VCP(변동성 수축
-패턴)** 를 탐지한다. 정의·근거: `docs/superpowers/specs/2026-06-29-find-vcp-design.md`.
+패턴)** 를 탐지한다. 정의·근거: `docs/superpowers/specs/2026-06-30-vcp-detector-v2-design.md`.
 
 ## 사전 조건
 - **최신 데이터로 돌리려면 먼저 `update-data` → `find-trend-template`** 실행.
@@ -31,6 +31,8 @@ python scripts/screen_vcp.py
 - `--out PATH` : 출력 경로 변경.
 
 ## 결과 확인
+- **VCP 인식**: 적응형 ZigZag로 변동성 수축 연쇄를 탐지. 피벗(최소저항선) = 횡보 구간의 종가 천장.
+- **돌파(status)**: 첫돌파(전일 종가≤피벗, 당일 종가>피벗) + 양봉(종가>시가) + 거래량터짐(거래량≥50일선×1.4) + 피벗근접 동시 충족.
 - `status_distribution` : breakout(돌파 중) · actionable(피벗 근접+거래량 마름) ·
   forming(형성 중) · failed(수렴 실패).
 - `actionable`/`breakout` 종목이 다음 단계(리스크·진입) 후보.
