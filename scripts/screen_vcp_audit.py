@@ -49,7 +49,11 @@ def run(args) -> None:
 
     # 1) 정답 예시 (FDR)
     if not args.no_examples and EXAMPLES.exists():
-        ex = json.loads(EXAMPLES.read_text(encoding="utf-8")).get("examples", [])
+        try:
+            ex = json.loads(EXAMPLES.read_text(encoding="utf-8")).get("examples", [])
+        except (OSError, json.JSONDecodeError) as e:
+            print(f"⚠️ vcp_examples.json 읽기 실패: {e}")
+            ex = []
         for e in ex:
             if str(e.get("code", "")).strip() in ("", "000000"):
                 continue
@@ -57,17 +61,24 @@ def run(args) -> None:
             if not s:
                 items.append({"code": e["code"], "source": "example", "note": "데이터 로드 실패(FDR)"})
                 continue
-            b0 = _idx_on_or_before(s["dates"], e["start"]) or 0
+            b0 = _idx_on_or_before(s["dates"], e["start"])
+            if b0 is None:
+                items.append({"code": e["code"], "source": "example", "note": "기간 인덱스 실패(start)"})
+                continue
             b1 = _idx_on_or_before(s["dates"], e.get("breakout_date") or e["end"])
             if b1 is None:
-                items.append({"code": e["code"], "source": "example", "note": "기간 인덱스 실패"})
+                items.append({"code": e["code"], "source": "example", "note": "기간 인덱스 실패(end)"})
                 continue
             items.append(vcp_audit.audit_item(s, b0, b1, params,
                           {"code": e["code"], "name": e.get("note"), "source": "example"}))
 
     # 2) 검출기가 찾은 종목 (캐시)
     if not args.no_detector and HISTORY.exists():
-        hist = json.loads(HISTORY.read_text(encoding="utf-8"))
+        try:
+            hist = json.loads(HISTORY.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as e:
+            print(f"⚠️ sepa-vcp-history.json 읽기 실패: {e}")
+            hist = {"stocks": []}
         for st in hist.get("stocks", []):
             if st.get("num_events", 0) <= 0:
                 continue
@@ -92,7 +103,7 @@ def run(args) -> None:
         "summary": {"n_items": len(items), "axis_pass_counts": pass_counts},
     }
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    OUT_PATH.write_text(json.dumps(output, ensure_ascii=False, indent=2), encoding="utf-8")
+    OUT_PATH.write_text(json.dumps(output, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"\n💾 저장: {OUT_PATH.relative_to(ROOT)}")
 
     print(f"\n[VCP 책 충실도 감사] {len(items)}건  (축별 통과수: " +
