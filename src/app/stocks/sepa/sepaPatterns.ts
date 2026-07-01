@@ -87,6 +87,26 @@ export function sortRows(rows: ClassifiedRow[]): void {
   });
 }
 
+// 레코드 1건 → 티어(숨김이면 null). buildSection·tierHistory 공유(DRY).
+export function classifyCandidate(
+  raw: RawCandidate,
+  config: PatternConfig,
+  watchPct: number = WATCH_PCT
+): Tier | null {
+  const detected = Boolean(raw[config.detectField]);
+  const structureOk = config.structureOk(raw);
+  return classify(
+    {
+      detected,
+      status: String(raw.status ?? ""),
+      pivot_price: num(raw.pivot_price),
+      pct_to_pivot: num(raw.pct_to_pivot),
+      structureOk,
+    },
+    watchPct
+  );
+}
+
 export function buildSection(
   candidates: RawCandidate[] | null | undefined,
   config: PatternConfig,
@@ -94,12 +114,7 @@ export function buildSection(
 ): SectionResult {
   const rows: ClassifiedRow[] = [];
   for (const raw of candidates ?? []) {
-    const detected = Boolean(raw[config.detectField]);
-    const structureOk = config.structureOk(raw);
-    const pivot_price = num(raw.pivot_price);
-    const pct_to_pivot = num(raw.pct_to_pivot);
-    const status = String(raw.status ?? "");
-    const tier = classify({ detected, status, pivot_price, pct_to_pivot, structureOk }, watchPct);
+    const tier = classifyCandidate(raw, config, watchPct);
     if (!tier) continue;
     rows.push({
       code: raw.code,
@@ -107,9 +122,9 @@ export function buildSection(
       market: raw.market,
       current_price: raw.current_price,
       rs: raw.rs ?? null,
-      status,
-      pivot_price,
-      pct_to_pivot,
+      status: String(raw.status ?? ""),
+      pivot_price: num(raw.pivot_price),
+      pct_to_pivot: num(raw.pct_to_pivot),
       tier,
       raw,
     });
