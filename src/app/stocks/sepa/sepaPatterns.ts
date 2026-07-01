@@ -89,10 +89,13 @@ export function sortRows(rows: ClassifiedRow[]): void {
 export function buildSection(
   candidates: RawCandidate[] | null | undefined,
   config: PatternConfig,
-  watchPct: number = WATCH_PCT
+  watchPct: number = WATCH_PCT,
+  excludeCodes?: ReadonlySet<string>
 ): SectionResult {
   const rows: ClassifiedRow[] = [];
   for (const raw of candidates ?? []) {
+    // 상장폐지 예정 등 자동 판별 불가 사유로 제외할 종목은 여기서 걸러낸다(전 패턴 공통).
+    if (excludeCodes?.has(raw.code)) continue;
     const detected = Boolean(raw[config.detectField]);
     const structureOk = config.structureOk(raw);
     const pivot_price = num(raw.pivot_price);

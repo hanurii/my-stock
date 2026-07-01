@@ -18,6 +18,9 @@ interface CandidateFile {
   asof?: string;
   candidates?: RawCandidate[];
 }
+interface ExclusionFile {
+  exclusions?: { code: string; name?: string; reason?: string }[];
+}
 
 async function readJson<T>(filename: string): Promise<T | null> {
   try {
@@ -31,9 +34,11 @@ async function readJson<T>(filename: string): Promise<T | null> {
 function PatternSection({
   config,
   data,
+  excludeCodes,
 }: {
   config: PatternConfig;
   data: CandidateFile | null;
+  excludeCodes: ReadonlySet<string>;
 }) {
   if (!data) {
     return (
@@ -48,7 +53,7 @@ function PatternSection({
       </section>
     );
   }
-  const { rows, counts } = buildSection(data.candidates ?? [], config);
+  const { rows, counts } = buildSection(data.candidates ?? [], config, undefined, excludeCodes);
   return (
     <section>
       <h3 className="text-lg font-serif font-bold text-on-surface mb-3 flex items-center gap-2">
@@ -64,13 +69,17 @@ function PatternSection({
 }
 
 export default async function SepaPage() {
-  const [trend, vcp, ppTrend, ppAll, threeC] = await Promise.all([
+  const [trend, vcp, ppTrend, ppAll, threeC, exclusionFile] = await Promise.all([
     readJson<TrendData>("sepa-trend-candidates.json"),
     readJson<CandidateFile>(PATTERNS.vcp.file),
     readJson<CandidateFile>(PATTERNS.powerplayTrend.file),
     readJson<CandidateFile>(PATTERNS.powerplayAll.file),
     readJson<CandidateFile>(PATTERNS.threeC.file),
+    readJson<ExclusionFile>("sepa-exclusions.json"),
   ]);
+
+  // 상장폐지 예정 등 수동 제외 종목(전 패턴 공통 필터).
+  const excludeCodes = new Set((exclusionFile?.exclusions ?? []).map((e) => e.code));
 
   if (!trend) {
     return (
@@ -120,10 +129,10 @@ export default async function SepaPage() {
         <p className="text-[11px] text-on-surface-variant/70 leading-relaxed">{trend.market_status.detail}</p>
       </section>
 
-      <PatternSection config={PATTERNS.vcp} data={vcp} />
-      <PatternSection config={PATTERNS.powerplayTrend} data={ppTrend} />
-      <PatternSection config={PATTERNS.powerplayAll} data={ppAll} />
-      <PatternSection config={PATTERNS.threeC} data={threeC} />
+      <PatternSection config={PATTERNS.vcp} data={vcp} excludeCodes={excludeCodes} />
+      <PatternSection config={PATTERNS.powerplayTrend} data={ppTrend} excludeCodes={excludeCodes} />
+      <PatternSection config={PATTERNS.powerplayAll} data={ppAll} excludeCodes={excludeCodes} />
+      <PatternSection config={PATTERNS.threeC} data={threeC} excludeCodes={excludeCodes} />
 
       {/* 용어·배지 */}
       <section className="bg-surface-container-low rounded-xl ghost-border p-4 text-xs space-y-2">
