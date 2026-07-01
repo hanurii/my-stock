@@ -3,6 +3,7 @@ import path from "path";
 import { SepaPatternTable } from "./SepaPatternTable";
 import { PositionSizeCalculator } from "./PositionSizeCalculator";
 import { PATTERNS, buildSection, type PatternConfig, type RawCandidate } from "./sepaPatterns";
+import { computeTrendByCode, type TierHistory } from "./tierHistory";
 
 interface MarketStatus {
   passed: boolean;
@@ -32,9 +33,11 @@ async function readJson<T>(filename: string): Promise<T | null> {
 function PatternSection({
   config,
   data,
+  trendByCode,
 }: {
   config: PatternConfig;
   data: CandidateFile | null;
+  trendByCode?: Record<string, string>;
 }) {
   if (!data) {
     return (
@@ -59,7 +62,7 @@ function PatternSection({
           🔴 {counts.breakout} · 🟢 {counts.actionable} · 🟡 {counts.watch}
         </span>
       </h3>
-      <SepaPatternTable rows={rows} columns={config.columns} />
+      <SepaPatternTable rows={rows} columns={config.columns} trendByCode={trendByCode} />
     </section>
   );
 }
@@ -72,6 +75,16 @@ export default async function SepaPage() {
     readJson<CandidateFile>(PATTERNS.powerplayAll.file),
     readJson<CandidateFile>(PATTERNS.threeC.file),
   ]);
+
+  const history = await readJson<TierHistory>("sepa-tier-history.json");
+  const trends = history
+    ? {
+        vcp: computeTrendByCode(history, "vcp", PATTERNS.vcp),
+        powerplayTrend: computeTrendByCode(history, "powerplayTrend", PATTERNS.powerplayTrend),
+        powerplayAll: computeTrendByCode(history, "powerplayAll", PATTERNS.powerplayAll),
+        threeC: computeTrendByCode(history, "threeC", PATTERNS.threeC),
+      }
+    : null;
 
   if (!trend) {
     return (
@@ -121,10 +134,10 @@ export default async function SepaPage() {
         <p className="text-[11px] text-on-surface-variant/70 leading-relaxed">{trend.market_status.detail}</p>
       </section>
 
-      <PatternSection config={PATTERNS.vcp} data={vcp} />
-      <PatternSection config={PATTERNS.powerplayTrend} data={ppTrend} />
-      <PatternSection config={PATTERNS.powerplayAll} data={ppAll} />
-      <PatternSection config={PATTERNS.threeC} data={threeC} />
+      <PatternSection config={PATTERNS.vcp} data={vcp} trendByCode={trends?.vcp} />
+      <PatternSection config={PATTERNS.powerplayTrend} data={ppTrend} trendByCode={trends?.powerplayTrend} />
+      <PatternSection config={PATTERNS.powerplayAll} data={ppAll} trendByCode={trends?.powerplayAll} />
+      <PatternSection config={PATTERNS.threeC} data={threeC} trendByCode={trends?.threeC} />
 
       {/* 포지션 크기 계산기 */}
       <section className="bg-surface-container-low rounded-xl ghost-border p-4 space-y-3">

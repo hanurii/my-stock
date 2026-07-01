@@ -46,6 +46,11 @@ python scripts/screen_3c.py
   forming(형성 중) · failed(선반 붕괴).
 - `entry_ready` 종목이 다음 단계(리스크·진입) 후보.
 - 불성립 종목도 `reason`과 함께 전부 포함(환각 방지·디버그).
+
+## 다음 단계 (SEPA 파이프라인 마무리)
+- 3C 는 보통 SEPA 파이프라인의 마지막 검출기다. 4개 검출기(find-vcp·find-power-play(트렌드/전수)·find-3c)를 모두 돌린 뒤,
+  **`python scripts/snapshot_sepa.py`** 를 실행해 티어 추이 스냅샷(`public/data/sepa-tier-history.json`, 최근 3일)을 갱신한다.
+  → `/stocks/sepa` 페이지의 각 패턴 테이블 '추이' 컬럼(어제→오늘 티어, 🆕 신규)이 이 파일로 계산된다.
 - `status` 는 패턴 성립 여부와 무관하게 가격 위치(돌파/근접/형성/붕괴)로
   결정된다. 따라서 `pattern_detected=false` 인 종목도 breakout/actionable 로
   표시될 수 있으며, '살 자리(entry_ready)' 는 패턴까지 성립한 종목에만 부여된다

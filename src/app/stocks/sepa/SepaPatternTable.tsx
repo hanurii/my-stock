@@ -67,9 +67,10 @@ function SortHeader({ k, label, activeSortKey, sortDesc, onToggle }: SortHeaderP
 interface Props {
   rows: ClassifiedRow[];
   columns: PatternColumn[];
+  trendByCode?: Record<string, string>;
 }
 
-export function SepaPatternTable({ rows, columns }: Props) {
+export function SepaPatternTable({ rows, columns, trendByCode }: Props) {
   const [sortKey, setSortKey] = useState<SortKey>("tier");
   const [sortDesc, setSortDesc] = useState(false);
 
@@ -132,6 +133,11 @@ export function SepaPatternTable({ rows, columns }: Props) {
             <th className="px-2 py-2 text-right text-[11px] font-medium text-on-surface-variant/80">현재가</th>
             <SortHeader k="pivot" label="피벗" activeSortKey={sortKey} sortDesc={sortDesc} onToggle={toggleSort} />
             <SortHeader k="from_pivot" label="피벗대비" activeSortKey={sortKey} sortDesc={sortDesc} onToggle={toggleSort} />
+            {trendByCode && (
+              <th className="px-2 py-2 text-center text-[11px] font-medium text-on-surface-variant/80" title="최근 티어 추이(오래된→최신). 🆕=오늘 신규 진입">
+                추이
+              </th>
+            )}
             {columns.map((c) => (
               <th key={c.key} className="px-2 py-2 text-right text-[11px] font-medium text-on-surface-variant/80">
                 {c.label}
@@ -169,6 +175,11 @@ export function SepaPatternTable({ rows, columns }: Props) {
                   {/* 표시 부호 반전: 음수=현재가가 피벗 아래(미달), 양수=피벗 위(돌파). 데이터(pct_to_pivot)는 (피벗−현재가)/피벗. */}
                   {fmtPct(r.pct_to_pivot === null ? null : -r.pct_to_pivot, 1)}
                 </td>
+                {trendByCode && (
+                  <td className="px-2 py-2 text-center whitespace-nowrap tracking-wide">
+                    {trendByCode[r.code] || "—"}
+                  </td>
+                )}
                 {columns.map((c) => (
                   <td key={c.key} className="px-2 py-2 text-right text-on-surface-variant">
                     {fmtCell(r.raw[c.key], c.kind)}
