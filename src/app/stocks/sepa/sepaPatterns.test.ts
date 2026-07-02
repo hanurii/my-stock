@@ -114,6 +114,23 @@ describe("buildSection", () => {
     const r = buildSection(cands, PATTERNS.powerplayTrend);
     expect(r.rows.map((x) => x.code)).toEqual(["P"]);
   });
+
+  it("excludeCodes: 상장폐지 예정 등 제외 종목은 통과 종목이어도 숨김·카운트 제외", () => {
+    const cands: RawCandidate[] = [
+      { code: "A", name: "a", market: "KOSPI", current_price: 1, rs: 90, status: "breakout", pivot_price: 100, pct_to_pivot: -5, vcp_detected: true, num_contractions: 3 },
+      { code: "057050", name: "현대홈쇼핑", market: "KOSPI", current_price: 1, rs: 89, status: "breakout", pivot_price: 100, pct_to_pivot: -3, vcp_detected: true, num_contractions: 3 },
+    ];
+    const r = buildSection(cands, PATTERNS.vcp, WATCH_PCT, new Set(["057050"]));
+    expect(r.rows.map((x) => x.code)).toEqual(["A"]);
+    expect(r.counts).toEqual({ breakout: 1, actionable: 0, watch: 0 });
+  });
+
+  it("excludeCodes 미지정 시 아무것도 제외하지 않음", () => {
+    const cands: RawCandidate[] = [
+      { code: "057050", name: "현대홈쇼핑", market: "KOSPI", current_price: 1, rs: 89, status: "breakout", pivot_price: 100, pct_to_pivot: -3, vcp_detected: true, num_contractions: 3 },
+    ];
+    expect(buildSection(cands, PATTERNS.vcp).rows.map((x) => x.code)).toEqual(["057050"]);
+  });
 });
 
 describe("fmtCell", () => {

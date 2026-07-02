@@ -20,6 +20,9 @@ interface CandidateFile {
   asof?: string;
   candidates?: RawCandidate[];
 }
+interface ExclusionFile {
+  exclusions?: { code: string; name?: string; reason?: string }[];
+}
 
 async function readJson<T>(filename: string): Promise<T | null> {
   try {
@@ -34,10 +37,12 @@ function PatternSection({
   config,
   data,
   trendByCode,
+  excludeCodes,
 }: {
   config: PatternConfig;
   data: CandidateFile | null;
   trendByCode?: Record<string, string>;
+  excludeCodes: ReadonlySet<string>;
 }) {
   if (!data) {
     return (
@@ -52,7 +57,7 @@ function PatternSection({
       </section>
     );
   }
-  const { rows, counts } = buildSection(data.candidates ?? [], config);
+  const { rows, counts } = buildSection(data.candidates ?? [], config, undefined, excludeCodes);
   return (
     <section>
       <h3 className="text-lg font-serif font-bold text-on-surface mb-3 flex items-center gap-2">
@@ -75,6 +80,10 @@ export default async function SepaPage() {
     readJson<CandidateFile>(PATTERNS.powerplayAll.file),
     readJson<CandidateFile>(PATTERNS.threeC.file),
   ]);
+
+  const exclusionFile = await readJson<ExclusionFile>("sepa-exclusions.json");
+  // 상장폐지 예정 등 수동 제외 종목(전 패턴 공통 필터).
+  const excludeCodes = new Set((exclusionFile?.exclusions ?? []).map((e) => e.code));
 
   const history = await readJson<TierHistory>("sepa-tier-history.json");
   const trends = history
@@ -134,10 +143,10 @@ export default async function SepaPage() {
         <p className="text-[11px] text-on-surface-variant/70 leading-relaxed">{trend.market_status.detail}</p>
       </section>
 
-      <PatternSection config={PATTERNS.vcp} data={vcp} trendByCode={trends?.vcp} />
-      <PatternSection config={PATTERNS.powerplayTrend} data={ppTrend} trendByCode={trends?.powerplayTrend} />
-      <PatternSection config={PATTERNS.powerplayAll} data={ppAll} trendByCode={trends?.powerplayAll} />
-      <PatternSection config={PATTERNS.threeC} data={threeC} trendByCode={trends?.threeC} />
+      <PatternSection config={PATTERNS.vcp} data={vcp} trendByCode={trends?.vcp} excludeCodes={excludeCodes} />
+      <PatternSection config={PATTERNS.powerplayTrend} data={ppTrend} trendByCode={trends?.powerplayTrend} excludeCodes={excludeCodes} />
+      <PatternSection config={PATTERNS.powerplayAll} data={ppAll} trendByCode={trends?.powerplayAll} excludeCodes={excludeCodes} />
+      <PatternSection config={PATTERNS.threeC} data={threeC} trendByCode={trends?.threeC} excludeCodes={excludeCodes} />
 
       {/* 포지션 크기 계산기 */}
       <section className="bg-surface-container-low rounded-xl ghost-border p-4 space-y-3">
