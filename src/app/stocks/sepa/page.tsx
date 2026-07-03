@@ -2,6 +2,7 @@ import fs from "fs/promises";
 import path from "path";
 import { SepaPatternTable } from "./SepaPatternTable";
 import { PATTERNS, buildSection, type PatternConfig, type RawCandidate } from "./sepaPatterns";
+import { SepaHoldingsSection, type HoldingsFeedbackFile } from "./SepaHoldingsSection";
 
 interface MarketStatus {
   passed: boolean;
@@ -69,13 +70,14 @@ function PatternSection({
 }
 
 export default async function SepaPage() {
-  const [trend, vcp, ppTrend, ppAll, threeC, exclusionFile] = await Promise.all([
+  const [trend, vcp, ppTrend, ppAll, threeC, exclusionFile, holdingsFeedback] = await Promise.all([
     readJson<TrendData>("sepa-trend-candidates.json"),
     readJson<CandidateFile>(PATTERNS.vcp.file),
     readJson<CandidateFile>(PATTERNS.powerplayTrend.file),
     readJson<CandidateFile>(PATTERNS.powerplayAll.file),
     readJson<CandidateFile>(PATTERNS.threeC.file),
     readJson<ExclusionFile>("sepa-exclusions.json"),
+    readJson<HoldingsFeedbackFile>("sepa-holdings-feedback.json"),
   ]);
 
   // 상장폐지 예정 등 수동 제외 종목(전 패턴 공통 필터).
@@ -128,6 +130,8 @@ export default async function SepaPage() {
         </h3>
         <p className="text-[11px] text-on-surface-variant/70 leading-relaxed">{trend.market_status.detail}</p>
       </section>
+
+      <SepaHoldingsSection data={holdingsFeedback} />
 
       <PatternSection config={PATTERNS.vcp} data={vcp} excludeCodes={excludeCodes} />
       <PatternSection config={PATTERNS.powerplayTrend} data={ppTrend} excludeCodes={excludeCodes} />
