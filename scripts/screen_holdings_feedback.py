@@ -100,7 +100,7 @@ def run(out_path: Path) -> None:
         "holdings": out_holdings,
     }
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(json.dumps(output, ensure_ascii=False, indent=2),
+    out_path.write_text(json.dumps(output, ensure_ascii=False, indent=2) + "\n",
                         encoding="utf-8")
     print(f"💾 저장: {out_path.relative_to(ROOT)} (기준일 {asof})\n")
     for x in out_holdings:

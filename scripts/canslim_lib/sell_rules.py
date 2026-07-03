@@ -54,11 +54,11 @@ def rule_low_volume_breakout(series, bi):
     ratio = vols[bi] / avg
     if ratio < 1.0:
         return {"id": rid, "status": "violation",
-                "detail": f"돌파일 거래량 {ratio:.1f}배 — 평균에도 못 미침"}
+                "detail": f"돌파일 거래량 {ratio:.2f}배 — 평균에도 못 미침"}
     if ratio < STRONG_BREAKOUT_MULT:
         return {"id": rid, "status": "pass",
-                "detail": f"돌파일 거래량 {ratio:.1f}배 — 정상 돌파(1.5배+)에는 못 미침"}
-    return {"id": rid, "status": "pass", "detail": f"돌파일 거래량 {ratio:.1f}배"}
+                "detail": f"돌파일 거래량 {ratio:.2f}배 — 정상 돌파(1.5배+)에는 못 미침"}
+    return {"id": rid, "status": "pass", "detail": f"돌파일 거래량 {ratio:.2f}배"}
 
 
 def rule_heavy_volume_pullback(series, bi):
