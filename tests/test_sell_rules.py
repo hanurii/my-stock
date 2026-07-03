@@ -267,10 +267,41 @@ def test_rule6_na_without_pivot():
     assert rule_squat(s, 30, None)["status"] == "na"
 
 
-def test_rule6_pending_no_post_breakout_days():
+def test_rule6_pass_breakout_day_only_holds_above_pivot():
+    # 돌파 당일 데이터만 있어도 당일 종가가 피벗 위면 통과 (유보 아님)
     closes = [100.0] * 30 + [106.0]
     s = make_series(closes)
-    assert rule_squat(s, 30, 105.0)["status"] == "pending"
+    assert rule_squat(s, 30, 105.0)["status"] == "pass"
+
+
+def test_rule6_same_day_squat_violation():
+    # 장중에 피벗을 돌파했지만 당일 종가가 피벗 아래로 되밀림 → 돌파 당일 스쿼트
+    closes = [100.0] * 30 + [103.0]
+    highs = [c * 1.01 for c in closes[:30]] + [106.0]
+    s = make_series(closes, highs=highs)
+    r = rule_squat(s, 30, 105.0)
+    assert r["status"] == "violation"
+    assert "돌파 당일" in r["detail"]
+
+
+def test_find_breakout_detects_intraday_cross():
+    # 종가는 피벗 아래여도 장중 고가가 피벗을 넘었으면 돌파일로 인정 (고가 기준)
+    closes = [100.0] * 10 + [103.0, 102.0]
+    highs = [c * 1.01 for c in closes[:10]] + [106.0, 103.5]
+    s = make_series(closes, highs=highs)
+    bi, estimated = find_breakout_index(s, s["dates"][-1], 105.0)
+    assert bi == 10
+    assert estimated is False
+
+
+def test_evaluate_holding_intraday_squat_flow():
+    # 장중 돌파(고가 106>피벗 105) 후 당일 아래 마감 → 돌파 확인 + 당일 스쿼트 위반
+    closes = [100.0] * 60 + [103.0]
+    highs = [c * 1.01 for c in closes[:60]] + [106.0]
+    s = make_series(closes, highs=highs)
+    r = evaluate_holding(s, s["dates"][60], 103.0, -4.0, pivot_price=105.0)
+    assert r["breakout_date_estimated"] is False
+    assert r["rules"][5]["status"] == "violation"
 
 
 # --- evaluate_holding ---
