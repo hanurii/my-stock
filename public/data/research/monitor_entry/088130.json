@@ -1,7 +1,7 @@
 {
   "code": "088130",
   "name": "동아엘텍",
-  "last_checked": "2026-07-03T09:23:17.057+09:00",
+  "last_checked": "2026-07-03T15:31:54.641+09:00",
   "metrics": [
     {
       "id": "no_capital_issuance",
@@ -70,9 +70,40 @@
       "type": "per_value_zone",
       "title": "✅ PER 본격 저평가 3.5배 이하",
       "message": "현재 1.84배 — 매수 시그널 (분할 진입 검토 권장)"
+    },
+    {
+      "severity": "info",
+      "type": "news_keyword_hit",
+      "title": "매수 시그널 키워드 매칭 뉴스 3건 (관찰 신호 0건 — 키워드 단순 매칭만)",
+      "message": "매수 시그널 모니터링 키워드 기준 최근 7일 매칭. 호재 명시 phrase로 등록되어 있으나 본문 직접 확인 권장."
     }
   ],
-  "news_hits": [],
+  "news_hits": [
+    {
+      "keyword": "OLED 8.6세대 양산",
+      "date": "2026-07-03",
+      "title": "이재명 대통령, 삼성 아산캠퍼스 방문… ‘세계 최초 8.6세대 IT OLED’ 양산 본격화 - 코리아방송",
+      "url": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE5CZHBGN3FmMjN0Vzc1bUNZMlBLanZZUUFCZTQwSHVobDhNeGJpX1lyd3dlVHJoWVlaNFlUOFhrUTR6bkhCUXRzLTNfZEZNWkFMbEZ4WjdONkJHcVZxZk5aZ3cyeVFuSzQ?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "OLED 8.6세대 양산",
+      "date": "2026-07-02",
+      "title": "이재명 대통령, 삼성 아산캠퍼스 방문…세계 최초 ‘8.6세대 IT OLED’ 양산 신호탄 쐈다 - 뉴스로드",
+      "url": "https://news.google.com/rss/articles/CBMia0FVX3lxTE9qVkFYN0hKMHQ4MmxMUThTeWdVMzdmMlZnWTJ1ZmVWNlp0VUtFa3Q2a2Y5eTZMRmJyd0NFSUhfVXlzME9qTEdraGI3U245UTdNajhvNjJqdWJlTV9SUVZicUFQWEVpSno0MVhV0gFvQVVfeXFMT0VfalJOWUhnSllldHFVcnpSYkFBcGFHRTREaHpRa3BiaWU1bm1jSngyQ2RSWTBKT01LTEROQ19Cb1RiYTJzMUhhSGpEZDQyTnRyaWFhQ0JIMTJvNWRfQXdlQVZJTDAtOXJBTkxBdjFZ?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "OLED 8.6세대 양산",
+      "date": "2026-07-02",
+      "title": "李, 버튼 누르자 8.6세대 OLED 세계 첫 양산…\"상상이 현실로\" - 네이트",
+      "url": "https://news.google.com/rss/articles/CBMiU0FVX3lxTE5ZRDNOelN2d2x4cUJMT3lOS1ZTYzJfQW0wTGRTSXFzRDNOTVMzbkxKeV9CQ2lJSHBQZkFUQWxiZkJxeFdiYlhVdVJISVg1bGhLMlNz?oc=5",
+      "severity": "info",
+      "signals": []
+    }
+  ],
   "sources": [
     {
       "label": "PER/PEG/PBR 스코어",
@@ -81,6 +112,10 @@
     {
       "label": "분기 영업이익률 (2025)",
       "ref": "DART 20260316001316"
+    },
+    {
+      "label": "뉴스 RSS",
+      "ref": "news.google.com/rss (7일)"
     }
   ]
 }
