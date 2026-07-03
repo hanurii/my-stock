@@ -24,10 +24,10 @@ def avg_volume(volumes, i, window=50, min_days=5):
 
 def find_breakout_index(series, buy_date, pivot_price):
     """매수일에서 최대 BREAKOUT_LOOKBACK 거래일 소급해
-    '전일 종가 <= 피벗 < 당일 종가' 인 가장 최근 날을 찾는다.
+    '전일 고가 <= 피벗 < 당일 고가' 인 가장 최근 날(장중 돌파 포함)을 찾는다.
     반환: (index, estimated) — 못 찾으면 매수일 인덱스(estimated=True).
     """
-    dates, closes = series["dates"], series["closes"]
+    dates, highs = series["dates"], series["highs"]
     buy_idx = 0
     for i in range(len(dates) - 1, -1, -1):
         if dates[i] <= buy_date:
@@ -37,7 +37,7 @@ def find_breakout_index(series, buy_date, pivot_price):
         return buy_idx, True
     lo = max(1, buy_idx - BREAKOUT_LOOKBACK + 1)
     for i in range(buy_idx, lo - 1, -1):
-        if closes[i] > pivot_price and closes[i - 1] <= pivot_price:
+        if highs[i] > pivot_price and highs[i - 1] <= pivot_price:
             return i, False
     return buy_idx, True
 
@@ -171,7 +171,8 @@ def rule_weak_days_dominant(series, bi):
 
 
 def rule_squat(series, bi, pivot_price, breakout_confirmed=True):
-    """규칙⑥ 스쿼트(돌파 실패): 돌파 후 종가가 피벗 아래로 복귀하면 위반.
+    """규칙⑥ 스쿼트(돌파 실패): 돌파 당일 포함, 종가가 피벗 아래로 되밀리면 위반.
+    돌파는 장중(고가) 기준이므로 돌파 당일 종가가 피벗 아래일 수 있음(당일 스쿼트).
     피벗 돌파가 확인되지 않았으면(돌파일 추정) 스쿼트 판정 자체가 성립하지 않음."""
     rid = "squat"
     if pivot_price is None:
@@ -180,12 +181,11 @@ def rule_squat(series, bi, pivot_price, breakout_confirmed=True):
         return {"id": rid, "status": "na", "detail": "피벗 돌파 미확인 — 판정 불가"}
     closes, dates = series["closes"], series["dates"]
     n = len(closes)
-    if bi + 1 >= n:
-        return {"id": rid, "status": "pending", "detail": "돌파 다음 날 데이터 없음"}
-    for i in range(bi + 1, n):
+    for i in range(bi, n):
         if closes[i] < pivot_price:
+            when = "돌파 당일 " if i == bi else ""
             return {"id": rid, "status": "violation",
-                    "detail": f"{dates[i]} 종가가 피벗({pivot_price:,.0f}) 아래 복귀"}
+                    "detail": f"{when}{dates[i]} 종가가 피벗({pivot_price:,.0f}) 아래 복귀"}
     return {"id": rid, "status": "pass", "detail": "피벗 위 유지"}
 
 

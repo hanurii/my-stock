@@ -66,7 +66,12 @@ def run(out_path: Path) -> None:
         options = pivots.get(code, [])
         s = ohlcv_matrix.get_series(code)
         chosen = None
-        if s and s.get("closes"):
+        if h.get("pivot_price") is not None:
+            # 매수 시점 피벗 스냅샷이 있으면 최우선 — 이후 스캔에서 후보 피벗이
+            # 바뀌거나 사라져도 "내가 산 근거"로 일관되게 판정한다.
+            chosen = {"pivot": h["pivot_price"], "source": "manual",
+                      "market": options[0].get("market") if options else None}
+        elif s and s.get("closes"):
             # 실제 돌파가 확인되는 피벗 우선(vcp→power_play), 없으면 첫 후보
             for opt in options:
                 _, est = find_breakout_index(s, buy_date, opt["pivot"])
