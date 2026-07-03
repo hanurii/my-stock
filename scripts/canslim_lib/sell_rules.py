@@ -47,8 +47,10 @@ def rule_low_volume_breakout(series, bi):
     rid = "low_volume_breakout"
     vols = series["volumes"]
     avg = avg_volume(vols, bi)
-    if avg is None or not vols[bi]:
+    if avg is None:
         return {"id": rid, "status": "pending", "detail": "거래량 표본 부족"}
+    if vols[bi] is None:
+        return {"id": rid, "status": "pending", "detail": "돌파일 거래량 데이터 없음"}
     ratio = vols[bi] / avg
     if ratio < 1.0:
         return {"id": rid, "status": "violation",

@@ -109,6 +109,18 @@ def test_rule1_pending_insufficient_history():
     assert rule_low_volume_breakout(s, 2)["status"] == "pending"
 
 
+def test_rule1_zero_breakout_volume_is_violation():
+    vols = [1000.0] * 30 + [0.0]
+    s = make_series([100.0] * 31, volumes=vols)
+    assert rule_low_volume_breakout(s, 30)["status"] == "violation"
+
+
+def test_rule1_none_breakout_volume_is_pending():
+    vols = [1000.0] * 30 + [None]
+    s = make_series([100.0] * 31, volumes=vols)
+    assert rule_low_volume_breakout(s, 30)["status"] == "pending"
+
+
 # --- 규칙 ② 대량 거래 후퇴 ---
 
 def test_rule2_violation_down_close_on_heavy_volume():
