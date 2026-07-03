@@ -19,16 +19,18 @@
 1. **update-data** — OHLCV 시세 캐시를 최신 영업일까지 증분 갱신.
 2. **find-trend-template** — SEPA 1단계 추세 관문. **통과 0종목이면 여기서
    중단하고 보고**(약세장이면 정상). 이후 단계·커밋 진행 안 함.
-3. **find-vcp + find-power-play 동시 실행** — 둘 다
+3. **find-vcp + find-power-play + find-3c 동시 실행** — 모두
    `sepa-trend-candidates.json`을 읽기만 하고 서로 다른 파일에 쓰므로 병렬
-   안전. 두 스크립트를 백그라운드로 동시에 돌려 시간 절약.
+   안전. 스크립트들을 백그라운드로 동시에 돌려 시간 절약. find-3c 스킬이
+   현재 체크아웃에 없으면(구 브랜치) 건너뛰고 요약에 명시(실패 아님).
 4. **통합 요약 보고** — 추세 통과 N종목 → VCP 살 자리(entry: breakout/
    actionable) M종목, 파워플레이 살 자리 K종목. 숫자는 콘솔 출력 그대로
    (환각 금지).
-5. **자동 커밋 + 푸시 (사용자 확정: 항상)** — 커밋 대상은 결과 파일 3개만:
+5. **자동 커밋 + 푸시 (사용자 확정: 항상)** — 커밋 대상은 결과 파일만:
    - `public/data/sepa-trend-candidates.json`
    - `public/data/sepa-vcp-candidates.json`
    - `public/data/sepa-power-play-candidates.json`
+   - `public/data/sepa-3c-candidates.json` (find-3c 실행 시)
    - 다른 변경 파일은 절대 섞지 않는다([match-scope-to-target-page] 준수).
    - 현재 브랜치로 push. **브랜치가 master가 아니면 "프로덕션(master 자동
      배포)에는 반영되지 않음" 경고 한 줄 출력**([make-hero-branch-vs-prod]
@@ -43,9 +45,10 @@
 
 ## 범위 제외
 
-- `find-vcp-history` / `find-power-play-history` — 정기 단계가 아닌 온디맨드
-  검증 도구([sepa-pipeline-order]).
-- `find-3c` — 스킬 파일이 아직 없음. 생기면 3단계에 형제로 한 줄 추가.
+- `find-*-history`(vcp/power-play/3c) · `vcp-audit` — 정기 단계가 아닌
+  온디맨드 검증 도구([sepa-pipeline-order]).
+- (참고) find-3c는 master에 이미 병합돼 있어 3단계 형제로 포함. 이 feature
+  브랜치에는 스킬 파일이 없어 merge 전까지는 건너뛰기로 동작.
 - 하위 스킬 옵션 튜닝(`--rs-min`, `--ticker` 등) — 필요하면 하위 스킬을 직접
   호출.
 
