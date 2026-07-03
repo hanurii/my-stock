@@ -1,13 +1,13 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-07-02T20:36:42.220+09:00",
+  "last_checked": "2026-07-03T09:21:48.082+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 5.53,
-      "display": "5.53배",
+      "value": 5.43,
+      "display": "5.43배",
       "threshold": "10배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "dividend_yield",
       "label": "배당수익률",
-      "value": 3.9,
-      "display": "3.90%",
+      "value": 3.97,
+      "display": "3.97%",
       "threshold": "3.5% 이하",
       "hit": false,
       "tone": "good"
@@ -24,8 +24,8 @@
     {
       "id": "price_high",
       "label": "주가",
-      "value": 73000,
-      "display": "73,000원",
+      "value": 76900,
+      "display": "76,900원",
       "threshold": "85,000원+ 돌파",
       "hit": false,
       "tone": "good"
@@ -60,8 +60,8 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 72.71,
-      "display": "72.71$",
+      "value": 72.88,
+      "display": "72.88$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "warn"
@@ -84,215 +84,18 @@
       "severity": "warn",
       "type": "oil_price_brent",
       "title": "Brent 7일 평균 (두바이유 대용) 임계 근접",
-      "message": "현재 72.71$ (임계 70달러 이하 (정유 매크로 약화))"
-    },
-    {
-      "severity": "warn",
-      "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 21건 (관찰 신호 9건 포함)",
-      "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
+      "message": "현재 72.88$ (임계 70달러 이하 (정유 매크로 약화))"
     }
   ],
-  "news_hits": [
-    {
-      "keyword": "두바이유 하락",
-      "date": "2026-06-28",
-      "title": "[이슈 : 두바이유〈 WTI·사우디 OSP 하락, 韓 정유사 수혜 기대돼",
-      "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE93ZVlfSnFNdjBWYUJPNWtCY0k5NF9yNWFmcFRJd1BUeXhZVVJTZWZ1dkpZM09hcVppSElaS3lqMTZESDNxUnVnVEhwa0YxOGhNRDRhc3ZOZWNINWw5bGptc1RCMVRfaWljOVFmQtIBcEFVX3lxTE5sLWRXZzRfVDRIYW1LUFBYelduQUpGWUtxejk1N2xBWEZuNXdLWGthR0hRUGJLMkt5eW1vbS10SmNEWmo5MUJOMi03VU9pbjg4RVlHUXdzTG9oSFRCam12bzVkM1Z6TmhWWlN5anMtWlc?oc=5",
-      "severity": "warn",
-      "signals": [
-        "하락"
-      ]
-    },
-    {
-      "keyword": "정제마진 하락",
-      "date": "2026-06-28",
-      "title": "NH투자證 “S-Oil, 유가 하락에도 정제마진 강세 여전…목표가 15만원 유지” - v.daum.net",
-      "url": "https://news.google.com/rss/articles/CBMiS0FVX3lxTE0yRlZVX0VFOTBDNzB0dkpwY2cxbEEwMnNnSlFwSldWU1k1SDloUWotdDJsNmpVZzJHNHQ4OG1RdGtaa0ZxWWljMExQaw?oc=5",
-      "severity": "warn",
-      "signals": [
-        "하락"
-      ]
-    },
-    {
-      "keyword": "정제마진 하락",
-      "date": "2026-06-28",
-      "title": "NH證 \"S-Oil, 유가 하락에도 정제마진 강세…목표가 15만원\" - 뉴스1",
-      "url": "https://news.google.com/rss/articles/CBMiX0FVX3lxTE9FYzFaVlJ4b2JfeG5FdTZRYkdoRHhJRW1oYTE5VzFGcWhGMGRva3Vac25ONVBXbE5zLXpXTzN0XzZ6aW4wYWZqOHlhaXY0dEhtMWE0R3EyMGdWNWJKeFNR?oc=5",
-      "severity": "warn",
-      "signals": [
-        "하락"
-      ]
-    },
-    {
-      "keyword": "정제마진 하락",
-      "date": "2026-06-28",
-      "title": "NH투자증권 \"S-Oil, 유가 하락에도 정제마진 강세\" - 컨슈머타임스",
-      "url": "https://news.google.com/rss/articles/CBMiakFVX3lxTE13NGhxR0VnSUNIaTNVZGdZMDJyWkM3SkZUZDNGem1nYS1Kci1jLXlqTFdrUlBBLU95bFE2SVhlQk91YVZoa3B2ajQ1OUpEMnU2R1Q1VFYwaGVUWUM5TE1IcTUyMkQwLVVZX0E?oc=5",
-      "severity": "warn",
-      "signals": [
-        "하락"
-      ]
-    },
-    {
-      "keyword": "정제마진 하락",
-      "date": "2026-06-28",
-      "title": "NH證 \"S-Oil, 유가 하락에도 정제마진 강세…목표가 15만원\" - 네이트",
-      "url": "https://news.google.com/rss/articles/CBMiU0FVX3lxTE5GQzl1RXMzMy1OdEMxYXNZdzR1T0JRT2lFeW8wVUVaRnItSDBzS3NKWDFsWFk0cXlVVjBpNnljQ0VfRTQtUVh4TTdUcVJsZTdnUDlv?oc=5",
-      "severity": "warn",
-      "signals": [
-        "하락"
-      ]
-    },
-    {
-      "keyword": "정제마진 하락",
-      "date": "2026-06-29",
-      "title": "S-OIL 주가 상승 \"유가 하락에도 정제마진 강세\" - gukjenews.com",
-      "url": "https://news.google.com/rss/articles/CBMibkFVX3lxTFBQejk2Qk1udTFOY1Vud0tySnJ2ek9ZUlFuZmkycjl0UEpJdXdZV3d1Z3Q2R1hiUjluVVlaWE0ycjF4TTBHUEhSZVdGZEJNS1ZvVXJhTzlQeUR0TG04c2lNZ1BXdFM5YnAwNU5lUXVR?oc=5",
-      "severity": "warn",
-      "signals": [
-        "하락"
-      ]
-    },
-    {
-      "keyword": "이란 미국 합의",
-      "date": "2026-06-30",
-      "title": "\"미국·이란, 공격 상호 중단 및 이번 주 회담 개최 합의\" - 조선일보",
-      "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxNU1Bpa1djRjRRcXdRaDVNb2xfVFJWVUlLQ3dVSG1jWUYxankyUEdFakdXUzFsQzRZTmV5dUhNS01mZXpZY1NBNk1FdzFPQUJteVZGQS1JMTEzUjJYNjI3VlliejYzbkJEVzFNOXhwaHZ2S3ZUcnI0VExkZXN2ZWtFMjV4MEQ?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "이란 미국 합의",
-      "date": "2026-06-28",
-      "title": "美언론 \"미국-이란, 공격 중단 및 금주 회담 합의\" - 연합뉴스",
-      "url": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE0wS3YyUDRpeEQySUtIYnhaOVhIN2VNQjdjNmZ1NzIybDNsU1hJSlp0Yzg2cFIwS1FuclJncUdURTRJYV85OEk4RnhmdEpIdWZLR3l5YkhieHpqdHPSAWBBVV95cUxPR0RBMC1TSXZWWnRKM1cwR3BuX2ROTDktcjJzUk91a0NfS1NXdG0zaEFiS0NTWDBsdDJwWjY4eFhrWERzZWtxTDJLaHpLaHF6alBHZlU0TWFxU3V0UHJRTlE?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "이란 미국 합의",
-      "date": "2026-06-29",
-      "title": "미국-이란 종전 합의 | 호르무즈 해협이 다시 열려요 - KB Think",
-      "url": "https://news.google.com/rss/articles/CBMibkFVX3lxTFB4OUdPQk1ZR2dMYVRHWFdBeFFsWDdnSHNDZUNibU5GalJaWWYxTVFUdDJiQk95aUNyc0RwLVRtTTNGQTNzTm83Zzg1YkpUOVNuU0pWVGRLRFNjZEtRYWhpa0JqMENqVTVUNlRpaEhR?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "이란 미국 합의",
-      "date": "2026-06-28",
-      "title": "\"‘호르무즈 충돌’ 미국·이란, 공격 중단 합의…이번주 회담\" - JTBC",
-      "url": "https://news.google.com/rss/articles/CBMiVEFVX3lxTE8tWTBQeUlfanZyNzF0aXc0UjM1WnJkUmdmNVBZX2tyZkpqekZmZkI0Q3BOTUNBNjhIWDJoLWpiY2RzSHlJenh4VUFFU1AySER1Q1ZlWQ?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "이란 미국 합의",
-      "date": "2026-06-28",
-      "title": "\"미국·이란, 공격 중단 합의...30일 카타르 도하에서 실무 회담\" - YTN",
-      "url": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE5BZzlmNjN1OXM0amNMN0kzd0RZZjJxWWI4dVA5QWhkdmJBMWxtUV9QZnBwOFBVS3RfRDFNQm5KUUNoTFFHMmpPRVBmUFE3WXoyMW1WV2tCYmJHQ3ByUmc?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-06-29",
-      "title": "뉴욕증시, 중동 긴장 완화에 상승 출발 - 연합인포맥스",
-      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTFB5dXF1TG50RjNYLXdVb0RPTGZsbWF2SjdCYi03Z1ZHVWZRUnhPME9jSkVNM3JxWkdhS0dISEdOZUFVaXFLcHNVUDViZlM0Sm51NmxDM2t1alNGTzRSaWFRcWZiMi1QUzMxNC05QXVicng?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-06-29",
-      "title": "뉴욕 증시, 중동 긴장 완화에 일제히 상승 출발 - YTN",
-      "url": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE9wYTJOTzc2N2REdUtjdk01bzhWMGRLT1FTV0t6MmlFZmQtR2M2YjR4TGdQT0tBcm96NHBOaUdneFJhdXVlNTY1V0gyb1YydlNBT2FCeTF6eXJ2RmM1OGc?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-06-29",
-      "title": "美 증시, 중동 긴장 완화에 장 초반 상승세 - 조선비즈 - Chosunbiz",
-      "url": "https://news.google.com/rss/articles/CBMingFBVV95cUxObDlpQk8weGZBeHVab1FoMktYcGozRnhGNnZveExoVk45MDRfZjNwcmttOXl3VEVVeHFVZ0x5bEVPTnRVcndpT1NxNk50eFp6d3hxLUtoY0J6N3Fydy05Ukt1WnJPalM4eThRQkNPWkJKSGFiQ1g1WHM3OXlycWcxTVVCREVMVjhOdzRrZ3c3S1l3cnExMGh1NXNwZUhaZ9IBsgFBVV95cUxOQUNPVzFOdEZnR1pMcHR3RGduLXpCckU0dVZYQlUzdXpGMFpVUTY2N1laTk8zaW4tZXYyc3RNVmFqU0pRUTd1bnd4NVRnb0NUdThaUW1CdFpmVWhMS1lzN3dxeGZ5RWdqOTVER2FwcWpnYXRWZ3RZMFB4eEJSUWNYR3g1d0R6THFHZWU4dkVPWHNKVTBLcmVqcDdBbmowd2pzYkZselBuNDVVejJjbVJ3eHdB?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-06-30",
-      "title": "S&amp;P500 선물, 중동 긴장 완화에도 소폭 하락…美 국채금리↑ - KB Think",
-      "url": "https://news.google.com/rss/articles/CBMickFVX3lxTE9XYnU3WVZaajB2UUZQT1MxSFFSZ2l0UDYzaVN2UGtDWkN2ckprVWxDU2RqNm5FNVEtbHlfZ1NKbE9vYjBJek85M1JPY2VQRzZSa0h4RnlmQjk2U3pDSmFwR1lMM2FDODdWRUZBam0yZVRJdw?oc=5",
-      "severity": "warn",
-      "signals": [
-        "하락"
-      ]
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-06-30",
-      "title": "달러·원 환율 1543.1원 하락 출발…\"중동 긴장 완화·네고 물량 기대\" - v.daum.net",
-      "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE1Eb2JzaG5ISld0cHAtVWFHR0pmTWNISGVzckhWMm52VU10ak1yWU9MNVVqeE5aWmJfTWhPN2VEc1Z0V0h5OU5tMGJQZFlsVzg?oc=5",
-      "severity": "warn",
-      "signals": [
-        "하락"
-      ]
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-06-29",
-      "title": "기술주 저가 매수세·중동 긴장 완화…美 증시 선물 반등 시동│Global Money Club - 중앙일보",
-      "url": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE1sS0RZdzFOOUhCOTBVZ0RwT1JsSE83MER5T3JPcnZKVzZiYVJLUGZyM1RYYWN4Mm1CVjZVaDAyaEJTX0UyY0Zwb1ZEcFZDcjJTcEl0b1ZaREk3QlU?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-06-30",
-      "title": "유럽중앙은행, 중동 긴장 완화 시 7월 금리 동결 시사 – 돌렌츠 - Investing.com 한국어",
-      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE1fU1piTG11dVlGZnVHblF3OEpmOEZfanpTMGtSTGhKUEM1YUhOWnJRdlJDc0JTNGh3clZkenJuTEstQkJmS3Q0NWd5UGF0emwzeW5nc0JBNXIxU19QdmxUZndUV0psaGE1Qy1ZSXRMRGw?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-06-29",
-      "title": "뉴욕증시 프리뷰, 중동 긴장 완화에 나스닥 1% 상승…AI 우려·메모리 소송은 부담 - 뉴스핌",
-      "url": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE5Jc1dWYklDZ1JXbXRsUFp5T1BlY0tDMllIdS1EUUZYOXR6SGxQeGlILW1mSDVmWk0tM2RCNUhiSjQ2cVNJLUJhTzNHaWdTUGFHanVZek5UeVNZRjJp?oc=5",
-      "severity": "warn",
-      "signals": [
-        "우려"
-      ]
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-06-29",
-      "title": "중동 긴장 완화에 기술주 반등…다우, 사상 첫 5만2000선 마감 [뉴욕증시 브리핑",
-      "url": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE4zVTRGY29IRjUwRVNIMmdzUTFBY204cE1PZ3FhcUo5UHJ2b2NYenltZzJkUlFSN1JCRTdLTElWNjEzSy1RRE41NWdNRm95WFFEcGstSVlaclp3QdIBVEFVX3lxTE9pNzRNeG9BbHNUSVBhTTJyb2VRTDdBWGxoeXZUQVl3TXJDcDZtZ3VLLVJtaDFlVzlWWVBMTmxyYmJrYlhNU2cyanhJeFVqWXNOVjd4Wg?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-06-29",
-      "title": "AI·반도체 랠리에 나스닥 2% 급등…중동 긴장 완화에 뉴욕증시 일제히 상승 - 마켓인",
-      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE42OExfTWZZNXNYVldlV0puMndKQ3VNWVI3TkdwcjFCZDNYdDU0bDRpa1N3NnlremF5dUYtVU5Lem4xLTZMRWtNU1lEXzd0aWh3WDdNckd6cWE2XzdpbEhTTEVUaUNtZUpVM2dIM0Z4STNCNzA?oc=5",
-      "severity": "info",
-      "signals": []
-    }
-  ],
+  "news_hits": [],
   "sources": [
     {
       "label": "PER/PEG/PBR 스코어",
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 70.33 USD (2026-07-02, 7일 평균 72.71)",
+      "label": "Brent 원유 종가 71.52 USD (2026-07-03, 7일 평균 72.88)",
       "ref": "Yahoo Finance BZ=F"
-    },
-    {
-      "label": "뉴스 RSS",
-      "ref": "news.google.com/rss (7일)"
     }
   ]
 }
