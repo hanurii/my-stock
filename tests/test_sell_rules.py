@@ -271,3 +271,58 @@ def test_rule6_pending_no_post_breakout_days():
     closes = [100.0] * 30 + [106.0]
     s = make_series(closes)
     assert rule_squat(s, 30, 105.0)["status"] == "pending"
+
+
+# --- evaluate_holding ---
+
+from canslim_lib.sell_rules import evaluate_holding
+
+
+def _clean_series():
+    """위반 없는 시나리오: 대량 거래 돌파 후 얕은 상승 유지."""
+    closes = [100.0] * 60 + [106.0, 107.0, 108.0]
+    vols = [1000.0] * 60 + [2000.0, 900.0, 900.0]
+    return make_series(closes, volumes=vols)
+
+
+def test_evaluate_holding_hold_when_clean():
+    s = _clean_series()
+    r = evaluate_holding(s, s["dates"][60], 106.0, -4.0, pivot_price=105.0)
+    assert r["signal"] == "hold"
+    assert r["violation_count"] == 0
+    assert r["breakout_date"] == s["dates"][60]
+    assert r["breakout_date_estimated"] is False
+    assert len(r["rules"]) == 6
+
+
+def test_evaluate_holding_early_sell_counts_violations():
+    # 저거래량 돌파(①) + 피벗 아래 복귀(⑥) → 위반 2건
+    closes = [100.0] * 60 + [106.0, 103.0]
+    vols = [1000.0] * 60 + [800.0, 900.0]
+    s = make_series(closes, volumes=vols)
+    r = evaluate_holding(s, s["dates"][60], 106.0, -4.0, pivot_price=105.0)
+    assert r["signal"] == "early_sell"
+    assert r["violation_count"] == 2
+
+
+def test_evaluate_holding_stop_loss_overrides_rules():
+    # 현재가 95 <= 손절가 106*0.96=101.76 → 위반과 무관하게 손절 신호
+    closes = [100.0] * 60 + [106.0, 95.0]
+    s = make_series(closes)
+    r = evaluate_holding(s, s["dates"][60], 106.0, -4.0, pivot_price=105.0)
+    assert r["signal"] == "stop_loss"
+    assert r["stop_price"] == 101.76
+
+
+def test_evaluate_holding_estimated_breakout_without_pivot():
+    s = _clean_series()
+    r = evaluate_holding(s, s["dates"][60], 106.0, -4.0, pivot_price=None)
+    assert r["breakout_date_estimated"] is True
+    assert r["rules"][5]["status"] == "na"  # 스쿼트는 피벗 없어 판정 불가
+
+
+def test_evaluate_holding_pct_to_stop_sign():
+    s = _clean_series()
+    r = evaluate_holding(s, s["dates"][60], 106.0, -4.0, pivot_price=105.0)
+    # 현재가 108 > 손절가 101.76 → 음수(여유)
+    assert r["pct_to_stop"] < 0

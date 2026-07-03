@@ -184,3 +184,36 @@ def rule_squat(series, bi, pivot_price):
             return {"id": rid, "status": "violation",
                     "detail": f"{dates[i]} 종가가 피벗({pivot_price:,.0f}) 아래 복귀"}
     return {"id": rid, "status": "pass", "detail": "피벗 위 유지"}
+
+
+def evaluate_holding(series, buy_date, buy_price, stop_loss_pct, pivot_price=None):
+    """보유 1종목 종합 판정. 손절(최우선) → 위반 1개 이상 조기 매도 → 정상 보유."""
+    bi, estimated = find_breakout_index(series, buy_date, pivot_price)
+    current = series["closes"][-1]
+    stop_price = buy_price * (1 + stop_loss_pct / 100)
+    rules = [
+        rule_low_volume_breakout(series, bi),
+        rule_heavy_volume_pullback(series, bi),
+        rule_consecutive_lower_closes(series, bi),
+        rule_close_below_ma(series, bi),
+        rule_weak_days_dominant(series, bi),
+        rule_squat(series, bi, pivot_price),
+    ]
+    violation_count = sum(1 for r in rules if r["status"] == "violation")
+    if current <= stop_price:
+        signal = "stop_loss"
+    elif violation_count >= 1:
+        signal = "early_sell"
+    else:
+        signal = "hold"
+    return {
+        "current_price": current,
+        "profit_pct": round((current / buy_price - 1) * 100, 2),
+        "stop_price": round(stop_price, 2),
+        "pct_to_stop": round((stop_price / current - 1) * 100, 2),
+        "breakout_date": series["dates"][bi],
+        "breakout_date_estimated": estimated,
+        "signal": signal,
+        "violation_count": violation_count,
+        "rules": rules,
+    }
