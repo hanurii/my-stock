@@ -175,3 +175,99 @@ def test_rule3_pass_when_run_broken():
     r = rule_consecutive_lower_closes(s, 30)
     assert r["status"] == "pass"
     assert "2일" not in r["detail"]
+
+
+# --- 규칙 ④ 이평선 아래 마감 ---
+
+from canslim_lib.sell_rules import (
+    rule_close_below_ma,
+    rule_weak_days_dominant,
+    rule_squat,
+)
+
+
+def test_rule4_violation_close_below_ma20():
+    # 60일 100 유지 → 돌파 106 → 90 급락(20일선 약 100 아래)
+    closes = [100.0] * 60 + [106.0, 90.0]
+    s = make_series(closes)
+    r = rule_close_below_ma(s, 60)
+    assert r["status"] == "violation"
+
+
+def test_rule4_severe_below_ma50_on_heavy_volume():
+    closes = [100.0] * 60 + [106.0, 80.0]  # 50일선(약 100)도 하회
+    vols = [1000.0] * 61 + [2000.0]        # 대량 거래
+    s = make_series(closes, volumes=vols)
+    r = rule_close_below_ma(s, 60)
+    assert r["status"] == "violation"
+    assert "심각" in r["detail"]
+
+
+def test_rule4_pass_holds_above_ma20():
+    closes = [100.0] * 60 + [106.0, 107.0, 108.0]
+    s = make_series(closes)
+    assert rule_close_below_ma(s, 60)["status"] == "pass"
+
+
+def test_rule4_pending_no_post_breakout_days():
+    closes = [100.0] * 61
+    s = make_series(closes)
+    assert rule_close_below_ma(s, 60)["status"] == "pending"
+
+
+# --- 규칙 ⑤ 하락일·나쁜 마감 우세 (통합) ---
+
+def test_rule5_pending_under_five_days():
+    closes = [100.0] * 30 + [106.0, 105.0, 104.0]  # 경과 2일
+    s = make_series(closes)
+    assert rule_weak_days_dominant(s, 30)["status"] == "pending"
+
+
+def test_rule5_violation_more_down_days():
+    # 경과 6일: 하락 4 · 상승 2
+    closes = [100.0] * 30 + [106.0, 104.0, 102.0, 103.0, 101.0, 99.0, 100.0]
+    s = make_series(closes)
+    r = rule_weak_days_dominant(s, 30)
+    assert r["status"] == "violation"
+
+
+def test_rule5_violation_more_bad_closes():
+    # 종가는 계속 오르는데(하락일 0) 매일 일중 고점에서 크게 밀려 하단 마감
+    closes = [100.0] * 30 + [106.0 + i for i in range(7)]
+    highs = [c * 1.01 for c in closes[:31]] + [c + 10 for c in closes[31:]]
+    lows = [c * 0.99 for c in closes[:31]] + [c - 0.5 for c in closes[31:]]
+    s = make_series(closes, highs=highs, lows=lows)
+    r = rule_weak_days_dominant(s, 30)
+    assert r["status"] == "violation"
+
+
+def test_rule5_pass_up_days_dominant():
+    # 경과 6일 모두 상승, 기본 고저(±1%)면 종가=중간값이라 나쁜/좋은 마감 모두 0
+    closes = [100.0] * 30 + [106.0, 107.0, 108.0, 109.0, 110.0, 111.0, 112.0]
+    s = make_series(closes)
+    assert rule_weak_days_dominant(s, 30)["status"] == "pass"
+
+
+# --- 규칙 ⑥ 스쿼트 ---
+
+def test_rule6_violation_close_back_below_pivot():
+    closes = [100.0] * 30 + [106.0, 103.0]  # 피벗 105 아래로 복귀 마감
+    s = make_series(closes)
+    assert rule_squat(s, 30, 105.0)["status"] == "violation"
+
+
+def test_rule6_pass_holds_above_pivot():
+    closes = [100.0] * 30 + [106.0, 107.0]
+    s = make_series(closes)
+    assert rule_squat(s, 30, 105.0)["status"] == "pass"
+
+
+def test_rule6_na_without_pivot():
+    s = make_series([100.0] * 32)
+    assert rule_squat(s, 30, None)["status"] == "na"
+
+
+def test_rule6_pending_no_post_breakout_days():
+    closes = [100.0] * 30 + [106.0]
+    s = make_series(closes)
+    assert rule_squat(s, 30, 105.0)["status"] == "pending"

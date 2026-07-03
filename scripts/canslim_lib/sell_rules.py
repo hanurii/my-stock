@@ -107,3 +107,80 @@ def rule_consecutive_lower_closes(series, bi):
         return {"id": rid, "status": "pass",
                 "detail": f"경고: 종가<전일 저가 {run}일째 진행 중"}
     return {"id": rid, "status": "pass", "detail": "연속 저저점 없음"}
+
+
+def rule_close_below_ma(series, bi):
+    """규칙④ 이평선 아래 마감: 돌파 후 종가<20일선이면 위반.
+    종가<50일선 + 대량 거래면 '심각' 표기(위반 1건으로 집계)."""
+    rid = "close_below_ma"
+    closes, vols, dates = series["closes"], series["volumes"], series["dates"]
+    n = len(closes)
+    if bi + 1 >= n:
+        return {"id": rid, "status": "pending", "detail": "돌파 다음 날 데이터 없음"}
+    first, severe, computable = None, None, False
+    for i in range(bi + 1, n):
+        if i + 1 < 20:
+            continue  # 20일선 계산 불가
+        computable = True
+        ma20 = sum(closes[i - 19:i + 1]) / 20
+        if closes[i] < ma20 and first is None:
+            first = i
+        if i + 1 >= 50:
+            ma50 = sum(closes[i - 49:i + 1]) / 50
+            avg = avg_volume(vols, i)
+            if (closes[i] < ma50 and avg and vols[i] >= HEAVY_VOL_MULT * avg
+                    and severe is None):
+                severe = i
+    if not computable:
+        return {"id": rid, "status": "pending", "detail": "20일선 계산에 데이터 부족"}
+    if severe is not None:
+        return {"id": rid, "status": "violation",
+                "detail": f"심각: {dates[severe]} 50일선 아래 + 대량 거래 마감"}
+    if first is not None:
+        return {"id": rid, "status": "violation", "detail": f"{dates[first]} 20일선 아래 마감"}
+    return {"id": rid, "status": "pass", "detail": "20일선 위 유지"}
+
+
+def rule_weak_days_dominant(series, bi):
+    """규칙⑤ 하락일·나쁜 마감 우세(통합): 돌파 후 5거래일 이상 지난 뒤,
+    하락일>상승일 또는 나쁜 마감>좋은 마감이면 위반.
+    나쁜 마감 = 종가가 당일 고저 범위 아래 절반. 보합·고가=저가 날은 세지 않음."""
+    rid = "weak_days_dominant"
+    closes, highs, lows = series["closes"], series["highs"], series["lows"]
+    n = len(closes)
+    elapsed = n - (bi + 1)
+    if elapsed < MIN_TREND_DAYS:
+        return {"id": rid, "status": "pending",
+                "detail": f"경과 {elapsed}거래일 — {MIN_TREND_DAYS}거래일부터 판정"}
+    down = up = bad = good = 0
+    for i in range(bi + 1, n):
+        if closes[i] < closes[i - 1]:
+            down += 1
+        elif closes[i] > closes[i - 1]:
+            up += 1
+        if highs[i] > lows[i]:
+            mid = (highs[i] + lows[i]) / 2
+            if closes[i] < mid:
+                bad += 1
+            elif closes[i] > mid:
+                good += 1
+    counts = f"하락 {down}·상승 {up} / 나쁜마감 {bad}·좋은마감 {good}"
+    if down > up or bad > good:
+        return {"id": rid, "status": "violation", "detail": counts}
+    return {"id": rid, "status": "pass", "detail": counts}
+
+
+def rule_squat(series, bi, pivot_price):
+    """규칙⑥ 스쿼트(돌파 실패): 돌파 후 종가가 피벗 아래로 복귀하면 위반."""
+    rid = "squat"
+    if pivot_price is None:
+        return {"id": rid, "status": "na", "detail": "피벗 없음 — 판정 불가"}
+    closes, dates = series["closes"], series["dates"]
+    n = len(closes)
+    if bi + 1 >= n:
+        return {"id": rid, "status": "pending", "detail": "돌파 다음 날 데이터 없음"}
+    for i in range(bi + 1, n):
+        if closes[i] < pivot_price:
+            return {"id": rid, "status": "violation",
+                    "detail": f"{dates[i]} 종가가 피벗({pivot_price:,.0f}) 아래 복귀"}
+    return {"id": rid, "status": "pass", "detail": "피벗 위 유지"}
