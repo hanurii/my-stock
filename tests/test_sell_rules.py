@@ -326,3 +326,19 @@ def test_evaluate_holding_pct_to_stop_sign():
     r = evaluate_holding(s, s["dates"][60], 106.0, -4.0, pivot_price=105.0)
     # 현재가 108 > 손절가 101.76 → 음수(여유)
     assert r["pct_to_stop"] < 0
+
+
+def test_rule6_na_when_breakout_not_confirmed():
+    closes = [100.0] * 30 + [101.0, 102.0]  # 피벗 105 미돌파
+    s = make_series(closes)
+    r = rule_squat(s, 30, 105.0, breakout_confirmed=False)
+    assert r["status"] == "na"
+
+
+def test_evaluate_holding_uncrossed_pivot_squat_na():
+    # 피벗이 한 번도 돌파된 적 없으면 돌파일=매수일 추정 + 스쿼트 판정 불가
+    closes = [100.0] * 60 + [101.0, 102.0]
+    s = make_series(closes)
+    r = evaluate_holding(s, s["dates"][60], 101.0, -4.0, pivot_price=200.0)
+    assert r["breakout_date_estimated"] is True
+    assert r["rules"][5]["status"] == "na"

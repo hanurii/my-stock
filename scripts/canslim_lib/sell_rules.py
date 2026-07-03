@@ -170,11 +170,14 @@ def rule_weak_days_dominant(series, bi):
     return {"id": rid, "status": "pass", "detail": counts}
 
 
-def rule_squat(series, bi, pivot_price):
-    """규칙⑥ 스쿼트(돌파 실패): 돌파 후 종가가 피벗 아래로 복귀하면 위반."""
+def rule_squat(series, bi, pivot_price, breakout_confirmed=True):
+    """규칙⑥ 스쿼트(돌파 실패): 돌파 후 종가가 피벗 아래로 복귀하면 위반.
+    피벗 돌파가 확인되지 않았으면(돌파일 추정) 스쿼트 판정 자체가 성립하지 않음."""
     rid = "squat"
     if pivot_price is None:
         return {"id": rid, "status": "na", "detail": "피벗 없음 — 판정 불가"}
+    if not breakout_confirmed:
+        return {"id": rid, "status": "na", "detail": "피벗 돌파 미확인 — 판정 불가"}
     closes, dates = series["closes"], series["dates"]
     n = len(closes)
     if bi + 1 >= n:
@@ -197,7 +200,7 @@ def evaluate_holding(series, buy_date, buy_price, stop_loss_pct, pivot_price=Non
         rule_consecutive_lower_closes(series, bi),
         rule_close_below_ma(series, bi),
         rule_weak_days_dominant(series, bi),
-        rule_squat(series, bi, pivot_price),
+        rule_squat(series, bi, pivot_price, breakout_confirmed=not estimated),
     ]
     violation_count = sum(1 for r in rules if r["status"] == "violation")
     if current <= stop_price:

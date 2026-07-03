@@ -24,7 +24,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from canslim_lib import ohlcv_matrix  # noqa: E402
-from canslim_lib.sell_rules import evaluate_holding  # noqa: E402
+from canslim_lib.sell_rules import evaluate_holding, find_breakout_index  # noqa: E402
 
 KST = timezone(timedelta(hours=9))
 IN_PATH = ROOT / "public" / "data" / "sepa-holdings.json"
@@ -34,18 +34,19 @@ SIGNAL_LABEL = {"stop_loss": "🔴 손절", "early_sell": "🟠 조기매도",
 
 
 def load_pivots() -> dict:
-    """code → {pivot, source, market}. vcp를 나중에 읽어 우선 적용."""
+    """code → [{pivot, source, market}, ...] 후보 목록 (vcp 우선 순서)."""
     out = {}
-    for fname, source in (("sepa-power-play-candidates.json", "power_play"),
-                          ("sepa-vcp-candidates.json", "vcp")):
+    for fname, source in (("sepa-vcp-candidates.json", "vcp"),
+                          ("sepa-power-play-candidates.json", "power_play")):
         p = ROOT / "public" / "data" / fname
         if not p.exists():
             continue
         data = json.loads(p.read_text(encoding="utf-8"))
         for c in data.get("candidates", []):
             if c.get("pivot_price") is not None:
-                out[c["code"]] = {"pivot": c["pivot_price"], "source": source,
-                                  "market": c.get("market")}
+                out.setdefault(c["code"], []).append(
+                    {"pivot": c["pivot_price"], "source": source,
+                     "market": c.get("market")})
     return out
 
 
@@ -62,20 +63,32 @@ def run(out_path: Path) -> None:
         code = h["code"]
         buy_date = h["buy_datetime"][:10]
         stop_pct = h.get("stop_loss_pct", default_stop)
-        piv = pivots.get(code, {})
+        options = pivots.get(code, [])
+        s = ohlcv_matrix.get_series(code)
+        chosen = None
+        if s and s.get("closes"):
+            # 실제 돌파가 확인되는 피벗 우선(vcp→power_play), 없으면 첫 후보
+            for opt in options:
+                _, est = find_breakout_index(s, buy_date, opt["pivot"])
+                if not est:
+                    chosen = opt
+                    break
+        if chosen is None and options:
+            chosen = options[0]
         base = {
-            "code": code, "name": h.get("name"), "market": piv.get("market"),
+            "code": code, "name": h.get("name"),
+            "market": chosen.get("market") if chosen else None,
             "buy_date": buy_date, "buy_price": h["buy_price"],
             "quantity": h.get("quantity"), "stop_loss_pct": stop_pct,
-            "pivot_price": piv.get("pivot"), "pivot_source": piv.get("source"),
+            "pivot_price": chosen.get("pivot") if chosen else None,
+            "pivot_source": chosen.get("source") if chosen else None,
         }
-        s = ohlcv_matrix.get_series(code)
         if not s or not s.get("closes"):
             out_holdings.append({**base, "signal": "no_data", "violation_count": 0,
                                  "rules": []})
             continue
         r = evaluate_holding(s, buy_date, h["buy_price"], stop_pct,
-                             pivot_price=piv.get("pivot"))
+                             pivot_price=base["pivot_price"])
         if asof is None or s["dates"][-1] > asof:
             asof = s["dates"][-1]
         out_holdings.append({**base, **r})
