@@ -68,3 +68,98 @@ def test_find_breakout_buy_date_between_trading_days():
     bi, estimated = find_breakout_index(s, "2026-12-31", None)
     assert bi == 4  # 마지막 거래일
     assert estimated is True
+
+
+# --- Rule imports for 규칙 ① ② ③ ---
+
+from canslim_lib.sell_rules import (
+    rule_low_volume_breakout,
+    rule_heavy_volume_pullback,
+    rule_consecutive_lower_closes,
+)
+
+
+# --- 규칙 ① 저거래량 돌파 ---
+
+def test_rule1_violation_below_average_volume():
+    vols = [1000.0] * 30 + [800.0]
+    s = make_series([100.0] * 31, volumes=vols)
+    r = rule_low_volume_breakout(s, 30)
+    assert r["status"] == "violation"
+
+
+def test_rule1_pass_but_weak_between_1x_and_1p5x():
+    vols = [1000.0] * 30 + [1200.0]
+    s = make_series([100.0] * 31, volumes=vols)
+    r = rule_low_volume_breakout(s, 30)
+    assert r["status"] == "pass"
+    assert "1.5배" in r["detail"]  # 정상 돌파 기준 미달 경고 문구
+
+
+def test_rule1_pass_strong_volume():
+    vols = [1000.0] * 30 + [2100.0]
+    s = make_series([100.0] * 31, volumes=vols)
+    r = rule_low_volume_breakout(s, 30)
+    assert r["status"] == "pass"
+    assert "1.5배" not in r["detail"]
+
+
+def test_rule1_pending_insufficient_history():
+    s = make_series([100.0] * 3)
+    assert rule_low_volume_breakout(s, 2)["status"] == "pending"
+
+
+# --- 규칙 ② 대량 거래 후퇴 ---
+
+def test_rule2_violation_down_close_on_heavy_volume():
+    closes = [100.0] * 30 + [106.0, 103.0]   # 돌파(30) 후 하락 마감
+    vols = [1000.0] * 31 + [1800.0]          # 하락일 거래량 1.8배
+    s = make_series(closes, volumes=vols)
+    r = rule_heavy_volume_pullback(s, 30)
+    assert r["status"] == "violation"
+
+
+def test_rule2_pass_down_close_on_light_volume():
+    closes = [100.0] * 30 + [106.0, 103.0]
+    vols = [1000.0] * 31 + [900.0]
+    s = make_series(closes, volumes=vols)
+    assert rule_heavy_volume_pullback(s, 30)["status"] == "pass"
+
+
+def test_rule2_pass_heavy_volume_but_up_close():
+    closes = [100.0] * 30 + [106.0, 109.0]
+    vols = [1000.0] * 31 + [3000.0]
+    s = make_series(closes, volumes=vols)
+    assert rule_heavy_volume_pullback(s, 30)["status"] == "pass"
+
+
+def test_rule2_pending_no_post_breakout_days():
+    s = make_series([100.0] * 31)
+    assert rule_heavy_volume_pullback(s, 30)["status"] == "pending"
+
+
+# --- 규칙 ③ 연속 저저점 (종가 < 전일 저가) ---
+
+def test_rule3_violation_three_consecutive_closes_below_prior_low():
+    # 저가 = 종가*0.99. 97<99, 94<96.03, 91<93.06 → 3일 연속
+    closes = [100.0] * 30 + [106.0, 97.0, 94.0, 91.0]
+    s = make_series(closes)
+    r = rule_consecutive_lower_closes(s, 30)
+    assert r["status"] == "violation"
+
+
+def test_rule3_two_day_run_is_pass_with_warning():
+    closes = [100.0] * 30 + [106.0, 97.0, 94.0]  # 2일 연속 진행 중
+    s = make_series(closes)
+    r = rule_consecutive_lower_closes(s, 30)
+    assert r["status"] == "pass"
+    assert "2일" in r["detail"]
+
+
+def test_rule3_pass_when_run_broken():
+    # 2일 연속 후 반등 → 위반 아님
+    closes = [100.0] * 30 + [106.0, 97.0, 94.0, 98.0]
+    s = make_series(closes)
+    r = rule_consecutive_lower_closes(s, 30)
+    assert r["status"] == "pass"
+    assert "2일" not in r["detail"]

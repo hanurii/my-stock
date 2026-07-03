@@ -40,3 +40,68 @@ def find_breakout_index(series, buy_date, pivot_price):
         if closes[i] > pivot_price and closes[i - 1] <= pivot_price:
             return i, False
     return buy_idx, True
+
+
+def rule_low_volume_breakout(series, bi):
+    """규칙① 저거래량 돌파: 돌파일 거래량 < 50일 평균이면 위반."""
+    rid = "low_volume_breakout"
+    vols = series["volumes"]
+    avg = avg_volume(vols, bi)
+    if avg is None or not vols[bi]:
+        return {"id": rid, "status": "pending", "detail": "거래량 표본 부족"}
+    ratio = vols[bi] / avg
+    if ratio < 1.0:
+        return {"id": rid, "status": "violation",
+                "detail": f"돌파일 거래량 {ratio:.1f}배 — 평균에도 못 미침"}
+    if ratio < STRONG_BREAKOUT_MULT:
+        return {"id": rid, "status": "pass",
+                "detail": f"돌파일 거래량 {ratio:.1f}배 — 정상 돌파(1.5배+)에는 못 미침"}
+    return {"id": rid, "status": "pass", "detail": f"돌파일 거래량 {ratio:.1f}배"}
+
+
+def rule_heavy_volume_pullback(series, bi):
+    """규칙② 대량 거래 후퇴: 돌파 후 하락 마감 + 거래량 1.5배 이상인 날이 있으면 위반."""
+    rid = "heavy_volume_pullback"
+    closes, vols, dates = series["closes"], series["volumes"], series["dates"]
+    n = len(closes)
+    if bi + 1 >= n:
+        return {"id": rid, "status": "pending", "detail": "돌파 다음 날 데이터 없음"}
+    worst = None  # (index, ratio)
+    for i in range(bi + 1, n):
+        avg = avg_volume(vols, i)
+        if avg is None:
+            continue
+        if closes[i] < closes[i - 1] and vols[i] >= HEAVY_VOL_MULT * avg:
+            ratio = vols[i] / avg
+            if worst is None or ratio > worst[1]:
+                worst = (i, ratio)
+    if worst:
+        i, ratio = worst
+        return {"id": rid, "status": "violation",
+                "detail": f"{dates[i]} 하락 마감 + 거래량 {ratio:.1f}배"}
+    return {"id": rid, "status": "pass", "detail": "대량 거래 하락일 없음"}
+
+
+def rule_consecutive_lower_closes(series, bi):
+    """규칙③ 연속 저저점: 종가 < 전일 저가 가 3일 연속이면 위반 (종가 기준, 사용자 확정)."""
+    rid = "consecutive_lower_closes"
+    closes, lows, dates = series["closes"], series["lows"], series["dates"]
+    n = len(closes)
+    if bi + 1 >= n:
+        return {"id": rid, "status": "pending", "detail": "돌파 다음 날 데이터 없음"}
+    run = 0
+    max_run, max_end = 0, None
+    for i in range(bi + 1, n):
+        if closes[i] < lows[i - 1]:
+            run += 1
+            if run > max_run:
+                max_run, max_end = run, i
+        else:
+            run = 0
+    if max_run >= LOWER_CLOSE_RUN:
+        return {"id": rid, "status": "violation",
+                "detail": f"종가<전일 저가 {max_run}일 연속 (~{dates[max_end]})"}
+    if run == LOWER_CLOSE_RUN - 1:
+        return {"id": rid, "status": "pass",
+                "detail": f"경고: 종가<전일 저가 {run}일째 진행 중"}
+    return {"id": rid, "status": "pass", "detail": "연속 저저점 없음"}
