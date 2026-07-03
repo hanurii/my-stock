@@ -116,8 +116,10 @@ def main():
     ap.add_argument("--out", dest="out", default=None, help=f"출력(default {OUT_PATH.name})")
     ap.add_argument("--ticker", default=None, help="단일 종목 디버그(저장 안 함)")
     ap.add_argument("--lookback-days", type=int, default=DEFAULT_PARAMS["lookback_days"])
-    ap.add_argument("--zigzag-pct", type=float, default=DEFAULT_PARAMS["zigzag_pct"])
-    ap.add_argument("--max-final-depth", type=float, default=DEFAULT_PARAMS["max_final_depth"])
+    ap.add_argument("--zigzag-pct", type=float, default=DEFAULT_PARAMS["zigzag_pct"],
+                    help="(현재 미사용 — evaluate_vcp 재설계로 적응형 전환)")
+    ap.add_argument("--max-final-depth", type=float, default=DEFAULT_PARAMS["max_final_depth"],
+                    help="(현재 미사용 — evaluate_vcp 재설계로 적응형 전환)")
     ap.add_argument("--breakout-vol-mult", type=float, default=DEFAULT_PARAMS["breakout_vol_mult"])
     args = ap.parse_args()
     if args.out:

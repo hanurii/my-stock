@@ -34,7 +34,8 @@ export interface ClassifiedRow {
 export interface PatternColumn {
   key: string;
   label: string;
-  kind: "pct" | "price" | "int" | "ratio" | "days" | "tight";
+  // pct=부호 있는 증감(+/−) · depth/tight=크기(부호 없는 양수 %) · price/int/ratio/days
+  kind: "pct" | "depth" | "price" | "int" | "ratio" | "days" | "tight";
 }
 
 export interface PatternConfig {
@@ -86,6 +87,26 @@ export function sortRows(rows: ClassifiedRow[]): void {
   });
 }
 
+// 레코드 1건 → 티어(숨김이면 null). buildSection·tierHistory 공유(DRY).
+export function classifyCandidate(
+  raw: RawCandidate,
+  config: PatternConfig,
+  watchPct: number = WATCH_PCT
+): Tier | null {
+  const detected = Boolean(raw[config.detectField]);
+  const structureOk = config.structureOk(raw);
+  return classify(
+    {
+      detected,
+      status: String(raw.status ?? ""),
+      pivot_price: num(raw.pivot_price),
+      pct_to_pivot: num(raw.pct_to_pivot),
+      structureOk,
+    },
+    watchPct
+  );
+}
+
 export function buildSection(
   candidates: RawCandidate[] | null | undefined,
   config: PatternConfig,
@@ -96,12 +117,7 @@ export function buildSection(
   for (const raw of candidates ?? []) {
     // 상장폐지 예정 등 자동 판별 불가 사유로 제외할 종목은 여기서 걸러낸다(전 패턴 공통).
     if (excludeCodes?.has(raw.code)) continue;
-    const detected = Boolean(raw[config.detectField]);
-    const structureOk = config.structureOk(raw);
-    const pivot_price = num(raw.pivot_price);
-    const pct_to_pivot = num(raw.pct_to_pivot);
-    const status = String(raw.status ?? "");
-    const tier = classify({ detected, status, pivot_price, pct_to_pivot, structureOk }, watchPct);
+    const tier = classifyCandidate(raw, config, watchPct);
     if (!tier) continue;
     rows.push({
       code: raw.code,
@@ -109,9 +125,9 @@ export function buildSection(
       market: raw.market,
       current_price: raw.current_price,
       rs: raw.rs ?? null,
-      status,
-      pivot_price,
-      pct_to_pivot,
+      status: String(raw.status ?? ""),
+      pivot_price: num(raw.pivot_price),
+      pct_to_pivot: num(raw.pct_to_pivot),
       tier,
       raw,
     });
@@ -145,8 +161,10 @@ export function fmtCell(value: unknown, kind: PatternColumn["kind"]): string {
     case "price":
       return fmtPrice(n);
     case "pct":
+      return fmtPct(n, 1);                       // 부호 있는 증감(+상승/−하락)
+    case "depth":
     case "tight":
-      return fmtPct(n, 1);
+      return n === null ? "—" : `${n.toFixed(1)}%`;  // 크기(깊이·타이트): + 부호 없이 표기
     case "ratio":
       return n === null ? "—" : n.toFixed(2);
     case "int":
@@ -159,7 +177,7 @@ export function fmtCell(value: unknown, kind: PatternColumn["kind"]): string {
 // ── 패턴 레지스트리 ─────────────────────────────────────
 const VCP_COLUMNS: PatternColumn[] = [
   { key: "num_contractions", label: "수축", kind: "int" },
-  { key: "base_depth_pct", label: "베이스깊이", kind: "pct" },
+  { key: "base_depth_pct", label: "베이스깊이", kind: "depth" },
   { key: "coil_len", label: "코일길이", kind: "int" },
   { key: "coil_dry_mean", label: "코일마름", kind: "ratio" },
   { key: "tightness_pct", label: "타이트", kind: "tight" },
@@ -168,9 +186,17 @@ const VCP_COLUMNS: PatternColumn[] = [
 const POWERPLAY_COLUMNS: PatternColumn[] = [
   { key: "flagpole_gain_pct", label: "깃대상승", kind: "pct" },
   { key: "flagpole_days", label: "깃대일수", kind: "days" },
-  { key: "flag_depth_pct", label: "깃발깊이", kind: "pct" },
+  { key: "flag_depth_pct", label: "깃발깊이", kind: "depth" },
   { key: "tightness_pct", label: "타이트", kind: "tight" },
 ];
+
+// 파워 플레이 구조 형성: 실제 깃발(눌림 폭 > 0)이 있어야 예의주시 후보.
+// 신고가 부근에서 눌림 0%(flag_depth=0 → 피벗=현재가)인 퇴화 케이스를 노이즈로 제외.
+const powerPlayStructureOk = (raw: RawCandidate): boolean => {
+  const len = num(raw.flag_length_days);
+  const depth = num(raw.flag_depth_pct);
+  return len !== null && len > 0 && depth !== null && depth > 0;
+};
 
 export const PATTERNS = {
   vcp: {
@@ -186,15 +212,15 @@ export const PATTERNS = {
     label: "파워 플레이 — 트렌드 통과 종목 중",
     file: "sepa-power-play-candidates.json",
     detectField: "pattern_detected",
-    structureOk: (raw) => num(raw.flag_length_days) !== null && (num(raw.flag_length_days) as number) > 0,
+    structureOk: powerPlayStructureOk,
     columns: POWERPLAY_COLUMNS,
   },
   powerplayAll: {
     id: "powerplay-all",
-    label: "파워 플레이 — 전체 종목 중",
+    label: "파워 플레이 — 전체 종목 중 (RS 80↑)",
     file: "sepa-power-play-all-candidates.json",
     detectField: "pattern_detected",
-    structureOk: (raw) => num(raw.flag_length_days) !== null && (num(raw.flag_length_days) as number) > 0,
+    structureOk: powerPlayStructureOk,
     columns: POWERPLAY_COLUMNS,
   },
   threeC: {
