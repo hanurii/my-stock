@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from canslim_lib.vcp import evaluate_vcp
 
-_SERIES_KEYS = ("dates", "closes", "highs", "lows", "volumes", "timestamps")
+_SERIES_KEYS = ("dates", "opens", "closes", "highs", "lows", "volumes", "timestamps")
 
 
 def replay_vcp(series: dict, scan_days: int, params: dict | None = None) -> list[dict]:
