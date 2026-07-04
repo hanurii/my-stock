@@ -13,8 +13,34 @@ from canslim_lib import ohlcv_matrix  # noqa: E402
 
 
 def load_series(code: str, start: str | None = None, end: str | None = None,
-                fdr_buffer_days: int = 80) -> dict | None:
-    """start/end 없으면 캐시, 있으면 FDR(start−버퍼~end). 키 통일."""
+                fdr_buffer_days: int = 80, data_file: str | None = None) -> dict | None:
+    """start/end 없으면 캐시, data_file 있으면 로컬 JSON, 아니면 FDR. 키 통일."""
+    if data_file:
+        from pathlib import Path
+        import json
+        p = Path(data_file)
+        if not p.is_absolute():
+            p = Path(__file__).resolve().parents[2] / data_file
+        try:
+            raw = json.loads(p.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return None
+        keys = ("dates", "opens", "highs", "lows", "closes", "volumes")
+        if not all(k in raw for k in keys) or not raw.get("closes"):
+            return None
+        dates = raw["dates"]
+        # start−버퍼 ~ end 슬라이스(버퍼는 파일 시작에서 clamp)
+        lo = 0
+        if start:
+            s_dt = datetime.strptime(start, "%Y-%m-%d") - timedelta(days=int(fdr_buffer_days * 1.5))
+            s_str = s_dt.strftime("%Y-%m-%d")
+            cand = [i for i, d in enumerate(dates) if d >= s_str]
+            lo = cand[0] if cand else 0
+        hi = len(dates)
+        if end:
+            cand = [i for i, d in enumerate(dates) if d <= end]
+            hi = (cand[-1] + 1) if cand else len(dates)
+        return {k: raw[k][lo:hi] for k in keys}
     if not start and not end:
         s = ohlcv_matrix.get_series(code)
         if not s or not s.get("closes"):

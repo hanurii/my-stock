@@ -12,6 +12,7 @@ DEFAULT_PARAMS: dict = {
     "contraction_tol": 1.15,
     "max_final_depth": 10.0,
     "breakout_vol_mult": 1.4,
+    "coil_breakout_vol_mult": 1.5,   # 돌파 거래량 확장 판정을 마른 코일 평균 대비로도 허용(IPO/저유동 MA50 오염 보정). MIK 예시 보정
     "near_pivot_pct": 5.0,
     "base_vol_cap": 50,
     "zigzag_k": 4.0,
@@ -127,11 +128,17 @@ def find_contraction_chain(swings: list[tuple[int, float, str]], tol: float = 1.
     }
 
 
-def _is_breakout(closes, opens, vols, ma50, pivot, p) -> bool:
-    """마지막 바가 돌파인가: 첫돌파+양봉+거래량터짐+근접(시가 기준).
+def _is_breakout(closes, opens, vols, ma50, pivot, p, coil=None) -> bool:
+    """마지막 바가 돌파인가: 첫돌파+양봉+거래량확장+근접(시가 기준).
 
-    근접 판단을 시가(open)로 하는 이유: 갭업 돌파(전일 피벗 아래→당일 갭업)에서
-    종가는 피벗에서 멀리 떨어지더라도 시가는 피벗 근처에서 출발하기 때문.
+    거래량 확장은 (a) MA50×breakout_vol_mult 이상, 또는 (b) 마른 코일 평균 거래량×
+    coil_breakout_vol_mult 이상 중 하나면 인정. (b)는 미너비니의 문자 그대로의 규칙
+    "거래량이 직전 dry-up 대비 확장"을 구현한 것으로, 마른 코일이 있는 모든 종목에
+    일반적으로 적용된다(신규상장·저유동주 한정이 아님) — MA50이 IPO/과거 물량에
+    오염돼 부푸는 경우(예: MIK)는 이 경로가 필요함을 드러낸 동기 사례일 뿐, 적용
+    범위의 한계가 아니다.
+    coil=None이면 (b) 비활성 → 기존 동작 보존.
+    근접 판단을 시가(open)로 하는 이유: 갭업 돌파에서 종가는 멀어도 시가는 피벗 근처.
     """
     i = len(closes) - 1
     if pivot is None or i < 1:
@@ -141,7 +148,14 @@ def _is_breakout(closes, opens, vols, ma50, pivot, p) -> bool:
     if not (closes[i] > opens[i]):                            # 양봉
         return False
     m = ma50[i] if i < len(ma50) else None
-    if not (m and vols[i] >= m * p["breakout_vol_mult"]):     # 거래량 터짐
+    vol_ok = bool(m and vols[i] >= m * p["breakout_vol_mult"])
+    if not vol_ok and coil is not None:                      # 마른 코일 기준선 대비 확장
+        seg = vols[coil["coil_start"]:coil["coil_end"] + 1]
+        # base_v = 코일 구간 원거래량 평균(확장 기준선). detect_final_coil의 dry_mean =
+        # 같은 구간 vol/MA50 비율 평균(마름 게이트) — 서로 다른 지표.
+        base_v = (sum(seg) / len(seg)) if seg else 0.0
+        vol_ok = bool(base_v and vols[i] >= base_v * p.get("coil_breakout_vol_mult", 1.5))
+    if not vol_ok:
         return False
     if (opens[i] - pivot) / pivot * 100.0 > p["near_pivot_pct"]:  # 피벗 근접(시가 기준)
         return False
@@ -289,7 +303,7 @@ def evaluate_vcp(series: dict, params: dict | None = None) -> dict:
 
     base_low = min(bl) if bl else last_close
     mono_violated = T >= 2 and depths[-1] > depths[-2] * p["contraction_tol"]
-    if _is_breakout(closes, opens, vols, ma50, pivot, p):
+    if _is_breakout(closes, opens, vols, ma50, pivot, p, coil):
         base["status"] = "breakout"
     elif mono_violated or last_close < base_low:
         base["status"] = "failed"
