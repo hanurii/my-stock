@@ -297,3 +297,47 @@ def test_detect_final_coil_too_short_returns_none():
     lows   = [c * 0.99 for c in closes]
     coil = detect_final_coil(highs, lows, closes, vols, ma50, len(closes) - 1, _CP)
     assert coil is None
+
+
+# ---------------------------------------------------------------------------
+# Task 5 (Option C): 돌파 거래량 게이트 — 마른 코일 기준선 OR-경로
+# ---------------------------------------------------------------------------
+
+def test_mik_oracle_breakout_asof():
+    """MIK 2014-11-06 as-of: IPO-오염 MA50로 MA기준 거래량은 미달이나,
+    마른 코일 대비 확장(1.63x)이라 코일 OR-경로로 breakout 확인."""
+    import json
+    from pathlib import Path
+    ROOT = Path(__file__).resolve().parents[1]
+    d = json.load(open(ROOT / "public/data/vcp_oracle_mik.json", encoding="utf-8"))
+    idx = [i for i, x in enumerate(d["dates"]) if x <= "2014-11-06"][-1]
+    sub = {k: d[k][:idx + 1] for k in ("dates", "opens", "highs", "lows", "closes", "volumes")}
+    r = evaluate_vcp(sub)
+    assert r["vcp_detected"] is True
+    assert r["status"] == "breakout", f"status={r['status']} pivot={r['pivot_price']}"
+    PIVOT = 18.50  # 복원 저항(매수점); 검출기 종가기준 피벗은 ~18.33
+    assert abs(r["pivot_price"] - PIVOT) / PIVOT <= 0.02
+
+
+def test_is_breakout_coil_baseline_path_true():
+    """MA50 기준 거래량은 미달(1.1x<1.4)이나 마른 코일 평균 대비 확장(>=1.5x)이면 True."""
+    closes = [100.0] * 8 + [98.0, 103.0]   # 마지막 바 첫돌파(전일 98<=피벗100, 종가103>100)
+    opens = [100.0] * 9 + [98.5]           # 양봉(103>98.5), 시가 근접
+    ma50 = [1000.0] * 10                    # MA50 크게 부풀림
+    vols = [300.0] * 9 + [1100.0]          # 코일평균 300, 돌파 1100 = 3.67x 코일 / 1.1x MA50
+    p = {"breakout_vol_mult": 1.4, "near_pivot_pct": 5.0, "coil_breakout_vol_mult": 1.5}
+    coil = {"coil_start": 0, "coil_end": 8}
+    assert _is_breakout(closes, opens, vols, ma50, 100.0, p, coil) is True
+    # 같은 조건에서 coil 미전달이면 MA50 미달로 False(기존 동작 보존)
+    assert _is_breakout(closes, opens, vols, ma50, 100.0, p) is False
+
+
+def test_is_breakout_coil_baseline_insufficient_false():
+    """코일 대비 확장이 부족(1.5x 미만)하면 코일 경로로도 False."""
+    closes = [100.0] * 8 + [98.0, 103.0]
+    opens = [100.0] * 9 + [98.5]
+    ma50 = [1000.0] * 10
+    vols = [300.0] * 9 + [400.0]           # 400/300 = 1.33x < 1.5, MA50도 0.4x 미달
+    p = {"breakout_vol_mult": 1.4, "near_pivot_pct": 5.0, "coil_breakout_vol_mult": 1.5}
+    coil = {"coil_start": 0, "coil_end": 8}
+    assert _is_breakout(closes, opens, vols, ma50, 100.0, p, coil) is False
