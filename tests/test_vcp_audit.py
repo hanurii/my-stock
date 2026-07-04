@@ -103,3 +103,27 @@ def test_load_series_fdr_path_smoke():
         pytest.skip("FDR 반환 없음(네트워크/데이터)")
     assert len(s["closes"]) > 50          # 버퍼 포함 충분
     assert s["dates"][-1] <= "2019-06-28"
+
+
+def test_load_series_local_file(tmp_path):
+    import json
+    from canslim_lib import vcp_audit
+    p = tmp_path / "mik.json"
+    p.write_text(json.dumps({
+        "dates": ["2014-01-02", "2014-01-03", "2014-01-06", "2014-01-07"],
+        "opens": [10, 11, 12, 13], "highs": [11, 12, 13, 14],
+        "lows": [9, 10, 11, 12], "closes": [10.5, 11.5, 12.5, 13.5],
+        "volumes": [100, 200, 300, 400],
+    }), encoding="utf-8")
+    s = vcp_audit.load_series("MIK", "2014-01-03", "2014-01-07", data_file=str(p))
+    assert s is not None
+    # start=2014-01-03 부터(버퍼는 파일 시작에서 clamp), end=2014-01-07 까지 포함
+    assert s["dates"][-1] == "2014-01-07"
+    assert "2014-01-03" in s["dates"]
+    assert len(s["closes"]) == len(s["dates"])
+
+
+def test_load_series_local_file_missing_returns_none():
+    from canslim_lib import vcp_audit
+    assert vcp_audit.load_series("MIK", "2014-01-01", "2014-02-01",
+                                 data_file="does/not/exist.json") is None
