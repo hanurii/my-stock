@@ -127,3 +127,30 @@ def test_load_series_local_file_missing_returns_none():
     from canslim_lib import vcp_audit
     assert vcp_audit.load_series("MIK", "2014-01-01", "2014-02-01",
                                  data_file="does/not/exist.json") is None
+
+
+def test_load_series_local_file_missing_key_returns_none(tmp_path):
+    # 파일은 존재하지만 필수 키(volumes)가 없음 → None (키 누락 계약)
+    import json
+    from canslim_lib import vcp_audit
+    p = tmp_path / "no_volumes.json"
+    p.write_text(json.dumps({
+        "dates": ["2014-01-02", "2014-01-03"],
+        "opens": [10, 11], "highs": [11, 12],
+        "lows": [9, 10], "closes": [10.5, 11.5],
+        # "volumes" 누락
+    }), encoding="utf-8")
+    assert vcp_audit.load_series("MIK", "2014-01-02", "2014-01-03",
+                                 data_file=str(p)) is None
+
+
+def test_load_series_local_file_empty_closes_returns_none(tmp_path):
+    # 모든 키는 있으나 closes가 빈 배열 → None (raw.get("closes") falsy 계약)
+    import json
+    from canslim_lib import vcp_audit
+    p = tmp_path / "empty_closes.json"
+    p.write_text(json.dumps({
+        "dates": [], "opens": [], "highs": [], "lows": [], "closes": [], "volumes": [],
+    }), encoding="utf-8")
+    assert vcp_audit.load_series("MIK", "2014-01-02", "2014-01-03",
+                                 data_file=str(p)) is None
