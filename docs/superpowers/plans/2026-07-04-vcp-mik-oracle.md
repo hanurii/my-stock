@@ -30,9 +30,11 @@
 - Create: `scripts/_build_mik_oracle.py` (일회성 변환 스크립트, 재현 근거로 커밋)
 
 **Interfaces:**
-- Produces: `public/data/vcp_oracle_mik.json` — 6키 dict, 2013-06-01~2015-06-30 구간의 MIK(NASDAQ) 일봉. dates 오름차순, 각 배열 동일 길이, low ≤ open/close ≤ high, 2014-11-06 포함.
+- Produces: `public/data/vcp_oracle_mik.json` — 6키 dict, MIK(NASDAQ) 상장(2014-06-27경)~2015-06-30 전체 일봉. dates 오름차순, 각 배열 동일 길이, low ≤ open/close ≤ high, 2014-11-06 포함.
 
-> **데이터 출처 결정(사람 판단 필요):** 자동 경로(FDR/야후, stooq, WSJ)는 2026-07-04 모두 차단 확인됨. 아래 순서로 확보하되, 실데이터 없이는 이후 태스크가 무의미하므로 이 태스크는 **데이터 확보를 실제로 완료**해야 한다.
+> **IPO 확인(2026-07-04):** MIK는 2014년 6월 NASDAQ 상장. 따라서 2014-11-06 돌파는 상장 ~4.5개월 후 형성된 첫 베이스이며, 상장 이전 데이터는 존재하지 않는다. 데이터 범위는 상장일~2015-06으로 잡는다(선행급등 60일 창은 상장 후 구간에서만 계산됨 — 진단 시 유의).
+
+> **데이터 출처 결정(사람 판단 필요):** 자동 경로(FDR/야후, stooq, WSJ, Nasdaq API)는 2026-07-04 모두 차단/상폐제거 확인됨. 아래 순서로 확보하되, 실데이터 없이는 이후 태스크가 무의미하므로 이 태스크는 **데이터 확보를 실제로 완료**해야 한다.
 
 - [ ] **Step 1: 공개 미러 조사**
 
@@ -41,7 +43,7 @@ WebSearch/WebFetch로 다음을 탐색: "MIK Michaels Companies daily historical
 - [ ] **Step 2: 미러 실패 시 사용자에게 브라우저 다운로드 요청**
 
 Step 1이 실패하면 작업을 멈추고 사용자에게 요청:
-> "MIK 상폐 데이터를 스크립트로 못 받습니다(봇 차단). 브라우저에서 이 링크를 열어 CSV를 받아 `public/data/_mik_raw.csv`로 저장해 주세요: `https://stooq.com/q/d/l/?s=mik.us&i=d&d1=20130601&d2=20150630` (사람 브라우징은 봇 검증을 정상 통과합니다). 받으시면 알려주세요."
+> "MIK 상폐 데이터를 스크립트로 못 받습니다(봇 차단). 브라우저에서 이 링크를 열어 CSV를 받아 `public/data/_mik_raw.csv`로 저장해 주세요: `https://stooq.com/q/d/l/?s=mik.us&i=d` (전체 이력, 사람 브라우징은 봇 검증을 정상 통과합니다). 받으시면 알려주세요."
 
 사용자가 파일을 제공할 때까지 대기. (subagent-driven 실행이면 이 태스크는 사용자 상호작용이 필요하므로 메인 세션에서 처리.)
 
