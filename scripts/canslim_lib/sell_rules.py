@@ -15,6 +15,9 @@ SQUAT_GRACE_DAYS = 10       # 돌파 후 반전 회복 유예(약 2주)
 ACCUM_WINDOW = 15           # 매집 신호·MVP 관찰 창(거래일)
 UP_STREAK_IDEAL = 7         # 연속 상승 이상적 기준(미너비니)
 TIGHT_DAY_PCT = 0.01        # 일중 변동폭 <1% = tight day(나쁜 마감 제외)
+MVP_M_MIN = 12              # M: 15일 중 상승 마감 최소일
+MVP_V_MULT = 1.25           # V: 창 평균 거래량 / 직전 15일 평균 최소배
+MVP_P_MIN = 0.20            # P: 창 최고 종가 상승률 최소
 
 
 def avg_volume(volumes, i, window=50, min_days=5):
@@ -259,6 +262,39 @@ def evaluate_accumulation(series, bi):
          "detail": f"최고 {max_streak}일"},
     ]
     return {"window": window, "elapsed": elapsed, "signals": signals}
+
+
+def evaluate_mvp(series, bi):
+    """돌파 후 ACCUM_WINDOW 거래일 MVP(M·V·P). 15일 미경과면 전체 pending."""
+    closes, vols = series["closes"], series["volumes"]
+    n = len(closes)
+    elapsed = (n - 1) - bi
+    end = min(bi + ACCUM_WINDOW, n - 1)
+    win_closes = closes[bi + 1:end + 1]
+    p_gain = (max(win_closes) / closes[bi] - 1) if (win_closes and closes[bi]) else None
+    p_detail = f"+{p_gain * 100:.0f}%" if p_gain is not None else "—"
+    if elapsed < ACCUM_WINDOW:
+        return {"status": "pending",
+                "m": {"ok": None, "detail": f"{max(elapsed, 0)}/{ACCUM_WINDOW}일 (판정 전)"},
+                "v": {"ok": None, "detail": "판정 전"},
+                "p": {"ok": None, "detail": p_detail}}
+    w = range(bi + 1, bi + ACCUM_WINDOW + 1)     # 확정 15일 창
+    up = sum(1 for i in w if closes[i] > closes[i - 1])
+    m_ok = up >= MVP_M_MIN
+    win_vol = [vols[i] for i in w if vols[i] is not None]
+    prior = [vols[i] for i in range(max(0, bi - ACCUM_WINDOW), bi) if vols[i] is not None]
+    if len(prior) >= 5 and win_vol:
+        v_ratio = (sum(win_vol) / len(win_vol)) / (sum(prior) / len(prior))
+        v_ok = v_ratio >= MVP_V_MULT
+        v_detail = f"직전 대비 {v_ratio:.1f}배"
+    else:
+        v_ok, v_detail = None, "거래량 표본 부족"
+    p_ok = (p_gain is not None) and (p_gain >= MVP_P_MIN)
+    status = "yes" if (m_ok and v_ok and p_ok) else "no"
+    return {"status": status,
+            "m": {"ok": m_ok, "detail": f"{up}/{ACCUM_WINDOW}일 상승"},
+            "v": {"ok": v_ok, "detail": v_detail},
+            "p": {"ok": p_ok, "detail": p_detail}}
 
 
 def evaluate_holding(series, buy_date, buy_price, stop_loss_pct, pivot_price=None):

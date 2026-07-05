@@ -4,7 +4,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
-from canslim_lib.sell_rules import avg_volume, find_breakout_index, evaluate_accumulation
+from canslim_lib.sell_rules import avg_volume, find_breakout_index, evaluate_accumulation, evaluate_mvp
 
 
 def make_series(closes, volumes=None, highs=None, lows=None):
@@ -467,3 +467,40 @@ def test_accum_tight_day_not_counted_as_bad_close():
     r = evaluate_accumulation(s, 30)
     q = next(x for x in r["signals"] if x["id"] == "quality_closes")
     assert "나쁜 0" in q["detail"]   # 가드 제거 시 '나쁜 3'이 되어 실패
+
+
+# --- evaluate_mvp: M·V·P 감별 ---
+
+def _mvp_series():
+    # 직전 15일 거래량 1000, 돌파 후 15일: 12일 상승 + 거래량 2000(2배) + 최고 종가 +25%
+    pre = [100.0] * 16                     # index 0..15 (bi=15)
+    post_up = [100.0 + 2 * (i + 1) for i in range(12)]   # 12일 상승 → 최고 +24~
+    post = post_up + [post_up[-1] - 1, post_up[-1] - 2, post_up[-1] + 3]  # 3일 혼합, 마지막 신고가
+    closes = pre + post
+    vols = [1000.0] * 16 + [2000.0] * 15
+    return make_series(closes, volumes=vols), 15
+
+
+def test_mvp_yes_when_all_three_met():
+    s, bi = _mvp_series()
+    r = evaluate_mvp(s, bi)
+    assert r["status"] == "yes"
+    assert r["m"]["ok"] and r["v"]["ok"] and r["p"]["ok"]
+
+
+def test_mvp_pending_before_15_days():
+    closes = [100.0] * 16 + [101.0, 102.0, 103.0]   # bi=15, 경과 3일
+    s = make_series(closes)
+    r = evaluate_mvp(s, 15)
+    assert r["status"] == "pending"
+    assert r["m"]["ok"] is None
+
+
+def test_mvp_no_when_price_short():
+    # M·V 충족해도 P<20%면 no
+    pre = [100.0] * 16
+    post = [100.0 + 0.5 * (i + 1) for i in range(15)]   # 최고 +7.5%
+    s = make_series(pre + post, volumes=[1000.0] * 16 + [2000.0] * 15)
+    r = evaluate_mvp(s, 15)
+    assert r["status"] == "no"
+    assert r["p"]["ok"] is False
