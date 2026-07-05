@@ -62,7 +62,8 @@ def run(args) -> None:
                 fetch_end = (datetime.strptime(be, "%Y-%m-%d") + timedelta(days=30)).strftime("%Y-%m-%d") if be else None
             except (ValueError, TypeError):
                 fetch_end = be
-            s = vcp_audit.load_series(e["code"], e.get("start"), fetch_end)
+            s = vcp_audit.load_series(e["code"], e.get("start"), fetch_end,
+                                      data_file=e.get("data_file"))
             if not s:
                 items.append({"code": e["code"], "source": "example", "note": "데이터 로드 실패(FDR)"})
                 continue
