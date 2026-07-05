@@ -272,7 +272,7 @@ def evaluate_mvp(series, bi):
     end = min(bi + ACCUM_WINDOW, n - 1)
     win_closes = closes[bi + 1:end + 1]
     p_gain = (max(win_closes) / closes[bi] - 1) if (win_closes and closes[bi]) else None
-    p_detail = f"+{p_gain * 100:.0f}%" if p_gain is not None else "—"
+    p_detail = f"{p_gain * 100:+.0f}%" if p_gain is not None else "—"
     if elapsed < ACCUM_WINDOW:
         return {"status": "pending",
                 "m": {"ok": None, "detail": f"{max(elapsed, 0)}/{ACCUM_WINDOW}일 (판정 전)"},

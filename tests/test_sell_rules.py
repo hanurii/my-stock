@@ -539,6 +539,15 @@ def test_mvp_v_none_when_prior_sample_insufficient():
     assert r["status"] == "no"
 
 
+def test_mvp_p_detail_signs_negative_without_double_sign():
+    # 창 최고 종가가 돌파일보다 낮으면 P detail이 '-N%' (‘+-’ 아님)
+    closes = [100.0] * 16 + [99.0, 98.0, 97.0]   # bi=15, 진행중, 하락
+    s = make_series(closes)
+    r = evaluate_mvp(s, 15)
+    assert r["p"]["detail"].startswith("-")
+    assert "+-" not in r["p"]["detail"]
+
+
 # --- evaluate_holding: accumulation·mvp·extension_pct 배선 ---
 
 def test_evaluate_holding_adds_accumulation_mvp_extension():
