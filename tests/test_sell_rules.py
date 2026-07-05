@@ -170,7 +170,7 @@ def test_rule3_pass_lower_lows_but_light_volume():
     vols = [1000.0] * 50 + [700.0, 800.0, 600.0]     # 거래량 낮음
     s = make_series(closes, volumes=vols, lows=lows)
     r = rule_consecutive_lower_lows(s, 49)
-    assert r["status"] == "pass"
+    assert r["status"] == "watch"
     assert "🟡" in r["detail"]
 
 
@@ -285,7 +285,7 @@ def test_rule6_pass_quiet_squat_within_grace():
     vols = [1000.0] * 30 + [2000.0, 800.0]  # 되밀림일 800 < 돌파일 2000
     s = make_series(closes, volumes=vols)
     r = rule_breakout_failure(s, 30, 105.0)
-    assert r["status"] == "pass"
+    assert r["status"] == "watch"
     assert "관찰중" in r["detail"]
 
 
@@ -344,7 +344,7 @@ def test_evaluate_holding_intraday_squat_flow():
     s = make_series(closes, highs=highs)
     r = evaluate_holding(s, s["dates"][60], 103.0, -4.0, pivot_price=105.0)
     assert r["breakout_date_estimated"] is False
-    assert r["rules"][5]["status"] == "pass"
+    assert r["rules"][5]["status"] == "watch"
     assert "관찰중" in r["rules"][5]["detail"]
 
 

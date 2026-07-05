@@ -111,7 +111,7 @@ def rule_consecutive_lower_lows(series, bi):
         return {"id": rid, "status": "violation",
                 "detail": f"거래량 붙은 저점경신 {qmax}일 연속 (~{dates[qend]})"}
     if rawmax >= LOWER_LOW_RUN:
-        return {"id": rid, "status": "pass",
+        return {"id": rid, "status": "watch",
                 "detail": f"🟡경고: 저점경신 {rawmax}회(거래량 낮음)"}
     return {"id": rid, "status": "pass", "detail": "연속 저저점 없음"}
 
@@ -211,7 +211,7 @@ def rule_breakout_failure(series, bi, pivot_price, breakout_confirmed=True):
         return {"id": rid, "status": "pass", "detail": "스쿼트 후 반전 회복(피벗 위 복귀)"}
     elapsed = (n - 1) - bi
     if elapsed <= SQUAT_GRACE_DAYS:
-        return {"id": rid, "status": "pass",
+        return {"id": rid, "status": "watch",
                 "detail": f"🟡 반전 회복 관찰중 (D+{elapsed}/{SQUAT_GRACE_DAYS})"}
     return {"id": rid, "status": "violation",
             "detail": f"유예 초과 — 피벗 회복 실패 (D+{elapsed})"}
