@@ -274,6 +274,7 @@ export function computeScorecard(trades: Trade[], params: { rr_target: number; s
   - 왕복거래 목록(종목·기간·순/총 수익률·보유일수·셋업).
   - 순수익/총수익 토글.
 - 계산은 C단계 모듈 재사용 — 페이지는 표시만.
+- 순/총 토글 상태에서 각 거래의 승/패는 활성 기준의 퍼센트(`net_pct` 또는 `gross_pct`)로 그때그때 판정 — net 전용인 `Trade.outcome` 필드를 그대로 쓰지 않는다.
 - 기존 173건짜리 `/journal`과 **분리**(전략 혼합 금지).
 
 ## 10. YAGNI (지금은 안 함)

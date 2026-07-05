@@ -28,7 +28,7 @@ function main() {
     strategy: raw.strategy ?? "minervini",
   });
 
-  fs.writeFileSync(OUT, JSON.stringify(sc, null, 2), "utf-8");
+  fs.writeFileSync(OUT, JSON.stringify(sc, null, 2) + "\n", "utf-8");
 
   const o = sc.overall.net;
   console.log("\n===== 트레이딩 요약 (순수익 기준, 전체) =====");

@@ -48,20 +48,21 @@ function buildTrade(code: string, name: string, buys: Fill[], sells: Fill[], ope
   const netCost = buyVal + buyFees;
   const netProceeds = sellVal - sellCosts;
   const netPct = (netProceeds / netCost - 1) * 100;
+  const netPctR = round2(netPct);
 
-  const outcome: "win" | "loss" = netPct > 0 ? "win" : "loss";
+  const outcome: "win" | "loss" = netPctR > 0 ? "win" : "loss";
   const firstStop = buys[0]?.stop;
   let stopViolation: boolean | undefined;
   if (firstStop != null) {
     const plannedPct = (firstStop / avgBuy - 1) * 100;
-    stopViolation = outcome === "loss" && netPct < plannedPct - 1e-9;
+    stopViolation = outcome === "loss" && netPctR < plannedPct - 1e-9;
   }
 
   return {
     code, name,
     open_date: openDate, close_date: closeDate,
     avg_buy: round2(avgBuy), avg_sell: round2(avgSell),
-    gross_pct: round2(grossPct), net_pct: round2(netPct),
+    gross_pct: round2(grossPct), net_pct: netPctR,
     hold_days: daysBetween(openDate, closeDate),
     outcome, month: closeDate.slice(0, 7),
     buy_qty: buyQty, sell_qty: sellQty,
@@ -145,7 +146,7 @@ export function computeOverall(trades: Trade[], basis: "net" | "gross"): Overall
   const avgWin = wins.length ? mean(wins.map(pct)) : null;
   const avgLoss = losses.length ? mean(losses.map((t) => -pct(t))) : null; // 양수
   const payoff = avgWin != null && avgLoss != null && avgLoss !== 0 ? avgWin / avgLoss : null;
-  const adj = payoff != null && lossRate > 0 ? (avgWin! * winRate) / (avgLoss! * lossRate) : null;
+  const adj = payoff != null ? (avgWin! * winRate) / (avgLoss! * lossRate) : null;
   const expectancy = winRate * (avgWin ?? 0) - lossRate * (avgLoss ?? 0);
 
   const toMax = (arr: Trade[], mag: (t: Trade) => number): MaxTrade => {
@@ -160,7 +161,7 @@ export function computeOverall(trades: Trade[], basis: "net" | "gross"): Overall
     avg_loss: avgLoss != null ? round2(avgLoss) : null,
     payoff_ratio: payoff != null ? round2(payoff) : null,
     adj_payoff_ratio: adj != null ? round2(adj) : null,
-    expectancy: wins.length || losses.length ? round2(expectancy) : null,
+    expectancy: round2(expectancy),
     max_win: toMax(wins, pct),
     max_loss: toMax(losses, (t) => -pct(t)),
     win_days: wins.length ? Math.round(mean(wins.map((t) => t.hold_days))) : null,
@@ -199,11 +200,12 @@ export function computeMonthly(trades: Trade[], basis: "net" | "gross"): Monthly
     };
   });
 
-  const avgPct = (key: keyof MonthlyRow): number | null => {
+  type NumericMonthlyKey = "avg_win" | "avg_loss" | "win_rate" | "max_win" | "max_loss" | "win_days" | "loss_days";
+  const avgPct = (key: NumericMonthlyKey): number | null => {
     const vals = rows.map((r) => r[key]).filter((v): v is number => v != null);
     return vals.length ? round2(mean(vals)) : null;
   };
-  const avgInt = (key: keyof MonthlyRow): number | null => {
+  const avgInt = (key: NumericMonthlyKey): number | null => {
     const vals = rows.map((r) => r[key]).filter((v): v is number => v != null);
     return vals.length ? Math.round(mean(vals)) : null;
   };
