@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { matchTrades, type Fill } from "./scorecard";
 import { computeOverall, type Trade } from "./scorecard";
+import { computeScorecard } from "./scorecard";
 
 const buy = (date: string, code: string, price: number, qty: number, extra: Partial<Fill> = {}): Fill =>
   ({ date, code, name: code, side: "buy", price, qty, ...extra });
@@ -216,5 +217,55 @@ describe("computeMonthly", () => {
     expect(avg.max_loss).toBe(4.5);
     expect(avg.win_days).toBe(3); // [3] 평균
     expect(avg.loss_days).toBe(9); // [10,8] 평균
+  });
+});
+
+describe("computeScorecard", () => {
+  const params = { rr_target: 2, stop_loss_pct_default: -4, generated_at: "2026-07-05", strategy: "minervini" };
+
+  it("net/gross 2뷰·open_positions·RBA·진단을 조립", () => {
+    const sc = computeScorecard([
+      buy("2026-01-01", "A", 100, 100, { stop: 90 }),
+      sell("2026-01-10", "A", 130, 100), // 승 +30, 9일
+      buy("2026-02-01", "B", 100, 100, { stop: 95 }), // 계획 -5%
+      sell("2026-02-05", "B", 90, 100),  // 손 -10%, 위반, 4일
+      buy("2026-03-01", "C", 100, 100),  // 미청산
+    ], params);
+
+    expect(sc.overall.net.trade_count).toBe(2);
+    expect(sc.overall.gross.trade_count).toBe(2);
+    expect(sc.monthly.net.rows).toHaveLength(2);
+    expect(sc.open_positions).toHaveLength(1);
+    expect(sc.open_positions[0].code).toBe("C");
+
+    // RBA: 평균수익 30 → 권장 15, 기본 손절 4% < 15 → ok
+    expect(sc.rba.avg_win_net).toBe(30);
+    expect(sc.rba.recommended_max_stop_pct).toBe(15);
+    expect(sc.rba.current_default_stop_pct).toBe(4);
+    expect(sc.rba.status).toBe("ok");
+
+    // 진단: 손절 위반 1건
+    expect(sc.diagnostics.stop_violations).toBe(1);
+    expect(sc.diagnostics.warnings.some((w) => w.includes("손절 규율 위반"))).toBe(true);
+
+    expect(sc.generated_at).toBe("2026-07-05");
+    expect(sc.strategy).toBe("minervini");
+  });
+
+  it("거래 0건이면 RBA status unknown", () => {
+    const sc = computeScorecard([buy("2026-03-01", "C", 100, 100)], params);
+    expect(sc.overall.net.trade_count).toBe(0);
+    expect(sc.rba.status).toBe("unknown");
+    expect(sc.rba.recommended_max_stop_pct).toBe(null);
+  });
+
+  it("기본 손절이 권장보다 넓으면 too_wide 경고", () => {
+    // 평균수익 6 → 권장 3, 기본 손절 4 > 3 → too_wide
+    const sc = computeScorecard([
+      buy("2026-01-01", "A", 100, 100),
+      sell("2026-01-05", "A", 106, 100),
+    ], params);
+    expect(sc.rba.status).toBe("too_wide");
+    expect(sc.diagnostics.warnings.some((w) => w.includes("권장"))).toBe(true);
   });
 });

@@ -217,3 +217,57 @@ export function computeMonthly(trades: Trade[], basis: "net" | "gross"): Monthly
   };
   return { rows, average };
 }
+
+export type ScorecardParams = {
+  rr_target: number; stop_loss_pct_default: number;
+  generated_at: string; strategy: string;
+};
+
+export type Scorecard = {
+  generated_at: string; strategy: string;
+  params: { rr_target: number; stop_loss_pct_default: number };
+  trades: Trade[]; open_positions: OpenPosition[];
+  monthly: { net: MonthlyTable; gross: MonthlyTable };
+  overall: { net: OverallStats; gross: OverallStats };
+  rba: {
+    avg_win_net: number | null; recommended_max_stop_pct: number | null;
+    current_default_stop_pct: number; status: "ok" | "too_wide" | "unknown";
+  };
+  diagnostics: {
+    max_loss_gt_max_win: boolean; loss_days_ge_win_days: boolean;
+    stop_violations: number; warnings: string[];
+  };
+  errors: string[];
+};
+
+export function computeScorecard(fills: Fill[], params: ScorecardParams): Scorecard {
+  const { trades, open, errors } = matchTrades(fills);
+  const overall = { net: computeOverall(trades, "net"), gross: computeOverall(trades, "gross") };
+  const monthly = { net: computeMonthly(trades, "net"), gross: computeMonthly(trades, "gross") };
+
+  const avgWinNet = overall.net.avg_win;
+  const rec = avgWinNet != null ? round2(avgWinNet / params.rr_target) : null;
+  const curStop = Math.abs(params.stop_loss_pct_default);
+  const status: "ok" | "too_wide" | "unknown" =
+    avgWinNet == null ? "unknown" : rec != null && curStop > rec ? "too_wide" : "ok";
+  const rba = { avg_win_net: avgWinNet, recommended_max_stop_pct: rec, current_default_stop_pct: curStop, status };
+
+  const warnings: string[] = [];
+  const mw = overall.net.max_win, ml = overall.net.max_loss;
+  const maxLossGtWin = !!(mw && ml && ml.pct > mw.pct);
+  if (maxLossGtWin) warnings.push("최대손실이 최대수익보다 큽니다 — 손실은 붙들고 이익은 일찍 파는 신호");
+  const wd = overall.net.win_days, ld = overall.net.loss_days;
+  const lossDaysGe = wd != null && ld != null && ld >= wd;
+  if (lossDaysGe) warnings.push("손실 유지일이 수익 유지일보다 깁니다 — 손실을 오래 붙들고 있습니다");
+  const stopViolations = trades.filter((t) => t.stop_violation).length;
+  if (stopViolations > 0) warnings.push(`손절 규율 위반 ${stopViolations}건`);
+  if (status === "too_wide") warnings.push(`기본 손절 ${curStop}%가 권장 ${rec}%보다 넓습니다`);
+
+  return {
+    generated_at: params.generated_at, strategy: params.strategy,
+    params: { rr_target: params.rr_target, stop_loss_pct_default: params.stop_loss_pct_default },
+    trades, open_positions: open, monthly, overall, rba,
+    diagnostics: { max_loss_gt_max_win: maxLossGtWin, loss_days_ge_win_days: lossDaysGe, stop_violations: stopViolations, warnings },
+    errors,
+  };
+}
