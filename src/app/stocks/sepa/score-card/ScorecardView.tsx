@@ -83,11 +83,12 @@ export function ScorecardView({ data }: { data: Scorecard }) {
             <button
               key={b}
               onClick={() => setBasis(b)}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+              className={`flex flex-col items-center px-4 py-1.5 rounded-md transition-all ${
                 basis === b ? "bg-primary/15 text-primary shadow-sm" : "text-on-surface-variant/60 hover:text-on-surface-variant"
               }`}
             >
-              {b === "net" ? "순수익" : "총수익"}
+              <span className="text-sm font-medium">{b === "net" ? "순수익" : "총수익"}</span>
+              <span className="text-[10px] leading-tight opacity-70">{b === "net" ? "수수료·세금 차감" : "가격만"}</span>
             </button>
           ))}
         </div>
