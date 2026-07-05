@@ -19,6 +19,19 @@ MVP_M_MIN = 12              # M: 15일 중 상승 마감 최소일
 MVP_V_MULT = 1.25           # V: 창 평균 거래량 / 직전 15일 평균 최소배
 MVP_P_MIN = 0.20            # P: 창 최고 종가 상승률 최소
 
+# --- 강세 매도(과열·절정) 감시 ---
+EXT_GATE_PCT    = 5.0     # 확장 게이트: (현재/피벗-1)*100 ≥ 5
+CLIMAX_MIN_W    = 5       # 절정 분출 관찰 창 하한(거래일)
+CLIMAX_25_MAX_W = 15      # +25% 판정 창 상한
+CLIMAX_70_MAX_W = 10      # +70% 판정 창 상한
+CLIMAX_25_GAIN  = 0.25    # 5~15일 상승률 문턱
+CLIMAX_70_GAIN  = 0.70    # 5~10일 상승률 문턱
+BLOWOFF_RECENT  = 3       # 최대 상승일/변동폭이 "최근"으로 인정되는 거래일
+BLOWOFF_MIN_DAYS = 5      # blowoff 판정 최소 돌파후 거래일
+GAP_RECENT      = 3       # 소진성 갭이 "최근"으로 인정되는 거래일
+DISTRIB_WINDOW  = 10      # 분산(반전·처닝) trailing 관찰 거래일
+CHURN_MOVE_PCT  = 0.01    # 처닝: 종가 변화 절대값 < 1%
+
 
 def avg_volume(volumes, i, window=50, min_days=5):
     """i일 직전 최대 window 거래일 평균 거래량(판정일 제외). 표본 부족 시 None."""
@@ -221,6 +234,33 @@ def rule_breakout_failure(series, bi, pivot_price, breakout_confirmed=True):
                 "detail": f"🟡 반전 회복 관찰중 (D+{elapsed}/{SQUAT_GRACE_DAYS})"}
     return {"id": rid, "status": "violation",
             "detail": f"유예 초과 — 피벗 회복 실패 (D+{elapsed})"}
+
+
+def sig_climax_run(series):
+    """S1 절정 분출: 최근 종가 trailing 상승률(5~15일 +25% / 5~10일 +70%)."""
+    rid = "climax_run"
+    closes = series["closes"]
+    n = len(closes)
+    best = None  # (w, r) — 25% 이상 중 최대
+    for w in range(CLIMAX_MIN_W, CLIMAX_25_MAX_W + 1):
+        if n - 1 - w < 0:
+            continue
+        base = closes[n - 1 - w]
+        if not base:
+            continue
+        r = closes[-1] / base - 1
+        if w <= CLIMAX_70_MAX_W and r >= CLIMAX_70_GAIN:
+            return {"id": rid, "status": "fired",
+                    "detail": f"최근 {w}거래일 +{r * 100:.0f}% — 폭발적 분출(70%+)"}
+        if r >= CLIMAX_25_GAIN and (best is None or r > best[1]):
+            best = (w, r)
+    if best is not None:
+        w, r = best
+        return {"id": rid, "status": "fired",
+                "detail": f"최근 {w}거래일 +{r * 100:.0f}% — 절정 구간(25%+)"}
+    if n - 1 - CLIMAX_MIN_W < 0:
+        return {"id": rid, "status": "pending", "detail": "데이터 부족"}
+    return {"id": rid, "status": "clear", "detail": "절정 분출 없음"}
 
 
 def evaluate_accumulation(series, bi):

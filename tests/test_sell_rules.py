@@ -565,3 +565,30 @@ def test_evaluate_holding_extension_null_without_pivot():
     s = _clean_series()
     r = evaluate_holding(s, s["dates"][60], 106.0, -4.0, pivot_price=None)
     assert r["extension_pct"] is None
+
+
+# --- sig_climax_run: S1 절정 분출 ---
+
+from canslim_lib.sell_rules import sig_climax_run
+
+
+def test_climax_run_fires_25pct():
+    s = make_series([100.0] * 20 + [130.0])          # 최근 창 +30%
+    r = sig_climax_run(s)
+    assert r["status"] == "fired" and "25%+" in r["detail"]
+
+
+def test_climax_run_fires_strong_70pct():
+    s = make_series([100.0] * 20 + [175.0])          # 최근 창 +75% → 폭발적
+    r = sig_climax_run(s)
+    assert r["status"] == "fired" and "70%+" in r["detail"]
+
+
+def test_climax_run_clear_when_mild():
+    s = make_series([100.0] * 20 + [108.0])          # +8%
+    assert sig_climax_run(s)["status"] == "clear"
+
+
+def test_climax_run_pending_when_short():
+    s = make_series([100.0, 101.0, 102.0])           # 창 하한 미만
+    assert sig_climax_run(s)["status"] == "pending"
