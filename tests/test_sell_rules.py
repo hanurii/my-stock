@@ -4,7 +4,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
-from canslim_lib.sell_rules import avg_volume, find_breakout_index
+from canslim_lib.sell_rules import avg_volume, find_breakout_index, evaluate_accumulation
 
 
 def make_series(closes, volumes=None, highs=None, lows=None):
@@ -410,3 +410,45 @@ def test_evaluate_holding_uncrossed_pivot_squat_na():
     r = evaluate_holding(s, s["dates"][60], 101.0, -4.0, pivot_price=200.0)
     assert r["breakout_date_estimated"] is True
     assert r["rules"][5]["status"] == "na"
+
+
+# --- evaluate_accumulation: 매집 신호 3종 ---
+
+def test_accum_up_days_and_quality_met():
+    # 돌파(30) 후 상승 우세 + 상단 마감 우세
+    closes = [100.0] * 31 + [102.0, 104.0, 103.5, 106.0]
+    highs = [c * 1.005 for c in closes]           # 종가가 고저 중간보다 위(좋은 마감)
+    lows = [c * 0.98 for c in closes]
+    s = make_series(closes, highs=highs, lows=lows)
+    r = evaluate_accumulation(s, 30)
+    ids = {x["id"]: x["status"] for x in r["signals"]}
+    assert ids["up_days_dominant"] == "met"       # 상승 3 · 하락 1
+    assert ids["quality_closes"] == "met"
+    assert r["elapsed"] == 4 and r["window"] == "D+4/15"
+
+
+def test_accum_up_streak_7_met_and_window_locks_at_15():
+    # 돌파 후 8일 연속 상승 → streak met, 16일 이상이면 창 고정("15일 완료")
+    closes = [100.0] * 31 + [100.0 + i for i in range(1, 20)]
+    s = make_series(closes)
+    r = evaluate_accumulation(s, 30)
+    ids = {x["id"]: x["status"] for x in r["signals"]}
+    assert ids["up_streak_7"] == "met"
+    assert r["window"] == "15일 완료"
+
+
+def test_accum_pending_when_no_post_breakout_days():
+    s = make_series([100.0] * 31)
+    r = evaluate_accumulation(s, 30)
+    assert all(x["status"] == "pending" for x in r["signals"])
+
+
+def test_accum_tight_day_not_counted_as_bad_close():
+    # 하단 마감이지만 일중 변동폭 <1% (tight) → 나쁜 마감서 제외
+    closes = [100.0] * 31 + [101.0, 101.05, 101.1]
+    highs = [c * 1.0002 for c in closes]          # 범위 ~0.02% < 1%
+    lows = [c * 0.9998 for c in closes]
+    s = make_series(closes, highs=highs, lows=lows)
+    r = evaluate_accumulation(s, 30)
+    q = next(x for x in r["signals"] if x["id"] == "quality_closes")
+    assert "나쁜 0" in q["detail"]                 # tight day는 bad 미포함
