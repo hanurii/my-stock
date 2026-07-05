@@ -75,7 +75,7 @@ def test_find_breakout_buy_date_between_trading_days():
 from canslim_lib.sell_rules import (
     rule_low_volume_breakout,
     rule_heavy_volume_pullback,
-    rule_consecutive_lower_closes,
+    rule_consecutive_lower_lows,
 )
 
 
@@ -150,31 +150,42 @@ def test_rule2_pending_no_post_breakout_days():
     assert rule_heavy_volume_pullback(s, 30)["status"] == "pending"
 
 
-# --- 규칙 ③ 연속 저저점 (종가 < 전일 저가) ---
+# --- 규칙 ③ 연속 저저점 (저가 < 전일 저가 + 거래량 ≥ 50일 평균) ---
 
-def test_rule3_violation_three_consecutive_closes_below_prior_low():
-    # 저가 = 종가*0.99. 97<99, 94<96.03, 91<93.06 → 3일 연속
-    closes = [100.0] * 30 + [106.0, 97.0, 94.0, 91.0]
-    s = make_series(closes)
-    r = rule_consecutive_lower_closes(s, 30)
+def test_rule3_violation_three_vol_backed_lower_lows():
+    # 저가가 3일 연속 하락 + 각 날 거래량이 50일 평균(1000) 이상
+    lows = [99.0] * 50 + [98.0, 97.0, 96.0]          # 마지막 3일 저점경신
+    closes = [100.0] * 50 + [99.0, 98.0, 97.0]
+    vols = [1000.0] * 50 + [1200.0, 1300.0, 1400.0]  # 거래량 붙음
+    s = make_series(closes, volumes=vols, lows=lows)
+    r = rule_consecutive_lower_lows(s, 49)
     assert r["status"] == "violation"
+    assert "거래량 붙은 저점경신" in r["detail"]
 
 
-def test_rule3_two_day_run_is_pass_with_warning():
-    closes = [100.0] * 30 + [106.0, 97.0, 94.0]  # 2일 연속 진행 중
-    s = make_series(closes)
-    r = rule_consecutive_lower_closes(s, 30)
+def test_rule3_pass_lower_lows_but_light_volume():
+    # 저점경신 3연속이지만 거래량이 평균 미만 → 위반 아님(🟡경고)
+    lows = [99.0] * 50 + [98.0, 97.0, 96.0]
+    closes = [100.0] * 50 + [99.0, 98.0, 97.0]
+    vols = [1000.0] * 50 + [700.0, 800.0, 600.0]     # 거래량 낮음
+    s = make_series(closes, volumes=vols, lows=lows)
+    r = rule_consecutive_lower_lows(s, 49)
     assert r["status"] == "pass"
-    assert "2일" in r["detail"]
+    assert "🟡" in r["detail"]
 
 
-def test_rule3_pass_when_run_broken():
-    # 2일 연속 후 반등 → 위반 아님
-    closes = [100.0] * 30 + [106.0, 97.0, 94.0, 98.0]
-    s = make_series(closes)
-    r = rule_consecutive_lower_closes(s, 30)
-    assert r["status"] == "pass"
-    assert "2일" not in r["detail"]
+def test_rule3_pass_two_vol_backed_lower_lows():
+    # 거래량 붙은 저점경신이 2일뿐 → 위반 아님
+    lows = [99.0] * 50 + [98.0, 97.0, 99.5]          # 3일째는 저점경신 아님
+    closes = [100.0] * 50 + [99.0, 98.0, 100.0]
+    vols = [1000.0] * 50 + [1200.0, 1300.0, 1400.0]
+    s = make_series(closes, volumes=vols, lows=lows)
+    assert rule_consecutive_lower_lows(s, 49)["status"] == "pass"
+
+
+def test_rule3_pending_no_post_breakout_days():
+    s = make_series([100.0] * 51)
+    assert rule_consecutive_lower_lows(s, 50)["status"] == "pending"
 
 
 # --- 규칙 ④ 이평선 아래 마감 ---
