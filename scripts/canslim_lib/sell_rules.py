@@ -317,6 +317,36 @@ def sig_exhaustion_gap(series):
     return {"id": rid, "status": "clear", "detail": "최근 상승 갭 없음"}
 
 
+def sig_distribution(series, bi):
+    """S4 분산 정황: (c)돌파 후 최대 거래량 하락일 / (a)대량 반전 / (b)처닝."""
+    rid = "distribution"
+    closes, highs = series["closes"], series["highs"]
+    vols, dates = series["volumes"], series["dates"]
+    n = len(closes)
+    if bi + 1 >= n:
+        return {"id": rid, "status": "pending", "detail": "돌파 다음 날 데이터 없음"}
+    # (c) 돌파 후 구간의 최대 거래량 날이 하락 마감?
+    span = [i for i in range(bi, n) if vols[i] is not None]
+    if span:
+        vmax_i = max(span, key=lambda i: vols[i])
+        if vmax_i >= 1 and closes[vmax_i] < closes[vmax_i - 1]:
+            return {"id": rid, "status": "fired",
+                    "detail": f"{dates[vmax_i]} 최대 거래량으로 하락"}
+    # (a)(b) 최근 DISTRIB_WINDOW일 반전 / 처닝
+    lo = max(bi + 1, n - DISTRIB_WINDOW)
+    for i in range(lo, n):
+        avg = avg_volume(vols, i)
+        if avg is None or vols[i] is None or vols[i] < HEAVY_VOL_MULT * avg:
+            continue
+        if highs[i] > highs[i - 1] and closes[i] < closes[i - 1]:
+            return {"id": rid, "status": "fired",
+                    "detail": f"{dates[i]} 대량 거래 반전(장중 고점→하락 마감)"}
+        if closes[i - 1] and abs(closes[i] / closes[i - 1] - 1) < CHURN_MOVE_PCT:
+            return {"id": rid, "status": "fired",
+                    "detail": f"{dates[i]} 처닝(대량인데 가격 진전 없음)"}
+    return {"id": rid, "status": "clear", "detail": "반전·처닝·최대량 하락 없음"}
+
+
 def evaluate_accumulation(series, bi):
     """돌파 후 첫 ACCUM_WINDOW 거래일 매집 신호 3종(등급 없이 체크리스트).
     창은 15일 지나면 첫 15일로 고정, 미만이면 진행 중 부분 계산."""

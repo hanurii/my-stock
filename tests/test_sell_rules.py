@@ -631,3 +631,38 @@ def test_exhaustion_gap_fires_on_recent_up_gap():
 def test_exhaustion_gap_clear_without_gap():
     s = make_series([100.0, 101.0, 102.0, 103.0])       # 기본 고저 = 겹침(갭 없음)
     assert sig_exhaustion_gap(s)["status"] == "clear"
+
+
+# --- sig_distribution: S4 분산 정황 ---
+
+from canslim_lib.sell_rules import sig_distribution
+
+
+def test_distribution_fires_biggest_volume_down_day():
+    s = make_series([100.0, 101.0, 100.0], volumes=[1000.0, 1000.0, 5000.0])
+    r = sig_distribution(s, 0)                 # 최대 거래량(마지막)이 하락 마감
+    assert r["status"] == "fired" and "최대 거래량" in r["detail"]
+
+
+def test_distribution_fires_churning():
+    closes = [100.0] * 55
+    vols = [1000.0] * 54 + [2000.0]            # 마지막날 대량인데 종가 변화 0%
+    s = make_series(closes, volumes=vols)
+    r = sig_distribution(s, 50)
+    assert r["status"] == "fired" and "처닝" in r["detail"]
+
+
+def test_distribution_fires_reversal_day():
+    closes = [100.0] * 51 + [102.0, 104.0, 106.0, 104.0]
+    highs = [101.0] * 51 + [103.0, 105.0, 107.0, 110.0]  # 마지막날 장중 신고가
+    lows = [99.0] * 51 + [101.0, 103.0, 105.0, 103.0]
+    vols = [1000.0] * 52 + [9000.0, 1000.0, 3000.0]      # 최대량은 up day(52), 마지막날 대량 반전
+    s = make_series(closes, volumes=vols, highs=highs, lows=lows)
+    r = sig_distribution(s, 50)
+    assert r["status"] == "fired" and "반전" in r["detail"]
+
+
+def test_distribution_clear():
+    closes = [100.0 + i for i in range(55)]    # 완만한 상승, 대량·반전 없음
+    s = make_series(closes)
+    assert sig_distribution(s, 50)["status"] == "clear"
