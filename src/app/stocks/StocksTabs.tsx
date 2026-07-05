@@ -12,6 +12,7 @@ const tabs = [
   { href: "/stocks/megacap", label: "메가캡 우량주", icon: "stars" },
   { href: "/stocks/etf-finder", label: "ETF 파인더", icon: "donut_small" },
   { href: "/stocks/sepa", label: "SEPA 셋업", icon: "candlestick_chart" },
+  { href: "/stocks/sepa/score-card", label: "정산표", icon: "scoreboard" },
 ];
 
 export function StocksTabs({ berkshireIsNew }: { berkshireIsNew: boolean }) {
