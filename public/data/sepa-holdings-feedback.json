@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-04 08:47",
+  "generated_at": "2026-07-05 17:35",
   "asof": "2026-07-03",
   "stop_loss_pct_default": -4,
   "holdings": [
@@ -20,7 +20,7 @@
       "breakout_date": "2026-06-30",
       "breakout_date_estimated": false,
       "signal": "early_sell",
-      "violation_count": 2,
+      "violation_count": 1,
       "rules": [
         {
           "id": "low_volume_breakout",
@@ -33,7 +33,7 @@
           "detail": "대량 거래 하락일 없음"
         },
         {
-          "id": "consecutive_lower_closes",
+          "id": "consecutive_lower_lows",
           "status": "pass",
           "detail": "연속 저저점 없음"
         },
@@ -48,9 +48,9 @@
           "detail": "경과 3거래일 — 5거래일부터 판정"
         },
         {
-          "id": "squat",
-          "status": "violation",
-          "detail": "돌파 당일 2026-06-30 종가가 피벗(29,100) 아래 복귀"
+          "id": "breakout_failure",
+          "status": "pass",
+          "detail": "스쿼트 후 반전 회복(피벗 위 복귀)"
         }
       ]
     },
@@ -70,8 +70,8 @@
       "pct_to_stop": -2.45,
       "breakout_date": "2026-07-02",
       "breakout_date_estimated": false,
-      "signal": "early_sell",
-      "violation_count": 1,
+      "signal": "hold",
+      "violation_count": 0,
       "rules": [
         {
           "id": "low_volume_breakout",
@@ -84,7 +84,7 @@
           "detail": "대량 거래 하락일 없음"
         },
         {
-          "id": "consecutive_lower_closes",
+          "id": "consecutive_lower_lows",
           "status": "pass",
           "detail": "연속 저저점 없음"
         },
@@ -99,9 +99,9 @@
           "detail": "경과 1거래일 — 5거래일부터 판정"
         },
         {
-          "id": "squat",
-          "status": "violation",
-          "detail": "2026-07-03 종가가 피벗(138,090) 아래 복귀"
+          "id": "breakout_failure",
+          "status": "pass",
+          "detail": "🟡 반전 회복 관찰중 (D+1/10)"
         }
       ]
     },
@@ -122,7 +122,7 @@
       "breakout_date": "2026-07-02",
       "breakout_date_estimated": false,
       "signal": "early_sell",
-      "violation_count": 2,
+      "violation_count": 1,
       "rules": [
         {
           "id": "low_volume_breakout",
@@ -135,7 +135,7 @@
           "detail": "대량 거래 하락일 없음"
         },
         {
-          "id": "consecutive_lower_closes",
+          "id": "consecutive_lower_lows",
           "status": "pass",
           "detail": "연속 저저점 없음"
         },
@@ -150,9 +150,9 @@
           "detail": "경과 1거래일 — 5거래일부터 판정"
         },
         {
-          "id": "squat",
-          "status": "violation",
-          "detail": "돌파 당일 2026-07-02 종가가 피벗(57,899) 아래 복귀"
+          "id": "breakout_failure",
+          "status": "pass",
+          "detail": "🟡 반전 회복 관찰중 (D+1/10)"
         }
       ]
     },
@@ -172,8 +172,8 @@
       "pct_to_stop": -6.25,
       "breakout_date": "2026-07-01",
       "breakout_date_estimated": false,
-      "signal": "early_sell",
-      "violation_count": 1,
+      "signal": "hold",
+      "violation_count": 0,
       "rules": [
         {
           "id": "low_volume_breakout",
@@ -186,7 +186,7 @@
           "detail": "대량 거래 하락일 없음"
         },
         {
-          "id": "consecutive_lower_closes",
+          "id": "consecutive_lower_lows",
           "status": "pass",
           "detail": "연속 저저점 없음"
         },
@@ -201,9 +201,9 @@
           "detail": "경과 2거래일 — 5거래일부터 판정"
         },
         {
-          "id": "squat",
-          "status": "violation",
-          "detail": "돌파 당일 2026-07-01 종가가 피벗(87,500) 아래 복귀"
+          "id": "breakout_failure",
+          "status": "pass",
+          "detail": "스쿼트 후 반전 회복(피벗 위 복귀)"
         }
       ]
     }
