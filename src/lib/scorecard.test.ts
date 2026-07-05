@@ -175,3 +175,46 @@ describe("computeOverall", () => {
     expect(computeOverall([mkTrade(-10, 3, "2026-01")], "net").payoff_ratio).toBe(null);
   });
 });
+
+import { computeMonthly } from "./scorecard";
+
+describe("computeMonthly", () => {
+  it("월별 행 + 평균행(월평균, 총거래=합계), 수익거래 0인 달은 null", () => {
+    const trades = [
+      mkTrade(10, 3, "2026-01", "A"),
+      mkTrade(-4, 10, "2026-01", "B"),
+      mkTrade(-5, 8, "2026-02", "C"), // 2월엔 수익거래 없음
+    ];
+    const m = computeMonthly(trades, "net");
+    expect(m.rows).toHaveLength(2);
+
+    const jan = m.rows[0];
+    expect(jan.month).toBe("2026-01");
+    expect(jan.avg_win).toBe(10);
+    expect(jan.avg_loss).toBe(4);
+    expect(jan.win_rate).toBe(50);
+    expect(jan.trades).toBe(2);
+    expect(jan.max_win).toBe(10);
+    expect(jan.max_loss).toBe(4);
+    expect(jan.win_days).toBe(3);
+    expect(jan.loss_days).toBe(10);
+
+    const feb = m.rows[1];
+    expect(feb.avg_win).toBe(null);
+    expect(feb.avg_loss).toBe(5);
+    expect(feb.win_rate).toBe(0);
+    expect(feb.max_win).toBe(null);
+    expect(feb.win_days).toBe(null);
+    expect(feb.loss_days).toBe(8);
+
+    const avg = m.average;
+    expect(avg.month).toBe("평균");
+    expect(avg.trades).toBe(3); // 합계
+    expect(avg.avg_win).toBe(10); // null 달 제외 → [10] 평균
+    expect(avg.avg_loss).toBe(4.5); // [4,5] 평균
+    expect(avg.win_rate).toBe(25); // [50,0] 평균
+    expect(avg.max_loss).toBe(4.5);
+    expect(avg.win_days).toBe(3); // [3] 평균
+    expect(avg.loss_days).toBe(9); // [10,8] 평균
+  });
+});

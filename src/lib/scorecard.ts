@@ -168,3 +168,52 @@ export function computeOverall(trades: Trade[], basis: "net" | "gross"): Overall
     trade_count: n, win_count: wins.length, loss_count: losses.length,
   };
 }
+
+export type MonthlyRow = {
+  month: string;
+  avg_win: number | null; avg_loss: number | null; win_rate: number | null;
+  trades: number;
+  max_win: number | null; max_loss: number | null;
+  win_days: number | null; loss_days: number | null;
+};
+export type MonthlyTable = { rows: MonthlyRow[]; average: MonthlyRow };
+
+export function computeMonthly(trades: Trade[], basis: "net" | "gross"): MonthlyTable {
+  const pct = (t: Trade) => (basis === "net" ? t.net_pct : t.gross_pct);
+  const months = [...new Set(trades.map((t) => t.month))].sort();
+
+  const rows: MonthlyRow[] = months.map((month) => {
+    const mt = trades.filter((t) => t.month === month);
+    const wins = mt.filter((t) => pct(t) > 0);
+    const losses = mt.filter((t) => pct(t) <= 0);
+    return {
+      month,
+      avg_win: wins.length ? round2(mean(wins.map(pct))) : null,
+      avg_loss: losses.length ? round2(mean(losses.map((t) => -pct(t)))) : null,
+      win_rate: round2((wins.length / mt.length) * 100),
+      trades: mt.length,
+      max_win: wins.length ? round2(Math.max(...wins.map(pct))) : null,
+      max_loss: losses.length ? round2(Math.max(...losses.map((t) => -pct(t)))) : null,
+      win_days: wins.length ? Math.round(mean(wins.map((t) => t.hold_days))) : null,
+      loss_days: losses.length ? Math.round(mean(losses.map((t) => t.hold_days))) : null,
+    };
+  });
+
+  const avgPct = (key: keyof MonthlyRow): number | null => {
+    const vals = rows.map((r) => r[key]).filter((v): v is number => v != null);
+    return vals.length ? round2(mean(vals)) : null;
+  };
+  const avgInt = (key: keyof MonthlyRow): number | null => {
+    const vals = rows.map((r) => r[key]).filter((v): v is number => v != null);
+    return vals.length ? Math.round(mean(vals)) : null;
+  };
+
+  const average: MonthlyRow = {
+    month: "평균",
+    avg_win: avgPct("avg_win"), avg_loss: avgPct("avg_loss"), win_rate: avgPct("win_rate"),
+    trades: rows.reduce((s, r) => s + r.trades, 0),
+    max_win: avgPct("max_win"), max_loss: avgPct("max_loss"),
+    win_days: avgInt("win_days"), loss_days: avgInt("loss_days"),
+  };
+  return { rows, average };
+}
