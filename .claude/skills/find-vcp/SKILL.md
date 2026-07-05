@@ -32,8 +32,10 @@ python scripts/screen_vcp.py
 
 ## 결과 확인
 - **VCP 인식**: 적응형 ZigZag로 변동성 수축 연쇄를 탐지. 피벗(최소저항선) = 최종 타이트 코일(좁은 변동폭 AND 마른 거래량) 고점; 인식에 코일 존재 필수(코일 없으면 reason=no_tight_coil).
-- **돌파(status)**: 첫돌파(전일 종가≤피벗, 당일 종가>피벗) + 양봉(종가>시가) + 거래량터짐 + 피벗근접 동시 충족. 거래량터짐 = `거래량≥50일선×1.4` **또는** `거래량≥마른 코일 평균거래량×1.5`(코일 평균 대비 OR-경로 — 최근 IPO·저유동주는 상장초기 고거래량이 50일선을 부풀려 진짜 확장도 "조용"해 보이는 것을 보정. 예: 마이클스컴퍼니(MIK) 2014-11-06 오라클).
-- **코일 진단 필드**: 출력 JSON에 `coil_len`(코일 길이/일), `coil_dry_mean`(코일 평균 거래량/MA50), `coil_range_pct`(코일 종가 변동폭%) 가산 필드 포함.
+- **피벗 극저거래량일(레버 B)**: 코일 평균만 마른 게 아니라 **코일 안에 '진짜 극저거래량 하루'(v/MA50 ≤ `coil_extreme_dry_max`=0.5)가 최소 1일** 있어야 VCP 인정(미너비니: "가장 오른쪽 수축에 하루 이틀 극도로 낮은 거래량이 좋다"). 없으면 reason=`no_dry_coil_day`·피벗 무효. MIK 최저일 0.11×로 통과.
+- **돌파(status)**: 첫돌파(전일 종가≤피벗, 당일 종가>피벗) + 양봉(종가>시가) + **거래량 확장** + 피벗근접 동시 충족. 거래량 확장 = `거래량≥50일선×1.4` **또는** `거래량≥마른-코일 평균×`coil_breakout_vol_mult`(1.5)`(레버 A — IPO/저유동으로 50일선이 부풀어도 dry-up 대비 진짜 확장을 인정; MIK 돌파일 통과 근거).
+- **코일 진단 필드**: 출력 JSON에 `coil_len`(코일 길이/일), `coil_dry_mean`(코일 평균 거래량/MA50), `coil_range_pct`(코일 종가 변동폭%), `coil_min_dry`(코일 **최저일** 거래량/MA50 — 레버 B 근거) 가산 필드 포함.
+- **status ⊥ 인식**: status(breakout 등)는 vcp_detected 와 독립 산출 — 실제 매수 신호는 `entry_ready`(=vcp_detected AND status∈{breakout,actionable})만.
 - `status_distribution` : breakout(돌파 중) · actionable(피벗 근접+거래량 마름) ·
   forming(형성 중) · failed(수렴 실패).
 - `actionable`/`breakout` 종목이 다음 단계(리스크·진입) 후보.

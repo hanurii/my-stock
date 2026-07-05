@@ -100,8 +100,9 @@ def test_post_breakout_outcome_same_bar_collision_is_conservative():
 def test_integration_real_series_produces_event():
     # 현재 코일 검출기(evaluate_vcp)가 vcp_detected=True + status=breakout 를 내는 것이
     # test_vcp.py::_vcp_series 로 검증된 패턴을 그대로 사용한다: 2수축 수렴(25%→15%) +
-    # 돌파 직전 '타이트+마른 코일'(피벗 96) + 첫돌파 바(종가 99). opens 없으면 _is_breakout
-    # 양봉 체크가 IndexError → 반드시 opens 포함(replay_vcp 가 opens 를 통과시켜야 함).
+    # 돌파 직전 '타이트+마른 코일'(피벗 96, 코일 거래량 300≈0.4×MA50 → 레버 B 극저일 통과) +
+    # 첫돌파 바(종가 99). opens 없으면 _is_breakout 양봉 체크가 IndexError → 반드시 opens
+    # 포함(replay_vcp 가 opens 를 통과시켜야 함).
     c1   = [100.0, 96.0, 91.0, 86.0, 82.0, 78.0, 75.5, 75.0]   # 수축1: 100→75 = -25%
     r1   = [78.0, 81.0, 84.0, 87.0, 89.0, 91.0, 92.0]           # 회복 →92
     c2   = [90.0, 87.0, 84.0, 81.0, 79.0, 78.5, 78.2]           # 수축2: 92→78.2 ≈ -15%

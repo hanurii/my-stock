@@ -24,6 +24,9 @@ DEFAULT_PARAMS: dict = {
     "coil_max_days": 12,      # 코일 최대 길이 — Task3 보정 25→12: 코일이 '최근 마른 구간'만
                               # 잡도록 단축(25는 직전 고거래량 바까지 흡수해 dry_mean 부풀림→한솔 등 오탈락)
     "coil_dry_max": 0.95,     # 코일 평균 거래량/MA50 상한 — Task3 보정 0.9→0.95(데브 0.890 여유·소폭만 완화)
+    # 레버 B — 피벗 극저거래량일(책: "하루 이틀 극도로 낮은 거래량이 좋다") 정밀도 게이트:
+    "coil_extreme_dry_max": 0.5,  # 코일 내 '진짜 마른 날'의 거래량/MA50 상한(MIK 최저 0.11). 평균-마름과 별개로 극저일 요구
+    "coil_extreme_min_days": 1,   # 극저거래량일 최소 일수(책 "최소 하루는 있다")
 }
 
 
@@ -136,14 +139,15 @@ def _is_breakout(closes, opens, vols, ma50, pivot, p, coil=None) -> bool:
     "거래량이 직전 dry-up 대비 확장"을 구현한 것으로, 마른 코일이 있는 모든 종목에
     일반적으로 적용된다(신규상장·저유동주 한정이 아님) — MA50이 IPO/과거 물량에
     오염돼 부푸는 경우(예: MIK)는 이 경로가 필요함을 드러낸 동기 사례일 뿐, 적용
-    범위의 한계가 아니다.
-    coil=None이면 (b) 비활성 → 기존 동작 보존.
+    범위의 한계가 아니다. coil=None이면 (b) 비활성 → 기존 동작 보존.
     근접 판단을 시가(open)로 하는 이유: 갭업 돌파에서 종가는 멀어도 시가는 피벗 근처.
     """
     i = len(closes) - 1
     if pivot is None or i < 1:
         return False
     if not (closes[i] > pivot and closes[i - 1] <= pivot):   # 첫돌파
+        return False
+    if i >= len(opens):                                       # opens 누락 시(예: 일부 replay 입력) 돌파 미인정
         return False
     if not (closes[i] > opens[i]):                            # 양봉
         return False
@@ -170,8 +174,12 @@ def detect_final_coil(highs, lows, closes, vols, ma50, b1, p):
     피벗이 돌파 전 고정 저항선). 코일 길이는 coil_max_days 로 상한, coil_min_days
     이상이어야 하며, 코일 전반의 평균 거래량/MA50 이 coil_dry_max 이하여야 한다.
 
-    반환: {coil_start, coil_end, pivot, coil_len, coil_dry_mean, coil_range_pct} 또는 None.
-    pivot = 코일 내 종가 최고치(장중 스파이크 회피 위해 종가 기준).
+    반환: {coil_start, coil_end, pivot, coil_len, coil_dry_mean, coil_range_pct,
+    coil_min_dry, coil_extreme_days} 또는 None. pivot = 코일 내 종가 최고치(장중 스파이크
+    회피 위해 종가 기준). coil_min_dry = 코일에서 가장 마른 하루의 거래량/MA50(레버 B
+    진단); coil_extreme_days = 그 비율이 coil_extreme_dry_max 이하인 날 수. 극저일 게이트
+    자체는 evaluate_vcp 가 적용(별도 reason 발화 위해). 이 함수는 '좁은 변동폭 AND
+    코일평균 마름'까지만 판정.
     """
     if b1 < 1:
         return None
@@ -194,11 +202,15 @@ def detect_final_coil(highs, lows, closes, vols, ma50, b1, p):
     if dry_mean > p["coil_dry_max"]:
         return None
     pivot, low = max(seg), min(seg)
+    min_dry = min(ratios) if ratios else 9.9
+    extreme_days = sum(1 for r in ratios if r <= p.get("coil_extreme_dry_max", 0.5))
     return {
         "coil_start": min(idxs), "coil_end": max(idxs),
         "pivot": round(pivot, 2), "coil_len": len(idxs),
         "coil_dry_mean": round(dry_mean, 3),
         "coil_range_pct": round((pivot - low) / pivot * 100.0, 2),
+        "coil_min_dry": round(min_dry, 3),
+        "coil_extreme_days": extreme_days,
     }
 
 
@@ -213,7 +225,8 @@ def evaluate_vcp(series: dict, params: dict | None = None) -> dict:
     series 키: dates, closes, highs, lows, opens, volumes.
     반환 dict 키: vcp_detected, num_contractions, contractions,
     base_length_days, base_depth_pct, pivot_price, pct_to_pivot,
-    volume_dryup_ratio, tightness_pct, status, swings, reason, entry_ready.
+    volume_dryup_ratio, tightness_pct, status, swings, reason, entry_ready,
+    coil_len, coil_dry_mean, coil_range_pct, coil_min_dry(코일 최저일 거래량/MA50 — 레버 B).
     """
     p = {**DEFAULT_PARAMS, **(params or {})}
     lb = p["lookback_days"]
@@ -230,6 +243,7 @@ def evaluate_vcp(series: dict, params: dict | None = None) -> dict:
         "pct_to_pivot": None, "volume_dryup_ratio": None, "tightness_pct": None,
         "status": "forming", "swings": [], "reason": None, "entry_ready": False,
         "coil_len": None, "coil_dry_mean": None, "coil_range_pct": None,
+        "coil_min_dry": None,
     }
     if len(closes) < p["min_base_days"]:
         base["reason"] = "no_data" if not closes else "base_too_short"
@@ -264,17 +278,24 @@ def evaluate_vcp(series: dict, params: dict | None = None) -> dict:
     n = len(closes)
     ma50 = volume_ma(vols, 50)
     coil = detect_final_coil(highs, lows, closes, vols, ma50, n - 1, p)
-    pivot = coil["pivot"] if coil else None
+    # 레버 B — 피벗 극저거래량일 게이트(책: "가장 오른쪽 수축에 하루 이틀 극도로 낮은
+    # 거래량이 있어야 좋다"). 코일 평균이 말라도(coil_dry_max) '진짜 마른 하루'가 없으면
+    # (밋밋한 저볼륨 횡보) 건설적 피벗이 아니다 → VCP 미인정·피벗 무효(돌파도 불가).
+    # 진단 필드 coil_min_dry 는 게이트 실패 시에도 노출(왜 걸렸는지 보이게).
+    cond_dry_day = bool(coil and coil["coil_extreme_days"] >= p["coil_extreme_min_days"])
+    coil_valid = coil if cond_dry_day else None   # 인식·피벗·돌파에 쓰는 유효 코일
+    pivot = coil_valid["pivot"] if coil_valid else None
 
     base["num_contractions"] = T
     base["contractions"] = depths
     base["base_length_days"] = len(closes) - bs
     bl = lows[bs:]
     last_close = closes[-1]
-    # 코일 진단 필드(가산 — 기존 13키 불변)
+    # 코일 진단 필드(가산 — 기존 13키 불변). coil_min_dry 는 코일이 탐지된 이상 항상 노출.
     base["coil_len"] = coil["coil_len"] if coil else None
     base["coil_dry_mean"] = coil["coil_dry_mean"] if coil else None
     base["coil_range_pct"] = coil["coil_range_pct"] if coil else None
+    base["coil_min_dry"] = coil["coil_min_dry"] if coil else None
 
     base["pivot_price"] = pivot
     if pivot:
@@ -291,19 +312,21 @@ def evaluate_vcp(series: dict, params: dict | None = None) -> dict:
     cond_converge = depths[-1] < depths[0] if T >= 2 else False
     # 우측 단일바 dry 게이트 → 최종 타이트 코일 존재(좁은 변동폭 AND 코일 전반 마름)로 대체.
     # 코일이 없으면(연장·정상거래량) VCP 아님 — 연장 종목 자동 배제 + 피벗 부동 문제 해소.
+    # 코일 존재(좁은 변동폭 AND 코일 전반 마름) + 극저거래량일(레버 B) 둘 다 요구.
     cond_coil = coil is not None
-    base["vcp_detected"] = bool(cond_count and cond_mono and cond_converge and cond_coil)
+    base["vcp_detected"] = bool(cond_count and cond_mono and cond_converge and cond_coil and cond_dry_day)
     if base["vcp_detected"]:
         base["base_depth_pct"] = round(max(depths), 2)
     else:
         base["reason"] = ("contraction_count_not_2_6" if not cond_count
                           else "not_monotone_contraction" if not cond_mono
                           else "contraction_not_converging" if not cond_converge
-                          else "no_tight_coil")
+                          else "no_tight_coil" if not cond_coil
+                          else "no_dry_coil_day")
 
     base_low = min(bl) if bl else last_close
     mono_violated = T >= 2 and depths[-1] > depths[-2] * p["contraction_tol"]
-    if _is_breakout(closes, opens, vols, ma50, pivot, p, coil):
+    if _is_breakout(closes, opens, vols, ma50, pivot, p, coil_valid):
         base["status"] = "breakout"
     elif mono_violated or last_close < base_low:
         base["status"] = "failed"
