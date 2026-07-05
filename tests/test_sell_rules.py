@@ -4,7 +4,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
-from canslim_lib.sell_rules import avg_volume, find_breakout_index
+from canslim_lib.sell_rules import avg_volume, find_breakout_index, evaluate_accumulation, evaluate_mvp
 
 
 def make_series(closes, volumes=None, highs=None, lows=None):
@@ -170,7 +170,7 @@ def test_rule3_pass_lower_lows_but_light_volume():
     vols = [1000.0] * 50 + [700.0, 800.0, 600.0]     # 거래량 낮음
     s = make_series(closes, volumes=vols, lows=lows)
     r = rule_consecutive_lower_lows(s, 49)
-    assert r["status"] == "pass"
+    assert r["status"] == "watch"
     assert "🟡" in r["detail"]
 
 
@@ -285,7 +285,7 @@ def test_rule6_pass_quiet_squat_within_grace():
     vols = [1000.0] * 30 + [2000.0, 800.0]  # 되밀림일 800 < 돌파일 2000
     s = make_series(closes, volumes=vols)
     r = rule_breakout_failure(s, 30, 105.0)
-    assert r["status"] == "pass"
+    assert r["status"] == "watch"
     assert "관찰중" in r["detail"]
 
 
@@ -344,7 +344,7 @@ def test_evaluate_holding_intraday_squat_flow():
     s = make_series(closes, highs=highs)
     r = evaluate_holding(s, s["dates"][60], 103.0, -4.0, pivot_price=105.0)
     assert r["breakout_date_estimated"] is False
-    assert r["rules"][5]["status"] == "pass"
+    assert r["rules"][5]["status"] == "watch"
     assert "관찰중" in r["rules"][5]["detail"]
 
 
@@ -410,3 +410,158 @@ def test_evaluate_holding_uncrossed_pivot_squat_na():
     r = evaluate_holding(s, s["dates"][60], 101.0, -4.0, pivot_price=200.0)
     assert r["breakout_date_estimated"] is True
     assert r["rules"][5]["status"] == "na"
+
+
+# --- evaluate_accumulation: 매집 신호 3종 ---
+
+def test_accum_up_days_and_quality_met():
+    # 돌파(30) 후 상승 우세 + 상단 마감 우세
+    closes = [100.0] * 31 + [102.0, 104.0, 103.5, 106.0]
+    highs = [c * 1.005 for c in closes]           # 종가가 고저 중간보다 위(좋은 마감)
+    lows = [c * 0.98 for c in closes]
+    s = make_series(closes, highs=highs, lows=lows)
+    r = evaluate_accumulation(s, 30)
+    ids = {x["id"]: x["status"] for x in r["signals"]}
+    assert ids["up_days_dominant"] == "met"       # 상승 3 · 하락 1
+    assert ids["quality_closes"] == "met"
+    assert r["elapsed"] == 4 and r["window"] == "D+4/15"
+
+
+def test_accum_up_streak_7_met_and_window_locks_at_15():
+    # 돌파 후 8일 연속 상승 → streak met, 16일 이상이면 창 고정("15일 완료")
+    closes = [100.0] * 31 + [100.0 + i for i in range(1, 20)]
+    s = make_series(closes)
+    r = evaluate_accumulation(s, 30)
+    ids = {x["id"]: x["status"] for x in r["signals"]}
+    assert ids["up_streak_7"] == "met"
+    assert r["window"] == "15일 완료"
+
+
+def test_accum_window_computation_capped_at_first_15_days():
+    # 첫 15일은 전부 하락(상승 0·하락 15), 그 뒤 16일은 전부 상승.
+    # 창이 첫 15일로 고정되면 up_days_dominant=unmet. 캡이 없으면(전체 집계) met으로 뒤집힘.
+    closes = ([100.0] * 31
+              + [100.0 - i for i in range(1, 16)]     # idx31..45: 99→85 (15일 하락)
+              + [85.0 + i for i in range(1, 17)])     # idx46..61: 86→101 (16일 상승)
+    s = make_series(closes)
+    r = evaluate_accumulation(s, 30)
+    up = next(x for x in r["signals"] if x["id"] == "up_days_dominant")
+    assert up["status"] == "unmet"
+    assert "상승 0" in up["detail"]        # 캡 제거 시 '상승 16 · 하락 15'로 met → 실패
+    assert r["window"] == "15일 완료"
+
+
+def test_accum_pending_when_no_post_breakout_days():
+    s = make_series([100.0] * 31)
+    r = evaluate_accumulation(s, 30)
+    assert all(x["status"] == "pending" for x in r["signals"])
+
+
+def test_accum_tight_day_not_counted_as_bad_close():
+    # 종가가 중간값보다 '아래'(진짜 나쁜 마감 후보)지만 일중 변동폭 <1% (tight)
+    # → tight 가드로만 나쁜 마감서 제외됨(대칭 고저의 tie 규칙과 무관).
+    closes = [100.0] * 31 + [100.0, 100.0, 100.0]
+    highs = [c * 1.01 for c in closes[:31]] + [100.6, 100.6, 100.6]
+    lows = [c * 0.99 for c in closes[:31]] + [99.8, 99.8, 99.8]   # mid=100.2 > close 100, range 0.8/100=0.008<1%
+    s = make_series(closes, highs=highs, lows=lows)
+    r = evaluate_accumulation(s, 30)
+    q = next(x for x in r["signals"] if x["id"] == "quality_closes")
+    assert "나쁜 0" in q["detail"]   # 가드 제거 시 '나쁜 3'이 되어 실패
+
+
+# --- evaluate_mvp: M·V·P 감별 ---
+
+def _mvp_series():
+    # 각 임계값 바로 위로 핀: 정확히 12 상승일 / V 1.3배 / P +21%
+    closes = [100.0] * 16
+    closes += [100.0 + 1.75 * k for k in range(1, 13)]   # idx16..27: 12일 연속 상승 → 121.0
+    closes += [120.0, 119.0, 118.0]                       # idx28..30: 3일 하락
+    vols = [1000.0] * 16 + [1300.0] * 15                  # 창 평균 = 직전 ×1.3
+    return make_series(closes, volumes=vols), 15
+
+
+def test_mvp_yes_when_all_three_met():
+    s, bi = _mvp_series()
+    r = evaluate_mvp(s, bi)
+    assert r["status"] == "yes"
+    assert r["m"]["ok"] and r["v"]["ok"] and r["p"]["ok"]
+
+
+def test_mvp_pending_before_15_days():
+    closes = [100.0] * 16 + [101.0, 102.0, 103.0]   # bi=15, 경과 3일
+    s = make_series(closes)
+    r = evaluate_mvp(s, 15)
+    assert r["status"] == "pending"
+    assert r["m"]["ok"] is None
+
+
+def test_mvp_no_when_price_below_threshold():
+    # 최고 +19%(<20%), M·V는 충족 → P만 미달로 no
+    closes = [100.0] * 16 + [100.0 + 1.583 * k for k in range(1, 13)] + [118.0, 117.0, 116.0]
+    vols = [1000.0] * 16 + [1300.0] * 15
+    s = make_series(closes, volumes=vols)
+    r = evaluate_mvp(s, 15)
+    assert r["status"] == "no"
+    assert r["p"]["ok"] is False
+    assert r["m"]["ok"] and r["v"]["ok"]
+
+
+def test_mvp_no_when_momentum_one_short():
+    # 상승 11일(<12), M만 미달
+    closes = [100.0] * 16 + [100.0 + 1.91 * k for k in range(1, 12)] + [120.0, 119.0, 118.0, 117.0]
+    vols = [1000.0] * 16 + [1300.0] * 15
+    s = make_series(closes, volumes=vols)
+    r = evaluate_mvp(s, 15)
+    assert r["status"] == "no"
+    assert r["m"]["ok"] is False
+    assert r["v"]["ok"] and r["p"]["ok"]
+
+
+def test_mvp_no_when_volume_below_threshold():
+    # V 1.2배(<1.25), V만 미달
+    closes = [100.0] * 16 + [100.0 + 1.75 * k for k in range(1, 13)] + [120.0, 119.0, 118.0]
+    vols = [1000.0] * 16 + [1200.0] * 15
+    s = make_series(closes, volumes=vols)
+    r = evaluate_mvp(s, 15)
+    assert r["status"] == "no"
+    assert r["v"]["ok"] is False
+    assert r["m"]["ok"] and r["p"]["ok"]
+
+
+def test_mvp_v_none_when_prior_sample_insufficient():
+    # 돌파가 너무 일러(bi=3) 직전 표본 <5 → V ok=None, status no
+    closes = [100.0] * 4 + [100.0 + 1.75 * k for k in range(1, 13)] + [120.0, 119.0, 118.0]
+    vols = [1000.0] * 4 + [1300.0] * 15
+    s = make_series(closes, volumes=vols)
+    r = evaluate_mvp(s, 3)
+    assert r["v"]["ok"] is None
+    assert "표본 부족" in r["v"]["detail"]
+    assert r["status"] == "no"
+
+
+def test_mvp_p_detail_signs_negative_without_double_sign():
+    # 창 최고 종가가 돌파일보다 낮으면 P detail이 '-N%' (‘+-’ 아님)
+    closes = [100.0] * 16 + [99.0, 98.0, 97.0]   # bi=15, 진행중, 하락
+    s = make_series(closes)
+    r = evaluate_mvp(s, 15)
+    assert r["p"]["detail"].startswith("-")
+    assert "+-" not in r["p"]["detail"]
+
+
+# --- evaluate_holding: accumulation·mvp·extension_pct 배선 ---
+
+def test_evaluate_holding_adds_accumulation_mvp_extension():
+    s = _clean_series()   # 대량 돌파 후 얕은 상승(위반 없음)
+    r = evaluate_holding(s, s["dates"][60], 106.0, -4.0, pivot_price=105.0)
+    assert "accumulation" in r and "signals" in r["accumulation"]
+    assert r["mvp"]["status"] in ("yes", "no", "pending")
+    # 현재가 108, 피벗 105 → 확장 +2.9%
+    assert r["extension_pct"] == round((108.0 / 105.0 - 1) * 100, 1)
+    # 신호·위반 개수는 불변(추가 필드가 영향 없음)
+    assert r["signal"] == "hold" and r["violation_count"] == 0
+
+
+def test_evaluate_holding_extension_null_without_pivot():
+    s = _clean_series()
+    r = evaluate_holding(s, s["dates"][60], 106.0, -4.0, pivot_price=None)
+    assert r["extension_pct"] is None

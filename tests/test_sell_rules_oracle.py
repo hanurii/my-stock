@@ -31,3 +31,17 @@ def test_outr_breakout_failure_volume_asymmetry():
     assert r["breakout_date_estimated"] is False
     assert r["rules"][5]["status"] == "violation"   # breakout_failure
     assert "거래량 동반" in r["rules"][5]["detail"]
+
+
+def test_mvp_real_winner_qualifies():
+    # 실데이터 확신 테스트 — 국내 종목 실 돌파 후 15일 창이 M·V·P 전부 충족하는지.
+    # 없으면 skip(합성 테스트 Task 3이 정확성 게이트, 이 테스트는 확신 보강용).
+    p = FIX / "oracle_mvp_winner.json"
+    if not p.exists():
+        import pytest
+        pytest.skip("MVP winner fixture 미생성(캐시 부재) — 합성 테스트로 커버")
+    from canslim_lib.sell_rules import evaluate_mvp
+    d = json.loads(p.read_text(encoding="utf-8"))
+    r = evaluate_mvp(d, d["bi_in_fixture"])
+    assert r["status"] == "yes"
+    assert r["m"]["ok"] and r["v"]["ok"] and r["p"]["ok"]

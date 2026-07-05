@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-05 17:35",
+  "generated_at": "2026-07-05 22:08",
   "asof": "2026-07-03",
   "stop_loss_pct_default": -4,
   "holdings": [
@@ -52,7 +52,44 @@
           "status": "pass",
           "detail": "스쿼트 후 반전 회복(피벗 위 복귀)"
         }
-      ]
+      ],
+      "extension_pct": 3.8,
+      "accumulation": {
+        "window": "D+3/15",
+        "elapsed": 3,
+        "signals": [
+          {
+            "id": "up_days_dominant",
+            "status": "met",
+            "detail": "상승 3 · 하락 0"
+          },
+          {
+            "id": "quality_closes",
+            "status": "met",
+            "detail": "좋은 3 · 나쁜 0"
+          },
+          {
+            "id": "up_streak_7",
+            "status": "unmet",
+            "detail": "최고 3일"
+          }
+        ]
+      },
+      "mvp": {
+        "status": "pending",
+        "m": {
+          "ok": null,
+          "detail": "3/15일 (판정 전)"
+        },
+        "v": {
+          "ok": null,
+          "detail": "판정 전"
+        },
+        "p": {
+          "ok": null,
+          "detail": "+4%"
+        }
+      }
     },
     {
       "code": "271560",
@@ -100,10 +137,47 @@
         },
         {
           "id": "breakout_failure",
-          "status": "pass",
+          "status": "watch",
           "detail": "🟡 반전 회복 관찰중 (D+1/10)"
         }
-      ]
+      ],
+      "extension_pct": -1.3,
+      "accumulation": {
+        "window": "D+1/15",
+        "elapsed": 1,
+        "signals": [
+          {
+            "id": "up_days_dominant",
+            "status": "unmet",
+            "detail": "상승 0 · 하락 1"
+          },
+          {
+            "id": "quality_closes",
+            "status": "unmet",
+            "detail": "좋은 0 · 나쁜 1"
+          },
+          {
+            "id": "up_streak_7",
+            "status": "unmet",
+            "detail": "최고 0일"
+          }
+        ]
+      },
+      "mvp": {
+        "status": "pending",
+        "m": {
+          "ok": null,
+          "detail": "1/15일 (판정 전)"
+        },
+        "v": {
+          "ok": null,
+          "detail": "판정 전"
+        },
+        "p": {
+          "ok": null,
+          "detail": "-2%"
+        }
+      }
     },
     {
       "code": "010955",
@@ -151,10 +225,47 @@
         },
         {
           "id": "breakout_failure",
-          "status": "pass",
+          "status": "watch",
           "detail": "🟡 반전 회복 관찰중 (D+1/10)"
         }
-      ]
+      ],
+      "extension_pct": -1.2,
+      "accumulation": {
+        "window": "D+1/15",
+        "elapsed": 1,
+        "signals": [
+          {
+            "id": "up_days_dominant",
+            "status": "met",
+            "detail": "상승 1 · 하락 0"
+          },
+          {
+            "id": "quality_closes",
+            "status": "unmet",
+            "detail": "좋은 0 · 나쁜 1"
+          },
+          {
+            "id": "up_streak_7",
+            "status": "unmet",
+            "detail": "최고 1일"
+          }
+        ]
+      },
+      "mvp": {
+        "status": "pending",
+        "m": {
+          "ok": null,
+          "detail": "1/15일 (판정 전)"
+        },
+        "v": {
+          "ok": null,
+          "detail": "판정 전"
+        },
+        "p": {
+          "ok": null,
+          "detail": "+1%"
+        }
+      }
     },
     {
       "code": "005430",
@@ -205,7 +316,44 @@
           "status": "pass",
           "detail": "스쿼트 후 반전 회복(피벗 위 복귀)"
         }
-      ]
+      ],
+      "extension_pct": 2.4,
+      "accumulation": {
+        "window": "D+2/15",
+        "elapsed": 2,
+        "signals": [
+          {
+            "id": "up_days_dominant",
+            "status": "unmet",
+            "detail": "상승 1 · 하락 1"
+          },
+          {
+            "id": "quality_closes",
+            "status": "unmet",
+            "detail": "좋은 1 · 나쁜 1"
+          },
+          {
+            "id": "up_streak_7",
+            "status": "unmet",
+            "detail": "최고 1일"
+          }
+        ]
+      },
+      "mvp": {
+        "status": "pending",
+        "m": {
+          "ok": null,
+          "detail": "2/15일 (판정 전)"
+        },
+        "v": {
+          "ok": null,
+          "detail": "판정 전"
+        },
+        "p": {
+          "ok": null,
+          "detail": "+2%"
+        }
+      }
     }
   ]
 }
