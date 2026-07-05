@@ -10,7 +10,7 @@ C단계에서 만든 `public/data/scorecard.json`(계산 완료된 정산표)을
 
 ## 2. 범위
 
-- **경로**: `/stocks/scorecard` — StocksTabs에 "정산표" 탭 추가(미너비니 SEPA 파이프라인과 한 묶음).
+- **경로**: `/stocks/sepa/score-card` (SEPA 하위 중첩 경로) — StocksTabs에 "정산표" 탭 추가(href `/stocks/sepa/score-card`). `src/app/stocks/layout.tsx`가 모든 `/stocks/*` 중첩 라우트에 StocksTabs를 렌더하므로 이 페이지에서도 탭이 보이고 정확히 활성화된다(별도 sepa 레이아웃 없음).
 - **읽는 데이터**: `public/data/scorecard.json` **하나만**. 다른 파일·계산 로직 무접촉.
 - **안 하는 것**: 계산·집계 재구현 금지(전부 `scorecard.json`에 있음). 장부 편집 UI 없음. 기존 `/journal`(혼합 173건)과 무관.
 
@@ -56,10 +56,10 @@ C단계에서 만든 `public/data/scorecard.json`(계산 완료된 정산표)을
 
 ## 5. 구성 파일
 
-- `src/app/stocks/scorecard/page.tsx` — 서버 컴포넌트. `readJson` + 셸(제목/래퍼) + `<ScorecardView>` 마운트 + null 안내 카드.
-- `src/app/stocks/scorecard/ScorecardView.tsx` — `"use client"`. 토글 상태 + 4.1~4.7 전 섹션 렌더. `Scorecard` 타입 import.
-- `src/app/stocks/scorecard/format.ts` — 순수 포맷 헬퍼: `fmtPct(n: number | null): string`(예: `4.88` → `"4.88%"`, `null` → `"-"`), `fmtNum(n: number | null): string`, `fmtRatio(n: number | null): string`. **vitest 테스트 대상**.
-- `src/app/stocks/StocksTabs.tsx` 수정 — 탭 배열에 정산표 1줄 추가.
+- `src/app/stocks/sepa/score-card/page.tsx` — 서버 컴포넌트. `readJson` + 셸(제목/래퍼) + `<ScorecardView>` 마운트 + null 안내 카드.
+- `src/app/stocks/sepa/score-card/ScorecardView.tsx` — `"use client"`. 토글 상태 + 4.1~4.7 전 섹션 렌더. `Scorecard` 타입 import.
+- `src/app/stocks/sepa/score-card/format.ts` — 순수 포맷 헬퍼: `fmtPct(n: number | null): string`(예: `4.88` → `"4.88%"`, `null` → `"-"`), `fmtNum(n: number | null): string`, `fmtRatio(n: number | null): string`. **vitest 테스트 대상**(`format.test.ts` 동일 폴더, `src/**/*.test.ts` 로 감지됨).
+- `src/app/stocks/StocksTabs.tsx` 수정 — 탭 배열에 `{ href: "/stocks/sepa/score-card", label: "정산표", icon: "scoreboard" }` 1줄 추가.
 
 **결정 근거(파일 분리)**: 서버(데이터 읽기)와 클라이언트(토글·렌더)를 나누는 건 Next.js 제약이자 기존 SEPA 페이지 패턴. 포맷 헬퍼를 별도 순수 모듈로 빼는 이유는 프로젝트 관례상 **React 컴포넌트는 단위 테스트 안 하고 순수 로직만 테스트**하기 때문 — 최소한의 로직(널→`-`·퍼센트 포맷)이라도 vitest로 고정한다.
 
@@ -78,7 +78,7 @@ C단계에서 만든 `public/data/scorecard.json`(계산 완료된 정산표)을
 
 - `format.ts` vitest 단위 테스트: 퍼센트 포맷, `null`→`-`, 정수/비율 포맷, 음수 부호.
 - `npx tsc --noEmit` 클린(특히 `Scorecard` 타입 import 정합).
-- `npm run build` 성공, `/stocks/scorecard` 정적 라우트 생성 확인.
+- `npm run build` 성공, `/stocks/sepa/score-card` 정적 라우트 생성 확인.
 - 실제 렌더 확인: 현재 `scorecard.json`(실거래 3건)이 삼각형·월별표·거래목록에 정확히 표시되고 토글이 순↔총 전환하는지.
 
 ## 9. YAGNI (지금 안 함)
