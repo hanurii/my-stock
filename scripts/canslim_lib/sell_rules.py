@@ -263,6 +263,43 @@ def sig_climax_run(series):
     return {"id": rid, "status": "clear", "detail": "절정 분출 없음"}
 
 
+def sig_blowoff_day(series, bi):
+    """S2 최대 상승일/변동폭이 최근 BLOWOFF_RECENT일 안에 출현(막판 폭발)."""
+    rid = "blowoff_day"
+    closes, highs, lows = series["closes"], series["highs"], series["lows"]
+    n = len(closes)
+    start = bi + 1
+    if n - start < BLOWOFF_MIN_DAYS:
+        return {"id": rid, "status": "pending",
+                "detail": f"돌파 후 {max(n - start, 0)}거래일 — 판정 전"}
+    best_g = (None, -1.0)   # (idx, gain)
+    best_r = (None, -1.0)   # (idx, range)
+    for i in range(start, n):
+        if closes[i - 1]:
+            g = closes[i] / closes[i - 1] - 1
+            if g > best_g[1]:
+                best_g = (i, g)
+        if closes[i]:
+            rng = (highs[i] - lows[i]) / closes[i]
+            if rng > best_r[1]:
+                best_r = (i, rng)
+    recent_lo = n - BLOWOFF_RECENT
+
+    def when(i):
+        k = (n - 1) - i
+        return "오늘" if k == 0 else ("어제" if k == 1 else f"{k}일 전")
+
+    gi, gv = best_g
+    if gi is not None and gi >= recent_lo:
+        return {"id": rid, "status": "fired",
+                "detail": f"구간 최대 상승일 +{gv * 100:.0f}%이 {when(gi)} 출현"}
+    ri, rv = best_r
+    if ri is not None and ri >= recent_lo:
+        return {"id": rid, "status": "fired",
+                "detail": f"구간 최대 변동폭 {rv * 100:.0f}%가 {when(ri)} 출현"}
+    return {"id": rid, "status": "clear", "detail": "막판 최대 상승/변동 아님"}
+
+
 def evaluate_accumulation(series, bi):
     """돌파 후 첫 ACCUM_WINDOW 거래일 매집 신호 3종(등급 없이 체크리스트).
     창은 15일 지나면 첫 15일로 고정, 미만이면 진행 중 부분 계산."""

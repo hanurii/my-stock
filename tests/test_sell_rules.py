@@ -592,3 +592,24 @@ def test_climax_run_clear_when_mild():
 def test_climax_run_pending_when_short():
     s = make_series([100.0, 101.0, 102.0])           # 창 하한 미만
     assert sig_climax_run(s)["status"] == "pending"
+
+
+# --- sig_blowoff_day: S2 최대 상승일/변동폭 ---
+
+from canslim_lib.sell_rules import sig_blowoff_day
+
+
+def test_blowoff_fires_when_biggest_up_day_recent():
+    s = make_series([100, 101, 102, 103, 104, 105, 120])  # 마지막 날 최대 상승
+    r = sig_blowoff_day(s, 0)
+    assert r["status"] == "fired" and "최대 상승일" in r["detail"]
+
+
+def test_blowoff_clear_when_biggest_up_day_old():
+    s = make_series([100, 120, 121, 122, 123, 124, 125])  # 최대 상승이 초반
+    assert sig_blowoff_day(s, 0)["status"] == "clear"
+
+
+def test_blowoff_pending_when_few_days():
+    s = make_series([100, 101, 102])                       # 돌파후 <5일
+    assert sig_blowoff_day(s, 0)["status"] == "pending"
