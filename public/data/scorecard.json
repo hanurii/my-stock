@@ -5,110 +5,183 @@
     "rr_target": 2,
     "stop_loss_pct_default": -4
   },
-  "trades": [],
-  "open_positions": [
+  "trades": [
     {
-      "code": "036800",
-      "name": "나이스정보통신",
-      "qty": 435,
-      "avg_buy": 29700,
-      "open_date": "2026-07-01"
+      "code": "009150",
+      "name": "삼성전기",
+      "open_date": "2026-07-01",
+      "close_date": "2026-07-02",
+      "avg_buy": 2251583,
+      "avg_sell": 2135333,
+      "gross_pct": -5.16,
+      "net_pct": -5.62,
+      "hold_days": 1,
+      "outcome": "loss",
+      "month": "2026-07",
+      "buy_qty": 12,
+      "sell_qty": 12,
+      "stop": 2026425,
+      "stop_violation": false,
+      "setup": null
     },
     {
-      "code": "271560",
-      "name": "오리온",
-      "qty": 72,
-      "avg_buy": 138500,
-      "open_date": "2026-07-02"
+      "code": "086670",
+      "name": "비엠티",
+      "open_date": "2026-07-01",
+      "close_date": "2026-07-02",
+      "avg_buy": 16229,
+      "avg_sell": 15837.25,
+      "gross_pct": -2.41,
+      "net_pct": -2.88,
+      "hold_days": 1,
+      "outcome": "loss",
+      "month": "2026-07",
+      "buy_qty": 728,
+      "sell_qty": 728,
+      "stop": 15580,
+      "stop_violation": false,
+      "setup": null
     },
     {
-      "code": "010955",
-      "name": "S-Oil우",
-      "qty": 172,
-      "avg_buy": 57900,
-      "open_date": "2026-07-03"
-    },
-    {
-      "code": "005430",
-      "name": "한국공항",
-      "qty": 114,
-      "avg_buy": 87500,
-      "open_date": "2026-07-03"
+      "code": "219130",
+      "name": "타이거일렉",
+      "open_date": "2026-07-01",
+      "close_date": "2026-07-02",
+      "avg_buy": 62421,
+      "avg_sell": 67463.64,
+      "gross_pct": 8.08,
+      "net_pct": 7.56,
+      "hold_days": 1,
+      "outcome": "win",
+      "month": "2026-07",
+      "buy_qty": 264,
+      "sell_qty": 264,
+      "stop": 59924,
+      "stop_violation": false,
+      "setup": null
     }
   ],
+  "open_positions": [],
   "monthly": {
     "net": {
-      "rows": [],
+      "rows": [
+        {
+          "month": "2026-07",
+          "avg_win": 7.56,
+          "avg_loss": 4.25,
+          "win_rate": 33.33,
+          "trades": 3,
+          "max_win": 7.56,
+          "max_loss": 5.62,
+          "win_days": 1,
+          "loss_days": 1
+        }
+      ],
       "average": {
         "month": "평균",
-        "avg_win": null,
-        "avg_loss": null,
-        "win_rate": null,
-        "trades": 0,
-        "max_win": null,
-        "max_loss": null,
-        "win_days": null,
-        "loss_days": null
+        "avg_win": 7.56,
+        "avg_loss": 4.25,
+        "win_rate": 33.33,
+        "trades": 3,
+        "max_win": 7.56,
+        "max_loss": 5.62,
+        "win_days": 1,
+        "loss_days": 1
       }
     },
     "gross": {
-      "rows": [],
+      "rows": [
+        {
+          "month": "2026-07",
+          "avg_win": 8.08,
+          "avg_loss": 3.79,
+          "win_rate": 33.33,
+          "trades": 3,
+          "max_win": 8.08,
+          "max_loss": 5.16,
+          "win_days": 1,
+          "loss_days": 1
+        }
+      ],
       "average": {
         "month": "평균",
-        "avg_win": null,
-        "avg_loss": null,
-        "win_rate": null,
-        "trades": 0,
-        "max_win": null,
-        "max_loss": null,
-        "win_days": null,
-        "loss_days": null
+        "avg_win": 8.08,
+        "avg_loss": 3.79,
+        "win_rate": 33.33,
+        "trades": 3,
+        "max_win": 8.08,
+        "max_loss": 5.16,
+        "win_days": 1,
+        "loss_days": 1
       }
     }
   },
   "overall": {
     "net": {
-      "win_rate": null,
-      "avg_win": null,
-      "avg_loss": null,
-      "payoff_ratio": null,
-      "adj_payoff_ratio": null,
-      "expectancy": null,
-      "max_win": null,
-      "max_loss": null,
-      "win_days": null,
-      "loss_days": null,
-      "trade_count": 0,
-      "win_count": 0,
-      "loss_count": 0
+      "win_rate": 33.33,
+      "avg_win": 7.56,
+      "avg_loss": 4.25,
+      "payoff_ratio": 1.78,
+      "adj_payoff_ratio": 0.89,
+      "expectancy": -0.31,
+      "max_win": {
+        "pct": 7.56,
+        "code": "219130",
+        "name": "타이거일렉",
+        "date": "2026-07-02"
+      },
+      "max_loss": {
+        "pct": 5.62,
+        "code": "009150",
+        "name": "삼성전기",
+        "date": "2026-07-02"
+      },
+      "win_days": 1,
+      "loss_days": 1,
+      "trade_count": 3,
+      "win_count": 1,
+      "loss_count": 2
     },
     "gross": {
-      "win_rate": null,
-      "avg_win": null,
-      "avg_loss": null,
-      "payoff_ratio": null,
-      "adj_payoff_ratio": null,
-      "expectancy": null,
-      "max_win": null,
-      "max_loss": null,
-      "win_days": null,
-      "loss_days": null,
-      "trade_count": 0,
-      "win_count": 0,
-      "loss_count": 0
+      "win_rate": 33.33,
+      "avg_win": 8.08,
+      "avg_loss": 3.79,
+      "payoff_ratio": 2.13,
+      "adj_payoff_ratio": 1.07,
+      "expectancy": 0.17,
+      "max_win": {
+        "pct": 8.08,
+        "code": "219130",
+        "name": "타이거일렉",
+        "date": "2026-07-02"
+      },
+      "max_loss": {
+        "pct": 5.16,
+        "code": "009150",
+        "name": "삼성전기",
+        "date": "2026-07-02"
+      },
+      "win_days": 1,
+      "loss_days": 1,
+      "trade_count": 3,
+      "win_count": 1,
+      "loss_count": 2
     }
   },
   "rba": {
-    "avg_win_net": null,
-    "recommended_max_stop_pct": null,
+    "avg_win_net": 7.56,
+    "recommended_max_stop_pct": 3.78,
     "current_default_stop_pct": 4,
-    "status": "unknown"
+    "status": "too_wide"
   },
   "diagnostics": {
     "max_loss_gt_max_win": false,
-    "loss_days_ge_win_days": false,
+    "loss_days_ge_win_days": true,
     "stop_violations": 0,
-    "warnings": []
+    "warnings": [
+      "손실 유지일이 수익 유지일보다 깁니다 — 손실을 오래 붙들고 있습니다",
+      "기본 손절 4%가 권장 3.78%보다 넓습니다"
+    ]
   },
   "errors": []
 }
