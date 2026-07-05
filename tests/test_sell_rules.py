@@ -220,6 +220,14 @@ def test_rule4_pass_holds_above_ma20():
     assert rule_close_below_ma(s, 60)["status"] == "pass"
 
 
+def test_rule4_detail_shows_days_after_breakout():
+    closes = [100.0] * 60 + [106.0, 90.0]  # 돌파(60) 다음 날(61) 20일선 이탈
+    s = make_series(closes)
+    r = rule_close_below_ma(s, 60)
+    assert r["status"] == "violation"
+    assert "돌파 1거래일째" in r["detail"]
+
+
 def test_rule4_pending_no_post_breakout_days():
     closes = [100.0] * 61
     s = make_series(closes)

@@ -144,7 +144,8 @@ def rule_close_below_ma(series, bi):
         return {"id": rid, "status": "violation",
                 "detail": f"심각: {dates[severe]} 50일선 아래 + 대량 거래 마감"}
     if first is not None:
-        return {"id": rid, "status": "violation", "detail": f"{dates[first]} 20일선 아래 마감"}
+        return {"id": rid, "status": "violation",
+                "detail": f"{dates[first]} 20일선 아래 마감 (돌파 {first - bi}거래일째)"}
     return {"id": rid, "status": "pass", "detail": "20일선 위 유지"}
 
 
