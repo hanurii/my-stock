@@ -136,7 +136,11 @@ detail `"{k}일 전 상승 갭(전일 고가 위 출발)"`. 없으면 **clear**.
 - `not_extended`/`na`면 `signals`는 빈 배열, `count`=0.
 - `extended`면 `signals`는 항상 4개(순서 고정).
 
-## 화면: `SepaHoldingsSection.tsx`
+## 화면: `SepaHoldingsSection.tsx` — 접기/펼치기로 단순화
+
+정보량이 많아, 카드를 **네이티브 `<details>/<summary>`** 로 접는다(클라이언트 JS 없이 서버 렌더 유지).
+접힘 = "오늘 손댈 일 있나"만, 펼침 = 상세. 강세 패널만이 아니라 **카드 전체를 이 구조로 재편**한다
+(기존 매집·약세 패널도 상세 영역으로 이동 — 강세 트랙 추가로 밀도가 넘쳐서).
 
 ### 타입
 
@@ -149,20 +153,36 @@ interface Strength {
 // HoldingFeedback에 strength?: Strength 추가
 ```
 
-### 배지줄
+### 접힘 (`<summary>` — 항상 보임)
 
-기존 배지들(신호·MVP·확장%) 뒤에, `strength.signal === "sell_into_strength"`일 때만
-로즈 배지 추가: `🔥 강세 매도 검토` (bg `rgba(245,169,206,0.14)`, fg `#f5a9ce`, border `rgba(245,169,206,0.34)`).
+한 종목당 두 줄만:
+- **1줄**: 종목명 + 코드 (좌) · 수익%(우, 초록/빨강)
+- **2줄**: 행동 배지(좌) · `상세 ▾` 토글(우, 펼치면 `접기 ▴`)
 
-### 강세 매도 감시 패널 (약세 규칙 위, 매집 패널과 대칭)
+행동 배지 = 필요할 때만 시선 끄는 것:
+- 약세 신호 배지: `🔴 손절` / `🟠 조기 매도 · 위반 n건` / `🟢 정상 보유`(hold일 때도 표시해 "점검됨" 확인).
+- `strength.signal === "sell_into_strength"`이면 로즈 배지 `🔥 강세 매도 검토` 추가
+  (bg `rgba(245,169,206,0.14)`, fg `#f5a9ce`, border `rgba(245,169,206,0.34)`).
+- **MVP·확장% 칩은 접힘에서 빼고 펼침으로** 이동(행동 아님, 보조 정보).
 
-- `signal === "sell_into_strength" | "none"` (즉 extended):
-  제목 `🔥 강세 매도 감시 · {gate_detail} · 발화 {count}/4`(로즈).
-  2열 그리드로 4종 표시 — 마크 `🔥`(fired)/`○`(clear)/`―`(pending), 라벨에 호버 툴팁.
-- `signal === "not_extended"`: 대기 박스 `확장 전 — 대기 · {gate_detail}`.
-- `signal === "na"`: 대기 박스 `피벗 없음 — 판정 불가` (약세 트랙은 매수일 기준으로 계속 감시).
+`<summary>`는 기본 디스클로저 삼각형 제거(`list-style:none`, `::-webkit-details-marker{display:none}`),
+직접 그린 chevron을 `details[open]`에서 180° 회전. `:focus-visible` 링 제공(키보드 접근성).
+
+### 펼침 (`<details>` 본문)
+
+순서: ① 보조 칩(`MVP`·`확장 ±x%`) → ② 매수·현재·손절선 줄 → ③ 매집 신호 패널(기존) →
+④ 강세 매도 감시 패널(신규) → ⑤ 약세 규칙 ①~⑥(기존).
+
+**강세 매도 감시 패널**(④, 매집 패널과 대칭):
+- `sell_into_strength | none`(extended): 제목 `🔥 강세 매도 감시 · {gate_detail} · 발화 {count}/4`(로즈),
+  2열 그리드 4종 — 마크 `🔥`(fired)/`○`(clear)/`―`(pending), 라벨 호버 툴팁.
+- `not_extended`: 대기 박스 `확장 전 — 대기 · {gate_detail}`(문턱 근접 시 `(문턱까지 x%p)`).
+- `na`: 대기 박스 `피벗 없음 — 판정 불가`(약세 트랙은 매수일 기준으로 계속 감시).
 
 마크 색: fired=`#f5a9ce`, clear=`text-on-surface-variant/50`, pending=`/40`.
+
+> **범위 메모**: 이 접기/펼치기 재편은 강세 트랙만이 아니라 카드 전체(매집·약세 포함)에 적용되므로,
+> 기존 표시 로직을 `<summary>`(요약)/`<details>` 본문으로 나누는 리팩터가 포함된다.
 
 ## 용어 섹션: `page.tsx`
 
