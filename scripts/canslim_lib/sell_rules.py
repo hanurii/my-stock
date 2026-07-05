@@ -317,6 +317,10 @@ def evaluate_holding(series, buy_date, buy_price, stop_loss_pct, pivot_price=Non
         signal = "early_sell"
     else:
         signal = "hold"
+    accumulation = evaluate_accumulation(series, bi)
+    mvp = evaluate_mvp(series, bi)
+    extension_pct = (round((current / pivot_price - 1) * 100, 1)
+                     if pivot_price else None)
     return {
         "current_price": current,
         "profit_pct": round((current / buy_price - 1) * 100, 2),
@@ -327,4 +331,7 @@ def evaluate_holding(series, buy_date, buy_price, stop_loss_pct, pivot_price=Non
         "signal": signal,
         "violation_count": violation_count,
         "rules": rules,
+        "extension_pct": extension_pct,
+        "accumulation": accumulation,
+        "mvp": mvp,
     }

@@ -537,3 +537,22 @@ def test_mvp_v_none_when_prior_sample_insufficient():
     assert r["v"]["ok"] is None
     assert "표본 부족" in r["v"]["detail"]
     assert r["status"] == "no"
+
+
+# --- evaluate_holding: accumulation·mvp·extension_pct 배선 ---
+
+def test_evaluate_holding_adds_accumulation_mvp_extension():
+    s = _clean_series()   # 대량 돌파 후 얕은 상승(위반 없음)
+    r = evaluate_holding(s, s["dates"][60], 106.0, -4.0, pivot_price=105.0)
+    assert "accumulation" in r and "signals" in r["accumulation"]
+    assert r["mvp"]["status"] in ("yes", "no", "pending")
+    # 현재가 108, 피벗 105 → 확장 +2.9%
+    assert r["extension_pct"] == round((108.0 / 105.0 - 1) * 100, 1)
+    # 신호·위반 개수는 불변(추가 필드가 영향 없음)
+    assert r["signal"] == "hold" and r["violation_count"] == 0
+
+
+def test_evaluate_holding_extension_null_without_pivot():
+    s = _clean_series()
+    r = evaluate_holding(s, s["dates"][60], 106.0, -4.0, pivot_price=None)
+    assert r["extension_pct"] is None
