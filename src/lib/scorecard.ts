@@ -17,7 +17,7 @@ export type Trade = {
   outcome: "win" | "loss";
   month: string; // YYYY-MM (청산월)
   buy_qty: number; sell_qty: number;
-  stop?: number; stop_violation?: boolean; setup?: string;
+  stop?: number | null; stop_violation?: boolean | null; setup?: string | null;
 };
 
 export type OpenPosition = { code: string; name: string; qty: number; avg_buy: number; open_date: string };
@@ -65,7 +65,7 @@ function buildTrade(code: string, name: string, buys: Fill[], sells: Fill[], ope
     hold_days: daysBetween(openDate, closeDate),
     outcome, month: closeDate.slice(0, 7),
     buy_qty: buyQty, sell_qty: sellQty,
-    stop: firstStop, stop_violation: stopViolation, setup: buys[0]?.setup,
+    stop: firstStop ?? null, stop_violation: stopViolation ?? null, setup: buys[0]?.setup ?? null,
   };
 }
 
@@ -89,6 +89,7 @@ export function matchTrades(fills: Fill[]): MatchResult {
     let sells: Fill[] = [];
     let firstBuyDate = "";
     let bad = false;
+    const codeTrades: Trade[] = [];
 
     for (const { f } of sorted) {
       if (f.side === "buy") {
@@ -98,12 +99,13 @@ export function matchTrades(fills: Fill[]): MatchResult {
         sells.push(f); qty -= f.qty;
         if (qty < 0) { errors.push(`${code}: 매도 수량이 보유수량 초과 (${f.date})`); bad = true; break; }
         if (qty === 0) {
-          trades.push(buildTrade(code, f.name, buys, sells, firstBuyDate, dateOnly(f.date)));
+          codeTrades.push(buildTrade(code, f.name, buys, sells, firstBuyDate, dateOnly(f.date)));
           buys = []; sells = [];
         }
       }
     }
     if (bad) continue;
+    trades.push(...codeTrades);
     if (qty > 0) {
       const buyVal = sum(buys, (b) => b.price * b.qty);
       const buyQty = sum(buys, (b) => b.qty);

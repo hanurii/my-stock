@@ -108,4 +108,24 @@ describe("matchTrades", () => {
     ]);
     expect(trades[0].stop_violation).toBe(false);
   });
+
+  it("본전(net 0) 거래는 손실로 분류", () => {
+    const { trades } = matchTrades([
+      buy("2026-01-01", "A", 100, 100),
+      sell("2026-01-02", "A", 100, 100),
+    ]);
+    expect(trades[0].net_pct).toBe(0);
+    expect(trades[0].outcome).toBe("loss");
+  });
+
+  it("데이터 오류 종목은 앞선 정상 왕복거래까지 전부 제외", () => {
+    const { trades, errors } = matchTrades([
+      buy("2026-01-01", "A", 100, 100),
+      sell("2026-01-02", "A", 110, 100), // 정상 왕복거래
+      buy("2026-01-05", "A", 100, 100),
+      sell("2026-01-06", "A", 110, 150), // 보유수량 초과 매도(오류)
+    ]);
+    expect(trades.filter((t) => t.code === "A")).toEqual([]);
+    expect(errors.length).toBe(1);
+  });
 });
