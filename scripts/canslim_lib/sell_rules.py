@@ -300,6 +300,23 @@ def sig_blowoff_day(series, bi):
     return {"id": rid, "status": "clear", "detail": "막판 최대 상승/변동 아님"}
 
 
+def sig_exhaustion_gap(series):
+    """S3 소진성 갭: 최근 GAP_RECENT일 내 상승 갭(당일 저가 > 전일 고가)."""
+    rid = "exhaustion_gap"
+    highs, lows = series["highs"], series["lows"]
+    n = len(highs)
+    if n < 2:
+        return {"id": rid, "status": "pending", "detail": "데이터 부족"}
+    lo = max(1, n - GAP_RECENT)
+    for i in range(n - 1, lo - 1, -1):
+        if lows[i] is not None and highs[i - 1] is not None and lows[i] > highs[i - 1]:
+            k = (n - 1) - i
+            w = "오늘" if k == 0 else ("어제" if k == 1 else f"{k}일 전")
+            return {"id": rid, "status": "fired",
+                    "detail": f"{w} 상승 갭(전일 고가 위 출발)"}
+    return {"id": rid, "status": "clear", "detail": "최근 상승 갭 없음"}
+
+
 def evaluate_accumulation(series, bi):
     """돌파 후 첫 ACCUM_WINDOW 거래일 매집 신호 3종(등급 없이 체크리스트).
     창은 15일 지나면 첫 15일로 고정, 미만이면 진행 중 부분 계산."""

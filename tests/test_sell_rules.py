@@ -613,3 +613,21 @@ def test_blowoff_clear_when_biggest_up_day_old():
 def test_blowoff_pending_when_few_days():
     s = make_series([100, 101, 102])                       # 돌파후 <5일
     assert sig_blowoff_day(s, 0)["status"] == "pending"
+
+
+# --- sig_exhaustion_gap: S3 소진성 갭 ---
+
+from canslim_lib.sell_rules import sig_exhaustion_gap
+
+
+def test_exhaustion_gap_fires_on_recent_up_gap():
+    s = make_series([100.0, 101.0, 102.0, 110.0],
+                    highs=[101.0, 102.0, 103.0, 113.0],
+                    lows=[99.0, 100.0, 101.0, 111.0])   # 마지막날 저가>전일 고가
+    r = sig_exhaustion_gap(s)
+    assert r["status"] == "fired" and "갭" in r["detail"]
+
+
+def test_exhaustion_gap_clear_without_gap():
+    s = make_series([100.0, 101.0, 102.0, 103.0])       # 기본 고저 = 겹침(갭 없음)
+    assert sig_exhaustion_gap(s)["status"] == "clear"
