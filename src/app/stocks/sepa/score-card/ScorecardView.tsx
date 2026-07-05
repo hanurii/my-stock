@@ -148,7 +148,15 @@ export function ScorecardView({ data }: { data: Scorecard }) {
               <div className="min-w-[640px]">
                 <div className={`${MONTH_COLS} text-xs text-on-surface-variant/60`}>
                   <span className="text-left">월</span><span>평균수익</span><span>평균손실</span><span>승률</span>
-                  <span>거래</span><span>최대수익</span><span>최대손실</span><span>수익일</span><span>손실일</span>
+                  <span>거래</span><span>최대수익</span><span>최대손실</span>
+                  <span
+                    className="cursor-help underline decoration-dotted underline-offset-2"
+                    title="이익으로 끝난 거래들을 며칠 동안 들고 있었는지의 평균 보유일수입니다. 미너비니 원칙상 이 값이 손실 일수 평균보다 커야 건강합니다(이익은 길게 태우기)."
+                  >수익 일수 평균</span>
+                  <span
+                    className="cursor-help underline decoration-dotted underline-offset-2"
+                    title="손실로 끝난 거래들을 며칠 동안 들고 있었는지의 평균 보유일수입니다. 이 값이 수익 일수 평균보다 크면 손실을 너무 오래 붙들고 있다는 신호입니다(손실은 짧게 끊기)."
+                  >손실 일수 평균</span>
                 </div>
                 {monthly.rows.map((r) => <MonthRow key={r.month} row={r} />)}
                 <MonthRow row={monthly.average} isAvg />
