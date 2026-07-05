@@ -50,11 +50,27 @@ def load_pivots() -> dict:
     return out
 
 
+def _write_empty(out_path: Path, default_stop: int = -4) -> None:
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    output = {
+        "generated_at": datetime.now(KST).strftime("%Y-%m-%d %H:%M"),
+        "asof": None, "stop_loss_pct_default": default_stop, "holdings": [],
+    }
+    out_path.write_text(json.dumps(output, ensure_ascii=False, indent=2) + "\n",
+                        encoding="utf-8")
+    print(f"💾 저장(빈 결과): {out_path.relative_to(ROOT)}")
+
+
 def run(out_path: Path) -> None:
     if not IN_PATH.exists():
-        print(f"❌ 매수 목록 없음: {IN_PATH.relative_to(ROOT)}")
-        sys.exit(1)
+        print(f"⏭️  매수 목록 없음({IN_PATH.relative_to(ROOT)}) — 빈 결과로 종료")
+        _write_empty(out_path)
+        return
     data = json.loads(IN_PATH.read_text(encoding="utf-8"))
+    if not data.get("holdings"):
+        print("⏭️  보유 종목 0개 — 빈 결과로 종료")
+        _write_empty(out_path, data.get("stop_loss_pct_default", -4))
+        return
     default_stop = data.get("stop_loss_pct_default", -4)
     pivots = load_pivots()
 

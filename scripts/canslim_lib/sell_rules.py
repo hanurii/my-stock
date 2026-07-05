@@ -8,9 +8,10 @@ from __future__ import annotations
 
 HEAVY_VOL_MULT = 1.5        # 대량 거래 기준(직전 50일 평균 대비)
 STRONG_BREAKOUT_MULT = 1.5  # 정상 돌파 거래량 기준
-LOWER_CLOSE_RUN = 3         # 연속 저저점(종가<전일 저가) 위반 기준 일수
+LOWER_LOW_RUN = 3           # 연속 저점경신(저가 기준) 위반 기준 일수
 MIN_TREND_DAYS = 5          # 하락일·나쁜 마감 우세 판정 최소 경과 거래일
 BREAKOUT_LOOKBACK = 20      # 매수일에서 돌파일을 찾는 최대 소급 거래일
+SQUAT_GRACE_DAYS = 10       # 돌파 후 반전 회복 유예(약 2주)
 
 
 def avg_volume(volumes, i, window=50, min_days=5):
@@ -84,28 +85,34 @@ def rule_heavy_volume_pullback(series, bi):
     return {"id": rid, "status": "pass", "detail": "대량 거래 하락일 없음"}
 
 
-def rule_consecutive_lower_closes(series, bi):
-    """규칙③ 연속 저저점: 종가 < 전일 저가 가 3일 연속이면 위반 (종가 기준, 사용자 확정)."""
-    rid = "consecutive_lower_closes"
-    closes, lows, dates = series["closes"], series["lows"], series["dates"]
-    n = len(closes)
+def rule_consecutive_lower_lows(series, bi):
+    """규칙③ 연속 저저점(저가 기준+거래량): 돌파 후 '저가<전일 저가'이고
+    거래량 ≥ 50일 평균인 날이 3거래일 연속이면 위반. 거래량 낮은 저점경신은
+    위반이 아니라 🟡경고로만 표시(미너비니 WAGE 사례)."""
+    rid = "consecutive_lower_lows"
+    lows, vols, dates = series["lows"], series["volumes"], series["dates"]
+    n = len(lows)
     if bi + 1 >= n:
         return {"id": rid, "status": "pending", "detail": "돌파 다음 날 데이터 없음"}
-    run = 0
-    max_run, max_end = 0, None
+    qrun = qmax = 0          # 거래량 붙은 저점경신 연속
+    qend = None
+    rawrun = rawmax = 0      # 거래량 무관 저점경신 연속(경고용)
     for i in range(bi + 1, n):
-        if closes[i] < lows[i - 1]:
-            run += 1
-            if run > max_run:
-                max_run, max_end = run, i
-        else:
-            run = 0
-    if max_run >= LOWER_CLOSE_RUN:
+        is_ll = lows[i] < lows[i - 1]
+        rawrun = rawrun + 1 if is_ll else 0
+        rawmax = max(rawmax, rawrun)
+        avg = avg_volume(vols, i)
+        qualified = (is_ll and avg is not None and vols[i] is not None
+                     and vols[i] >= avg)
+        qrun = qrun + 1 if qualified else 0
+        if qrun > qmax:
+            qmax, qend = qrun, i
+    if qmax >= LOWER_LOW_RUN:
         return {"id": rid, "status": "violation",
-                "detail": f"종가<전일 저가 {max_run}일 연속 (~{dates[max_end]})"}
-    if run == LOWER_CLOSE_RUN - 1:
+                "detail": f"거래량 붙은 저점경신 {qmax}일 연속 (~{dates[qend]})"}
+    if rawmax >= LOWER_LOW_RUN:
         return {"id": rid, "status": "pass",
-                "detail": f"경고: 종가<전일 저가 {run}일째 진행 중"}
+                "detail": f"🟡경고: 저점경신 {rawmax}회(거래량 낮음)"}
     return {"id": rid, "status": "pass", "detail": "연속 저저점 없음"}
 
 
@@ -137,7 +144,8 @@ def rule_close_below_ma(series, bi):
         return {"id": rid, "status": "violation",
                 "detail": f"심각: {dates[severe]} 50일선 아래 + 대량 거래 마감"}
     if first is not None:
-        return {"id": rid, "status": "violation", "detail": f"{dates[first]} 20일선 아래 마감"}
+        return {"id": rid, "status": "violation",
+                "detail": f"{dates[first]} 20일선 아래 마감 (돌파 {first - bi}거래일째)"}
     return {"id": rid, "status": "pass", "detail": "20일선 위 유지"}
 
 
@@ -170,23 +178,43 @@ def rule_weak_days_dominant(series, bi):
     return {"id": rid, "status": "pass", "detail": counts}
 
 
-def rule_squat(series, bi, pivot_price, breakout_confirmed=True):
-    """규칙⑥ 스쿼트(돌파 실패): 돌파 당일 포함, 종가가 피벗 아래로 되밀리면 위반.
-    돌파는 장중(고가) 기준이므로 돌파 당일 종가가 피벗 아래일 수 있음(당일 스쿼트).
-    피벗 돌파가 확인되지 않았으면(돌파일 추정) 스쿼트 판정 자체가 성립하지 않음."""
-    rid = "squat"
+def rule_breakout_failure(series, bi, pivot_price, breakout_confirmed=True):
+    """규칙⑥ 돌파 실패(스쿼트+거래량 비대칭 통합).
+    - 거래량 동반(>돌파일) 피벗 이탈 → 유예 무시 위반(실패한 돌파).
+    - 조용한 스쿼트 → 10거래일 유예 안에선 관찰중(pass), 초과하면 위반.
+    - 피벗 위 복귀 → pass. 피벗/돌파 미확인 → na."""
+    rid = "breakout_failure"
     if pivot_price is None:
         return {"id": rid, "status": "na", "detail": "피벗 없음 — 판정 불가"}
     if not breakout_confirmed:
         return {"id": rid, "status": "na", "detail": "피벗 돌파 미확인 — 판정 불가"}
-    closes, dates = series["closes"], series["dates"]
+    closes, vols, dates = series["closes"], series["volumes"], series["dates"]
     n = len(closes)
-    for i in range(bi, n):
-        if closes[i] < pivot_price:
-            when = "돌파 당일 " if i == bi else ""
-            return {"id": rid, "status": "violation",
-                    "detail": f"{when}{dates[i]} 종가가 피벗({pivot_price:,.0f}) 아래 복귀"}
-    return {"id": rid, "status": "pass", "detail": "피벗 위 유지"}
+    breakout_vol = vols[bi]
+    below = [i for i in range(bi, n) if closes[i] < pivot_price]
+    if not below:
+        return {"id": rid, "status": "pass", "detail": "피벗 위 유지"}
+    # 거래량 동반 돌파 실패(비대칭) — 유예 무시, 가장 심한 날을 detail로
+    worst = None
+    if breakout_vol:
+        for i in below:
+            if vols[i] and vols[i] > breakout_vol:
+                ratio = vols[i] / breakout_vol
+                if worst is None or ratio > worst[1]:
+                    worst = (i, ratio)
+    if worst:
+        i, ratio = worst
+        return {"id": rid, "status": "violation",
+                "detail": f"거래량 동반 돌파 실패 — {dates[i]} 거래량 {ratio:.1f}배(돌파일 대비)"}
+    # 조용한 스쿼트 — 회복/유예 판정
+    if closes[-1] >= pivot_price:
+        return {"id": rid, "status": "pass", "detail": "스쿼트 후 반전 회복(피벗 위 복귀)"}
+    elapsed = (n - 1) - bi
+    if elapsed <= SQUAT_GRACE_DAYS:
+        return {"id": rid, "status": "pass",
+                "detail": f"🟡 반전 회복 관찰중 (D+{elapsed}/{SQUAT_GRACE_DAYS})"}
+    return {"id": rid, "status": "violation",
+            "detail": f"유예 초과 — 피벗 회복 실패 (D+{elapsed})"}
 
 
 def evaluate_holding(series, buy_date, buy_price, stop_loss_pct, pivot_price=None):
@@ -197,10 +225,10 @@ def evaluate_holding(series, buy_date, buy_price, stop_loss_pct, pivot_price=Non
     rules = [
         rule_low_volume_breakout(series, bi),
         rule_heavy_volume_pullback(series, bi),
-        rule_consecutive_lower_closes(series, bi),
+        rule_consecutive_lower_lows(series, bi),
         rule_close_below_ma(series, bi),
         rule_weak_days_dominant(series, bi),
-        rule_squat(series, bi, pivot_price, breakout_confirmed=not estimated),
+        rule_breakout_failure(series, bi, pivot_price, breakout_confirmed=not estimated),
     ]
     violation_count = sum(1 for r in rules if r["status"] == "violation")
     if current <= stop_price:

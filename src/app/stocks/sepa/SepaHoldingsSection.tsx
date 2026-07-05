@@ -34,10 +34,10 @@ export interface HoldingsFeedbackFile {
 const RULE_LABELS: Record<string, string> = {
   low_volume_breakout: "① 저거래량 돌파",
   heavy_volume_pullback: "② 대량 거래 후퇴",
-  consecutive_lower_closes: "③ 연속 저저점(종가)",
+  consecutive_lower_lows: "③ 연속 저저점(거래량)",
   close_below_ma: "④ 이평선 아래 마감",
   weak_days_dominant: "⑤ 하락일·나쁜 마감 우세",
-  squat: "⑥ 스쿼트(피벗 복귀)",
+  breakout_failure: "⑥ 돌파 실패(스쿼트)",
 };
 
 const SIGNAL_META: Record<HoldingFeedback["signal"], { label: string; bg: string; fg: string }> = {
