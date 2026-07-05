@@ -666,3 +666,44 @@ def test_distribution_clear():
     closes = [100.0 + i for i in range(55)]    # 완만한 상승, 대량·반전 없음
     s = make_series(closes)
     assert sig_distribution(s, 50)["status"] == "clear"
+
+
+# --- evaluate_climax ---
+
+from canslim_lib.sell_rules import evaluate_climax, evaluate_holding
+
+
+def _extended_series():
+    # 피벗 100, 현재 150 → 확장 +50%, 최근 창 +50% 절정
+    return make_series([100.0] * 30 + [150.0])
+
+
+def test_evaluate_climax_na_without_pivot():
+    r = evaluate_climax(_extended_series(), 0, None)
+    assert r["signal"] == "na" and r["signals"] == []
+
+
+def test_evaluate_climax_not_extended_below_gate():
+    s = make_series([100.0] * 30 + [103.0])      # 피벗 100 → +3% < 5%
+    r = evaluate_climax(s, 0, 100.0)
+    assert r["signal"] == "not_extended" and r["extended"] is False and r["signals"] == []
+
+
+def test_evaluate_climax_sell_when_extended_and_fires():
+    r = evaluate_climax(_extended_series(), 0, 100.0)
+    assert r["signal"] == "sell_into_strength" and r["extended"] is True
+    assert r["count"] >= 1 and len(r["signals"]) == 4
+
+
+def test_evaluate_climax_none_when_extended_no_signal():
+    # 확장은 됐지만 절정·막판·갭·분산 없음: 한 번에 올라 이후 완전 횡보
+    s = make_series([100.0] + [150.0] * 40)      # 피벗 100, 현재 150(+50%), 최근 창 0%
+    r = evaluate_climax(s, 0, 100.0)
+    assert r["extended"] is True and r["signal"] == "none" and r["count"] == 0
+
+
+def test_evaluate_holding_includes_strength():
+    s = _extended_series()
+    r = evaluate_holding(s, s["dates"][0], 100.0, -4, pivot_price=100.0)
+    assert "strength" in r and r["strength"]["signal"] in {
+        "sell_into_strength", "none", "not_extended", "na"}

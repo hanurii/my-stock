@@ -3,6 +3,7 @@
 
 입력: ohlcv_matrix.get_series() 형태의 일봉 dict (dates/closes/highs/lows/volumes)
 정의: docs/superpowers/specs/2026-07-03-sepa-holdings-feedback-design.md
+강세 매도 트랙 정의: docs/superpowers/specs/2026-07-05-holdings-strength-sell-design.md
 """
 from __future__ import annotations
 
@@ -347,6 +348,31 @@ def sig_distribution(series, bi):
     return {"id": rid, "status": "clear", "detail": "반전·처닝·최대량 하락 없음"}
 
 
+def evaluate_climax(series, bi, pivot_price):
+    """강세 매도(과열·절정) 감시. 확장(extension ≥ EXT_GATE_PCT)일 때만 4종 평가.
+    반환: signal(sell_into_strength|none|not_extended|na)·extended·gate_detail·count·signals."""
+    current = series["closes"][-1]
+    if pivot_price is None:
+        return {"signal": "na", "extended": False,
+                "gate_detail": "피벗 없음 — 판정 불가", "count": 0, "signals": []}
+    ext = (current / pivot_price - 1) * 100
+    if ext < EXT_GATE_PCT:
+        return {"signal": "not_extended", "extended": False,
+                "gate_detail": f"확장 {ext:+.1f}% < {EXT_GATE_PCT:.0f}%",
+                "count": 0, "signals": []}
+    signals = [
+        sig_climax_run(series),
+        sig_blowoff_day(series, bi),
+        sig_exhaustion_gap(series),
+        sig_distribution(series, bi),
+    ]
+    count = sum(1 for s in signals if s["status"] == "fired")
+    return {"signal": "sell_into_strength" if count >= 1 else "none",
+            "extended": True,
+            "gate_detail": f"확장 {ext:+.1f}% ≥ {EXT_GATE_PCT:.0f}%",
+            "count": count, "signals": signals}
+
+
 def evaluate_accumulation(series, bi):
     """돌파 후 첫 ACCUM_WINDOW 거래일 매집 신호 3종(등급 없이 체크리스트).
     창은 15일 지나면 첫 15일로 고정, 미만이면 진행 중 부분 계산."""
@@ -443,6 +469,7 @@ def evaluate_holding(series, buy_date, buy_price, stop_loss_pct, pivot_price=Non
         signal = "hold"
     accumulation = evaluate_accumulation(series, bi)
     mvp = evaluate_mvp(series, bi)
+    strength = evaluate_climax(series, bi, pivot_price)
     extension_pct = (round((current / pivot_price - 1) * 100, 1)
                      if pivot_price else None)
     return {
@@ -458,4 +485,5 @@ def evaluate_holding(series, buy_date, buy_price, stop_loss_pct, pivot_price=Non
         "extension_pct": extension_pct,
         "accumulation": accumulation,
         "mvp": mvp,
+        "strength": strength,
     }
