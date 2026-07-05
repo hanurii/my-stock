@@ -126,14 +126,25 @@
 
 - 현재 `IN_PATH`(sepa-holdings.json)가 없으면 `sys.exit(1)`. 이를 바꿔 **입력이 없거나
   holdings가 비면 빈 결과 JSON을 쓰고 정상 종료(exit 0)** 한다. /sepa가 멈추지 않도록.
-- 규칙 판정 호출부는 그대로(6개 규칙 함수 시그니처 유지). 통합된 규칙6은
-  피벗·돌파확인 여부를 인자로 받는다(현 rule_squat 시그니처 확장).
+- 규칙은 6개 그대로. 규칙3·6은 함수·id를 rename(위 "페이지 영향" 참조)하되
+  `evaluate_holding`의 rules 배열 위치·인덱스(규칙6=rules[5])는 유지한다. 통합된
+  규칙6 `rule_breakout_failure(series, bi, pivot_price, breakout_confirmed)`은 현
+  `rule_squat`와 동일 시그니처.
 
-## 페이지 영향: 없음
+## 페이지 영향: 최소 (라벨 2줄만)
 
 `SepaHoldingsSection.tsx`는 `rules[]`를 ✓(pass)/✗(violation)/―(pending·na) + detail로
-**일반 렌더**한다. 규칙 개수·detail 문구가 바뀌어도 코드 수정이 필요 없다. 새 상태를
-만들지 않으므로(🟡은 pass+detail) 페이지는 무접촉 — 다른 세션과 page.tsx 충돌 원천 차단.
+**일반 렌더**하고, 새 상태를 안 만들므로(🟡은 pass+detail) 렌더 로직은 무접촉이다.
+다만 페이지에 **규칙 id → 한글 라벨 매핑(`RULE_LABELS`)** 이 있어(계획 작성 중 발견),
+id·라벨을 정정해야 한다(그대로 두면 라벨이 깨지거나 의미가 틀림):
+
+- `consecutive_lower_closes: "③ 연속 저저점(종가)"` → `consecutive_lower_lows: "③ 연속 저저점(거래량)"`
+- `squat: "⑥ 스쿼트(피벗 복귀)"` → `breakout_failure: "⑥ 돌파 실패(스쿼트)"`
+
+이 2줄 외 페이지 수정은 없다. 규칙 id 소비처는 소스(sell_rules.py)·테스트·이 라벨맵
+3곳뿐(grep 확인). 규칙 함수명·id는 의미에 맞게 rename한다
+(`rule_consecutive_lower_closes`→`rule_consecutive_lower_lows`, `rule_squat`→
+`rule_breakout_failure`).
 
 ## 테스트: tests/test_sell_rules.py (pytest)
 
