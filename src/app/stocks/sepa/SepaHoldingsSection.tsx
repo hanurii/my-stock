@@ -2,9 +2,13 @@
 
 export interface HoldingRule {
   id: string;
-  status: "violation" | "pass" | "pending" | "na";
+  status: "violation" | "pass" | "pending" | "na" | "watch";
   detail: string;
 }
+export interface AccumulationSignal { id: string; status: "met" | "unmet" | "pending"; detail: string; }
+export interface Accumulation { window: string; elapsed: number; signals: AccumulationSignal[]; }
+export interface MvpCheck { ok: boolean | null; detail: string; }
+export interface Mvp { status: "yes" | "no" | "pending"; m: MvpCheck; v: MvpCheck; p: MvpCheck; }
 export interface HoldingFeedback {
   code: string;
   name: string;
@@ -24,6 +28,9 @@ export interface HoldingFeedback {
   signal: "stop_loss" | "early_sell" | "hold" | "no_data";
   violation_count: number;
   rules: HoldingRule[];
+  extension_pct?: number | null;
+  accumulation?: Accumulation;
+  mvp?: Mvp;
 }
 export interface HoldingsFeedbackFile {
   generated_at?: string;
@@ -52,6 +59,7 @@ const STATUS_MARK: Record<HoldingRule["status"], { mark: string; cls: string }> 
   pass: { mark: "✓", cls: "text-[#34d399]" },
   pending: { mark: "―", cls: "text-on-surface-variant/50" },
   na: { mark: "―", cls: "text-on-surface-variant/50" },
+  watch: { mark: "🟡", cls: "text-[#fbbf24]" },
 };
 
 function fmtWon(v?: number | null): string {
@@ -82,12 +90,25 @@ export function SepaHoldingsSection({ data }: { data: HoldingsFeedbackFile | nul
                   {h.name}
                   <span className="text-xs font-normal text-on-surface-variant/50 ml-1.5">{h.code}</span>
                 </div>
-                <span
-                  className="text-[11px] font-medium px-2 py-0.5 rounded whitespace-nowrap"
-                  style={{ backgroundColor: meta.bg, color: meta.fg }}
-                >
-                  {badgeLabel}
-                </span>
+                <div className="flex flex-wrap gap-1.5 justify-end">
+                  <span
+                    className="text-[11px] font-medium px-2 py-0.5 rounded whitespace-nowrap"
+                    style={{ backgroundColor: meta.bg, color: meta.fg }}
+                  >
+                    {badgeLabel}
+                  </span>
+                  {h.mvp?.status === "yes" && (
+                    <span className="text-[11px] font-semibold px-2 py-0.5 rounded tracking-wide"
+                      style={{ backgroundColor: "rgba(167,139,250,0.16)", color: "#a78bfa",
+                               border: "1px solid rgba(167,139,250,0.42)" }}>MVP</span>
+                  )}
+                  {h.extension_pct != null && (
+                    <span className="text-[11px] font-medium px-2 py-0.5 rounded whitespace-nowrap"
+                      style={{ backgroundColor: "rgba(148,163,184,0.12)", color: "#94a3b8" }}>
+                      확장 {h.extension_pct > 0 ? "+" : ""}{h.extension_pct}%
+                    </span>
+                  )}
+                </div>
               </div>
               <div className="text-xs text-on-surface-variant space-y-0.5">
                 <p>
