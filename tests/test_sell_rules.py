@@ -472,12 +472,11 @@ def test_accum_tight_day_not_counted_as_bad_close():
 # --- evaluate_mvp: M·V·P 감별 ---
 
 def _mvp_series():
-    # 직전 15일 거래량 1000, 돌파 후 15일: 12일 상승 + 거래량 2000(2배) + 최고 종가 +25%
-    pre = [100.0] * 16                     # index 0..15 (bi=15)
-    post_up = [100.0 + 2 * (i + 1) for i in range(12)]   # 12일 상승 → 최고 +24~
-    post = post_up + [post_up[-1] - 1, post_up[-1] - 2, post_up[-1] + 3]  # 3일 혼합, 마지막 신고가
-    closes = pre + post
-    vols = [1000.0] * 16 + [2000.0] * 15
+    # 각 임계값 바로 위로 핀: 정확히 12 상승일 / V 1.3배 / P +21%
+    closes = [100.0] * 16
+    closes += [100.0 + 1.75 * k for k in range(1, 13)]   # idx16..27: 12일 연속 상승 → 121.0
+    closes += [120.0, 119.0, 118.0]                       # idx28..30: 3일 하락
+    vols = [1000.0] * 16 + [1300.0] * 15                  # 창 평균 = 직전 ×1.3
     return make_series(closes, volumes=vols), 15
 
 
@@ -496,11 +495,45 @@ def test_mvp_pending_before_15_days():
     assert r["m"]["ok"] is None
 
 
-def test_mvp_no_when_price_short():
-    # M·V 충족해도 P<20%면 no
-    pre = [100.0] * 16
-    post = [100.0 + 0.5 * (i + 1) for i in range(15)]   # 최고 +7.5%
-    s = make_series(pre + post, volumes=[1000.0] * 16 + [2000.0] * 15)
+def test_mvp_no_when_price_below_threshold():
+    # 최고 +19%(<20%), M·V는 충족 → P만 미달로 no
+    closes = [100.0] * 16 + [100.0 + 1.583 * k for k in range(1, 13)] + [118.0, 117.0, 116.0]
+    vols = [1000.0] * 16 + [1300.0] * 15
+    s = make_series(closes, volumes=vols)
     r = evaluate_mvp(s, 15)
     assert r["status"] == "no"
     assert r["p"]["ok"] is False
+    assert r["m"]["ok"] and r["v"]["ok"]
+
+
+def test_mvp_no_when_momentum_one_short():
+    # 상승 11일(<12), M만 미달
+    closes = [100.0] * 16 + [100.0 + 1.91 * k for k in range(1, 12)] + [120.0, 119.0, 118.0, 117.0]
+    vols = [1000.0] * 16 + [1300.0] * 15
+    s = make_series(closes, volumes=vols)
+    r = evaluate_mvp(s, 15)
+    assert r["status"] == "no"
+    assert r["m"]["ok"] is False
+    assert r["v"]["ok"] and r["p"]["ok"]
+
+
+def test_mvp_no_when_volume_below_threshold():
+    # V 1.2배(<1.25), V만 미달
+    closes = [100.0] * 16 + [100.0 + 1.75 * k for k in range(1, 13)] + [120.0, 119.0, 118.0]
+    vols = [1000.0] * 16 + [1200.0] * 15
+    s = make_series(closes, volumes=vols)
+    r = evaluate_mvp(s, 15)
+    assert r["status"] == "no"
+    assert r["v"]["ok"] is False
+    assert r["m"]["ok"] and r["p"]["ok"]
+
+
+def test_mvp_v_none_when_prior_sample_insufficient():
+    # 돌파가 너무 일러(bi=3) 직전 표본 <5 → V ok=None, status no
+    closes = [100.0] * 4 + [100.0 + 1.75 * k for k in range(1, 13)] + [120.0, 119.0, 118.0]
+    vols = [1000.0] * 4 + [1300.0] * 15
+    s = make_series(closes, volumes=vols)
+    r = evaluate_mvp(s, 3)
+    assert r["v"]["ok"] is None
+    assert "표본 부족" in r["v"]["detail"]
+    assert r["status"] == "no"
