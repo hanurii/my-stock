@@ -98,24 +98,29 @@ def test_post_breakout_outcome_same_bar_collision_is_conservative():
 
 
 def test_integration_real_series_produces_event():
-    # 선행 상승 후 수렴 수축(25→13→8%) + 거래량 마름 베이스 + 돌파 바.
-    # 기존 find-vcp 테스트(_vcp_closes)에서 evaluate_vcp가 vcp_detected+breakout를
-    # 내는 것이 확인된 패턴을 그대로 사용한다.
-    # _vcp_closes() 패턴과 동일: 2번째 바닥을 78.3으로 낮춰야 zigzag가
-    # 3번째 수축(88→80.8, 8.18%)을 찾고 max_final_depth(10%) 조건을 통과함.
-    # 브리프 원안(80.8)은 2수축만 생겨 최종 수축 11.11%>10% → vcp_detected=False.
-    base = [100, 92, 84, 78, 75, 80, 86, 90,      # -25% 후 회복
-            88, 84, 80, 78.3, 82, 86, 88,         # -13% 후 회복 (피벗 88, _vcp_closes와 동일)
-            87, 85, 83, 80.8, 84, 86]             # -8.18% 후 피벗 접근
-    closes = [60, 70, 80, 95] + base + [89.0]     # 선행상승 + 베이스 + 돌파(89>피벗88)
+    # 현재 코일 검출기(evaluate_vcp)가 vcp_detected=True + status=breakout 를 내는 것이
+    # test_vcp.py::_vcp_series 로 검증된 패턴을 그대로 사용한다: 2수축 수렴(25%→15%) +
+    # 돌파 직전 '타이트+마른 코일'(피벗 96, 코일 거래량 300≈0.4×MA50 → 레버 B 극저일 통과) +
+    # 첫돌파 바(종가 99). opens 없으면 _is_breakout 양봉 체크가 IndexError → 반드시 opens
+    # 포함(replay_vcp 가 opens 를 통과시켜야 함).
+    c1   = [100.0, 96.0, 91.0, 86.0, 82.0, 78.0, 75.5, 75.0]   # 수축1: 100→75 = -25%
+    r1   = [78.0, 81.0, 84.0, 87.0, 89.0, 91.0, 92.0]           # 회복 →92
+    c2   = [90.0, 87.0, 84.0, 81.0, 79.0, 78.5, 78.2]           # 수축2: 92→78.2 ≈ -15%
+    r2   = [82.0, 87.0, 92.0, 95.0]                              # 회복: 코일 레벨로 복귀
+    coil = [95.5, 94.5, 95.0, 96.0, 95.5, 96.0]                 # 타이트 코일: 고점=피벗 96
+    bo   = [99.0]                                                # 돌파 바: 96 첫돌파
+    closes = c1 + r1 + c2 + r2 + coil + bo
     n = len(closes)
-    highs = [c * 1.005 for c in closes]
-    lows = [c * 0.995 for c in closes]
-    # 거래량: 베이스 후반 마름 + 돌파 바 급증
-    vols = [3000, 3000, 3000, 3000] + [1500] * 7 + [1000] * (len(base) - 7) + [6000]
+    opens = [c * 0.99 for c in closes]
+    opens[-1] = 95.0                              # 돌파 바 시가: 피벗(96) 아래 → 양봉·근접
+    highs = [c * 1.01 for c in closes]
+    lows = [c * 0.99 for c in closes]
+    # 거래량: 초반/회복 정상 → r2+coil 마름(300) → 돌파 6000
+    vols = ([1200] * len(c1) + [800] * len(r1) + [600] * len(c2)
+            + [300] * (len(r2) + len(coil)) + [6000] * len(bo))
     assert len(vols) == n
     dates = [f"2026-{1 + i // 28:02d}-{1 + i % 28:02d}" for i in range(n)]
-    s = {"dates": dates, "closes": closes, "highs": highs, "lows": lows, "volumes": vols}
+    s = {"dates": dates, "closes": closes, "opens": opens, "highs": highs, "lows": lows, "volumes": vols}
 
     rep = replay_vcp(s, scan_days=8)              # 마지막 8 거래일(돌파 포함)을 as-of
     evs = find_breakout_events(rep, confirm_lookback=5)

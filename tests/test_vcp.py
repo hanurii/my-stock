@@ -297,3 +297,96 @@ def test_detect_final_coil_too_short_returns_none():
     lows   = [c * 0.99 for c in closes]
     coil = detect_final_coil(highs, lows, closes, vols, ma50, len(closes) - 1, _CP)
     assert coil is None
+
+
+# ---------------------------------------------------------------------------
+# 레버 A (Option C): 돌파 거래량 게이트 — 마른 코일 기준선 OR-경로
+# ---------------------------------------------------------------------------
+
+def test_mik_oracle_breakout_asof():
+    """MIK 2014-11-06 as-of: IPO-오염 MA50로 MA기준 거래량은 미달이나,
+    마른 코일 대비 확장이라 코일 OR-경로로 breakout 확인.
+    코일 최저일 0.11×MA50 이라 레버 B(극저거래량일) 게이트도 통과."""
+    import json
+    ROOT = Path(__file__).resolve().parents[1]
+    d = json.load(open(ROOT / "public/data/vcp_oracle_mik.json", encoding="utf-8"))
+    idx = [i for i, x in enumerate(d["dates"]) if x <= "2014-11-06"][-1]
+    sub = {k: d[k][:idx + 1] for k in ("dates", "opens", "highs", "lows", "closes", "volumes")}
+    r = evaluate_vcp(sub)
+    assert r["vcp_detected"] is True
+    assert r["status"] == "breakout", f"status={r['status']} pivot={r['pivot_price']}"
+    PIVOT = 18.50  # 복원 저항(매수점); 검출기 종가기준 피벗은 ~18.33
+    assert abs(r["pivot_price"] - PIVOT) / PIVOT <= 0.02
+    assert r["coil_min_dry"] <= 0.5  # 극저거래량일 실재(레버 B)
+
+
+def test_is_breakout_coil_baseline_path_true():
+    """MA50 기준 거래량은 미달(1.1x<1.4)이나 마른 코일 평균 대비 확장(>=1.5x)이면 True."""
+    closes = [100.0] * 8 + [98.0, 103.0]   # 마지막 바 첫돌파(전일 98<=피벗100, 종가103>100)
+    opens = [100.0] * 9 + [98.5]           # 양봉(103>98.5), 시가 근접
+    ma50 = [1000.0] * 10                    # MA50 크게 부풀림
+    vols = [300.0] * 9 + [1100.0]          # 코일평균 300, 돌파 1100 = 3.67x 코일 / 1.1x MA50
+    p = {"breakout_vol_mult": 1.4, "near_pivot_pct": 5.0, "coil_breakout_vol_mult": 1.5}
+    coil = {"coil_start": 0, "coil_end": 8}
+    assert _is_breakout(closes, opens, vols, ma50, 100.0, p, coil) is True
+    # 같은 조건에서 coil 미전달이면 MA50 미달로 False(기존 동작 보존)
+    assert _is_breakout(closes, opens, vols, ma50, 100.0, p) is False
+
+
+def test_is_breakout_coil_baseline_insufficient_false():
+    """코일 대비 확장이 부족(1.5x 미만)하면 코일 경로로도 False."""
+    closes = [100.0] * 8 + [98.0, 103.0]
+    opens = [100.0] * 9 + [98.5]
+    ma50 = [1000.0] * 10
+    vols = [300.0] * 9 + [400.0]           # 400/300 = 1.33x < 1.5, MA50도 0.4x 미달
+    p = {"breakout_vol_mult": 1.4, "near_pivot_pct": 5.0, "coil_breakout_vol_mult": 1.5}
+    coil = {"coil_start": 0, "coil_end": 8}
+    assert _is_breakout(closes, opens, vols, ma50, 100.0, p, coil) is False
+
+
+# ---------------------------------------------------------------------------
+# 레버 B: 피벗 극저거래량일 게이트 (책 "하루 이틀 극도로 낮은 거래량")
+# ---------------------------------------------------------------------------
+
+def test_detect_final_coil_reports_min_dry_and_extreme_days():
+    """detect_final_coil 이 코일 최저일 비율(coil_min_dry)과 극저일 수를 보고한다."""
+    # 코일 6봉: 거래량 300,300,150,300,300,300 vs ma50 1000 → 비율 0.3.. 최저 0.15.
+    closes = [70, 78, 85, 90,  95.5, 94.5, 95.0, 96.0, 95.5, 96.0,  99.0]
+    vols   = [900, 900, 900, 900,  300, 300, 150, 300, 300, 300,  6000]
+    ma50   = [1000] * len(closes)
+    highs  = [c * 1.01 for c in closes]
+    lows   = [c * 0.99 for c in closes]
+    p = {"coil_tight_pct": 12.0, "coil_min_days": 3, "coil_max_days": 25,
+         "coil_dry_max": 0.9, "coil_extreme_dry_max": 0.5}
+    coil = detect_final_coil(highs, lows, closes, vols, ma50, len(closes) - 1, p)
+    assert coil is not None
+    assert coil["coil_min_dry"] == 0.15               # 최저일 = 150/1000
+    assert coil["coil_extreme_days"] == 6             # 6봉 전부 <= 0.5
+
+
+def _mik_asof():
+    import json
+    ROOT = Path(__file__).resolve().parents[1]
+    d = json.load(open(ROOT / "public/data/vcp_oracle_mik.json", encoding="utf-8"))
+    idx = [i for i, x in enumerate(d["dates"]) if x <= "2014-11-06"][-1]
+    return {k: d[k][:idx + 1] for k in ("dates", "opens", "highs", "lows", "closes", "volumes")}
+
+
+def test_lever_b_gate_rejects_when_no_extreme_day():
+    """MIK 코일 최저일은 0.11×MA50. 게이트 임계를 0.05로 조이면 극저일 없음으로
+    간주돼 VCP 미인정(reason=no_dry_coil_day) + 피벗 무효(돌파 불가). 실데이터 토글."""
+    s = _mik_asof()
+    r = evaluate_vcp(s, {"coil_extreme_dry_max": 0.05})   # 0.11 > 0.05 → 극저일 없음
+    assert r["coil_min_dry"] is not None                  # 진단 필드는 여전히 노출
+    assert r["vcp_detected"] is False
+    assert r["reason"] == "no_dry_coil_day"
+    assert r["pivot_price"] is None
+
+
+def test_lever_b_gate_recognizes_with_default_threshold():
+    """같은 MIK 가 기본 임계(0.5)에선 극저일(0.11) 통과 → VCP 인식·breakout(레버 A와 합류)."""
+    s = _mik_asof()
+    r = evaluate_vcp(s)
+    assert r["vcp_detected"] is True
+    assert r["coil_min_dry"] <= 0.5
+    assert r["reason"] != "no_dry_coil_day"
