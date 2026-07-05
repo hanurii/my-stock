@@ -193,7 +193,7 @@ def test_rule3_pending_no_post_breakout_days():
 from canslim_lib.sell_rules import (
     rule_close_below_ma,
     rule_weak_days_dominant,
-    rule_squat,
+    rule_breakout_failure,
 )
 
 
@@ -259,40 +259,64 @@ def test_rule5_pass_up_days_dominant():
     assert rule_weak_days_dominant(s, 30)["status"] == "pass"
 
 
-# --- 규칙 ⑥ 스쿼트 ---
+# --- 규칙 ⑥ 돌파 실패 (스쿼트 + 거래량 비대칭 통합) ---
 
-def test_rule6_violation_close_back_below_pivot():
-    closes = [100.0] * 30 + [106.0, 103.0]  # 피벗 105 아래로 복귀 마감
-    s = make_series(closes)
-    assert rule_squat(s, 30, 105.0)["status"] == "violation"
+def test_rule6_violation_volume_backed_break_ignores_grace():
+    # 돌파 다음 날 피벗 아래로 되밀림 + 거래량 > 돌파일 → 유예 무시 위반
+    closes = [100.0] * 30 + [106.0, 103.0]
+    vols = [1000.0] * 30 + [500.0, 900.0]   # 돌파일 500 < 되밀림일 900
+    s = make_series(closes, volumes=vols)
+    r = rule_breakout_failure(s, 30, 105.0)
+    assert r["status"] == "violation"
+    assert "거래량 동반" in r["detail"]
+
+
+def test_rule6_pass_quiet_squat_within_grace():
+    # 조용한 스쿼트(거래량 ≤ 돌파일) + 유예(10거래일) 이내 → 관찰중(pass)
+    closes = [100.0] * 30 + [106.0, 103.0]
+    vols = [1000.0] * 30 + [2000.0, 800.0]  # 되밀림일 800 < 돌파일 2000
+    s = make_series(closes, volumes=vols)
+    r = rule_breakout_failure(s, 30, 105.0)
+    assert r["status"] == "pass"
+    assert "관찰중" in r["detail"]
+
+
+def test_rule6_violation_quiet_squat_past_grace():
+    # 조용한 스쿼트인데 유예(10거래일) 초과도 피벗 아래 → 위반
+    closes = [100.0] * 30 + [106.0] + [103.0] * 12  # 돌파 후 12일 내내 아래
+    vols = [1000.0] * 30 + [2000.0] + [800.0] * 12
+    s = make_series(closes, volumes=vols)
+    r = rule_breakout_failure(s, 30, 105.0)
+    assert r["status"] == "violation"
+    assert "유예 초과" in r["detail"]
+
+
+def test_rule6_pass_reversal_recovery():
+    # 스쿼트 후 최근 종가가 피벗 위로 복귀 → pass
+    closes = [100.0] * 30 + [106.0, 103.0, 107.0]
+    vols = [1000.0] * 30 + [2000.0, 800.0, 900.0]
+    s = make_series(closes, volumes=vols)
+    r = rule_breakout_failure(s, 30, 105.0)
+    assert r["status"] == "pass"
+    assert "회복" in r["detail"]
 
 
 def test_rule6_pass_holds_above_pivot():
     closes = [100.0] * 30 + [106.0, 107.0]
     s = make_series(closes)
-    assert rule_squat(s, 30, 105.0)["status"] == "pass"
+    assert rule_breakout_failure(s, 30, 105.0)["status"] == "pass"
 
 
 def test_rule6_na_without_pivot():
     s = make_series([100.0] * 32)
-    assert rule_squat(s, 30, None)["status"] == "na"
+    assert rule_breakout_failure(s, 30, None)["status"] == "na"
 
 
-def test_rule6_pass_breakout_day_only_holds_above_pivot():
-    # 돌파 당일 데이터만 있어도 당일 종가가 피벗 위면 통과 (유보 아님)
-    closes = [100.0] * 30 + [106.0]
+def test_rule6_na_when_breakout_not_confirmed():
+    closes = [100.0] * 30 + [101.0, 102.0]  # 피벗 105 미돌파
     s = make_series(closes)
-    assert rule_squat(s, 30, 105.0)["status"] == "pass"
-
-
-def test_rule6_same_day_squat_violation():
-    # 장중에 피벗을 돌파했지만 당일 종가가 피벗 아래로 되밀림 → 돌파 당일 스쿼트
-    closes = [100.0] * 30 + [103.0]
-    highs = [c * 1.01 for c in closes[:30]] + [106.0]
-    s = make_series(closes, highs=highs)
-    r = rule_squat(s, 30, 105.0)
-    assert r["status"] == "violation"
-    assert "돌파 당일" in r["detail"]
+    r = rule_breakout_failure(s, 30, 105.0, breakout_confirmed=False)
+    assert r["status"] == "na"
 
 
 def test_find_breakout_detects_intraday_cross():
@@ -306,13 +330,14 @@ def test_find_breakout_detects_intraday_cross():
 
 
 def test_evaluate_holding_intraday_squat_flow():
-    # 장중 돌파(고가 106>피벗 105) 후 당일 아래 마감 → 돌파 확인 + 당일 스쿼트 위반
+    # 장중 돌파(고가 106>피벗 105) 후 당일 조용히 아래 마감 → 돌파 확인 + 관찰중(pass)
     closes = [100.0] * 60 + [103.0]
     highs = [c * 1.01 for c in closes[:60]] + [106.0]
     s = make_series(closes, highs=highs)
     r = evaluate_holding(s, s["dates"][60], 103.0, -4.0, pivot_price=105.0)
     assert r["breakout_date_estimated"] is False
-    assert r["rules"][5]["status"] == "violation"
+    assert r["rules"][5]["status"] == "pass"
+    assert "관찰중" in r["rules"][5]["detail"]
 
 
 # --- evaluate_holding ---
@@ -368,13 +393,6 @@ def test_evaluate_holding_pct_to_stop_sign():
     r = evaluate_holding(s, s["dates"][60], 106.0, -4.0, pivot_price=105.0)
     # 현재가 108 > 손절가 101.76 → 음수(여유)
     assert r["pct_to_stop"] < 0
-
-
-def test_rule6_na_when_breakout_not_confirmed():
-    closes = [100.0] * 30 + [101.0, 102.0]  # 피벗 105 미돌파
-    s = make_series(closes)
-    r = rule_squat(s, 30, 105.0, breakout_confirmed=False)
-    assert r["status"] == "na"
 
 
 def test_evaluate_holding_uncrossed_pivot_squat_na():
