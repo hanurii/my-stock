@@ -437,6 +437,20 @@ def test_accum_up_streak_7_met_and_window_locks_at_15():
     assert r["window"] == "15일 완료"
 
 
+def test_accum_window_computation_capped_at_first_15_days():
+    # 첫 15일은 전부 하락(상승 0·하락 15), 그 뒤 16일은 전부 상승.
+    # 창이 첫 15일로 고정되면 up_days_dominant=unmet. 캡이 없으면(전체 집계) met으로 뒤집힘.
+    closes = ([100.0] * 31
+              + [100.0 - i for i in range(1, 16)]     # idx31..45: 99→85 (15일 하락)
+              + [85.0 + i for i in range(1, 17)])     # idx46..61: 86→101 (16일 상승)
+    s = make_series(closes)
+    r = evaluate_accumulation(s, 30)
+    up = next(x for x in r["signals"] if x["id"] == "up_days_dominant")
+    assert up["status"] == "unmet"
+    assert "상승 0" in up["detail"]        # 캡 제거 시 '상승 16 · 하락 15'로 met → 실패
+    assert r["window"] == "15일 완료"
+
+
 def test_accum_pending_when_no_post_breakout_days():
     s = make_series([100.0] * 31)
     r = evaluate_accumulation(s, 30)
@@ -444,11 +458,12 @@ def test_accum_pending_when_no_post_breakout_days():
 
 
 def test_accum_tight_day_not_counted_as_bad_close():
-    # 하단 마감이지만 일중 변동폭 <1% (tight) → 나쁜 마감서 제외
-    closes = [100.0] * 31 + [101.0, 101.05, 101.1]
-    highs = [c * 1.0002 for c in closes]          # 범위 ~0.02% < 1%
-    lows = [c * 0.9998 for c in closes]
+    # 종가가 중간값보다 '아래'(진짜 나쁜 마감 후보)지만 일중 변동폭 <1% (tight)
+    # → tight 가드로만 나쁜 마감서 제외됨(대칭 고저의 tie 규칙과 무관).
+    closes = [100.0] * 31 + [100.0, 100.0, 100.0]
+    highs = [c * 1.01 for c in closes[:31]] + [100.6, 100.6, 100.6]
+    lows = [c * 0.99 for c in closes[:31]] + [99.8, 99.8, 99.8]   # mid=100.2 > close 100, range 0.8/100=0.008<1%
     s = make_series(closes, highs=highs, lows=lows)
     r = evaluate_accumulation(s, 30)
     q = next(x for x in r["signals"] if x["id"] == "quality_closes")
-    assert "나쁜 0" in q["detail"]                 # tight day는 bad 미포함
+    assert "나쁜 0" in q["detail"]   # 가드 제거 시 '나쁜 3'이 되어 실패
