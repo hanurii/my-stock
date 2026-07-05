@@ -125,8 +125,9 @@ export function SepaHoldingsSection({ data }: { data: HoldingsFeedbackFile | nul
             : "–";
           const accCls = h.accumulation && acc.complete && acc.met > 0
             ? "text-[#34d399] font-semibold" : "text-on-surface-variant/50";
-          const strDigest = st ? `발화 ${st.fired}/4`
-            : h.strength?.signal === "na" ? "피벗 없음" : "확장 전";
+          const strDigest = !h.strength ? "–"
+            : st ? `발화 ${st.fired}/${st.total}`
+            : h.strength.signal === "na" ? "피벗 없음" : "확장 전";
           const strCls = st && st.fired > 0 ? "font-semibold" : "text-on-surface-variant/50";
           const weakDigest = rt.violation > 0 ? `위반 ${rt.violation}`
             : rt.watch > 0 ? `관찰 ${rt.watch}` : "위반 0";
@@ -243,7 +244,7 @@ export function SepaHoldingsSection({ data }: { data: HoldingsFeedbackFile | nul
                     <div className="text-[10px] font-bold tracking-wider mb-2 uppercase flex items-baseline gap-1.5" style={{ color: HEAT }}>
                       🔥 강세 매도 감시
                       <span className="font-normal normal-case tracking-normal text-on-surface-variant/60">· {h.strength.gate_detail}</span>
-                      {st && <span className="ml-auto font-semibold normal-case tracking-normal" style={{ color: HEAT }}>발화 {st.fired}/4</span>}
+                      {st && <span className="ml-auto font-semibold normal-case tracking-normal" style={{ color: HEAT }}>발화 {st.fired}/{st.total}</span>}
                     </div>
                     {h.strength.extended ? (
                       <ul className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px]">

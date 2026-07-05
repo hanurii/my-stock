@@ -615,6 +615,21 @@ def test_blowoff_pending_when_few_days():
     assert sig_blowoff_day(s, 0)["status"] == "pending"
 
 
+def test_blowoff_no_fire_when_all_declining_recent():
+    # 돌파 후 전부 하락(가장 덜 하락한 날이 최근 3일 내) — 가짜 상승 발화 금지
+    s = make_series([100.0, 90.0, 82.0, 76.0, 72.0, 70.0, 69.0])
+    assert sig_blowoff_day(s, 0)["status"] == "clear"
+
+
+def test_blowoff_fires_on_range_path_recent():
+    # 종가 평탄(상승 0)인데 최근 3일 내 일중 변동폭 최대 → range 경로 발화
+    s = make_series([100.0] * 7,
+                    highs=[101.0, 101.0, 101.0, 101.0, 101.0, 110.0, 101.0],
+                    lows=[99.0, 99.0, 99.0, 99.0, 99.0, 90.0, 99.0])
+    r = sig_blowoff_day(s, 0)
+    assert r["status"] == "fired" and "변동폭" in r["detail"]
+
+
 # --- sig_exhaustion_gap: S3 소진성 갭 ---
 
 from canslim_lib.sell_rules import sig_exhaustion_gap

@@ -291,7 +291,7 @@ def sig_blowoff_day(series, bi):
         return "오늘" if k == 0 else ("어제" if k == 1 else f"{k}일 전")
 
     gi, gv = best_g
-    if gi is not None and gi >= recent_lo:
+    if gi is not None and gi >= recent_lo and gv > 0:
         return {"id": rid, "status": "fired",
                 "detail": f"구간 최대 상승일 +{gv * 100:.0f}%이 {when(gi)} 출현"}
     ri, rv = best_r
@@ -352,7 +352,7 @@ def evaluate_climax(series, bi, pivot_price):
     """강세 매도(과열·절정) 감시. 확장(extension ≥ EXT_GATE_PCT)일 때만 4종 평가.
     반환: signal(sell_into_strength|none|not_extended|na)·extended·gate_detail·count·signals."""
     current = series["closes"][-1]
-    if pivot_price is None:
+    if not pivot_price:
         return {"signal": "na", "extended": False,
                 "gate_detail": "피벗 없음 — 판정 불가", "count": 0, "signals": []}
     ext = (current / pivot_price - 1) * 100
