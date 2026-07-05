@@ -1,5 +1,7 @@
 // 보유 종목 점검 — 미너비니 매도 규칙 위반 피드백 (서버 렌더 전용, 상호작용 없음)
 
+import type { ReactNode } from "react";
+
 export interface HoldingRule {
   id: string;
   status: "violation" | "pass" | "pending" | "na" | "watch";
@@ -62,6 +64,22 @@ const STATUS_MARK: Record<HoldingRule["status"], { mark: string; cls: string }> 
   watch: { mark: "🟡", cls: "text-[#fbbf24]" },
 };
 
+const ACC_MARK: Record<AccumulationSignal["status"], { mark: string; cls: string }> = {
+  met: { mark: "✓", cls: "text-[#34d399]" },
+  unmet: { mark: "○", cls: "text-on-surface-variant/50" },
+  pending: { mark: "―", cls: "text-on-surface-variant/40" },
+};
+const ACC_META: Record<string, { label: string; tip: string }> = {
+  up_days_dominant: { label: "상승일 우세", tip: "돌파 후 15거래일 중 상승 마감일이 하락 마감일보다 많으면 충족. 기관 매집 정황. 숫자 = 상승 · 하락 마감일." },
+  quality_closes: { label: "양질의 종가", tip: "그날 고저 범위의 상단 절반에서 마감(좋은 마감)한 날이 하단 절반 마감(나쁜 마감)보다 많으면 충족. 변동폭 1% 미만 tight 눌림은 나쁜 마감서 제외." },
+  up_streak_7: { label: "연속 상승 7일↑", tip: "상승 마감이 며칠 연속됐는지의 최고 기록. 7~8일 이상을 미너비니는 가장 이상적 신호로 봄." },
+};
+const MVP_META = {
+  m: { label: "M 모멘텀", tip: "돌파 후 15일 중 상승 마감이 12일 이상이면 충족." },
+  v: { label: "V 거래량", tip: "돌파 후 15일 평균 거래량이 돌파 직전 15일 평균 대비 25% 이상 늘면 충족." },
+  p: { label: "P 가격", tip: "돌파 후 15일간 최고 종가가 돌파일 종가 대비 20% 이상 오르면 충족." },
+} as const;
+
 function fmtWon(v?: number | null): string {
   return v == null ? "-" : Math.round(v).toLocaleString();
 }
@@ -69,6 +87,20 @@ function fmtWon(v?: number | null): string {
 export function SepaHoldingsSection({ data }: { data: HoldingsFeedbackFile | null }) {
   const holdings = data?.holdings ?? [];
   if (holdings.length === 0) return null;
+  const Tip = ({ tip, children }: { tip: string; children: ReactNode }) => (
+    <span className="relative group cursor-help outline-none" tabIndex={0}>
+      <span className="border-b border-dotted border-on-surface-variant/40">{children}</span>
+      <span role="tooltip"
+        className="pointer-events-none absolute left-0 bottom-full mb-2 w-56 max-w-[74vw] z-30
+                   rounded-lg border border-outline-variant/30 bg-surface-container p-2.5 text-[11px]
+                   font-normal leading-relaxed text-on-surface shadow-lg opacity-0 invisible
+                   transition-opacity group-hover:opacity-100 group-hover:visible group-focus:opacity-100 group-focus:visible">
+        {tip}
+      </span>
+    </span>
+  );
+  const mvpMark = (ok: boolean | null) =>
+    ok === true ? ACC_MARK.met : ok === false ? ACC_MARK.unmet : ACC_MARK.pending;
   return (
     <section>
       <h3 className="text-lg font-serif font-bold text-on-surface mb-3 flex items-center gap-2">
@@ -123,6 +155,39 @@ export function SepaHoldingsSection({ data }: { data: HoldingsFeedbackFile | nul
                   {h.breakout_date_estimated ? " (매수일 추정)" : ""}
                 </p>
               </div>
+              {h.accumulation && (
+                <div className="pt-2 border-t border-outline-variant/10">
+                  <div className="text-[10px] font-bold tracking-wider text-on-surface-variant/50 mb-1.5 uppercase">
+                    매집 신호 <span className="font-normal normal-case text-on-surface-variant/70">· {h.accumulation.window}{h.accumulation.elapsed < 15 ? " 진행중" : ""}</span>
+                  </div>
+                  <ul className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px]">
+                    {h.accumulation.signals.map((sg) => {
+                      const m = ACC_MARK[sg.status]; const meta = ACC_META[sg.id];
+                      return (
+                        <li key={sg.id} className="flex gap-1.5 leading-relaxed">
+                          <span className={`${m.cls} font-bold shrink-0`}>{m.mark}</span>
+                          <span className="text-on-surface-variant">
+                            <Tip tip={meta?.tip ?? ""}><span className="text-on-surface">{meta?.label ?? sg.id}</span></Tip>{" "}
+                            <span className="text-on-surface-variant/70">{sg.detail}</span>
+                          </span>
+                        </li>
+                      );
+                    })}
+                    {h.mvp && (["m", "v", "p"] as const).map((k) => {
+                      const c = h.mvp![k]; const mk = mvpMark(c.ok); const meta = MVP_META[k];
+                      return (
+                        <li key={k} className="flex gap-1.5 leading-relaxed">
+                          <span className={`${mk.cls} font-bold shrink-0`}>{mk.mark}</span>
+                          <span className="text-on-surface-variant">
+                            <Tip tip={meta.tip}><span className="text-on-surface">{meta.label}</span></Tip>{" "}
+                            <span className="text-on-surface-variant/70">{c.detail}</span>
+                          </span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              )}
               {h.rules.length > 0 && (
                 <ul className="text-[11px] space-y-1 pt-2 border-t border-outline-variant/10">
                   {h.rules.map((r) => {
