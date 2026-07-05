@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { matchTrades, type Fill } from "./scorecard";
+import { computeOverall, type Trade } from "./scorecard";
 
 const buy = (date: string, code: string, price: number, qty: number, extra: Partial<Fill> = {}): Fill =>
   ({ date, code, name: code, side: "buy", price, qty, ...extra });
@@ -127,5 +128,50 @@ describe("matchTrades", () => {
     ]);
     expect(trades.filter((t) => t.code === "A")).toEqual([]);
     expect(errors.length).toBe(1);
+  });
+});
+
+// 지표 테스트용 최소 Trade 생성기 (basis별 pct와 보유일수만 의미 있음)
+function mkTrade(net: number, days: number, month: string, code = "X"): Trade {
+  return {
+    code, name: code, open_date: `${month}-01`, close_date: `${month}-05`,
+    avg_buy: 100, avg_sell: 100 * (1 + net / 100),
+    gross_pct: net, net_pct: net, hold_days: days,
+    outcome: net > 0 ? "win" : "loss", month,
+    buy_qty: 1, sell_qty: 1,
+  };
+}
+
+describe("computeOverall", () => {
+  it("승률·평균수익·평균손실·손익비·조정후·기대수익·유지일수", () => {
+    const trades = [
+      mkTrade(10, 5, "2026-01"),
+      mkTrade(20, 10, "2026-01"),
+      mkTrade(-5, 8, "2026-01"),
+    ];
+    const o = computeOverall(trades, "net");
+    expect(o.trade_count).toBe(3);
+    expect(o.win_count).toBe(2);
+    expect(o.loss_count).toBe(1);
+    expect(o.win_rate).toBe(66.67);
+    expect(o.avg_win).toBe(15);
+    expect(o.avg_loss).toBe(5); // 양수 크기
+    expect(o.payoff_ratio).toBe(3); // 15/5
+    expect(o.adj_payoff_ratio).toBe(6); // (15*2/3)/(5*1/3)
+    expect(o.expectancy).toBe(8.33); // 2/3*15 - 1/3*5
+    expect(o.max_win?.pct).toBe(20);
+    expect(o.max_loss?.pct).toBe(5);
+    expect(o.win_days).toBe(8); // round((5+10)/2)=8
+    expect(o.loss_days).toBe(8);
+  });
+
+  it("거래 0건 → 모든 지표 null, 카운트 0", () => {
+    const o = computeOverall([], "net");
+    expect(o).toMatchObject({ win_rate: null, avg_win: null, avg_loss: null, payoff_ratio: null, trade_count: 0 });
+  });
+
+  it("수익거래만 있으면 avg_loss·payoff null, 손실거래만 있으면 avg_win·payoff null", () => {
+    expect(computeOverall([mkTrade(10, 3, "2026-01")], "net").payoff_ratio).toBe(null);
+    expect(computeOverall([mkTrade(-10, 3, "2026-01")], "net").payoff_ratio).toBe(null);
   });
 });

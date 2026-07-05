@@ -117,3 +117,54 @@ export function matchTrades(fills: Fill[]): MatchResult {
   }
   return { trades, open, errors };
 }
+
+export type MaxTrade = { pct: number; code: string; name: string; date: string } | null;
+export type OverallStats = {
+  win_rate: number | null; avg_win: number | null; avg_loss: number | null;
+  payoff_ratio: number | null; adj_payoff_ratio: number | null; expectancy: number | null;
+  max_win: MaxTrade; max_loss: MaxTrade;
+  win_days: number | null; loss_days: number | null;
+  trade_count: number; win_count: number; loss_count: number;
+};
+
+export function computeOverall(trades: Trade[], basis: "net" | "gross"): OverallStats {
+  const pct = (t: Trade) => (basis === "net" ? t.net_pct : t.gross_pct);
+  const n = trades.length;
+  const empty: OverallStats = {
+    win_rate: null, avg_win: null, avg_loss: null, payoff_ratio: null,
+    adj_payoff_ratio: null, expectancy: null, max_win: null, max_loss: null,
+    win_days: null, loss_days: null, trade_count: 0, win_count: 0, loss_count: 0,
+  };
+  if (n === 0) return empty;
+
+  const wins = trades.filter((t) => pct(t) > 0);
+  const losses = trades.filter((t) => pct(t) <= 0);
+  const winRate = wins.length / n;
+  const lossRate = losses.length / n;
+
+  const avgWin = wins.length ? mean(wins.map(pct)) : null;
+  const avgLoss = losses.length ? mean(losses.map((t) => -pct(t))) : null; // 양수
+  const payoff = avgWin != null && avgLoss != null && avgLoss !== 0 ? avgWin / avgLoss : null;
+  const adj = payoff != null && lossRate > 0 ? (avgWin! * winRate) / (avgLoss! * lossRate) : null;
+  const expectancy = winRate * (avgWin ?? 0) - lossRate * (avgLoss ?? 0);
+
+  const toMax = (arr: Trade[], mag: (t: Trade) => number): MaxTrade => {
+    if (!arr.length) return null;
+    const best = arr.reduce((a, b) => (mag(b) > mag(a) ? b : a));
+    return { pct: round2(mag(best)), code: best.code, name: best.name, date: best.close_date };
+  };
+
+  return {
+    win_rate: round2(winRate * 100),
+    avg_win: avgWin != null ? round2(avgWin) : null,
+    avg_loss: avgLoss != null ? round2(avgLoss) : null,
+    payoff_ratio: payoff != null ? round2(payoff) : null,
+    adj_payoff_ratio: adj != null ? round2(adj) : null,
+    expectancy: wins.length || losses.length ? round2(expectancy) : null,
+    max_win: toMax(wins, pct),
+    max_loss: toMax(losses, (t) => -pct(t)),
+    win_days: wins.length ? Math.round(mean(wins.map((t) => t.hold_days))) : null,
+    loss_days: losses.length ? Math.round(mean(losses.map((t) => t.hold_days))) : null,
+    trade_count: n, win_count: wins.length, loss_count: losses.length,
+  };
+}
