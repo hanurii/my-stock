@@ -20,3 +20,6 @@ export function plColor(n: number | null): string {
   if (n == null) return "inherit";
   return n > 0 ? PROFIT_COLOR : LOSS_COLOR;
 }
+export function fmtSignedWon(n: number | null): string {
+  return n == null ? "-" : `${n >= 0 ? "+" : ""}${Math.round(n).toLocaleString()}원`;
+}
