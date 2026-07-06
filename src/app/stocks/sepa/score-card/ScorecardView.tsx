@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { Scorecard, OverallStats, MonthlyRow, Trade, OpenPosition } from "@/lib/scorecard";
-import { fmtPct, fmtLossPct, fmtSignedPct, fmtNum, fmtRatio, plColor, PROFIT_COLOR, LOSS_COLOR } from "./format";
+import { fmtPct, fmtLossPct, fmtSignedPct, fmtNum, fmtRatio, plColor, fmtSignedWon, PROFIT_COLOR, LOSS_COLOR } from "./format";
 
 function StatCard({ label, value, sub, color }: { label: string; value: string; sub?: string; color?: string }) {
   return (
@@ -92,6 +92,22 @@ export function ScorecardView({ data }: { data: Scorecard }) {
             </button>
           ))}
         </div>
+      </div>
+
+      {/* 총 손익 (실현 금액) */}
+      <div className="bg-surface-container-low rounded-xl ghost-border p-4 flex flex-wrap items-baseline justify-between gap-2">
+        <div>
+          <p className="text-xs text-on-surface-variant/60">총 손익 (실현)</p>
+          <p className="text-[11px] text-on-surface-variant/50">
+            완결 거래 · {basis === "net" ? "순수익" : "총수익"} 기준
+          </p>
+        </div>
+        <p
+          className="text-2xl sm:text-3xl font-bold tabular-nums"
+          style={{ color: o.total_won > 0 ? PROFIT_COLOR : o.total_won < 0 ? LOSS_COLOR : "inherit" }}
+        >
+          {fmtSignedWon(o.total_won)}
+        </p>
       </div>
 
       {!hasTrades ? (

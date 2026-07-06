@@ -4,7 +4,6 @@ import { SepaPatternTable } from "./SepaPatternTable";
 import { PositionSizeCalculator } from "./PositionSizeCalculator";
 import { PATTERNS, buildSection, type PatternConfig, type RawCandidate } from "./sepaPatterns";
 import { computeTrendByCode, type TierHistory } from "./tierHistory";
-import { SepaHoldingsSection, type HoldingsFeedbackFile } from "./SepaHoldingsSection";
 
 interface MarketStatus {
   passed: boolean;
@@ -83,7 +82,6 @@ export default async function SepaPage() {
   ]);
 
   const exclusionFile = await readJson<ExclusionFile>("sepa-exclusions.json");
-  const holdingsFeedback = await readJson<HoldingsFeedbackFile>("sepa-holdings-feedback.json");
   // 상장폐지 예정 등 수동 제외 종목(전 패턴 공통 필터).
   const excludeCodes = new Set((exclusionFile?.exclusions ?? []).map((e) => e.code));
 
@@ -144,8 +142,6 @@ export default async function SepaPage() {
         </h3>
         <p className="text-[11px] text-on-surface-variant/70 leading-relaxed">{trend.market_status.detail}</p>
       </section>
-
-      <SepaHoldingsSection data={holdingsFeedback} />
 
       <PatternSection config={PATTERNS.vcp} data={vcp} trendByCode={trends?.vcp} excludeCodes={excludeCodes} />
       <PatternSection config={PATTERNS.powerplayTrend} data={ppTrend} trendByCode={trends?.powerplayTrend} excludeCodes={excludeCodes} />
