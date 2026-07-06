@@ -269,3 +269,35 @@ describe("computeScorecard", () => {
     expect(sc.diagnostics.warnings.some((w) => w.includes("권장"))).toBe(true);
   });
 });
+
+describe("원 손익(net_won/gross_won/total_won)", () => {
+  it("완결 거래의 net_won/gross_won", () => {
+    const { trades } = matchTrades([
+      buy("2026-07-01", "T", 100, 10, { fees: 10 }),
+      sell("2026-07-02", "T", 120, 10, { fees: 12, tax: 24 }),
+    ]);
+    expect(trades[0].gross_won).toBe(200); // (120-100)*10
+    expect(trades[0].net_won).toBe(154);   // (1200-36) - (1000+10)
+  });
+  it("손실 거래는 net_won < 0", () => {
+    const { trades } = matchTrades([
+      buy("2026-07-01", "L", 100, 10, { fees: 10 }),
+      sell("2026-07-02", "L", 90, 10, { fees: 9, tax: 18 }),
+    ]);
+    expect(trades[0].gross_won).toBe(-100);
+    expect(trades[0].net_won).toBe(-137); // (900-27) - (1000+10)
+  });
+  it("computeOverall.total_won: basis별 합계", () => {
+    const { trades } = matchTrades([
+      buy("2026-07-01", "T", 100, 10, { fees: 10 }),
+      sell("2026-07-02", "T", 120, 10, { fees: 12, tax: 24 }),
+      buy("2026-07-01", "L", 100, 10, { fees: 10 }),
+      sell("2026-07-02", "L", 90, 10, { fees: 9, tax: 18 }),
+    ]);
+    expect(computeOverall(trades, "net").total_won).toBe(17);   // 154 - 137
+    expect(computeOverall(trades, "gross").total_won).toBe(100); // 200 - 100
+  });
+  it("거래 0건이면 total_won === 0", () => {
+    expect(computeOverall([], "net").total_won).toBe(0);
+  });
+});

@@ -13,6 +13,7 @@ export type Trade = {
   open_date: string; close_date: string;
   avg_buy: number; avg_sell: number;
   gross_pct: number; net_pct: number;
+  gross_won: number; net_won: number;
   hold_days: number;
   outcome: "win" | "loss";
   month: string; // YYYY-MM (청산월)
@@ -63,6 +64,8 @@ function buildTrade(code: string, name: string, buys: Fill[], sells: Fill[], ope
     open_date: openDate, close_date: closeDate,
     avg_buy: round2(avgBuy), avg_sell: round2(avgSell),
     gross_pct: round2(grossPct), net_pct: netPctR,
+    gross_won: Math.round(sellVal - buyVal),
+    net_won: Math.round(netProceeds - netCost),
     hold_days: daysBetween(openDate, closeDate),
     outcome, month: closeDate.slice(0, 7),
     buy_qty: buyQty, sell_qty: sellQty,
@@ -126,6 +129,7 @@ export type OverallStats = {
   max_win: MaxTrade; max_loss: MaxTrade;
   win_days: number | null; loss_days: number | null;
   trade_count: number; win_count: number; loss_count: number;
+  total_won: number;
 };
 
 export function computeOverall(trades: Trade[], basis: "net" | "gross"): OverallStats {
@@ -135,6 +139,7 @@ export function computeOverall(trades: Trade[], basis: "net" | "gross"): Overall
     win_rate: null, avg_win: null, avg_loss: null, payoff_ratio: null,
     adj_payoff_ratio: null, expectancy: null, max_win: null, max_loss: null,
     win_days: null, loss_days: null, trade_count: 0, win_count: 0, loss_count: 0,
+    total_won: 0,
   };
   if (n === 0) return empty;
 
@@ -167,6 +172,7 @@ export function computeOverall(trades: Trade[], basis: "net" | "gross"): Overall
     win_days: wins.length ? Math.round(mean(wins.map((t) => t.hold_days))) : null,
     loss_days: losses.length ? Math.round(mean(losses.map((t) => t.hold_days))) : null,
     trade_count: n, win_count: wins.length, loss_count: losses.length,
+    total_won: trades.reduce((s, t) => s + (basis === "net" ? t.net_won : t.gross_won), 0),
   };
 }
 
