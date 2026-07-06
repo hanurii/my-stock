@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-05",
+  "generated_at": "2026-07-06",
   "strategy": "minervini",
   "params": {
     "rr_target": 2,
@@ -59,18 +59,72 @@
       "stop": 59924,
       "stop_violation": false,
       "setup": null
+    },
+    {
+      "code": "069730",
+      "name": "DSR제강",
+      "open_date": "2026-07-06",
+      "close_date": "2026-07-06",
+      "avg_buy": 5750,
+      "avg_sell": 5470,
+      "gross_pct": -4.87,
+      "net_pct": -5.32,
+      "hold_days": 0,
+      "outcome": "loss",
+      "month": "2026-07",
+      "buy_qty": 1739,
+      "sell_qty": 1739,
+      "stop": 5462,
+      "stop_violation": true,
+      "setup": null
     }
   ],
-  "open_positions": [],
+  "open_positions": [
+    {
+      "code": "222040",
+      "name": "코스맥스엔비티",
+      "qty": 748,
+      "avg_buy": 6670,
+      "open_date": "2026-07-06"
+    },
+    {
+      "code": "339950",
+      "name": "아이비김영",
+      "qty": 3703,
+      "avg_buy": 2700,
+      "open_date": "2026-07-06"
+    },
+    {
+      "code": "079940",
+      "name": "가비아",
+      "qty": 1,
+      "avg_buy": 31550,
+      "open_date": "2026-07-06"
+    },
+    {
+      "code": "007070",
+      "name": "GS리테일",
+      "qty": 397,
+      "avg_buy": 25147,
+      "open_date": "2026-07-06"
+    },
+    {
+      "code": "001540",
+      "name": "안국약품",
+      "qty": 972,
+      "avg_buy": 10280,
+      "open_date": "2026-07-06"
+    }
+  ],
   "monthly": {
     "net": {
       "rows": [
         {
           "month": "2026-07",
           "avg_win": 7.56,
-          "avg_loss": 4.25,
-          "win_rate": 33.33,
-          "trades": 3,
+          "avg_loss": 4.61,
+          "win_rate": 25,
+          "trades": 4,
           "max_win": 7.56,
           "max_loss": 5.62,
           "win_days": 1,
@@ -80,9 +134,9 @@
       "average": {
         "month": "평균",
         "avg_win": 7.56,
-        "avg_loss": 4.25,
-        "win_rate": 33.33,
-        "trades": 3,
+        "avg_loss": 4.61,
+        "win_rate": 25,
+        "trades": 4,
         "max_win": 7.56,
         "max_loss": 5.62,
         "win_days": 1,
@@ -94,9 +148,9 @@
         {
           "month": "2026-07",
           "avg_win": 8.08,
-          "avg_loss": 3.79,
-          "win_rate": 33.33,
-          "trades": 3,
+          "avg_loss": 4.15,
+          "win_rate": 25,
+          "trades": 4,
           "max_win": 8.08,
           "max_loss": 5.16,
           "win_days": 1,
@@ -106,9 +160,9 @@
       "average": {
         "month": "평균",
         "avg_win": 8.08,
-        "avg_loss": 3.79,
-        "win_rate": 33.33,
-        "trades": 3,
+        "avg_loss": 4.15,
+        "win_rate": 25,
+        "trades": 4,
         "max_win": 8.08,
         "max_loss": 5.16,
         "win_days": 1,
@@ -118,12 +172,12 @@
   },
   "overall": {
     "net": {
-      "win_rate": 33.33,
+      "win_rate": 25,
       "avg_win": 7.56,
-      "avg_loss": 4.25,
-      "payoff_ratio": 1.78,
-      "adj_payoff_ratio": 0.89,
-      "expectancy": -0.31,
+      "avg_loss": 4.61,
+      "payoff_ratio": 1.64,
+      "adj_payoff_ratio": 0.55,
+      "expectancy": -1.57,
       "max_win": {
         "pct": 7.56,
         "code": "219130",
@@ -138,17 +192,17 @@
       },
       "win_days": 1,
       "loss_days": 1,
-      "trade_count": 3,
+      "trade_count": 4,
       "win_count": 1,
-      "loss_count": 2
+      "loss_count": 3
     },
     "gross": {
-      "win_rate": 33.33,
+      "win_rate": 25,
       "avg_win": 8.08,
-      "avg_loss": 3.79,
-      "payoff_ratio": 2.13,
-      "adj_payoff_ratio": 1.07,
-      "expectancy": 0.17,
+      "avg_loss": 4.15,
+      "payoff_ratio": 1.95,
+      "adj_payoff_ratio": 0.65,
+      "expectancy": -1.09,
       "max_win": {
         "pct": 8.08,
         "code": "219130",
@@ -163,9 +217,9 @@
       },
       "win_days": 1,
       "loss_days": 1,
-      "trade_count": 3,
+      "trade_count": 4,
       "win_count": 1,
-      "loss_count": 2
+      "loss_count": 3
     }
   },
   "rba": {
@@ -177,9 +231,10 @@
   "diagnostics": {
     "max_loss_gt_max_win": false,
     "loss_days_ge_win_days": true,
-    "stop_violations": 0,
+    "stop_violations": 1,
     "warnings": [
       "손실 유지일이 수익 유지일보다 깁니다 — 손실을 오래 붙들고 있습니다",
+      "손절 규율 위반 1건",
       "기본 손절 4%가 권장 3.78%보다 넓습니다"
     ]
   },
