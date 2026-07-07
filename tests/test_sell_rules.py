@@ -565,3 +565,160 @@ def test_evaluate_holding_extension_null_without_pivot():
     s = _clean_series()
     r = evaluate_holding(s, s["dates"][60], 106.0, -4.0, pivot_price=None)
     assert r["extension_pct"] is None
+
+
+# --- sig_climax_run: S1 절정 분출 ---
+
+from canslim_lib.sell_rules import sig_climax_run
+
+
+def test_climax_run_fires_25pct():
+    s = make_series([100.0] * 20 + [130.0])          # 최근 창 +30%
+    r = sig_climax_run(s)
+    assert r["status"] == "fired" and "25%+" in r["detail"]
+
+
+def test_climax_run_fires_strong_70pct():
+    s = make_series([100.0] * 20 + [175.0])          # 최근 창 +75% → 폭발적
+    r = sig_climax_run(s)
+    assert r["status"] == "fired" and "70%+" in r["detail"]
+
+
+def test_climax_run_clear_when_mild():
+    s = make_series([100.0] * 20 + [108.0])          # +8%
+    assert sig_climax_run(s)["status"] == "clear"
+
+
+def test_climax_run_pending_when_short():
+    s = make_series([100.0, 101.0, 102.0])           # 창 하한 미만
+    assert sig_climax_run(s)["status"] == "pending"
+
+
+# --- sig_blowoff_day: S2 최대 상승일/변동폭 ---
+
+from canslim_lib.sell_rules import sig_blowoff_day
+
+
+def test_blowoff_fires_when_biggest_up_day_recent():
+    s = make_series([100, 101, 102, 103, 104, 105, 120])  # 마지막 날 최대 상승
+    r = sig_blowoff_day(s, 0)
+    assert r["status"] == "fired" and "최대 상승일" in r["detail"]
+
+
+def test_blowoff_clear_when_biggest_up_day_old():
+    s = make_series([100, 120, 121, 122, 123, 124, 125])  # 최대 상승이 초반
+    assert sig_blowoff_day(s, 0)["status"] == "clear"
+
+
+def test_blowoff_pending_when_few_days():
+    s = make_series([100, 101, 102])                       # 돌파후 <5일
+    assert sig_blowoff_day(s, 0)["status"] == "pending"
+
+
+def test_blowoff_no_fire_when_all_declining_recent():
+    # 돌파 후 전부 하락(가장 덜 하락한 날이 최근 3일 내) — 가짜 상승 발화 금지
+    s = make_series([100.0, 90.0, 82.0, 76.0, 72.0, 70.0, 69.0])
+    assert sig_blowoff_day(s, 0)["status"] == "clear"
+
+
+def test_blowoff_fires_on_range_path_recent():
+    # 종가 평탄(상승 0)인데 최근 3일 내 일중 변동폭 최대 → range 경로 발화
+    s = make_series([100.0] * 7,
+                    highs=[101.0, 101.0, 101.0, 101.0, 101.0, 110.0, 101.0],
+                    lows=[99.0, 99.0, 99.0, 99.0, 99.0, 90.0, 99.0])
+    r = sig_blowoff_day(s, 0)
+    assert r["status"] == "fired" and "변동폭" in r["detail"]
+
+
+# --- sig_exhaustion_gap: S3 소진성 갭 ---
+
+from canslim_lib.sell_rules import sig_exhaustion_gap
+
+
+def test_exhaustion_gap_fires_on_recent_up_gap():
+    s = make_series([100.0, 101.0, 102.0, 110.0],
+                    highs=[101.0, 102.0, 103.0, 113.0],
+                    lows=[99.0, 100.0, 101.0, 111.0])   # 마지막날 저가>전일 고가
+    r = sig_exhaustion_gap(s)
+    assert r["status"] == "fired" and "갭" in r["detail"]
+
+
+def test_exhaustion_gap_clear_without_gap():
+    s = make_series([100.0, 101.0, 102.0, 103.0])       # 기본 고저 = 겹침(갭 없음)
+    assert sig_exhaustion_gap(s)["status"] == "clear"
+
+
+# --- sig_distribution: S4 분산 정황 ---
+
+from canslim_lib.sell_rules import sig_distribution
+
+
+def test_distribution_fires_biggest_volume_down_day():
+    s = make_series([100.0, 101.0, 100.0], volumes=[1000.0, 1000.0, 5000.0])
+    r = sig_distribution(s, 0)                 # 최대 거래량(마지막)이 하락 마감
+    assert r["status"] == "fired" and "최대 거래량" in r["detail"]
+
+
+def test_distribution_fires_churning():
+    closes = [100.0] * 55
+    vols = [1000.0] * 54 + [2000.0]            # 마지막날 대량인데 종가 변화 0%
+    s = make_series(closes, volumes=vols)
+    r = sig_distribution(s, 50)
+    assert r["status"] == "fired" and "처닝" in r["detail"]
+
+
+def test_distribution_fires_reversal_day():
+    closes = [100.0] * 51 + [102.0, 104.0, 106.0, 104.0]
+    highs = [101.0] * 51 + [103.0, 105.0, 107.0, 110.0]  # 마지막날 장중 신고가
+    lows = [99.0] * 51 + [101.0, 103.0, 105.0, 103.0]
+    vols = [1000.0] * 52 + [9000.0, 1000.0, 3000.0]      # 최대량은 up day(52), 마지막날 대량 반전
+    s = make_series(closes, volumes=vols, highs=highs, lows=lows)
+    r = sig_distribution(s, 50)
+    assert r["status"] == "fired" and "반전" in r["detail"]
+
+
+def test_distribution_clear():
+    closes = [100.0 + i for i in range(55)]    # 완만한 상승, 대량·반전 없음
+    s = make_series(closes)
+    assert sig_distribution(s, 50)["status"] == "clear"
+
+
+# --- evaluate_climax ---
+
+from canslim_lib.sell_rules import evaluate_climax, evaluate_holding
+
+
+def _extended_series():
+    # 피벗 100, 현재 150 → 확장 +50%, 최근 창 +50% 절정
+    return make_series([100.0] * 30 + [150.0])
+
+
+def test_evaluate_climax_na_without_pivot():
+    r = evaluate_climax(_extended_series(), 0, None)
+    assert r["signal"] == "na" and r["signals"] == []
+
+
+def test_evaluate_climax_not_extended_below_gate():
+    s = make_series([100.0] * 30 + [103.0])      # 피벗 100 → +3% < 5%
+    r = evaluate_climax(s, 0, 100.0)
+    assert r["signal"] == "not_extended" and r["extended"] is False and r["signals"] == []
+
+
+def test_evaluate_climax_sell_when_extended_and_fires():
+    r = evaluate_climax(_extended_series(), 0, 100.0)
+    assert r["signal"] == "sell_into_strength" and r["extended"] is True
+    assert r["count"] >= 1 and len(r["signals"]) == 4
+
+
+def test_evaluate_climax_none_when_extended_no_signal():
+    # 확장은 됐지만 절정·막판·갭·분산 없음: 한 번에 올라 이후 완전 횡보
+    s = make_series([100.0] + [150.0] * 40)      # 피벗 100, 현재 150(+50%), 최근 창 0%
+    r = evaluate_climax(s, 0, 100.0)
+    assert r["extended"] is True and r["signal"] == "none" and r["count"] == 0
+
+
+def test_evaluate_holding_includes_strength():
+    s = _extended_series()
+    r = evaluate_holding(s, s["dates"][0], 100.0, -4, pivot_price=100.0)
+    assert "strength" in r and r["strength"]["signal"] in {
+        "sell_into_strength", "none", "not_extended", "na"}

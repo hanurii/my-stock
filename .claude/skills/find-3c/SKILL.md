@@ -47,10 +47,17 @@ python scripts/screen_3c.py
 - `entry_ready` 종목이 다음 단계(리스크·진입) 후보.
 - 불성립 종목도 `reason`과 함께 전부 포함(환각 방지·디버그).
 
-## 다음 단계 (SEPA 파이프라인 마무리)
-- 3C 는 보통 SEPA 파이프라인의 마지막 검출기다. 4개 검출기(find-vcp·find-power-play(트렌드/전수)·find-3c)를 모두 돌린 뒤,
-  **`python scripts/snapshot_sepa.py`** 를 실행해 티어 추이 스냅샷(`public/data/sepa-tier-history.json`, 최근 3일)을 갱신한다.
+## 다음 단계 (티어 추이 스냅샷)
+- 티어 추이 스냅샷(`public/data/sepa-tier-history.json`, 최근 3일)은 이제 **`/sepa`
+  오케스트레이터가 마지막 스텝으로 소유**한다(모든 형제 패턴이 끝난 뒤 1회 실행 →
+  '추이' 컬럼 마지막 점이 본문 티어와 항상 일치, 병렬 경합 없음). find-3c 안에서
+  자체적으로 스냅샷을 찍지 않는다(병렬 실행 중 다른 형제 파일 쓰기와 경합·낡은
+  스냅샷 방지).
   → `/stocks/sepa` 페이지의 각 패턴 테이블 '추이' 컬럼(어제→오늘 티어, 🆕 신규)이 이 파일로 계산된다.
+- **find-3c 를 단독 실행**해 추이까지 갱신하려면(오케스트레이터 없이) 형제 패턴
+  파일이 최신인 상태에서 **`python scripts/snapshot_sepa.py`** 를 직접 실행한다.
+  후보 파일의 `status`를 그대로 복사(재분류 없음)하므로, 어느 패턴이든 재생성한
+  직후 이 명령을 돌리면 그 asof 스냅샷이 현재 상태로 덮어써진다.
 - `status` 는 패턴 성립 여부와 무관하게 가격 위치(돌파/근접/형성/붕괴)로
   결정된다. 따라서 `pattern_detected=false` 인 종목도 breakout/actionable 로
   표시될 수 있으며, '살 자리(entry_ready)' 는 패턴까지 성립한 종목에만 부여된다

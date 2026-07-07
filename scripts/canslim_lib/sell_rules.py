@@ -3,6 +3,7 @@
 
 입력: ohlcv_matrix.get_series() 형태의 일봉 dict (dates/closes/highs/lows/volumes)
 정의: docs/superpowers/specs/2026-07-03-sepa-holdings-feedback-design.md
+강세 매도 트랙 정의: docs/superpowers/specs/2026-07-05-holdings-strength-sell-design.md
 """
 from __future__ import annotations
 
@@ -18,6 +19,19 @@ TIGHT_DAY_PCT = 0.01        # 일중 변동폭 <1% = tight day(나쁜 마감 제
 MVP_M_MIN = 12              # M: 15일 중 상승 마감 최소일
 MVP_V_MULT = 1.25           # V: 창 평균 거래량 / 직전 15일 평균 최소배
 MVP_P_MIN = 0.20            # P: 창 최고 종가 상승률 최소
+
+# --- 강세 매도(과열·절정) 감시 ---
+EXT_GATE_PCT    = 5.0     # 확장 게이트: (현재/피벗-1)*100 ≥ 5
+CLIMAX_MIN_W    = 5       # 절정 분출 관찰 창 하한(거래일)
+CLIMAX_25_MAX_W = 15      # +25% 판정 창 상한
+CLIMAX_70_MAX_W = 10      # +70% 판정 창 상한
+CLIMAX_25_GAIN  = 0.25    # 5~15일 상승률 문턱
+CLIMAX_70_GAIN  = 0.70    # 5~10일 상승률 문턱
+BLOWOFF_RECENT  = 3       # 최대 상승일/변동폭이 "최근"으로 인정되는 거래일
+BLOWOFF_MIN_DAYS = 5      # blowoff 판정 최소 돌파후 거래일
+GAP_RECENT      = 3       # 소진성 갭이 "최근"으로 인정되는 거래일
+DISTRIB_WINDOW  = 10      # 분산(반전·처닝) trailing 관찰 거래일
+CHURN_MOVE_PCT  = 0.01    # 처닝: 종가 변화 절대값 < 1%
 
 
 def avg_volume(volumes, i, window=50, min_days=5):
@@ -223,6 +237,142 @@ def rule_breakout_failure(series, bi, pivot_price, breakout_confirmed=True):
             "detail": f"유예 초과 — 피벗 회복 실패 (D+{elapsed})"}
 
 
+def sig_climax_run(series):
+    """S1 절정 분출: 최근 종가 trailing 상승률(5~15일 +25% / 5~10일 +70%)."""
+    rid = "climax_run"
+    closes = series["closes"]
+    n = len(closes)
+    best = None  # (w, r) — 25% 이상 중 최대
+    for w in range(CLIMAX_MIN_W, CLIMAX_25_MAX_W + 1):
+        if n - 1 - w < 0:
+            continue
+        base = closes[n - 1 - w]
+        if not base:
+            continue
+        r = closes[-1] / base - 1
+        if w <= CLIMAX_70_MAX_W and r >= CLIMAX_70_GAIN:
+            return {"id": rid, "status": "fired",
+                    "detail": f"최근 {w}거래일 +{r * 100:.0f}% — 폭발적 분출(70%+)"}
+        if r >= CLIMAX_25_GAIN and (best is None or r > best[1]):
+            best = (w, r)
+    if best is not None:
+        w, r = best
+        return {"id": rid, "status": "fired",
+                "detail": f"최근 {w}거래일 +{r * 100:.0f}% — 절정 구간(25%+)"}
+    if n - 1 - CLIMAX_MIN_W < 0:
+        return {"id": rid, "status": "pending", "detail": "데이터 부족"}
+    return {"id": rid, "status": "clear", "detail": "절정 분출 없음"}
+
+
+def sig_blowoff_day(series, bi):
+    """S2 최대 상승일/변동폭이 최근 BLOWOFF_RECENT일 안에 출현(막판 폭발)."""
+    rid = "blowoff_day"
+    closes, highs, lows = series["closes"], series["highs"], series["lows"]
+    n = len(closes)
+    start = bi + 1
+    if n - start < BLOWOFF_MIN_DAYS:
+        return {"id": rid, "status": "pending",
+                "detail": f"돌파 후 {max(n - start, 0)}거래일 — 판정 전"}
+    best_g = (None, -1.0)   # (idx, gain)
+    best_r = (None, -1.0)   # (idx, range)
+    for i in range(start, n):
+        if closes[i - 1]:
+            g = closes[i] / closes[i - 1] - 1
+            if g > best_g[1]:
+                best_g = (i, g)
+        if closes[i]:
+            rng = (highs[i] - lows[i]) / closes[i]
+            if rng > best_r[1]:
+                best_r = (i, rng)
+    recent_lo = n - BLOWOFF_RECENT
+
+    def when(i):
+        k = (n - 1) - i
+        return "오늘" if k == 0 else ("어제" if k == 1 else f"{k}일 전")
+
+    gi, gv = best_g
+    if gi is not None and gi >= recent_lo and gv > 0:
+        return {"id": rid, "status": "fired",
+                "detail": f"구간 최대 상승일 +{gv * 100:.0f}%이 {when(gi)} 출현"}
+    ri, rv = best_r
+    if ri is not None and ri >= recent_lo:
+        return {"id": rid, "status": "fired",
+                "detail": f"구간 최대 변동폭 {rv * 100:.0f}%가 {when(ri)} 출현"}
+    return {"id": rid, "status": "clear", "detail": "막판 최대 상승/변동 아님"}
+
+
+def sig_exhaustion_gap(series):
+    """S3 소진성 갭: 최근 GAP_RECENT일 내 상승 갭(당일 저가 > 전일 고가)."""
+    rid = "exhaustion_gap"
+    highs, lows = series["highs"], series["lows"]
+    n = len(highs)
+    if n < 2:
+        return {"id": rid, "status": "pending", "detail": "데이터 부족"}
+    lo = max(1, n - GAP_RECENT)
+    for i in range(n - 1, lo - 1, -1):
+        if lows[i] is not None and highs[i - 1] is not None and lows[i] > highs[i - 1]:
+            k = (n - 1) - i
+            w = "오늘" if k == 0 else ("어제" if k == 1 else f"{k}일 전")
+            return {"id": rid, "status": "fired",
+                    "detail": f"{w} 상승 갭(전일 고가 위 출발)"}
+    return {"id": rid, "status": "clear", "detail": "최근 상승 갭 없음"}
+
+
+def sig_distribution(series, bi):
+    """S4 분산 정황: (c)돌파 후 최대 거래량 하락일 / (a)대량 반전 / (b)처닝."""
+    rid = "distribution"
+    closes, highs = series["closes"], series["highs"]
+    vols, dates = series["volumes"], series["dates"]
+    n = len(closes)
+    if bi + 1 >= n:
+        return {"id": rid, "status": "pending", "detail": "돌파 다음 날 데이터 없음"}
+    # (c) 돌파 후 구간의 최대 거래량 날이 하락 마감?
+    span = [i for i in range(bi, n) if vols[i] is not None]
+    if span:
+        vmax_i = max(span, key=lambda i: vols[i])
+        if vmax_i >= 1 and closes[vmax_i] < closes[vmax_i - 1]:
+            return {"id": rid, "status": "fired",
+                    "detail": f"{dates[vmax_i]} 최대 거래량으로 하락"}
+    # (a)(b) 최근 DISTRIB_WINDOW일 반전 / 처닝
+    lo = max(bi + 1, n - DISTRIB_WINDOW)
+    for i in range(lo, n):
+        avg = avg_volume(vols, i)
+        if avg is None or vols[i] is None or vols[i] < HEAVY_VOL_MULT * avg:
+            continue
+        if highs[i] > highs[i - 1] and closes[i] < closes[i - 1]:
+            return {"id": rid, "status": "fired",
+                    "detail": f"{dates[i]} 대량 거래 반전(장중 고점→하락 마감)"}
+        if closes[i - 1] and abs(closes[i] / closes[i - 1] - 1) < CHURN_MOVE_PCT:
+            return {"id": rid, "status": "fired",
+                    "detail": f"{dates[i]} 처닝(대량인데 가격 진전 없음)"}
+    return {"id": rid, "status": "clear", "detail": "반전·처닝·최대량 하락 없음"}
+
+
+def evaluate_climax(series, bi, pivot_price):
+    """강세 매도(과열·절정) 감시. 확장(extension ≥ EXT_GATE_PCT)일 때만 4종 평가.
+    반환: signal(sell_into_strength|none|not_extended|na)·extended·gate_detail·count·signals."""
+    current = series["closes"][-1]
+    if not pivot_price:
+        return {"signal": "na", "extended": False,
+                "gate_detail": "피벗 없음 — 판정 불가", "count": 0, "signals": []}
+    ext = (current / pivot_price - 1) * 100
+    if ext < EXT_GATE_PCT:
+        return {"signal": "not_extended", "extended": False,
+                "gate_detail": f"확장 {ext:+.1f}% < {EXT_GATE_PCT:.0f}%",
+                "count": 0, "signals": []}
+    signals = [
+        sig_climax_run(series),
+        sig_blowoff_day(series, bi),
+        sig_exhaustion_gap(series),
+        sig_distribution(series, bi),
+    ]
+    count = sum(1 for s in signals if s["status"] == "fired")
+    return {"signal": "sell_into_strength" if count >= 1 else "none",
+            "extended": True,
+            "gate_detail": f"확장 {ext:+.1f}% ≥ {EXT_GATE_PCT:.0f}%",
+            "count": count, "signals": signals}
+
+
 def evaluate_accumulation(series, bi):
     """돌파 후 첫 ACCUM_WINDOW 거래일 매집 신호 3종(등급 없이 체크리스트).
     창은 15일 지나면 첫 15일로 고정, 미만이면 진행 중 부분 계산."""
@@ -319,6 +469,7 @@ def evaluate_holding(series, buy_date, buy_price, stop_loss_pct, pivot_price=Non
         signal = "hold"
     accumulation = evaluate_accumulation(series, bi)
     mvp = evaluate_mvp(series, bi)
+    strength = evaluate_climax(series, bi, pivot_price)
     extension_pct = (round((current / pivot_price - 1) * 100, 1)
                      if pivot_price else None)
     return {
@@ -334,4 +485,5 @@ def evaluate_holding(series, buy_date, buy_price, stop_loss_pct, pivot_price=Non
         "extension_pct": extension_pct,
         "accumulation": accumulation,
         "mvp": mvp,
+        "strength": strength,
     }

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { fmtPct, fmtLossPct, fmtSignedPct, fmtNum, fmtRatio, plColor, PROFIT_COLOR, LOSS_COLOR } from "./format";
+import { fmtPct, fmtLossPct, fmtSignedPct, fmtNum, fmtRatio, plColor, fmtSignedWon, PROFIT_COLOR, LOSS_COLOR } from "./format";
 
 describe("format helpers", () => {
   it("fmtPct: 2자리 % / null은 -", () => {
@@ -29,5 +29,11 @@ describe("format helpers", () => {
     expect(plColor(-5)).toBe(LOSS_COLOR);
     expect(plColor(0)).toBe(LOSS_COLOR);
     expect(plColor(null)).toBe("inherit");
+  });
+  it("fmtSignedWon: 부호+천단위+원 / null은 -", () => {
+    expect(fmtSignedWon(154)).toBe("+154원");
+    expect(fmtSignedWon(-533186)).toBe("-533,186원");
+    expect(fmtSignedWon(0)).toBe("+0원");
+    expect(fmtSignedWon(null)).toBe("-");
   });
 });

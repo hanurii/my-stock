@@ -1,7 +1,7 @@
 {
   "strategy": "minervini",
   "rr_target": 2,
-  "stop_loss_pct_default": -4,
+  "stop_loss_pct_default": -5,
   "fills": [
     { "date": "2026-07-01", "code": "009150", "name": "삼성전기", "side": "buy",  "price": 2251583, "qty": 12, "fees": 37729, "tax": 0,     "stop": 2026425, "note": "손절선 -10%" },
     { "date": "2026-07-01", "code": "009150", "name": "삼성전기", "side": "sell", "price": 2228428, "qty": 7,  "fees": 21782, "tax": 31197 },
@@ -13,6 +13,25 @@
 
     { "date": "2026-07-01", "code": "219130", "name": "타이거일렉", "side": "buy",  "price": 62421, "qty": 264, "fees": 23013, "tax": 0,    "stop": 59924, "note": "손절선 -4%, 백스톱 +10%" },
     { "date": "2026-07-01", "code": "219130", "name": "타이거일렉", "side": "sell", "price": 61100, "qty": 64,  "fees": 5458,  "tax": 7820 },
-    { "date": "2026-07-02", "code": "219130", "name": "타이거일렉", "side": "sell", "price": 69500, "qty": 200, "fees": 19409, "tax": 27800 }
+    { "date": "2026-07-02", "code": "219130", "name": "타이거일렉", "side": "sell", "price": 69500, "qty": 200, "fees": 19409, "tax": 27800 },
+
+    { "date": "2026-07-01", "code": "036800", "name": "나이스정보통신", "side": "buy", "setup": "VCP", "price": 29700,  "qty": 435, "tax": 0, "note": "매수 수수료 미기록(청산 시 반영)" },
+    { "date": "2026-07-02", "code": "271560", "name": "오리온",       "side": "buy", "setup": "3C",  "price": 138500, "qty": 72,  "tax": 0, "note": "매수 수수료 미기록(청산 시 반영)" },
+    { "date": "2026-07-03", "code": "010955", "name": "S-Oil우",     "side": "buy", "setup": "VCP", "price": 57900,  "qty": 172, "tax": 0, "note": "매수 수수료 미기록(청산 시 반영)" },
+    { "date": "2026-07-03", "code": "005430", "name": "한국공항",     "side": "buy", "setup": "VCP", "price": 87500,  "qty": 114, "tax": 0, "note": "매수 수수료 미기록(청산 시 반영)" },
+
+    { "date": "2026-07-06", "code": "222040", "name": "코스맥스엔비티", "side": "buy",  "setup": "VCP", "price": 6670,  "qty": 1495, "fees": 13924, "tax": 0,     "note": "10% 목표·절반 매도" },
+    { "date": "2026-07-06", "code": "222040", "name": "코스맥스엔비티", "side": "sell", "price": 7420,  "qty": 747,  "fees": 7739,  "tax": 11085, "note": "+10% 도달 절반 익절" },
+
+    { "date": "2026-07-06", "code": "339950", "name": "아이비김영",   "side": "buy",  "setup": "VCP", "price": 2700,  "qty": 3703, "fees": 13961, "tax": 0 },
+
+    { "date": "2026-07-06", "code": "079940", "name": "가비아",       "side": "buy",  "setup": "VCP", "price": 31550, "qty": 1,    "fees": 43,    "tax": 0 },
+
+    { "date": "2026-07-06", "code": "069730", "name": "DSR제강",      "side": "buy",  "setup": "3C",  "price": 5750,  "qty": 1739, "fees": 13962, "tax": 0,     "stop": 5462, "note": "손절선 -5%" },
+    { "date": "2026-07-06", "code": "069730", "name": "DSR제강",      "side": "sell", "price": 5470,  "qty": 1739, "fees": 13282, "tax": 19022, "note": "-5% 손절매 실행" },
+
+    { "date": "2026-07-06", "code": "007070", "name": "GS리테일",    "side": "buy",  "setup": "VCP", "price": 25147, "qty": 397,  "fees": 13941, "tax": 0 },
+
+    { "date": "2026-07-06", "code": "001540", "name": "안국약품",     "side": "buy",  "setup": "3C",  "price": 10280, "qty": 972,  "fees": 13953, "tax": 0 }
   ]
 }
