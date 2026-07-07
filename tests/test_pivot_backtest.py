@@ -70,3 +70,31 @@ def test_truncate_series():
     s = mk(highs=[1, 2, 3], lows=[1, 2, 3], dates=["2026-04-01", "2026-04-02", "2026-04-03"])
     t = truncate_series(s, "2026-04-02")
     assert t["dates"] == ["2026-04-01", "2026-04-02"] and len(t["closes"]) == 2
+
+
+from canslim_lib.pivot_backtest import tally, group_win_rate
+
+
+def _ev(result, **kw):
+    return {"result": result, **kw}
+
+
+def test_tally_counts_and_resolved_win_rate():
+    evs = [_ev("win"), _ev("win"), _ev("loss"), _ev("ambiguous"), _ev("unresolved")]
+    t = tally(evs)
+    assert t["n"] == 5 and t["win"] == 2 and t["loss"] == 1
+    assert t["ambiguous"] == 1 and t["unresolved"] == 1
+    # 결착 승률 = 승/(승+패) = 2/3
+    assert t["win_rate_resolved"] == round(2 / 3 * 100, 1)
+
+
+def test_tally_no_resolved_is_none():
+    assert tally([_ev("ambiguous"), _ev("unresolved")])["win_rate_resolved"] is None
+
+
+def test_group_win_rate_by_key():
+    evs = [_ev("win", pattern="VCP"), _ev("loss", pattern="VCP"),
+           _ev("win", pattern="3C")]
+    g = group_win_rate(evs, "pattern")
+    assert g["VCP"]["n"] == 2 and g["VCP"]["win_rate_resolved"] == 50.0
+    assert g["3C"]["win"] == 1

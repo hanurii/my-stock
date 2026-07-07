@@ -76,3 +76,22 @@ def simulate_pivot_trade(series, breakout_idx, pivot, target_pct=10.0, stop_pct=
             if hit_s:
                 return _result("loss", series, b, i, pivot, "stop")
     return _result("unresolved", series, b, n - 1, pivot, "open")
+
+
+def tally(events) -> dict:
+    """결과별 개수 + 결착(win/loss) 승률."""
+    n = len(events)
+    c = {"win": 0, "loss": 0, "ambiguous": 0, "unresolved": 0}
+    for e in events:
+        c[e["result"]] = c.get(e["result"], 0) + 1
+    resolved = c["win"] + c["loss"]
+    wr = round(c["win"] / resolved * 100, 1) if resolved else None
+    return {"n": n, **c, "win_rate_resolved": wr}
+
+
+def group_win_rate(events, key) -> dict:
+    """key 값별 tally. key 값이 None/누락이면 '미상' 버킷."""
+    groups: dict[str, list] = {}
+    for e in events:
+        groups.setdefault(e.get(key) or "미상", []).append(e)
+    return {k: tally(v) for k, v in sorted(groups.items())}
