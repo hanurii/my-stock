@@ -133,7 +133,7 @@ export default async function SepaPage() {
         <section className="bg-surface-container-low rounded-xl ghost-border p-4">
           <h3 className="text-sm font-serif font-bold text-on-surface mb-2 flex items-center gap-2">
             <span className="material-symbols-outlined text-base text-primary">insights</span>
-            시장 국면 — 등가중 지수 20일선
+            등가중 지수 · 20일선 (시장 폭)
           </h3>
           <MarketRegimeChart data={regime} />
         </section>
