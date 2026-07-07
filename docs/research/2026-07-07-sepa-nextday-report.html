@@ -1,0 +1,277 @@
+<title>SEPA 돌파매매 검증 리포트</title>
+<style>
+  :root{
+    --bg:#f3f5f8; --surface:#ffffff; --surface2:#eceff4; --text:#181d27; --muted:#59636f;
+    --border:#dfe3ea; --accent:#2f5d8f; --accent-soft:#e7eef6;
+    --up:#1a8f5c; --up-soft:#e4f3ec; --down:#c8544b; --down-soft:#f8e9e7;
+    --warn:#b5831c; --warn-soft:#f8f0dd;
+    --mono:"SFMono-Regular",ui-monospace,Consolas,"D2Coding",monospace;
+    --sans:system-ui,-apple-system,"Segoe UI","Malgun Gothic","Apple SD Gothic Neo",sans-serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{ --bg:#0d1117; --surface:#151b24; --surface2:#1c242f; --text:#e6e9ef; --muted:#8b95a4;
+      --border:#28303c; --accent:#6ba0d8; --accent-soft:#182535;
+      --up:#3fb782; --up-soft:#16261f; --down:#e0726a; --down-soft:#2a1a1a;
+      --warn:#d9a53f; --warn-soft:#2a2416; }
+  }
+  :root[data-theme="dark"]{ --bg:#0d1117; --surface:#151b24; --surface2:#1c242f; --text:#e6e9ef; --muted:#8b95a4;
+    --border:#28303c; --accent:#6ba0d8; --accent-soft:#182535; --up:#3fb782; --up-soft:#16261f;
+    --down:#e0726a; --down-soft:#2a1a1a; --warn:#d9a53f; --warn-soft:#2a2416; }
+  :root[data-theme="light"]{ --bg:#f3f5f8; --surface:#ffffff; --surface2:#eceff4; --text:#181d27; --muted:#59636f;
+    --border:#dfe3ea; --accent:#2f5d8f; --accent-soft:#e7eef6; --up:#1a8f5c; --up-soft:#e4f3ec;
+    --down:#c8544b; --down-soft:#f8e9e7; --warn:#b5831c; --warn-soft:#f8f0dd; }
+
+  *{box-sizing:border-box}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.65;
+    -webkit-font-smoothing:antialiased;margin:0;}
+  .wrap{max-width:840px;margin:0 auto;padding:0 20px 96px;}
+  .num{font-family:var(--mono);font-variant-numeric:tabular-nums;}
+
+  /* header */
+  header{padding:56px 0 30px;border-bottom:1px solid var(--border);margin-bottom:8px;}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin:0 0 14px;}
+  h1{font-size:clamp(28px,5vw,40px);line-height:1.12;letter-spacing:-.02em;margin:0 0 16px;text-wrap:balance;font-weight:700;}
+  .lede{font-size:18px;color:var(--muted);margin:0;max-width:64ch;}
+  .meta{margin-top:22px;font-family:var(--mono);font-size:12.5px;color:var(--muted);display:flex;gap:18px;flex-wrap:wrap;}
+
+  h2{font-size:22px;letter-spacing:-.01em;margin:52px 0 6px;padding-top:8px;display:flex;align-items:baseline;gap:12px;}
+  h2 .sec{font-family:var(--mono);font-size:14px;color:var(--accent);font-weight:600;}
+  h3{font-size:16px;margin:28px 0 8px;color:var(--text);}
+  p{margin:12px 0;}
+  .sub{color:var(--muted);font-size:14.5px;margin-top:2px;}
+  strong{font-weight:650;}
+  .u{color:var(--up);font-weight:650}.d{color:var(--down);font-weight:650}.w{color:var(--warn);font-weight:650}
+
+  /* verdict box */
+  .verdict{background:var(--accent-soft);border:1px solid var(--border);border-left:3px solid var(--accent);
+    border-radius:10px;padding:20px 22px;margin:26px 0 8px;}
+  .verdict p{margin:6px 0;font-size:15.5px;}
+
+  /* callouts */
+  .call{border-radius:10px;padding:16px 18px;margin:20px 0;font-size:14.5px;border:1px solid var(--border);}
+  .call.key{background:var(--up-soft);border-left:3px solid var(--up);}
+  .call.warn{background:var(--warn-soft);border-left:3px solid var(--warn);}
+  .call.trap{background:var(--down-soft);border-left:3px solid var(--down);}
+  .call .lab{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:6px;font-weight:600;}
+  .call.key .lab{color:var(--up)}.call.warn .lab{color:var(--warn)}.call.trap .lab{color:var(--down)}
+
+  /* tables */
+  .tw{overflow-x:auto;margin:16px 0;border:1px solid var(--border);border-radius:10px;}
+  table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:min-content;}
+  th,td{padding:9px 13px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--border);}
+  th:first-child,td:first-child{text-align:left;}
+  thead th{background:var(--surface2);font-weight:600;color:var(--muted);font-size:12px;
+    letter-spacing:.02em;position:sticky;top:0;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover{background:var(--surface2);}
+  td.n,th.n{font-family:var(--mono);font-variant-numeric:tabular-nums;}
+  tr.hl td{background:var(--accent-soft);font-weight:600;}
+
+  ul{margin:12px 0;padding-left:22px;}li{margin:7px 0;}
+  ol.play{counter-reset:p;list-style:none;padding:0;margin:16px 0;}
+  ol.play>li{counter-increment:p;position:relative;padding:14px 16px 14px 52px;margin:10px 0;
+    background:var(--surface);border:1px solid var(--border);border-radius:10px;}
+  ol.play>li::before{content:counter(p);position:absolute;left:14px;top:13px;width:26px;height:26px;
+    background:var(--accent);color:#fff;border-radius:7px;display:grid;place-items:center;
+    font-family:var(--mono);font-size:14px;font-weight:600;}
+  :root[data-theme="dark"] ol.play>li::before,@media(prefers-color-scheme:dark){ }
+  .fine{font-size:12.5px;color:var(--muted);}
+  hr{border:none;border-top:1px solid var(--border);margin:44px 0;}
+  .footnote{margin-top:8px;font-size:12.5px;color:var(--muted);}
+  a{color:var(--accent);}
+</style>
+
+<div class="wrap">
+<header>
+  <p class="eyebrow">Quant Research · SEPA Breakout · KR Market</p>
+  <h1>진입임박 돌파매매, 무엇이 승률을 만드나</h1>
+  <p class="lede">한국시장 전 종목을 대상으로 “트렌드 템플릿 통과 → 진입임박 → 익일 피벗 돌파 매수 → 수익/손절” 전략을 9개월·3,487건으로 점검한 기록.</p>
+  <div class="meta">
+    <span>기간 2025-10 ~ 2026-06</span><span>거래 3,487</span><span>기준 익일진입·분봉확정</span><span>작성 2026-07-07</span>
+  </div>
+</header>
+
+<div class="verdict">
+  <p><strong>한 줄 결론.</strong> 이 전략엔 <strong>작은 통계적 엣지</strong>가 있지만, 그 엣지는 “어떤 종목을 고르나”가 아니라 <strong class="u">돌파 당일 거래량</strong>과 <strong class="u">시장 국면(추세)</strong>에 있다.</p>
+  <p>승률을 가르는 순서: <strong>① 시장 국면(매매 여부) &nbsp;›&nbsp; ② 거래량 선택 &nbsp;›&nbsp; ③ 비율·청산법.</strong> 종목 하나하나를 맞히는 게임이 아니라, <strong>좋은 조건에서만 반복하고 손실을 작게 유지</strong>하는 규율의 게임이다.</p>
+</div>
+
+<div class="call warn"><span class="lab">이번 업데이트 · 2026-07-07</span>초판 이후 추가 검증을 반영했다: <strong>“진입임박 많음 = 천장”은 오류로 정정</strong>(오히려 강세 신호 — 발견 ⑥) · <strong>추격매수는 +5% 넘으면 엣지 소멸</strong>(발견 ⑦, 미너비니 5% 규칙 입증) · <strong>자동매수 실행 세팅과 증권사 가능성</strong>(07) · <strong>용어 풀이</strong>(부록).</div>
+
+<h2><span class="sec">01</span> 무엇을 검증했나</h2>
+<p>사용자의 실제 워크플로를 그대로 재현했다: <strong>장 마감 후 SEPA를 돌려 ‘진입임박(actionable)’ 종목을 뽑고, 다음날 그 종목이 장중 피벗을 돌파하면 매수, 이후 +10%/−5% 선착으로 승·패를 가린다.</strong> 첫 시도(2주치 돌파를 한꺼번에 사는 방식)는 방법론 오류로 79%라는 낙관값이 나왔고, 이를 바로잡아 <strong>단일 스캔 → 익일 진입</strong>의 정직한 아웃오브샘플로 재설계했다.</p>
+<div class="call warn"><span class="lab">방법론 정정</span>“돌파 당일 −5%가 매수 전인지 후인지”를 일봉으론 못 가려 <strong>예외(ambiguous)</strong>가 25% 발생했다. 이를 <strong>과거 1분봉(KIS)</strong>으로 되짚어 확정했더니 예외의 <strong>~86%가 실제 손절</strong>이었다 → 일봉만 보면 승률이 과대평가된다.</div>
+
+<h2><span class="sec">02</span> 데이터 풀 — 9개월</h2>
+<p class="sub">중복 제거(포지션 보유 중 재매수 금지) + 분봉 확정. 기준 +10%/−5%.</p>
+<div class="tw"><table>
+<thead><tr><th>월</th><th class="n">거래</th><th class="n">승률</th><th class="n">기대값/거래</th></tr></thead>
+<tbody>
+<tr><td>2025-10</td><td class="n">298</td><td class="n">37.9%</td><td class="n u">+0.68%</td></tr>
+<tr><td>2025-11</td><td class="n">344</td><td class="n">32.1%</td><td class="n d">−0.18%</td></tr>
+<tr><td>2025-12</td><td class="n">425</td><td class="n">39.3%</td><td class="n u">+0.89%</td></tr>
+<tr><td>2026-01</td><td class="n">489</td><td class="n">44.9%</td><td class="n u">+1.74%</td></tr>
+<tr><td>2026-02</td><td class="n">430</td><td class="n">37.3%</td><td class="n u">+0.60%</td></tr>
+<tr><td>2026-03</td><td class="n">418</td><td class="n">27.3%</td><td class="n d">−0.91%</td></tr>
+<tr><td>2026-04</td><td class="n">615</td><td class="n">49.7%</td><td class="n u">+2.45%</td></tr>
+<tr><td>2026-05</td><td class="n">349</td><td class="n">28.1%</td><td class="n d">−0.78%</td></tr>
+<tr><td>2026-06</td><td class="n">119</td><td class="n">29.2%</td><td class="n d">−0.61%</td></tr>
+<tr class="hl"><td>합계</td><td class="n">3,487</td><td class="n">38.0%</td><td class="n">+0.69%</td></tr>
+</tbody></table></div>
+<p>무필터 전체 <strong>38.0%</strong>·거래당 <strong>+0.69%</strong>(비용 전) → 비용 후 ~+0.35%. 간신히 플러스지만 <strong class="d">손실월이 4개</strong>. 승률이 27%~50%로 요동친다 → <strong>국면 의존.</strong></p>
+<p class="footnote">※ 캐시 이력상 2025-09 이전·2026-07 이후는 신호 산출 불가(트렌드 템플릿 장기 조건). 그래서 검증 가능 구간은 이 9개월이다.</p>
+
+<h2><span class="sec">03</span> 핵심 발견</h2>
+
+<h3>① 거래량이 유일하게 견고한 엣지</h3>
+<p>돌파 <strong>당일 거래량이 평소 대비 얼마나 터졌나(상대거래량)</strong> — 이 하나가 승률을 가른다. 9개월 전부에서 <strong>단조 상승</strong>.</p>
+<div class="tw"><table>
+<thead><tr><th>돌파일 거래량</th><th class="n">승률</th><th class="n">거래수</th><th class="n">기대값</th></tr></thead>
+<tbody>
+<tr><td>&lt;1배 (평균 이하)</td><td class="n d">29.0%</td><td class="n">1,993</td><td class="n d">−0.66%</td></tr>
+<tr><td>1~1.5배</td><td class="n">43.6%</td><td class="n">642</td><td class="n u">+1.54%</td></tr>
+<tr><td>1.5~2배</td><td class="n">47.3%</td><td class="n">281</td><td class="n u">+2.10%</td></tr>
+<tr><td>2~3배</td><td class="n">55.1%</td><td class="n">247</td><td class="n u">+3.26%</td></tr>
+<tr class="hl"><td>3배+</td><td class="n u">74.5%</td><td class="n">204</td><td class="n">+6.18%</td></tr>
+</tbody></table></div>
+<div class="call key"><span class="lab">Key</span><strong>거래량 없는 돌파(&lt;1배)가 전체의 59%이고, 그것만 유일하게 돈을 잃는다.</strong> rel-vol ≥ 1.5로 거르면 승률 38% → <strong class="u">57.5%</strong>, 거래당 +3.63%. 그리고 이 필터는 <strong>9개월 전부에서 승률을 끌어올린다</strong> — 최악의 달(3월 27%)조차 <strong class="u">62%</strong>로 뒤집힌다. 국면과 무관하게 작동하는 유일한 신호.</div>
+
+<h3>② 시장 국면(추세)이 지배한다 — 그리고 관찰 가능하다</h3>
+<p>“내가 지금 상승추세인지 어떻게 아나?”의 답: <strong>지수(코스피/코스닥)가 오늘 20일 이동평균 위에 있으면 상승추세.</strong> 미래 예측이 아니라 오늘 숫자를 보는 것. (+20/−10 기준, 자작 등가중지수로 검증)</p>
+<div class="tw"><table>
+<thead><tr><th>진입 시점 국면</th><th class="n">승률</th><th class="n">거래수</th></tr></thead>
+<tbody>
+<tr class="hl"><td>상승추세 (지수 &gt; 20일선)</td><td class="n u">43.5%</td><td class="n">2,359</td></tr>
+<tr><td>하락추세 (지수 &lt; 20일선)</td><td class="n d">34.1%</td><td class="n">1,103</td></tr>
+</tbody></table></div>
+<p><strong>9%p 차이.</strong> 상승추세 필터는 손실월(11·3·5·6월)의 대부분을 실제로 걸러냈다. <strong class="w">20일선을 쓸 것</strong> — 50일선은 구분력이 없었다(40.4% vs 41.5%). 한계: <strong>2월</strong>은 지수가 20일선 위였지만 돌파는 다 실패한 ‘가짜 상승추세’(지수는 버텼으나 내부 주도력 붕괴)로, 이 필터가 못 걸렀다.</p>
+
+<h3>③ 승자는 +10% 위로 달린다 → 절반 익절 + 트레일링</h3>
+<p>+10%에 도달한 종목의 <strong>78%가 그 뒤로도 더 상승</strong>했다(나머지 절반을 −3% 트레일링으로 관리 시 평균 <strong class="u">+14.4%</strong> 실현). 즉 +10% 전량 익절은 승자를 너무 일찍 자르는 것.</p>
+<div class="tw"><table>
+<thead><tr><th>청산 방식</th><th class="n">전체 기대값</th><th class="n">거래량필터 시</th></tr></thead>
+<tbody>
+<tr><td>+10% 전량 익절</td><td class="n">+0.69%</td><td class="n">+3.63%</td></tr>
+<tr class="hl"><td>절반 익절 + 나머지 트레일링</td><td class="n u">+1.52%</td><td class="n u">+5.22%</td></tr>
+</tbody></table></div>
+<p>손실 종목(−5%)은 두 방식이 동일하고 <strong>차이는 오직 승자 관리</strong>. 절반은 목표에 확보해 리스크를 줄이고, 나머지로 추세를 잡으니 <strong>손절은 그대로·이익만 커진다</strong>(기대값 ~2배).</p>
+
+<h3>④ 최적 2:1 비율 — R배수로 보면</h3>
+<p>원시 기대값은 밴드를 넓힐수록 계속 오른다(+30/−15가 최대). 하지만 이는 <strong>넓은 손절이 더 큰 리스크를 지는 것</strong>을 무시한 착시. 공정 비교는 <strong>R배수 = 기대값 ÷ 손절폭</strong>(리스크 1단위당 수익).</p>
+<div class="tw"><table>
+<thead><tr><th>조건</th><th>R배수 최적 비율</th><th class="n">승률</th></tr></thead>
+<tbody>
+<tr><td>무필터(전체 국면)</td><td>+22 / −11 <span class="fine">(미너비니 +20/−10 근접)</span></td><td class="n">46.5%</td></tr>
+<tr><td>거래량 필터(rel-vol≥1.5)</td><td>+12 / −6 ~ +15 / −7.5</td><td class="n">52.8%</td></tr>
+<tr class="hl"><td>강세장 + 거래량 필터</td><td>+15 / −7.5</td><td class="n u">59.0%</td></tr>
+</tbody></table></div>
+<p><strong>현재 +10/−5는 너무 좁다</strong>(휩쏘로 승률 38%). 넓히면 승률이 46%까지 오른다. <strong>거래량을 확인하면 오히려 더 좁혀야(+12~15/−6~7.5)</strong> 최적 — 거래량이 받쳐주면 넓은 손절이 R을 갉아먹는다.</p>
+
+<h3>⑤ 통하지 않은 것 — 정적 필터·RS</h3>
+<ul>
+<li><strong>최소 주가·최소 거래량·최소 거래대금</strong>: 아무리 올려도 승률 38%→40~41%(+0.5%p). <strong class="d">승률 엔진이 아니다.</strong> 진짜 용도는 잡주 회피·체결 안전.</li>
+<li><strong>RS(상대강도)</strong>: 80 관문만 넘으면 그 안(80~100)에서 변별력 없음(43~49% 평평).</li>
+</ul>
+
+<h3>⑥ 붐비는 날(진입임박 많음)은 위험이 아니다 — <span class="w">앞선 통념 정정</span></h3>
+<p>“진입임박 종목이 많으면 과열·천장”이라 흔히 말한다(4/1→4/2 폭락이 그 인상). 하지만 9개월 전체론 <strong>정반대</strong>였다 — 그날 진입임박 수(breadth)가 많을수록 이후 승률이 <strong>오히려 살짝 높았다.</strong></p>
+<div class="tw"><table>
+<thead><tr><th>그날 진입임박 수</th><th class="n">이후 승률 (+10/−5)</th><th class="n">(+20/−10)</th></tr></thead>
+<tbody>
+<tr><td>~30개</td><td class="n">36.4%</td><td class="n">35.8%</td></tr>
+<tr><td>60~100</td><td class="n">36.3%</td><td class="n">40.1%</td></tr>
+<tr class="hl"><td>100+ (4/1 같은 날)</td><td class="n">39.5%</td><td class="n">42.6%</td></tr>
+</tbody></table></div>
+<p>많이 조여진다 = <strong>시장이 넓게 강하다</strong>(대개 강세장) → 이어질 확률이 더 높다. <strong class="d">“많다고 쉬는 건 오히려 손해.”</strong> 붐비는 날엔 쉬지 말고 <strong>거래량으로 옥석을 가려라</strong> — 100+인 날 안에서도 rel-vol&lt;1은 30.2%, ≥1.5는 <strong class="u">59.8%</strong>. 진짜 ‘쉴지’ 신호는 종목 수가 아니라 <strong>지수 20일선(국면)</strong>이다.</p>
+
+<h3>⑦ 추격은 엣지를 죽인다 — 미너비니 “+5% 규칙”이 데이터로 맞다</h3>
+<p>거래량 실린 돌파는 <strong>당일 중앙값 +7%</strong>까지 빨리 뛴다(장 마감에 거래량 확인하면 이미 늦다). 같은 거래를 진입가만 바꿔 보면:</p>
+<div class="tw"><table>
+<thead><tr><th>진입 시점</th><th class="n">승률</th><th class="n">기대값</th></tr></thead>
+<tbody>
+<tr class="hl"><td>피벗에서 매수</td><td class="n u">65.3%</td><td class="n u">+9.59%</td></tr>
+<tr><td>피벗 +2%</td><td class="n">58.7%</td><td class="n">+7.60%</td></tr>
+<tr><td>피벗 +5%</td><td class="n">48.4%</td><td class="n">+4.53%</td></tr>
+<tr><td>피벗 +8%</td><td class="n d">29.9%</td><td class="n d">−1.04%</td></tr>
+</tbody></table></div>
+<p><strong>추격 1%마다 승률이 ~4~5%씩 증발한다.</strong> 피벗 +8%에 사면 −10% 손절선이 피벗 바로 위라 정상적인 되돌림에 바로 잘린다. → <strong>피벗 +3% 이내에서만 매수, +5% 넘으면 스킵.</strong> 놓친 종목은 버리고 다음 자리를 기다린다.</p>
+
+<h2><span class="sec">04</span> 포트폴리오 시뮬레이션</h2>
+<p class="sub">예산 100만원 · 종목당 10만원(10슬롯) · +20/−10 · 30거래일 타임스톱 · 상승추세일 때만 · 거래비용 왕복 0.25% · 2025-10 ~ 2026-04.</p>
+<div class="tw"><table>
+<thead><tr><th>항목</th><th class="n">값</th></tr></thead>
+<tbody>
+<tr class="hl"><td>4월 말 평가금액</td><td class="n u">1,623,799원 (+62.4%)</td></tr>
+<tr><td>체결 / 승률</td><td class="n">94건 / 56%</td></tr>
+<tr><td>최대낙폭 (MDD)</td><td class="n">13%</td></tr>
+</tbody></table></div>
+<div class="call warn"><span class="lab">이 숫자를 곧이곧대로 믿지 말 것</span>
+① <strong>유리한 7개월</strong>(강세월 다수) — 다른 기간을 넣으면 크게 낮아진다. ② <strong>생존편향</strong>(현재 상장종목만 → 상폐주 배제로 상향). ③ <strong>슬리피지 미반영</strong>(급등 돌파는 실제 체결가가 피벗 위). ④ 일봉 근사·중립 선택 가정. <strong>+62%는 낙관적 상단</strong>이지 “7개월마다 +62%”가 아니다. “이 방식이 이 구간엔 실제로 엣지가 있었다”는 증거로만.</div>
+
+<h2><span class="sec">05</span> 함정 — 통하지 않은 아이디어들</h2>
+<div class="call trap"><span class="lab">함정 1 · 넓은 밴드(+48/−24)</span>미너비니의 +48/−24를 같은 조건에 적용 시 <strong class="d">오히려 더 낮았다</strong>(+59% vs +62%). +48%는 30일 안에 24%만 도달(타임아웃 지배), 넓은 밴드=긴 보유=거래 수 급감=복리 감소. <strong>빠른 회전·광범위 매수 스타일엔 +20/−10이 낫다.</strong> 넓은 밴드는 <em>극한의 선별 + 인내</em>가 있을 때만 빛난다.</div>
+<div class="call trap"><span class="lab">함정 2 · 소수 집중(4~5종목)</span>같은 전략·같은 기간인데 <strong>무엇을 고르냐로 +3% ~ +97%</strong>. 소수 집중은 승률을 올리는 게 아니라 <strong class="d">결과를 운·선택에 맡기는 변동성 증폭기</strong>다. “거래량우선”으로 소수에 몰면 고거래량이 몰리는 <strong>과열일에 상관성 높은 종목을 꼭지에서 몰빵</strong>해 오히려 나빠졌다. 넓은 신호를 소수에 몰면 통계적 엣지가 발현될 표본이 없어 단일 숫자가 무의미해진다.</div>
+<div class="call trap"><span class="lab">함정 3 · 거래량 안 붙은 돌파 “빨리 손절”</span>저거래량 돌파를 산 뒤 빨리 파는 것(−0.91%)이 스톱까지 보유(−0.66%)보다 <strong>오히려 손해</strong>. 청산 타이밍으론 구제 안 됨 — <strong>애초에 안 사는 게 정답.</strong></div>
+
+<h2><span class="sec">06</span> 실전 플레이북</h2>
+<ol class="play">
+<li><strong>장이 좋을 때만 공격.</strong> 지수가 20일선 아래면 쉬거나 소량. 손실월 회피가 최대 수익원이자 최대 리스크 관리.</li>
+<li><strong>거래량 실린 돌파만 산다.</strong> 조용히 넘는 건 스킵. 진입 시점에 걸러야 한다(사두고 보는 건 안 통함). 자동화: 증권사 조건주문(가격&gt;피벗 &amp; 거래량≥평균150%) 또는 장마감 루틴.</li>
+<li><strong>비율은 +20/−10</strong>(블라인드) / <strong>+15/−7.5</strong>(거래량·강세장 확인). +10/−5는 졸업.</li>
+<li><strong>승자를 태운다.</strong> 목표 도달 시 절반 익절 → 손절선 본전 이동 → 나머지 트레일링. 승자의 78%가 더 달린다.</li>
+<li><strong>손실은 작고 짧게.</strong> −5~−10%에서 기계적으로 자른다. 물타기 금지.</li>
+<li><strong>충분히 분산.</strong> 넓은 신호를 쓰는 지금은 10종목+로 벌려 엣지가 통계로 발현되게. 집중은 선별을 극한으로 좁힌 뒤에.</li>
+<li><strong>붐비는 날은 오히려 기회.</strong> 진입임박이 많다고 쉬지 말 것(평균적으로 강세 신호). 대신 <strong>거래량으로 옥석을 가려</strong> rel-vol ≥ 1.5만 잡는다. ‘쉴지’ 신호는 종목 수가 아니라 지수 20일선.</li>
+<li><strong>추격 금지.</strong> 피벗에서(≤+3%) 산다. +5% 넘게 올랐으면 그 거래는 버리고 다음을 기다린다.</li>
+</ol>
+
+<h2><span class="sec">07</span> 실행 — 자동매수를 어떻게 걸까</h2>
+<p>거래량은 <strong>장중(돌파 순간)</strong>에 확인해야 한다 — 마감까지 기다리면 이미 +7% 올라 엣지를 잃는다. 진짜 기관 돌파는 돌파하는 순간부터 거래량이 터져 있어, 그 순간 pace로 보인다.</p>
+<div class="call key"><span class="lab">자동매수 규칙</span><strong>다음 셋을 동시에 충족할 때만 매수:</strong> ① 가격이 피벗 돌파 · ② 그 시점 누적거래량 pace ≥ 평소의 1.5배 · ③ 가격이 피벗 +3% 이내(하드 상한 +5%). 하나라도 안 맞으면 <strong>스킵</strong>. 절대 +5% 넘겨 추격 금지.</div>
+<h3>국면 필터는 “오늘 상태”로만</h3>
+<p>지수가 <strong>오늘 종가 기준</strong> 20일선 위면 → 내일 매매, 아래면 → 쉼. <strong>내일 솟을지는 예측하지 않는다.</strong> 하락→상승 전환 첫날은 하루 놓치지만, 이 필터의 목적은 ‘바닥 잡기’가 아니라 ‘긴 하락장 회피’라 그 하루 지연은 작은 비용이다.</p>
+<h3>증권사에서 가능한가 — 가능하다</h3>
+<p>단, <strong>피벗은 우리 검출기가 만든 커스텀 값</strong>이라 증권사 조건검색이 모른다. 두 길: <strong>(A) API+코드</strong>(키움 Open API+ · 한국투자 KIS Developers)로 정확히 구현 — <em>우리가 이미 KIS API를 쓰고 있어 자연스럽다</em>. <strong>(B) 미래에셋 서버측 자동주문</strong> — PC를 꺼도 실행되나 정밀 거래량 게이트는 근사에 그친다. 핵심 엣지가 거래량 게이트이므로 <strong>A(API 봇)를 권장</strong>. <strong class="w">실자금 전 반드시 모의투자로 검증</strong>(슬리피지·부분체결·API 다운, 그리고 주문 상한·킬스위치).</p>
+
+<h2><span class="sec">08</span> 미너비니는 어떻게 큰 수익을 냈나</h2>
+<p class="sub">(내 정리 — 책으로 교차 확인해 보시길)</p>
+<p>미너비니의 US Investing Championship 우승(연 155% 수준)의 비밀은 <strong>높은 승률이 아니다</strong> — 그의 승률은 ~50%다. 핵심은 다음 조합이며, <strong>이번 데이터가 상당 부분 그의 원칙을 뒷받침한다.</strong></p>
+<ul>
+<li><strong>M — 시장 방향이 먼저.</strong> 확인된 상승추세에서만 크게, 하락장엔 현금/방어. → <em>우리 국면 필터(20일선)로 재확인.</em></li>
+<li><strong>손실은 작게, 이익은 크게(비대칭).</strong> 평균손실 ≪ 평균이익. 승률이 아니라 <strong>손익비 × 타율</strong>이 기대값을 만든다. → <em>2:1 비율·짧은 손절·승자 태우기로 재확인.</em></li>
+<li><strong>거래량 확인.</strong> 돌파는 대량거래를 동반해야 하고, 저거래량 돌파는 의심한다. → <em>우리의 최대 엣지와 정확히 일치.</em></li>
+<li><strong>점진적 노출(progressive exposure).</strong> 작게 시작해 맞으면 불타기, 틀리면 즉시 축소. 절대 물타지 않는다. 이게 <strong>집중을 가능케 하는 능동관리</strong>다.</li>
+<li><strong>엄격한 선별(SEPA).</strong> 추세 템플릿 + 실적 가속 + 주도 업종 + 기관 수급 → 상위 극소수만. 이 선별력이 있어야 <strong>4~5종목 집중이 도박이 아니라 실력</strong>이 된다.</li>
+<li><strong>드로다운 방어 = 복리의 핵심.</strong> 큰 손실을 피하고 번 걸 토하지 않으면, 적당한 비대칭 베팅이 <strong>기하급수로 복리</strong>된다. 그의 부는 “한 방”이 아니라 “큰 손실 없음”에서 나왔다.</li>
+</ul>
+<div class="call key"><span class="lab">종합</span>미너비니의 우위는 <strong>① 좋은 장에서만(M) ② 거래량 실린 소수 주도주를(선별) ③ 작은 손절·큰 이익으로(비대칭) ④ 맞으면 키우고 틀리면 줄이며(점진노출) ⑤ 큰 낙폭 없이 복리</strong>시킨 것. 우리가 데이터로 확인한 “거래량 · 국면 · 2:1 · 승자 태우기”는 그 뼈대의 일부다. <strong>당신에게 남은 과제는 ‘선별의 극한’과 ‘능동관리’</strong> — 그게 4~5종목 집중과 넓은 밴드를 실력으로 바꾸는 열쇠다.</div>
+
+<hr>
+<h2><span class="sec">09</span> 정직한 한계</h2>
+<ul>
+<li><strong>표본·기간</strong>: 9개월(2025-10~2026-06), 단일 시장 국면기. 다른 사이클에서 재현 미검증.</li>
+<li><strong>생존편향</strong>: 유니버스가 현재 상장종목뿐 → 상폐·부실주 배제로 승률 상향 편의.</li>
+<li><strong>일봉 근사</strong>: 예외는 분봉 확정(정확), 그러나 다수 청산 규칙 시뮬은 “같은날=손절” 가정. +10/−5 검증 시 근사 38.4% ≈ 분봉 38.0%로 잘 맞았음.</li>
+<li><strong>비용·슬리피지</strong>: 포트폴리오는 왕복 0.25%만 반영, <strong>급등 돌파의 슬리피지 미반영</strong> → 실현 낮아짐.</li>
+<li><strong>국면 필터</strong>: 자작 등가중지수 기반(실제 지수·브레드스로 정교화 여지, 2월 가짜 상승추세 미해결).</li>
+</ul>
+<p class="footnote">이 리포트의 어떤 수치도 “보장된 수익”이 아니다. 이것은 <strong>작은 통계적 엣지</strong>의 지도이지 자동 수익 기계가 아니며, 최대 위험은 <strong>나쁜 장에서 과매매로 되돌려주는 것</strong>이다.</p>
+
+<hr>
+<h2><span class="sec">부록</span> 용어 풀이</h2>
+<div class="tw"><table>
+<thead><tr><th>용어</th><th>쉬운 뜻</th></tr></thead>
+<tbody>
+<tr><td>기대값</td><td>거래 한 번당 평균 손익</td></tr>
+<tr><td>원시기대값</td><td>그 값을 % 그대로 (리스크 보정 없음)</td></tr>
+<tr><td>전체 기대값</td><td>모든 거래(9개월 전부)를 합쳐 평균낸 값</td></tr>
+<tr><td>R배수</td><td>기대값 ÷ 손절폭 = 위험 1단위당 수익. 넓은 손절/좁은 손절을 공정 비교하려고 리스크로 나눈 것</td></tr>
+<tr><td>무필터</td><td>거르는 조건 없이 나온 돌파를 전부 매수 (비교용 기준선)</td></tr>
+<tr><td>휩쏘 (whipsaw)</td><td>정상적인 잔파동에 손절만 당하고 튕겨나감. 손절을 너무 좁게 잡으면 발생</td></tr>
+<tr><td>아웃오브샘플</td><td>미래를 안 훔쳐보고, 결정 시점 이후로 진짜 나아가며 검증하는 것</td></tr>
+<tr><td>breadth (브레드스)</td><td>그날 진입임박(셋업) 종목 수 = 시장이 얼마나 넓게 강한가</td></tr>
+<tr><td>rel-vol (상대거래량)</td><td>돌파 당일 거래량 ÷ 평소 평균 (1.5 = 평소의 1.5배)</td></tr>
+<tr><td>MDD (최대낙폭)</td><td>고점 대비 계좌가 가장 많이 빠진 폭</td></tr>
+<tr><td>피벗 (pivot)</td><td>매수 트리거가 되는 돌파 기준가 (패턴의 마지막 저항선)</td></tr>
+</tbody></table></div>
+</div>
