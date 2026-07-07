@@ -20,6 +20,11 @@ export function MarketRegimeChart({ data }: { data: MarketRegime }) {
     );
   }
   const segs = downtrendSegments(data.series);
+  // 카테고리 x축에서 단일-하루 구간(x1===x2)은 폭 0이라 안 그려짐 → x2를 다음 날짜로 확장해 렌더.
+  const nextDate = new Map<string, string>();
+  data.series.forEach((p, i) => {
+    if (i + 1 < data.series.length) nextDate.set(p.date, data.series[i + 1].date);
+  });
   const up = data.current.uptrend;
   const tickInterval = Math.max(1, Math.floor(data.series.length / 8));
   return (
@@ -41,7 +46,14 @@ export function MarketRegimeChart({ data }: { data: MarketRegime }) {
       <ResponsiveContainer width="100%" height={220}>
         <ComposedChart data={data.series} margin={{ top: 5, right: 8, left: 0, bottom: 0 }}>
           {segs.map((s, i) => (
-            <ReferenceArea key={i} x1={s.x1} x2={s.x2} fill="#ff5449" fillOpacity={0.08} ifOverflow="extendDomain" />
+            <ReferenceArea
+              key={i}
+              x1={s.x1}
+              x2={s.x1 === s.x2 ? nextDate.get(s.x2) ?? s.x2 : s.x2}
+              fill="#ff5449"
+              fillOpacity={0.08}
+              ifOverflow="extendDomain"
+            />
           ))}
           <XAxis
             dataKey="date"
@@ -57,7 +69,7 @@ export function MarketRegimeChart({ data }: { data: MarketRegime }) {
             domain={["auto", "auto"]}
             width={40}
           />
-          <Tooltip contentStyle={{ background: "#1a1f2e", border: "1px solid #2e3447", fontSize: 11 }} />
+          <Tooltip contentStyle={{ backgroundColor: "rgba(46,52,71,0.9)", backdropFilter: "blur(20px)", border: "1px solid #2e3447", borderRadius: 8, color: "#dce1fb", fontSize: 11 }} />
           <Line type="monotone" dataKey="index" stroke="#95d3ba" dot={false} strokeWidth={1.5} name="등가중지수" />
           <Line type="monotone" dataKey="ma20" stroke="#e0a458" dot={false} strokeWidth={1} strokeDasharray="4 3" name="20일선" />
         </ComposedChart>
