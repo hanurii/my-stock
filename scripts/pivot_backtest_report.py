@@ -37,7 +37,7 @@ def main():
     L.append(f"**총 {s['n']}건** — 승 {s['win']} · 패 {s['loss']} · 예외(ambiguous) {s['ambiguous']} "
              f"· 미결(unresolved) {s['unresolved']} · **결착 승률 {wr(s)}**\n")
     L.append("> 결착 승률 = 승 / (승+패). 예외=일봉으로 선착 판별 불가(분봉 확인 필요), 미결=창 내 미도달.\n")
-    L.append(f"> ⚠️ 결착 승률 {wr(s)} 는 결착 {s['win']+s['loss']}/{s['n']}건만의 값. 예외 40여건이 하방(돌파일 -5% 관통)으로 쏠려 **정직한 범위는 최악 {s['win_rate_worst']}% ~ 최선 {s['win_rate_best']}%**.\n")
+    L.append(f"> ⚠️ 결착 승률 {wr(s)} 는 결착 {s['win']+s['loss']}/{s['n']}건만의 값. 예외 {s['ambiguous']}건이 하방(돌파일 -5% 관통)으로 쏠려 **정직한 범위는 최악 {s['win_rate_worst']}% ~ 최선 {s['win_rate_best']}%**.\n")
     L.append(f"> 종목·돌파일 중복 제거 시 고유 엔트리 {d['unique_stock_days']}건 → stock-level 결착 승률 {wr(d['summary_stock_level'])} (같은 종목+같은 날 다패턴 동시발화 존재).\n")
     L.append(table("패턴별", d["by_pattern"]))
     for label, key in [("시장", "market"), ("가격대", "price_bucket"),
