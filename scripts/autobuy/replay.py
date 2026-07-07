@@ -122,3 +122,83 @@ def resolve_forward_daily(open_positions, series_by_code, entry_date, *, target_
         if not done:
             out.append({"code": code, "name": pos["name"], "action": "unresolved", "reason": "open"})
     return out
+
+
+def _prev_trading_day(cal, d):
+    prior = [x for x in cal if x < d]
+    return prior[-1] if prior else None
+
+
+def run(entry_date, slots=None):
+    import os, sys
+    from pathlib import Path
+    MAIN = Path(r"C:\Users\hanul\playground\my-stock")
+    THIS_SCRIPTS = Path(__file__).resolve().parents[1]  # 이 브랜치(worktree)의 scripts/ — autobuy·minute_bars 등 코드 원본
+    sys.path.insert(0, str(THIS_SCRIPTS))
+    from canslim_lib import ohlcv_matrix, minute_bars
+    ohlcv_matrix.SERIES_DIR = MAIN / ".cache" / "ohlcv" / "series"
+    from canslim_lib.pykrx_universe import fetch_universe_with_cap
+    from autobuy.config import CFG
+    from autobuy import watchlist, signals
+    for line in (MAIN / ".env").read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if line and not line.startswith("#") and "=" in line:
+            k, v = line.split("=", 1); os.environ.setdefault(k, v)
+    cfg = dict(CFG)
+    if slots:
+        cfg["SLOTS"] = slots
+    meta = {u["code"]: u for u in fetch_universe_with_cap("ALL")}
+    cal = ohlcv_matrix.get_series("005930")["dates"]
+    scan = _prev_trading_day([d for d in cal if d <= entry_date], entry_date)
+    print(f"=== 봇 리플레이 · 진입일 {entry_date} (스캔 {scan}) ===")
+    # 국면 게이트(스캔일 기준)
+    codes_all = [p.stem for p in (MAIN / ".cache" / "ohlcv" / "series").glob("*.json")]
+    idx_full = watchlist.build_ew_index(ohlcv_matrix.get_series, codes_all)
+    # scan 시점까지로 자른 지수로 판정
+    scan_i = cal.index(scan) if scan in cal else len(idx_full) - 1
+    if not signals.is_uptrend(idx_full[:scan_i + 1], 20):
+        print(f"국면=하락추세(스캔일 지수<20MA) → 그날 봇은 매매 OFF."); return
+    print("국면=상승추세 → 가동")
+    cands = build_candidates_asof(scan, ohlcv_matrix.get_series, meta)
+    print(f"감시목록 {len(cands)}종목 · 분봉 수집 중…")
+    minutes, avg50 = {}, {}
+    for c in cands:
+        m = minute_bars.fetch_day_minutes(c["code"], entry_date)
+        if m:
+            minutes[c["code"]] = m
+        s = ohlcv_matrix.get_series(c["code"]); vs = [v for v in (s["volumes"] or [])[-50:] if v] if s else []
+        avg50[c["code"]] = (sum(vs) / len(vs)) if vs else 0
+    live = [c for c in cands if c["code"] in minutes]
+    events, held = replay_day_minutes(minutes, live, avg50, cfg)
+    fwd = resolve_forward_daily(held, {c["code"]: ohlcv_matrix.get_series(c["code"]) for c in live}, entry_date)
+    # 로그 출력(봇 형식)
+    for e in sorted([x for x in events], key=lambda x: x["t"]):
+        tt = f"{e['t'][:2]}:{e['t'][2:4]}"
+        if e["action"] == "buy":
+            print(f"{tt} 매수 {e['code']} {e['name']} @{e['price']} pace{e['pace']}")
+        else:
+            print(f"{tt} 매도 {e['code']} {e['reason']} @{e['price']}")
+    for e in fwd:
+        if e["action"] == "sell":
+            print(f"{e['date']} 매도 {e['code']} {e['name']} {e['reason']} @{e['price']} (이후 일봉 결착)")
+        else:
+            print(f"       미청산 {e['code']} {e['name']} ({e['reason']})")
+    n_buy = sum(1 for e in events if e["action"] == "buy")
+    win = sum(1 for e in events if e.get("reason") == "익절") + sum(1 for e in fwd if e.get("reason") == "익절")
+    loss = sum(1 for e in events if e.get("reason") == "손절") + sum(1 for e in fwd if e.get("reason") == "손절")
+    unres = sum(1 for e in fwd if e["action"] == "unresolved")
+    pnl = win * cfg["TARGET_PCT"] - loss * cfg["STOP_PCT"]
+    print(f"\n요약: 매수 {n_buy} · 익절 {win} · 손절 {loss} · 미청산 {unres} · 합산손익 {pnl:+.0f}%p (익절+{cfg['TARGET_PCT']:.0f}/손절-{cfg['STOP_PCT']:.0f})")
+
+
+def main():
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--date", required=True, help="진입일 YYYY-MM-DD")
+    ap.add_argument("--slots", type=int, default=None)
+    a = ap.parse_args()
+    run(a.date, a.slots)
+
+
+if __name__ == "__main__":
+    main()
