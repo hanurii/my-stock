@@ -62,3 +62,27 @@ def replay_day_minutes(minutes_by_code, candidates, avg50_by_code, cfg):
             events.append({"t": t, "code": c["code"], "name": c["name"],
                            "action": "buy", "price": price, "pace": round(pace, 1)})
     return events, held
+
+
+def resolve_forward_daily(open_positions, series_by_code, entry_date, *, target_pct=20.0, stop_pct=10.0):
+    """D 마감까지 미청산 포지션을 D+1부터 일봉 선착으로 결착. 같은날 둘다면 손절 가정."""
+    out = []
+    for code, pos in open_positions.items():
+        ep = pos["entry_price"]
+        T, S = ep * (1 + target_pct / 100), ep * (1 - stop_pct / 100)
+        s = series_by_code.get(code)
+        if not s or entry_date not in (s.get("dates") or []):
+            out.append({"code": code, "name": pos["name"], "action": "unresolved", "reason": "no_data"})
+            continue
+        ds, hi, lo = s["dates"], s["highs"], s["lows"]
+        ni, done = ds.index(entry_date), False
+        for j in range(ni + 1, len(ds)):
+            if lo[j] is not None and lo[j] <= S:
+                out.append({"date": ds[j], "code": code, "name": pos["name"],
+                            "action": "sell", "reason": "손절", "price": round(S, 2)}); done = True; break
+            if hi[j] is not None and hi[j] >= T:
+                out.append({"date": ds[j], "code": code, "name": pos["name"],
+                            "action": "sell", "reason": "익절", "price": round(T, 2)}); done = True; break
+        if not done:
+            out.append({"code": code, "name": pos["name"], "action": "unresolved", "reason": "open"})
+    return out

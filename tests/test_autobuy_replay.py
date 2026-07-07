@@ -1,6 +1,7 @@
 import sys, pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "scripts"))
 from autobuy.replay import replay_day_minutes, _elapsed_frac
+from autobuy.replay import resolve_forward_daily
 
 CFG = {"SLOTS": 10, "VOL_PACE_MIN": 1.5, "CHASE_MAX_PCT": 3.0, "TARGET_PCT": 20.0,
        "STOP_PCT": 10.0, "MARKET_OPEN": "0905", "NEW_BUY_UNTIL": "1520"}
@@ -61,3 +62,29 @@ def test_slot_limit_pace_priority():
     ev, held = replay_day_minutes(mins, cands, {"A": 1000.0, "B": 1000.0}, cfg)
     buys = [e for e in ev if e["action"] == "buy"]
     assert len(buys) == 1 and buys[0]["code"] == "B"   # pace 높은 B만
+
+
+def _series(dates, highs, lows):
+    return {"dates": dates, "highs": highs, "lows": lows}
+
+def test_forward_target():
+    op = {"A": {"entry_price": 1000.0, "name": "에이"}}
+    s = {"A": _series(["d0", "d1", "d2"], [1010, 1100, 1210], [990, 1050, 1150])}  # d2 고 1210≥1200
+    ev = resolve_forward_daily(op, s, "d0")
+    assert ev[0]["action"] == "sell" and ev[0]["reason"] == "익절" and ev[0]["date"] == "d2"
+
+def test_forward_stop():
+    op = {"A": {"entry_price": 1000.0, "name": "에이"}}
+    s = {"A": _series(["d0", "d1"], [1010, 1050], [990, 890])}  # d1 저 890≤900
+    ev = resolve_forward_daily(op, s, "d0")
+    assert ev[0]["reason"] == "손절" and ev[0]["date"] == "d1"
+
+def test_forward_unresolved():
+    op = {"A": {"entry_price": 1000.0, "name": "에이"}}
+    s = {"A": _series(["d0", "d1"], [1010, 1050], [990, 950])}  # 결착 안됨
+    ev = resolve_forward_daily(op, s, "d0")
+    assert ev[0]["action"] == "unresolved"
+
+def test_forward_no_data():
+    ev = resolve_forward_daily({"A": {"entry_price": 1000.0, "name": "에이"}}, {}, "d0")
+    assert ev[0]["action"] == "unresolved" and ev[0]["reason"] == "no_data"
