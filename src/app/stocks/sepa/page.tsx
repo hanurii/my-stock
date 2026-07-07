@@ -4,6 +4,8 @@ import { SepaPatternTable } from "./SepaPatternTable";
 import { PositionSizeCalculator } from "./PositionSizeCalculator";
 import { PATTERNS, buildSection, type PatternConfig, type RawCandidate } from "./sepaPatterns";
 import { computeTrendByCode, type TierHistory } from "./tierHistory";
+import { MarketRegimeChart } from "./MarketRegimeChart";
+import { type MarketRegime } from "./marketRegime";
 
 interface MarketStatus {
   passed: boolean;
@@ -85,6 +87,8 @@ export default async function SepaPage() {
   // 상장폐지 예정 등 수동 제외 종목(전 패턴 공통 필터).
   const excludeCodes = new Set((exclusionFile?.exclusions ?? []).map((e) => e.code));
 
+  const regime = await readJson<MarketRegime>("market-regime.json");
+
   const history = await readJson<TierHistory>("sepa-tier-history.json");
   const trends = history
     ? {
@@ -114,6 +118,16 @@ export default async function SepaPage() {
 
   return (
     <div className="space-y-10">
+      {regime && (
+        <section className="bg-surface-container-low rounded-xl ghost-border p-4">
+          <h3 className="text-sm font-serif font-bold text-on-surface mb-2 flex items-center gap-2">
+            <span className="material-symbols-outlined text-base text-primary">insights</span>
+            시장 국면 — 등가중 지수 20일선
+          </h3>
+          <MarketRegimeChart data={regime} />
+        </section>
+      )}
+
       <header>
         <h2 className="text-2xl sm:text-3xl font-serif font-bold text-on-surface">SEPA 셋업</h2>
         <p className="text-base text-on-surface-variant mt-2">
