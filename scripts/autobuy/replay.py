@@ -64,6 +64,42 @@ def replay_day_minutes(minutes_by_code, candidates, avg50_by_code, cfg):
     return events, held
 
 
+def build_candidates_asof(asof, get_series, meta, rs_min=80):
+    """asof 마지막 날 status=actionable + 트렌드 통과(RS≥rs_min) 후보. meta: {code: {name,...}}."""
+    from canslim_lib.trend_template import evaluate_trend_template
+    from canslim_lib.pivot_backtest import truncate_series
+    from canslim_lib.vcp import evaluate_vcp
+    from canslim_lib.cheat import evaluate_cheat, DEFAULT_PARAMS as CH
+    from canslim_lib.power_play import evaluate_power_play
+    from screen_trend_template import _compute_rs_for_all
+    stD = {}
+    for code in meta:
+        s = get_series(code)
+        if not s or not s.get("closes"):
+            continue
+        t = truncate_series(s, asof)
+        if len(t["closes"]) >= 200:
+            stD[code] = t
+    rs = _compute_rs_for_all([{"code": c, "closes": t["closes"], "ok": True} for c, t in stD.items()])
+    def _act(t, pname):
+        try:
+            r = evaluate_vcp(t) if pname == "VCP" else evaluate_cheat(t, CH) if pname == "3C" else evaluate_power_play(t)
+        except Exception:
+            return None
+        return r["pivot_price"] if r.get("status") == "actionable" and r.get("pivot_price") else None
+    out, seen = [], set()
+    for code, t in stD.items():
+        rsv = (rs.get(code) or {}).get("rs")
+        if not evaluate_trend_template(t["closes"], rs=rsv, rs_min=rs_min)["pass"]:
+            continue
+        for pname in ("VCP", "3C", "PP"):
+            pv = _act(t, pname)
+            if pv is not None and code not in seen:
+                seen.add(code)
+                out.append({"code": code, "name": meta[code].get("name", code), "pivot": float(pv), "pattern": pname})
+    return out
+
+
 def resolve_forward_daily(open_positions, series_by_code, entry_date, *, target_pct=20.0, stop_pct=10.0):
     """D 마감까지 미청산 포지션을 D+1부터 일봉 선착으로 결착. 같은날 둘다면 손절 가정."""
     out = []
