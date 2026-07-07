@@ -213,6 +213,37 @@ def fetch_integrated_price(code: str, token: str | None = None,
     }
 
 
+def fetch_quote_with_volume(code: str, token: str | None = None) -> dict | None:
+    """현재가 + 당일 누적거래량 — inquire-price(FHKST01010100) output 의 stck_prpr·acml_vol.
+    자동매수 봇의 거래량 pace 계산용."""
+    if token is None:
+        token = get_access_token()
+    if not token:
+        return None
+    qs = _urlparse.urlencode({"FID_COND_MRKT_DIV_CODE": "J", "FID_INPUT_ISCD": code})
+    url = f"{_base_url()}/uapi/domestic-stock/v1/quotations/inquire-price?{qs}"
+    headers = {"content-type": "application/json", "authorization": f"Bearer {token}",
+               "appkey": os.environ.get("KIS_APP_KEY", ""), "appsecret": os.environ.get("KIS_APP_SECRET", ""),
+               "tr_id": "FHKST01010100", "custtype": "P"}
+    for attempt in range(3):
+        _throttle()
+        try:
+            with _urlreq.urlopen(_urlreq.Request(url, headers=headers), timeout=8) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+        except Exception:
+            time.sleep(0.3 * (attempt + 1)); continue
+        if data.get("rt_cd") == "0":
+            o = data.get("output") or {}
+            try:
+                return {"current": float(o["stck_prpr"]), "acml_vol": float(o["acml_vol"])}
+            except (KeyError, ValueError, TypeError):
+                return None
+        if data.get("msg_cd") == "EGW00201":
+            time.sleep(1.0); continue
+        return None
+    return None
+
+
 def fetch_foreign_rate(code: str, token: str | None = None) -> float | None:
     """외국인 소진율(%) 단건 조회 — inquire-price hts_frgn_ehrt.
 
