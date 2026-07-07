@@ -5,7 +5,7 @@ CFG = {
     "SLOTS": 10,            # 동시 보유 상한(10~20)
     "VOL_PACE_MIN": 1.5,
     "CHASE_MAX_PCT": 3.0,  # 하드
-    "TARGET_PCT": 20.0, "STOP_PCT": 10.0,
+    "TARGET_PCT": 15.0, "STOP_PCT": 7.5,   # 검증상 최적(등가중 상승추세+거래량 스택 승률 57.4%·R0.72)
     "POLL_SEC": 4,
     "REGIME_FILTER": True,
     "MODE": "dryrun",      # dryrun | live — live 전환은 실행인자로도 재확인
