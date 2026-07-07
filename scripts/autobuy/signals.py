@@ -32,3 +32,10 @@ def evaluate_exit(price, entry_price, *, target_pct=20.0, stop_pct=10.0):
     if price >= entry_price * (1 + target_pct / 100):
         return (True, "target")
     return (False, "hold")
+
+
+def is_uptrend(closes, ma=20):
+    """지수 종가열 최신값이 ma일 이동평균 위면 상승추세(=매매 ON). 데이터 부족 시 False(보수)."""
+    if len(closes) < ma:
+        return False
+    return closes[-1] > sum(closes[-ma:]) / ma
