@@ -105,3 +105,25 @@ def test_tally_worst_best_bounds():
     t = tally(evs)
     # denom = 2+1+1 = 4 → worst 2/4=50.0, best (2+1)/4=75.0
     assert t["win_rate_worst"] == 50.0 and t["win_rate_best"] == 75.0
+
+
+from canslim_lib.pivot_backtest import _daily_first_touch
+
+
+def test_daily_first_touch_stop_only_is_loss_not_ambiguous():
+    # start_idx 부터는 '일반 보유일' — 저가만 -5% 면 loss(돌파일 특례 없음)
+    s = mk(highs=[104.0, 104.0], lows=[99.0, 94.0])
+    r = _daily_first_touch(s, 0, 0, 100.0)
+    assert r["result"] == "loss"
+
+
+def test_daily_first_touch_both_is_ambiguous():
+    s = mk(highs=[111.0, 104.0], lows=[94.0, 99.0])
+    assert _daily_first_touch(s, 0, 0, 100.0)["result"] == "ambiguous"
+
+
+def test_daily_first_touch_target_and_unresolved():
+    s = mk(highs=[111.0], lows=[99.0])
+    assert _daily_first_touch(s, 0, 0, 100.0)["result"] == "win"
+    s2 = mk(highs=[104.0, 105.0], lows=[99.0, 100.0], closes=[103.0, 104.0])
+    assert _daily_first_touch(s2, 0, 0, 100.0)["result"] == "unresolved"
