@@ -1,6 +1,7 @@
 import sys, pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "scripts"))
 from autobuy.signals import evaluate_entry
+from autobuy.signals import evaluate_exit
 
 BASE = dict(price=1030.0, pivot=1000.0, acml_vol=300_000, avg50_vol=1_000_000,
             elapsed_frac=0.2, slots_used=0, slots_max=10, held=False)
@@ -31,3 +32,14 @@ def test_already_held_skips():
 def test_zero_baseline_skips():
     assert ev(avg50_vol=0) == (False, "no_baseline")
     assert ev(elapsed_frac=0) == (False, "no_baseline")
+
+def test_exit_stop():
+    assert evaluate_exit(900.0, 1000.0) == (True, "stop")     # -10%
+    assert evaluate_exit(901.0, 1000.0) == (False, "hold")    # -9.9%
+
+def test_exit_target():
+    assert evaluate_exit(1200.0, 1000.0) == (True, "target")  # +20%
+    assert evaluate_exit(1199.0, 1000.0) == (False, "hold")
+
+def test_exit_hold_between():
+    assert evaluate_exit(1050.0, 1000.0) == (False, "hold")
