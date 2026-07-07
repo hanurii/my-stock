@@ -33,6 +33,7 @@ def _hashkey(payload: str) -> str:
     url = f"{kis_api._base_url()}/uapi/hashkey"
     headers = {"content-type": "application/json", "appkey": os.environ["KIS_APP_KEY"],
                "appsecret": os.environ["KIS_APP_SECRET"]}
+    kis_api._throttle()   # hashkey 콜도 초당 호출제한에 포함 — 스로틀 통과
     with _u.urlopen(_u.Request(url, data=payload.encode(), headers=headers), timeout=8) as r:
         return json.loads(r.read().decode("utf-8")).get("HASH", "")
 
