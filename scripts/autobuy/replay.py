@@ -11,12 +11,13 @@ def _elapsed_frac(t: str) -> float:
 
 def replay_day_minutes(minutes_by_code, candidates, avg50_by_code, cfg):
     """D일 분봉을 분 단위로 흘려 봇 판정. 반환 (events, open_positions).
-    매수=분 종가로 evaluate_entry, 청산=분 고/저 터치(손절 우선). 신규매수는 매수창만."""
-    from autobuy.signals import evaluate_entry
+    매수=분 종가로 evaluate_entry, 청산=evaluate_exit(분 고/저 터치, 손절 우선). 신규매수는 매수창만.
+    같은 코드는 하루 한 번만 매수(손절 후 재발화 방지 — 실봇의 traded_today와 동일)."""
+    from autobuy.signals import evaluate_entry, evaluate_exit
     bar_at = {c["code"]: {b["t"]: b for b in minutes_by_code.get(c["code"], [])} for c in candidates}
     all_t = sorted({b["t"] for m in minutes_by_code.values() for b in m})
     cumvol = {c["code"]: 0.0 for c in candidates}
-    held, skip, events = {}, set(), []
+    held, skip, traded_today, events = {}, set(), set(), []
     for t in all_t:
         ef, hm = _elapsed_frac(t), t[:4]
         for c in candidates:                         # 누적거래량(모든 후보, 매 분)
@@ -28,11 +29,13 @@ def replay_day_minutes(minutes_by_code, candidates, avg50_by_code, cfg):
             if not b:
                 continue
             ep = held[code]["entry_price"]
-            if b["l"] <= ep * (1 - cfg["STOP_PCT"] / 100):
+            sell_lo, r_lo = evaluate_exit(b["l"], ep, target_pct=cfg["TARGET_PCT"], stop_pct=cfg["STOP_PCT"])
+            sell_hi, r_hi = evaluate_exit(b["h"], ep, target_pct=cfg["TARGET_PCT"], stop_pct=cfg["STOP_PCT"])
+            if sell_lo and r_lo == "손절":
                 events.append({"t": t, "code": code, "name": held[code]["name"],
                                "action": "sell", "reason": "손절", "price": round(ep * (1 - cfg["STOP_PCT"] / 100), 2)})
                 del held[code]
-            elif b["h"] >= ep * (1 + cfg["TARGET_PCT"] / 100):
+            elif sell_hi and r_hi == "익절":
                 events.append({"t": t, "code": code, "name": held[code]["name"],
                                "action": "sell", "reason": "익절", "price": round(ep * (1 + cfg["TARGET_PCT"] / 100), 2)})
                 del held[code]
@@ -41,7 +44,7 @@ def replay_day_minutes(minutes_by_code, candidates, avg50_by_code, cfg):
         fire = []                                    # 신규매수 판정
         for c in candidates:
             code = c["code"]
-            if code in held or code in skip:
+            if code in held or code in skip or code in traded_today:
                 continue
             b = bar_at[code].get(t)
             if not b:
@@ -59,6 +62,7 @@ def replay_day_minutes(minutes_by_code, candidates, avg50_by_code, cfg):
             if len(held) >= cfg["SLOTS"]:
                 break
             held[c["code"]] = {"entry_price": price, "name": c["name"]}
+            traded_today.add(c["code"])
             events.append({"t": t, "code": c["code"], "name": c["name"],
                            "action": "buy", "price": price, "pace": round(pace, 1)})
     return events, held
@@ -138,6 +142,7 @@ def run(entry_date, slots=None):
     from canslim_lib import ohlcv_matrix, minute_bars
     ohlcv_matrix.SERIES_DIR = MAIN / ".cache" / "ohlcv" / "series"
     from canslim_lib.pykrx_universe import fetch_universe_with_cap
+    from canslim_lib.pivot_backtest import truncate_series
     from autobuy.config import CFG
     from autobuy import watchlist, signals
     for line in (MAIN / ".env").read_text(encoding="utf-8").splitlines():
@@ -166,11 +171,12 @@ def run(entry_date, slots=None):
         m = minute_bars.fetch_day_minutes(c["code"], entry_date)
         if m:
             minutes[c["code"]] = m
-        s = ohlcv_matrix.get_series(c["code"]); vs = [v for v in (s["volumes"] or [])[-50:] if v] if s else []
+        s = ohlcv_matrix.get_series(c["code"])
+        vs = [v for v in (truncate_series(s, scan).get("volumes") or [])[-50:] if v] if s else []
         avg50[c["code"]] = (sum(vs) / len(vs)) if vs else 0
     live = [c for c in cands if c["code"] in minutes]
     events, held = replay_day_minutes(minutes, live, avg50, cfg)
-    fwd = resolve_forward_daily(held, {c["code"]: ohlcv_matrix.get_series(c["code"]) for c in live}, entry_date)
+    fwd = resolve_forward_daily(held, {code: ohlcv_matrix.get_series(code) for code in held}, entry_date)
     # 로그 출력(봇 형식)
     for e in sorted([x for x in events], key=lambda x: x["t"]):
         tt = f"{e['t'][:2]}:{e['t'][2:4]}"

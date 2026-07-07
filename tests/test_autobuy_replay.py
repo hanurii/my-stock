@@ -53,6 +53,17 @@ def test_stop_hit():
     sells = [e for e in ev if e["action"] == "sell"]
     assert len(sells) == 1 and sells[0]["reason"] == "손절"
 
+def test_no_rebuy_after_stop_same_day():
+    # 09:30 매수 → 10:00 손절 → 11:00 피벗 위 대량거래로 재발화해도 같은날 재매수 금지(traded_today)
+    cands = [{"code": "A", "name": "에이", "pivot": 1000.0, "pattern": "VCP"}]
+    mins = {"A": [bar("093000", 1005, 1012, 1004, 1010, 200),   # 매수 @1010
+                  bar("100000", 1000, 1005, 900, 905, 100),     # 저가 900≤909 → 손절
+                  bar("110000", 1010, 1020, 1005, 1015, 5000)]} # 피벗위·대량거래 재발화 조건 충족
+    ev, held = replay_day_minutes(mins, cands, {"A": 1000.0}, CFG)
+    buys = [e for e in ev if e["action"] == "buy"]
+    sells = [e for e in ev if e["action"] == "sell"]
+    assert len(buys) == 1 and len(sells) == 1 and "A" not in held
+
 def test_slot_limit_pace_priority():
     cfg = {**CFG, "SLOTS": 1}
     cands = [{"code": "A", "name": "에이", "pivot": 1000.0, "pattern": "VCP"},
