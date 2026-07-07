@@ -60,7 +60,10 @@ def fetch_day_minutes(code: str, date: str, force: bool = False) -> list[dict]:
     ymd = date.replace("-", "")
     cache = CACHE_DIR / f"{code}_{ymd}.json"
     if cache.exists() and not force:
-        return json.loads(cache.read_text(encoding="utf-8"))
+        try:
+            return json.loads(cache.read_text(encoding="utf-8"))
+        except Exception:
+            pass  # 손상 캐시 → 재수집
 
     headers = _headers()
     bars: dict[str, dict] = {}
@@ -71,12 +74,17 @@ def fetch_day_minutes(code: str, date: str, force: bool = False) -> list[dict]:
         if not rows:
             break
         for r in rows:
-            t = r.get("stck_cntg_hour")
-            if not t:
+            try:
+                t = r.get("stck_cntg_hour")
+                if not t:
+                    continue
+                bars[t] = {"t": t, "o": float(r["stck_oprc"]), "h": float(r["stck_hgpr"]),
+                           "l": float(r["stck_lwpr"]), "c": float(r["stck_prpr"]),
+                           "v": float(r["cntg_vol"])}
+            except (KeyError, ValueError, TypeError):
                 continue
-            bars[t] = {"t": t, "o": float(r["stck_oprc"]), "h": float(r["stck_hgpr"]),
-                       "l": float(r["stck_lwpr"]), "c": float(r["stck_prpr"]),
-                       "v": float(r["cntg_vol"])}
+        if not bars:
+            break
         earliest = min(bars)
         if earliest <= "090000":
             break
