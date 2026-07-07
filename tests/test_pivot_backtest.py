@@ -98,3 +98,10 @@ def test_group_win_rate_by_key():
     g = group_win_rate(evs, "pattern")
     assert g["VCP"]["n"] == 2 and g["VCP"]["win_rate_resolved"] == 50.0
     assert g["3C"]["win"] == 1
+
+
+def test_tally_worst_best_bounds():
+    evs = [_ev("win"), _ev("win"), _ev("loss"), _ev("ambiguous"), _ev("unresolved")]
+    t = tally(evs)
+    # denom = 2+1+1 = 4 → worst 2/4=50.0, best (2+1)/4=75.0
+    assert t["win_rate_worst"] == 50.0 and t["win_rate_best"] == 75.0

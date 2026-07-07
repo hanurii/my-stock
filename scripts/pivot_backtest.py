@@ -53,62 +53,87 @@ def run(asof: str) -> dict:
     codes = sorted(meta.keys())
     print(f"유니버스 {len(codes)}종목 · 기준일 {asof}")
 
-    # 1) as-of 시계열 수집 + RS 계산
-    asof_series, rows = {}, []
+    # 전체 시계열 + as-of D 절단(검출용) 수집
+    full_by_code, stD_by_code = {}, {}
     for code in codes:
         s = ohlcv_matrix.get_series(code)
         if not s or not s.get("closes"):
             continue
-        st = truncate_series(s, asof)
-        if len(st["closes"]) < 200:      # 트렌드/RS 최소 데이터
+        stD = truncate_series(s, asof)
+        if len(stD["closes"]) < 200:
             continue
-        asof_series[code] = (s, st)
-        rows.append({"code": code, "closes": st["closes"], "ok": True})
-    rs_map = _compute_rs_for_all(rows)   # {code: {rs, ...}}
-    print(f"시계열 확보 {len(asof_series)} · RS 산출 {sum(1 for v in rs_map.values() if v.get('rs'))}")
+        full_by_code[code] = s
+        stD_by_code[code] = stD
+    print(f"시계열 확보 {len(full_by_code)}")
 
-    # 2) 트렌드 게이트 → 3) 패턴 돌파 → 4) 시뮬
-    events, ambiguous = [], []
-    n_pass = 0
-    for code, (full, st) in asof_series.items():
-        rs = (rs_map.get(code) or {}).get("rs")
-        tt = evaluate_trend_template(st["closes"], rs=rs, rs_min=RS_MIN)
-        if not tt["pass"]:
-            continue
-        n_pass += 1
-        last10 = set(st["dates"][-ENTRY_WINDOW:])
+    # 1) 후보 돌파 검출 (as-of D 절단으로 검출 — 룩어헤드 없음). 돌파일 ∈ 마지막 10거래일.
+    candidates = []
+    for code, stD in stD_by_code.items():
+        last10 = set(stD["dates"][-ENTRY_WINDOW:])
         for pname, replay_fn, events_fn in PATTERNS:
-            rep = replay_fn(st, SCAN_DAYS, None)
-            for ev in events_fn(rep):
-                if ev["date"] not in last10:
-                    continue
-                pivot = ev["pivot_price"]
-                if not pivot:
-                    continue
-                bi = full["dates"].index(ev["date"])
-                sim = simulate_pivot_trade(full, bi, pivot)
-                rec = {
-                    "code": code, "name": meta[code].get("name", code),
-                    "market": meta[code].get("market"), "pattern": pname,
-                    "breakout_date": ev["date"], "pivot": round(pivot, 2),
-                    "rs": rs, "price_bucket": price_bucket(pivot),
-                    "rel_vol": rel_volume(full, bi), **sim,
-                }
-                rec["rel_vol_bucket"] = relvol_bucket(rec["rel_vol"])
-                rec["rs_bucket"] = rs_bucket(rs)
-                events.append(rec)
-                if sim["result"] == "ambiguous":
-                    ambiguous.append(rec)
-    print(f"트렌드 통과 {n_pass} · 엔트리 이벤트 {len(events)} · ambiguous {len(ambiguous)}")
+            for ev in events_fn(replay_fn(stD, SCAN_DAYS, None)):
+                if ev["date"] in last10 and ev["pivot_price"]:
+                    candidates.append({"code": code, "pattern": pname,
+                                       "date": ev["date"], "pivot": ev["pivot_price"]})
+    print(f"후보 돌파 {len(candidates)}")
+
+    # 2) 돌파일별 교차 RS (as-of 그 날짜) — 후보에 등장한 날짜만
+    bdates = sorted({c["date"] for c in candidates})
+    rs_by_date = {}
+    for bd in bdates:
+        rows = []
+        for code, full in full_by_code.items():
+            cl = truncate_series(full, bd)["closes"]
+            if len(cl) >= 200:
+                rows.append({"code": code, "closes": cl, "ok": True})
+        rs_by_date[bd] = _compute_rs_for_all(rows)
+    print(f"돌파일 RS 계산 {len(bdates)}일")
+
+    # 3) 돌파일 기준 트렌드 게이트 통과분만 시뮬
+    events, ambiguous = [], []
+    for c in candidates:
+        code, bd = c["code"], c["date"]
+        rs = (rs_by_date[bd].get(code) or {}).get("rs")
+        st_bd = truncate_series(full_by_code[code], bd)
+        if not evaluate_trend_template(st_bd["closes"], rs=rs, rs_min=RS_MIN)["pass"]:
+            continue
+        full = full_by_code[code]
+        bi = full["dates"].index(bd)
+        sim = simulate_pivot_trade(full, bi, c["pivot"])
+        rec = {
+            "code": code, "name": meta[code].get("name", code),
+            "market": meta[code].get("market"), "pattern": c["pattern"],
+            "breakout_date": bd, "pivot": round(c["pivot"], 2),
+            "rs": rs, "price_bucket": price_bucket(c["pivot"]),
+            "rel_vol": rel_volume(full, bi), **sim,
+        }
+        rec["rel_vol_bucket"] = relvol_bucket(rec["rel_vol"])
+        rec["rs_bucket"] = rs_bucket(rs)
+        events.append(rec)
+        if sim["result"] == "ambiguous":
+            ambiguous.append(rec)
+    print(f"게이트 통과 엔트리 {len(events)} · ambiguous {len(ambiguous)}")
+
+    # ③ 종목-돌파일 중복 제거 stock-level (보수적: 패<예외<승 우선순위로 1건 대표)
+    prio = {"loss": 0, "ambiguous": 1, "win": 2, "unresolved": 3}
+    by_pair = {}
+    for e in events:
+        k = (e["code"], e["breakout_date"])
+        if k not in by_pair or prio[e["result"]] < prio[by_pair[k]["result"]]:
+            by_pair[k] = e
+    stock_events = list(by_pair.values())
 
     by_feature = {k: group_win_rate(events, k)
                   for k in ("pattern", "market", "price_bucket", "rel_vol_bucket", "rs_bucket")}
+    forward_last = max((s["dates"][-1] for s in full_by_code.values()), default=None)
     return {
         "generated_at": datetime.now(KST).strftime("%Y-%m-%d %H:%M"),
         "params": {"asof": asof, "target_pct": 10, "stop_pct": 5,
                    "rs_min": RS_MIN, "entry_window": ENTRY_WINDOW,
-                   "forward_last": full["dates"][-1] if asof_series else None},
+                   "gate": "per_breakout_date", "forward_last": forward_last},
         "summary": tally(events),
+        "summary_stock_level": tally(stock_events),
+        "unique_stock_days": len(stock_events),
         "by_pattern": group_win_rate(events, "pattern"),
         "by_feature": by_feature,
         "events": events,
@@ -125,8 +150,10 @@ def main():
     p.write_text(json.dumps(out, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"💾 저장: {p.relative_to(ROOT)}")
     s = out["summary"]
+    ss = out["summary_stock_level"]
     print(f"\n총 {s['n']} · 승 {s['win']} 패 {s['loss']} 예외 {s['ambiguous']} 미결 {s['unresolved']} "
-          f"· 결착승률 {s['win_rate_resolved']}%")
+          f"· 결착승률 {s['win_rate_resolved']}% (최악 {s['win_rate_worst']}%~최선 {s['win_rate_best']}%)")
+    print(f"고유 종목·돌파일 {out['unique_stock_days']} · stock-level 결착승률 {ss['win_rate_resolved']}%")
 
 
 if __name__ == "__main__":

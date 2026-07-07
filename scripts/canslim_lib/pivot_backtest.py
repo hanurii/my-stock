@@ -79,14 +79,18 @@ def simulate_pivot_trade(series, breakout_idx, pivot, target_pct=10.0, stop_pct=
 
 
 def tally(events) -> dict:
-    """결과별 개수 + 결착(win/loss) 승률."""
+    """결과별 개수 + 승률(결착·최악·최선)."""
     n = len(events)
     c = {"win": 0, "loss": 0, "ambiguous": 0, "unresolved": 0}
     for e in events:
         c[e["result"]] = c.get(e["result"], 0) + 1
     resolved = c["win"] + c["loss"]
+    denom = resolved + c["ambiguous"]   # 미결 제외, 예외 포함
     wr = round(c["win"] / resolved * 100, 1) if resolved else None
-    return {"n": n, **c, "win_rate_resolved": wr}
+    worst = round(c["win"] / denom * 100, 1) if denom else None
+    best = round((c["win"] + c["ambiguous"]) / denom * 100, 1) if denom else None
+    return {"n": n, **c, "win_rate_resolved": wr,
+            "win_rate_worst": worst, "win_rate_best": best}
 
 
 def group_win_rate(events, key) -> dict:
