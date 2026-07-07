@@ -4,7 +4,7 @@
 정의: docs/superpowers/specs/2026-07-07-resolve-ambiguous-minute-design.md
 """
 from __future__ import annotations
-import argparse, json, subprocess, sys
+import argparse, json, sys
 from pathlib import Path
 
 try:
@@ -43,7 +43,6 @@ def run(infile: Path) -> None:
     amb = [e for e in events if e["result"] == "ambiguous"]
     print(f"예외 {len(amb)}건 분봉 판정 시작…")
 
-    by_id = {(e["code"], e["breakout_date"], e["pattern"]): e for e in events}
     resolved = {"win": 0, "loss": 0, "stay": 0}
     for e in amb:
         s = ohlcv_matrix.get_series(e["code"])
@@ -53,12 +52,27 @@ def run(infile: Path) -> None:
             continue
         bi = s["dates"].index(e["breakout_date"])
         mins = minute_bars.fetch_day_minutes(e["code"], e["breakout_date"])
+        if mins:
+            mhigh = max(m["h"] for m in mins)
+            dhigh = s["highs"][bi]
+            if mhigh and dhigh and abs(dhigh / mhigh - 1) > 0.03:
+                e["minute_resolution"] = {"result": "ambiguous", "resolved_by": "minute",
+                                          "reason": "scale_mismatch", "entry_time": None,
+                                          "resolve_date": e["breakout_date"]}
+                resolved["stay"] += 1
+                print(f"  {e['code']} {e['name']} {e['breakout_date']} → scale_mismatch "
+                      f"(일봉고 {dhigh:.0f} vs 분봉고 {mhigh:.0f})")
+                continue
         r = resolve_minute_trade(mins, s, bi, e["pivot"])
         e["minute_resolution"] = r
         if r["result"] in ("win", "loss"):
             e["result"] = r["result"]
             e["resolve_date"] = r["resolve_date"]
             e["exit_reason"] = f"minute:{r['reason']}"
+            e["gain_at_resolve_pct"] = 10.0 if r["result"] == "win" else -5.0
+            e["days_held"] = (s["dates"].index(r["resolve_date"]) - bi) if r["resolve_date"] in s["dates"] else 0
+            e["max_gain_pct"] = None
+            e["max_dd_pct"] = None
             resolved[r["result"]] += 1
         else:
             resolved["stay"] += 1

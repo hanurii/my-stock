@@ -177,3 +177,11 @@ def test_minute_no_data_is_ambiguous():
     d = _daily(["2026-03-20"], [111], [94])
     r = resolve_minute_trade([], d, 0, 100.0)
     assert r["result"] == "ambiguous" and r["reason"] == "no_minute_data"
+
+
+def test_minute_no_entry_is_ambiguous():
+    # 어느 분봉도 피벗(120)에 도달 못함 → no_entry
+    m = _min([("0901", 110, 105), ("0902", 115, 108)])
+    d = _daily(["2026-03-20"], [115], [105])
+    r = resolve_minute_trade(m, d, 0, 120.0)
+    assert r["result"] == "ambiguous" and r["reason"] == "no_entry"
