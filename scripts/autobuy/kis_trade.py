@@ -10,19 +10,21 @@ def _order(code: str, side: str, mode: str) -> dict:
     base = {"code": code, "side": side, "qty": 1, "mode": mode}
     if mode != "live":
         return {**base, "ok": True, "note": "dryrun(주문 안 냄)"}
-    token = kis_api.get_access_token()
-    if not token:
-        return {**base, "ok": False, "error": "no_token"}
-    tr = "TTTC0802U" if side == "buy" else "TTTC0801U"   # 구현자: KIS 문서로 확인
-    body = {"CANO": os.environ["KIS_ACCOUNT"], "ACNT_PRDT_CD": os.environ.get("KIS_ACNT_PRDT", "01"),
-            "PDNO": code, "ORD_DVSN": "01", "ORD_QTY": ORD_QTY, "ORD_UNPR": "0"}  # 01=시장가
-    payload = json.dumps(body)
-    url = f"{kis_api._base_url()}/uapi/domestic-stock/v1/trading/order-cash"
-    headers = {"content-type": "application/json", "authorization": f"Bearer {token}",
-               "appkey": os.environ["KIS_APP_KEY"], "appsecret": os.environ["KIS_APP_SECRET"],
-               "tr_id": tr, "custtype": "P", "hashkey": _hashkey(payload)}
-    kis_api._throttle()
+    # ★ live 경로는 전부 try 안 — env 누락(KeyError)·hashkey/네트워크 예외가
+    #   러너 루프까지 올라가 크래시시키지 않고 ok=False 로 죽는다.
     try:
+        token = kis_api.get_access_token()
+        if not token:
+            return {**base, "ok": False, "error": "no_token"}
+        tr = "TTTC0802U" if side == "buy" else "TTTC0801U"   # 구현자: KIS 문서로 확인
+        body = {"CANO": os.environ["KIS_ACCOUNT"], "ACNT_PRDT_CD": os.environ.get("KIS_ACNT_PRDT", "01"),
+                "PDNO": code, "ORD_DVSN": "01", "ORD_QTY": ORD_QTY, "ORD_UNPR": "0"}  # 01=시장가
+        payload = json.dumps(body)
+        url = f"{kis_api._base_url()}/uapi/domestic-stock/v1/trading/order-cash"
+        headers = {"content-type": "application/json", "authorization": f"Bearer {token}",
+                   "appkey": os.environ["KIS_APP_KEY"], "appsecret": os.environ["KIS_APP_SECRET"],
+                   "tr_id": tr, "custtype": "P", "hashkey": _hashkey(payload)}
+        kis_api._throttle()
         with _u.urlopen(_u.Request(url, data=payload.encode(), headers=headers), timeout=8) as r:
             d = json.loads(r.read().decode("utf-8"))
         return {**base, "ok": d.get("rt_cd") == "0", "resp": d}
