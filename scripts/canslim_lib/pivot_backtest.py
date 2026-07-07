@@ -104,6 +104,37 @@ def tally(events) -> dict:
             "win_rate_worst": worst, "win_rate_best": best}
 
 
+def resolve_minute_trade(minutes, daily, breakout_idx, pivot, target_pct=10.0, stop_pct=5.0):
+    """돌파 당일 1분봉으로 진입(피벗 첫 도달)→선착 판정. 당일 미결이면 이튿날부터 일봉 선착.
+    반환: result·resolved_by·entry_time·resolve_date·reason."""
+    bdate = daily["dates"][breakout_idx]
+    T = pivot * (1 + target_pct / 100)
+    S = pivot * (1 - stop_pct / 100)
+    if not minutes:
+        return {"result": "ambiguous", "resolved_by": "minute", "reason": "no_minute_data",
+                "entry_time": None, "resolve_date": bdate}
+    entry = next((k for k, m in enumerate(minutes) if m["h"] >= pivot), None)
+    if entry is None:
+        return {"result": "ambiguous", "resolved_by": "minute", "reason": "no_entry",
+                "entry_time": None, "resolve_date": bdate}
+    etime = minutes[entry]["t"]
+    for m in minutes[entry:]:
+        hit_t = m["h"] >= T
+        hit_s = m["l"] <= S
+        if hit_t and hit_s:
+            return {"result": "ambiguous", "resolved_by": "minute", "reason": "same_minute",
+                    "entry_time": etime, "resolve_date": bdate}
+        if hit_t:
+            return {"result": "win", "resolved_by": "minute", "reason": "target",
+                    "entry_time": etime, "resolve_date": bdate}
+        if hit_s:
+            return {"result": "loss", "resolved_by": "minute", "reason": "stop",
+                    "entry_time": etime, "resolve_date": bdate}
+    res = _daily_first_touch(daily, breakout_idx, breakout_idx + 1, pivot, target_pct, stop_pct)
+    return {"result": res["result"], "resolved_by": "daily", "reason": res["exit_reason"],
+            "entry_time": etime, "resolve_date": res["resolve_date"]}
+
+
 def group_win_rate(events, key) -> dict:
     """key 값별 tally. key 값이 None/누락이면 '미상' 버킷."""
     groups: dict[str, list] = {}

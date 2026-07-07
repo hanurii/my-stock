@@ -127,3 +127,53 @@ def test_daily_first_touch_target_and_unresolved():
     assert _daily_first_touch(s, 0, 0, 100.0)["result"] == "win"
     s2 = mk(highs=[104.0, 105.0], lows=[99.0, 100.0], closes=[103.0, 104.0])
     assert _daily_first_touch(s2, 0, 0, 100.0)["result"] == "unresolved"
+
+
+from canslim_lib.pivot_backtest import resolve_minute_trade
+
+
+def _daily(dates, highs, lows, closes=None):
+    n = len(dates)
+    closes = closes or [(highs[i] + lows[i]) / 2 for i in range(n)]
+    return {"dates": dates, "closes": closes, "opens": list(closes),
+            "highs": list(highs), "lows": list(lows), "volumes": [1.0] * n}
+
+
+def _min(rows):  # rows: [(t,h,l)] → 분봉 dict 리스트
+    return [{"t": t, "o": h, "h": h, "l": l, "c": (h + l) / 2, "v": 1.0} for t, h, l in rows]
+
+
+def test_minute_entry_then_target_is_win():
+    # 피벗 100 도달(체결) 후 +10% 먼저 → win
+    m = _min([("0901", 98, 97), ("0902", 100, 99), ("0903", 111, 105)])
+    d = _daily(["2026-03-20"], [111], [97])
+    r = resolve_minute_trade(m, d, 0, 100.0)
+    assert r["result"] == "win" and r["resolved_by"] == "minute" and r["entry_time"] == "0902"
+
+
+def test_minute_pre_entry_dip_ignored_then_stop_after_entry_is_loss():
+    # 진입 전 저점(96, -4%지만 매수 전) 무시 → 진입 후 -5% 관통 → loss
+    m = _min([("0901", 99, 94), ("0902", 100, 99), ("0903", 101, 94)])
+    d = _daily(["2026-03-20"], [101], [94])
+    r = resolve_minute_trade(m, d, 0, 100.0)
+    assert r["result"] == "loss" and r["entry_time"] == "0902"
+
+
+def test_minute_no_exit_then_resume_daily():
+    # 당일 진입 후 아무것도 안 닿음 → 이튿날 일봉 +10% → win(resolved_by daily)
+    m = _min([("0902", 100, 99), ("0903", 104, 99)])
+    d = _daily(["2026-03-20", "2026-03-23"], [104, 111], [99, 101])
+    r = resolve_minute_trade(m, d, 0, 100.0)
+    assert r["result"] == "win" and r["resolved_by"] == "daily" and r["resolve_date"] == "2026-03-23"
+
+
+def test_minute_same_bar_both_is_ambiguous():
+    m = _min([("0902", 100, 99), ("0903", 111, 94)])  # 한 분봉에 +10%·-5% 동시
+    d = _daily(["2026-03-20"], [111], [94])
+    assert resolve_minute_trade(m, d, 0, 100.0)["reason"] == "same_minute"
+
+
+def test_minute_no_data_is_ambiguous():
+    d = _daily(["2026-03-20"], [111], [94])
+    r = resolve_minute_trade([], d, 0, 100.0)
+    assert r["result"] == "ambiguous" and r["reason"] == "no_minute_data"
