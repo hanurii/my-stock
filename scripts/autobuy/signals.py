@@ -25,13 +25,13 @@ def evaluate_entry(price, pivot, acml_vol, avg50_vol, elapsed_frac, *,
 
 
 def evaluate_exit(price, entry_price, *, target_pct=20.0, stop_pct=10.0):
-    """진입가 대비 -stop% 손절 / +target% 목표 선착. 반환 (매도여부, stop|target|hold).
+    """진입가 대비 -stop% 손절 / +target% 익절 선착. 반환 (매도여부, 손절|익절|보유).
     손절 우선(같은 틱에 둘 다면 손절)."""
     if price <= entry_price * (1 - stop_pct / 100):
-        return (True, "stop")
+        return (True, "손절")
     if price >= entry_price * (1 + target_pct / 100):
-        return (True, "target")
-    return (False, "hold")
+        return (True, "익절")
+    return (False, "보유")
 
 
 def is_uptrend(closes, ma=20):

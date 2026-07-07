@@ -35,15 +35,15 @@ def test_zero_baseline_skips():
     assert ev(elapsed_frac=0) == (False, "no_baseline")
 
 def test_exit_stop():
-    assert evaluate_exit(900.0, 1000.0) == (True, "stop")     # -10%
-    assert evaluate_exit(901.0, 1000.0) == (False, "hold")    # -9.9%
+    assert evaluate_exit(900.0, 1000.0) == (True, "손절")     # -10%
+    assert evaluate_exit(901.0, 1000.0) == (False, "보유")    # -9.9%
 
 def test_exit_target():
-    assert evaluate_exit(1200.0, 1000.0) == (True, "target")  # +20%
-    assert evaluate_exit(1199.0, 1000.0) == (False, "hold")
+    assert evaluate_exit(1200.0, 1000.0) == (True, "익절")  # +20%
+    assert evaluate_exit(1199.0, 1000.0) == (False, "보유")
 
 def test_exit_hold_between():
-    assert evaluate_exit(1050.0, 1000.0) == (False, "hold")
+    assert evaluate_exit(1050.0, 1000.0) == (False, "보유")
 
 def test_is_uptrend():
     assert is_uptrend([1,2,3,4,5,6,7,8,9,10]*3, ma=20) is True     # 우상향
