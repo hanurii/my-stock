@@ -1,7 +1,7 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-07-07T18:03:01.326+09:00",
+  "last_checked": "2026-07-07T20:54:43.225+09:00",
   "metrics": [
     {
       "id": "per",
@@ -60,8 +60,8 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 72.36,
-      "display": "72.36$",
+      "value": 72.31,
+      "display": "72.31$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "warn"
@@ -84,7 +84,7 @@
       "severity": "warn",
       "type": "oil_price_brent",
       "title": "Brent 7일 평균 (두바이유 대용) 임계 근접",
-      "message": "현재 72.36$ (임계 70달러 이하 (정유 매크로 약화))"
+      "message": "현재 72.31$ (임계 70달러 이하 (정유 매크로 약화))"
     },
     {
       "severity": "bad",
@@ -99,6 +99,16 @@
       "date": "2026-07-03",
       "title": "두바이유 가격, 전쟁 이전 1월 수준까지 하락 - 에너지플랫폼뉴스",
       "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE15WEdPeHdRRy15SmhoNXR5S2dXcmhVNFF1TnZSM2lhLWhYdmFEN3NoUmhLV3E1bE94SXpzbDJ6MHZCVEl0VUdLV3NjX29ZWTh2bnFLcW5iRXoxdHgwN3EwdXRPcldLM0ZaT0NNbNIBcEFVX3lxTE5uaVVYbGdwbm9wb1ZESm5UX0xnaWZnTTZRTkltVFBTel9sbUZ0MVFmVTNHNm5fUkVDY0p2YkFfeF80UWlIOWRNZFNNakFXc0RnTDJ0Qnh2SXlGWnBxOGZwZlBiSUlZU29Ta0hENHc4c3A?oc=5",
+      "severity": "warn",
+      "signals": [
+        "하락"
+      ]
+    },
+    {
+      "keyword": "정제마진 하락",
+      "date": "2026-07-04",
+      "title": "NH투자證 “S-Oil, 유가 하락에도 정제마진 강세 여전…목표가 15만원 유지” - MSN",
+      "url": "https://news.google.com/rss/articles/CBMilgNBVV95cUxPc0dHaVpRUGtiNXZMX3U2WEY0OG50VmNraWtzMm5USWUtT2toZEY2U0lsdUg3TEhQRFBlaTJiN1V1d3BYUFZCVzg2Q3V0TUk5ZTlFSVRwb0FxWWVJaGlvUmZQWjRNbF8teWxTSkQzQW5oZTJvS0ZfOE4xUS1ubUNmNTRCZVdHcnFhWV9STERKSnZoSjZva0JHRk1mYkpGY1hxY25vTklyWGNTRWJUdEw4ZFFTTDRUT0dRb3VHcGwxdUlEU2xJV1JpMHJnNE1hcnUzMFVWek4xUUczeEZTZTFXY3l0ZkxFeERiUGpCc1BfVk9TTkp5dkpJaHdGQ0NtakEtSHh6aWtUdzIzLWx4QlVhamdka1huUVJjVEc4bkUwS1plc3oyTkRaY21lRUo3dEtvRUlDODBHZ0gtMXZUYXNQR0ZWemtMWXdZdDRtTVQ4dF82Sjg0NkFQQThMQS03azEzSThjRGVSNzg0Z29QS2hyVldENVpneC1xcWEzbm9XdlZUZmJZdUFXbDVFZld0a21BcXBSdXpR?oc=5",
       "severity": "warn",
       "signals": [
         "하락"
@@ -145,14 +155,6 @@
       "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTFA2N09kVXd6ckwzZWJXMzQwaFBsZ2tWRlppSkY2em96OHJpX3k2Z05xQzNKVW1XY1NQMjlPaGFYTWVtbU1zWWJUMjlLR1BXZVdKZEl5M0VMNzB0SzVZZlV3b1Y0YzUxbzdh?oc=5",
       "severity": "info",
       "signals": []
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-06-30",
-      "title": "유럽증시, 인공지능(AI)낙관·중동 긴장 완화 영향 상승 마감 - ksdaily.co.kr",
-      "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE13bWdFUXJJMWdVa0tNVm5FalF2akRDNHNmVEhnOFNBUjcteHk3akpXSWR1ZHdMQkpuby1UaGRRbWgxQlhLbHRNTFV1U0pZTU1QLXZEbXFfaXdWRExHWlZXaDdrV211czJDdENGUw?oc=5",
-      "severity": "info",
-      "signals": []
     }
   ],
   "sources": [
@@ -161,7 +163,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 73.08 USD (2026-07-07, 7일 평균 72.36)",
+      "label": "Brent 원유 종가 72.73 USD (2026-07-07, 7일 평균 72.31)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
