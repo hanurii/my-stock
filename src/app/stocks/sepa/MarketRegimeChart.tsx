@@ -15,7 +15,7 @@ export function MarketRegimeChart({ data }: { data: MarketRegime }) {
   if (!data || data.series.length < 2) {
     return (
       <p className="text-[11px] text-on-surface-variant/70">
-        국면 데이터 없음 — build_market_regime.py 실행 필요
+        등가중 지수 데이터 없음 — build_market_regime.py 실행 필요
       </p>
     );
   }
