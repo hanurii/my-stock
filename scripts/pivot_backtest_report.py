@@ -57,7 +57,7 @@ def main():
         L.append(f"- **최저 승률**: {lo[1]}={lo[2]} → {lo[0]}% (n {lo[3]['n']})\n")
     # 예외 목록(분봉 확인 요청)
     L.append("## ⚠️ 예외(ambiguous) — 분봉 확인 필요\n")
-    L.append("일봉으론 같은 날 +10%·-5% 선착 순서를 못 가림. 분봉으로 직접 확인해 승/패 확정 요망.\n")
+    L.append("분봉으로도 판정 불가로 남은 건: 진입 미확인(no_entry)·일봉↔분봉 가격 스케일 불일치(scale_mismatch).\n")
     L.append("| 종목 | 패턴 | 돌파일 | 피벗 | 사유 |")
     L.append("|---|---|---|--:|---|")
     for e in d["ambiguous"]:
@@ -65,7 +65,8 @@ def main():
     L.append("\n## 한계\n- 전진 64거래일·단일 기준일·단일 국면 → 일반화 금지.\n"
              "- 잔존 생존자 편향(2024-11 이전 상폐주 없음).\n- 먼 기간·다중 기준일은 후속 과제.\n"
              "- 게이트는 각 돌파일 기준 point-in-time 재평가(look-ahead 제거됨).\n"
-             "- 이벤트는 (종목·패턴) 단위 — 같은 종목이 여러 패턴/날 중복 기여할 수 있어 유효 표본은 이벤트 수보다 작음(stock-level 병기 참고).\n")
+             "- 이벤트는 (종목·패턴) 단위 — 같은 종목이 여러 패턴/날 중복 기여할 수 있어 유효 표본은 이벤트 수보다 작음(stock-level 병기 참고).\n"
+             "- 일부 종목은 일봉·분봉 가격 스케일 불일치(수정주가 복원 드리프트)로 scale_mismatch 처리(판정 제외).\n")
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text("\n".join(L) + "\n", encoding="utf-8")
     print(f"💾 저장: {OUT.relative_to(ROOT)}")
