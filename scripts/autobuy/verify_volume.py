@@ -74,3 +74,96 @@ def _fmt_block(now_str, elapsed_frac, held_count, slots_max, cand_count,
         lines.append(f"{r['code']} {r['name']}  {r['price']} / {r['pivot']}  "
                      f"{r['pct']:+.1f}%  pace{r['pace']:.1f}  {mark} {r['why']}")
     return "\n".join(lines)
+
+
+def _load_env(base):
+    import os
+    for line in (base / ".env").read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if line and not line.startswith("#") and "=" in line:
+            k, v = line.split("=", 1); os.environ.setdefault(k, v)
+
+
+def _regime_note(base, ohlcv_matrix, watchlist, signals):
+    """국면 참고 문자열(게이트 아님). 등가중 지수 최신값 vs 20MA."""
+    codes = [p.stem for p in (base / ".cache" / "ohlcv" / "series").glob("*.json")]
+    idx = watchlist.build_ew_index(ohlcv_matrix.get_series, codes)
+    up = signals.is_uptrend(idx, 20)
+    return "상승추세(지수≥20MA)" if up else "하락추세(지수<20MA)"
+
+
+def run(once=False, slots=None, interval=0):
+    import os, sys, time, datetime
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))   # scripts/
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    from autobuy.config import CFG, CANDIDATE_PATHS, BASE
+    from autobuy import signals, watchlist
+    sys.path.insert(0, str(BASE / "scripts"))
+    from canslim_lib import ohlcv_matrix, kis_api
+    ohlcv_matrix.SERIES_DIR = BASE / ".cache" / "ohlcv" / "series"
+    _load_env(BASE)
+
+    cfg = dict(CFG)
+    if slots:
+        cfg["SLOTS"] = slots
+
+    run_dir = Path(__file__).resolve().parent / "_run"
+    run_dir.mkdir(exist_ok=True)
+    log_path = run_dir / f"verify_volume_{datetime.datetime.now():%Y%m%d}.log"
+
+    def _logline(s):
+        with open(log_path, "a", encoding="utf-8") as f:
+            f.write(s + "\n")
+
+    wl = watchlist.load_actionable(CANDIDATE_PATHS)
+    avg50 = {}
+    for c in wl:
+        s = ohlcv_matrix.get_series(c["code"])
+        vols = [v for v in (s.get("volumes") or [])[-50:] if v] if s else []
+        avg50[c["code"]] = (sum(vols) / len(vols)) if vols else 0
+    note = _regime_note(BASE, ohlcv_matrix, watchlist, signals)
+    print(f"=== 거래량 매수 검증 관찰기 · 감시 {len(wl)}종목 · 슬롯 {cfg['SLOTS']} · 국면 {note} ===")
+    print("(읽기 전용 — 실주문 없음. 국면은 게이트 아니라 참고만)")
+
+    held_sim, skip = set(), set()
+    while True:
+        now = datetime.datetime.now(); hm = now.strftime("%H%M")
+        if hm >= cfg["MARKET_CLOSE"] and not once:
+            print("장마감 → 종료"); break
+        ef = _elapsed_frac(now)
+        in_win = cfg["MARKET_OPEN"] <= hm <= cfg["NEW_BUY_UNTIL"]
+        quotes = {}
+        for c in wl:
+            if c["code"] in held_sim:
+                continue                       # 이미 시뮬 보유 → 조회 아껴 already_held로 표시만
+            q = kis_api.fetch_quote_with_volume(c["code"])
+            if q:
+                quotes[c["code"]] = q
+        # held_sim 종목도 already_held 행이 나오도록 최소 시세는 있으면 좋지만, 조회 절감 위해 생략 →
+        # observe_sweep이 no_quote로 처리. held는 관찰 관심 밖이라 무방(매수 판정 검증이 목적).
+        rows, buys = observe_sweep(quotes, [c for c in wl if c["code"] not in held_sim],
+                                   avg50, held_sim, skip, cfg, ef, in_buy_window=in_win)
+        block = _fmt_block(now.strftime("%H:%M:%S"), ef, len(held_sim), cfg["SLOTS"],
+                           len(wl), note, rows, buys, in_win)
+        print("\n" + block, flush=True)
+        for b in buys:
+            _logline(f"{now:%H:%M:%S} ★매수 {b['code']} {b['name']} @{b['price']} pace{b['pace']}")
+        if once:
+            break
+        if interval:
+            time.sleep(interval)
+
+
+def main():
+    import argparse
+    ap = argparse.ArgumentParser(description="거래량 매수 실시간 검증 관찰기(읽기 전용)")
+    ap.add_argument("--once", action="store_true", help="한 번만 스윕하고 종료")
+    ap.add_argument("--slots", type=int, default=None, help="슬롯 상한 override")
+    ap.add_argument("--interval", type=int, default=0, help="스윕 사이 최소 대기(초)")
+    a = ap.parse_args()
+    run(once=a.once, slots=a.slots, interval=a.interval)
+
+
+if __name__ == "__main__":
+    main()
