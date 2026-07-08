@@ -222,14 +222,23 @@ def fetch_quote_with_volume(code: str, token: str | None = None) -> dict | None:
         return None
     qs = _urlparse.urlencode({"FID_COND_MRKT_DIV_CODE": "J", "FID_INPUT_ISCD": code})
     url = f"{_base_url()}/uapi/domestic-stock/v1/quotations/inquire-price?{qs}"
-    headers = {"content-type": "application/json", "authorization": f"Bearer {token}",
-               "appkey": os.environ.get("KIS_APP_KEY", ""), "appsecret": os.environ.get("KIS_APP_SECRET", ""),
-               "tr_id": "FHKST01010100", "custtype": "P"}
+    def _hdr(tok):
+        return {"content-type": "application/json", "authorization": f"Bearer {tok}",
+                "appkey": os.environ.get("KIS_APP_KEY", ""), "appsecret": os.environ.get("KIS_APP_SECRET", ""),
+                "tr_id": "FHKST01010100", "custtype": "P"}
+    reissued = False
     for attempt in range(3):
         _throttle()
         try:
-            with _urlreq.urlopen(_urlreq.Request(url, headers=headers), timeout=8) as resp:
+            with _urlreq.urlopen(_urlreq.Request(url, headers=_hdr(token)), timeout=8) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
+        except _urlreq.HTTPError as e:
+            # 만료 전 서버측 토큰 무효화 → HTTP 500. 토큰 한 번만 강제 재발급 후 재시도.
+            if e.code == 500 and not reissued:
+                token = _issue_token() or token; reissued = True
+            else:
+                time.sleep(0.3 * (attempt + 1))
+            continue
         except Exception:
             time.sleep(0.3 * (attempt + 1)); continue
         if data.get("rt_cd") == "0":
