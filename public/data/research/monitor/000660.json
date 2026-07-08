@@ -1,7 +1,7 @@
 {
   "code": "000660",
   "name": "SK하이닉스",
-  "last_checked": "2026-07-08T08:58:09.433+09:00",
+  "last_checked": "2026-07-08T14:49:27.017+09:00",
   "metrics": [
     {
       "id": "pbr",
@@ -79,9 +79,24 @@
       "type": "affiliate_ratio",
       "title": "계열사 거래 매출 비율 (1년) 임계 근접",
       "message": "현재 6.961% (임계 매출의 7% 초과)"
+    },
+    {
+      "severity": "info",
+      "type": "news_keyword_hit",
+      "title": "리스크 키워드 매칭 뉴스 1건 (관찰 신호 0건 — 키워드 단순 매칭만)",
+      "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
-  "news_hits": [],
+  "news_hits": [
+    {
+      "keyword": "삼성 HBM4 엔비디아 공급",
+      "date": "2026-07-08",
+      "title": "삼성전자, 엔비디아 '베라 루빈'에 HBM4이어 eSSD도 공급...'전방위 공략' - 파이낸셜뉴스",
+      "url": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE5USEhpN3dpT213cURFMDVFOC1tbElNWUVGd3V1V2dzWjRfV0tDOW9wNUhuM0xUVUZhNHQ2SXYwVjBRdGxfMWZvdzE0b2RDYkRnVnlaSTUyejc2Zw?oc=5",
+      "severity": "info",
+      "signals": []
+    }
+  ],
   "sources": [
     {
       "label": "PER/PEG/PBR 스코어",
@@ -98,6 +113,10 @@
     {
       "label": "SK스퀘어(주) 보유 비율 (2025)",
       "ref": "DART 20260317000635 (hyslrSttus)"
+    },
+    {
+      "label": "뉴스 RSS",
+      "ref": "news.google.com/rss (7일)"
     }
   ]
 }
