@@ -1,6 +1,6 @@
 import sys, pathlib, datetime
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "scripts"))
-from autobuy.verify_volume import observe_sweep, _elapsed_frac
+from autobuy.verify_volume import observe_sweep, _elapsed_frac, _in_buy_window
 
 CFG = {"SLOTS": 10, "VOL_PACE_MIN": 1.5, "CHASE_MAX_PCT": 3.0}
 
@@ -111,3 +111,10 @@ def test_fmt_block_contains_key_parts():
 def test_fmt_block_outside_window_marks_header():
     out = _fmt_block("15:25:00", 0.99, 0, 10, 0, "상승추세", [], [], False)
     assert "매수창" in out               # 창 밖 표기
+
+def test_in_buy_window_upper_bound_exclusive():
+    cfg = {"MARKET_OPEN": "0905", "NEW_BUY_UNTIL": "1520"}
+    assert _in_buy_window("0905", cfg) is True      # 하한 포함
+    assert _in_buy_window("1519", cfg) is True
+    assert _in_buy_window("1520", cfg) is False      # 상한 배타 — 실전 봇과 동일
+    assert _in_buy_window("0904", cfg) is False      # 개장 전

@@ -10,6 +10,11 @@ def _elapsed_frac(now) -> float:
     return max(1e-6, min(1.0, (now - op).total_seconds() / (6.5 * 3600)))
 
 
+def _in_buy_window(hm, cfg):
+    """실전 runner와 동일: MARKET_OPEN <= hm < NEW_BUY_UNTIL (상한 배타)."""
+    return cfg["MARKET_OPEN"] <= hm < cfg["NEW_BUY_UNTIL"]
+
+
 def observe_sweep(quotes_by_code, candidates, avg50_by_code, held_sim, skip, cfg,
                   elapsed_frac, in_buy_window=True):
     """한 사이클 후보 판정. 실제 매수 여부는 signals.evaluate_entry 재사용.
@@ -93,7 +98,7 @@ def _regime_note(base, ohlcv_matrix, watchlist, signals):
 
 
 def run(once=False, slots=None, interval=0):
-    import os, sys, time, datetime
+    import sys, time, datetime
     from pathlib import Path
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))   # scripts/
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -105,7 +110,7 @@ def run(once=False, slots=None, interval=0):
     _load_env(BASE)
 
     cfg = dict(CFG)
-    if slots:
+    if slots is not None:
         cfg["SLOTS"] = slots
 
     run_dir = Path(__file__).resolve().parent / "_run"
@@ -132,14 +137,18 @@ def run(once=False, slots=None, interval=0):
         if hm >= cfg["MARKET_CLOSE"] and not once:
             print("장마감 → 종료"); break
         ef = _elapsed_frac(now)
-        in_win = cfg["MARKET_OPEN"] <= hm <= cfg["NEW_BUY_UNTIL"]
+        in_win = _in_buy_window(hm, cfg)
         quotes = {}
         for c in wl:
             if c["code"] in held_sim:
                 continue                       # 이미 시뮬 보유 → 조회 아껴 already_held로 표시만
-            q = kis_api.fetch_quote_with_volume(c["code"])
-            if q:
-                quotes[c["code"]] = q
+            try:
+                q = kis_api.fetch_quote_with_volume(c["code"])
+                if q:
+                    quotes[c["code"]] = q
+            except Exception as e:
+                print(f"  조회 예외 {c['code']}: {type(e).__name__} — 계속", flush=True)
+                continue
         # held_sim 종목도 already_held 행이 나오도록 최소 시세는 있으면 좋지만, 조회 절감 위해 생략 →
         # observe_sweep이 no_quote로 처리. held는 관찰 관심 밖이라 무방(매수 판정 검증이 목적).
         rows, buys = observe_sweep(quotes, [c for c in wl if c["code"] not in held_sim],
