@@ -1,13 +1,13 @@
 {
   "code": "086790",
   "name": "하나금융지주",
-  "last_checked": "2026-07-08T17:03:01.523+09:00",
+  "last_checked": "2026-07-08T20:07:45.849+09:00",
   "metrics": [
     {
       "id": "pbr",
       "label": "PBR",
-      "value": 0.77,
-      "display": "0.77배",
+      "value": 0.75,
+      "display": "0.75배",
       "threshold": "1.0 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "pbr_premium_pp",
       "label": "4대 지주 평균 대비 PBR 프리미엄",
-      "value": -0.087,
-      "display": "-0.087pp",
+      "value": -0.093,
+      "display": "-0.093pp",
       "threshold": "+0.10pp 이상",
       "hit": false,
       "tone": "good"
@@ -24,8 +24,8 @@
     {
       "id": "foreign_ratio",
       "label": "외국인 지분율",
-      "value": 68.36,
-      "display": "68.36%",
+      "value": 68.3,
+      "display": "68.30%",
       "threshold": "65% 이하",
       "hit": false,
       "tone": "good"
@@ -33,11 +33,11 @@
     {
       "id": "foreign_net_buy_4w",
       "label": "최근 20거래일 외국인 순매수",
-      "value": 26510,
-      "display": "3만주",
+      "value": -20224,
+      "display": "-2만주",
       "threshold": "순매도 전환",
-      "hit": false,
-      "tone": "good"
+      "hit": true,
+      "tone": "bad"
     },
     {
       "id": "dividend_qoq_change",
@@ -87,6 +87,12 @@
   ],
   "alerts": [
     {
+      "severity": "bad",
+      "type": "foreign_net_buy_4w",
+      "title": "최근 20거래일 외국인 순매수 순매도 전환",
+      "message": "현재 -2만주 — 매도 트리거 도달"
+    },
+    {
       "severity": "warn",
       "type": "news_keyword_hit",
       "title": "리스크 키워드 매칭 뉴스 1건 (관찰 신호 1건 포함)",
@@ -112,7 +118,7 @@
     },
     {
       "label": "4대 지주 평균 PBR 비교 (3종목)",
-      "ref": "peers: 316140, 105560, 055550 / avg 0.857"
+      "ref": "peers: 316140, 105560, 055550 / avg 0.843"
     },
     {
       "label": "분기 배당 결정 (사업보고서 (2025.12))",
@@ -120,7 +126,7 @@
     },
     {
       "label": "외국인 순매수 누적 (20일)",
-      "ref": "네이버 dealTrendInfos / history 2026-07-07"
+      "ref": "네이버 dealTrendInfos / history 2026-07-08"
     },
     {
       "label": "최근 분기 순이익 (2025-FY)",
