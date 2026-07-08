@@ -87,3 +87,27 @@ def test_outside_buy_window_no_commit():
                                in_buy_window=False)
     assert buys == [] and "A" not in held
     assert [r for r in rows if r["code"] == "A"][0]["why"] == "buy"   # 조건은 충족(창밖이라 미체결)
+
+from autobuy.verify_volume import _fmt_block
+
+def test_fmt_block_contains_key_parts():
+    rows = [
+        {"code": "000660", "name": "SK하이닉스", "price": 183500, "pivot": 182000,
+         "pct": 0.82, "pace": 2.13, "why": "buy"},
+        {"code": "042700", "name": "한미반도체", "price": 41500, "pivot": 40000,
+         "pct": 3.75, "pace": 1.8, "why": "extended"},
+        {"code": "006400", "name": "삼성SDI", "price": None, "pivot": 41000,
+         "pct": None, "pace": None, "why": "no_quote"},
+    ]
+    buys = [{"code": "000660", "name": "SK하이닉스", "price": 183500, "pace": 2.1}]
+    out = _fmt_block("14:03:20", 0.77, 1, 10, 3, "하락추세(지수<20MA)", rows, buys, True)
+    assert "14:03:20" in out
+    assert "1/10" in out                 # 슬롯 held/max
+    assert "하락추세" in out             # 국면 참고
+    assert "★매수" in out and "000660" in out
+    assert "한미반도체" in out and "extended" in out
+    assert "no_quote" in out             # 조회 실패도 표시
+
+def test_fmt_block_outside_window_marks_header():
+    out = _fmt_block("15:25:00", 0.99, 0, 10, 0, "상승추세", [], [], False)
+    assert "매수창" in out               # 창 밖 표기

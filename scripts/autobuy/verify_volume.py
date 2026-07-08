@@ -53,3 +53,24 @@ def observe_sweep(quotes_by_code, candidates, avg50_by_code, held_sim, skip, cfg
             buys.append({"code": c["code"], "name": c["name"], "price": price, "pace": round(pace, 1)})
             row_by_code[c["code"]]["why"] = "buy"
     return rows, buys
+
+
+def _fmt_block(now_str, elapsed_frac, held_count, slots_max, cand_count,
+               regime_note, rows, buys, in_buy_window):
+    """한 사이클 출력 블록 문자열. rows는 pace 내림차순 정렬해 표시."""
+    win = "" if in_buy_window else "  [매수창 밖 — 신규매수 안 함]"
+    lines = [f"=== {now_str} (장 경과 {elapsed_frac*100:.0f}%) · 슬롯 {held_count}/{slots_max} · "
+             f"감시 {cand_count}종목{win} ==="]
+    lines.append(f"[국면 참고: {regime_note} — 게이트 아님(관찰만)]")
+    if buys:
+        tag = " · ".join(f"{b['code']} {b['name']} @{b['price']} pace{b['pace']}" for b in buys)
+        lines.append(f"★매수 발생({len(buys)}): {tag}")
+    lines.append("--- 후보별 판정 ---")
+    for r in sorted(rows, key=lambda x: (x["pace"] is None, -(x["pace"] or 0))):
+        if r["price"] is None:
+            lines.append(f"{r['code']} {r['name']}  (조회 실패)  ✗ {r['why']}")
+            continue
+        mark = "★" if r["why"] == "buy" else ("▷" if r["why"] == "already_held" else "✗")
+        lines.append(f"{r['code']} {r['name']}  {r['price']} / {r['pivot']}  "
+                     f"{r['pct']:+.1f}%  pace{r['pace']:.1f}  {mark} {r['why']}")
+    return "\n".join(lines)
