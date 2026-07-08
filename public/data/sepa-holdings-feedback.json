@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-07-08 00:34",
-  "asof": "2026-07-07",
+  "generated_at": "2026-07-08 20:59",
+  "asof": "2026-07-08",
   "stop_loss_pct_default": -5,
   "holdings": [
     {
@@ -13,10 +13,10 @@
       "stop_loss_pct": -4,
       "pivot_price": 29099.58,
       "pivot_source": "manual",
-      "current_price": 30500.0,
-      "profit_pct": 2.69,
+      "current_price": 30900.0,
+      "profit_pct": 4.04,
       "stop_price": 28512.0,
-      "pct_to_stop": -6.52,
+      "pct_to_stop": -7.73,
       "breakout_date": "2026-06-30",
       "breakout_date_estimated": false,
       "signal": "early_sell",
@@ -45,7 +45,7 @@
         {
           "id": "weak_days_dominant",
           "status": "pass",
-          "detail": "하락 1·상승 4 / 나쁜마감 0·좋은마감 5"
+          "detail": "하락 1·상승 5 / 나쁜마감 0·좋은마감 6"
         },
         {
           "id": "breakout_failure",
@@ -53,20 +53,20 @@
           "detail": "스쿼트 후 반전 회복(피벗 위 복귀)"
         }
       ],
-      "extension_pct": 4.8,
+      "extension_pct": 6.2,
       "accumulation": {
-        "window": "D+5/15",
-        "elapsed": 5,
+        "window": "D+6/15",
+        "elapsed": 6,
         "signals": [
           {
             "id": "up_days_dominant",
             "status": "met",
-            "detail": "상승 4 · 하락 1"
+            "detail": "상승 5 · 하락 1"
           },
           {
             "id": "quality_closes",
             "status": "met",
-            "detail": "좋은 5 · 나쁜 0"
+            "detail": "좋은 6 · 나쁜 0"
           },
           {
             "id": "up_streak_7",
@@ -79,7 +79,7 @@
         "status": "pending",
         "m": {
           "ok": null,
-          "detail": "5/15일 (판정 전)"
+          "detail": "6/15일 (판정 전)"
         },
         "v": {
           "ok": null,
@@ -91,11 +91,32 @@
         }
       },
       "strength": {
-        "signal": "not_extended",
-        "extended": false,
-        "gate_detail": "확장 +4.8% < 5%",
-        "count": 0,
-        "signals": []
+        "signal": "sell_into_strength",
+        "extended": true,
+        "gate_detail": "확장 +6.2% ≥ 5%",
+        "count": 1,
+        "signals": [
+          {
+            "id": "climax_run",
+            "status": "clear",
+            "detail": "절정 분출 없음"
+          },
+          {
+            "id": "blowoff_day",
+            "status": "fired",
+            "detail": "구간 최대 상승일 +4%이 2일 전 출현"
+          },
+          {
+            "id": "exhaustion_gap",
+            "status": "clear",
+            "detail": "최근 상승 갭 없음"
+          },
+          {
+            "id": "distribution",
+            "status": "clear",
+            "detail": "반전·처닝·최대량 하락 없음"
+          }
+        ]
       }
     },
     {
@@ -108,10 +129,10 @@
       "stop_loss_pct": -4,
       "pivot_price": 138090,
       "pivot_source": "manual",
-      "current_price": 139500.0,
-      "profit_pct": 0.72,
+      "current_price": 140300.0,
+      "profit_pct": 1.3,
       "stop_price": 132960.0,
-      "pct_to_stop": -4.69,
+      "pct_to_stop": -5.23,
       "breakout_date": "2026-07-02",
       "breakout_date_estimated": false,
       "signal": "hold",
@@ -140,7 +161,7 @@
         {
           "id": "weak_days_dominant",
           "status": "pending",
-          "detail": "경과 3거래일 — 5거래일부터 판정"
+          "detail": "경과 4거래일 — 5거래일부터 판정"
         },
         {
           "id": "breakout_failure",
@@ -148,25 +169,25 @@
           "detail": "스쿼트 후 반전 회복(피벗 위 복귀)"
         }
       ],
-      "extension_pct": 1.0,
+      "extension_pct": 1.6,
       "accumulation": {
-        "window": "D+3/15",
-        "elapsed": 3,
+        "window": "D+4/15",
+        "elapsed": 4,
         "signals": [
           {
             "id": "up_days_dominant",
             "status": "met",
-            "detail": "상승 2 · 하락 1"
+            "detail": "상승 3 · 하락 1"
           },
           {
             "id": "quality_closes",
             "status": "met",
-            "detail": "좋은 2 · 나쁜 1"
+            "detail": "좋은 3 · 나쁜 1"
           },
           {
             "id": "up_streak_7",
             "status": "unmet",
-            "detail": "최고 2일"
+            "detail": "최고 3일"
           }
         ]
       },
@@ -174,7 +195,7 @@
         "status": "pending",
         "m": {
           "ok": null,
-          "detail": "3/15일 (판정 전)"
+          "detail": "4/15일 (판정 전)"
         },
         "v": {
           "ok": null,
@@ -182,13 +203,13 @@
         },
         "p": {
           "ok": null,
-          "detail": "+0%"
+          "detail": "+1%"
         }
       },
       "strength": {
         "signal": "not_extended",
         "extended": false,
-        "gate_detail": "확장 +1.0% < 5%",
+        "gate_detail": "확장 +1.6% < 5%",
         "count": 0,
         "signals": []
       }
@@ -203,10 +224,10 @@
       "stop_loss_pct": -4,
       "pivot_price": 57898.89,
       "pivot_source": "manual",
-      "current_price": 64300.0,
-      "profit_pct": 11.05,
+      "current_price": 65600.0,
+      "profit_pct": 13.3,
       "stop_price": 55584.0,
-      "pct_to_stop": -13.56,
+      "pct_to_stop": -15.27,
       "breakout_date": "2026-07-02",
       "breakout_date_estimated": false,
       "signal": "early_sell",
@@ -235,7 +256,7 @@
         {
           "id": "weak_days_dominant",
           "status": "pending",
-          "detail": "경과 3거래일 — 5거래일부터 판정"
+          "detail": "경과 4거래일 — 5거래일부터 판정"
         },
         {
           "id": "breakout_failure",
@@ -243,25 +264,25 @@
           "detail": "스쿼트 후 반전 회복(피벗 위 복귀)"
         }
       ],
-      "extension_pct": 11.1,
+      "extension_pct": 13.3,
       "accumulation": {
-        "window": "D+3/15",
-        "elapsed": 3,
+        "window": "D+4/15",
+        "elapsed": 4,
         "signals": [
           {
             "id": "up_days_dominant",
             "status": "met",
-            "detail": "상승 3 · 하락 0"
+            "detail": "상승 4 · 하락 0"
           },
           {
             "id": "quality_closes",
             "status": "met",
-            "detail": "좋은 2 · 나쁜 1"
+            "detail": "좋은 3 · 나쁜 1"
           },
           {
             "id": "up_streak_7",
             "status": "unmet",
-            "detail": "최고 3일"
+            "detail": "최고 4일"
           }
         ]
       },
@@ -269,7 +290,7 @@
         "status": "pending",
         "m": {
           "ok": null,
-          "detail": "3/15일 (판정 전)"
+          "detail": "4/15일 (판정 전)"
         },
         "v": {
           "ok": null,
@@ -277,24 +298,24 @@
         },
         "p": {
           "ok": null,
-          "detail": "+14%"
+          "detail": "+16%"
         }
       },
       "strength": {
-        "signal": "none",
+        "signal": "sell_into_strength",
         "extended": true,
-        "gate_detail": "확장 +11.1% ≥ 5%",
-        "count": 0,
+        "gate_detail": "확장 +13.3% ≥ 5%",
+        "count": 1,
         "signals": [
           {
             "id": "climax_run",
-            "status": "clear",
-            "detail": "절정 분출 없음"
+            "status": "fired",
+            "detail": "최근 11거래일 +26% — 절정 구간(25%+)"
           },
           {
             "id": "blowoff_day",
             "status": "pending",
-            "detail": "돌파 후 3거래일 — 판정 전"
+            "detail": "돌파 후 4거래일 — 판정 전"
           },
           {
             "id": "exhaustion_gap",
@@ -317,16 +338,16 @@
       "buy_price": 6670,
       "quantity": 748,
       "stop_loss_pct": -5,
-      "pivot_price": 7280.0,
+      "pivot_price": 7279.89,
       "pivot_source": "vcp",
-      "current_price": 7210.0,
-      "profit_pct": 8.1,
+      "current_price": 7160.0,
+      "profit_pct": 7.35,
       "stop_price": 6336.5,
-      "pct_to_stop": -12.12,
+      "pct_to_stop": -11.5,
       "breakout_date": "2026-07-06",
       "breakout_date_estimated": false,
-      "signal": "hold",
-      "violation_count": 0,
+      "signal": "early_sell",
+      "violation_count": 1,
       "rules": [
         {
           "id": "low_volume_breakout",
@@ -351,680 +372,15 @@
         {
           "id": "weak_days_dominant",
           "status": "pending",
-          "detail": "경과 1거래일 — 5거래일부터 판정"
-        },
-        {
-          "id": "breakout_failure",
-          "status": "watch",
-          "detail": "🟡 반전 회복 관찰중 (D+1/10)"
-        }
-      ],
-      "extension_pct": -1.0,
-      "accumulation": {
-        "window": "D+1/15",
-        "elapsed": 1,
-        "signals": [
-          {
-            "id": "up_days_dominant",
-            "status": "unmet",
-            "detail": "상승 0 · 하락 1"
-          },
-          {
-            "id": "quality_closes",
-            "status": "unmet",
-            "detail": "좋은 0 · 나쁜 1"
-          },
-          {
-            "id": "up_streak_7",
-            "status": "unmet",
-            "detail": "최고 0일"
-          }
-        ]
-      },
-      "mvp": {
-        "status": "pending",
-        "m": {
-          "ok": null,
-          "detail": "1/15일 (판정 전)"
-        },
-        "v": {
-          "ok": null,
-          "detail": "판정 전"
-        },
-        "p": {
-          "ok": null,
-          "detail": "-1%"
-        }
-      },
-      "strength": {
-        "signal": "not_extended",
-        "extended": false,
-        "gate_detail": "확장 -1.0% < 5%",
-        "count": 0,
-        "signals": []
-      }
-    },
-    {
-      "code": "339950",
-      "name": "아이비김영",
-      "market": "KOSDAQ",
-      "buy_date": "2026-07-06",
-      "buy_price": 2700,
-      "quantity": 3703,
-      "stop_loss_pct": -5,
-      "pivot_price": 2725.0,
-      "pivot_source": "vcp",
-      "current_price": 2700.0,
-      "profit_pct": 0.0,
-      "stop_price": 2565.0,
-      "pct_to_stop": -5.0,
-      "breakout_date": "2026-07-02",
-      "breakout_date_estimated": false,
-      "signal": "early_sell",
-      "violation_count": 2,
-      "rules": [
-        {
-          "id": "low_volume_breakout",
-          "status": "violation",
-          "detail": "돌파일 거래량 0.54배 — 평균에도 못 미침"
-        },
-        {
-          "id": "heavy_volume_pullback",
-          "status": "pass",
-          "detail": "대량 거래 하락일 없음"
-        },
-        {
-          "id": "consecutive_lower_lows",
-          "status": "pass",
-          "detail": "연속 저저점 없음"
-        },
-        {
-          "id": "close_below_ma",
-          "status": "pass",
-          "detail": "20일선 위 유지"
-        },
-        {
-          "id": "weak_days_dominant",
-          "status": "pending",
-          "detail": "경과 3거래일 — 5거래일부터 판정"
-        },
-        {
-          "id": "breakout_failure",
-          "status": "violation",
-          "detail": "거래량 동반 돌파 실패 — 2026-07-03 거래량 1.5배(돌파일 대비)"
-        }
-      ],
-      "extension_pct": -0.9,
-      "accumulation": {
-        "window": "D+3/15",
-        "elapsed": 3,
-        "signals": [
-          {
-            "id": "up_days_dominant",
-            "status": "unmet",
-            "detail": "상승 1 · 하락 2"
-          },
-          {
-            "id": "quality_closes",
-            "status": "met",
-            "detail": "좋은 2 · 나쁜 1"
-          },
-          {
-            "id": "up_streak_7",
-            "status": "unmet",
-            "detail": "최고 1일"
-          }
-        ]
-      },
-      "mvp": {
-        "status": "pending",
-        "m": {
-          "ok": null,
-          "detail": "3/15일 (판정 전)"
-        },
-        "v": {
-          "ok": null,
-          "detail": "판정 전"
-        },
-        "p": {
-          "ok": null,
-          "detail": "+1%"
-        }
-      },
-      "strength": {
-        "signal": "not_extended",
-        "extended": false,
-        "gate_detail": "확장 -0.9% < 5%",
-        "count": 0,
-        "signals": []
-      }
-    },
-    {
-      "code": "079940",
-      "name": "가비아",
-      "market": "KOSDAQ",
-      "buy_date": "2026-07-06",
-      "buy_price": 31550,
-      "quantity": 317,
-      "stop_loss_pct": -5,
-      "pivot_price": 31500.0,
-      "pivot_source": "vcp",
-      "current_price": 31850.0,
-      "profit_pct": 0.95,
-      "stop_price": 29972.5,
-      "pct_to_stop": -5.89,
-      "breakout_date": "2026-07-03",
-      "breakout_date_estimated": false,
-      "signal": "early_sell",
-      "violation_count": 1,
-      "rules": [
-        {
-          "id": "low_volume_breakout",
-          "status": "violation",
-          "detail": "돌파일 거래량 0.62배 — 평균에도 못 미침"
-        },
-        {
-          "id": "heavy_volume_pullback",
-          "status": "pass",
-          "detail": "대량 거래 하락일 없음"
-        },
-        {
-          "id": "consecutive_lower_lows",
-          "status": "pass",
-          "detail": "연속 저저점 없음"
-        },
-        {
-          "id": "close_below_ma",
-          "status": "pass",
-          "detail": "20일선 위 유지"
-        },
-        {
-          "id": "weak_days_dominant",
-          "status": "pending",
           "detail": "경과 2거래일 — 5거래일부터 판정"
         },
         {
           "id": "breakout_failure",
-          "status": "pass",
-          "detail": "스쿼트 후 반전 회복(피벗 위 복귀)"
-        }
-      ],
-      "extension_pct": 1.1,
-      "accumulation": {
-        "window": "D+2/15",
-        "elapsed": 2,
-        "signals": [
-          {
-            "id": "up_days_dominant",
-            "status": "unmet",
-            "detail": "상승 1 · 하락 1"
-          },
-          {
-            "id": "quality_closes",
-            "status": "unmet",
-            "detail": "좋은 1 · 나쁜 1"
-          },
-          {
-            "id": "up_streak_7",
-            "status": "unmet",
-            "detail": "최고 1일"
-          }
-        ]
-      },
-      "mvp": {
-        "status": "pending",
-        "m": {
-          "ok": null,
-          "detail": "2/15일 (판정 전)"
-        },
-        "v": {
-          "ok": null,
-          "detail": "판정 전"
-        },
-        "p": {
-          "ok": null,
-          "detail": "+1%"
-        }
-      },
-      "strength": {
-        "signal": "not_extended",
-        "extended": false,
-        "gate_detail": "확장 +1.1% < 5%",
-        "count": 0,
-        "signals": []
-      }
-    },
-    {
-      "code": "007070",
-      "name": "GS리테일",
-      "market": "KOSPI",
-      "buy_date": "2026-07-06",
-      "buy_price": 25147,
-      "quantity": 397,
-      "stop_loss_pct": -5,
-      "pivot_price": 25050.1,
-      "pivot_source": "vcp",
-      "current_price": 25800.0,
-      "profit_pct": 2.6,
-      "stop_price": 23889.65,
-      "pct_to_stop": -7.4,
-      "breakout_date": "2026-07-02",
-      "breakout_date_estimated": false,
-      "signal": "hold",
-      "violation_count": 0,
-      "rules": [
-        {
-          "id": "low_volume_breakout",
-          "status": "pass",
-          "detail": "돌파일 거래량 1.27배 — 정상 돌파(1.5배+)에는 못 미침"
-        },
-        {
-          "id": "heavy_volume_pullback",
-          "status": "pass",
-          "detail": "대량 거래 하락일 없음"
-        },
-        {
-          "id": "consecutive_lower_lows",
-          "status": "pass",
-          "detail": "연속 저저점 없음"
-        },
-        {
-          "id": "close_below_ma",
-          "status": "pass",
-          "detail": "20일선 위 유지"
-        },
-        {
-          "id": "weak_days_dominant",
-          "status": "pending",
-          "detail": "경과 3거래일 — 5거래일부터 판정"
-        },
-        {
-          "id": "breakout_failure",
-          "status": "pass",
-          "detail": "스쿼트 후 반전 회복(피벗 위 복귀)"
-        }
-      ],
-      "extension_pct": 3.0,
-      "accumulation": {
-        "window": "D+3/15",
-        "elapsed": 3,
-        "signals": [
-          {
-            "id": "up_days_dominant",
-            "status": "unmet",
-            "detail": "상승 1 · 하락 2"
-          },
-          {
-            "id": "quality_closes",
-            "status": "met",
-            "detail": "좋은 2 · 나쁜 1"
-          },
-          {
-            "id": "up_streak_7",
-            "status": "unmet",
-            "detail": "최고 1일"
-          }
-        ]
-      },
-      "mvp": {
-        "status": "pending",
-        "m": {
-          "ok": null,
-          "detail": "3/15일 (판정 전)"
-        },
-        "v": {
-          "ok": null,
-          "detail": "판정 전"
-        },
-        "p": {
-          "ok": null,
-          "detail": "+3%"
-        }
-      },
-      "strength": {
-        "signal": "not_extended",
-        "extended": false,
-        "gate_detail": "확장 +3.0% < 5%",
-        "count": 0,
-        "signals": []
-      }
-    },
-    {
-      "code": "001540",
-      "name": "안국약품",
-      "market": "KOSDAQ",
-      "buy_date": "2026-07-06",
-      "buy_price": 10280,
-      "quantity": 972,
-      "stop_loss_pct": -5,
-      "pivot_price": 10340.0,
-      "pivot_source": "vcp",
-      "current_price": 10430.0,
-      "profit_pct": 1.46,
-      "stop_price": 9766.0,
-      "pct_to_stop": -6.37,
-      "breakout_date": "2026-07-06",
-      "breakout_date_estimated": false,
-      "signal": "early_sell",
-      "violation_count": 1,
-      "rules": [
-        {
-          "id": "low_volume_breakout",
           "status": "violation",
-          "detail": "돌파일 거래량 0.20배 — 평균에도 못 미침"
-        },
-        {
-          "id": "heavy_volume_pullback",
-          "status": "pass",
-          "detail": "대량 거래 하락일 없음"
-        },
-        {
-          "id": "consecutive_lower_lows",
-          "status": "pass",
-          "detail": "연속 저저점 없음"
-        },
-        {
-          "id": "close_below_ma",
-          "status": "pass",
-          "detail": "20일선 위 유지"
-        },
-        {
-          "id": "weak_days_dominant",
-          "status": "pending",
-          "detail": "경과 1거래일 — 5거래일부터 판정"
-        },
-        {
-          "id": "breakout_failure",
-          "status": "pass",
-          "detail": "피벗 위 유지"
+          "detail": "거래량 동반 돌파 실패 — 2026-07-08 거래량 1.1배(돌파일 대비)"
         }
       ],
-      "extension_pct": 0.9,
-      "accumulation": {
-        "window": "D+1/15",
-        "elapsed": 1,
-        "signals": [
-          {
-            "id": "up_days_dominant",
-            "status": "met",
-            "detail": "상승 1 · 하락 0"
-          },
-          {
-            "id": "quality_closes",
-            "status": "met",
-            "detail": "좋은 1 · 나쁜 0"
-          },
-          {
-            "id": "up_streak_7",
-            "status": "unmet",
-            "detail": "최고 1일"
-          }
-        ]
-      },
-      "mvp": {
-        "status": "pending",
-        "m": {
-          "ok": null,
-          "detail": "1/15일 (판정 전)"
-        },
-        "v": {
-          "ok": null,
-          "detail": "판정 전"
-        },
-        "p": {
-          "ok": null,
-          "detail": "+1%"
-        }
-      },
-      "strength": {
-        "signal": "not_extended",
-        "extended": false,
-        "gate_detail": "확장 +0.9% < 5%",
-        "count": 0,
-        "signals": []
-      }
-    },
-    {
-      "code": "000810",
-      "name": "삼성화재",
-      "market": "KOSPI",
-      "buy_date": "2026-07-07",
-      "buy_price": 685000,
-      "quantity": 1,
-      "stop_loss_pct": -5,
-      "pivot_price": 684923.6,
-      "pivot_source": "manual",
-      "current_price": 682000.0,
-      "profit_pct": -0.44,
-      "stop_price": 650750.0,
-      "pct_to_stop": -4.58,
-      "breakout_date": "2026-07-07",
-      "breakout_date_estimated": false,
-      "signal": "early_sell",
-      "violation_count": 1,
-      "rules": [
-        {
-          "id": "low_volume_breakout",
-          "status": "violation",
-          "detail": "돌파일 거래량 0.49배 — 평균에도 못 미침"
-        },
-        {
-          "id": "heavy_volume_pullback",
-          "status": "pending",
-          "detail": "돌파 다음 날 데이터 없음"
-        },
-        {
-          "id": "consecutive_lower_lows",
-          "status": "pending",
-          "detail": "돌파 다음 날 데이터 없음"
-        },
-        {
-          "id": "close_below_ma",
-          "status": "pending",
-          "detail": "돌파 다음 날 데이터 없음"
-        },
-        {
-          "id": "weak_days_dominant",
-          "status": "pending",
-          "detail": "경과 0거래일 — 5거래일부터 판정"
-        },
-        {
-          "id": "breakout_failure",
-          "status": "watch",
-          "detail": "🟡 반전 회복 관찰중 (D+0/10)"
-        }
-      ],
-      "extension_pct": -0.4,
-      "accumulation": {
-        "window": "D+0/15",
-        "elapsed": 0,
-        "signals": [
-          {
-            "id": "up_days_dominant",
-            "status": "pending",
-            "detail": "상승 0 · 하락 0"
-          },
-          {
-            "id": "quality_closes",
-            "status": "pending",
-            "detail": "좋은 0 · 나쁜 0"
-          },
-          {
-            "id": "up_streak_7",
-            "status": "pending",
-            "detail": "최고 0일"
-          }
-        ]
-      },
-      "mvp": {
-        "status": "pending",
-        "m": {
-          "ok": null,
-          "detail": "0/15일 (판정 전)"
-        },
-        "v": {
-          "ok": null,
-          "detail": "판정 전"
-        },
-        "p": {
-          "ok": null,
-          "detail": "—"
-        }
-      },
-      "strength": {
-        "signal": "not_extended",
-        "extended": false,
-        "gate_detail": "확장 -0.4% < 5%",
-        "count": 0,
-        "signals": []
-      }
-    },
-    {
-      "code": "078935",
-      "name": "GS우",
-      "market": null,
-      "buy_date": "2026-07-07",
-      "buy_price": 55300,
-      "quantity": 181,
-      "stop_loss_pct": -5,
-      "pivot_price": null,
-      "pivot_source": null,
-      "current_price": 54500.0,
-      "profit_pct": -1.45,
-      "stop_price": 52535.0,
-      "pct_to_stop": -3.61,
-      "breakout_date": "2026-07-07",
-      "breakout_date_estimated": true,
-      "signal": "hold",
-      "violation_count": 0,
-      "rules": [
-        {
-          "id": "low_volume_breakout",
-          "status": "pass",
-          "detail": "돌파일 거래량 1.76배"
-        },
-        {
-          "id": "heavy_volume_pullback",
-          "status": "pending",
-          "detail": "돌파 다음 날 데이터 없음"
-        },
-        {
-          "id": "consecutive_lower_lows",
-          "status": "pending",
-          "detail": "돌파 다음 날 데이터 없음"
-        },
-        {
-          "id": "close_below_ma",
-          "status": "pending",
-          "detail": "돌파 다음 날 데이터 없음"
-        },
-        {
-          "id": "weak_days_dominant",
-          "status": "pending",
-          "detail": "경과 0거래일 — 5거래일부터 판정"
-        },
-        {
-          "id": "breakout_failure",
-          "status": "na",
-          "detail": "피벗 없음 — 판정 불가"
-        }
-      ],
-      "extension_pct": null,
-      "accumulation": {
-        "window": "D+0/15",
-        "elapsed": 0,
-        "signals": [
-          {
-            "id": "up_days_dominant",
-            "status": "pending",
-            "detail": "상승 0 · 하락 0"
-          },
-          {
-            "id": "quality_closes",
-            "status": "pending",
-            "detail": "좋은 0 · 나쁜 0"
-          },
-          {
-            "id": "up_streak_7",
-            "status": "pending",
-            "detail": "최고 0일"
-          }
-        ]
-      },
-      "mvp": {
-        "status": "pending",
-        "m": {
-          "ok": null,
-          "detail": "0/15일 (판정 전)"
-        },
-        "v": {
-          "ok": null,
-          "detail": "판정 전"
-        },
-        "p": {
-          "ok": null,
-          "detail": "—"
-        }
-      },
-      "strength": {
-        "signal": "na",
-        "extended": false,
-        "gate_detail": "피벗 없음 — 판정 불가",
-        "count": 0,
-        "signals": []
-      }
-    },
-    {
-      "code": "138930",
-      "name": "BNK금융지주",
-      "market": "KOSPI",
-      "buy_date": "2026-07-07",
-      "buy_price": 18780,
-      "quantity": 533,
-      "stop_loss_pct": -5,
-      "pivot_price": 18780.91,
-      "pivot_source": "manual",
-      "current_price": 18470.0,
-      "profit_pct": -1.65,
-      "stop_price": 17841.0,
-      "pct_to_stop": -3.41,
-      "breakout_date": "2026-07-03",
-      "breakout_date_estimated": false,
-      "signal": "hold",
-      "violation_count": 0,
-      "rules": [
-        {
-          "id": "low_volume_breakout",
-          "status": "pass",
-          "detail": "돌파일 거래량 1.17배 — 정상 돌파(1.5배+)에는 못 미침"
-        },
-        {
-          "id": "heavy_volume_pullback",
-          "status": "pass",
-          "detail": "대량 거래 하락일 없음"
-        },
-        {
-          "id": "consecutive_lower_lows",
-          "status": "pass",
-          "detail": "연속 저저점 없음"
-        },
-        {
-          "id": "close_below_ma",
-          "status": "pass",
-          "detail": "20일선 위 유지"
-        },
-        {
-          "id": "weak_days_dominant",
-          "status": "pending",
-          "detail": "경과 2거래일 — 5거래일부터 판정"
-        },
-        {
-          "id": "breakout_failure",
-          "status": "watch",
-          "detail": "🟡 반전 회복 관찰중 (D+2/10)"
-        }
-      ],
-      "extension_pct": -1.7,
+      "extension_pct": -1.6,
       "accumulation": {
         "window": "D+2/15",
         "elapsed": 2,
@@ -1064,7 +420,672 @@
       "strength": {
         "signal": "not_extended",
         "extended": false,
-        "gate_detail": "확장 -1.7% < 5%",
+        "gate_detail": "확장 -1.6% < 5%",
+        "count": 0,
+        "signals": []
+      }
+    },
+    {
+      "code": "339950",
+      "name": "아이비김영",
+      "market": "KOSDAQ",
+      "buy_date": "2026-07-06",
+      "buy_price": 2700,
+      "quantity": 3703,
+      "stop_loss_pct": -5,
+      "pivot_price": 2725.07,
+      "pivot_source": "vcp",
+      "current_price": 2690.0,
+      "profit_pct": -0.37,
+      "stop_price": 2565.0,
+      "pct_to_stop": -4.65,
+      "breakout_date": "2026-07-02",
+      "breakout_date_estimated": false,
+      "signal": "early_sell",
+      "violation_count": 2,
+      "rules": [
+        {
+          "id": "low_volume_breakout",
+          "status": "violation",
+          "detail": "돌파일 거래량 0.54배 — 평균에도 못 미침"
+        },
+        {
+          "id": "heavy_volume_pullback",
+          "status": "pass",
+          "detail": "대량 거래 하락일 없음"
+        },
+        {
+          "id": "consecutive_lower_lows",
+          "status": "pass",
+          "detail": "연속 저저점 없음"
+        },
+        {
+          "id": "close_below_ma",
+          "status": "pass",
+          "detail": "20일선 위 유지"
+        },
+        {
+          "id": "weak_days_dominant",
+          "status": "pending",
+          "detail": "경과 4거래일 — 5거래일부터 판정"
+        },
+        {
+          "id": "breakout_failure",
+          "status": "violation",
+          "detail": "거래량 동반 돌파 실패 — 2026-07-03 거래량 1.5배(돌파일 대비)"
+        }
+      ],
+      "extension_pct": -1.3,
+      "accumulation": {
+        "window": "D+4/15",
+        "elapsed": 4,
+        "signals": [
+          {
+            "id": "up_days_dominant",
+            "status": "unmet",
+            "detail": "상승 1 · 하락 3"
+          },
+          {
+            "id": "quality_closes",
+            "status": "unmet",
+            "detail": "좋은 2 · 나쁜 2"
+          },
+          {
+            "id": "up_streak_7",
+            "status": "unmet",
+            "detail": "최고 1일"
+          }
+        ]
+      },
+      "mvp": {
+        "status": "pending",
+        "m": {
+          "ok": null,
+          "detail": "4/15일 (판정 전)"
+        },
+        "v": {
+          "ok": null,
+          "detail": "판정 전"
+        },
+        "p": {
+          "ok": null,
+          "detail": "+1%"
+        }
+      },
+      "strength": {
+        "signal": "not_extended",
+        "extended": false,
+        "gate_detail": "확장 -1.3% < 5%",
+        "count": 0,
+        "signals": []
+      }
+    },
+    {
+      "code": "079940",
+      "name": "가비아",
+      "market": null,
+      "buy_date": "2026-07-06",
+      "buy_price": 31550,
+      "quantity": 317,
+      "stop_loss_pct": -5,
+      "pivot_price": null,
+      "pivot_source": null,
+      "current_price": 30850.0,
+      "profit_pct": -2.22,
+      "stop_price": 29972.5,
+      "pct_to_stop": -2.84,
+      "breakout_date": "2026-07-06",
+      "breakout_date_estimated": true,
+      "signal": "early_sell",
+      "violation_count": 1,
+      "rules": [
+        {
+          "id": "low_volume_breakout",
+          "status": "violation",
+          "detail": "돌파일 거래량 0.37배 — 평균에도 못 미침"
+        },
+        {
+          "id": "heavy_volume_pullback",
+          "status": "pass",
+          "detail": "대량 거래 하락일 없음"
+        },
+        {
+          "id": "consecutive_lower_lows",
+          "status": "pass",
+          "detail": "연속 저저점 없음"
+        },
+        {
+          "id": "close_below_ma",
+          "status": "pass",
+          "detail": "20일선 위 유지"
+        },
+        {
+          "id": "weak_days_dominant",
+          "status": "pending",
+          "detail": "경과 2거래일 — 5거래일부터 판정"
+        },
+        {
+          "id": "breakout_failure",
+          "status": "na",
+          "detail": "피벗 없음 — 판정 불가"
+        }
+      ],
+      "extension_pct": null,
+      "accumulation": {
+        "window": "D+2/15",
+        "elapsed": 2,
+        "signals": [
+          {
+            "id": "up_days_dominant",
+            "status": "unmet",
+            "detail": "상승 1 · 하락 1"
+          },
+          {
+            "id": "quality_closes",
+            "status": "unmet",
+            "detail": "좋은 1 · 나쁜 1"
+          },
+          {
+            "id": "up_streak_7",
+            "status": "unmet",
+            "detail": "최고 1일"
+          }
+        ]
+      },
+      "mvp": {
+        "status": "pending",
+        "m": {
+          "ok": null,
+          "detail": "2/15일 (판정 전)"
+        },
+        "v": {
+          "ok": null,
+          "detail": "판정 전"
+        },
+        "p": {
+          "ok": null,
+          "detail": "+3%"
+        }
+      },
+      "strength": {
+        "signal": "na",
+        "extended": false,
+        "gate_detail": "피벗 없음 — 판정 불가",
+        "count": 0,
+        "signals": []
+      }
+    },
+    {
+      "code": "007070",
+      "name": "GS리테일",
+      "market": "KOSPI",
+      "buy_date": "2026-07-06",
+      "buy_price": 25147,
+      "quantity": 397,
+      "stop_loss_pct": -5,
+      "pivot_price": 25800.0,
+      "pivot_source": "vcp",
+      "current_price": 25050.0,
+      "profit_pct": -0.39,
+      "stop_price": 23889.65,
+      "pct_to_stop": -4.63,
+      "breakout_date": "2026-06-16",
+      "breakout_date_estimated": false,
+      "signal": "early_sell",
+      "violation_count": 3,
+      "rules": [
+        {
+          "id": "low_volume_breakout",
+          "status": "pass",
+          "detail": "돌파일 거래량 1.02배 — 정상 돌파(1.5배+)에는 못 미침"
+        },
+        {
+          "id": "heavy_volume_pullback",
+          "status": "pass",
+          "detail": "대량 거래 하락일 없음"
+        },
+        {
+          "id": "consecutive_lower_lows",
+          "status": "watch",
+          "detail": "🟡경고: 저점경신 5회(거래량 낮음)"
+        },
+        {
+          "id": "close_below_ma",
+          "status": "violation",
+          "detail": "2026-06-17 20일선 아래 마감 (돌파 1거래일째)"
+        },
+        {
+          "id": "weak_days_dominant",
+          "status": "violation",
+          "detail": "하락 8·상승 7 / 나쁜마감 9·좋은마감 7"
+        },
+        {
+          "id": "breakout_failure",
+          "status": "violation",
+          "detail": "거래량 동반 돌파 실패 — 2026-07-02 거래량 1.3배(돌파일 대비)"
+        }
+      ],
+      "extension_pct": -2.9,
+      "accumulation": {
+        "window": "15일 완료",
+        "elapsed": 16,
+        "signals": [
+          {
+            "id": "up_days_dominant",
+            "status": "unmet",
+            "detail": "상승 7 · 하락 7"
+          },
+          {
+            "id": "quality_closes",
+            "status": "unmet",
+            "detail": "좋은 7 · 나쁜 8"
+          },
+          {
+            "id": "up_streak_7",
+            "status": "unmet",
+            "detail": "최고 4일"
+          }
+        ]
+      },
+      "mvp": {
+        "status": "no",
+        "m": {
+          "ok": false,
+          "detail": "7/15일 상승"
+        },
+        "v": {
+          "ok": false,
+          "detail": "직전 대비 1.0배"
+        },
+        "p": {
+          "ok": false,
+          "detail": "+1%"
+        }
+      },
+      "strength": {
+        "signal": "not_extended",
+        "extended": false,
+        "gate_detail": "확장 -2.9% < 5%",
+        "count": 0,
+        "signals": []
+      }
+    },
+    {
+      "code": "001540",
+      "name": "안국약품",
+      "market": "KOSDAQ",
+      "buy_date": "2026-07-06",
+      "buy_price": 10280,
+      "quantity": 972,
+      "stop_loss_pct": -5,
+      "pivot_price": 10430.0,
+      "pivot_source": "vcp",
+      "current_price": 10260.0,
+      "profit_pct": -0.19,
+      "stop_price": 9766.0,
+      "pct_to_stop": -4.81,
+      "breakout_date": "2026-07-06",
+      "breakout_date_estimated": true,
+      "signal": "early_sell",
+      "violation_count": 2,
+      "rules": [
+        {
+          "id": "low_volume_breakout",
+          "status": "violation",
+          "detail": "돌파일 거래량 0.20배 — 평균에도 못 미침"
+        },
+        {
+          "id": "heavy_volume_pullback",
+          "status": "pass",
+          "detail": "대량 거래 하락일 없음"
+        },
+        {
+          "id": "consecutive_lower_lows",
+          "status": "pass",
+          "detail": "연속 저저점 없음"
+        },
+        {
+          "id": "close_below_ma",
+          "status": "violation",
+          "detail": "2026-07-08 20일선 아래 마감 (돌파 2거래일째)"
+        },
+        {
+          "id": "weak_days_dominant",
+          "status": "pending",
+          "detail": "경과 2거래일 — 5거래일부터 판정"
+        },
+        {
+          "id": "breakout_failure",
+          "status": "na",
+          "detail": "피벗 돌파 미확인 — 판정 불가"
+        }
+      ],
+      "extension_pct": -1.6,
+      "accumulation": {
+        "window": "D+2/15",
+        "elapsed": 2,
+        "signals": [
+          {
+            "id": "up_days_dominant",
+            "status": "unmet",
+            "detail": "상승 1 · 하락 1"
+          },
+          {
+            "id": "quality_closes",
+            "status": "unmet",
+            "detail": "좋은 1 · 나쁜 1"
+          },
+          {
+            "id": "up_streak_7",
+            "status": "unmet",
+            "detail": "최고 1일"
+          }
+        ]
+      },
+      "mvp": {
+        "status": "pending",
+        "m": {
+          "ok": null,
+          "detail": "2/15일 (판정 전)"
+        },
+        "v": {
+          "ok": null,
+          "detail": "판정 전"
+        },
+        "p": {
+          "ok": null,
+          "detail": "+1%"
+        }
+      },
+      "strength": {
+        "signal": "not_extended",
+        "extended": false,
+        "gate_detail": "확장 -1.6% < 5%",
+        "count": 0,
+        "signals": []
+      }
+    },
+    {
+      "code": "000810",
+      "name": "삼성화재",
+      "market": "KOSPI",
+      "buy_date": "2026-07-07",
+      "buy_price": 685000,
+      "quantity": 1,
+      "stop_loss_pct": -5,
+      "pivot_price": 684923.6,
+      "pivot_source": "manual",
+      "current_price": 671000.0,
+      "profit_pct": -2.04,
+      "stop_price": 650750.0,
+      "pct_to_stop": -3.02,
+      "breakout_date": "2026-07-07",
+      "breakout_date_estimated": false,
+      "signal": "early_sell",
+      "violation_count": 1,
+      "rules": [
+        {
+          "id": "low_volume_breakout",
+          "status": "violation",
+          "detail": "돌파일 거래량 0.50배 — 평균에도 못 미침"
+        },
+        {
+          "id": "heavy_volume_pullback",
+          "status": "pass",
+          "detail": "대량 거래 하락일 없음"
+        },
+        {
+          "id": "consecutive_lower_lows",
+          "status": "pass",
+          "detail": "연속 저저점 없음"
+        },
+        {
+          "id": "close_below_ma",
+          "status": "pass",
+          "detail": "20일선 위 유지"
+        },
+        {
+          "id": "weak_days_dominant",
+          "status": "pending",
+          "detail": "경과 1거래일 — 5거래일부터 판정"
+        },
+        {
+          "id": "breakout_failure",
+          "status": "watch",
+          "detail": "🟡 반전 회복 관찰중 (D+1/10)"
+        }
+      ],
+      "extension_pct": -2.0,
+      "accumulation": {
+        "window": "D+1/15",
+        "elapsed": 1,
+        "signals": [
+          {
+            "id": "up_days_dominant",
+            "status": "unmet",
+            "detail": "상승 0 · 하락 1"
+          },
+          {
+            "id": "quality_closes",
+            "status": "met",
+            "detail": "좋은 1 · 나쁜 0"
+          },
+          {
+            "id": "up_streak_7",
+            "status": "unmet",
+            "detail": "최고 0일"
+          }
+        ]
+      },
+      "mvp": {
+        "status": "pending",
+        "m": {
+          "ok": null,
+          "detail": "1/15일 (판정 전)"
+        },
+        "v": {
+          "ok": null,
+          "detail": "판정 전"
+        },
+        "p": {
+          "ok": null,
+          "detail": "-2%"
+        }
+      },
+      "strength": {
+        "signal": "not_extended",
+        "extended": false,
+        "gate_detail": "확장 -2.0% < 5%",
+        "count": 0,
+        "signals": []
+      }
+    },
+    {
+      "code": "078935",
+      "name": "GS우",
+      "market": null,
+      "buy_date": "2026-07-07",
+      "buy_price": 55300,
+      "quantity": 181,
+      "stop_loss_pct": -5,
+      "pivot_price": null,
+      "pivot_source": null,
+      "current_price": 53900.0,
+      "profit_pct": -2.53,
+      "stop_price": 52535.0,
+      "pct_to_stop": -2.53,
+      "breakout_date": "2026-07-07",
+      "breakout_date_estimated": true,
+      "signal": "hold",
+      "violation_count": 0,
+      "rules": [
+        {
+          "id": "low_volume_breakout",
+          "status": "pass",
+          "detail": "돌파일 거래량 1.76배"
+        },
+        {
+          "id": "heavy_volume_pullback",
+          "status": "pass",
+          "detail": "대량 거래 하락일 없음"
+        },
+        {
+          "id": "consecutive_lower_lows",
+          "status": "pass",
+          "detail": "연속 저저점 없음"
+        },
+        {
+          "id": "close_below_ma",
+          "status": "pass",
+          "detail": "20일선 위 유지"
+        },
+        {
+          "id": "weak_days_dominant",
+          "status": "pending",
+          "detail": "경과 1거래일 — 5거래일부터 판정"
+        },
+        {
+          "id": "breakout_failure",
+          "status": "na",
+          "detail": "피벗 없음 — 판정 불가"
+        }
+      ],
+      "extension_pct": null,
+      "accumulation": {
+        "window": "D+1/15",
+        "elapsed": 1,
+        "signals": [
+          {
+            "id": "up_days_dominant",
+            "status": "unmet",
+            "detail": "상승 0 · 하락 1"
+          },
+          {
+            "id": "quality_closes",
+            "status": "unmet",
+            "detail": "좋은 0 · 나쁜 1"
+          },
+          {
+            "id": "up_streak_7",
+            "status": "unmet",
+            "detail": "최고 0일"
+          }
+        ]
+      },
+      "mvp": {
+        "status": "pending",
+        "m": {
+          "ok": null,
+          "detail": "1/15일 (판정 전)"
+        },
+        "v": {
+          "ok": null,
+          "detail": "판정 전"
+        },
+        "p": {
+          "ok": null,
+          "detail": "-1%"
+        }
+      },
+      "strength": {
+        "signal": "na",
+        "extended": false,
+        "gate_detail": "피벗 없음 — 판정 불가",
+        "count": 0,
+        "signals": []
+      }
+    },
+    {
+      "code": "138930",
+      "name": "BNK금융지주",
+      "market": "KOSPI",
+      "buy_date": "2026-07-07",
+      "buy_price": 18780,
+      "quantity": 533,
+      "stop_loss_pct": -5,
+      "pivot_price": 18780.91,
+      "pivot_source": "manual",
+      "current_price": 17930.0,
+      "profit_pct": -4.53,
+      "stop_price": 17841.0,
+      "pct_to_stop": -0.5,
+      "breakout_date": "2026-07-03",
+      "breakout_date_estimated": false,
+      "signal": "hold",
+      "violation_count": 0,
+      "rules": [
+        {
+          "id": "low_volume_breakout",
+          "status": "pass",
+          "detail": "돌파일 거래량 1.17배 — 정상 돌파(1.5배+)에는 못 미침"
+        },
+        {
+          "id": "heavy_volume_pullback",
+          "status": "pass",
+          "detail": "대량 거래 하락일 없음"
+        },
+        {
+          "id": "consecutive_lower_lows",
+          "status": "pass",
+          "detail": "연속 저저점 없음"
+        },
+        {
+          "id": "close_below_ma",
+          "status": "pass",
+          "detail": "20일선 위 유지"
+        },
+        {
+          "id": "weak_days_dominant",
+          "status": "pending",
+          "detail": "경과 3거래일 — 5거래일부터 판정"
+        },
+        {
+          "id": "breakout_failure",
+          "status": "watch",
+          "detail": "🟡 반전 회복 관찰중 (D+3/10)"
+        }
+      ],
+      "extension_pct": -4.5,
+      "accumulation": {
+        "window": "D+3/15",
+        "elapsed": 3,
+        "signals": [
+          {
+            "id": "up_days_dominant",
+            "status": "unmet",
+            "detail": "상승 0 · 하락 3"
+          },
+          {
+            "id": "quality_closes",
+            "status": "unmet",
+            "detail": "좋은 0 · 나쁜 3"
+          },
+          {
+            "id": "up_streak_7",
+            "status": "unmet",
+            "detail": "최고 0일"
+          }
+        ]
+      },
+      "mvp": {
+        "status": "pending",
+        "m": {
+          "ok": null,
+          "detail": "3/15일 (판정 전)"
+        },
+        "v": {
+          "ok": null,
+          "detail": "판정 전"
+        },
+        "p": {
+          "ok": null,
+          "detail": "-1%"
+        }
+      },
+      "strength": {
+        "signal": "not_extended",
+        "extended": false,
+        "gate_detail": "확장 -4.5% < 5%",
         "count": 0,
         "signals": []
       }
