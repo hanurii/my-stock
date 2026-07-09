@@ -1,11 +1,16 @@
-"""자동매수 봇 설정. 주문 수량은 여기에 없다(항상 1주, kis_trade에 하드코딩)."""
+"""자동매수 봇 설정. 주문 수량은 여기에 없다(항상 1주, kis_trade에 하드코딩).
+매매 전략값(손익비·거래량문턱·슬롯 등)은 canslim_lib.strategy_params(단일 공급원)에서 가져온다 —
+legacy 값 직접 하드코딩 금지. 값 변경은 strategy_params에서만."""
+import sys
 from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))   # scripts/ (canslim_lib import 위해)
+from canslim_lib import strategy_params as SP
 BASE = Path(r"C:\Users\hanul\playground\my-stock")   # 후보 JSON·캐시가 있는 주 작업트리
 CFG = {
-    "SLOTS": 10,            # 동시 보유 상한(10~20)
-    "VOL_PACE_MIN": 1.5,
-    "CHASE_MAX_PCT": 3.0,  # 하드
-    "TARGET_PCT": 15.0, "STOP_PCT": 7.5,   # 검증상 최적(등가중 상승추세+거래량 스택 승률 57.4%·R0.72)
+    "SLOTS": SP.SLOTS,
+    "VOL_PACE_MIN": SP.VOL_PACE_MIN,
+    "CHASE_MAX_PCT": SP.CHASE_MAX_PCT,
+    "TARGET_PCT": SP.TARGET_PCT, "STOP_PCT": SP.STOP_PCT,
     "POLL_SEC": 4,
     "REGIME_FILTER": True,
     "MODE": "dryrun",      # dryrun | live — live 전환은 실행인자로도 재확인
