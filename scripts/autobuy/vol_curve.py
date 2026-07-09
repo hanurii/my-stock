@@ -54,8 +54,13 @@ def _minus_min(hhmmss: str, mins: int) -> str:
 
 
 def window_vol_frac(hhmmss: str, window_min: int, base: Path | None = None) -> float:
-    """평소 최근 window_min분에 나오는 하루 거래량 비율 = C(t) - C(t-window). 최소 1e-6.
-    스파이크 페이스 계산용: spike = 최근 W분 거래량 / (avg50 × window_vol_frac(t, W))."""
+    """평소 최근 window_min분에 나오는 하루 거래량 비율 = C(t) - C(t-window).
+    스파이크 페이스 계산용: spike = 최근 W분 거래량 / (avg50 × window_vol_frac(t, W)).
+    ★곡선 평탄부(연속 동일값)로 diff≈0 되는 아티팩트 방지 — 그 시각까지 '평균 분당율 × window'를
+    하한으로 둔다(그 분의 정상 거래량을 모르면 평균율로 가정). 안 그러면 분모가 0에 가까워 spike가
+    뻥튀기돼 여러 종목이 같은 시각에 가짜 발화(예: 10:00·11:30 평탄부)."""
     hi = expected_vol_frac(hhmmss, base)
     lo = expected_vol_frac(_minus_min(hhmmss, window_min), base)
-    return max(hi - lo, 1e-6)
+    elapsed_min = max(1, (int(hhmmss[:2]) * 60 + int(hhmmss[2:4])) - 9 * 60)
+    avg_rate_floor = hi / elapsed_min * window_min
+    return max(hi - lo, avg_rate_floor, 1e-6)
