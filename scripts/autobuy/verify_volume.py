@@ -16,8 +16,9 @@ def _in_buy_window(hm, cfg):
 
 
 def observe_sweep(quotes_by_code, candidates, avg50_by_code, held_sim, skip, cfg,
-                  elapsed_frac, in_buy_window=True):
+                  vol_frac, in_buy_window=True):
     """한 사이클 후보 판정. 실제 매수 여부는 signals.evaluate_entry 재사용.
+    vol_frac = 평소 이 시각까지 거래량 비율(동시간대-대비 정규화, autobuy.vol_curve). 선형 경과시간 아님.
     반환 (rows, buys). held_sim·skip는 제자리 갱신. 슬롯 상한 cfg['SLOTS'].
     in_buy_window=False면 판정·표시는 하되 매수 커밋(held 편입) 안 함(실전 봇 매수창 밖)."""
     from autobuy.signals import evaluate_entry
@@ -31,7 +32,7 @@ def observe_sweep(quotes_by_code, candidates, avg50_by_code, held_sim, skip, cfg
                          "pct": None, "pace": None, "why": "no_quote"})
             continue
         price, acml, av = q["current"], q["acml_vol"], avg50_by_code.get(code, 0)
-        pace = acml / (av * elapsed_frac) if (av > 0 and elapsed_frac > 0) else 0.0
+        pace = acml / (av * vol_frac) if (av > 0 and vol_frac > 0) else 0.0
         pct = (price / pivot - 1) * 100 if pivot else None
         held = code in held_sim
         # 그날 스킵(extended)은 sticky — 가격 돌아와도 계속 스킵
@@ -39,7 +40,7 @@ def observe_sweep(quotes_by_code, candidates, avg50_by_code, held_sim, skip, cfg
             rows.append({"code": code, "name": name, "price": price, "pivot": pivot,
                          "pct": pct, "pace": pace, "why": "extended"})
             continue
-        ok, why = evaluate_entry(price, pivot, acml, av, elapsed_frac,
+        ok, why = evaluate_entry(price, pivot, acml, av, vol_frac,
                                  slots_used=slots_used, slots_max=cfg["SLOTS"], held=held,
                                  vol_pace_min=cfg["VOL_PACE_MIN"], chase_max_pct=cfg["CHASE_MAX_PCT"])
         if why == "extended":
@@ -60,11 +61,11 @@ def observe_sweep(quotes_by_code, candidates, avg50_by_code, held_sim, skip, cfg
     return rows, buys
 
 
-def _fmt_block(now_str, elapsed_frac, held_count, slots_max, cand_count,
+def _fmt_block(now_str, vol_frac, held_count, slots_max, cand_count,
                regime_note, rows, buys, in_buy_window):
     """한 사이클 출력 블록 문자열. rows는 pace 내림차순 정렬해 표시."""
     win = "" if in_buy_window else "  [매수창 밖 — 신규매수 안 함]"
-    lines = [f"=== {now_str} (장 경과 {elapsed_frac*100:.0f}%) · 슬롯 {held_count}/{slots_max} · "
+    lines = [f"=== {now_str} (평소 이 시각 거래량 {vol_frac*100:.0f}%) · 슬롯 {held_count}/{slots_max} · "
              f"감시 {cand_count}종목{win} ==="]
     lines.append(f"[국면 참고: {regime_note} — 게이트 아님(관찰만)]")
     if buys:
@@ -97,13 +98,13 @@ def _regime_note(base, ohlcv_matrix, watchlist, signals):
     return "상승추세(지수≥20MA)" if up else "하락추세(지수<20MA)"
 
 
-def run(once=False, slots=None, interval=0):
+def run(once=False, slots=None, interval=0, broad=False):
     import sys, time, datetime
     from pathlib import Path
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))   # scripts/
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     from autobuy.config import CFG, CANDIDATE_PATHS, BASE
-    from autobuy import signals, watchlist
+    from autobuy import signals, watchlist, vol_curve
     sys.path.insert(0, str(BASE / "scripts"))
     from canslim_lib import ohlcv_matrix, kis_api
     ohlcv_matrix.SERIES_DIR = BASE / ".cache" / "ohlcv" / "series"
@@ -121,14 +122,16 @@ def run(once=False, slots=None, interval=0):
         with open(log_path, "a", encoding="utf-8") as f:
             f.write(s + "\n")
 
-    wl = watchlist.load_actionable(CANDIDATE_PATHS)
+    wl = (watchlist.load_watchlist_broad(CANDIDATE_PATHS) if broad
+          else watchlist.load_actionable(CANDIDATE_PATHS))
     avg50 = {}
     for c in wl:
         s = ohlcv_matrix.get_series(c["code"])
         vols = [v for v in (s.get("volumes") or [])[-50:] if v] if s else []
         avg50[c["code"]] = (sum(vols) / len(vols)) if vols else 0
     note = _regime_note(BASE, ohlcv_matrix, watchlist, signals)
-    print(f"=== 거래량 매수 검증 관찰기 · 감시 {len(wl)}종목 · 슬롯 {cfg['SLOTS']} · 국면 {note} ===")
+    mode_tag = "넓은 감시(진입임박+예의주시)" if broad else "진입임박만"
+    print(f"=== 거래량 매수 검증 관찰기 · {mode_tag} · 감시 {len(wl)}종목 · 슬롯 {cfg['SLOTS']} · 국면 {note} ===")
     print("(읽기 전용 — 실주문 없음. 국면은 게이트 아니라 참고만)")
 
     held_sim, skip = set(), set()
@@ -136,7 +139,7 @@ def run(once=False, slots=None, interval=0):
         now = datetime.datetime.now(); hm = now.strftime("%H%M")
         if hm >= cfg["MARKET_CLOSE"] and not once:
             print("장마감 → 종료"); break
-        ef = _elapsed_frac(now)
+        vf = vol_curve.expected_vol_frac(now.strftime("%H%M%S"))   # 동시간대-대비(선형 경과시간 아님)
         in_win = _in_buy_window(hm, cfg)
         quotes = {}
         for c in wl:
@@ -152,8 +155,8 @@ def run(once=False, slots=None, interval=0):
         # held_sim 종목도 already_held 행이 나오도록 최소 시세는 있으면 좋지만, 조회 절감 위해 생략 →
         # observe_sweep이 no_quote로 처리. held는 관찰 관심 밖이라 무방(매수 판정 검증이 목적).
         rows, buys = observe_sweep(quotes, [c for c in wl if c["code"] not in held_sim],
-                                   avg50, held_sim, skip, cfg, ef, in_buy_window=in_win)
-        block = _fmt_block(now.strftime("%H:%M:%S"), ef, len(held_sim), cfg["SLOTS"],
+                                   avg50, held_sim, skip, cfg, vf, in_buy_window=in_win)
+        block = _fmt_block(now.strftime("%H:%M:%S"), vf, len(held_sim), cfg["SLOTS"],
                            len(wl), note, rows, buys, in_win)
         print("\n" + block, flush=True)
         for b in buys:
@@ -170,8 +173,9 @@ def main():
     ap.add_argument("--once", action="store_true", help="한 번만 스윕하고 종료")
     ap.add_argument("--slots", type=int, default=None, help="슬롯 상한 override")
     ap.add_argument("--interval", type=int, default=0, help="스윕 사이 최소 대기(초)")
+    ap.add_argument("--broad", action="store_true", help="예의주시까지 넓게 감시(기본: 진입임박만)")
     a = ap.parse_args()
-    run(once=a.once, slots=a.slots, interval=a.interval)
+    run(once=a.once, slots=a.slots, interval=a.interval, broad=a.broad)
 
 
 if __name__ == "__main__":
