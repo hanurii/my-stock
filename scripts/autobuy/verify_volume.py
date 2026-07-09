@@ -62,8 +62,10 @@ def observe_sweep(quotes_by_code, candidates, avg50_by_code, held_sim, skip, cfg
 
 
 def _fmt_block(now_str, vol_frac, held_count, slots_max, cand_count,
-               regime_note, rows, buys, in_buy_window):
-    """한 사이클 출력 블록 문자열. rows는 pace 내림차순 정렬해 표시."""
+               regime_note, rows, buys, in_buy_window, pace_min_show=0.8):
+    """한 사이클 출력 블록 문자열. pace≥pace_min_show인 것만 표시하고,
+    이미 익스텐디드(추격불가)인 종목은 별도 섹션으로 분류. 각 섹션 pace 내림차순.
+    pace<문턱·조회실패는 개수만 요약(불필요한 나열 제거)."""
     win = "" if in_buy_window else "  [매수창 밖 — 신규매수 안 함]"
     lines = [f"=== {now_str} (평소 이 시각 거래량 {vol_frac*100:.0f}%) · 슬롯 {held_count}/{slots_max} · "
              f"감시 {cand_count}종목{win} ==="]
@@ -71,14 +73,24 @@ def _fmt_block(now_str, vol_frac, held_count, slots_max, cand_count,
     if buys:
         tag = " · ".join(f"{b['code']} {b['name']} @{b['price']} pace{b['pace']}" for b in buys)
         lines.append(f"★매수 발생({len(buys)}): {tag}")
-    lines.append("--- 후보별 판정 ---")
-    for r in sorted(rows, key=lambda x: (x["pace"] is None, -(x["pace"] or 0))):
-        if r["price"] is None:
-            lines.append(f"{r['code']} {r['name']}  (조회 실패)  ✗ {r['why']}")
-            continue
+
+    def _row(r):
         mark = "★" if r["why"] == "buy" else ("▷" if r["why"] == "already_held" else "✗")
-        lines.append(f"{r['code']} {r['name']}  {r['price']} / {r['pivot']}  "
-                     f"{r['pct']:+.1f}%  pace{r['pace']:.1f}  {mark} {r['why']}")
+        return (f"{r['code']} {r['name']}  {r['price']} / {r['pivot']}  "
+                f"{r['pct']:+.1f}%  pace{r['pace']:.1f}  {mark} {r['why']}")
+
+    shown = [r for r in rows if r["price"] is not None and (r["pace"] or 0) >= pace_min_show]
+    hidden = len(rows) - len(shown)
+    ext = sorted((r for r in shown if r["why"] == "extended"), key=lambda x: -(x["pace"] or 0))
+    main = sorted((r for r in shown if r["why"] != "extended"), key=lambda x: -(x["pace"] or 0))
+
+    lines.append(f"--- 후보별 판정 (pace≥{pace_min_show}, {len(main)}종목) ---")
+    lines += [_row(r) for r in main]
+    if ext:
+        lines.append(f"--- 이미 익스텐디드 (추격불가, {len(ext)}종목) ---")
+        lines += [_row(r) for r in ext]
+    if hidden:
+        lines.append(f"(pace<{pace_min_show}·조회실패 {hidden}종목 숨김)")
     return "\n".join(lines)
 
 

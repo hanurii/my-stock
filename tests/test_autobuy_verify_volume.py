@@ -90,23 +90,25 @@ def test_outside_buy_window_no_commit():
 
 from autobuy.verify_volume import _fmt_block
 
-def test_fmt_block_contains_key_parts():
+def test_fmt_block_sections_and_pace_filter():
     rows = [
         {"code": "000660", "name": "SK하이닉스", "price": 183500, "pivot": 182000,
          "pct": 0.82, "pace": 2.13, "why": "buy"},
         {"code": "042700", "name": "한미반도체", "price": 41500, "pivot": 40000,
-         "pct": 3.75, "pace": 1.8, "why": "extended"},
+         "pct": 3.75, "pace": 1.8, "why": "extended"},                      # 익스텐디드 → 별도 섹션
+        {"code": "005930", "name": "삼성전자", "price": 70000, "pivot": 71000,
+         "pct": -1.4, "pace": 0.5, "why": "below_pivot"},                   # pace<0.8 → 숨김
         {"code": "006400", "name": "삼성SDI", "price": None, "pivot": 41000,
-         "pct": None, "pace": None, "why": "no_quote"},
+         "pct": None, "pace": None, "why": "no_quote"},                     # 조회실패 → 숨김
     ]
     buys = [{"code": "000660", "name": "SK하이닉스", "price": 183500, "pace": 2.1}]
-    out = _fmt_block("14:03:20", 0.77, 1, 10, 3, "하락추세(지수<20MA)", rows, buys, True)
-    assert "14:03:20" in out
-    assert "1/10" in out                 # 슬롯 held/max
-    assert "하락추세" in out             # 국면 참고
-    assert "★매수" in out and "000660" in out
-    assert "한미반도체" in out and "extended" in out
-    assert "no_quote" in out             # 조회 실패도 표시
+    out = _fmt_block("14:03:20", 0.77, 1, 10, 4, "하락추세(지수<20MA)", rows, buys, True)
+    assert "14:03:20" in out and "1/10" in out and "하락추세" in out
+    assert "★매수" in out and "000660" in out            # 매수 발생
+    assert "익스텐디드" in out and "한미반도체" in out    # 익스텐디드 별도 분류
+    assert "삼성전자" not in out                          # pace<0.8 숨김
+    assert "삼성SDI" not in out                           # 조회실패 숨김
+    assert "2종목 숨김" in out                            # 숨김 개수 요약
 
 def test_fmt_block_outside_window_marks_header():
     out = _fmt_block("15:25:00", 0.99, 0, 10, 0, "상승추세", [], [], False)
