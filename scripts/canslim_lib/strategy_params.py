@@ -15,6 +15,12 @@ STOP_PCT: float = 10.0
 # 옛 signals.evaluate_entry 기본값 3.0을 대체.
 VOL_PACE_MIN: float = 1.5
 
+# ── 단기-창 거래량 스파이크 (누적 pace가 굼떠서 놓치는 "이른 돌파+늦은 거래량" 대응) ──
+# spike_pace = 최근 W분 거래량 / (avg50 × [C(t)−C(t−W)]). 누적과 OR로 결합(어느 하나 충족이면 거래량OK).
+# 시작값(백테스트로 보정 예정). 코스맥스엔비티 7/9서 매수존 순간relvol ~4 관측 → 3 시작.
+SPIKE_MIN: float = 3.0
+SPIKE_WINDOW_MIN: int = 5
+
 # ── 추격 상한 (피벗 대비 %; 초과 시 매수 금지) ──────────────
 # 미너비니 규칙(피벗 코앞에서만 매수, 돌파 후 익스텐디드는 안 쫓음). 변동 없음.
 CHASE_MAX_PCT: float = 3.0

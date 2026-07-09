@@ -25,6 +25,18 @@ def test_extended_over_3pct_skips():
 def test_low_volume_skips():
     assert ev(acml_vol=200_000) == (False, "low_volume")  # pace 1.0 < 1.5 문턱
 
+def test_spike_buys_when_cumulative_low():
+    # 누적 pace 1.0(<1.5)이지만 단기-창 스파이크 4.0(≥3) → OR 경로로 매수
+    assert ev(acml_vol=200_000, spike_pace=4.0) == (True, "buy")
+
+def test_spike_below_min_still_low_volume():
+    # 누적 1.0·스파이크 2.0 둘 다 미달 → low_volume
+    assert ev(acml_vol=200_000, spike_pace=2.0) == (False, "low_volume")
+
+def test_spike_none_is_cumulative_only():
+    # spike_pace 없으면 기존대로(누적만) — 1.0<1.5 → low_volume
+    assert ev(acml_vol=200_000, spike_pace=None) == (False, "low_volume")
+
 def test_no_slot_skips():
     assert ev(slots_used=10) == (False, "no_slot")
 
