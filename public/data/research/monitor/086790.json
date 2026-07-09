@@ -1,7 +1,7 @@
 {
   "code": "086790",
   "name": "하나금융지주",
-  "last_checked": "2026-07-09T17:59:37.922+09:00",
+  "last_checked": "2026-07-09T21:03:34.571+09:00",
   "metrics": [
     {
       "id": "pbr",
@@ -15,8 +15,8 @@
     {
       "id": "pbr_premium_pp",
       "label": "4대 지주 평균 대비 PBR 프리미엄",
-      "value": -0.093,
-      "display": "-0.093pp",
+      "value": -0.08,
+      "display": "-0.080pp",
       "threshold": "+0.10pp 이상",
       "hit": false,
       "tone": "good"
@@ -24,8 +24,8 @@
     {
       "id": "foreign_ratio",
       "label": "외국인 지분율",
-      "value": 68.3,
-      "display": "68.30%",
+      "value": 68.24,
+      "display": "68.24%",
       "threshold": "65% 이하",
       "hit": false,
       "tone": "good"
@@ -33,8 +33,8 @@
     {
       "id": "foreign_net_buy_4w",
       "label": "최근 20거래일 외국인 순매수",
-      "value": -20224,
-      "display": "-2만주",
+      "value": -100792,
+      "display": "-10만주",
       "threshold": "순매도 전환",
       "hit": true,
       "tone": "bad"
@@ -90,7 +90,7 @@
       "severity": "bad",
       "type": "foreign_net_buy_4w",
       "title": "최근 20거래일 외국인 순매수 순매도 전환",
-      "message": "현재 -2만주 — 매도 트리거 도달"
+      "message": "현재 -10만주 — 매도 트리거 도달"
     },
     {
       "severity": "warn",
@@ -118,7 +118,7 @@
     },
     {
       "label": "4대 지주 평균 PBR 비교 (3종목)",
-      "ref": "peers: 316140, 105560, 055550 / avg 0.843"
+      "ref": "peers: 316140, 105560, 055550 / avg 0.83"
     },
     {
       "label": "분기 배당 결정 (사업보고서 (2025.12))",
@@ -126,7 +126,7 @@
     },
     {
       "label": "외국인 순매수 누적 (20일)",
-      "ref": "네이버 dealTrendInfos / history 2026-07-08"
+      "ref": "네이버 dealTrendInfos / history 2026-07-09"
     },
     {
       "label": "최근 분기 순이익 (2025-FY)",
