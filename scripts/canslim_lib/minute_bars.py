@@ -73,7 +73,9 @@ def _page(tr: str, endpoint: str, base_params: dict) -> list[dict]:
         for r in rows:
             try:
                 t = r.get("stck_cntg_hour")
-                if not t:
+                # ★ t > end 바는 무시: FHKST03010230은 end가 이른 시각(≈10:30↓)이면 '그날 전체'를
+                #   반환하는데 그때 15:30 등 뒷시각 값이 오염돼(예: 671000→682000) 정상 바를 덮어씀.
+                if not t or t > end:
                     continue
                 bars[t] = {"t": t, "o": float(r["stck_oprc"]), "h": float(r["stck_hgpr"]),
                            "l": float(r["stck_lwpr"]), "c": float(r["stck_prpr"]),
