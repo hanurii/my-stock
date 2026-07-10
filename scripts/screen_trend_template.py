@@ -47,6 +47,7 @@ from canslim_lib.fetch import (  # noqa: E402
 )
 from canslim_lib import ohlcv_matrix  # noqa: E402
 from canslim_lib.pykrx_universe import fetch_universe_with_cap  # noqa: E402
+from canslim_lib.liveness import filter_live_universe  # noqa: E402
 from canslim_lib.criteria import evaluate_m  # noqa: E402
 from canslim_lib.trend_template import (  # noqa: E402
     evaluate_trend_template,
@@ -322,6 +323,15 @@ def run_full_scan(args: argparse.Namespace) -> None:
         kospi_n = sum(1 for u in universe if u["market"] == "KOSPI")
         kosdaq_n = sum(1 for u in universe if u["market"] == "KOSDAQ")
         print(f"  전체: {len(universe)} (KOSPI {kospi_n} / KOSDAQ {kosdaq_n})")
+
+    # 거래정지·상폐 종목 제외 (얼어붙은 가격+거래량 0 이 VCP 등에 오탐되는 것 방지)
+    universe, dropped = filter_live_universe(
+        universe, ohlcv_matrix.get_series, asof=asof)
+    if dropped:
+        halted = sum(1 for d in dropped if d["reason"] == "halted")
+        excluded = sum(1 for d in dropped if d["reason"] == "excluded")
+        print(f"  🚫 거래정지·제외 {len(dropped)}종목 제외 "
+              f"(자동감지 {halted} · 수동목록 {excluded}) → {len(universe)}종목")
 
     # ── 3단계: 종목별 일봉 수집 (병렬)
     print(f"\n📈 일봉 수집 중 (병렬 {MAX_WORKERS}워커)...")
