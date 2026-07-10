@@ -91,7 +91,8 @@ def main():
             if prev is None or _STATUS_PRI.get(rec["status"], 9) < _STATUS_PRI.get(prev["status"], 9):
                 best[code] = rec
 
-    rows = [r for r in best.values() if r["superperf_score"] >= a.min_score]
+    # 점수 min_score 이상 OR 오늘 진입 임박(entry_ready) — 낮은 점수라도 진입 임박이면 포함.
+    rows = [r for r in best.values() if r["superperf_score"] >= a.min_score or r["entry_ready"]]
     rows.sort(key=lambda r: (-r["superperf_score"], -(r["rs"] or 0)))
 
     out = {
