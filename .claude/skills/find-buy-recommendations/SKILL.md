@@ -19,12 +19,19 @@ description: >
 - 먼저 `find-vcp` · `find-power-play` · `find-3c` 실행(검출된 후보 파일 존재).
 - 입력: `public/data/sepa-{vcp,power-play,power-play-all,3c}-candidates.json`.
 
-## 실행 (1줄)
+## 실행 (2줄 — 추천 산출 + 살아있는 검증 원장 갱신)
 ```
 python scripts/screen_buy_recommendations.py
+python scripts/track_buy_recommendations.py
 ```
-- 산출: `public/data/sepa-buy-recommendations.json`
-- 콘솔: 초수익 점수순 상위 종목 표(점수·근거·RS·직전상승·매수배지).
+- 산출: `public/data/sepa-buy-recommendations.json` (오늘 추천)
+      + `public/data/sepa-buy-rec-ledger.json` (원장 — 과거 추천의 전방 성과 누적 결착)
+- 콘솔: 초수익 점수순 상위 종목 표 + 살아있는 검증 요약(점수 구간별 실전 성과).
+
+### 살아있는 검증(track_)
+매일 추천을 원장에 기록하고 전방 성과(최대상승·+20/-10·경과일)를 OHLCV로 재결착 →
+"4+점 추천이 실제로 대박나나"를 실데이터로 누적 검증. **몇 달 쌓여야 유의미**(단기 스냅샷은
+조정·변동성 노이즈). 익스텐디드까지 포함돼 있어 실전 해석은 진입권 배지 기준으로.
 
 ### 옵션
 - `--min-score N` : 포함 최소 점수(기본 3; 0~1점=검증상 엣지 없어 제외).
