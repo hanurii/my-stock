@@ -209,7 +209,9 @@ export function SepaHoldingsSection({ data }: { data: HoldingsFeedbackFile | nul
 
               {/* 펼침 본문 */}
               <div className="px-4 pb-4 flex flex-col gap-3">
-                <p className="text-[11.5px] text-on-surface-variant/70 tabular-nums border-t border-outline-variant/10 pt-3">
+                <p className="text-[11.5px] text-on-surface-variant/70 tabular-nums border-t border-outline-variant/10 pt-3 leading-relaxed">
+                  매수 {h.buy_date}{h.quantity != null ? ` · ${h.quantity.toLocaleString()}주` : ""} · 평균 {fmtWon(h.buy_price)}원{h.market ? ` · ${h.market}` : ""}
+                  <br />
                   손절선 {fmtWon(h.stop_price)}원({h.stop_loss_pct}%) · 돌파일 {h.breakout_date ?? "-"}
                   {h.breakout_date_estimated ? " (매수일 추정)" : ""}
                 </p>
