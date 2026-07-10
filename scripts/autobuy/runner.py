@@ -9,7 +9,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))   # scripts/
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 from autobuy.config import CFG, CANDIDATE_PATHS, BASE
-from autobuy import signals, state, kis_trade, watchlist
+from autobuy import signals, state, kis_trade, watchlist, vol_curve
 sys.path.insert(0, str(BASE / "scripts"))
 from canslim_lib import ohlcv_matrix, kis_api
 ohlcv_matrix.SERIES_DIR = BASE / ".cache" / "ohlcv" / "series"
@@ -20,15 +20,10 @@ for line in (BASE / ".env").read_text(encoding="utf-8").splitlines():
         k, v = line.split("=", 1); os.environ.setdefault(k, v)
 
 
-def _elapsed_frac(now: datetime.datetime) -> float:
-    op = now.replace(hour=9, minute=0, second=0, microsecond=0)
-    total = 6.5 * 3600
-    return max(1e-6, min(1.0, (now - op).total_seconds() / total))
-
-
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--live", action="store_true", help="실주문(미지정 시 dryrun)")
+    ap.add_argument("--broad", action="store_true", help="예의주시까지 넓게 감시(기본: 진입임박만)")
     args = ap.parse_args()
     # ★ live 이중게이트 — 실행인자(--live) AND 설정(CFG["MODE"]=="live") 둘 다 있어야 live.
     #   둘 중 하나만 있으면 안전 측(dryrun)으로 떨어진다.
@@ -48,7 +43,11 @@ def main():
             state.log("국면=하락추세(지수<20MA) → 오늘 매매 OFF. 종료."); return
         state.log("국면=상승추세 → 가동")
 
-    wl = watchlist.load_actionable(CANDIDATE_PATHS)
+    if args.broad:
+        wl = watchlist.load_watchlist_broad(CANDIDATE_PATHS)
+        state.log("감시범위=넓음(진입임박+예의주시)")
+    else:
+        wl = watchlist.load_actionable(CANDIDATE_PATHS)
     avg50 = {}
     for c in wl:
         s = ohlcv_matrix.get_series(c["code"])
@@ -86,7 +85,7 @@ def main():
         now = datetime.datetime.now(); hm = now.strftime("%H%M")
         if hm >= CFG["MARKET_CLOSE"]:
             state.log("장마감 → 종료"); break
-        ef = _elapsed_frac(now)
+        vf = vol_curve.expected_vol_frac(now.strftime("%H%M%S"))   # 동시간대-대비 정규화(선형 경과시간 아님)
         # 청산 감시(보유) — killed 여부와 무관하게 항상 수행
         for code, pos in list(positions.items()):
             try:
@@ -111,12 +110,12 @@ def main():
                     q = kis_api.fetch_quote_with_volume(c["code"])
                     if not q: continue
                     ok, why = signals.evaluate_entry(
-                        q["current"], c["pivot"], q["acml_vol"], avg50[c["code"]], ef,
+                        q["current"], c["pivot"], q["acml_vol"], avg50[c["code"]], vf,
                         slots_used=len(positions), slots_max=CFG["SLOTS"], held=False,
                         vol_pace_min=CFG["VOL_PACE_MIN"], chase_max_pct=CFG["CHASE_MAX_PCT"])
                     if why == "extended": skip.add(c["code"])
                     if ok:
-                        pace = q["acml_vol"] / (avg50[c["code"]] * ef)
+                        pace = q["acml_vol"] / (avg50[c["code"]] * vf)
                         cands.append((pace, c, q))
                 except Exception as e:
                     state.log(f"신규매수 판정 예외 {c['code']}: {type(e).__name__} — 계속 진행")

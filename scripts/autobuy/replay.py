@@ -2,6 +2,8 @@
 순수 핵심(replay_day_minutes·resolve_forward_daily)은 합성 입력으로 테스트 가능."""
 from __future__ import annotations
 
+from canslim_lib import strategy_params as SP
+
 
 def _elapsed_frac(t: str) -> float:
     """t='HHMMSS' → 09:00~15:30(6.5h) 경과 비율(1e-6~1.0)."""
@@ -9,17 +11,21 @@ def _elapsed_frac(t: str) -> float:
     return max(1e-6, min(1.0, s / (6.5 * 3600)))
 
 
-def replay_day_minutes(minutes_by_code, candidates, avg50_by_code, cfg):
+def replay_day_minutes(minutes_by_code, candidates, avg50_by_code, cfg, vol_frac_fn=None):
     """D일 분봉을 분 단위로 흘려 봇 판정. 반환 (events, open_positions).
     매수=분 종가로 evaluate_entry, 청산=evaluate_exit(분 고/저 터치, 손절 우선). 신규매수는 매수창만.
-    같은 코드는 하루 한 번만 매수(손절 후 재발화 방지 — 실봇의 traded_today와 동일)."""
+    같은 코드는 하루 한 번만 매수(손절 후 재발화 방지 — 실봇의 traded_today와 동일).
+    vol_frac_fn(t)=평소 이 시각 거래량비(동시간대-대비). None이면 선형 경과시간(테스트 기본);
+    실제 리플레이 run()은 vol_curve.expected_vol_frac 주입(실봇과 동일 정규화)."""
     from autobuy.signals import evaluate_entry, evaluate_exit
+    if vol_frac_fn is None:
+        vol_frac_fn = _elapsed_frac
     bar_at = {c["code"]: {b["t"]: b for b in minutes_by_code.get(c["code"], [])} for c in candidates}
     all_t = sorted({b["t"] for m in minutes_by_code.values() for b in m})
     cumvol = {c["code"]: 0.0 for c in candidates}
     held, skip, traded_today, events = {}, set(), set(), []
     for t in all_t:
-        ef, hm = _elapsed_frac(t), t[:4]
+        ef, hm = vol_frac_fn(t), t[:4]
         for c in candidates:                         # 누적거래량(모든 후보, 매 분)
             b = bar_at[c["code"]].get(t)
             if b:
@@ -104,7 +110,7 @@ def build_candidates_asof(asof, get_series, meta, rs_min=80):
     return out
 
 
-def resolve_forward_daily(open_positions, series_by_code, entry_date, *, target_pct=20.0, stop_pct=10.0):
+def resolve_forward_daily(open_positions, series_by_code, entry_date, *, target_pct=SP.TARGET_PCT, stop_pct=SP.STOP_PCT):
     """D 마감까지 미청산 포지션을 D+1부터 일봉 선착으로 결착. 같은날 둘다면 손절 가정."""
     out = []
     for code, pos in open_positions.items():
@@ -175,7 +181,9 @@ def run(entry_date, slots=None):
         vs = [v for v in (truncate_series(s, scan).get("volumes") or [])[-50:] if v] if s else []
         avg50[c["code"]] = (sum(vs) / len(vs)) if vs else 0
     live = [c for c in cands if c["code"] in minutes]
-    events, held = replay_day_minutes(minutes, live, avg50, cfg)
+    from autobuy import vol_curve
+    events, held = replay_day_minutes(minutes, live, avg50, cfg,
+                                      vol_frac_fn=vol_curve.expected_vol_frac)
     fwd = resolve_forward_daily(held, {code: ohlcv_matrix.get_series(code) for code in held}, entry_date)
     # 로그 출력(봇 형식)
     for e in sorted([x for x in events], key=lambda x: x["t"]):
