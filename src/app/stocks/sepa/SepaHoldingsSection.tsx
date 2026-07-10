@@ -80,8 +80,20 @@ function fmtWon(v?: number | null): string {
   return v == null ? "-" : Math.round(v).toLocaleString();
 }
 
+// 매도 신호 강도(내림차순 정렬용): 손절 > 조기매도(위반 많을수록) > 강세 과열 익절 > 정상보유 > 데이터없음
+function sellStrength(h: HoldingFeedback): number {
+  if (h.signal === "stop_loss") return 1000;
+  if (h.signal === "early_sell") return 500 + (h.violation_count ?? 0);
+  if (h.strength?.signal === "sell_into_strength") return 300 + (h.strength.count ?? 0);
+  if (h.signal === "hold") return 100;
+  return 0;
+}
+
 export function SepaHoldingsSection({ data }: { data: HoldingsFeedbackFile | null }) {
-  const holdings = data?.holdings ?? [];
+  // 매도 신호 강한 순으로 정렬(동점이면 손실 큰 종목 먼저).
+  const holdings = [...(data?.holdings ?? [])].sort(
+    (a, b) => sellStrength(b) - sellStrength(a) || (a.profit_pct ?? 0) - (b.profit_pct ?? 0),
+  );
   if (holdings.length === 0) return null;
 
   const Tip = ({ tip, children }: { tip: string; children: ReactNode }) => (
