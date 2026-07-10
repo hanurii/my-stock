@@ -1,16 +1,16 @@
 {
   "code": "347850",
   "name": "디앤디파마텍",
-  "last_checked": "2026-07-09T21:04:31.503+09:00",
+  "last_checked": "2026-07-10T09:08:20.123+09:00",
   "metrics": [
     {
       "id": "pbr",
       "label": "PBR (극고평가)",
-      "value": 50.88,
-      "display": "50.88배",
+      "value": 49.59,
+      "display": "49.59배",
       "threshold": "50배 돌파",
-      "hit": true,
-      "tone": "bad"
+      "hit": false,
+      "tone": "warn"
     },
     {
       "id": "ceo_founder_ratio",
@@ -51,10 +51,10 @@
   ],
   "alerts": [
     {
-      "severity": "bad",
+      "severity": "warn",
       "type": "pbr",
-      "title": "PBR (극고평가) 50배 돌파",
-      "message": "현재 50.88배 — 매도 트리거 도달"
+      "title": "PBR (극고평가) 임계 근접",
+      "message": "현재 49.59배 (임계 50배 돌파)"
     },
     {
       "severity": "bad",
