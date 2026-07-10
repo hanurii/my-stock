@@ -380,6 +380,20 @@ def test_evaluate_holding_early_sell_counts_violations():
     assert r["violation_count"] == 2
 
 
+def test_evaluate_holding_ignores_pre_buy_violations():
+    # 돌파(60) 다음 날 20일선 급락 이탈(매수 전 위반)이 있으나 매수는 훨씬 뒤(74).
+    # 매수 후(74~)엔 110 유지 → 매수 전 위반은 세지 않아야 한다(매수일 앵커).
+    closes = [100.0] * 60 + [106.0, 90.0] + [110.0] * 20
+    s = make_series(closes)
+    r = evaluate_holding(s, s["dates"][74], 110.0, -10.0, pivot_price=105.0)
+    ma = next(x for x in r["rules"] if x["id"] == "close_below_ma")
+    assert ma["status"] == "pass"          # 매수 전 이평 이탈은 제외
+    r1 = next(x for x in r["rules"] if x["id"] == "low_volume_breakout")
+    assert r1["status"] == "na"            # 돌파 한참 뒤 매수 → 돌파 품질 판정 제외
+    assert r["violation_count"] == 0
+    assert r["signal"] == "hold"
+
+
 def test_evaluate_holding_stop_loss_overrides_rules():
     # 현재가 95 <= 손절가 106*0.96=101.76 → 위반과 무관하게 손절 신호
     closes = [100.0] * 60 + [106.0, 95.0]

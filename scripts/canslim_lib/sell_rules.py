@@ -198,11 +198,13 @@ def rule_weak_days_dominant(series, bi):
     return {"id": rid, "status": "pass", "detail": counts}
 
 
-def rule_breakout_failure(series, bi, pivot_price, breakout_confirmed=True):
+def rule_breakout_failure(series, bi, pivot_price, breakout_confirmed=True, start=None):
     """규칙⑥ 돌파 실패(스쿼트+거래량 비대칭 통합).
     - 거래량 동반(>돌파일) 피벗 이탈 → 유예 무시 위반(실패한 돌파).
     - 조용한 스쿼트 → 10거래일 유예 안에선 관찰중(pass), 초과하면 위반.
-    - 피벗 위 복귀 → pass. 피벗/돌파 미확인 → na."""
+    - 피벗 위 복귀 → pass. 피벗/돌파 미확인 → na.
+    start: 피벗 이탈을 스캔하는 시작 인덱스(기본=돌파일 bi). evaluate_holding은
+    매수일(bi 이후일 수 있음)을 넘겨 '매수 후' 이탈만 본다. breakout_vol 기준은 bi 유지."""
     rid = "breakout_failure"
     if pivot_price is None:
         return {"id": rid, "status": "na", "detail": "피벗 없음 — 판정 불가"}
@@ -210,8 +212,9 @@ def rule_breakout_failure(series, bi, pivot_price, breakout_confirmed=True):
         return {"id": rid, "status": "na", "detail": "피벗 돌파 미확인 — 판정 불가"}
     closes, vols, dates = series["closes"], series["volumes"], series["dates"]
     n = len(closes)
+    scan = start if start is not None else bi
     breakout_vol = vols[bi]
-    below = [i for i in range(bi, n) if closes[i] < pivot_price]
+    below = [i for i in range(scan, n) if closes[i] < pivot_price]
     if not below:
         return {"id": rid, "status": "pass", "detail": "피벗 위 유지"}
     # 거래량 동반 돌파 실패(비대칭) — 유예 무시, 가장 심한 날을 detail로
@@ -229,7 +232,7 @@ def rule_breakout_failure(series, bi, pivot_price, breakout_confirmed=True):
     # 조용한 스쿼트 — 회복/유예 판정
     if closes[-1] >= pivot_price:
         return {"id": rid, "status": "pass", "detail": "스쿼트 후 반전 회복(피벗 위 복귀)"}
-    elapsed = (n - 1) - bi
+    elapsed = (n - 1) - scan
     if elapsed <= SQUAT_GRACE_DAYS:
         return {"id": rid, "status": "watch",
                 "detail": f"🟡 반전 회복 관찰중 (D+{elapsed}/{SQUAT_GRACE_DAYS})"}
@@ -448,17 +451,33 @@ def evaluate_mvp(series, bi):
 
 
 def evaluate_holding(series, buy_date, buy_price, stop_loss_pct, pivot_price=None):
-    """보유 1종목 종합 판정. 손절(최우선) → 위반 1개 이상 조기 매도 → 정상 보유."""
+    """보유 1종목 종합 판정. 손절(최우선) → 위반 1개 이상 조기 매도 → 정상 보유.
+
+    ★위반·매집·강세 판정은 모두 '매수일 이후'만 본다. 돌파일(bi)이 매수일보다
+    앞설 수 있으므로(돌파 한참 뒤 매수=재진입) 스캔 앵커 si=max(bi, 매수일)로 잡아
+    매수 전 위반을 세지 않는다. 규칙①(저거래량 돌파)은 그 돌파에 산 게 아니면 제외."""
+    dates = series["dates"]
     bi, estimated = find_breakout_index(series, buy_date, pivot_price)
+    buy_idx = 0
+    for i in range(len(dates) - 1, -1, -1):
+        if dates[i] <= buy_date:
+            buy_idx = i
+            break
+    si = max(bi, buy_idx)   # 위반 스캔 시작 = 매수일 이후만
     current = series["closes"][-1]
     stop_price = buy_price * (1 + stop_loss_pct / 100)
+    if bi < buy_idx:
+        rule1 = {"id": "low_volume_breakout", "status": "na",
+                 "detail": f"매수가 돌파({dates[bi]})보다 {buy_idx - bi}거래일 뒤 — 돌파 품질 판정 제외"}
+    else:
+        rule1 = rule_low_volume_breakout(series, bi)
     rules = [
-        rule_low_volume_breakout(series, bi),
-        rule_heavy_volume_pullback(series, bi),
-        rule_consecutive_lower_lows(series, bi),
-        rule_close_below_ma(series, bi),
-        rule_weak_days_dominant(series, bi),
-        rule_breakout_failure(series, bi, pivot_price, breakout_confirmed=not estimated),
+        rule1,
+        rule_heavy_volume_pullback(series, si),
+        rule_consecutive_lower_lows(series, si),
+        rule_close_below_ma(series, si),
+        rule_weak_days_dominant(series, si),
+        rule_breakout_failure(series, bi, pivot_price, breakout_confirmed=not estimated, start=si),
     ]
     violation_count = sum(1 for r in rules if r["status"] == "violation")
     if current <= stop_price:
@@ -467,9 +486,9 @@ def evaluate_holding(series, buy_date, buy_price, stop_loss_pct, pivot_price=Non
         signal = "early_sell"
     else:
         signal = "hold"
-    accumulation = evaluate_accumulation(series, bi)
-    mvp = evaluate_mvp(series, bi)
-    strength = evaluate_climax(series, bi, pivot_price)
+    accumulation = evaluate_accumulation(series, si)
+    mvp = evaluate_mvp(series, si)
+    strength = evaluate_climax(series, si, pivot_price)
     extension_pct = (round((current / pivot_price - 1) * 100, 1)
                      if pivot_price else None)
     return {
