@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-09",
+  "generated_at": "2026-07-10",
   "strategy": "minervini",
   "params": {
     "rr_target": 2,
@@ -24,7 +24,7 @@
       "sell_qty": 12,
       "stop": 2139004,
       "stop_violation": true,
-      "setup": null
+      "setup": "VCP"
     },
     {
       "code": "086670",
@@ -44,7 +44,7 @@
       "sell_qty": 728,
       "stop": 15580,
       "stop_violation": false,
-      "setup": null
+      "setup": "VCP"
     },
     {
       "code": "219130",
@@ -64,7 +64,7 @@
       "sell_qty": 264,
       "stop": 59924,
       "stop_violation": false,
-      "setup": null
+      "setup": "VCP"
     },
     {
       "code": "010955",
@@ -83,7 +83,7 @@
       "buy_qty": 172,
       "sell_qty": 172,
       "stop": null,
-      "stop_violation": null,
+      "stop_violation": false,
       "setup": "VCP"
     },
     {
@@ -123,7 +123,7 @@
       "buy_qty": 1495,
       "sell_qty": 1495,
       "stop": null,
-      "stop_violation": null,
+      "stop_violation": false,
       "setup": "VCP"
     },
     {
@@ -163,7 +163,7 @@
       "buy_qty": 1,
       "sell_qty": 1,
       "stop": null,
-      "stop_violation": null,
+      "stop_violation": true,
       "setup": "VCP"
     },
     {
@@ -183,7 +183,7 @@
       "buy_qty": 181,
       "sell_qty": 181,
       "stop": null,
-      "stop_violation": null,
+      "stop_violation": true,
       "setup": null
     },
     {
@@ -203,7 +203,7 @@
       "buy_qty": 533,
       "sell_qty": 533,
       "stop": null,
-      "stop_violation": null,
+      "stop_violation": true,
       "setup": "VCP"
     },
     {
@@ -223,7 +223,7 @@
       "buy_qty": 1,
       "sell_qty": 1,
       "stop": null,
-      "stop_violation": null,
+      "stop_violation": true,
       "setup": null
     },
     {
@@ -243,7 +243,7 @@
       "buy_qty": 419,
       "sell_qty": 419,
       "stop": null,
-      "stop_violation": null,
+      "stop_violation": true,
       "setup": null
     },
     {
@@ -263,8 +263,8 @@
       "buy_qty": 1,
       "sell_qty": 1,
       "stop": null,
-      "stop_violation": null,
-      "setup": null
+      "stop_violation": true,
+      "setup": "VCP"
     },
     {
       "code": "192080",
@@ -283,8 +283,8 @@
       "buy_qty": 1,
       "sell_qty": 1,
       "stop": null,
-      "stop_violation": null,
-      "setup": null
+      "stop_violation": true,
+      "setup": "3C"
     }
   ],
   "open_positions": [
@@ -455,9 +455,9 @@
   "diagnostics": {
     "max_loss_gt_max_win": false,
     "loss_days_ge_win_days": false,
-    "stop_violations": 3,
+    "stop_violations": 10,
     "warnings": [
-      "손절 규율 위반 3건",
+      "손절 규율 위반 10건",
       "기본 손절 5%가 권장 4.84%보다 넓습니다"
     ]
   },

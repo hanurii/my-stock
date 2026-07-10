@@ -35,7 +35,7 @@ export function daysBetween(a: string, b: string): number {
 }
 const sum = <T,>(xs: T[], f: (x: T) => number) => xs.reduce((s, x) => s + f(x), 0);
 
-function buildTrade(code: string, name: string, buys: Fill[], sells: Fill[], openDate: string, closeDate: string): Trade {
+function buildTrade(code: string, name: string, buys: Fill[], sells: Fill[], openDate: string, closeDate: string, defaultStopPct: number | null = null): Trade {
   const buyVal = sum(buys, (b) => b.price * b.qty);
   const buyQty = sum(buys, (b) => b.qty);
   const sellVal = sum(sells, (s) => s.price * s.qty);
@@ -54,8 +54,11 @@ function buildTrade(code: string, name: string, buys: Fill[], sells: Fill[], ope
   const outcome: "win" | "loss" = netPctR > 0 ? "win" : "loss";
   const firstStop = buys[0]?.stop;
   let stopViolation: boolean | undefined;
-  if (firstStop != null) {
-    const plannedPct = (firstStop / avgBuy - 1) * 100;
+  // 손절가가 기록돼 있으면 그 값으로, 없으면 전략 기본 손절폭으로 판정 — 모든 거래에 빠짐없이 적용.
+  const plannedPct = firstStop != null
+    ? (firstStop / avgBuy - 1) * 100
+    : (defaultStopPct != null ? -Math.abs(defaultStopPct) : null);
+  if (plannedPct != null) {
     stopViolation = outcome === "loss" && netPctR < plannedPct - 1e-9;
   }
 
@@ -73,7 +76,7 @@ function buildTrade(code: string, name: string, buys: Fill[], sells: Fill[], ope
   };
 }
 
-export function matchTrades(fills: Fill[]): MatchResult {
+export function matchTrades(fills: Fill[], defaultStopPct: number | null = null): MatchResult {
   const errors: string[] = [];
   const trades: Trade[] = [];
   const open: OpenPosition[] = [];
@@ -103,7 +106,7 @@ export function matchTrades(fills: Fill[]): MatchResult {
         sells.push(f); qty -= f.qty;
         if (qty < 0) { errors.push(`${code}: 매도 수량이 보유수량 초과 (${f.date})`); bad = true; break; }
         if (qty === 0) {
-          codeTrades.push(buildTrade(code, f.name, buys, sells, firstBuyDate, dateOnly(f.date)));
+          codeTrades.push(buildTrade(code, f.name, buys, sells, firstBuyDate, dateOnly(f.date), defaultStopPct));
           buys = []; sells = [];
         }
       }
@@ -249,7 +252,7 @@ export type Scorecard = {
 };
 
 export function computeScorecard(fills: Fill[], params: ScorecardParams): Scorecard {
-  const { trades, open, errors } = matchTrades(fills);
+  const { trades, open, errors } = matchTrades(fills, params.stop_loss_pct_default);
   const overall = { net: computeOverall(trades, "net"), gross: computeOverall(trades, "gross") };
   const monthly = { net: computeMonthly(trades, "net"), gross: computeMonthly(trades, "gross") };
 

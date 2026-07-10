@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { Scorecard, OverallStats, MonthlyRow, Trade, OpenPosition } from "@/lib/scorecard";
+import type { Scorecard, OverallStats, MonthlyRow, Trade } from "@/lib/scorecard";
 import { fmtPct, fmtLossPct, fmtSignedPct, fmtNum, fmtRatio, plColor, fmtSignedWon, PROFIT_COLOR, LOSS_COLOR } from "./format";
 
 function StatCard({ label, value, sub, color }: { label: string; value: string; sub?: string; color?: string }) {
@@ -45,15 +45,6 @@ function TradeRow({ trade, basis }: { trade: Trade; basis: "net" | "gross" }) {
         <span className="text-on-surface-variant/60">{trade.open_date} ~ {trade.close_date} ({trade.hold_days}일)</span>
         <span className="font-mono font-bold w-20 text-right" style={{ color: plColor(pct) }}>{fmtSignedPct(pct)}</span>
       </div>
-    </div>
-  );
-}
-
-function OpenRow({ pos }: { pos: OpenPosition }) {
-  return (
-    <div className="flex items-center justify-between gap-2 px-4 py-2 border-t border-outline/10 text-sm">
-      <span className="font-medium text-on-surface">{pos.name}</span>
-      <span className="text-on-surface-variant/60">{pos.qty}주 · 평균 {pos.avg_buy.toLocaleString()}원 · {pos.open_date}</span>
     </div>
   );
 }
@@ -180,24 +171,20 @@ export function ScorecardView({ data }: { data: Scorecard }) {
             </div>
           </section>
 
-          {/* 왕복거래 목록 */}
+          {/* 왕복거래 목록 — 최신 청산일 순, 8건 초과는 스크롤 (미청산 포지션은 아래 '보유 종목 점검' 상세에서 확인) */}
           <section>
-            <h3 className="text-lg font-serif font-bold text-on-surface mb-2">왕복거래</h3>
+            <h3 className="text-lg font-serif font-bold text-on-surface mb-2">
+              왕복거래 <span className="text-xs font-normal text-on-surface-variant/50">(최신순 · {data.trades.length}건)</span>
+            </h3>
             <div className="bg-surface-container-low rounded-xl ghost-border overflow-hidden">
-              {data.trades.map((t, i) => <TradeRow key={`${t.code}-${t.close_date}-${i}`} trade={t} basis={basis} />)}
+              <div className="max-h-[28rem] overflow-y-auto">
+                {[...data.trades]
+                  .sort((a, b) => (a.close_date < b.close_date ? 1 : a.close_date > b.close_date ? -1 : 0))
+                  .map((t, i) => <TradeRow key={`${t.code}-${t.close_date}-${i}`} trade={t} basis={basis} />)}
+              </div>
             </div>
           </section>
         </>
-      )}
-
-      {/* 열린 포지션 (미청산) */}
-      {data.open_positions.length > 0 && (
-        <section>
-          <h3 className="text-lg font-serif font-bold text-on-surface mb-2">열린 포지션 <span className="text-xs font-normal text-on-surface-variant/50">(미청산 · 실현 통계 제외)</span></h3>
-          <div className="bg-surface-container-low rounded-xl ghost-border overflow-hidden">
-            {data.open_positions.map((p) => <OpenRow key={p.code} pos={p} />)}
-          </div>
-        </section>
       )}
     </div>
   );
