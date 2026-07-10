@@ -104,11 +104,11 @@ function Detail({ r }: { r: BuyRec }) {
           {factors.map((f) => {
             const on = f.earned > 0;
             return (
-              <div key={f.name} className={`flex items-center gap-2 text-[11.5px] ${on ? "" : "opacity-60"}`}>
+              <div key={f.name} className={`flex items-center gap-2.5 text-[11.5px] ${on ? "" : "opacity-60"}`}>
                 <span className="w-3 text-center" style={{ color: on ? "#34d399" : "var(--on-surface-variant)" }}>{on ? "✓" : "–"}</span>
-                <span className="w-20 text-on-surface whitespace-nowrap">{f.name}</span>
-                <span className="flex-1 tabular-nums text-on-surface-variant/80">{f.value}</span>
-                <span className="tabular-nums font-semibold w-12 text-right" style={{ color: on ? "#34d399" : "var(--on-surface-variant)" }}>{f.earned} / {f.max}</span>
+                <span className="w-24 text-on-surface whitespace-nowrap">{f.name}</span>
+                <span className="tabular-nums font-semibold w-11 text-right" style={{ color: on ? "#34d399" : "var(--on-surface-variant)" }}>{f.earned} / {f.max}</span>
+                <span className="tabular-nums text-on-surface-variant/70 whitespace-nowrap">{f.value}</span>
               </div>
             );
           })}
