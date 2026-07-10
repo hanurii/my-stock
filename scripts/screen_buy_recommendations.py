@@ -43,13 +43,9 @@ def load_index():
     return out or None
 
 
-def entry_tier(entry_ready, pct_to_pivot) -> str:
-    """매수 타이밍 배지(정렬엔 안 쓰고 표시만): ready(진입권)/near(곧)/far(멀음)."""
-    if entry_ready:
-        return "ready"
-    if pct_to_pivot is not None and abs(pct_to_pivot) <= 3:
-        return "near"
-    return "far"
+# 같은 종목이 여러 패턴에 검출되면 상태 우선순위로 하나만 남긴다(돌파>진입임박>예의주시).
+_STATUS_PRI = {"breakout": 0, "actionable": 1, "forming": 2}
+_BADGE = {"breakout": "🔴돌파", "actionable": "🟢진입임박", "forming": "🟡예의주시"}
 
 
 def main():
@@ -87,13 +83,12 @@ def main():
                 "pct_to_pivot": c.get("pct_to_pivot"), "entry_ready": bool(c.get("entry_ready")),
                 "superperf_score": pts, "score_reasons": reasons,
                 "prior_adv_pct": round(f["prior_adv"] * 100, 1) if f["prior_adv"] is not None else None,
-                "dist_52wh": f["dist_52wh"], "pattern": pat,
-                "entry_tier": entry_tier(c.get("entry_ready"), c.get("pct_to_pivot")),
+                "dist_52wh": f["dist_52wh"], "rs_nh_days": f["rs_nh_days"], "rs_leads": f["rs_leads"],
+                "pattern": pat,
             }
-            # dedupe: 점수 높은 것, 동점이면 진입권 우선
+            # dedupe: 같은 종목이 여러 패턴에 검출되면 상태 우선순위(돌파>진입임박>예의주시)로 하나만
             prev = best.get(code)
-            if prev is None or pts > prev["superperf_score"] or (
-                pts == prev["superperf_score"] and rec["entry_ready"] and not prev["entry_ready"]):
+            if prev is None or _STATUS_PRI.get(rec["status"], 9) < _STATUS_PRI.get(prev["status"], 9):
                 best[code] = rec
 
     rows = [r for r in best.values() if r["superperf_score"] >= a.min_score]
@@ -109,9 +104,8 @@ def main():
     Path(a.out).write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"💾 저장: {a.out}  ({len(rows)}종목, 점수≥{a.min_score})")
     for r in rows[:15]:
-        badge = {"ready": "🟢진입권", "near": "🟡곧", "far": "  멀음"}[r["entry_tier"]]
         print(f"  {r['superperf_score']}점 {r['name']:<12} {r['pattern']:>5} RS{r['rs']} "
-              f"직전{r['prior_adv_pct']:+.0f}% {badge}  {'·'.join(r['score_reasons'])}")
+              f"직전{r['prior_adv_pct']:+.0f}% {_BADGE.get(r['status'], r['status'])}  {'·'.join(r['score_reasons'])}")
 
 
 if __name__ == "__main__":
