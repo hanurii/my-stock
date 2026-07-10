@@ -75,34 +75,48 @@ function fmtFromPivot(n: number | null): string {
 const COLS = 9;
 
 function Detail({ r }: { r: BuyRec }) {
-  const items: [string, string][] = [
-    ["직전 상승폭", fmtAdv(r.prior_adv_pct)],
-    ["RS(상대강도)", r.rs != null ? String(r.rs) : "—"],
-    ["RS선 신고가", r.rs_nh_days != null ? `${r.rs_nh_days}일 전` : "—"],
-    ["RS선 선행", r.rs_leads != null && r.rs_leads > 0 ? `주가보다 +${r.rs_leads}일 먼저` : "없음"],
+  // 각 요인이 획득한 점수(만점 대비) — 어디서 점수를 받았는지 한눈에.
+  const priorEarned = r.prior_adv_pct == null ? 0 : r.prior_adv_pct >= 100 ? 2 : r.prior_adv_pct >= 50 ? 1 : 0;
+  const rsEarned = r.rs == null ? 0 : r.rs >= 90 ? 2 : r.rs >= 80 ? 1 : 0;
+  const nhEarned = r.rs_nh_days != null && r.rs_nh_days <= 10 ? 1 : 0;
+  const leadEarned = r.rs_leads != null && r.rs_leads > 0 ? 1 : 0;
+  const factors: { name: string; value: string; earned: number; max: number }[] = [
+    { name: "직전 상승폭", value: fmtAdv(r.prior_adv_pct), earned: priorEarned, max: 2 },
+    { name: "RS 상대강도", value: r.rs != null ? String(r.rs) : "—", earned: rsEarned, max: 2 },
+    { name: "RS선 신고가", value: r.rs_nh_days == null ? "—" : r.rs_nh_days === 0 ? "오늘 (0일 전)" : `${r.rs_nh_days}일 전`, earned: nhEarned, max: 1 },
+    { name: "RS선 선행", value: r.rs_leads == null ? "—" : r.rs_leads > 0 ? `주가보다 ${r.rs_leads}일 먼저` : "뒤처짐 (주가가 먼저)", earned: leadEarned, max: 1 },
+  ];
+  const extra: [string, string][] = [
     ["52주 고가 대비", r.dist_52wh != null ? `${r.dist_52wh}%` : "—"],
     ["현재가", fmtPrice(r.current_price)],
     ["피벗(매수 기준선)", fmtPrice(r.pivot_price)],
     ["피벗 대비", fmtFromPivot(r.pct_to_pivot)],
   ];
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
+      {/* 점수 내역 — 어느 요인에서 몇 점 */}
       <div>
-        <span className="text-[11px] font-medium text-on-surface-variant/70">초수익 점수 근거</span>
-        <div className="mt-1 flex flex-wrap gap-1.5">
-          {r.score_reasons.length === 0 ? (
-            <span className="text-[11px] text-on-surface-variant/50">가점 요인 없음</span>
-          ) : (
-            r.score_reasons.map((why) => (
-              <span key={why} className="text-[11px] px-1.5 py-0.5 rounded bg-primary/10 text-primary">
-                {why}
-              </span>
-            ))
-          )}
+        <div className="flex items-baseline justify-between mb-1.5">
+          <span className="text-[10px] font-bold tracking-wider text-on-surface-variant/50 uppercase">초수익 잠재력</span>
+          <span className="text-xs font-bold tabular-nums text-on-surface">{r.superperf_score} / 6점</span>
+        </div>
+        <div className="flex flex-col gap-1">
+          {factors.map((f) => {
+            const on = f.earned > 0;
+            return (
+              <div key={f.name} className={`flex items-center gap-2 text-[11.5px] ${on ? "" : "opacity-60"}`}>
+                <span className="w-3 text-center" style={{ color: on ? "#34d399" : "var(--on-surface-variant)" }}>{on ? "✓" : "–"}</span>
+                <span className="w-20 text-on-surface whitespace-nowrap">{f.name}</span>
+                <span className="flex-1 tabular-nums text-on-surface-variant/80">{f.value}</span>
+                <span className="tabular-nums font-semibold w-12 text-right" style={{ color: on ? "#34d399" : "var(--on-surface-variant)" }}>{f.earned} / {f.max}</span>
+              </div>
+            );
+          })}
         </div>
       </div>
-      <dl className="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-1.5">
-        {items.map(([k, v]) => (
+      {/* 세부값 */}
+      <dl className="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-1.5 border-t border-outline-variant/10 pt-2">
+        {extra.map(([k, v]) => (
           <div key={k} className="flex flex-col">
             <dt className="text-[10px] text-on-surface-variant/50">{k}</dt>
             <dd className="text-xs text-on-surface font-medium tabular-nums">{v}</dd>
@@ -214,20 +228,16 @@ export function BuyRecommendationSection({ data }: { data: BuyRecFile | null }) 
         </div>
       )}
 
-      {/* 설명 문구 — 리스트 하단 */}
-      <div className="mt-3 text-[11px] text-on-surface-variant/70 leading-relaxed space-y-1 bg-surface-container/20 rounded-lg px-3 py-2">
-        <p>
-          검출된 후보 중 <strong className="text-on-surface">초수익 잠재력</strong>(직전 상승폭·RS·RS선 신고가·RS선 선행 —
-          방법충실 돌파 백테스트로 검증, <strong className="text-on-surface">4점↑ = 6개월 내 더블 도달률 36%</strong> vs 0~1점 15%)이 높은 순.
-        </p>
-        <p>
-          매수 상태(<span style={{ color: "#ffb4ab" }}>돌파</span>/<span style={{ color: "#34d399" }}>진입임박</span>/<span style={{ color: "#e9c176" }}>예의주시</span>)는
-          배지로 표시만 하고 정렬엔 반영하지 않습니다(점수 순수 랭킹).
-        </p>
-        <p>
-          <strong className="text-on-surface">점수(잠재력)와 매수 타이밍은 별개</strong> — 점수가 높아도 피벗을 이미 지났으면 지금 매수는 아닙니다.
-          (각 종목을 누르면 근거·세부 값이 펼쳐집니다.)
-        </p>
+      {/* 채점 기준 — 리스트 하단 */}
+      <div className="mt-3 text-[11px] text-on-surface-variant/70 leading-relaxed bg-surface-container/20 rounded-lg px-3 py-2.5">
+        <p className="font-semibold text-on-surface">초수익 잠재력 점수 (6점 만점)</p>
+        <p className="mb-2 text-on-surface-variant/55">방법충실 돌파 백테스트로 검증 — 4점↑ = 6개월 내 더블 도달률 36% vs 0~1점 15%</p>
+        <ul className="space-y-1 tabular-nums">
+          <li>· <strong className="text-on-surface">직전 상승폭</strong> : 100%+ = 2점 · 50~100% = 1점</li>
+          <li>· <strong className="text-on-surface">RS 상대강도</strong> : 90+ = 2점 · 80~89 = 1점</li>
+          <li>· <strong className="text-on-surface">RS선 신고가</strong> : 최근 10거래일 내 신고가 = 1점</li>
+          <li>· <strong className="text-on-surface">RS선 선행</strong> : RS선이 주가보다 먼저 신고가 = 1점</li>
+        </ul>
       </div>
     </section>
   );
