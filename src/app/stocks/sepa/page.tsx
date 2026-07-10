@@ -6,6 +6,7 @@ import { PATTERNS, buildSection, type PatternConfig, type RawCandidate } from ".
 import { computeTrendByCode, type TierHistory } from "./tierHistory";
 import { MarketRegimeChart } from "./MarketRegimeChart";
 import { type MarketRegime } from "./marketRegime";
+import { BuyRecommendationSection, type BuyRecFile } from "./BuyRecommendationSection";
 
 interface MarketStatus {
   passed: boolean;
@@ -88,6 +89,7 @@ export default async function SepaPage() {
   const excludeCodes = new Set((exclusionFile?.exclusions ?? []).map((e) => e.code));
 
   const regime = await readJson<MarketRegime>("market-regime.json");
+  const buyRecs = await readJson<BuyRecFile>("sepa-buy-recommendations.json");
 
   const history = await readJson<TierHistory>("sepa-tier-history.json");
   const trends = history
@@ -156,6 +158,8 @@ export default async function SepaPage() {
         </h3>
         <p className="text-[11px] text-on-surface-variant/70 leading-relaxed">{trend.market_status.detail}</p>
       </section>
+
+      <BuyRecommendationSection data={buyRecs} />
 
       <PatternSection config={PATTERNS.vcp} data={vcp} trendByCode={trends?.vcp} excludeCodes={excludeCodes} />
       <PatternSection config={PATTERNS.powerplayTrend} data={ppTrend} trendByCode={trends?.powerplayTrend} excludeCodes={excludeCodes} />
