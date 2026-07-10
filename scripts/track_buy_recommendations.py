@@ -73,9 +73,9 @@ def summarize(entries: list[dict]) -> None:
     print("[초수익 점수 구간별]")
     for lo, hi, lab in [(6, 99, "6점"), (5, 5, "5점"), (4, 4, "4점"), (3, 3, "3점")]:
         block([r for r in res if lo <= r.get("score", 0) <= hi], lab)
-    print("[매수 배지별]")
-    for tier, lab in [("ready", "진입권"), ("near", "곧"), ("far", "멀음")]:
-        block([r for r in res if r.get("entry_tier") == tier], lab)
+    print("[매수 상태별]")
+    for st, lab in [("breakout", "돌파"), ("actionable", "진입임박"), ("forming", "예의주시")]:
+        block([r for r in res if r.get("status") == st], lab)
 
 
 def main() -> None:
@@ -92,7 +92,7 @@ def main() -> None:
             if (d, c["code"]) not in seen:
                 entries.append({
                     "date": d, "code": c["code"], "name": c.get("name"),
-                    "score": c.get("superperf_score"), "entry_tier": c.get("entry_tier"),
+                    "score": c.get("superperf_score"), "status": c.get("status"),
                     "rec_price": c.get("current_price"),
                 })
                 seen.add((d, c["code"])); added += 1
