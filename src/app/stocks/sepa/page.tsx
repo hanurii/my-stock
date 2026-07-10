@@ -181,44 +181,57 @@ export default async function SepaPage() {
       </section>
 
       {/* 용어·배지 */}
-      <section className="bg-surface-container-low rounded-xl ghost-border p-4 text-xs space-y-2">
-        <h3 className="text-sm font-serif font-bold text-on-surface flex items-center gap-2 mb-1">
+      <section className="bg-surface-container-low rounded-xl ghost-border p-4 text-xs space-y-4">
+        <h3 className="text-sm font-serif font-bold text-on-surface flex items-center gap-2">
           <span className="material-symbols-outlined text-base text-primary">help_outline</span>
           상태·지표
         </h3>
-        <p className="text-on-surface-variant">
-          <strong style={{ color: "#ffb4ab" }}>🔴 돌파</strong>: 패턴 확정 + 당일 피벗 첫돌파(거래량 터짐) ·{" "}
-          <strong style={{ color: "#34d399" }}>🟢 진입임박</strong>: 패턴 확정 + 피벗 코앞(약 5% 이내)·거래량 마름 ·{" "}
-          <strong style={{ color: "#e9c176" }}>🟡 예의주시</strong>: 형성 중 + 피벗 12% 이내(아직 매수엔 이름).
-        </p>
-        <p className="text-on-surface-variant/80 bg-surface-container/30 rounded-lg px-3 py-2 leading-relaxed">
-          <strong className="text-on-surface">진입임박 vs 예의주시</strong> — 둘 다 &ldquo;피벗 아래&rdquo;지만 <strong>무르익은 정도</strong>가 다릅니다.{" "}
-          <strong style={{ color: "#34d399" }}>🟢 진입임박</strong>은 패턴이 <em>확정</em>됐고 피벗 바로 아래(약 5% 이내)에서 거래량까지 말라 <strong className="text-on-surface">돌파 초읽기</strong> 상태 — 지금이 매수 준비 구간이고, 피벗을 뚫으면 바로 진입합니다.{" "}
-          <strong style={{ color: "#e9c176" }}>🟡 예의주시</strong>는 아직 이른 단계로, ① 패턴이 떴어도 베이스가 더 만들어지는 중(형성)이거나 ② 아직 미확정이지만 피벗 12% 이내로 다가오는 중 — <strong className="text-on-surface">관심종목에 담아 지켜볼 후보</strong>(바로 매수 아님).{" "}
-          한 종목은 보통 <strong style={{ color: "#e9c176" }}>예의주시</strong> → (무르익으면) <strong style={{ color: "#34d399" }}>진입임박</strong> → <strong style={{ color: "#ffb4ab" }}>돌파</strong> 순으로 승격됩니다.
-        </p>
-        <p className="text-on-surface-variant">
-          <strong className="text-on-surface">피벗</strong>: 최소저항선(돌파 기준가). <strong className="text-on-surface">피벗대비</strong>: (현재가−피벗)/피벗 — 음수=피벗 아래(미달), 양수=피벗 위(돌파). 0에 가까울수록 진입 적기.
-        </p>
-        <p className="text-on-surface-variant">
-          <strong className="text-on-surface">코일</strong>: 돌파 직전 주가가 좁고 조용하게 응축되는 마지막 구간(폭발 직전 최종 타이트 수축).{" "}
-          <strong className="text-on-surface">코일길이</strong>: 그 구간이 며칠짜리인지(거래일) — 짧을수록(미너비니 통상 3~5일) 응축이 잘 된 셋업.{" "}
-          <strong className="text-on-surface">코일마름</strong>: 코일 평균 거래량 ÷ 50일 평균 거래량 — 1보다 작을수록 거래량 고갈(예: 0.3=평소의 30%), 검출기는 0.95 이하만 코일로 인정. 낮을수록 좋은 신호.
-        </p>
-        <p className="text-on-surface-variant">
-          <strong className="text-on-surface">타이트</strong>: 최근 약 10거래일 일중 변동폭((고−저)/종가) 평균(%) — 작을수록 가격이 조밀하게 붙어 움직임(변동성 압축). <strong className="text-on-surface">베이스깊이</strong>: 베이스가 고점 대비 가장 깊게 조정된 폭(%) — 미너비니 통상 15~30%.
-        </p>
-        <p className="text-on-surface-variant">
-          <strong className="text-on-surface">VCP</strong>(변동성 수축): 수축 횟수 + 위 코일·타이트 지표. <strong className="text-on-surface">파워 플레이</strong>(하이 타이트 플래그): 깃대 상승률·일수 + 깃발 깊이.
-        </p>
-        <div className="text-on-surface-variant/85 bg-surface-container/30 rounded-lg px-3 py-2 leading-relaxed space-y-1">
-          <p className="text-on-surface font-medium">패턴별 &lsquo;확정&rsquo; 기준 — 아래를 <strong>모두</strong> 충족해야 패턴 확정(🔴/🟢). 하나라도 미달이면 형성중·미확정(🟡 또는 숨김).</p>
-          <p><strong className="text-on-surface">VCP</strong>: 수축 2~6회 + 갈수록 얕아지는 단조 수축 + 마지막 수축이 첫 수축보다 얕음(순 수렴) + 돌파 직전 최종 타이트 코일(종가 변동폭 ≤ 12% <em>그리고</em> 거래량 ≤ 50일 평균의 0.95배).</p>
-          <p><strong className="text-on-surface">파워 플레이</strong>: 깃대 14주(≤ 70거래일) 내 <strong>+90% 이상</strong> 급등 + 깃발(횡보) 길이 8~30일 + 깃발 깊이 ≤ 20%.</p>
-          <p><strong className="text-on-surface">3C</strong>(컵 완성 치트): 컵 깊이 12~50% + 컵 길이 ≥ 17일 + 선반(재횡보) 길이 2~25일·깊이 ≤ 12%·위치 컵 회복의 25~90% + 거래량 마름(≤ 50일 평균).</p>
+
+        {/* 그룹 1: 상태 배지 */}
+        <div>
+          <p className="text-[11px] font-bold text-on-surface-variant/60 mb-1.5">
+            🚦 상태 배지 <span className="font-normal text-on-surface-variant/50">· 승격 순서: 예의주시 → 진입임박 → 돌파</span>
+          </p>
+          <ul className="space-y-1 text-on-surface-variant">
+            <li><strong style={{ color: "#ffb4ab" }}>🔴 돌파</strong> — 패턴 확정 + 당일 피벗 첫 돌파(거래량 터짐). 지금 뚫는 중.</li>
+            <li><strong style={{ color: "#34d399" }}>🟢 진입임박</strong> — 패턴 확정 + 피벗 코앞(~5%)·거래량 마름 = <strong className="text-on-surface">돌파 초읽기</strong>(매수 준비 구간).</li>
+            <li><strong style={{ color: "#e9c176" }}>🟡 예의주시</strong> — 형성 중이거나 피벗 12% 이내로 접근 중. 관심종목, 바로 매수는 아님.</li>
+          </ul>
         </div>
-        <p className="text-on-surface-variant/60 mt-1 pt-2 border-t border-outline-variant/15">
-          각 섹션은 그 패턴을 만족(돌파·진입임박)하거나 곧 만족할(예의주시) 종목만 노출하며, 실패·원거리 종목은 숨깁니다. 데이터는 읽기 전용(별도 파이프라인이 생성).
+
+        {/* 그룹 2: 주요 지표 */}
+        <div className="border-t border-outline-variant/10 pt-3">
+          <p className="text-[11px] font-bold text-on-surface-variant/60 mb-1.5">📊 주요 지표</p>
+          <dl className="space-y-1.5 text-on-surface-variant">
+            <div className="flex gap-2"><dt className="font-semibold text-on-surface w-20 shrink-0">피벗</dt><dd className="flex-1">최소저항선(돌파 기준가).</dd></div>
+            <div className="flex gap-2"><dt className="font-semibold text-on-surface w-20 shrink-0">피벗대비</dt><dd className="flex-1">(현재가−피벗)/피벗 · 음수=아래, 양수=위 · <strong className="text-on-surface">0에 가까울수록 진입 적기</strong>.</dd></div>
+            <div className="flex gap-2">
+              <dt className="font-semibold text-on-surface w-20 shrink-0">코일</dt>
+              <dd className="flex-1">
+                돌파 직전 좁고 조용하게 응축되는 최종 수축 구간.
+                <span className="block text-on-surface-variant/80 mt-0.5">├ <strong className="text-on-surface/90">코일길이</strong> : 그 구간 일수 — 짧을수록 좋음(통상 3~5일)</span>
+                <span className="block text-on-surface-variant/80">└ <strong className="text-on-surface/90">코일마름</strong> : 코일 거래량 ÷ 50일 평균 — 낮을수록 좋음(검출 ≤0.95)</span>
+              </dd>
+            </div>
+            <div className="flex gap-2"><dt className="font-semibold text-on-surface w-20 shrink-0">타이트</dt><dd className="flex-1">최근 ~10일 일중 변동폭((고−저)/종가) 평균(%) — 작을수록 변동성 압축.</dd></div>
+            <div className="flex gap-2"><dt className="font-semibold text-on-surface w-20 shrink-0">베이스깊이</dt><dd className="flex-1">고점 대비 최대 조정폭(%) — 통상 15~30%.</dd></div>
+          </dl>
+        </div>
+
+        {/* 그룹 3: 패턴별 확정 기준 */}
+        <div className="border-t border-outline-variant/10 pt-3">
+          <p className="text-[11px] font-bold text-on-surface-variant/60 mb-1.5">
+            🎯 패턴별 확정 기준 <span className="font-normal text-on-surface-variant/50">· 모두 충족해야 🔴/🟢, 하나라도 미달이면 🟡·숨김</span>
+          </p>
+          <ul className="space-y-1 text-on-surface-variant">
+            <li><strong className="text-on-surface">VCP</strong> — 수축 2~6회 · 갈수록 얕아짐(순 수렴) · 최종 타이트 코일(종가 변동폭 ≤12% <em>그리고</em> 거래량 ≤50일평균×0.95)</li>
+            <li><strong className="text-on-surface">파워 플레이</strong> — 깃대 14주(≤70일) 내 <strong>+90%↑</strong> 급등 · 깃발 8~30일 · 깃발 깊이 ≤20%</li>
+            <li><strong className="text-on-surface">3C</strong>(컵 완성 치트) — 컵 깊이 12~50% · 컵 길이 ≥17일 · 선반 2~25일·깊이 ≤12%·위치 25~90% · 거래량 마름</li>
+          </ul>
+        </div>
+
+        <p className="text-on-surface-variant/55 pt-2 border-t border-outline-variant/15">
+          각 섹션은 해당 패턴을 충족(돌파·진입임박)하거나 근접한(예의주시) 종목만 노출하며, 실패·원거리 종목은 숨깁니다. 데이터는 읽기 전용.
         </p>
       </section>
     </div>
