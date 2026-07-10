@@ -37,11 +37,20 @@ const STATUS_META: Record<string, { dot: string; label: string; color: string; b
   forming: { dot: "🟡", label: "예의주시", color: "#e9c176", bg: "rgba(233,193,118,0.15)" },
 };
 
-// 초수익 점수: 4점 이상 vs 3점 이하 색 구분(문구 없음)
+// 초수익 점수 색: 4+ 초록 · 2~3 금색(동일) · 0~1 회색
 function scoreStyle(s: number): { color: string; bg: string } {
-  return s >= 4
-    ? { color: "#10b981", bg: "rgba(16,185,129,0.16)" }
-    : { color: "#e9c176", bg: "rgba(233,193,118,0.14)" };
+  if (s >= 4) return { color: "#10b981", bg: "rgba(16,185,129,0.16)" };
+  if (s >= 2) return { color: "#e9c176", bg: "rgba(233,193,118,0.14)" };
+  return { color: "#a8b5d0", bg: "rgba(168,181,208,0.12)" };
+}
+// 피벗 대비: 0에 가까울수록 진입 적기(|값| 작을수록 좋음)
+function pivotColor(n: number | null): string {
+  if (n == null) return "var(--on-surface-variant)";
+  const a = Math.abs(n);
+  if (a <= 3) return "#10b981";
+  if (a <= 8) return "#34d399";
+  if (a <= 12) return "#e9c176";
+  return "#a8b5d0";
 }
 function scoreText(s: number): string {
   return s === 6 ? "6점 만점" : `${s}점`;
@@ -148,7 +157,7 @@ export function BuyRecommendationSection({ data }: { data: BuyRecFile | null }) 
                 <th className="px-2 py-2 text-center text-[11px] font-medium text-on-surface-variant/80">패턴</th>
                 <th className="px-2 py-2 text-right text-[11px] font-medium text-on-surface-variant/80">RS</th>
                 <th className="px-2 py-2 text-right text-[11px] font-medium text-on-surface-variant/80" title="최근 6개월 최저점 대비 상승폭">직전상승</th>
-                <th className="px-2 py-2 text-right text-[11px] font-medium text-on-surface-variant/80">현재가</th>
+                <th className="px-2 py-2 text-right text-[11px] font-medium text-on-surface-variant/80" title="현재가와 피벗(매수 기준선) 차이. 0에 가까울수록 진입 적기 · 양수=피벗 위">피벗대비</th>
                 <th className="px-2 py-2 text-center text-[11px] font-medium text-on-surface-variant/80">매수</th>
               </tr>
             </thead>
@@ -163,14 +172,7 @@ export function BuyRecommendationSection({ data }: { data: BuyRecFile | null }) 
                       onClick={() => setOpen(isOpen ? null : r.code)}
                       className="border-t border-outline-variant/10 hover:bg-surface-container-high/50 transition-colors cursor-pointer"
                     >
-                      <td className="px-2 py-2 text-center text-on-surface-variant/50 font-mono">
-                        <span className="inline-flex items-center gap-0.5">
-                          <span className="material-symbols-outlined text-[14px] leading-none text-on-surface-variant/40">
-                            {isOpen ? "expand_more" : "chevron_right"}
-                          </span>
-                          {i + 1}
-                        </span>
-                      </td>
+                      <td className="px-2 py-2 text-center text-on-surface-variant/50 font-mono">{i + 1}</td>
                       <td className="px-2 py-2 text-center whitespace-nowrap">
                         <span className="text-[11px] px-1.5 py-0.5 rounded font-bold" style={{ backgroundColor: ss.bg, color: ss.color }}>
                           {scoreText(r.superperf_score)}
@@ -190,7 +192,7 @@ export function BuyRecommendationSection({ data }: { data: BuyRecFile | null }) 
                       <td className="px-2 py-2 text-center text-on-surface-variant/80 whitespace-nowrap">{r.pattern}</td>
                       <td className="px-2 py-2 text-right font-bold" style={{ color: rsColor(r.rs) }}>{r.rs ?? "—"}</td>
                       <td className="px-2 py-2 text-right font-medium" style={{ color: "#34d399" }}>{fmtAdv(r.prior_adv_pct)}</td>
-                      <td className="px-2 py-2 text-right text-on-surface-variant">{fmtPrice(r.current_price)}</td>
+                      <td className="px-2 py-2 text-right tabular-nums" style={{ color: pivotColor(r.pct_to_pivot) }}>{fmtFromPivot(r.pct_to_pivot)}</td>
                       <td className="px-2 py-2 text-center whitespace-nowrap">
                         <span className="text-[10px] px-1.5 py-0.5 rounded font-medium" style={{ backgroundColor: sm.bg, color: sm.color }}>
                           {sm.dot} {sm.label}
