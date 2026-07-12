@@ -61,6 +61,72 @@ def _write_empty(out_path: Path, default_stop: int = -4) -> None:
     print(f"💾 저장(빈 결과): {out_path.relative_to(ROOT)}")
 
 
+def _compute_holdings_superperf(holdings) -> dict:
+    """각 보유주 '매수 시점' 초수익 잠재력 점수(0~6)와 요인값. {(code, buy_date): dict}.
+
+    매수일 as-of 로 되돌려 계산 — 직전 상승폭·RS(유니버스 순위)·RS선 신고가·RS선 선행.
+    점수 정의는 canslim_lib/superperf.py. FDR 지수 실패 시 RS·직전상승만으로 채점(폴백).
+    """
+    import bisect
+    try:
+        from canslim_lib.pykrx_universe import fetch_universe_with_cap
+        from screen_trend_template import _compute_rs_for_all
+        from canslim_lib import superperf
+    except Exception as e:
+        print(f"  ⚠ 초수익 점수 준비 실패: {str(e)[:70]} — 점수 생략")
+        return {}
+    # 시장 지수(FDR): RS선 요인용. 없으면 RS·직전상승만.
+    index = None
+    try:
+        import FinanceDataReader as fdr
+        index = {}
+        for mk, code in (("KOSPI", "KS11"), ("KOSDAQ", "KQ11")):
+            df = fdr.DataReader(code, "2024-01-01")
+            index[mk] = {d.strftime("%Y-%m-%d"): float(c) for d, c in zip(df.index, df["Close"])}
+    except Exception:
+        print("  ⚠ FDR 지수 없음 — 초수익 점수는 RS·직전상승만(RS선 요인 제외)")
+        index = None
+    # 유니버스 메타 + 시리즈(RS 순위 계산용)
+    meta = {u["code"]: u for u in fetch_universe_with_cap("ALL")}
+    series = {}
+    for c in meta:
+        s = ohlcv_matrix.get_series(c)
+        if s and s.get("closes"):
+            series[c] = s
+    # 매수일별 유니버스 RS 스냅샷(as-of)
+    rs_snap = {}
+    for d in sorted({h["buy_datetime"][:10] for h in holdings}):
+        raw = []
+        for c, s in series.items():
+            k = bisect.bisect_right(s["dates"], d)
+            if k >= 60:
+                raw.append({"code": c, "closes": s["closes"][:k], "ok": True})
+        rs = _compute_rs_for_all(raw)
+        rs_snap[d] = {c: (rs[c] or {}).get("rs") for c in rs if (rs[c] or {}).get("rs") is not None}
+    # 종목별 매수 시점 점수
+    out = {}
+    for h in holdings:
+        code = h["code"]
+        bd = h["buy_datetime"][:10]
+        s = series.get(code) or ohlcv_matrix.get_series(code)
+        if not s or not s.get("closes"):
+            continue
+        k = bisect.bisect_right(s["dates"], bd)
+        if k < 130:
+            continue
+        mk = meta.get(code, {}).get("market", "KOSPI")
+        idx = (index or {}).get(mk) if index else None
+        fac = superperf.compute_factors(s["dates"][:k], s["closes"][:k], s["highs"][:k], idx)
+        rs = rs_snap.get(bd, {}).get(code)
+        pts, reasons = superperf.score(rs, fac["prior_adv"], fac["rs_nh_days"], fac["rs_leads"])
+        out[(code, bd)] = {
+            "score": pts, "rs": rs,
+            "prior_adv_pct": round(fac["prior_adv"] * 100, 1) if fac["prior_adv"] is not None else None,
+            "rs_nh_days": fac["rs_nh_days"], "rs_leads": fac["rs_leads"], "dist_52wh": fac["dist_52wh"],
+        }
+    return out
+
+
 def run(out_path: Path) -> None:
     if not IN_PATH.exists():
         print(f"⏭️  매수 목록 없음({IN_PATH.relative_to(ROOT)}) — 빈 결과로 종료")
@@ -73,6 +139,7 @@ def run(out_path: Path) -> None:
         return
     default_stop = data.get("stop_loss_pct_default", -4)
     pivots = load_pivots()
+    superperf_by = _compute_holdings_superperf(data["holdings"])  # 매수 시점 초수익 점수
 
     out_holdings, asof = [], None
     for h in data.get("holdings", []):
@@ -104,15 +171,16 @@ def run(out_path: Path) -> None:
             "pivot_price": chosen.get("pivot") if chosen else None,
             "pivot_source": chosen.get("source") if chosen else None,
         }
+        sp = superperf_by.get((code, buy_date))
         if not s or not s.get("closes"):
             out_holdings.append({**base, "signal": "no_data", "violation_count": 0,
-                                 "rules": []})
+                                 "rules": [], "superperf": sp})
             continue
         r = evaluate_holding(s, buy_date, h["buy_price"], stop_pct,
                              pivot_price=base["pivot_price"])
         if asof is None or s["dates"][-1] > asof:
             asof = s["dates"][-1]
-        out_holdings.append({**base, **r})
+        out_holdings.append({**base, **r, "superperf": sp})
 
     output = {
         "generated_at": datetime.now(KST).strftime("%Y-%m-%d %H:%M"),

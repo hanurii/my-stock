@@ -1,6 +1,7 @@
 // 보유 종목 점검 — 매도 규칙 위반 + 강세 매도(과열) 감시 (서버 렌더 전용, JS 없음)
 import type { ReactNode } from "react";
 import { accumTally, ruleTally, strengthTally } from "./holdingsSummary";
+import { SuperperfBreakdown, scoreStyle, type SuperperfFactors } from "./superperfScore";
 
 export interface HoldingRule { id: string; status: "violation" | "pass" | "pending" | "na" | "watch"; detail: string; }
 export interface AccumulationSignal { id: string; status: "met" | "unmet" | "pending"; detail: string; }
@@ -19,6 +20,7 @@ export interface HoldingFeedback {
   breakout_date?: string; breakout_date_estimated?: boolean;
   signal: "stop_loss" | "early_sell" | "hold" | "no_data"; violation_count: number; rules: HoldingRule[];
   extension_pct?: number | null; accumulation?: Accumulation; mvp?: Mvp; strength?: Strength;
+  superperf?: SuperperfFactors | null;   // 매수 시점 초수익 잠재력 점수
 }
 export interface HoldingsFeedbackFile { generated_at?: string; asof?: string; holdings?: HoldingFeedback[]; }
 
@@ -167,6 +169,12 @@ export function SepaHoldingsSection({ data }: { data: HoldingsFeedbackFile | nul
                     <span className="text-on-surface-variant/50 ml-2">손절까지 {h.pct_to_stop != null ? `${h.pct_to_stop}%` : "-"}</span>
                   </span>
                   <span className="flex gap-1.5">
+                    {h.superperf && (
+                      <span className="text-[10.5px] font-semibold px-1.5 py-0.5 rounded tracking-wide"
+                        style={{ backgroundColor: scoreStyle(h.superperf.score).bg, color: scoreStyle(h.superperf.score).color }}>
+                        초수익 {h.superperf.score}/6
+                      </span>
+                    )}
                     {h.mvp?.status === "yes" && (
                       <span className="text-[10.5px] font-semibold px-1.5 py-0.5 rounded tracking-wide"
                         style={{ backgroundColor: "rgba(167,139,250,0.16)", color: "#a78bfa", border: "1px solid rgba(167,139,250,0.42)" }}>MVP</span>
@@ -215,6 +223,13 @@ export function SepaHoldingsSection({ data }: { data: HoldingsFeedbackFile | nul
                   손절선 {fmtWon(h.stop_price)}원({h.stop_loss_pct}%) · 돌파일 {h.breakout_date ?? "-"}
                   {h.breakout_date_estimated ? " (매수일 추정)" : ""}
                 </p>
+
+                {/* 매수 시점 초수익 잠재력 점수 내역 */}
+                {h.superperf && (
+                  <div className="pt-3 border-t border-outline-variant/10">
+                    <SuperperfBreakdown sp={h.superperf} title="매수 시점 초수익 잠재력" />
+                  </div>
+                )}
 
                 {/* 매집 신호 */}
                 {h.accumulation && (
