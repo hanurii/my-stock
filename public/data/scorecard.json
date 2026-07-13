@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-10",
+  "generated_at": "2026-07-13",
   "strategy": "minervini",
   "params": {
     "rr_target": 2,
@@ -65,6 +65,26 @@
       "stop": 59924,
       "stop_violation": false,
       "setup": "VCP"
+    },
+    {
+      "code": "271560",
+      "name": "오리온",
+      "open_date": "2026-07-02",
+      "close_date": "2026-07-13",
+      "avg_buy": 138500,
+      "avg_sell": 130544,
+      "gross_pct": -5.74,
+      "net_pct": -6.2,
+      "gross_won": -572832,
+      "net_won": -618678,
+      "hold_days": 11,
+      "outcome": "loss",
+      "month": "2026-07",
+      "buy_qty": 72,
+      "sell_qty": 72,
+      "stop": null,
+      "stop_violation": true,
+      "setup": "3C"
     },
     {
       "code": "010955",
@@ -323,13 +343,6 @@
       "open_date": "2026-07-01"
     },
     {
-      "code": "271560",
-      "name": "오리온",
-      "qty": 72,
-      "avg_buy": 138500,
-      "open_date": "2026-07-02"
-    },
-    {
       "code": "222040",
       "name": "코스맥스엔비티",
       "qty": 1347,
@@ -378,25 +391,25 @@
         {
           "month": "2026-07",
           "avg_win": 7.51,
-          "avg_loss": 5.48,
-          "win_rate": 26.67,
-          "trades": 15,
+          "avg_loss": 5.54,
+          "win_rate": 25,
+          "trades": 16,
           "max_win": 10.78,
           "max_loss": 9.86,
           "win_days": 3,
-          "loss_days": 1
+          "loss_days": 2
         }
       ],
       "average": {
         "month": "평균",
         "avg_win": 7.51,
-        "avg_loss": 5.48,
-        "win_rate": 26.67,
-        "trades": 15,
+        "avg_loss": 5.54,
+        "win_rate": 25,
+        "trades": 16,
         "max_win": 10.78,
         "max_loss": 9.86,
         "win_days": 3,
-        "loss_days": 1
+        "loss_days": 2
       }
     },
     "gross": {
@@ -404,36 +417,36 @@
         {
           "month": "2026-07",
           "avg_win": 8.03,
-          "avg_loss": 5.04,
-          "win_rate": 26.67,
-          "trades": 15,
+          "avg_loss": 5.1,
+          "win_rate": 25,
+          "trades": 16,
           "max_win": 11.31,
           "max_loss": 9.52,
           "win_days": 3,
-          "loss_days": 1
+          "loss_days": 2
         }
       ],
       "average": {
         "month": "평균",
         "avg_win": 8.03,
-        "avg_loss": 5.04,
-        "win_rate": 26.67,
-        "trades": 15,
+        "avg_loss": 5.1,
+        "win_rate": 25,
+        "trades": 16,
         "max_win": 11.31,
         "max_loss": 9.52,
         "win_days": 3,
-        "loss_days": 1
+        "loss_days": 2
       }
     }
   },
   "overall": {
     "net": {
-      "win_rate": 26.67,
+      "win_rate": 25,
       "avg_win": 7.51,
-      "avg_loss": 5.48,
-      "payoff_ratio": 1.37,
-      "adj_payoff_ratio": 0.5,
-      "expectancy": -2.02,
+      "avg_loss": 5.54,
+      "payoff_ratio": 1.36,
+      "adj_payoff_ratio": 0.45,
+      "expectancy": -2.28,
       "max_win": {
         "pct": 10.78,
         "code": "010955",
@@ -447,19 +460,19 @@
         "date": "2026-07-09"
       },
       "win_days": 3,
-      "loss_days": 1,
-      "trade_count": 15,
+      "loss_days": 2,
+      "trade_count": 16,
       "win_count": 4,
-      "loss_count": 11,
-      "total_won": -1065128
+      "loss_count": 12,
+      "total_won": -1683806
     },
     "gross": {
-      "win_rate": 26.67,
+      "win_rate": 25,
       "avg_win": 8.03,
-      "avg_loss": 5.04,
-      "payoff_ratio": 1.59,
-      "adj_payoff_ratio": 0.58,
-      "expectancy": -1.56,
+      "avg_loss": 5.1,
+      "payoff_ratio": 1.57,
+      "adj_payoff_ratio": 0.52,
+      "expectancy": -1.82,
       "max_win": {
         "pct": 11.31,
         "code": "010955",
@@ -473,11 +486,11 @@
         "date": "2026-07-09"
       },
       "win_days": 3,
-      "loss_days": 1,
-      "trade_count": 15,
+      "loss_days": 2,
+      "trade_count": 16,
       "win_count": 4,
-      "loss_count": 11,
-      "total_won": -414954
+      "loss_count": 12,
+      "total_won": -987786
     }
   },
   "rba": {
@@ -489,9 +502,9 @@
   "diagnostics": {
     "max_loss_gt_max_win": false,
     "loss_days_ge_win_days": false,
-    "stop_violations": 10,
+    "stop_violations": 11,
     "warnings": [
-      "손절 규율 위반 10건",
+      "손절 규율 위반 11건",
       "기본 손절 5%가 권장 3.76%보다 넓습니다"
     ]
   },

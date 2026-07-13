@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-13 22:32",
+  "generated_at": "2026-07-13 23:07",
   "asof": "2026-07-13",
   "stop_loss_pct_default": -5,
   "holdings": [
@@ -104,109 +104,6 @@
         "rs_nh_days": 3,
         "rs_leads": 45,
         "dist_52wh": -18.7
-      }
-    },
-    {
-      "code": "271560",
-      "name": "오리온",
-      "market": null,
-      "buy_date": "2026-07-02",
-      "buy_price": 138500,
-      "quantity": 72,
-      "stop_loss_pct": -4,
-      "pivot_price": 138090,
-      "pivot_source": "manual",
-      "current_price": 133700.0,
-      "profit_pct": -3.47,
-      "stop_price": 132960.0,
-      "pct_to_stop": -0.55,
-      "breakout_date": "2026-07-02",
-      "breakout_date_estimated": false,
-      "signal": "early_sell",
-      "violation_count": 2,
-      "rules": [
-        {
-          "id": "low_volume_breakout",
-          "status": "pass",
-          "detail": "돌파일 거래량 1.62배"
-        },
-        {
-          "id": "heavy_volume_pullback",
-          "status": "pass",
-          "detail": "대량 거래 하락일 없음"
-        },
-        {
-          "id": "consecutive_lower_lows",
-          "status": "pass",
-          "detail": "연속 저저점 없음"
-        },
-        {
-          "id": "close_below_ma",
-          "status": "violation",
-          "detail": "2026-07-13 20일선 아래 마감 (돌파 7거래일째)"
-        },
-        {
-          "id": "weak_days_dominant",
-          "status": "violation",
-          "detail": "하락 3·상승 4 / 나쁜마감 4·좋은마감 3"
-        },
-        {
-          "id": "breakout_failure",
-          "status": "watch",
-          "detail": "🟡 반전 회복 관찰중 (D+7/10)"
-        }
-      ],
-      "extension_pct": -3.2,
-      "accumulation": {
-        "window": "D+7/15",
-        "elapsed": 7,
-        "signals": [
-          {
-            "id": "up_days_dominant",
-            "status": "met",
-            "detail": "상승 4 · 하락 3"
-          },
-          {
-            "id": "quality_closes",
-            "status": "unmet",
-            "detail": "좋은 3 · 나쁜 4"
-          },
-          {
-            "id": "up_streak_7",
-            "status": "unmet",
-            "detail": "최고 3일"
-          }
-        ]
-      },
-      "mvp": {
-        "status": "pending",
-        "m": {
-          "ok": null,
-          "detail": "7/15일 (판정 전)"
-        },
-        "v": {
-          "ok": null,
-          "detail": "판정 전"
-        },
-        "p": {
-          "ok": null,
-          "detail": "+1%"
-        }
-      },
-      "strength": {
-        "signal": "not_extended",
-        "extended": false,
-        "gate_detail": "확장 -3.2% < 5%",
-        "count": 0,
-        "signals": []
-      },
-      "superperf": {
-        "score": 1,
-        "rs": 84,
-        "prior_adv_pct": 34.8,
-        "rs_nh_days": 239,
-        "rs_leads": -197,
-        "dist_52wh": -7.4
       }
     },
     {
