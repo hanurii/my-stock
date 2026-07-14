@@ -1,7 +1,7 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-07-14T19:51:00.841+09:00",
+  "last_checked": "2026-07-15T08:56:21.493+09:00",
   "metrics": [
     {
       "id": "per",
@@ -24,8 +24,8 @@
     {
       "id": "price_high",
       "label": "주가",
-      "value": 79500,
-      "display": "79,500원",
+      "value": 79000,
+      "display": "79,000원",
       "threshold": "85,000원+ 돌파",
       "hit": false,
       "tone": "good"
@@ -60,11 +60,11 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 78.09,
-      "display": "78.09$",
+      "value": 77.87,
+      "display": "77.87$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
-      "tone": "good"
+      "tone": "warn"
     }
   ],
   "alerts": [
@@ -82,8 +82,14 @@
     },
     {
       "severity": "warn",
+      "type": "oil_price_brent",
+      "title": "Brent 7일 평균 (두바이유 대용) 임계 근접",
+      "message": "현재 77.87$ (임계 70달러 이하 (정유 매크로 약화))"
+    },
+    {
+      "severity": "warn",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 7건 (관찰 신호 2건 포함)",
+      "title": "리스크 키워드 매칭 뉴스 4건 (관찰 신호 2건 포함)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
@@ -109,22 +115,6 @@
       ]
     },
     {
-      "keyword": "이란 미국 합의",
-      "date": "2026-07-12",
-      "title": "\"종전은 무슨\"...미국, 합의 후 세 번째 이란 공습 - YTN",
-      "url": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE55bXluUUFiNXNaNm5HNDZiVk05bDZJX0VZYkcwVEJkMVJFN0U0RW9lVUNva2xWZVlGUVdCdUdwSV9WbFd6dlZXeGJVYkdSX3I1VHhXLVJkb1dTdlVDU1E?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "이란 미국 합의",
-      "date": "2026-07-11",
-      "title": "주유엔 이란 대사 “미국 의무 위반 계속되면 합의 준수 안 해” - v.daum.net",
-      "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE15Tm1LZzMzMEhuUHJZVUtoUjhNdWxEWVd6X3FCdEJKb3o5Q3ZldW9aa2MyZGZoYmd2UFRkWENZR0pQRFV3X0RuU3REWW4yUmM?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
       "keyword": "중동 긴장 완화",
       "date": "2026-07-09",
       "title": "비철 시황 - 중동 긴장 완화 기대에 상승 - Investing.com 한국어",
@@ -139,14 +129,6 @@
       "url": "https://news.google.com/rss/articles/CBMibkFVX3lxTE9TRmNCMzMxdUtRS0tXNTZYX2I3cnE2bXE5dE1WRUNia0x4Wk5iZVpmanNXdVd4TDFMS3dHTlFxZFlVSkM2ekFfamZJTVdQWUZIQko3ZTBac2Fxdzd4aXhzUUZRTzQ0dGtwSktfTktB0gFyQVVfeXFMTVRXRm9nLUswMzQ1UlNzZmpsbVpyNVFSaDRsWTY3cDhtRUFhWDlSVzE1NmoxWGl1Q25wT3BKTjVaRWVqYlgzd0hIaDVVdXNLRkhidE5UNGFQTnRseC1XbnFJR0lTamVOTUl0ZENTdlRobWVB?oc=5",
       "severity": "info",
       "signals": []
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-07-08",
-      "title": "UAE 장관 만난 김정관…중동 긴장 완화에도 원유 협력 '끈끈' - 연합인포맥스",
-      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE5HaVpMb2IwbTNXLWZKQ0hXRHQ0Ul9Wa0h6MXNyT1NwUW5hMzR3Q2dNY2tJREp6Q0c1bXhWY2ZDcjI1WEZVbnFxSW9IcDhHdmNkMTJiQUVTcVRLNkRxMGxVTUJtS3h4MjB5TUN1SlZGb3U?oc=5",
-      "severity": "info",
-      "signals": []
     }
   ],
   "sources": [
@@ -155,7 +137,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 86.88 USD (2026-07-14, 7일 평균 78.09)",
+      "label": "Brent 원유 종가 85.3 USD (2026-07-14, 7일 평균 77.87)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
