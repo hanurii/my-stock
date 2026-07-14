@@ -1,13 +1,13 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-07-14T08:57:17.368+09:00",
+  "last_checked": "2026-07-14T14:30:07.608+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 5.72,
-      "display": "5.72배",
+      "value": 5.77,
+      "display": "5.77배",
       "threshold": "10배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "dividend_yield",
       "label": "배당수익률",
-      "value": 3.77,
-      "display": "3.77%",
+      "value": 3.74,
+      "display": "3.74%",
       "threshold": "3.5% 이하",
       "hit": false,
       "tone": "good"
@@ -60,8 +60,8 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 76.12,
-      "display": "76.12$",
+      "value": 77.8,
+      "display": "77.80$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "warn"
@@ -84,12 +84,12 @@
       "severity": "warn",
       "type": "oil_price_brent",
       "title": "Brent 7일 평균 (두바이유 대용) 임계 근접",
-      "message": "현재 76.12$ (임계 70달러 이하 (정유 매크로 약화))"
+      "message": "현재 77.80$ (임계 70달러 이하 (정유 매크로 약화))"
     },
     {
       "severity": "warn",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 6건 (관찰 신호 2건 포함)",
+      "title": "리스크 키워드 매칭 뉴스 7건 (관찰 신호 2건 포함)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
@@ -145,6 +145,14 @@
       "url": "https://news.google.com/rss/articles/CBMibkFVX3lxTE9TRmNCMzMxdUtRS0tXNTZYX2I3cnE2bXE5dE1WRUNia0x4Wk5iZVpmanNXdVd4TDFMS3dHTlFxZFlVSkM2ekFfamZJTVdQWUZIQko3ZTBac2Fxdzd4aXhzUUZRTzQ0dGtwSktfTktB0gFyQVVfeXFMTVRXRm9nLUswMzQ1UlNzZmpsbVpyNVFSaDRsWTY3cDhtRUFhWDlSVzE1NmoxWGl1Q25wT3BKTjVaRWVqYlgzd0hIaDVVdXNLRkhidE5UNGFQTnRseC1XbnFJR0lTamVOTUl0ZENTdlRobWVB?oc=5",
       "severity": "info",
       "signals": []
+    },
+    {
+      "keyword": "중동 긴장 완화",
+      "date": "2026-07-08",
+      "title": "UAE 장관 만난 김정관…중동 긴장 완화에도 원유 협력 '끈끈' - 연합인포맥스",
+      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE5HaVpMb2IwbTNXLWZKQ0hXRHQ0Ul9Wa0h6MXNyT1NwUW5hMzR3Q2dNY2tJREp6Q0c1bXhWY2ZDcjI1WEZVbnFxSW9IcDhHdmNkMTJiQUVTcVRLNkRxMGxVTUJtS3h4MjB5TUN1SlZGb3U?oc=5",
+      "severity": "info",
+      "signals": []
     }
   ],
   "sources": [
@@ -153,7 +161,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 84.56 USD (2026-07-13, 7일 평균 76.12)",
+      "label": "Brent 원유 종가 84.84 USD (2026-07-14, 7일 평균 77.8)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
