@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-13",
+  "generated_at": "2026-07-15",
   "strategy": "minervini",
   "params": {
     "rr_target": 2,
@@ -63,6 +63,26 @@
       "buy_qty": 264,
       "sell_qty": 264,
       "stop": 59924,
+      "stop_violation": false,
+      "setup": "VCP"
+    },
+    {
+      "code": "219130",
+      "name": "타이거일렉",
+      "open_date": "2026-07-10",
+      "close_date": "2026-07-15",
+      "avg_buy": 69100,
+      "avg_sell": 79702,
+      "gross_pct": 15.34,
+      "net_pct": 14.79,
+      "gross_won": 3138192,
+      "net_won": 3029504,
+      "hold_days": 5,
+      "outcome": "win",
+      "month": "2026-07",
+      "buy_qty": 296,
+      "sell_qty": 296,
+      "stop": null,
       "stop_violation": false,
       "setup": "VCP"
     },
@@ -227,6 +247,26 @@
       "setup": "3C"
     },
     {
+      "code": "001540",
+      "name": "안국약품",
+      "open_date": "2026-07-06",
+      "close_date": "2026-07-15",
+      "avg_buy": 10280,
+      "avg_sell": 11632.35,
+      "gross_pct": 13.16,
+      "net_pct": 12.61,
+      "gross_won": 1314480,
+      "net_won": 1262127,
+      "hold_days": 9,
+      "outcome": "win",
+      "month": "2026-07",
+      "buy_qty": 972,
+      "sell_qty": 972,
+      "stop": null,
+      "stop_violation": false,
+      "setup": "3C"
+    },
+    {
       "code": "000810",
       "name": "삼성화재",
       "open_date": "2026-07-07",
@@ -369,13 +409,6 @@
   ],
   "open_positions": [
     {
-      "code": "219130",
-      "name": "타이거일렉",
-      "qty": 296,
-      "avg_buy": 69100,
-      "open_date": "2026-07-10"
-    },
-    {
       "code": "036800",
       "name": "나이스정보통신",
       "qty": 435,
@@ -387,13 +420,6 @@
       "name": "GS리테일",
       "qty": 397,
       "avg_buy": 25147,
-      "open_date": "2026-07-06"
-    },
-    {
-      "code": "001540",
-      "name": "안국약품",
-      "qty": 506,
-      "avg_buy": 10280,
       "open_date": "2026-07-06"
     },
     {
@@ -413,9 +439,16 @@
     {
       "code": "094840",
       "name": "슈프리마에이치큐",
-      "qty": 1596,
+      "qty": 796,
       "avg_buy": 12529,
       "open_date": "2026-07-13"
+    },
+    {
+      "code": "052330",
+      "name": "코텍",
+      "qty": 826,
+      "avg_buy": 12100,
+      "open_date": "2026-07-15"
     }
   ],
   "monthly": {
@@ -423,25 +456,25 @@
       "rows": [
         {
           "month": "2026-07",
-          "avg_win": 7.3,
+          "avg_win": 8.9,
           "avg_loss": 5.54,
-          "win_rate": 33.33,
-          "trades": 18,
-          "max_win": 12.99,
+          "win_rate": 40,
+          "trades": 20,
+          "max_win": 14.79,
           "max_loss": 9.86,
-          "win_days": 4,
+          "win_days": 5,
           "loss_days": 2
         }
       ],
       "average": {
         "month": "평균",
-        "avg_win": 7.3,
+        "avg_win": 8.9,
         "avg_loss": 5.54,
-        "win_rate": 33.33,
-        "trades": 18,
-        "max_win": 12.99,
+        "win_rate": 40,
+        "trades": 20,
+        "max_win": 14.79,
         "max_loss": 9.86,
-        "win_days": 4,
+        "win_days": 5,
         "loss_days": 2
       }
     },
@@ -449,42 +482,42 @@
       "rows": [
         {
           "month": "2026-07",
-          "avg_win": 7.82,
+          "avg_win": 9.43,
           "avg_loss": 5.1,
-          "win_rate": 33.33,
-          "trades": 18,
-          "max_win": 13.53,
+          "win_rate": 40,
+          "trades": 20,
+          "max_win": 15.34,
           "max_loss": 9.52,
-          "win_days": 4,
+          "win_days": 5,
           "loss_days": 2
         }
       ],
       "average": {
         "month": "평균",
-        "avg_win": 7.82,
+        "avg_win": 9.43,
         "avg_loss": 5.1,
-        "win_rate": 33.33,
-        "trades": 18,
-        "max_win": 13.53,
+        "win_rate": 40,
+        "trades": 20,
+        "max_win": 15.34,
         "max_loss": 9.52,
-        "win_days": 4,
+        "win_days": 5,
         "loss_days": 2
       }
     }
   },
   "overall": {
     "net": {
-      "win_rate": 33.33,
-      "avg_win": 7.3,
+      "win_rate": 40,
+      "avg_win": 8.9,
       "avg_loss": 5.54,
-      "payoff_ratio": 1.32,
-      "adj_payoff_ratio": 0.66,
-      "expectancy": -1.26,
+      "payoff_ratio": 1.61,
+      "adj_payoff_ratio": 1.07,
+      "expectancy": 0.24,
       "max_win": {
-        "pct": 12.99,
-        "code": "222040",
-        "name": "코스맥스엔비티",
-        "date": "2026-07-13"
+        "pct": 14.79,
+        "code": "219130",
+        "name": "타이거일렉",
+        "date": "2026-07-15"
       },
       "max_loss": {
         "pct": 9.86,
@@ -492,25 +525,25 @@
         "name": "네오리진",
         "date": "2026-07-09"
       },
-      "win_days": 4,
+      "win_days": 5,
       "loss_days": 2,
-      "trade_count": 18,
-      "win_count": 6,
+      "trade_count": 20,
+      "win_count": 8,
       "loss_count": 12,
-      "total_won": 995444
+      "total_won": 5287075
     },
     "gross": {
-      "win_rate": 33.33,
-      "avg_win": 7.82,
+      "win_rate": 40,
+      "avg_win": 9.43,
       "avg_loss": 5.1,
-      "payoff_ratio": 1.53,
-      "adj_payoff_ratio": 0.77,
-      "expectancy": -0.79,
+      "payoff_ratio": 1.85,
+      "adj_payoff_ratio": 1.23,
+      "expectancy": 0.71,
       "max_win": {
-        "pct": 13.53,
-        "code": "222040",
-        "name": "코스맥스엔비티",
-        "date": "2026-07-13"
+        "pct": 15.34,
+        "code": "219130",
+        "name": "타이거일렉",
+        "date": "2026-07-15"
       },
       "max_loss": {
         "pct": 9.52,
@@ -518,17 +551,17 @@
         "name": "네오리진",
         "date": "2026-07-09"
       },
-      "win_days": 4,
+      "win_days": 5,
       "loss_days": 2,
-      "trade_count": 18,
-      "win_count": 6,
+      "trade_count": 20,
+      "win_count": 8,
       "loss_count": 12,
-      "total_won": 1844764
+      "total_won": 6297436
     }
   },
   "rba": {
-    "avg_win_net": 7.3,
-    "recommended_max_stop_pct": 3.65,
+    "avg_win_net": 8.9,
+    "recommended_max_stop_pct": 4.45,
     "current_default_stop_pct": 5,
     "status": "too_wide"
   },
@@ -538,7 +571,7 @@
     "stop_violations": 11,
     "warnings": [
       "손절 규율 위반 11건",
-      "기본 손절 5%가 권장 3.65%보다 넓습니다"
+      "기본 손절 5%가 권장 4.45%보다 넓습니다"
     ]
   },
   "errors": []
