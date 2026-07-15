@@ -1,13 +1,13 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-07-15T08:56:21.493+09:00",
+  "last_checked": "2026-07-15T14:31:30.836+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 5.68,
-      "display": "5.68배",
+      "value": 5.88,
+      "display": "5.88배",
       "threshold": "10배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,11 +15,11 @@
     {
       "id": "dividend_yield",
       "label": "배당수익률",
-      "value": 3.8,
-      "display": "3.80%",
+      "value": 3.67,
+      "display": "3.67%",
       "threshold": "3.5% 이하",
       "hit": false,
-      "tone": "good"
+      "tone": "warn"
     },
     {
       "id": "price_high",
@@ -60,14 +60,20 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 77.87,
-      "display": "77.87$",
+      "value": 79.71,
+      "display": "79.71$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
-      "tone": "warn"
+      "tone": "good"
     }
   ],
   "alerts": [
+    {
+      "severity": "warn",
+      "type": "dividend_yield",
+      "title": "배당수익률 임계 근접",
+      "message": "현재 3.67% (임계 3.5% 이하)"
+    },
     {
       "severity": "bad",
       "type": "debt_guarantee_count",
@@ -82,14 +88,8 @@
     },
     {
       "severity": "warn",
-      "type": "oil_price_brent",
-      "title": "Brent 7일 평균 (두바이유 대용) 임계 근접",
-      "message": "현재 77.87$ (임계 70달러 이하 (정유 매크로 약화))"
-    },
-    {
-      "severity": "warn",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 4건 (관찰 신호 2건 포함)",
+      "title": "리스크 키워드 매칭 뉴스 5건 (관찰 신호 3건 포함)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
@@ -116,6 +116,16 @@
     },
     {
       "keyword": "중동 긴장 완화",
+      "date": "2026-07-15",
+      "title": "美 물가 둔화·중동 긴장 완화…원·달러 환율, 1480원대 등락 - 네이트",
+      "url": "https://news.google.com/rss/articles/CBMiU0FVX3lxTE1SN01vbVRZdEk0d2JyeFJXdFhkWC1ka2w5aE9mWFpidThZOWswbUd6cjR6VnI4QzVPWEhPWnZqRmsxQjAzT0dJRnNtb1BrNW9TRHlZ?oc=5",
+      "severity": "warn",
+      "signals": [
+        "둔화"
+      ]
+    },
+    {
+      "keyword": "중동 긴장 완화",
       "date": "2026-07-09",
       "title": "비철 시황 - 중동 긴장 완화 기대에 상승 - Investing.com 한국어",
       "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE5UWUsxZDlrVm1OQ3BBN3FvUWxZNGhkSFhqSWRvemhkNGxsUWN3di1QUmtLaU9ZdTdoUHprSWpLaUtaeDNSTXRkeGRKWngwUk10UDljOXNCMU5DM3pVNXl6Qg?oc=5",
@@ -137,7 +147,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 85.3 USD (2026-07-14, 7일 평균 77.87)",
+      "label": "Brent 원유 종가 85.44 USD (2026-07-15, 7일 평균 79.71)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
