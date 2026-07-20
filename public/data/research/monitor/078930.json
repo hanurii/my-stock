@@ -1,13 +1,13 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-07-14T19:51:00.841+09:00",
+  "last_checked": "2026-07-20T09:00:26.071+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 5.68,
-      "display": "5.68배",
+      "value": 5.95,
+      "display": "5.95배",
       "threshold": "10배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,20 +15,20 @@
     {
       "id": "dividend_yield",
       "label": "배당수익률",
-      "value": 3.8,
-      "display": "3.80%",
+      "value": 3.62,
+      "display": "3.62%",
       "threshold": "3.5% 이하",
       "hit": false,
-      "tone": "good"
+      "tone": "warn"
     },
     {
       "id": "price_high",
       "label": "주가",
-      "value": 79500,
-      "display": "79,500원",
+      "value": 82800,
+      "display": "82,800원",
       "threshold": "85,000원+ 돌파",
       "hit": false,
-      "tone": "good"
+      "tone": "warn"
     },
     {
       "id": "separate_net_loss",
@@ -60,14 +60,26 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 78.09,
-      "display": "78.09$",
+      "value": 84.59,
+      "display": "84.59$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
     }
   ],
   "alerts": [
+    {
+      "severity": "warn",
+      "type": "dividend_yield",
+      "title": "배당수익률 임계 근접",
+      "message": "현재 3.62% (임계 3.5% 이하)"
+    },
+    {
+      "severity": "warn",
+      "type": "price_high",
+      "title": "주가 임계 근접",
+      "message": "현재 82,800원 (임계 85,000원+ 돌파)"
+    },
     {
       "severity": "bad",
       "type": "debt_guarantee_count",
@@ -83,70 +95,46 @@
     {
       "severity": "warn",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 7건 (관찰 신호 2건 포함)",
+      "title": "리스크 키워드 매칭 뉴스 4건 (관찰 신호 2건 포함)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
   "news_hits": [
     {
-      "keyword": "정제마진 하락",
-      "date": "2026-07-12",
-      "title": "신한證 “S-Oil, 유가 하락에도 정제마진 견고… 목표가 18만원으로 상향” - 조선비즈 - Chosunbiz",
-      "url": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxNcEVfYnJaU3NKdmRpTkRlQWRWU012aV84V2t5TXlHQVBDMFBCZEJxclMyZUxvY0xrUzNVOVI2RWdEN2VSaTVjQjVESEpJS2dtcjMwYmw0UFRlZkhnSlhhM09iSkl4SmZWUmsyTHhKY3hLbldvRTlBa1lPQS1JemxpS2hVT2JiZlFx0gGcAUFVX3lxTFBlSFpaR2FUcUxzVllXRzVqUjJRNGFWNDJQRHVnYzY2X19JMHZMVWJTZWM2NDl6Zk9PX2pOcExLM3pqN1BMcUxXSmU0NG1jbk91bkhlazBZN2Nqb05hWDRadEJ6cGtKaUlyTVlpUW51Zm9SaW5SbFBMOFFQd0VMOURSenhYNVBFcnNvNzNnYkRRUU1WYjBHT2hZd1V5eA?oc=5",
-      "severity": "warn",
-      "signals": [
-        "하락"
-      ]
-    },
-    {
-      "keyword": "정제마진 하락",
-      "date": "2026-07-12",
-      "title": "신한투자증권 \"S-Oil, 유가 하락에도 정제마진 강세…목표가 18만원\" - v.daum.net",
-      "url": "https://news.google.com/rss/articles/CBMiS0FVX3lxTE42c0ZoNHF4d0lIR1IzVXJvSWs0b053RUkzcnVWWGlUZE1XVGpIZXBMYnI0UDNTSFhXVXd4Z0xiVkFNa0Iwdzhka1AyVQ?oc=5",
-      "severity": "warn",
-      "signals": [
-        "하락"
-      ]
-    },
-    {
       "keyword": "이란 미국 합의",
-      "date": "2026-07-12",
-      "title": "\"종전은 무슨\"...미국, 합의 후 세 번째 이란 공습 - YTN",
-      "url": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE55bXluUUFiNXNaNm5HNDZiVk05bDZJX0VZYkcwVEJkMVJFN0U0RW9lVUNva2xWZVlGUVdCdUdwSV9WbFd6dlZXeGJVYkdSX3I1VHhXLVJkb1dTdlVDU1E?oc=5",
+      "date": "2026-07-16",
+      "title": "백악관 \"이란 미국과 여전히 대화중…합의 원한다는 뜻 밝혀\"(종합) - 연합인포맥스",
+      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE92aXFIN0RjcWJOUjlGcVotSlgtbUhvdWlnV25oTXFoUHp4VzNfWm9PR0RuY2c2MTROdzVrVFVRbE9iYU1xQS1COHJsR1VscndyTkhNaUI3Z3Bneml3LWF3QjBuMVJTdnVYSVdOYTRXSEc?oc=5",
       "severity": "info",
       "signals": []
     },
     {
       "keyword": "이란 미국 합의",
-      "date": "2026-07-11",
-      "title": "주유엔 이란 대사 “미국 의무 위반 계속되면 합의 준수 안 해” - v.daum.net",
-      "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE15Tm1LZzMzMEhuUHJZVUtoUjhNdWxEWVd6X3FCdEJKb3o5Q3ZldW9aa2MyZGZoYmd2UFRkWENZR0pQRFV3X0RuU3REWW4yUmM?oc=5",
+      "date": "2026-07-19",
+      "title": "이란이 미국과의 합의에 따른 의무 이행을 중단했다. - Vietnam.vn",
+      "url": "https://news.google.com/rss/articles/CBMijgFBVV95cUxQSjRoNFd5VHR1b0l6bmxZSHBFZGpJRnFJaWtxY0REU1pIQU1DVnE5cU5oLTg3ZmduMEdDRGQ2ZHFsUFl2MnUyQ1ZaS0xtb2Rqa0dXNTBZUHh0MDR1MUNiNklqT3JrVWFBX3c1TXVicmZaSWRZUDRtOF8teUpvX0xXcUZlaGhpRUROTTN0LWNn?oc=5",
       "severity": "info",
       "signals": []
     },
     {
       "keyword": "중동 긴장 완화",
-      "date": "2026-07-09",
-      "title": "비철 시황 - 중동 긴장 완화 기대에 상승 - Investing.com 한국어",
-      "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE5UWUsxZDlrVm1OQ3BBN3FvUWxZNGhkSFhqSWRvemhkNGxsUWN3di1QUmtLaU9ZdTdoUHprSWpLaUtaeDNSTXRkeGRKWngwUk10UDljOXNCMU5DM3pVNXl6Qg?oc=5",
-      "severity": "info",
-      "signals": []
+      "date": "2026-07-15",
+      "title": "美 물가 둔화·중동 긴장 완화…원·달러 환율, 1480원대 등락 - 네이트",
+      "url": "https://news.google.com/rss/articles/CBMiU0FVX3lxTE1SN01vbVRZdEk0d2JyeFJXdFhkWC1ka2w5aE9mWFpidThZOWswbUd6cjR6VnI4QzVPWEhPWnZqRmsxQjAzT0dJRnNtb1BrNW9TRHlZ?oc=5",
+      "severity": "warn",
+      "signals": [
+        "둔화"
+      ]
     },
     {
       "keyword": "중동 긴장 완화",
-      "date": "2026-07-11",
-      "title": "AI 랠리·중동 긴장 완화에 3대 지수 일제 상승…‘반도체 봄날’ 다시 왔다 [뉴욕증시",
-      "url": "https://news.google.com/rss/articles/CBMibkFVX3lxTE9TRmNCMzMxdUtRS0tXNTZYX2I3cnE2bXE5dE1WRUNia0x4Wk5iZVpmanNXdVd4TDFMS3dHTlFxZFlVSkM2ekFfamZJTVdQWUZIQko3ZTBac2Fxdzd4aXhzUUZRTzQ0dGtwSktfTktB0gFyQVVfeXFMTVRXRm9nLUswMzQ1UlNzZmpsbVpyNVFSaDRsWTY3cDhtRUFhWDlSVzE1NmoxWGl1Q25wT3BKTjVaRWVqYlgzd0hIaDVVdXNLRkhidE5UNGFQTnRseC1XbnFJR0lTamVOTUl0ZENTdlRobWVB?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-07-08",
-      "title": "UAE 장관 만난 김정관…중동 긴장 완화에도 원유 협력 '끈끈' - 연합인포맥스",
-      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE5HaVpMb2IwbTNXLWZKQ0hXRHQ0Ul9Wa0h6MXNyT1NwUW5hMzR3Q2dNY2tJREp6Q0c1bXhWY2ZDcjI1WEZVbnFxSW9IcDhHdmNkMTJiQUVTcVRLNkRxMGxVTUJtS3h4MjB5TUN1SlZGb3U?oc=5",
-      "severity": "info",
-      "signals": []
+      "date": "2026-07-16",
+      "title": "미 달러/캐나다 달러, 연준 완화 베팅이 미국 지표·중동 긴장을 상쇄하며 1.4000선으로 하락 - VT Markets",
+      "url": "https://news.google.com/rss/articles/CBMi3wJBVV95cUxPSWtYb2plR0VuelJLZGZReHEwVHAwV0JoUVlkRGJHRnJ2MWZPbmJjVjN3c0VvaUpFdll2RVVSRVZ0Y09YcGYybzE0eUY5djhINTJ6NURRQk9IR0NSOWE2aXBlTGJGS0hjNFJKV0RMZGtqZmh6ZkgyLWRKTEpEXzROcmk2VXVtZTMtRG5DSXc5Vl9pUWY1ZjU1SllpNTVBTkVnaW9MTWwwVU91N1FrZGQ2V2ZhVkd4MlFiUXV4UGhaSFBPMlNTUlRaX1l5SVhJejlPT1k4YmtlMVhWeU51M1dDb09hMzhUcldKN0xEbS1NWEszdEY2NzB3TkQzM0xYajZTNUVIdkFsWlhiaTVBa0ExWS1ldnFzeXhneUVNT1FfWTFMODZZYUgxM0pObmd5Q1BGcElyREY4X3BrZGctS2xlQVhyOF9JZktiOUVybld6TTVIUUg5X2pCWnZHQlNUNWM?oc=5",
+      "severity": "warn",
+      "signals": [
+        "하락"
+      ]
     }
   ],
   "sources": [
@@ -155,7 +143,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 86.88 USD (2026-07-14, 7일 평균 78.09)",
+      "label": "Brent 원유 종가 90.82 USD (2026-07-19, 7일 평균 84.59)",
       "ref": "Yahoo Finance BZ=F"
     },
     {

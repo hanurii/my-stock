@@ -1,13 +1,13 @@
 {
   "code": "105560",
   "name": "KB금융",
-  "last_checked": "2026-07-14T19:49:35.873+09:00",
+  "last_checked": "2026-07-20T08:59:02.917+09:00",
   "metrics": [
     {
       "id": "pbr",
       "label": "PBR",
-      "value": 1.13,
-      "display": "1.13배",
+      "value": 1.14,
+      "display": "1.14배",
       "threshold": "1.1배 돌파",
       "hit": true,
       "tone": "bad"
@@ -24,8 +24,8 @@
     {
       "id": "foreign_ratio",
       "label": "외국인 지분율",
-      "value": 79.38,
-      "display": "79.38%",
+      "value": 79.39,
+      "display": "79.39%",
       "threshold": "70% 이하",
       "hit": false,
       "tone": "good"
@@ -33,8 +33,8 @@
     {
       "id": "foreign_net_buy_4w",
       "label": "최근 20거래일 외국인 순매수",
-      "value": -2847149,
-      "display": "-285만주",
+      "value": -2711823,
+      "display": "-271만주",
       "threshold": "순매도 전환",
       "hit": true,
       "tone": "bad"
@@ -51,8 +51,8 @@
     {
       "id": "buyback_cancellation_gap",
       "label": "자사주 소각결정 후 경과일",
-      "value": 82,
-      "display": "82일",
+      "value": 3,
+      "display": "3일",
       "threshold": "365일 후속 부재",
       "hit": false,
       "tone": "good"
@@ -99,7 +99,7 @@
       "severity": "bad",
       "type": "pbr",
       "title": "PBR 1.1배 돌파",
-      "message": "현재 1.13배 — 매도 트리거 도달"
+      "message": "현재 1.14배 — 매도 트리거 도달"
     },
     {
       "severity": "bad",
@@ -111,7 +111,7 @@
       "severity": "bad",
       "type": "foreign_net_buy_4w",
       "title": "최근 20거래일 외국인 순매수 순매도 전환",
-      "message": "현재 -285만주 — 매도 트리거 도달"
+      "message": "현재 -271만주 — 매도 트리거 도달"
     },
     {
       "severity": "info",
@@ -125,7 +125,7 @@
       "keyword": "KB증권 부실",
       "date": "2026-07-14",
       "title": "KB증권, 부실채권 1년새 2배 급증 - DFT 대한금융신문",
-      "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE9NcWttdnMyX2ZHZzNZOW5Md0xOalJXYUdpMlpvc3puSUx2NW9yV0RlcFU4QWp4cnNWMXBESE5FYUhTSlBWNVpHdWpQVTRPSUZBVmpfc3NqQ3FzUDdxRTVGeTA4TTk0X3MyQ243Ug?oc=5",
+      "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE9NcWttdnMyX2ZHZzNZOW5Md0xOalJXYUdpMlpvc3puSUx2NW9yV0RlcFU4QWp4cnNWMXBESE5FYUhTSlBWNVpHdWpQVTRPSUZBVmpfc3NqQ3FzUDdxRTVGeTA4TTk0X3MyQ243UtIBcEFVX3lxTE9LSFdLUGtpcmJ0QXdSV01DbnNsT1pSVUNhcHpsclBteG5EVUVIT09nelNQVy1nZmFvblc2MThFZXNFZThyV1JEQldNNmpOd0p0N1MtYkoyRy1VUHZNU19maWxUNU8yYjZrZ1FpbWpaSmM?oc=5",
       "severity": "info",
       "signals": []
     },
@@ -144,12 +144,12 @@
       "ref": "public/data/watchlist.json"
     },
     {
-      "label": "최근 자사주 소각 공시 (2026-04-23)",
-      "ref": "DART 20260423800583"
+      "label": "최근 자사주 소각 공시 (2026-07-16)",
+      "ref": "DART 20260716800499"
     },
     {
       "label": "4대 지주 평균 PBR 비교 (3종목)",
-      "ref": "peers: 086790, 316140, 055550 / avg 0.76"
+      "ref": "peers: 086790, 316140, 055550 / avg 0.77"
     },
     {
       "label": "분기 배당 결정 ([기재정정]사업보고서 (2025.12))",
@@ -157,7 +157,7 @@
     },
     {
       "label": "외국인 순매수 누적 (20일)",
-      "ref": "네이버 dealTrendInfos / history 2026-07-14"
+      "ref": "네이버 dealTrendInfos / history 2026-07-16"
     },
     {
       "label": "최근 분기 순이익 (2025-FY)",

@@ -1,13 +1,13 @@
 {
   "code": "005387",
   "name": "현대차2우B",
-  "last_checked": "2026-07-14T19:50:50.863+09:00",
+  "last_checked": "2026-07-20T09:00:15.888+09:00",
   "metrics": [
     {
       "id": "price",
       "label": "우선주 종가",
-      "value": 199800,
-      "display": "199,800원",
+      "value": 198000,
+      "display": "198,000원",
       "threshold": "320,000원 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "per",
       "label": "PER",
-      "value": 5.28,
-      "display": "5.28배",
+      "value": 5.23,
+      "display": "5.23배",
       "threshold": "9배 돌파",
       "hit": false,
       "tone": "good"
@@ -24,8 +24,8 @@
     {
       "id": "pref_discount",
       "label": "보통주 대비 디스카운트",
-      "value": 54.95,
-      "display": "55.0%",
+      "value": 53.41,
+      "display": "53.4%",
       "threshold": "30% 이하로 축소",
       "hit": false,
       "tone": "good"
@@ -33,8 +33,8 @@
     {
       "id": "buyback_gap",
       "label": "자사주 소각 공시 공백",
-      "value": 446,
-      "display": "446일",
+      "value": 452,
+      "display": "452일",
       "threshold": "365일 경과",
       "hit": true,
       "tone": "bad"
@@ -54,44 +54,16 @@
       "severity": "bad",
       "type": "buyback_gap",
       "title": "자사주 소각 공시 공백 365일 경과",
-      "message": "현재 446일 — 매도 트리거 도달"
+      "message": "현재 452일 — 매도 트리거 도달"
     },
     {
       "severity": "warn",
       "type": "op_margin",
       "title": "분기 영업이익률 (2025) 임계 근접",
       "message": "현재 6.2% (임계 4% 미만)"
-    },
-    {
-      "severity": "warn",
-      "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 2건 (관찰 신호 2건 포함)",
-      "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
-  "news_hits": [
-    {
-      "keyword": "트럼프 자동차 관세",
-      "date": "2026-07-10",
-      "title": "멕시코 상반기 자동차 수출 1.4% 소폭 증가…트럼프 관세 압박 속 6월부터 감소세로 전환 - 다나와 자동차",
-      "url": "https://news.google.com/rss/articles/CBMie0FVX3lxTE1NV0hyTk9YcDFaSGNGYmdHRmQ4OXJHcUo5YS1kMmJ0dHMtWWdCNXp5bEt3NnNRZkRScHdfRE1IX1ozdkdBT0tnSDBnVGs0TDBXVlJoNjZ6OFQ2RHYtb25lZlluN2pQWXdlcXdXbGdpWGJSNjh3dEYxR3FDdw?oc=5",
-      "severity": "warn",
-      "signals": [
-        "감소"
-      ]
-    },
-    {
-      "keyword": "현대차 관세 부담",
-      "date": "2026-07-12",
-      "title": "판매 부진에 관세 부담까지…현대차 2분기 영업익 두자릿수 감소 전망 - v.daum.net",
-      "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE9xaFFtNFNHLXpyUW5XQU9UYUFFVUV4U3pPZ3RJRE9sN2NpczNoLXJFUWFhVVI2OEM4bmtUTng5bFp4STM3LU1qcGg5N21PcUU?oc=5",
-      "severity": "warn",
-      "signals": [
-        "감소",
-        "부진"
-      ]
-    }
-  ],
+  "news_hits": [],
   "sources": [
     {
       "label": "PER/PEG/PBR 스코어",
@@ -106,12 +78,8 @@
       "ref": "DART 20250424800336"
     },
     {
-      "label": "보통주-우선주 디스카운트 (2026-07-14)",
-      "ref": "네이버 lastClose 005380/005387: 444,000원/200,000원"
-    },
-    {
-      "label": "뉴스 RSS",
-      "ref": "news.google.com/rss (7일)"
+      "label": "보통주-우선주 디스카운트 (2026-07-16)",
+      "ref": "네이버 lastClose 005380/005387: 425,000원/198,000원"
     }
   ]
 }
