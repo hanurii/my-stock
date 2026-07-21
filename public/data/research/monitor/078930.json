@@ -1,7 +1,7 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-07-21T20:13:39.283+09:00",
+  "last_checked": "2026-07-22T08:58:17.549+09:00",
   "metrics": [
     {
       "id": "per",
@@ -24,8 +24,8 @@
     {
       "id": "price_high",
       "label": "주가",
-      "value": 83200,
-      "display": "83,200원",
+      "value": 82500,
+      "display": "82,500원",
       "threshold": "85,000원+ 돌파",
       "hit": false,
       "tone": "warn"
@@ -60,8 +60,8 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 86.39,
-      "display": "86.39$",
+      "value": 86.61,
+      "display": "86.61$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
@@ -78,7 +78,7 @@
       "severity": "warn",
       "type": "price_high",
       "title": "주가 임계 근접",
-      "message": "현재 83,200원 (임계 85,000원+ 돌파)"
+      "message": "현재 82,500원 (임계 85,000원+ 돌파)"
     },
     {
       "severity": "bad",
@@ -95,7 +95,7 @@
     {
       "severity": "info",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 2건 (관찰 신호 0건 — 키워드 단순 매칭만)",
+      "title": "리스크 키워드 매칭 뉴스 4건 (관찰 신호 0건 — 키워드 단순 매칭만)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
@@ -105,6 +105,22 @@
       "date": "2026-07-16",
       "title": "백악관 \"이란 미국과 여전히 대화중…합의 원한다는 뜻 밝혀\"(종합) - 연합인포맥스",
       "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE92aXFIN0RjcWJOUjlGcVotSlgtbUhvdWlnV25oTXFoUHp4VzNfWm9PR0RuY2c2MTROdzVrVFVRbE9iYU1xQS1COHJsR1VscndyTkhNaUI3Z3Bneml3LWF3QjBuMVJTdnVYSVdOYTRXSEc?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "중동 긴장 완화",
+      "date": "2026-07-21",
+      "title": "TSX 선물 상승, 중동 긴장 완화 외교적 노력에 힘입어 - Investing.com 한국어",
+      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE1lZS1jYXFtT3dlQmlhSC1scnExYUp1bG15b1BtZjhnVV9rUF9DZS12X2sxandPcy0tZjZPbHNFU1FJTlJNUE85b3M3c1pxVU5vWFVhcjJTMlo2OUVSU294cGVaclZmUmxIRERZOUdGa2g?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "중동 긴장 완화",
+      "date": "2026-07-21",
+      "title": "뉴욕금값, 중동 긴장 완화 조짐에 상승...1.7%↑ - 이투데이",
+      "url": "https://news.google.com/rss/articles/CBMiVEFVX3lxTE1SMEZkcUhxM1IyRGJpdmdoQURUMEc3VmtnSmZnbVFxYzZwcVZyeEpnV2N2QmVYRHFJS2dVRGZfTVBHT0dLRzhnd2g5QXN4QUFKTHdEMA?oc=5",
       "severity": "info",
       "signals": []
     },
@@ -123,7 +139,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 90.21 USD (2026-07-21, 7일 평균 86.39)",
+      "label": "Brent 원유 종가 91.75 USD (2026-07-21, 7일 평균 86.61)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
