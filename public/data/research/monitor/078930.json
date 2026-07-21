@@ -1,13 +1,13 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-07-20T09:00:26.071+09:00",
+  "last_checked": "2026-07-21T20:13:39.283+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 5.95,
-      "display": "5.95배",
+      "value": 5.93,
+      "display": "5.93배",
       "threshold": "10배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "dividend_yield",
       "label": "배당수익률",
-      "value": 3.62,
-      "display": "3.62%",
+      "value": 3.64,
+      "display": "3.64%",
       "threshold": "3.5% 이하",
       "hit": false,
       "tone": "warn"
@@ -24,8 +24,8 @@
     {
       "id": "price_high",
       "label": "주가",
-      "value": 82800,
-      "display": "82,800원",
+      "value": 83200,
+      "display": "83,200원",
       "threshold": "85,000원+ 돌파",
       "hit": false,
       "tone": "warn"
@@ -60,8 +60,8 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 84.59,
-      "display": "84.59$",
+      "value": 86.39,
+      "display": "86.39$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
@@ -72,13 +72,13 @@
       "severity": "warn",
       "type": "dividend_yield",
       "title": "배당수익률 임계 근접",
-      "message": "현재 3.62% (임계 3.5% 이하)"
+      "message": "현재 3.64% (임계 3.5% 이하)"
     },
     {
       "severity": "warn",
       "type": "price_high",
       "title": "주가 임계 근접",
-      "message": "현재 82,800원 (임계 85,000원+ 돌파)"
+      "message": "현재 83,200원 (임계 85,000원+ 돌파)"
     },
     {
       "severity": "bad",
@@ -93,9 +93,9 @@
       "message": "현재 1건 — 긍정 시그널 발생 (재평가 검토)"
     },
     {
-      "severity": "warn",
+      "severity": "info",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 4건 (관찰 신호 2건 포함)",
+      "title": "리스크 키워드 매칭 뉴스 2건 (관찰 신호 0건 — 키워드 단순 매칭만)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
@@ -109,32 +109,12 @@
       "signals": []
     },
     {
-      "keyword": "이란 미국 합의",
-      "date": "2026-07-19",
-      "title": "이란이 미국과의 합의에 따른 의무 이행을 중단했다. - Vietnam.vn",
-      "url": "https://news.google.com/rss/articles/CBMijgFBVV95cUxQSjRoNFd5VHR1b0l6bmxZSHBFZGpJRnFJaWtxY0REU1pIQU1DVnE5cU5oLTg3ZmduMEdDRGQ2ZHFsUFl2MnUyQ1ZaS0xtb2Rqa0dXNTBZUHh0MDR1MUNiNklqT3JrVWFBX3c1TXVicmZaSWRZUDRtOF8teUpvX0xXcUZlaGhpRUROTTN0LWNn?oc=5",
+      "keyword": "중동 긴장 완화",
+      "date": "2026-07-20",
+      "title": "이란, 요르단·쿠웨이트·바레인에 무차별 폭격…중동 '전면전' 위기에 긴장 완화 촉구 잇따라 - 서울뉴스통신",
+      "url": "https://news.google.com/rss/articles/CBMia0FVX3lxTE90SDdYWk9VNWl0VWdSZkxtY0VQWVFpenFoMzZTd3YwaTloNll3SXNSSWhRSURkNXg3WUwwZ21DQ3VORjJiVWJUNXBYbG83Z21GVFVNa2pudGtwRGE3VWF4aU9iWmdsREx3eHJv?oc=5",
       "severity": "info",
       "signals": []
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-07-15",
-      "title": "美 물가 둔화·중동 긴장 완화…원·달러 환율, 1480원대 등락 - 네이트",
-      "url": "https://news.google.com/rss/articles/CBMiU0FVX3lxTE1SN01vbVRZdEk0d2JyeFJXdFhkWC1ka2w5aE9mWFpidThZOWswbUd6cjR6VnI4QzVPWEhPWnZqRmsxQjAzT0dJRnNtb1BrNW9TRHlZ?oc=5",
-      "severity": "warn",
-      "signals": [
-        "둔화"
-      ]
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-07-16",
-      "title": "미 달러/캐나다 달러, 연준 완화 베팅이 미국 지표·중동 긴장을 상쇄하며 1.4000선으로 하락 - VT Markets",
-      "url": "https://news.google.com/rss/articles/CBMi3wJBVV95cUxPSWtYb2plR0VuelJLZGZReHEwVHAwV0JoUVlkRGJHRnJ2MWZPbmJjVjN3c0VvaUpFdll2RVVSRVZ0Y09YcGYybzE0eUY5djhINTJ6NURRQk9IR0NSOWE2aXBlTGJGS0hjNFJKV0RMZGtqZmh6ZkgyLWRKTEpEXzROcmk2VXVtZTMtRG5DSXc5Vl9pUWY1ZjU1SllpNTVBTkVnaW9MTWwwVU91N1FrZGQ2V2ZhVkd4MlFiUXV4UGhaSFBPMlNTUlRaX1l5SVhJejlPT1k4YmtlMVhWeU51M1dDb09hMzhUcldKN0xEbS1NWEszdEY2NzB3TkQzM0xYajZTNUVIdkFsWlhiaTVBa0ExWS1ldnFzeXhneUVNT1FfWTFMODZZYUgxM0pObmd5Q1BGcElyREY4X3BrZGctS2xlQVhyOF9JZktiOUVybld6TTVIUUg5X2pCWnZHQlNUNWM?oc=5",
-      "severity": "warn",
-      "signals": [
-        "하락"
-      ]
     }
   ],
   "sources": [
@@ -143,7 +123,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 90.82 USD (2026-07-19, 7일 평균 84.59)",
+      "label": "Brent 원유 종가 90.21 USD (2026-07-21, 7일 평균 86.39)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
