@@ -1,7 +1,7 @@
 {
   "code": "105560",
   "name": "KB금융",
-  "last_checked": "2026-07-22T08:57:43.604+09:00",
+  "last_checked": "2026-07-22T14:50:02.213+09:00",
   "metrics": [
     {
       "id": "pbr",
@@ -51,8 +51,8 @@
     {
       "id": "buyback_cancellation_gap",
       "label": "자사주 소각결정 후 경과일",
-      "value": 1,
-      "display": "1일",
+      "value": 2,
+      "display": "2일",
       "threshold": "365일 후속 부재",
       "hit": false,
       "tone": "good"
@@ -112,9 +112,26 @@
       "type": "foreign_net_buy_4w",
       "title": "최근 20거래일 외국인 순매수 순매도 전환",
       "message": "현재 -286만주 — 매도 트리거 도달"
+    },
+    {
+      "severity": "warn",
+      "type": "news_keyword_hit",
+      "title": "리스크 키워드 매칭 뉴스 1건 (관찰 신호 1건 포함)",
+      "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
-  "news_hits": [],
+  "news_hits": [
+    {
+      "keyword": "KB증권 부실",
+      "date": "2026-07-22",
+      "title": "KB증권, 신용정보 등록 누락 등 부실 적발…과태료 2억여원 제재 - 팩트인뉴스",
+      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTFBrS1dCRWtPN3JYNy1MUjdRYUVhTDRSWXVjd3lnVHFsZkU4Y2NETVZaUW5OT1hBQmJhbzVtdnhBRkNLbGgyeUxIYkVHeHdveFZtbFdqbUZTd0VJRzZtdmlFSUxjYVdIYkdEUVZHbC1Sb3Y?oc=5",
+      "severity": "warn",
+      "signals": [
+        "제재"
+      ]
+    }
+  ],
   "sources": [
     {
       "label": "PER/PEG/PBR 스코어",
@@ -143,6 +160,10 @@
     {
       "label": "분기 ROE 연환산 (2025-FY · 9.6%)",
       "ref": "DART 20260619000667 (fnlttSinglAcntAll: 자본총계+분기순이익)"
+    },
+    {
+      "label": "뉴스 RSS",
+      "ref": "news.google.com/rss (7일)"
     }
   ]
 }
