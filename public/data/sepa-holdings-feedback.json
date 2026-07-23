@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-23 21:55",
+  "generated_at": "2026-07-23 22:29",
   "asof": "2026-07-23",
   "stop_loss_pct_default": -5,
   "holdings": [
@@ -104,109 +104,6 @@
         "rs_nh_days": 0,
         "rs_leads": 55,
         "dist_52wh": -7.4
-      }
-    },
-    {
-      "code": "007070",
-      "name": "GS리테일",
-      "market": "KOSPI",
-      "buy_date": "2026-07-06",
-      "buy_price": 25147,
-      "quantity": 397,
-      "stop_loss_pct": -5,
-      "pivot_price": 28853.87,
-      "pivot_source": "power_play",
-      "current_price": 25450.0,
-      "profit_pct": 1.2,
-      "stop_price": 23889.65,
-      "pct_to_stop": -6.13,
-      "breakout_date": "2026-07-06",
-      "breakout_date_estimated": true,
-      "signal": "early_sell",
-      "violation_count": 3,
-      "rules": [
-        {
-          "id": "low_volume_breakout",
-          "status": "violation",
-          "detail": "돌파일 거래량 0.74배 — 평균에도 못 미침"
-        },
-        {
-          "id": "heavy_volume_pullback",
-          "status": "pass",
-          "detail": "대량 거래 하락일 없음"
-        },
-        {
-          "id": "consecutive_lower_lows",
-          "status": "watch",
-          "detail": "🟡경고: 저점경신 4회(거래량 낮음)"
-        },
-        {
-          "id": "close_below_ma",
-          "status": "violation",
-          "detail": "2026-07-22 20일선 아래 마감 (돌파 11거래일째)"
-        },
-        {
-          "id": "weak_days_dominant",
-          "status": "violation",
-          "detail": "하락 6·상승 6 / 나쁜마감 7·좋은마감 5"
-        },
-        {
-          "id": "breakout_failure",
-          "status": "na",
-          "detail": "피벗 돌파 미확인 — 판정 불가"
-        }
-      ],
-      "extension_pct": -11.8,
-      "accumulation": {
-        "window": "D+12/15",
-        "elapsed": 12,
-        "signals": [
-          {
-            "id": "up_days_dominant",
-            "status": "unmet",
-            "detail": "상승 6 · 하락 6"
-          },
-          {
-            "id": "quality_closes",
-            "status": "unmet",
-            "detail": "좋은 5 · 나쁜 7"
-          },
-          {
-            "id": "up_streak_7",
-            "status": "unmet",
-            "detail": "최고 2일"
-          }
-        ]
-      },
-      "mvp": {
-        "status": "pending",
-        "m": {
-          "ok": null,
-          "detail": "12/15일 (판정 전)"
-        },
-        "v": {
-          "ok": null,
-          "detail": "판정 전"
-        },
-        "p": {
-          "ok": null,
-          "detail": "+7%"
-        }
-      },
-      "strength": {
-        "signal": "not_extended",
-        "extended": false,
-        "gate_detail": "확장 -11.8% < 5%",
-        "count": 0,
-        "signals": []
-      },
-      "superperf": {
-        "score": 1,
-        "rs": 88,
-        "prior_adv_pct": 35.1,
-        "rs_nh_days": 150,
-        "rs_leads": -116,
-        "dist_52wh": -16.7
       }
     },
     {
@@ -640,6 +537,315 @@
         "rs_nh_days": 204,
         "rs_leads": -196,
         "dist_52wh": -3.8
+      }
+    },
+    {
+      "code": "002810",
+      "name": "삼영무역",
+      "market": "KOSPI",
+      "buy_date": "2026-07-23",
+      "buy_price": 21300,
+      "quantity": 469,
+      "stop_loss_pct": -5,
+      "pivot_price": 22450.83,
+      "pivot_source": "power_play",
+      "current_price": 21900.0,
+      "profit_pct": 2.82,
+      "stop_price": 20235.0,
+      "pct_to_stop": -7.6,
+      "breakout_date": "2026-07-23",
+      "breakout_date_estimated": true,
+      "signal": "early_sell",
+      "violation_count": 1,
+      "rules": [
+        {
+          "id": "low_volume_breakout",
+          "status": "violation",
+          "detail": "돌파일 거래량 0.46배 — 평균에도 못 미침"
+        },
+        {
+          "id": "heavy_volume_pullback",
+          "status": "pending",
+          "detail": "돌파 다음 날 데이터 없음"
+        },
+        {
+          "id": "consecutive_lower_lows",
+          "status": "pending",
+          "detail": "돌파 다음 날 데이터 없음"
+        },
+        {
+          "id": "close_below_ma",
+          "status": "pending",
+          "detail": "돌파 다음 날 데이터 없음"
+        },
+        {
+          "id": "weak_days_dominant",
+          "status": "pending",
+          "detail": "경과 0거래일 — 5거래일부터 판정"
+        },
+        {
+          "id": "breakout_failure",
+          "status": "na",
+          "detail": "피벗 돌파 미확인 — 판정 불가"
+        }
+      ],
+      "extension_pct": -2.5,
+      "accumulation": {
+        "window": "D+0/15",
+        "elapsed": 0,
+        "signals": [
+          {
+            "id": "up_days_dominant",
+            "status": "pending",
+            "detail": "상승 0 · 하락 0"
+          },
+          {
+            "id": "quality_closes",
+            "status": "pending",
+            "detail": "좋은 0 · 나쁜 0"
+          },
+          {
+            "id": "up_streak_7",
+            "status": "pending",
+            "detail": "최고 0일"
+          }
+        ]
+      },
+      "mvp": {
+        "status": "pending",
+        "m": {
+          "ok": null,
+          "detail": "0/15일 (판정 전)"
+        },
+        "v": {
+          "ok": null,
+          "detail": "판정 전"
+        },
+        "p": {
+          "ok": null,
+          "detail": "—"
+        }
+      },
+      "strength": {
+        "signal": "not_extended",
+        "extended": false,
+        "gate_detail": "확장 -2.5% < 5%",
+        "count": 0,
+        "signals": []
+      },
+      "superperf": {
+        "score": 1,
+        "rs": 84,
+        "prior_adv_pct": 29.3,
+        "rs_nh_days": 251,
+        "rs_leads": -149,
+        "dist_52wh": -7.2
+      }
+    },
+    {
+      "code": "093190",
+      "name": "빅솔론",
+      "market": "KOSDAQ",
+      "buy_date": "2026-07-23",
+      "buy_price": 8169,
+      "quantity": 1223,
+      "stop_loss_pct": -5,
+      "pivot_price": 8160.17,
+      "pivot_source": "manual",
+      "current_price": 8110.0,
+      "profit_pct": -0.72,
+      "stop_price": 7760.55,
+      "pct_to_stop": -4.31,
+      "breakout_date": "2026-07-23",
+      "breakout_date_estimated": false,
+      "signal": "early_sell",
+      "violation_count": 1,
+      "rules": [
+        {
+          "id": "low_volume_breakout",
+          "status": "violation",
+          "detail": "돌파일 거래량 0.52배 — 평균에도 못 미침"
+        },
+        {
+          "id": "heavy_volume_pullback",
+          "status": "pending",
+          "detail": "돌파 다음 날 데이터 없음"
+        },
+        {
+          "id": "consecutive_lower_lows",
+          "status": "pending",
+          "detail": "돌파 다음 날 데이터 없음"
+        },
+        {
+          "id": "close_below_ma",
+          "status": "pending",
+          "detail": "돌파 다음 날 데이터 없음"
+        },
+        {
+          "id": "weak_days_dominant",
+          "status": "pending",
+          "detail": "경과 0거래일 — 5거래일부터 판정"
+        },
+        {
+          "id": "breakout_failure",
+          "status": "watch",
+          "detail": "🟡 반전 회복 관찰중 (D+0/10)"
+        }
+      ],
+      "extension_pct": -0.6,
+      "accumulation": {
+        "window": "D+0/15",
+        "elapsed": 0,
+        "signals": [
+          {
+            "id": "up_days_dominant",
+            "status": "pending",
+            "detail": "상승 0 · 하락 0"
+          },
+          {
+            "id": "quality_closes",
+            "status": "pending",
+            "detail": "좋은 0 · 나쁜 0"
+          },
+          {
+            "id": "up_streak_7",
+            "status": "pending",
+            "detail": "최고 0일"
+          }
+        ]
+      },
+      "mvp": {
+        "status": "pending",
+        "m": {
+          "ok": null,
+          "detail": "0/15일 (판정 전)"
+        },
+        "v": {
+          "ok": null,
+          "detail": "판정 전"
+        },
+        "p": {
+          "ok": null,
+          "detail": "—"
+        }
+      },
+      "strength": {
+        "signal": "not_extended",
+        "extended": false,
+        "gate_detail": "확장 -0.6% < 5%",
+        "count": 0,
+        "signals": []
+      },
+      "superperf": {
+        "score": 3,
+        "rs": 86,
+        "prior_adv_pct": 34.5,
+        "rs_nh_days": 1,
+        "rs_leads": 24,
+        "dist_52wh": -17.8
+      }
+    },
+    {
+      "code": "161390",
+      "name": "한국타이어앤테크놀로지",
+      "market": "KOSPI",
+      "buy_date": "2026-07-23",
+      "buy_price": 74100,
+      "quantity": 134,
+      "stop_loss_pct": -5,
+      "pivot_price": 75994.58,
+      "pivot_source": "power_play",
+      "current_price": 76700.0,
+      "profit_pct": 3.51,
+      "stop_price": 70395.0,
+      "pct_to_stop": -8.22,
+      "breakout_date": "2026-07-23",
+      "breakout_date_estimated": false,
+      "signal": "hold",
+      "violation_count": 0,
+      "rules": [
+        {
+          "id": "low_volume_breakout",
+          "status": "pass",
+          "detail": "돌파일 거래량 1.09배 — 정상 돌파(1.5배+)에는 못 미침"
+        },
+        {
+          "id": "heavy_volume_pullback",
+          "status": "pending",
+          "detail": "돌파 다음 날 데이터 없음"
+        },
+        {
+          "id": "consecutive_lower_lows",
+          "status": "pending",
+          "detail": "돌파 다음 날 데이터 없음"
+        },
+        {
+          "id": "close_below_ma",
+          "status": "pending",
+          "detail": "돌파 다음 날 데이터 없음"
+        },
+        {
+          "id": "weak_days_dominant",
+          "status": "pending",
+          "detail": "경과 0거래일 — 5거래일부터 판정"
+        },
+        {
+          "id": "breakout_failure",
+          "status": "pass",
+          "detail": "피벗 위 유지"
+        }
+      ],
+      "extension_pct": 0.9,
+      "accumulation": {
+        "window": "D+0/15",
+        "elapsed": 0,
+        "signals": [
+          {
+            "id": "up_days_dominant",
+            "status": "pending",
+            "detail": "상승 0 · 하락 0"
+          },
+          {
+            "id": "quality_closes",
+            "status": "pending",
+            "detail": "좋은 0 · 나쁜 0"
+          },
+          {
+            "id": "up_streak_7",
+            "status": "pending",
+            "detail": "최고 0일"
+          }
+        ]
+      },
+      "mvp": {
+        "status": "pending",
+        "m": {
+          "ok": null,
+          "detail": "0/15일 (판정 전)"
+        },
+        "v": {
+          "ok": null,
+          "detail": "판정 전"
+        },
+        "p": {
+          "ok": null,
+          "detail": "—"
+        }
+      },
+      "strength": {
+        "signal": "not_extended",
+        "extended": false,
+        "gate_detail": "확장 +0.9% < 5%",
+        "count": 0,
+        "signals": []
+      },
+      "superperf": {
+        "score": 2,
+        "rs": 92,
+        "prior_adv_pct": 47.5,
+        "rs_nh_days": 157,
+        "rs_leads": -157,
+        "dist_52wh": -2.2
       }
     }
   ]
