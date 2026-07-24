@@ -1,22 +1,22 @@
 {
   "code": "105560",
   "name": "KB금융",
-  "last_checked": "2026-07-24T17:03:44.935+09:00",
+  "last_checked": "2026-07-24T20:05:58.600+09:00",
   "metrics": [
     {
       "id": "pbr",
       "label": "PBR",
-      "value": 1.11,
-      "display": "1.11배",
+      "value": 1.08,
+      "display": "1.08배",
       "threshold": "1.1배 돌파",
-      "hit": true,
-      "tone": "bad"
+      "hit": false,
+      "tone": "warn"
     },
     {
       "id": "pbr_premium_pp",
       "label": "4대 지주 평균 대비 PBR 프리미엄",
-      "value": 0.367,
-      "display": "0.367pp",
+      "value": 0.33,
+      "display": "0.330pp",
       "threshold": "+0.20pp 이상",
       "hit": true,
       "tone": "bad"
@@ -24,8 +24,8 @@
     {
       "id": "foreign_ratio",
       "label": "외국인 지분율",
-      "value": 79.41,
-      "display": "79.41%",
+      "value": 79.49,
+      "display": "79.49%",
       "threshold": "70% 이하",
       "hit": false,
       "tone": "good"
@@ -33,8 +33,8 @@
     {
       "id": "foreign_net_buy_4w",
       "label": "최근 20거래일 외국인 순매수",
-      "value": -2268728,
-      "display": "-227만주",
+      "value": -2288620,
+      "display": "-229만주",
       "threshold": "순매도 전환",
       "hit": true,
       "tone": "bad"
@@ -96,22 +96,22 @@
   ],
   "alerts": [
     {
-      "severity": "bad",
+      "severity": "warn",
       "type": "pbr",
-      "title": "PBR 1.1배 돌파",
-      "message": "현재 1.11배 — 매도 트리거 도달"
+      "title": "PBR 임계 근접",
+      "message": "현재 1.08배 (임계 1.1배 돌파)"
     },
     {
       "severity": "bad",
       "type": "pbr_premium_pp",
       "title": "4대 지주 평균 대비 PBR 프리미엄 +0.20pp 이상",
-      "message": "현재 0.367pp — 매도 트리거 도달"
+      "message": "현재 0.330pp — 매도 트리거 도달"
     },
     {
       "severity": "bad",
       "type": "foreign_net_buy_4w",
       "title": "최근 20거래일 외국인 순매수 순매도 전환",
-      "message": "현재 -227만주 — 매도 트리거 도달"
+      "message": "현재 -229만주 — 매도 트리거 도달"
     },
     {
       "severity": "warn",
@@ -151,7 +151,7 @@
     },
     {
       "label": "4대 지주 평균 PBR 비교 (3종목)",
-      "ref": "peers: 086790, 316140, 055550 / avg 0.743"
+      "ref": "peers: 086790, 316140, 055550 / avg 0.75"
     },
     {
       "label": "분기 배당 결정 ([기재정정]사업보고서 (2025.12))",
@@ -159,7 +159,7 @@
     },
     {
       "label": "외국인 순매수 누적 (20일)",
-      "ref": "네이버 dealTrendInfos / history 2026-07-23"
+      "ref": "네이버 dealTrendInfos / history 2026-07-24"
     },
     {
       "label": "최근 분기 순이익 (2025-FY)",
