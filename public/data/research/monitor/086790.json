@@ -1,7 +1,7 @@
 {
   "code": "086790",
   "name": "하나금융지주",
-  "last_checked": "2026-07-24T14:50:57.089+09:00",
+  "last_checked": "2026-07-24T17:03:29.638+09:00",
   "metrics": [
     {
       "id": "pbr",
@@ -50,7 +50,7 @@
     },
     {
       "id": "buyback_program_status",
-      "label": "자사주 프로그램 (마지막 취득결정 · 진행 중)",
+      "label": "자사주 프로그램 (마지막 소각결정 · 진행 중)",
       "value": 0,
       "display": "0일",
       "threshold": "180일+ (프로그램 중단)",
@@ -91,9 +91,26 @@
       "type": "foreign_net_buy_4w",
       "title": "최근 20거래일 외국인 순매수 순매도 전환",
       "message": "현재 -54만주 — 매도 트리거 도달"
+    },
+    {
+      "severity": "warn",
+      "type": "news_keyword_hit",
+      "title": "리스크 키워드 매칭 뉴스 1건 (관찰 신호 1건 포함)",
+      "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
-  "news_hits": [],
+  "news_hits": [
+    {
+      "keyword": "하나은행 제재",
+      "date": "2026-07-24",
+      "title": "옵티머스 논란 털어내나… 하나은행 ‘제재 취소’ 파기환송심도 승소 - 비즈한국",
+      "url": "https://news.google.com/rss/articles/CBMiVkFVX3lxTE8ybUFVVEJncjRJVGh4dXpORlgxYzF4Y0hyNVo1cDFHaDFMd0ZBWVFfRlJDU3YxUk8zeXJ6a1o3bTZjVV9jLVhqc2doQmxDbmV1M2ZjUURB?oc=5",
+      "severity": "warn",
+      "signals": [
+        "제재"
+      ]
+    }
+  ],
   "sources": [
     {
       "label": "PER/PEG/PBR 스코어",
@@ -116,8 +133,12 @@
       "ref": "DART 20260316001292 (fnlttSinglAcntAll)"
     },
     {
-      "label": "자사주 프로그램 마지막 활동 (2026-07-24 · 취득결정) — 누적 취득 10 / 결과 4 / 소각 16",
-      "ref": "DART 20260724000294"
+      "label": "자사주 프로그램 마지막 활동 (2026-07-24 · 소각결정) — 누적 취득 10 / 결과 4 / 소각 17",
+      "ref": "DART 20260724800414"
+    },
+    {
+      "label": "뉴스 RSS",
+      "ref": "news.google.com/rss (7일)"
     }
   ]
 }
