@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-24 21:20",
+  "generated_at": "2026-07-24 21:27",
   "asof": "2026-07-24",
   "stop_loss_pct_default": -5,
   "holdings": [
@@ -746,73 +746,73 @@
       }
     },
     {
-      "code": "161390",
-      "name": "한국타이어앤테크놀로지",
+      "code": "010950",
+      "name": "S-Oil",
       "market": "KOSPI",
-      "buy_date": "2026-07-23",
-      "buy_price": 74100,
-      "quantity": 134,
+      "buy_date": "2026-07-24",
+      "buy_price": 150100,
+      "quantity": 133,
       "stop_loss_pct": -5,
-      "pivot_price": 77600.0,
+      "pivot_price": 150001.15,
       "pivot_source": "power_play",
-      "current_price": 70500.0,
-      "profit_pct": -4.86,
-      "stop_price": 70395.0,
-      "pct_to_stop": -0.15,
+      "current_price": 151200.0,
+      "profit_pct": 0.73,
+      "stop_price": 142595.0,
+      "pct_to_stop": -5.69,
       "breakout_date": "2026-07-23",
-      "breakout_date_estimated": true,
+      "breakout_date_estimated": false,
       "signal": "hold",
       "violation_count": 0,
       "rules": [
         {
           "id": "low_volume_breakout",
-          "status": "pass",
-          "detail": "돌파일 거래량 1.09배 — 정상 돌파(1.5배+)에는 못 미침"
+          "status": "na",
+          "detail": "매수가 돌파(2026-07-23)보다 1거래일 뒤 — 돌파 품질 판정 제외"
         },
         {
           "id": "heavy_volume_pullback",
-          "status": "pass",
-          "detail": "대량 거래 하락일 없음"
+          "status": "pending",
+          "detail": "돌파 다음 날 데이터 없음"
         },
         {
           "id": "consecutive_lower_lows",
-          "status": "pass",
-          "detail": "연속 저저점 없음"
+          "status": "pending",
+          "detail": "돌파 다음 날 데이터 없음"
         },
         {
           "id": "close_below_ma",
-          "status": "pass",
-          "detail": "20일선 위 유지"
+          "status": "pending",
+          "detail": "돌파 다음 날 데이터 없음"
         },
         {
           "id": "weak_days_dominant",
           "status": "pending",
-          "detail": "경과 1거래일 — 5거래일부터 판정"
+          "detail": "경과 0거래일 — 5거래일부터 판정"
         },
         {
           "id": "breakout_failure",
-          "status": "na",
-          "detail": "피벗 돌파 미확인 — 판정 불가"
+          "status": "pass",
+          "detail": "피벗 위 유지"
         }
       ],
-      "extension_pct": -9.1,
+      "extension_pct": 0.8,
       "accumulation": {
-        "window": "D+1/15",
-        "elapsed": 1,
+        "window": "D+0/15",
+        "elapsed": 0,
         "signals": [
           {
             "id": "up_days_dominant",
-            "status": "unmet",
-            "detail": "상승 0 · 하락 1"
+            "status": "pending",
+            "detail": "상승 0 · 하락 0"
           },
           {
             "id": "quality_closes",
-            "status": "met",
-            "detail": "좋은 1 · 나쁜 0"
+            "status": "pending",
+            "detail": "좋은 0 · 나쁜 0"
           },
           {
             "id": "up_streak_7",
-            "status": "unmet",
+            "status": "pending",
             "detail": "최고 0일"
           }
         ]
@@ -821,7 +821,7 @@
         "status": "pending",
         "m": {
           "ok": null,
-          "detail": "1/15일 (판정 전)"
+          "detail": "0/15일 (판정 전)"
         },
         "v": {
           "ok": null,
@@ -829,23 +829,126 @@
         },
         "p": {
           "ok": null,
-          "detail": "-8%"
+          "detail": "—"
         }
       },
       "strength": {
         "signal": "not_extended",
         "extended": false,
-        "gate_detail": "확장 -9.1% < 5%",
+        "gate_detail": "확장 +0.8% < 5%",
+        "count": 0,
+        "signals": []
+      },
+      "superperf": {
+        "score": 3,
+        "rs": 97,
+        "prior_adv_pct": 62.2,
+        "rs_nh_days": 97,
+        "rs_leads": -97,
+        "dist_52wh": -14.6
+      }
+    },
+    {
+      "code": "010955",
+      "name": "S-Oil우",
+      "market": "KOSPI",
+      "buy_date": "2026-07-24",
+      "buy_price": 70900,
+      "quantity": 282,
+      "stop_loss_pct": -5,
+      "pivot_price": 70896.53,
+      "pivot_source": "power_play",
+      "current_price": 69700.0,
+      "profit_pct": -1.69,
+      "stop_price": 67355.0,
+      "pct_to_stop": -3.36,
+      "breakout_date": "2026-07-24",
+      "breakout_date_estimated": false,
+      "signal": "early_sell",
+      "violation_count": 1,
+      "rules": [
+        {
+          "id": "low_volume_breakout",
+          "status": "violation",
+          "detail": "돌파일 거래량 1.00배 — 평균에도 못 미침"
+        },
+        {
+          "id": "heavy_volume_pullback",
+          "status": "pending",
+          "detail": "돌파 다음 날 데이터 없음"
+        },
+        {
+          "id": "consecutive_lower_lows",
+          "status": "pending",
+          "detail": "돌파 다음 날 데이터 없음"
+        },
+        {
+          "id": "close_below_ma",
+          "status": "pending",
+          "detail": "돌파 다음 날 데이터 없음"
+        },
+        {
+          "id": "weak_days_dominant",
+          "status": "pending",
+          "detail": "경과 0거래일 — 5거래일부터 판정"
+        },
+        {
+          "id": "breakout_failure",
+          "status": "watch",
+          "detail": "🟡 반전 회복 관찰중 (D+0/10)"
+        }
+      ],
+      "extension_pct": -1.7,
+      "accumulation": {
+        "window": "D+0/15",
+        "elapsed": 0,
+        "signals": [
+          {
+            "id": "up_days_dominant",
+            "status": "pending",
+            "detail": "상승 0 · 하락 0"
+          },
+          {
+            "id": "quality_closes",
+            "status": "pending",
+            "detail": "좋은 0 · 나쁜 0"
+          },
+          {
+            "id": "up_streak_7",
+            "status": "pending",
+            "detail": "최고 0일"
+          }
+        ]
+      },
+      "mvp": {
+        "status": "pending",
+        "m": {
+          "ok": null,
+          "detail": "0/15일 (판정 전)"
+        },
+        "v": {
+          "ok": null,
+          "detail": "판정 전"
+        },
+        "p": {
+          "ok": null,
+          "detail": "—"
+        }
+      },
+      "strength": {
+        "signal": "not_extended",
+        "extended": false,
+        "gate_detail": "확장 -1.7% < 5%",
         "count": 0,
         "signals": []
       },
       "superperf": {
         "score": 2,
-        "rs": 92,
-        "prior_adv_pct": 47.5,
-        "rs_nh_days": 157,
-        "rs_leads": -157,
-        "dist_52wh": -2.2
+        "rs": 93,
+        "prior_adv_pct": 35.6,
+        "rs_nh_days": 249,
+        "rs_leads": -248,
+        "dist_52wh": -7.3
       }
     }
   ]
