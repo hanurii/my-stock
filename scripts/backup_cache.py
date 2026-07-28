@@ -60,12 +60,17 @@ def _gh(*args: str, check: bool = True, capture: bool = False):
                           capture_output=capture)
 
 
-def _rotate_github() -> None:
+def _rotate_github(keep_tag: str = "") -> None:
+    # createdAt 은 릴리스 생성시각이 아니라 태그가 가리키는 '커밋 날짜'라, 이 저장소처럼
+    # 커밋이 하나뿐이면 전 릴리스가 같은 값이 된다 → 정렬이 무의미해져 방금 올린 백업이
+    # 가장 오래된 것으로 잘려 나갔다. 실제 게시 시각인 publishedAt 으로 정렬한다.
     out = _gh("release", "list", "--repo", REPO, "--limit", "100",
-              "--json", "tagName,createdAt", capture=True)
+              "--json", "tagName,publishedAt,createdAt", capture=True)
     rels = json.loads(out.stdout or "[]")
-    rels.sort(key=lambda r: r["createdAt"])
+    rels.sort(key=lambda r: r.get("publishedAt") or r.get("createdAt") or "")
     for r in rels[:-KEEP]:
+        if r["tagName"] == keep_tag:      # 방금 만든 백업은 절대 지우지 않는다
+            continue
         _gh("release", "delete", r["tagName"], "--repo", REPO,
             "--yes", "--cleanup-tag", check=False)
         print(f"  GitHub 로테이션 삭제: {r['tagName']}")
@@ -93,7 +98,7 @@ def main() -> None:
     print(f"GitHub 릴리스 업로드 → {REPO} {tag} …")
     _gh("release", "create", tag, str(zpath), "--repo", REPO,
         "--title", tag, "--notes", f".cache snapshot {tag} ({n} series, {size_mb:.1f}MB)")
-    _rotate_github()
+    _rotate_github(keep_tag=tag)
     print(f"✅ 백업 완료 — 로컬 {zpath.name} · GitHub {REPO}:{tag}")
 
 
