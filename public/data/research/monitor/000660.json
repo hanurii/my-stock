@@ -1,7 +1,7 @@
 {
   "code": "000660",
   "name": "SK하이닉스",
-  "last_checked": "2026-07-27T21:25:09.054+09:00",
+  "last_checked": "2026-07-28T09:02:35.446+09:00",
   "metrics": [
     {
       "id": "pbr",
@@ -33,11 +33,11 @@
     {
       "id": "affiliate_yoy_pp",
       "label": "계열사 거래 비율 YoY 변화",
-      "value": -5.103,
-      "display": "-5.10%p",
+      "value": 2.152,
+      "display": "2.15%p",
       "threshold": "+2%p 이상 급증",
-      "hit": false,
-      "tone": "good"
+      "hit": true,
+      "tone": "bad"
     },
     {
       "id": "sk_square_disposal",
@@ -73,6 +73,12 @@
       "type": "pbr",
       "title": "PBR 8배 돌파",
       "message": "현재 10.96배 — 매도 트리거 도달"
+    },
+    {
+      "severity": "bad",
+      "type": "affiliate_yoy_pp",
+      "title": "계열사 거래 비율 YoY 변화 +2%p 이상 급증",
+      "message": "현재 2.15%p — 매도 트리거 도달"
     },
     {
       "severity": "info",
