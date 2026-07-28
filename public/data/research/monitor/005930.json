@@ -1,16 +1,16 @@
 {
   "code": "005930",
   "name": "삼성전자",
-  "last_checked": "2026-07-28T17:10:28.445+09:00",
+  "last_checked": "2026-07-28T20:20:23.098+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 38.46,
-      "display": "38.46배",
+      "value": 33.31,
+      "display": "33.31배",
       "threshold": "35배 돌파",
-      "hit": true,
-      "tone": "bad"
+      "hit": false,
+      "tone": "warn"
     },
     {
       "id": "buyback_gap",
@@ -69,10 +69,10 @@
   ],
   "alerts": [
     {
-      "severity": "bad",
+      "severity": "warn",
       "type": "per",
-      "title": "PER 35배 돌파",
-      "message": "현재 38.46배 — 매도 트리거 도달"
+      "title": "PER 임계 근접",
+      "message": "현재 33.31배 (임계 35배 돌파)"
     },
     {
       "severity": "warn",
