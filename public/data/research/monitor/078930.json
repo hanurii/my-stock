@@ -1,13 +1,13 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-07-28T09:05:51.818+09:00",
+  "last_checked": "2026-07-28T14:47:26.383+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 6.59,
-      "display": "6.59배",
+      "value": 6.31,
+      "display": "6.31배",
       "threshold": "10배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "dividend_yield",
       "label": "배당수익률",
-      "value": 3.27,
-      "display": "3.27%",
+      "value": 3.42,
+      "display": "3.42%",
       "threshold": "3.5% 이하",
       "hit": true,
       "tone": "bad"
@@ -60,8 +60,8 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 92.55,
-      "display": "92.55$",
+      "value": 92.53,
+      "display": "92.53$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
@@ -72,7 +72,7 @@
       "severity": "bad",
       "type": "dividend_yield",
       "title": "배당수익률 3.5% 이하",
-      "message": "현재 3.27% — 매도 트리거 도달"
+      "message": "현재 3.42% — 매도 트리거 도달"
     },
     {
       "severity": "bad",
@@ -95,18 +95,36 @@
     {
       "severity": "bad",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 8건 (부정 시그널 3건 포함)",
+      "title": "리스크 키워드 매칭 뉴스 8건 (부정 시그널 2건 포함)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
   "news_hits": [
     {
       "keyword": "이란 미국 합의",
-      "date": "2026-07-27",
-      "title": "\"이란과 합의 가능성\"‥\"미국에 요청 안 해\" - MBC 뉴스",
-      "url": "https://news.google.com/rss/articles/CBMiekFVX3lxTFBzZTMyWGNxRi1GTUZVbXlQbVNyWURlLXgya1dFWWJNd0J5RzV4eFBaWEQxb0pwbnBZZXJFV25TTWl6S3JwTXV4bm1WYWRvVkZCM0hCaTRMeWdFUGIyeWpYSGo0T1RBSk9CZ1h4ellNdWpwVG1HVThJVWtn?oc=5",
+      "date": "2026-07-28",
+      "title": "트럼프 \"이란과 합의 가능성 있어, 불발되면 군사행동\"···이란 \"미국과 어떤 협상에도 관여 안 해, 미국은 스스로 만든 수렁에 빠져\" - 대구MBC",
+      "url": "https://news.google.com/rss/articles/CBMiTEFVX3lxTFAyUHloVzdrLVg1T1Z5NDJCZXJ3cWt6ZC0xSUlrQ2RHYTdzY1ViVDBCMHBKbzRBeFNqLW0tendaZ1ZWeHR2eVY1OWFpSFM?oc=5",
       "severity": "info",
       "signals": []
+    },
+    {
+      "keyword": "이란 미국 합의",
+      "date": "2026-07-28",
+      "title": "\"이란과 합의 가능성\"‥\"미국에 요청 안 해\" - MBC 뉴스",
+      "url": "https://news.google.com/rss/articles/CBMieEFVX3lxTE1XX2FBdkVFVGdlWUg1YkdpdmdIbmdMcnFVN3l0X2c4UDdLU3cwV2oteXgtSUgyNE1mUVYyb3BHY2tfRUxMRFdBSDlNZkZYTkdLQzlRTUJpRWg4S1E1cm91UnBHLXp0QWZ3NlZiQzJLMXJZT3N5MXhsMQ?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "중동 긴장 완화",
+      "date": "2026-07-28",
+      "title": "코스피, 중동 긴장 완화에도 5.26% 급락 출발…코스닥도 2.97%↓ - 연합인포맥스",
+      "url": "https://news.google.com/rss/articles/CBMidEFVX3lxTE9yZ3BDUEZEaGFLRkZfMDViZHFSenRTa19MdzU3enlwMmZ5aEtpZHAwMll5OGhSN0FXV2RNdHgzazhnOGFvbHVvS3lPQlVXMTJCVlNtRVUyT2dBZGNWdmFWemhzeHFFRklNckJJZ3JvNnZ5ejZs0gF0QVVfeXFMT3JncENQRkRoYUtGRl8wNWJkcVJ6dFNrX0x3NTd6eXAyZnloS2lkcDAyWXk4aFI3QVdXZE10eDNrOGc4YW9sdW9LeU9CVVcxMkJWU21FVTJPZ0FkY1Z2YVZ6aHN4cUVGSU1yQklncm82dnl6Nmw?oc=5",
+      "severity": "bad",
+      "signals": [
+        "급락"
+      ]
     },
     {
       "keyword": "중동 긴장 완화",
@@ -137,37 +155,19 @@
     {
       "keyword": "중동 긴장 완화",
       "date": "2026-07-27",
-      "title": "중동 긴장 완화에 큰 폭으로 반등 - MBC 뉴스",
-      "url": "https://news.google.com/rss/articles/CBMieEFVX3lxTE9UcnBBcXVIbzlod3ZrZUhLN0ptRnBOdHJrN1lhUTRDMmhQQ2FrRUJ0aXNocHpDOHIzQU1aT2c5cGhxakpMczR3Z1BrcnF2X3RsOG1GTEVrUTRHMlJEX3ozZXQ2bWlrcVg0MlRRSEZxVXRLaF9fN0VKZQ?oc=5",
+      "title": "JP모건, 중동 긴장 완화·연준 금리동결 기대…“S&amp;P500 상승 여력” - dt.co.kr",
+      "url": "https://news.google.com/rss/articles/CBMiTkFVX3lxTE85R2F1MmlWYVJEaVVBbkpvdkJJdFFCdVRWbWFza0Y0TG56cVJEWXJsR1BsbmdqZ0otRTFrQjc4YXdiMkJIOTFBejJCMkNFQQ?oc=5",
       "severity": "info",
       "signals": []
     },
     {
       "keyword": "중동 긴장 완화",
-      "date": "2026-07-27",
-      "title": "중동 긴장 완화에 국제유가 4.9% 급락 - v.daum.net",
-      "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE5wUFhuRzJVZlloZzRvR1B6TFh4Nm1DR3V3TG4zcXlOUlRhdGl4LWpfeXc5YTlKN1g3cG5ZTnc3d1dFUXZuUHBzTEY2ZGE0WDg?oc=5",
-      "severity": "bad",
+      "date": "2026-07-28",
+      "title": "중동 긴장 완화에도 비트코인 약세...9200만원대로 밀려 - 메트로신문",
+      "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE1qR3VhRDNzMEVWRWVhVDU2MUl2TE5GREU1ZlBYdUNkMEVHM21NTktVQmNnRHppWkdWLTh4R3ZwWGdrRzZqcTNVeHVlZUxoWERfNEM3NTRVNlFjYUxoSEg5eQ?oc=5",
+      "severity": "warn",
       "signals": [
-        "급락"
-      ]
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-07-27",
-      "title": "중동 긴장 완화로 위험 선호 심리 회복…비트코인 6만 5천 달러 돌파 - Investing.com 한국어",
-      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE5ObzgxZlJpWmlfLWJlQUlnM1QxUElFa3EwRlZXYVp5OS1hVnlWQXF1R2t2RTc0UXZJOXdVUWNnMHRscnVRM25YQmJUclR4b295NTBmbkNrOExyTFM5UzViTnM0Tzk3QXpoSjliWDRyYVVFdVE?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-07-27",
-      "title": "국제유가, 중동 긴장 완화 기대에 급락…장중 한때 90달러 붕괴 - 머니투데이 - 머니투데이",
-      "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE9DMXExNDM3dWtPMXR1TExOVGZuRTd4cHpwM0ZTRXRvbEkzbm9kTXg0Uk9Va0s1SHB4bWFyVUEzQzI2RUVVRHFWMzE2TVV4V3dLMTFlVlM5Ym5uM3pPWFotUzIxWlMyVUl60gFuQVVfeXFMTUwxZ0FvSFpJQ0VXd3FfSnJGcFhaRVl2eEFLU3NzQVNiVGxma09VVUd2b3RzWlV1eWdvX3h6aVd1MWZsTDNCTjdWZ1pSaW4yMF9GQmJRSThMZ0FPVS1ZN2hPTFgwMm92YjBtdDkwMlE?oc=5",
-      "severity": "bad",
-      "signals": [
-        "급락"
+        "약세"
       ]
     }
   ],
@@ -177,7 +177,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 88 USD (2026-07-27, 7일 평균 92.55)",
+      "label": "Brent 원유 종가 87.56 USD (2026-07-28, 7일 평균 92.53)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
