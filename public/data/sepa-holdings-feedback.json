@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-29 20:43",
+  "generated_at": "2026-07-29 20:53",
   "asof": "2026-07-29",
   "stop_loss_pct_default": -5,
   "holdings": [
@@ -104,212 +104,6 @@
         "rs_nh_days": 0,
         "rs_leads": 55,
         "dist_52wh": -7.4
-      }
-    },
-    {
-      "code": "078935",
-      "name": "GS우",
-      "market": "KOSPI",
-      "buy_date": "2026-07-22",
-      "buy_price": 56100,
-      "quantity": 178,
-      "stop_loss_pct": -5,
-      "pivot_price": 54904.89,
-      "pivot_source": "manual",
-      "current_price": 54800.0,
-      "profit_pct": -2.32,
-      "stop_price": 53295.0,
-      "pct_to_stop": -2.75,
-      "breakout_date": "2026-07-21",
-      "breakout_date_estimated": false,
-      "signal": "early_sell",
-      "violation_count": 3,
-      "rules": [
-        {
-          "id": "low_volume_breakout",
-          "status": "na",
-          "detail": "매수가 돌파(2026-07-21)보다 1거래일 뒤 — 돌파 품질 판정 제외"
-        },
-        {
-          "id": "heavy_volume_pullback",
-          "status": "pass",
-          "detail": "대량 거래 하락일 없음"
-        },
-        {
-          "id": "consecutive_lower_lows",
-          "status": "watch",
-          "detail": "🟡경고: 저점경신 3회(거래량 낮음)"
-        },
-        {
-          "id": "close_below_ma",
-          "status": "violation",
-          "detail": "2026-07-28 20일선 아래 마감 (돌파 4거래일째)"
-        },
-        {
-          "id": "weak_days_dominant",
-          "status": "violation",
-          "detail": "하락 3·상승 2 / 나쁜마감 3·좋은마감 2"
-        },
-        {
-          "id": "breakout_failure",
-          "status": "violation",
-          "detail": "거래량 동반 돌파 실패 — 2026-07-29 거래량 3.0배(돌파일 대비)"
-        }
-      ],
-      "extension_pct": -0.2,
-      "accumulation": {
-        "window": "D+5/15",
-        "elapsed": 5,
-        "signals": [
-          {
-            "id": "up_days_dominant",
-            "status": "unmet",
-            "detail": "상승 2 · 하락 3"
-          },
-          {
-            "id": "quality_closes",
-            "status": "unmet",
-            "detail": "좋은 2 · 나쁜 3"
-          },
-          {
-            "id": "up_streak_7",
-            "status": "unmet",
-            "detail": "최고 1일"
-          }
-        ]
-      },
-      "mvp": {
-        "status": "pending",
-        "m": {
-          "ok": null,
-          "detail": "5/15일 (판정 전)"
-        },
-        "v": {
-          "ok": null,
-          "detail": "판정 전"
-        },
-        "p": {
-          "ok": null,
-          "detail": "+4%"
-        }
-      },
-      "strength": {
-        "signal": "not_extended",
-        "extended": false,
-        "gate_detail": "확장 -0.2% < 5%",
-        "count": 0,
-        "signals": []
-      },
-      "superperf": {
-        "score": 1,
-        "rs": 85,
-        "prior_adv_pct": 11.7,
-        "rs_nh_days": 247,
-        "rs_leads": -145,
-        "dist_52wh": -11.3
-      }
-    },
-    {
-      "code": "003690",
-      "name": "코리안리",
-      "market": null,
-      "buy_date": "2026-07-10",
-      "buy_price": 13740,
-      "quantity": 727,
-      "stop_loss_pct": -5,
-      "pivot_price": 13739.6,
-      "pivot_source": "manual",
-      "current_price": 13290.0,
-      "profit_pct": -3.28,
-      "stop_price": 13053.0,
-      "pct_to_stop": -1.78,
-      "breakout_date": "2026-07-08",
-      "breakout_date_estimated": false,
-      "signal": "early_sell",
-      "violation_count": 3,
-      "rules": [
-        {
-          "id": "low_volume_breakout",
-          "status": "na",
-          "detail": "매수가 돌파(2026-07-08)보다 2거래일 뒤 — 돌파 품질 판정 제외"
-        },
-        {
-          "id": "heavy_volume_pullback",
-          "status": "pass",
-          "detail": "대량 거래 하락일 없음"
-        },
-        {
-          "id": "consecutive_lower_lows",
-          "status": "pass",
-          "detail": "연속 저저점 없음"
-        },
-        {
-          "id": "close_below_ma",
-          "status": "violation",
-          "detail": "2026-07-29 20일선 아래 마감 (돌파 12거래일째)"
-        },
-        {
-          "id": "weak_days_dominant",
-          "status": "violation",
-          "detail": "하락 6·상승 5 / 나쁜마감 10·좋은마감 2"
-        },
-        {
-          "id": "breakout_failure",
-          "status": "violation",
-          "detail": "거래량 동반 돌파 실패 — 2026-07-29 거래량 1.3배(돌파일 대비)"
-        }
-      ],
-      "extension_pct": -3.3,
-      "accumulation": {
-        "window": "D+12/15",
-        "elapsed": 12,
-        "signals": [
-          {
-            "id": "up_days_dominant",
-            "status": "unmet",
-            "detail": "상승 5 · 하락 6"
-          },
-          {
-            "id": "quality_closes",
-            "status": "unmet",
-            "detail": "좋은 2 · 나쁜 10"
-          },
-          {
-            "id": "up_streak_7",
-            "status": "unmet",
-            "detail": "최고 3일"
-          }
-        ]
-      },
-      "mvp": {
-        "status": "pending",
-        "m": {
-          "ok": null,
-          "detail": "12/15일 (판정 전)"
-        },
-        "v": {
-          "ok": null,
-          "detail": "판정 전"
-        },
-        "p": {
-          "ok": null,
-          "detail": "+1%"
-        }
-      },
-      "strength": {
-        "signal": "not_extended",
-        "extended": false,
-        "gate_detail": "확장 -3.3% < 5%",
-        "count": 0,
-        "signals": []
-      },
-      "superperf": {
-        "score": 1,
-        "rs": 85,
-        "prior_adv_pct": 26.9,
-        "rs_nh_days": 242,
-        "rs_leads": -208,
-        "dist_52wh": -10.1
       }
     },
     {
@@ -516,6 +310,109 @@
         "rs_nh_days": 251,
         "rs_leads": -149,
         "dist_52wh": -7.2
+      }
+    },
+    {
+      "code": "033780",
+      "name": "KT&G",
+      "market": "KOSPI",
+      "buy_date": "2026-07-29",
+      "buy_price": 187000,
+      "quantity": 53,
+      "stop_loss_pct": -5,
+      "pivot_price": 186992.55,
+      "pivot_source": "manual",
+      "current_price": 182600.0,
+      "profit_pct": -2.35,
+      "stop_price": 177650.0,
+      "pct_to_stop": -2.71,
+      "breakout_date": "2026-07-29",
+      "breakout_date_estimated": false,
+      "signal": "hold",
+      "violation_count": 0,
+      "rules": [
+        {
+          "id": "low_volume_breakout",
+          "status": "pass",
+          "detail": "돌파일 거래량 1.43배 — 정상 돌파(1.5배+)에는 못 미침"
+        },
+        {
+          "id": "heavy_volume_pullback",
+          "status": "pending",
+          "detail": "돌파 다음 날 데이터 없음"
+        },
+        {
+          "id": "consecutive_lower_lows",
+          "status": "pending",
+          "detail": "돌파 다음 날 데이터 없음"
+        },
+        {
+          "id": "close_below_ma",
+          "status": "pending",
+          "detail": "돌파 다음 날 데이터 없음"
+        },
+        {
+          "id": "weak_days_dominant",
+          "status": "pending",
+          "detail": "경과 0거래일 — 5거래일부터 판정"
+        },
+        {
+          "id": "breakout_failure",
+          "status": "watch",
+          "detail": "🟡 반전 회복 관찰중 (D+0/10)"
+        }
+      ],
+      "extension_pct": -2.3,
+      "accumulation": {
+        "window": "D+0/15",
+        "elapsed": 0,
+        "signals": [
+          {
+            "id": "up_days_dominant",
+            "status": "pending",
+            "detail": "상승 0 · 하락 0"
+          },
+          {
+            "id": "quality_closes",
+            "status": "pending",
+            "detail": "좋은 0 · 나쁜 0"
+          },
+          {
+            "id": "up_streak_7",
+            "status": "pending",
+            "detail": "최고 0일"
+          }
+        ]
+      },
+      "mvp": {
+        "status": "pending",
+        "m": {
+          "ok": null,
+          "detail": "0/15일 (판정 전)"
+        },
+        "v": {
+          "ok": null,
+          "detail": "판정 전"
+        },
+        "p": {
+          "ok": null,
+          "detail": "—"
+        }
+      },
+      "strength": {
+        "signal": "not_extended",
+        "extended": false,
+        "gate_detail": "확장 -2.3% < 5%",
+        "count": 0,
+        "signals": []
+      },
+      "superperf": {
+        "score": 2,
+        "rs": 91,
+        "prior_adv_pct": 20.4,
+        "rs_nh_days": 235,
+        "rs_leads": -184,
+        "dist_52wh": -5.1
       }
     }
   ]
