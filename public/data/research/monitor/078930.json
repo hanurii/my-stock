@@ -1,13 +1,13 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-07-30T14:40:13.418+09:00",
+  "last_checked": "2026-07-30T17:04:50.556+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 6.3,
-      "display": "6.30배",
+      "value": 6.22,
+      "display": "6.22배",
       "threshold": "10배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "dividend_yield",
       "label": "배당수익률",
-      "value": 3.43,
-      "display": "3.43%",
+      "value": 3.47,
+      "display": "3.47%",
       "threshold": "3.5% 이하",
       "hit": true,
       "tone": "bad"
@@ -60,8 +60,8 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 92.25,
-      "display": "92.25$",
+      "value": 92.44,
+      "display": "92.44$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
@@ -72,7 +72,7 @@
       "severity": "bad",
       "type": "dividend_yield",
       "title": "배당수익률 3.5% 이하",
-      "message": "현재 3.43% — 매도 트리거 도달"
+      "message": "현재 3.47% — 매도 트리거 도달"
     },
     {
       "severity": "warn",
@@ -95,7 +95,7 @@
     {
       "severity": "bad",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 10건 (부정 시그널 1건 포함)",
+      "title": "리스크 키워드 매칭 뉴스 9건 (부정 시그널 1건 포함)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
@@ -103,7 +103,7 @@
     {
       "keyword": "두바이유 70달러",
       "date": "2026-07-29",
-      "title": "국제유가 사흘째 하락 WTI·두바이유 70달러대 - 이투뉴스",
+      "title": "국제유가 사흘째 하락 WTI·두바이유 70달러대 - e2news.com",
       "url": "https://news.google.com/rss/articles/CBMia0FVX3lxTE5vbzNEZ2llN2xKRk5Ba0NDdFJZUjFqbF9kbkYzSGtiUXB5eTBreEtlR2F6eC14QmVoVFZiMUEwVnMza1dfblZGSTFXX3Z0Ykc0b2JETzhicW5VSDN3UjVUcEg3dTRCa3ZtZWc00gFrQVVfeXFMTm9vM0RnaWU3bEpGTkFrQ0N0UllSMWpsX2RuRjNIa2JRcHl5MGt4S2VHYXp4LXhCZWhUVmIxQTBWczNrV19uVkZJMVdfdnRiRzRvYkRPOGJxblVIM3dSNVRwSDd1NEJrdm1lZzQ?oc=5",
       "severity": "warn",
       "signals": [
@@ -142,16 +142,6 @@
       "severity": "bad",
       "signals": [
         "급락"
-      ]
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-07-29",
-      "title": "연준 금리 결정 앞두고 중동 긴장 완화에 안전자산 수요 둔화…금값 4,038달러 근처서 보합 - VT Markets",
-      "url": "https://news.google.com/rss/articles/CBMi4wJBVV95cUxPVEVTNEp4SVlscklHWHlOangwakdoZnFlTFlOMUVNRTBtd21HWXA0SGswdDU2OWw4ZGpLbEJQNzdTcDhicEQxNnNZNVktOEZ3NU1Cb2tLRG82S3NxMmh4U1l1QUxNT3dFQTZFejYwdklhUHFFMUVCdng3YnZlOGJ0RHlxX3IwYTNpaFhEajA0aHJNY04zQWJoUmJoNXp0OG9FYnJucTBVOWFQRy1mUlJnNDQ3blA4Q1ZSTmJsdFFWZGJiZFhiSHB1V2x6ZWlVY2xXaHlHY0pmWnNQd3VWOU1xQk9PSGtnYmNOTS1uTDNwcUZWaWQzZUt0Tjh4X3FROS03OGJyM3Azb0VVNVk2UjZBV2lTV1pQS2xTQm1sTmpJQ2w1czgtVGlvczVZYUMydk96dVZsQ0RBa1E4V2RyYWFsSUdLTGg4VHBMTVBCMzZ1Znl5b3NTdWJwTkxBU2hZMU5kMW1R?oc=5",
-      "severity": "warn",
-      "signals": [
-        "둔화"
       ]
     },
     {
@@ -195,7 +185,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 91.05 USD (2026-07-30, 7일 평균 92.25)",
+      "label": "Brent 원유 종가 92.34 USD (2026-07-30, 7일 평균 92.44)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
