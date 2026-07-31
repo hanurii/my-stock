@@ -452,7 +452,11 @@ def run_full_scan(args: argparse.Namespace) -> None:
     # ── 6단계: JSON 저장 / 콘솔 출력
     output = {
         "generated_at": datetime.now(KST).strftime("%Y-%m-%d %H:%M"),
-        "asof": asof or datetime.now(KST).strftime("%Y-%m-%d"),
+        # asof = **데이터 날짜**(매트릭스 최신 영업일). 실행 시각을 쓰면 자정을
+        # 넘겨 돌릴 때 시계(8/1)와 데이터(7/31)가 어긋나고, 이 값을 복사하는
+        # 형제 패턴 파일·sepa-tier-history.json 의 날짜 키까지 하루 밀린다.
+        "asof": asof or ohlcv_matrix._matrix_latest_date()
+        or datetime.now(KST).strftime("%Y-%m-%d"),
         "scanned_count": len(universe),
         "evaluated_count": ok_count,
         "all_pass_count": pass_count,

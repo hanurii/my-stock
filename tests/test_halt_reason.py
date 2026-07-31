@@ -86,15 +86,65 @@ def test_halt_notice_wins_over_other_keywords():
     assert r["kind"] == "serious"
 
 
-def test_merger_decision_alone_does_not_tag_temporary():
-    """일시적 쪽은 보조 경로를 두지 않는다.
+def test_corporate_action_decision_tags_temporary_as_fallback():
+    """정지 공시가 없어도 기업행위 '결정' 공시가 있으면 일시적으로 본다.
 
-    합병·분할 결정 공시는 정지와 무관하게 흔하다. 정지 공시 없이 이것만 보고
-    '곧 재개' 로 태깅하면 멀쩡히 거래되는 종목까지 잘못 분류된다.
+    처음 설계는 이 보조 경로를 금지했다("멀쩡히 거래되는 종목 오태깅 방지").
+    하지만 이 분류기는 **정지 확정 종목(dropped)에만** 호출되므로 그 위험이
+    성립하지 않는다 — 한국제지가 실제 사례(주식병합으로 정지 중인데 정지 공시가
+    조회 목록에 없어 '불명'이 됐다). 단, 넓은 키워드('합병' 등)가 아니라
+    '주식병합결정' 같은 **결정 공시 제목** 패턴만 인정한다.
     """
     reports = [("20260720", "주요사항보고서(회사합병결정)"),
                ("20260715", "[기재정정]주식병합결정              ")]
-    assert halt_reason.classify_halt_reason(reports)["kind"] == "unknown"
+    r = halt_reason.classify_halt_reason(reports)
+    assert r["kind"] == "temporary"
+
+
+# ── 2026-08-01 불명 32건 분석에서 나온 실사례 ────────────────
+
+DEXTER_FULL = [                                 # 덱스터 — 기간변경 공시에 진짜 사유
+    ("20260723", "기타시장안내              (상장적격성 실질심사 대상결정 기한 안내)"),
+    ("20260723", "주권매매거래정지기간변경              (상장적격성 실질심사 대상(사유발생))"),
+    ("20260722", "조회공시요구(풍문또는보도)              (회계처리기준 위반)"),
+    ("20260722", "주권매매거래정지              (풍문 또는 보도 관련)"),
+]
+DAEWON_SYS = [                                  # 다원시스 — 정지는 '투자자보호', 기간변경에 상장폐지
+    ("20260727", "주권매매거래정지기간변경              (상장폐지 사유 발생)"),
+    ("20260727", "기타시장안내              (기업심사위원회 개최 결과 안내)"),
+    ("20260316", "주권매매거래정지              (투자자보호)"),
+]
+TOBESOFT = [                                    # 투비소프트 — 중립 사유뿐, 분류 불가
+    ("20260321", "주권매매거래정지              (투자자 보호)"),
+]
+
+
+def test_halt_period_change_notice_is_recognized():
+    """`주권매매거래정지기간변경 (사유)` 도 정지 공시다 — 놓치면 더 오래된
+    중립 사유(풍문)에 걸려 불명이 된다. 덱스터 실사례."""
+    r = halt_reason.classify_halt_reason(DEXTER_FULL)
+    assert r["kind"] == "serious"
+    assert "상장적격성" in r["label"]
+
+
+def test_nested_parens_captured_fully():
+    """괄호 안에 괄호 — `(상장적격성 실질심사 대상(사유발생))` 이 잘리면 안 된다."""
+    r = halt_reason.classify_halt_reason(DEXTER_FULL)
+    assert "사유발생" in r["label"]
+
+
+def test_neutral_reason_keeps_scanning_older_notices():
+    """최신 정지 공시가 중립 문구('투자자보호')여도 다른 정지 공시에 분류 가능한
+    사유가 있으면 그걸 쓴다. 다원시스 실사례(기간변경에 '상장폐지 사유 발생')."""
+    r = halt_reason.classify_halt_reason(DAEWON_SYS)
+    assert r["kind"] == "serious"
+
+
+def test_neutral_reason_alone_stays_unknown_but_labeled():
+    """중립 사유뿐이면 억지 분류하지 않되 label 로는 남긴다(진단용)."""
+    r = halt_reason.classify_halt_reason(TOBESOFT)
+    assert r["kind"] == "unknown"
+    assert r["label"] == "투자자 보호"
 
 
 def test_result_carries_source_report_for_audit():
