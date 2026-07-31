@@ -58,6 +58,10 @@ python scripts/screen_trend_template.py --rs-min 80 --out public/data/sepa-trend
 ```
 
 - 산출: `public/data/sepa-trend-candidates.json`
+  - 부산출(진단용): `public/data/sepa-halted-stocks.json` — 유니버스에서 빠진
+    거래정지·제외 종목과 **정지 사유**(DART 공시 기준 `temporary` 일시적 기업행위 /
+    `serious` 상장적격성 등 / `unknown` 불명). "이 종목이 왜 후보에 안 나오지?"를
+    되짚는 용도이며 **제외 규칙 자체는 바꾸지 않는다**. DART가 죽어도 비차단.
   (구조는 기존 candidates JSON과 동일: `candidates[]`, `market_status`,
   `all_pass_count`, `rs_min` 등)
 - 소요: ~1분 (행렬 캐시 hit 시), 첫 실행/캐시 비운 직후 ~3-5분.

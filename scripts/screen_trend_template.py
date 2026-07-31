@@ -48,6 +48,7 @@ from canslim_lib.fetch import (  # noqa: E402
 from canslim_lib import ohlcv_matrix  # noqa: E402
 from canslim_lib.pykrx_universe import fetch_universe_with_cap  # noqa: E402
 from canslim_lib.liveness import filter_live_universe  # noqa: E402
+from canslim_lib import halt_reason  # noqa: E402
 from canslim_lib.criteria import evaluate_m  # noqa: E402
 from canslim_lib.trend_template import (  # noqa: E402
     evaluate_trend_template,
@@ -300,6 +301,42 @@ def evaluate_single(code: str, market: str | None, asof: str | None, rs_min: int
     print("\n* 단일 종목 모드는 RS 미산출 (전체 스캔 시에만 계산)")
 
 
+HALTED_OUT_PATH = ROOT / "public" / "data" / "sepa-halted-stocks.json"
+
+
+def _save_halted_report(dropped: list[dict], asof: str | None) -> None:
+    """제외 종목에 정지 기간·사유를 붙여 기록한다(진단용).
+
+    후보 산출과 무관한 부가 기록이라 **비차단** — DART 가 죽든 파일 쓰기가 실패하든
+    스캔은 계속된다. 사유를 못 얻으면 kind=unknown 으로 남고 기간은 캐시에서 채워진다.
+    """
+    try:
+        try:
+            from canslim_lib.fetch import load_corp_code_map
+            corp_map = load_corp_code_map()
+        except Exception:
+            corp_map = None          # DART 키 없음·다운 → 기간만 기록
+
+        stocks = halt_reason.annotate_dropped(
+            dropped, ohlcv_matrix.get_series, corp_map=corp_map)
+        stocks.sort(key=lambda s: (s.get("zero_days") or 0))
+        payload = {
+            "generated_at": time.strftime("%Y-%m-%d %H:%M"),
+            # 실행 시각이 아니라 **데이터 날짜**를 쓴다. 자정을 넘겨 돌리면
+            # 시계(8/1)와 데이터(7/31)가 어긋나 기록이 하루 밀린다.
+            "asof": asof or ohlcv_matrix._matrix_latest_date(),
+            "counts": halt_reason.summarize(stocks),
+            "stocks": stocks,
+        }
+        HALTED_OUT_PATH.write_text(
+            json.dumps(payload, ensure_ascii=False, indent=1), encoding="utf-8")
+        c = payload["counts"]
+        print(f"  🏷️  제외 사유 기록: 일시적 {c['temporary']} · 심각 {c['serious']} · "
+              f"불명 {c['unknown']} → {HALTED_OUT_PATH.name}")
+    except Exception as e:      # noqa: BLE001 — 진단 기록 실패로 스캔을 멈추지 않는다
+        print(f"  ⚠️  제외 사유 기록 실패(무시하고 진행): {type(e).__name__}: {e}")
+
+
 def run_full_scan(args: argparse.Namespace) -> None:
     """전체 스캔 → JSON 저장."""
     asof = args.asof
@@ -332,6 +369,7 @@ def run_full_scan(args: argparse.Namespace) -> None:
         excluded = sum(1 for d in dropped if d["reason"] == "excluded")
         print(f"  🚫 거래정지·제외 {len(dropped)}종목 제외 "
               f"(자동감지 {halted} · 수동목록 {excluded}) → {len(universe)}종목")
+        _save_halted_report(dropped, asof)
 
     # ── 3단계: 종목별 일봉 수집 (병렬)
     print(f"\n📈 일봉 수집 중 (병렬 {MAX_WORKERS}워커)...")
