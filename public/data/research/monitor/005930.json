@@ -1,16 +1,16 @@
 {
   "code": "005930",
   "name": "삼성전자",
-  "last_checked": "2026-07-31T17:27:15.860+09:00",
+  "last_checked": "2026-07-31T20:31:27.670+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 31.34,
-      "display": "31.34배",
+      "value": 39.74,
+      "display": "39.74배",
       "threshold": "35배 돌파",
-      "hit": false,
-      "tone": "good"
+      "hit": true,
+      "tone": "bad"
     },
     {
       "id": "buyback_gap",
@@ -69,6 +69,12 @@
   ],
   "alerts": [
     {
+      "severity": "bad",
+      "type": "per",
+      "title": "PER 35배 돌파",
+      "message": "현재 39.74배 — 매도 트리거 도달"
+    },
+    {
       "severity": "warn",
       "type": "buyback_gap",
       "title": "자사주 소각 공시 공백 임계 근접",
@@ -85,7 +91,7 @@
     {
       "keyword": "이재용 매도",
       "date": "2026-07-27",
-      "title": "삼성물산, 최대주주 이재용 등 주식 2만8132주 감소…계열사 삼성생명보험 특별계정 장내매도 영향 - 디지털투데이",
+      "title": "삼성물산, 최대주주 이재용 등 주식 2만8132주 감소…계열사 삼성생명보험 특별계정 장내매도 영향 - digitaltoday.co.kr",
       "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE9zUEN4NDlTMXJiVno1bjdyUV96NWFxT2hTRHBUNUxoMzRka1lGN3B0bHpBTmZ3bWpyQkpaYXQ5RWpya2lmb0luVW5PcF9Vd0gtbHlrQkZ0ZTA0bW1PdVliZjRNQ0xfMXZDZHMwaWY4T0M3aHM?oc=5",
       "severity": "warn",
       "signals": [

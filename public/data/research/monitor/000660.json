@@ -1,16 +1,16 @@
 {
   "code": "000660",
   "name": "SK하이닉스",
-  "last_checked": "2026-07-31T17:26:09.113+09:00",
+  "last_checked": "2026-07-31T20:30:27.632+09:00",
   "metrics": [
     {
       "id": "pbr",
       "label": "PBR",
-      "value": 7.98,
-      "display": "7.98배",
+      "value": 10.37,
+      "display": "10.37배",
       "threshold": "8배 돌파",
-      "hit": false,
-      "tone": "warn"
+      "hit": true,
+      "tone": "bad"
     },
     {
       "id": "op_margin",
@@ -69,10 +69,10 @@
   ],
   "alerts": [
     {
-      "severity": "warn",
+      "severity": "bad",
       "type": "pbr",
-      "title": "PBR 임계 근접",
-      "message": "현재 7.98배 (임계 8배 돌파)"
+      "title": "PBR 8배 돌파",
+      "message": "현재 10.37배 — 매도 트리거 도달"
     },
     {
       "severity": "info",
@@ -85,7 +85,7 @@
     {
       "keyword": "삼성 HBM4 엔비디아 공급",
       "date": "2026-07-26",
-      "title": "삼성 HBM4, AMD 주력 공급선 선점…엔비디아도 하이닉스 독점 아니다 - OBC 뉴스",
+      "title": "삼성 HBM4, AMD 주력 공급선 선점…엔비디아도 하이닉스 독점 아니다 - theonetv.kr",
       "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE1LSno3czd4ekl0Wm1PZTZXY0VReV9IR090T3FFdGZYVjBPVi1rYUdyYmtvdG1XR0VocFhCeGUydjJTR29ZYi0yWHB3cEtaSE0yZXlEY01ZOUFJSGhubXVWU0JfRFhEOUZI?oc=5",
       "severity": "info",
       "signals": []
