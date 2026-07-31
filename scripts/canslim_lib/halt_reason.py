@@ -20,9 +20,19 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 CACHE_DIR = ROOT / ".cache" / "halt_reason"
 
-# "주권매매거래정지              (주식분할)" → 괄호 안 사유
-_HALT_NOTICE = re.compile(r"주권매매거래정지\s*\(([^)]*)\)")
-_HALT_LIFTED = re.compile(r"주권매매거래정지\s*해제")
+# "주권매매거래정지              (주식분할)" → 괄호 안 사유.
+# `기간변경` 도 정지 공시다 — 정지는 처음에 "풍문"·"투자자보호" 같은 중립 문구로
+# 걸리고, 진짜 사유는 나중에 `주권매매거래정지기간변경 (상장폐지 사유 발생)` 으로
+# 나오는 경우가 많다(덱스터·다원시스 실사례). 놓치면 중립 사유에 걸려 불명이 된다.
+# 괄호는 greedy(`(.*)`) — 사유 안에 괄호가 또 있다: `(상장적격성 … 대상(사유발생))`.
+_HALT_NOTICE = re.compile(r"주권매매거래정지(?:기간변경)?\s*\((.*)\)")
+_HALT_LIFTED = re.compile(r"주권매매거래정지해제")
+
+# 기업행위 '결정' 공시 제목 — 정지 공시가 조회 목록에 없을 때의 보조 신호.
+# 넓은 키워드('합병')가 아니라 결정 공시 제목만 인정한다(한국제지 실사례).
+_ACTION_DECISION = re.compile(
+    r"(주식병합결정|주식분할결정|액면분할결정|액면병합결정|감자결정|"
+    r"회사합병결정|주식교환.*결정|주식이전.*결정)")
 
 # 곧 재개되는 기업행위 — 회사가 죽어서 멈춘 게 아니다.
 _TEMPORARY_KEYWORDS = (
@@ -52,10 +62,18 @@ def classify_halt_reason(reports: list[tuple[str, str]]) -> dict:
 
     kind: "temporary"(곧 재개될 기업행위) | "serious"(존속 문제) | "unknown".
 
-    **괄호 우선 원칙**: `주권매매거래정지 (사유)` 제목의 괄호 안을 1순위로 본다.
-    한 종목의 공시 목록에는 상반된 사건이 섞여 있어서(정지와 해제가 같이 있음)
-    제목 전체를 키워드로 훑으면 오분류한다 — CSA 코스믹이 실제 사례다.
-    억지로 분류하지 않는 게 낫다: 근거가 약하면 unknown 을 돌려준다.
+    **전제: 정지가 확정된 종목의 공시만 들어온다**(annotate_dropped 경유).
+    멀쩡히 거래되는 종목이 입력될 일이 없으므로, 보조 신호(결정 공시)를
+    "곧 재개" 로 태깅해도 오태깅 위험이 없다.
+
+    **괄호 우선 원칙**: `주권매매거래정지[기간변경] (사유)` 제목의 괄호 안을
+    1순위로 본다. 한 종목의 공시 목록에는 상반된 사건이 섞여 있어서(정지와
+    해제가 같이 있음) 제목 전체를 키워드로 훑으면 오분류한다 — CSA 코스믹이
+    실제 사례다. 다만 정지 사유가 "풍문 또는 보도 관련"·"투자자보호" 같은
+    **중립 문구**면 거기서 멈추지 않고 다른 정지 공시를 계속 본다 — 진짜
+    사유는 기간변경 공시에 나중에 실리는 경우가 많다(덱스터·다원시스).
+    억지로 분류하지 않는 게 낫다: 끝까지 근거가 약하면 unknown(중립 문구는
+    label 로만 남긴다).
     """
     if not reports:
         return {"kind": "unknown", "label": None, "report": None}
@@ -63,28 +81,42 @@ def classify_halt_reason(reports: list[tuple[str, str]]) -> dict:
     # 최신순으로 정렬(접수일 내림차순) — 가장 최근 상태가 현재 상태다.
     ordered = sorted(reports, key=lambda r: r[0] or "", reverse=True)
 
+    neutral: tuple[str, str] | None = None      # (label, report) — 분류 못 한 정지 사유
+    lifted = False
     for _dt, name in ordered:
         title = name or ""
         if _HALT_LIFTED.search(title):
-            # 해제가 더 최근 = 이미 풀렸다. 과거 정지 사유로 못 박지 않는다.
-            return {"kind": "unknown", "label": None, "report": title.strip()}
+            # 해제가 더 최근 = 그 이전 정지는 끝난 이벤트. 사유로 못 박지 않는다.
+            lifted = True
+            break
         m = _HALT_NOTICE.search(title)
         if m:
             body = m.group(1).strip()
             hit = _match_kind(body)
-            kind = hit[0] if hit else "unknown"
-            return {"kind": kind, "label": body, "report": title.strip()}
+            if hit:
+                return {"kind": hit[0], "label": body, "report": title.strip()}
+            if neutral is None:
+                neutral = (body, title.strip())   # 중립 문구 — 기억만 하고 계속 훑는다
 
-    # 보조 경로 — 심각 신호만. 거래소가 정지 공시 대신 "기타시장안내
-    # (상장적격성 실질심사 …)" 로 알리는 경우가 있다(덱스터·진원생명과학).
-    # 일시적 쪽은 보조 경로를 두지 않는다: 합병·분할 결정 공시는 정지와 무관하게
-    # 흔해서, 멀쩡히 거래되는 종목까지 "곧 재개" 로 잘못 태깅된다.
-    for _dt, name in ordered:
-        title = name or ""
-        for kw in _SERIOUS_KEYWORDS:
-            if kw in title:
-                return {"kind": "serious", "label": kw, "report": title.strip()}
+    if not lifted:
+        # 보조 1 — 심각 신호. 거래소가 정지 공시 대신 "기타시장안내
+        # (상장적격성 실질심사 …)" 로 알리는 경우(진원생명과학).
+        for _dt, name in ordered:
+            title = name or ""
+            for kw in _SERIOUS_KEYWORDS:
+                if kw in title:
+                    return {"kind": "serious", "label": kw, "report": title.strip()}
+        # 보조 2 — 기업행위 결정 공시. 정지 공시가 조회 목록에 아예 없는
+        # 경우(한국제지: 주식병합으로 정지 중인데 '주식병합결정' 만 있음).
+        for _dt, name in ordered:
+            title = name or ""
+            m = _ACTION_DECISION.search(title)
+            if m:
+                return {"kind": "temporary", "label": m.group(1),
+                        "report": title.strip()}
 
+    if neutral:
+        return {"kind": "unknown", "label": neutral[0], "report": neutral[1]}
     return {"kind": "unknown", "label": None, "report": None}
 
 
