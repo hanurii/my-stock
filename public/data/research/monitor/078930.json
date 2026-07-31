@@ -1,13 +1,13 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-07-30T20:12:44.139+09:00",
+  "last_checked": "2026-07-31T09:05:07.452+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 6.22,
-      "display": "6.22배",
+      "value": 5.74,
+      "display": "5.74배",
       "threshold": "10배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,20 +15,20 @@
     {
       "id": "dividend_yield",
       "label": "배당수익률",
-      "value": 3.47,
-      "display": "3.47%",
+      "value": 3.76,
+      "display": "3.76%",
       "threshold": "3.5% 이하",
-      "hit": true,
-      "tone": "bad"
+      "hit": false,
+      "tone": "good"
     },
     {
       "id": "price_high",
       "label": "주가",
-      "value": 84100,
-      "display": "84,100원",
+      "value": 86500,
+      "display": "86,500원",
       "threshold": "85,000원+ 돌파",
-      "hit": false,
-      "tone": "warn"
+      "hit": true,
+      "tone": "bad"
     },
     {
       "id": "separate_net_loss",
@@ -60,8 +60,8 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 92.07,
-      "display": "92.07$",
+      "value": 92.02,
+      "display": "92.02$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
@@ -70,15 +70,9 @@
   "alerts": [
     {
       "severity": "bad",
-      "type": "dividend_yield",
-      "title": "배당수익률 3.5% 이하",
-      "message": "현재 3.47% — 매도 트리거 도달"
-    },
-    {
-      "severity": "warn",
       "type": "price_high",
-      "title": "주가 임계 근접",
-      "message": "현재 84,100원 (임계 85,000원+ 돌파)"
+      "title": "주가 85,000원+ 돌파",
+      "message": "현재 86,500원 — 매도 트리거 도달"
     },
     {
       "severity": "bad",
@@ -104,7 +98,7 @@
       "keyword": "두바이유 70달러",
       "date": "2026-07-29",
       "title": "국제유가 사흘째 하락 WTI·두바이유 70달러대 - 이투뉴스",
-      "url": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE52X1huUjlyNmdVaFBNZTh3OGVKc2pYREE1UWJQbTY5LTdqcl96SGJkWmNUT1Y4R0tZLTQtczVSS0VpWHpYUF9KTXVIZjBCNEdQcG1pSWtsYUxnSFJMendwQzFuVjBnaHfSAWtBVV95cUxOb28zRGdpZTdsSkZOQWtDQ3RSWVIxamxfZG5GM0hrYlFweXkwa3hLZUdhengteEJlaFRWYjFBMFZzM2tXX25WRkkxV192dGJHNG9iRE84YnFuVUgzd1I1VHBIN3U0Qmt2bWVnNA?oc=5",
+      "url": "https://news.google.com/rss/articles/CBMia0FVX3lxTE5vbzNEZ2llN2xKRk5Ba0NDdFJZUjFqbF9kbkYzSGtiUXB5eTBreEtlR2F6eC14QmVoVFZiMUEwVnMza1dfblZGSTFXX3Z0Ykc0b2JETzhicW5VSDN3UjVUcEg3dTRCa3ZtZWc00gFrQVVfeXFMTm9vM0RnaWU3bEpGTkFrQ0N0UllSMWpsX2RuRjNIa2JRcHl5MGt4S2VHYXp4LXhCZWhUVmIxQTBWczNrV19uVkZJMVdfdnRiRzRvYkRPOGJxblVIM3dSNVRwSDd1NEJrdm1lZzQ?oc=5",
       "severity": "warn",
       "signals": [
         "하락"
@@ -137,7 +131,7 @@
     {
       "keyword": "중동 긴장 완화",
       "date": "2026-07-27",
-      "title": "중동 긴장 완화에 국제유가 5% 가까이 급락 - KBS 뉴스",
+      "title": "중동 긴장 완화에 국제유가 5% 가까이 급락 - news.kbs.co.kr",
       "url": "https://news.google.com/rss/articles/CBMiZkFVX3lxTE81dDQzb3pKMVdzakZkdXFPblhuNVBidHFsWXgtNFYyVFpUYjI4LW5RODVNSDR0anB2dEgzZko0Sy13WjZ5Mm5zTjRCVTNTZmVaLTJYMkZlM21fNmJxaTY3SVMwaDVDQQ?oc=5",
       "severity": "bad",
       "signals": [
@@ -185,7 +179,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 89.76 USD (2026-07-30, 7일 평균 92.07)",
+      "label": "Brent 원유 종가 89.38 USD (2026-07-30, 7일 평균 92.02)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
