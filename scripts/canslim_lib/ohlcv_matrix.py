@@ -110,6 +110,111 @@ def _apply_adjustment(s: dict) -> None:
         closes[i] = round(adj[i], 2)
 
 
+# ── 기준가 변경(액면분할·주식병합·감자) 환산 ────────────────
+
+# 이 폭을 넘는 캐시↔FDR 종가 차이는 기업행위로 본다(반올림 잡음 배제).
+REBASE_MIN_DEVIATION = 0.02
+# 이 밖의 비율은 데이터 오류로 보고 환산하지 않는다(과거를 망치지 않기 위해).
+REBASE_RATIO_BOUNDS = (0.05, 20.0)
+
+
+def detect_rebase_ratio(cache_close: float | None,
+                        fdr_close: float | None) -> float | None:
+    """같은 날짜의 캐시 종가와 FDR 종가로 기준가 변경 비율을 구한다.
+
+    pdata 복원 종가와 FDR 수정주가는 정상 종목이면 일치한다. 액면분할·주식
+    병합·감자가 나면 FDR 은 과거를 새 기준으로 환산해 주지만 우리 캐시는 옛
+    기준에 머물러 어긋난다. 그 비율이 곧 과거에 곱해야 할 배수다.
+
+    Returns: 환산 배수(정상이거나 판단 불가면 None).
+    """
+    if not cache_close or not fdr_close:
+        return None
+    ratio = fdr_close / cache_close
+    if abs(ratio - 1.0) <= REBASE_MIN_DEVIATION:
+        return None                       # 정상 — 환산 불필요
+    lo, hi = REBASE_RATIO_BOUNDS
+    if not (lo <= ratio <= hi):
+        return None                       # 기업행위로 보기엔 과한 값 → 손대지 않음
+    return ratio
+
+
+def rebase_history(s: dict, ratio: float, upto: int | None = None) -> None:
+    """시계열의 가격 필드에 환산 배수를 곱한다(거래량은 그대로).
+
+    upto: 이 인덱스 '앞'까지만 환산(None 이면 전체). 이미 새 기준으로 붙어버린
+      최신 바는 그대로 두고 과거만 맞출 때 쓴다(사후 복구).
+    """
+    for key in ("closes", "opens", "highs", "lows"):
+        vals = s.get(key) or []
+        end = len(vals) if upto is None else max(0, min(upto, len(vals)))
+        s[key] = [round(v * ratio, 2) if (v and i < end) else v
+                  for i, v in enumerate(vals)]
+
+
+def repair_rebase_gaps(limit_pct: float = 30.0, dry_run: bool = True,
+                       verbose: bool = True) -> list[dict]:
+    """이미 저장된 시계열에서 기준가 불일치를 찾아 과거를 환산한다(사후 복구).
+
+    탐지: 마지막 날 등락이 가격제한폭(±30%)을 넘는 종목만 후보로 본다. 다만
+    장기 정지 후 거래재개는 실제로 제한폭을 넘길 수 있으므로(예: -97% 붕괴),
+    후보마다 FDR 의 전일 종가와 대조해 **진짜 기준가 변경일 때만** 환산한다.
+
+    dry_run=True 면 진단만 하고 파일은 건드리지 않는다.
+    """
+    try:
+        import FinanceDataReader as _fdr
+    except ImportError:
+        if verbose:
+            print("⏭️  repair_rebase_gaps: FinanceDataReader 없음 → skip")
+        return []
+
+    suspects: list[tuple[str, str, str, float]] = []   # code, prev_date, last_date, cache_prev
+    for p in SERIES_DIR.glob("*.json"):
+        try:
+            s = json.loads(p.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        closes, dates = s.get("closes") or [], s.get("dates") or []
+        if len(closes) < 2 or not closes[-2]:
+            continue
+        move = (closes[-1] - closes[-2]) / closes[-2] * 100
+        if abs(move) > limit_pct:
+            suspects.append((p.stem, dates[-2], dates[-1], closes[-2]))
+
+    if verbose:
+        print(f"🔎 기준가 불일치 후보 {len(suspects)}종목 (마지막날 등락 |{limit_pct}%| 초과)")
+
+    out: list[dict] = []
+    for code, prev_date, last_date, cache_prev in suspects:
+        try:
+            df = _fdr.DataReader(code, prev_date, prev_date)
+            fdr_prev = float(df["Close"].iloc[-1]) if len(df) else None
+        except Exception:
+            fdr_prev = None
+        ratio = detect_rebase_ratio(cache_prev, fdr_prev)
+        rec = {"code": code, "date": prev_date, "cache": cache_prev,
+               "fdr": fdr_prev, "ratio": round(ratio, 6) if ratio else None,
+               "repaired": False}
+        if ratio and not dry_run:
+            p = SERIES_DIR / f"{code}.json"
+            s = json.loads(p.read_text(encoding="utf-8"))
+            idx = s["dates"].index(last_date)          # 마지막(새 기준) 바는 제외
+            rebase_history(s, ratio, upto=idx)
+            p.write_text(json.dumps(s, ensure_ascii=False, separators=(",", ":")),
+                         encoding="utf-8")
+            rec["repaired"] = True
+        out.append(rec)
+        if verbose:
+            mark = "🔧 환산" if rec["repaired"] else ("· 환산대상" if ratio else "✓ 실제 시세")
+            print(f"   {mark} {code} {prev_date} 캐시 {cache_prev:,.0f} vs FDR "
+                  f"{fdr_prev if fdr_prev is None else format(fdr_prev, ',.0f')}"
+                  f"{'' if not ratio else f' → ×{ratio:.4g}'}")
+    if not dry_run:
+        _series_mem.clear()
+    return out
+
+
 # ── 업데이트 (단일 프로세스, 워커 실행 전 1회) ──────────────
 
 def update_to_latest(window: int = DEFAULT_TRADING_DAYS, verbose: bool = True) -> dict:
@@ -222,9 +327,15 @@ def fill_recent_via_fdr(through: str | None = None, max_workers: int = 12,
         except Exception:
             return code, []
         bars = []
+        overlap_close = None          # 캐시 최신일과 겹치는 FDR 종가(기준가 변경 판별용)
         for idx, row in df.iterrows():
             d = str(idx.date())
-            if d <= last:
+            if d < last:
+                continue
+            if d == last:
+                cp0 = row.get("Close")
+                if cp0 is not None and cp0 == cp0:
+                    overlap_close = float(cp0)
                 continue  # 이미 보유분
             cp = row.get("Close")
             if cp is None or (isinstance(cp, float) and cp != cp):  # NaN
@@ -242,12 +353,13 @@ def fill_recent_via_fdr(through: str | None = None, max_workers: int = 12,
                 "low": float(l) if l == l and l else float(cp),
                 "volume": int(v) if v == v and v else 0,
             })
-        return code, bars
+        return code, bars, overlap_close
 
     updated = 0
+    rebased: list[tuple[str, float]] = []
     days_seen: set[str] = set()
     with _cf.ThreadPoolExecutor(max_workers=max_workers) as ex:
-        for code, bars in ex.map(_one, codes):
+        for code, bars, overlap_close in ex.map(_one, codes):
             if not bars:
                 continue
             p = SERIES_DIR / f"{code}.json"
@@ -255,6 +367,14 @@ def fill_recent_via_fdr(through: str | None = None, max_workers: int = 12,
                 s = json.loads(p.read_text(encoding="utf-8"))
             except (OSError, json.JSONDecodeError):
                 continue
+            # 기준가가 바뀐 종목(액면분할·주식병합·감자)은 과거를 새 기준으로 환산한
+            # 뒤에 붙인다. 안 그러면 "옛 기준 과거 + 새 기준 하루"가 되어 가짜 급등이
+            # 생기고 200일선·52주 신고가·RS 가 통째로 틀어진다.
+            cache_last = s["closes"][-1] if s.get("closes") else None
+            ratio = detect_rebase_ratio(cache_last, overlap_close)
+            if ratio:
+                rebase_history(s, ratio)
+                rebased.append((code, ratio))
             changed = False
             for b in bars:
                 if s["dates"] and b["date"] <= s["dates"][-1]:
@@ -264,7 +384,7 @@ def fill_recent_via_fdr(through: str | None = None, max_workers: int = 12,
                 s["highs"].append(round(b["high"], 2)); s["lows"].append(round(b["low"], 2))
                 s["volumes"].append(b["volume"])
                 days_seen.add(b["date"]); changed = True
-            if changed:
+            if changed or ratio:
                 p.write_text(json.dumps(s, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
                 updated += 1
 
@@ -274,8 +394,12 @@ def fill_recent_via_fdr(through: str | None = None, max_workers: int = 12,
     if verbose:
         print(f"✅ FDR 보충: {len(days_seen)}일({sorted(days_seen)}) × {updated}종목 추가, "
               f"최신 {new_through} ({sec:.1f}초)")
+        if rebased:
+            detail = ", ".join(f"{c}×{r:.4g}" for c, r in sorted(rebased))
+            print(f"🔧 기준가 변경 환산 {len(rebased)}종목: {detail}")
     return {"appended_days": len(days_seen), "updated_codes": updated,
-            "through": new_through, "sec": round(sec, 1)}
+            "through": new_through, "sec": round(sec, 1),
+            "rebased": [{"code": c, "ratio": round(r, 6)} for c, r in sorted(rebased)]}
 
 
 # ── 조회 (워커에서 종목별) ───────────────────────────────────
@@ -439,6 +563,10 @@ def _main() -> None:
                     metavar="THROUGH",
                     help="pdata 미공개 최근 영업일을 FDR로 보충. 날짜(YYYY-MM-DD) 지정 시 그날까지, "
                          "생략 시 FDR 가용 최신일까지. update 와 함께 쓰면 update 후 실행.")
+    ap.add_argument("--repair-rebase", action="store_true",
+                    help="이미 저장된 시계열의 기준가 불일치(액면분할·주식병합·감자) 진단·환산")
+    ap.add_argument("--apply", action="store_true",
+                    help="--repair-rebase 를 실제로 적용(기본은 진단만)")
     args = ap.parse_args()
 
     if args.update:
@@ -446,6 +574,11 @@ def _main() -> None:
     if args.fill_fdr is not None:
         through = None if args.fill_fdr == "__latest__" else args.fill_fdr
         fill_recent_via_fdr(through=through)
+    if args.repair_rebase:
+        res = repair_rebase_gaps(dry_run=not args.apply)
+        n = sum(1 for r in res if r["ratio"])
+        print(f"{'🔧 환산 적용' if args.apply else '🔎 진단만(적용하려면 --apply)'}: "
+              f"대상 {n}종목 / 후보 {len(res)}종목")
     if args.foreign:
         # universe = 최신 pdata 전 종목
         latest = pdata._latest_available_basDt()
