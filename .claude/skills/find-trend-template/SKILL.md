@@ -39,7 +39,7 @@ SEPA(Specific Entry Point Analysis) 종목을 찾는 파이프라인의 **첫 �
 - **컷오프 금지(공유 산출물)**: 시총·거래대금·가격 컷오프를 추가하지 않는다
   ([screener-no-cutoff] 메모리 준수). **단 하나의 의도된 예외** — SEPA 전용
   실행은 `--minervini-filter` 로 **'미너비니가 사지 않는 주식'**(우선주·코스닥
-  외국법인·저유동성 50일 평균 거래대금<10억)을 유니버스에서 제외한다
+  외국법인·저유동성 50일 평균 거래대금<5억)을 유니버스에서 제외한다
   (사용자 확정 2026-08-03, 7월 연쇄 손절 공통점 실측 근거). 플래그 없이는
   기존과 동일하므로 공유 trend-template/make-hero 는 무영향. 세부 근거:
   `docs/superpowers/specs/2026-08-03-minervini-non-buyable-filter.md`.
@@ -80,7 +80,8 @@ python scripts/screen_trend_template.py --rs-min 80 --minervini-filter --out pub
 - `--market KOSPI` / `--market KOSDAQ` : 한 시장만.
 - `--asof YYYY-MM-DD` : 과거 시점 기준(룩어헤드 방지 백테스트용).
 - `--minervini-filter` : '미너비니가 사지 않는 주식' 제외(SEPA 정규 실행은 항상 켬).
-- `--min-turnover-eok 10` : 저유동성 기준(50일 평균 거래대금, 억원) 조정.
+- `--min-turnover-eok 5` : 저유동성 기준(50일 평균 거래대금, 억원) 조정. 기본 5억
+  (최초 10억 → 원장 소급 검증으로 하향: 5~10억 밴드가 최고 성과, 5억 미만은 +20% 0/98).
 
 ## 결과 확인
 
