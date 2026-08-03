@@ -9,7 +9,7 @@ import {
   ReferenceArea,
   ResponsiveContainer,
 } from "recharts";
-import { type MarketRegime, downtrendSegments } from "./marketRegime";
+import { type MarketRegime, downtrendSegments, regimeStreak } from "./marketRegime";
 
 export function MarketRegimeChart({ data }: { data: MarketRegime }) {
   if (!data || data.series.length < 2) {
@@ -26,6 +26,10 @@ export function MarketRegimeChart({ data }: { data: MarketRegime }) {
     if (i + 1 < data.series.length) nextDate.set(p.date, data.series[i + 1].date);
   });
   const up = data.current.uptrend;
+  const streak = regimeStreak(data.series);
+  // 검증(2025-05~2026-08, 전환 19회): 상승 전환의 절반이 1~2일 만에 꺼짐. 3일 연속
+  // 확인이 가짜 전환 9/9를 걸러내고 잃는 상승일은 7%뿐 → 확인 충족 시점부터 신규 진입.
+  const confirmed = up === true && streak >= 3;
   const tickInterval = Math.max(1, Math.floor(data.series.length / 8));
   return (
     <div>
@@ -39,6 +43,26 @@ export function MarketRegimeChart({ data }: { data: MarketRegime }) {
         >
           {up ? "🟢 상승추세 (매매 ON)" : "🔴 하락추세 (매매 OFF)"}
         </span>
+        {streak > 0 && (
+          <span
+            className="text-[11px] font-medium px-2 py-0.5 rounded tabular-nums"
+            title="상승 전환의 절반은 1~2일 만에 꺼짐(15개월 실측). 3일 연속 확인 후 신규 진입 권장 — 확인 후 평균 12.8일 더 지속"
+            style={{
+              backgroundColor: confirmed
+                ? "rgba(16,185,129,0.18)"
+                : up
+                  ? "rgba(233,193,118,0.16)"
+                  : "rgba(255,180,171,0.12)",
+              color: confirmed ? "#10b981" : up ? "#e9c176" : "#ffb4ab",
+            }}
+          >
+            {up
+              ? confirmed
+                ? `상승 ${streak}일째 · 3일 확인 ✓`
+                : `상승 ${streak}일째 · 확인 중 (${streak}/3일)`
+              : `하락 ${streak}일째`}
+          </span>
+        )}
         <span className="text-[11px] text-on-surface-variant/70">
           {data.current.date} · 지수 {data.current.index} / 20일선 {data.current.ma20 ?? "—"}
         </span>
