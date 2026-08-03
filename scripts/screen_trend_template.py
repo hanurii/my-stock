@@ -585,7 +585,7 @@ def main():
     parser.add_argument("--minervini-filter", action="store_true",
                         help="'미너비니가 사지 않는 주식'(우선주·외국법인·저유동성) 제외 — SEPA 전용")
     parser.add_argument("--min-turnover-eok", type=float, default=MIN_TURNOVER_EOK_DEFAULT,
-                        help="저유동성 기준: 50일 평균 거래대금 하한(억원, 기본 10)")
+                        help="저유동성 기준: 50일 평균 거래대금 하한(억원, 기본 5)")
     parser.add_argument("--save", action="store_true",
                         help=f"결과를 {OUTPUT_PATH.name} 에 저장")
     parser.add_argument("--out", default=None,
