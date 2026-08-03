@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-03 23:03",
+  "generated_at": "2026-08-03 23:15",
   "asof": "2026-08-03",
   "stop_loss_pct_default": -5,
   "holdings": [
@@ -212,13 +212,13 @@
     {
       "code": "002810",
       "name": "삼영무역",
-      "market": null,
+      "market": "KOSPI",
       "buy_date": "2026-07-23",
       "buy_price": 21300,
       "quantity": 219,
       "stop_loss_pct": -5,
-      "pivot_price": null,
-      "pivot_source": null,
+      "pivot_price": 23899.64,
+      "pivot_source": "power_play",
       "current_price": 22250.0,
       "profit_pct": 4.46,
       "stop_price": 20235.0,
@@ -256,10 +256,10 @@
         {
           "id": "breakout_failure",
           "status": "na",
-          "detail": "피벗 없음 — 판정 불가"
+          "detail": "피벗 돌파 미확인 — 판정 불가"
         }
       ],
-      "extension_pct": null,
+      "extension_pct": -6.9,
       "accumulation": {
         "window": "D+7/15",
         "elapsed": 7,
@@ -297,9 +297,9 @@
         }
       },
       "strength": {
-        "signal": "na",
+        "signal": "not_extended",
         "extended": false,
-        "gate_detail": "피벗 없음 — 판정 불가",
+        "gate_detail": "확장 -6.9% < 5%",
         "count": 0,
         "signals": []
       },
@@ -315,7 +315,7 @@
     {
       "code": "204610",
       "name": "티쓰리",
-      "market": null,
+      "market": "KOSDAQ",
       "buy_date": "2026-07-31",
       "buy_price": 3050,
       "quantity": 6557,
