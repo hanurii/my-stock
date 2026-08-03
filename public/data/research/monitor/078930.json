@@ -1,13 +1,13 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-08-03T09:01:48.364+09:00",
+  "last_checked": "2026-08-03T15:23:51.118+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 6.23,
-      "display": "6.23배",
+      "value": 6.04,
+      "display": "6.04배",
       "threshold": "10배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,11 +15,11 @@
     {
       "id": "dividend_yield",
       "label": "배당수익률",
-      "value": 3.46,
-      "display": "3.46%",
+      "value": 3.57,
+      "display": "3.57%",
       "threshold": "3.5% 이하",
-      "hit": true,
-      "tone": "bad"
+      "hit": false,
+      "tone": "warn"
     },
     {
       "id": "price_high",
@@ -69,10 +69,10 @@
   ],
   "alerts": [
     {
-      "severity": "bad",
+      "severity": "warn",
       "type": "dividend_yield",
-      "title": "배당수익률 3.5% 이하",
-      "message": "현재 3.46% — 매도 트리거 도달"
+      "title": "배당수익률 임계 근접",
+      "message": "현재 3.57% (임계 3.5% 이하)"
     },
     {
       "severity": "bad",
@@ -93,9 +93,9 @@
       "message": "현재 1건 — 긍정 시그널 발생 (재평가 검토)"
     },
     {
-      "severity": "bad",
+      "severity": "warn",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 10건 (부정 시그널 1건 포함)",
+      "title": "리스크 키워드 매칭 뉴스 9건 (관찰 신호 3건 포함)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
@@ -105,6 +105,16 @@
       "date": "2026-07-29",
       "title": "국제유가 사흘째 하락 WTI·두바이유 70달러대 - 이투뉴스",
       "url": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE52X1huUjlyNmdVaFBNZTh3OGVKc2pYREE1UWJQbTY5LTdqcl96SGJkWmNUT1Y4R0tZLTQtczVSS0VpWHpYUF9KTXVIZjBCNEdQcG1pSWtsYUxnSFJMendwQzFuVjBnaHfSAWtBVV95cUxOb28zRGdpZTdsSkZOQWtDQ3RSWVIxamxfZG5GM0hrYlFweXkwa3hLZUdhengteEJlaFRWYjFBMFZzM2tXX25WRkkxV192dGJHNG9iRE84YnFuVUgzd1I1VHBIN3U0Qmt2bWVnNA?oc=5",
+      "severity": "warn",
+      "signals": [
+        "하락"
+      ]
+    },
+    {
+      "keyword": "정제마진 하락",
+      "date": "2026-08-03",
+      "title": "S-OIL, 유가 하락에도 2분기 영업익 9650억원… 정제마진·윤활유 '쌍끌이' - 아시아경제",
+      "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE5hMGJ3ZTU5Zi1zb3dXbXlacXdpRXRmajN1WFVqTl9Scll6bjFfTktza3E3cFlWYk9jZkNTMHFEMFl5WEotVjdIMkMzT0w1UDNWSmQ2SzExMzJEM25HV0lyaw?oc=5",
       "severity": "warn",
       "signals": [
         "하락"
@@ -122,6 +132,14 @@
     },
     {
       "keyword": "중동 긴장 완화",
+      "date": "2026-08-03",
+      "title": "S&amp;P500 선물, 중동 긴장 완화에 상승…美 국채금리↓ - news.einfomax.co.kr",
+      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE14Ymo1TkxZN0t5OGxmcW1xenRjYWRlYnhhalltREpzZVdtb2pvblpzWG1fYm9KZTBnSkFCRkhGeG9FYUZTVDRVX3BndGVLNG9VWnRrQ1JzeFI2ZHZ4clgtc0REYnpGUlA4T0x0M1p3S24?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "중동 긴장 완화",
       "date": "2026-08-02",
       "title": "\"사우디 왕세자, 트럼프에 '중동 긴장완화 위한 대화' 강조\" - 연합뉴스",
       "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTFBaLXpOWE5YM0pQRDZLNkltbWVSaFRweGRFU3VuR3Z6UVExSVB4RHZ3bS01T3RPZndsTTd1OC1pTm9LVWdDcUxaRkNTN1UtVHdGTXpoY2JiZ00ySU9Odi12btIBYEFVX3lxTFBaLXpOWE5YM0pQRDZLNkltbWVSaFRweGRFU3VuR3Z6UVExSVB4RHZ3bS01T3RPZndsTTd1OC1pTm9LVWdDcUxaRkNTN1UtVHdGTXpoY2JiZ00ySU9Odi12bg?oc=5",
@@ -131,7 +149,7 @@
     {
       "keyword": "중동 긴장 완화",
       "date": "2026-08-02",
-      "title": "사우디국영통신 \"왕세자, 트럼프에 중동 긴장완화 위한 대화 강조\" - biz.sbs.co.kr",
+      "title": "사우디국영통신 \"왕세자, 트럼프에 중동 긴장완화 위한 대화 강조\" - SBS Biz",
       "url": "https://news.google.com/rss/articles/CBMiU0FVX3lxTE9pTDZQa0lDTFBLY2U0Ym1YMVpzOFo3aVlTXzlPcmJ4TUxyM1RfZ1JIejhGNXBCT19NMElqRndyNWY1ZHIxUnFLZk9vMGR0Mm56R00w?oc=5",
       "severity": "info",
       "signals": []
@@ -140,7 +158,7 @@
       "keyword": "중동 긴장 완화",
       "date": "2026-08-02",
       "title": "코스피, 미 증시 강세·중동 긴장 완화에 상승세 지속 주목 - 글로벌E",
-      "url": "https://news.google.com/rss/articles/CBMia0FVX3lxTE1SOGJGRVg2VGtHdmE4MXBUaE8xOVR0OUlma2hoYlh4OS1CY1JWOWVMbTI2blpLOVJDdk82LTFHZEZlc3JYRlBDc0JXNGFqaTNiSExPenpCTUlYTlEwS1V1V3hzRlpMYzVYUENN0gFvQVVfeXFMTU1EOWlGcEtXTDFMRmQxZzd5dE9BbnFJQUg2eUc0bHRReHlUZDY0ZUZERFRMV19vb2JVRUFGd3RmUEViVFA5UnZxaFBsMVdoV1NQMlk2U00xZzU0dHZRSlJNVDkwYk9UczZTWjZwZngw?oc=5",
+      "url": "https://news.google.com/rss/articles/CBMib0FVX3lxTE1NRDlpRnBLV0wxTEZkMWc3eXRPQW5xSUFINnlHNGx0UXh5VGQ2NGVGRERUTFdfb29iVUVBRnd0ZlBFYlRQOVJ2cWhQbDFXaFdTUDJZNlNNMWc1NHR2UUpSTVQ5MGJPVHM2U1o2cGZ4MNIBb0FVX3lxTE1NRDlpRnBLV0wxTEZkMWc3eXRPQW5xSUFINnlHNGx0UXh5VGQ2NGVGRERUTFdfb29iVUVBRnd0ZlBFYlRQOVJ2cWhQbDFXaFdTUDJZNlNNMWc1NHR2UUpSTVQ5MGJPVHM2U1o2cGZ4MA?oc=5",
       "severity": "info",
       "signals": []
     },
@@ -154,39 +172,11 @@
     },
     {
       "keyword": "중동 긴장 완화",
-      "date": "2026-07-28",
-      "title": "美 국채가, 중동 긴장 완화에 강세 지속 - 연합인포맥스",
-      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE9CVERwNENBZlVuWk9SWEhubURheGNHY3NzUERSMUs0VjVGeUl5TWNjbDZGNEJWaXVXa3pnMzBEY3lhQ2N4eHBabGMyZmY2R001UGpjNUptbU52bEFtN1V1alBnZ1FjMnByMHRaS1V0Ym4?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "중동 긴장 완화",
       "date": "2026-08-02",
       "title": "\"사우디 왕세자, 트럼프에 '중동 긴장완화 위한 대화' 강조\" - 네이트",
       "url": "https://news.google.com/rss/articles/CBMiU0FVX3lxTE9WOURxZlAxamtLNHVkZE5Xdjc0Z0cwVklhNXdsQWRuclkxQkJjWDFyNWxZNXVWVHhoOEhpOUdJdzlhWnpTYjYwS0FwVmVQUVRWRWl3?oc=5",
       "severity": "info",
       "signals": []
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-07-29",
-      "title": "'중동 긴장 완화' 유가·국채금리 하락…달러·원 1456원대 - 뉴스1",
-      "url": "https://news.google.com/rss/articles/CBMiX0FVX3lxTFBRRWNtTzlRMjFsVmZ0MFFzOEg3dmlFeFo4bGFnNlBEY0RISnROai1XOWZ0MG1HaVp3YnFBUDhqWDFvNlNJMTZIZDBOTnRSN0cwdXF5b0ltUklIWm15bEww?oc=5",
-      "severity": "warn",
-      "signals": [
-        "하락"
-      ]
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-07-28",
-      "title": "국제유가, 중동 긴장 완화에 급락…브렌트 84달러·WTI 79달러 - 브릿지경제",
-      "url": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE1jdzkxczJjQnE0ZW1IaFd5d1RyUzJMYmlEcHQ0aGREWVR3bkZSWERLRUMtOVpvTUlXcm9UVW5tUXVyQ1psT1JuZVdKeGZPVjRYcWhqLU0xNkMyQQ?oc=5",
-      "severity": "bad",
-      "signals": [
-        "급락"
-      ]
     }
   ],
   "sources": [
