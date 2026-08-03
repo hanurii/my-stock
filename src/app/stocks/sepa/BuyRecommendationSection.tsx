@@ -72,7 +72,7 @@ function fmtFromPivot(n: number | null): string {
   return `${v > 0 ? "+" : ""}${v.toFixed(1)}%`;
 }
 
-const COLS = 9;
+const COLS = 11;
 
 function Detail({ r }: { r: BuyRec }) {
   // 각 요인이 획득한 점수(만점 대비) — 어디서 점수를 받았는지 한눈에.
@@ -171,6 +171,8 @@ export function BuyRecommendationSection({ data }: { data: BuyRecFile | null }) 
                 <th className="px-2 py-2 text-center text-[11px] font-medium text-on-surface-variant/80">패턴</th>
                 <th className="px-2 py-2 text-right text-[11px] font-medium text-on-surface-variant/80">RS</th>
                 <th className="px-2 py-2 text-right text-[11px] font-medium text-on-surface-variant/80" title="최근 6개월 최저점 대비 상승폭">직전상승</th>
+                <th className="px-2 py-2 text-right text-[11px] font-medium text-on-surface-variant/80">현재가</th>
+                <th className="px-2 py-2 text-right text-[11px] font-medium text-on-surface-variant/80" title="피벗 = 매수 기준선(이 가격 돌파가 매수 신호)">피벗</th>
                 <th className="px-2 py-2 text-right text-[11px] font-medium text-on-surface-variant/80" title="현재가와 피벗(매수 기준선) 차이. 0에 가까울수록 진입 적기 · 양수=피벗 위">피벗대비</th>
                 <th className="px-2 py-2 text-center text-[11px] font-medium text-on-surface-variant/80">매수</th>
               </tr>
@@ -206,6 +208,8 @@ export function BuyRecommendationSection({ data }: { data: BuyRecFile | null }) 
                       <td className="px-2 py-2 text-center text-on-surface-variant/80 whitespace-nowrap">{r.pattern}</td>
                       <td className="px-2 py-2 text-right font-bold" style={{ color: rsColor(r.rs) }}>{r.rs ?? "—"}</td>
                       <td className="px-2 py-2 text-right font-medium" style={{ color: "#34d399" }}>{fmtAdv(r.prior_adv_pct)}</td>
+                      <td className="px-2 py-2 text-right tabular-nums text-on-surface">{fmtPrice(r.current_price)}</td>
+                      <td className="px-2 py-2 text-right tabular-nums text-on-surface-variant/80">{fmtPrice(r.pivot_price)}</td>
                       <td className="px-2 py-2 text-right tabular-nums" style={{ color: pivotColor(r.pct_to_pivot) }}>{fmtFromPivot(r.pct_to_pivot)}</td>
                       <td className="px-2 py-2 text-center whitespace-nowrap">
                         <span className="text-[10px] px-1.5 py-0.5 rounded font-medium" style={{ backgroundColor: sm.bg, color: sm.color }}>
