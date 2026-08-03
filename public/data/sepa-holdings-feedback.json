@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-03 22:20",
+  "generated_at": "2026-08-03 22:38",
   "asof": "2026-08-03",
   "stop_loss_pct_default": -5,
   "holdings": [
@@ -519,73 +519,73 @@
       }
     },
     {
-      "code": "383220",
-      "name": "F&F",
-      "market": null,
-      "buy_date": "2026-07-31",
-      "buy_price": 79996,
-      "quantity": 125,
+      "code": "003690",
+      "name": "코리안리",
+      "market": "KOSPI",
+      "buy_date": "2026-08-03",
+      "buy_price": 14000,
+      "quantity": 714,
       "stop_loss_pct": -5,
-      "pivot_price": null,
-      "pivot_source": null,
-      "current_price": 61800.0,
-      "profit_pct": -22.75,
-      "stop_price": 75996.2,
-      "pct_to_stop": 22.97,
-      "breakout_date": "2026-07-31",
-      "breakout_date_estimated": true,
-      "signal": "stop_loss",
-      "violation_count": 2,
+      "pivot_price": 13950.25,
+      "pivot_source": "manual",
+      "current_price": 13560.0,
+      "profit_pct": -3.14,
+      "stop_price": 13300.0,
+      "pct_to_stop": -1.92,
+      "breakout_date": "2026-08-03",
+      "breakout_date_estimated": false,
+      "signal": "early_sell",
+      "violation_count": 1,
       "rules": [
         {
           "id": "low_volume_breakout",
-          "status": "pass",
-          "detail": "돌파일 거래량 1.14배 — 정상 돌파(1.5배+)에는 못 미침"
+          "status": "violation",
+          "detail": "돌파일 거래량 0.50배 — 평균에도 못 미침"
         },
         {
           "id": "heavy_volume_pullback",
-          "status": "violation",
-          "detail": "2026-08-03 하락 마감 + 거래량 4.3배"
+          "status": "pending",
+          "detail": "돌파 다음 날 데이터 없음"
         },
         {
           "id": "consecutive_lower_lows",
-          "status": "pass",
-          "detail": "연속 저저점 없음"
+          "status": "pending",
+          "detail": "돌파 다음 날 데이터 없음"
         },
         {
           "id": "close_below_ma",
-          "status": "violation",
-          "detail": "심각: 2026-08-03 50일선 아래 + 대량 거래 마감"
+          "status": "pending",
+          "detail": "돌파 다음 날 데이터 없음"
         },
         {
           "id": "weak_days_dominant",
           "status": "pending",
-          "detail": "경과 1거래일 — 5거래일부터 판정"
+          "detail": "경과 0거래일 — 5거래일부터 판정"
         },
         {
           "id": "breakout_failure",
-          "status": "na",
-          "detail": "피벗 없음 — 판정 불가"
+          "status": "watch",
+          "detail": "🟡 반전 회복 관찰중 (D+0/10)"
         }
       ],
-      "extension_pct": null,
+      "extension_pct": -2.8,
       "accumulation": {
-        "window": "D+1/15",
-        "elapsed": 1,
+        "window": "D+0/15",
+        "elapsed": 0,
         "signals": [
           {
             "id": "up_days_dominant",
-            "status": "unmet",
-            "detail": "상승 0 · 하락 1"
+            "status": "pending",
+            "detail": "상승 0 · 하락 0"
           },
           {
             "id": "quality_closes",
-            "status": "unmet",
-            "detail": "좋은 0 · 나쁜 1"
+            "status": "pending",
+            "detail": "좋은 0 · 나쁜 0"
           },
           {
             "id": "up_streak_7",
-            "status": "unmet",
+            "status": "pending",
             "detail": "최고 0일"
           }
         ]
@@ -594,7 +594,7 @@
         "status": "pending",
         "m": {
           "ok": null,
-          "detail": "1/15일 (판정 전)"
+          "detail": "0/15일 (판정 전)"
         },
         "v": {
           "ok": null,
@@ -602,23 +602,126 @@
         },
         "p": {
           "ok": null,
-          "detail": "-23%"
+          "detail": "—"
         }
       },
       "strength": {
-        "signal": "na",
+        "signal": "not_extended",
         "extended": false,
-        "gate_detail": "피벗 없음 — 판정 불가",
+        "gate_detail": "확장 -2.8% < 5%",
         "count": 0,
         "signals": []
       },
       "superperf": {
-        "score": 0,
-        "rs": 79,
-        "prior_adv_pct": 34.2,
-        "rs_nh_days": 250,
-        "rs_leads": -194,
-        "dist_52wh": -9.5
+        "score": 1,
+        "rs": 87,
+        "prior_adv_pct": 17.6,
+        "rs_nh_days": 251,
+        "rs_leads": -202,
+        "dist_52wh": -12.0
+      }
+    },
+    {
+      "code": "900260",
+      "name": "로스웰",
+      "market": "KOSDAQ",
+      "buy_date": "2026-08-03",
+      "buy_price": 1699,
+      "quantity": 11771,
+      "stop_loss_pct": -5,
+      "pivot_price": 1695.02,
+      "pivot_source": "manual",
+      "current_price": 1665.0,
+      "profit_pct": -2.0,
+      "stop_price": 1614.05,
+      "pct_to_stop": -3.06,
+      "breakout_date": "2026-08-03",
+      "breakout_date_estimated": false,
+      "signal": "early_sell",
+      "violation_count": 1,
+      "rules": [
+        {
+          "id": "low_volume_breakout",
+          "status": "violation",
+          "detail": "돌파일 거래량 0.37배 — 평균에도 못 미침"
+        },
+        {
+          "id": "heavy_volume_pullback",
+          "status": "pending",
+          "detail": "돌파 다음 날 데이터 없음"
+        },
+        {
+          "id": "consecutive_lower_lows",
+          "status": "pending",
+          "detail": "돌파 다음 날 데이터 없음"
+        },
+        {
+          "id": "close_below_ma",
+          "status": "pending",
+          "detail": "돌파 다음 날 데이터 없음"
+        },
+        {
+          "id": "weak_days_dominant",
+          "status": "pending",
+          "detail": "경과 0거래일 — 5거래일부터 판정"
+        },
+        {
+          "id": "breakout_failure",
+          "status": "watch",
+          "detail": "🟡 반전 회복 관찰중 (D+0/10)"
+        }
+      ],
+      "extension_pct": -1.8,
+      "accumulation": {
+        "window": "D+0/15",
+        "elapsed": 0,
+        "signals": [
+          {
+            "id": "up_days_dominant",
+            "status": "pending",
+            "detail": "상승 0 · 하락 0"
+          },
+          {
+            "id": "quality_closes",
+            "status": "pending",
+            "detail": "좋은 0 · 나쁜 0"
+          },
+          {
+            "id": "up_streak_7",
+            "status": "pending",
+            "detail": "최고 0일"
+          }
+        ]
+      },
+      "mvp": {
+        "status": "pending",
+        "m": {
+          "ok": null,
+          "detail": "0/15일 (판정 전)"
+        },
+        "v": {
+          "ok": null,
+          "detail": "판정 전"
+        },
+        "p": {
+          "ok": null,
+          "detail": "—"
+        }
+      },
+      "strength": {
+        "signal": "not_extended",
+        "extended": false,
+        "gate_detail": "확장 -1.8% < 5%",
+        "count": 0,
+        "signals": []
+      },
+      "superperf": {
+        "score": 4,
+        "rs": 95,
+        "prior_adv_pct": 6.2,
+        "rs_nh_days": 2,
+        "rs_leads": 103,
+        "dist_52wh": -22.4
       }
     }
   ]
