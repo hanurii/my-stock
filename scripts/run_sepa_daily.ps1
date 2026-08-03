@@ -77,13 +77,36 @@ if ($DryRun) {
 # ── 실행 ─────────────────────────────────────────────────────
 Write-Log "SEPA 파이프라인 시작 (헤드리스 /sepa)"
 Set-Location $repo
-& $claude.Source -p "/sepa" --dangerously-skip-permissions 2>&1 |
+
+# claude 출력은 UTF-8 — PS 5.1 기본(CP949)으로 받으면 로그가 깨진다
+try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 } catch {}
+
+# 헤드리스 지시문: -p 프로세스는 대답이 끝나는 즉시 종료되므로, 백그라운드에
+# 작업을 걸어둔 채 턴을 끝내면 작업이 전부 죽는다(2026-08-03 실사고 — 2분 만에
+# "성공" 종료, 실제로는 아무것도 안 돎). 커밋까지 턴 안에서 끝내라고 못박는다.
+$prompt = "/sepa 헤드리스 실행 주의: 이 프로세스는 네 대답이 끝나는 즉시 종료된다. " +
+    "백그라운드 작업이 남아 있는 채로 턴을 끝내면 작업이 전부 죽는다. " +
+    "백그라운드로 띄운 작업은 반드시 이 턴 안에서 완료를 기다려 취합하고, " +
+    "통합 요약과 결과 파일 커밋·push·master 반영까지 전부 마친 뒤에만 턴을 끝낼 것. " +
+    "'끝나면 알림받고 보고하겠다'는 식의 예고로 턴을 끝내는 것은 금지."
+
+$startTime = Get-Date
+& $claude.Source -p $prompt --dangerously-skip-permissions 2>&1 |
     Out-File -FilePath $logFile -Append -Encoding utf8
 $code = $LASTEXITCODE
 
-if ($code -eq 0) {
+# 성공 판정: exit 0 만 믿지 않는다 — 결과 파일이 실행 시작 이후 실제로
+# 갱신됐는지 확인(2단계 추세 관문이 항상 쓰는 파일이라 파이프라인이 실제로
+# 돌았는지의 최소 증거). exit 0 인데 미갱신이면 거짓 성공 → 마커 미기록.
+$probe = Join-Path $repo "public\data\sepa-trend-candidates.json"
+$updated = (Test-Path $probe) -and ((Get-Item $probe).LastWriteTime -gt $startTime)
+
+if ($code -eq 0 -and $updated) {
     New-Item -ItemType File -Path $marker -Force | Out-Null
-    Write-Log "SEPA 파이프라인 성공 종료"
+    Write-Log "SEPA 파이프라인 성공 종료 (결과 파일 갱신 확인됨)"
+} elseif ($code -eq 0) {
+    Write-Log "거짓 성공 감지: exit 0 이지만 결과 파일이 갱신되지 않음 — 마커 미기록. 헤드리스 Claude 가 일을 안 하고 종료했을 가능성(로그의 Claude 출력 확인)"
+    $code = 1
 } else {
     Write-Log "SEPA 파이프라인 실패 (exit=$code) — 로그 확인 필요. 마커 미기록(재부팅 시 재시도됨)"
 }
