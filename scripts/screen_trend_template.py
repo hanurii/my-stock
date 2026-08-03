@@ -48,6 +48,8 @@ from canslim_lib.fetch import (  # noqa: E402
 from canslim_lib import ohlcv_matrix  # noqa: E402
 from canslim_lib.pykrx_universe import fetch_universe_with_cap  # noqa: E402
 from canslim_lib.liveness import filter_live_universe  # noqa: E402
+from canslim_lib.minervini_filter import (  # noqa: E402
+    EXCLUSION_LABEL, MIN_TURNOVER_EOK_DEFAULT, classify_non_minervini)
 from canslim_lib import halt_reason  # noqa: E402
 from canslim_lib.criteria import evaluate_m  # noqa: E402
 from canslim_lib.trend_template import (  # noqa: E402
@@ -337,6 +339,43 @@ def _save_halted_report(dropped: list[dict], asof: str | None) -> None:
         print(f"  ⚠️  제외 사유 기록 실패(무시하고 진행): {type(e).__name__}: {e}")
 
 
+MINERVINI_OUT_PATH = ROOT / "public" / "data" / "sepa-minervini-excluded.json"
+
+
+def _save_minervini_report(dropped: list[dict], asof: str | None,
+                           min_turnover_eok: float) -> None:
+    """'미너비니가 사지 않는 주식' 제외 내역 기록(진단용 · 비차단).
+
+    "이 종목이 왜 SEPA 후보에 안 나오지?"를 되짚는 용도. 세부 근거는
+    docs/superpowers/specs/2026-08-03-minervini-non-buyable-filter.md.
+    """
+    try:
+        stocks = sorted(dropped, key=lambda s: str(s.get("code", "")))
+        payload = {
+            "generated_at": time.strftime("%Y-%m-%d %H:%M"),
+            "asof": asof or ohlcv_matrix._matrix_latest_date(),
+            "label": EXCLUSION_LABEL,
+            "min_turnover_eok": min_turnover_eok,
+            "rules": {
+                "preferred_stock": "우선주(코드 끝자리≠0) — 기관 수급 없는 파생 주식",
+                "foreign_listing": "코스닥 외국법인(9xxxxx) — 회계·지배구조 신뢰 문제",
+                "low_liquidity": f"50일 평균 거래대금 {min_turnover_eok:g}억 미만 — 기관이 못 들어오는 유동성",
+            },
+            "count": len(stocks),
+            "stocks": [{
+                "code": str(s.get("code", "")).zfill(6),
+                "name": s.get("name"),
+                "market": s.get("market"),
+                "reasons": s.get("exclusion_reasons", []),
+            } for s in stocks],
+        }
+        MINERVINI_OUT_PATH.write_text(
+            json.dumps(payload, ensure_ascii=False, indent=1), encoding="utf-8")
+        print(f"  🏷️  제외 내역 기록 → {MINERVINI_OUT_PATH.name}")
+    except Exception as e:  # noqa: BLE001 — 진단 기록 실패로 스캔을 멈추지 않는다
+        print(f"  ⚠️  제외 내역 기록 실패(무시하고 진행): {type(e).__name__}: {e}")
+
+
 def run_full_scan(args: argparse.Namespace) -> None:
     """전체 스캔 → JSON 저장."""
     asof = args.asof
@@ -398,6 +437,36 @@ def run_full_scan(args: argparse.Namespace) -> None:
     rs_map = _compute_rs_for_all(raw_results, min_pool=args.rs_pool_min)
     rs_n = sum(1 for v in rs_map.values() if v["rs"] is not None)
     print(f"  RS 산출: {rs_n}종목")
+
+    # '미너비니가 사지 않는 주식' 제외 (SEPA 전용 — 우선주·외국법인·저유동성).
+    # 반드시 RS 계산 **뒤**에 거른다: RS 백분위는 전체 시장 대비여야 하는데,
+    # 유니버스 단계에서 빼면 비교풀이 절반으로 줄어 전 종목 RS 가 왜곡된다
+    # (저유동 종목이 시장의 ~57%). 관문 산출 단계 제외라도 candidates 파일에서
+    # 사라지므로 VCP·3C·파워플레이(트렌드/전수)·매수추천 전파는 동일하다.
+    if args.minervini_filter:
+        kept_results, nm_dropped = [], []
+        for r in raw_results:
+            if r["ok"]:
+                reasons = classify_non_minervini(
+                    {"code": r["code"], "name": r["name"]},
+                    ohlcv_matrix.get_series(r["code"]), asof=asof,
+                    min_turnover_eok=args.min_turnover_eok)
+                if reasons:
+                    nm_dropped.append({
+                        "code": r["code"], "name": r["name"],
+                        "market": r["market"], "exclusion_reasons": reasons})
+                    continue
+            kept_results.append(r)
+        raw_results = kept_results
+        by_rule = {"preferred_stock": 0, "foreign_listing": 0, "low_liquidity": 0}
+        for d in nm_dropped:
+            for reason in d["exclusion_reasons"]:
+                by_rule[reason["rule"]] = by_rule.get(reason["rule"], 0) + 1
+        print(f"  🚷 {EXCLUSION_LABEL} {len(nm_dropped)}종목 제외 "
+              f"(우선주 {by_rule['preferred_stock']} · 외국법인 {by_rule['foreign_listing']} · "
+              f"저유동성<{args.min_turnover_eok:g}억 {by_rule['low_liquidity']} — 중복 가능) "
+              f"→ 평가 대상 {len(raw_results)}종목 (RS 비교풀은 전체 시장 유지)")
+        _save_minervini_report(nm_dropped, asof, args.min_turnover_eok)
 
     # ── 5단계: 트렌드 템플레이트 평가 (조건 1-8 통합)
     print("\n🔍 8가지 조건 평가 중...")
@@ -513,6 +582,10 @@ def main():
     parser.add_argument("--rs-pool-min", type=int, default=MIN_RS_COMPARISON_POOL,
                         help=f"RS 백분위 계산 시 비교 모집단 최소 개수 (default: {MIN_RS_COMPARISON_POOL}). "
                              f"--limit 시범 시 30 정도로 낮추면 산출됨.")
+    parser.add_argument("--minervini-filter", action="store_true",
+                        help="'미너비니가 사지 않는 주식'(우선주·외국법인·저유동성) 제외 — SEPA 전용")
+    parser.add_argument("--min-turnover-eok", type=float, default=MIN_TURNOVER_EOK_DEFAULT,
+                        help="저유동성 기준: 50일 평균 거래대금 하한(억원, 기본 10)")
     parser.add_argument("--save", action="store_true",
                         help=f"결과를 {OUTPUT_PATH.name} 에 저장")
     parser.add_argument("--out", default=None,
