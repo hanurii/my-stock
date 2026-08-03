@@ -36,8 +36,13 @@ SEPA(Specific Entry Point Analysis) 종목을 찾는 파이프라인의 **첫 �
 - **공유 파일 무접촉**: `public/data/trend-template-candidates.json` 을 절대
   덮어쓰지 않는다(make-hero·`/stocks/trend-template` 페이지가 RS 70으로 공유
   중인 파일). 반드시 `--out` 으로 SEPA 전용 파일에만 쓴다.
-- **컷오프 금지**: 시총·거래대금·가격 컷오프를 추가하지 않는다
-  ([screener-no-cutoff] 메모리 준수).
+- **컷오프 금지(공유 산출물)**: 시총·거래대금·가격 컷오프를 추가하지 않는다
+  ([screener-no-cutoff] 메모리 준수). **단 하나의 의도된 예외** — SEPA 전용
+  실행은 `--minervini-filter` 로 **'미너비니가 사지 않는 주식'**(우선주·코스닥
+  외국법인·저유동성 50일 평균 거래대금<10억)을 유니버스에서 제외한다
+  (사용자 확정 2026-08-03, 7월 연쇄 손절 공통점 실측 근거). 플래그 없이는
+  기존과 동일하므로 공유 trend-template/make-hero 는 무영향. 세부 근거:
+  `docs/superpowers/specs/2026-08-03-minervini-non-buyable-filter.md`.
 - **환각 금지**: 통과 종목 수·RS 등은 콘솔 출력 그대로 보고. 추측·요약 금지.
 
 ## 사전 조건
@@ -54,7 +59,7 @@ SEPA(Specific Entry Point Analysis) 종목을 찾는 파이프라인의 **첫 �
 ## 실행 절차 (1줄)
 
 ```
-python scripts/screen_trend_template.py --rs-min 80 --out public/data/sepa-trend-candidates.json --save
+python scripts/screen_trend_template.py --rs-min 80 --minervini-filter --out public/data/sepa-trend-candidates.json --save
 ```
 
 - 산출: `public/data/sepa-trend-candidates.json`
@@ -62,6 +67,9 @@ python scripts/screen_trend_template.py --rs-min 80 --out public/data/sepa-trend
     거래정지·제외 종목과 **정지 사유**(DART 공시 기준 `temporary` 일시적 기업행위 /
     `serious` 상장적격성 등 / `unknown` 불명). "이 종목이 왜 후보에 안 나오지?"를
     되짚는 용도이며 **제외 규칙 자체는 바꾸지 않는다**. DART가 죽어도 비차단.
+  - 부산출(진단용): `public/data/sepa-minervini-excluded.json` — `--minervini-filter`
+    가 걸러낸 '미너비니가 사지 않는 주식' 목록·사유(우선주/외국법인/저유동성).
+    유니버스 단계 제외라 VCP·3C·파워플레이(트렌드/전수)·매수추천 전부에 전파된다.
   (구조는 기존 candidates JSON과 동일: `candidates[]`, `market_status`,
   `all_pass_count`, `rs_min` 등)
 - 소요: ~1분 (행렬 캐시 hit 시), 첫 실행/캐시 비운 직후 ~3-5분.
@@ -71,6 +79,8 @@ python scripts/screen_trend_template.py --rs-min 80 --out public/data/sepa-trend
 - `--rs-min 70` : 정의서 기본선으로 완화(미너비니 책 기준). SEPA 실전은 80 권장.
 - `--market KOSPI` / `--market KOSDAQ` : 한 시장만.
 - `--asof YYYY-MM-DD` : 과거 시점 기준(룩어헤드 방지 백테스트용).
+- `--minervini-filter` : '미너비니가 사지 않는 주식' 제외(SEPA 정규 실행은 항상 켬).
+- `--min-turnover-eok 10` : 저유동성 기준(50일 평균 거래대금, 억원) 조정.
 
 ## 결과 확인
 
