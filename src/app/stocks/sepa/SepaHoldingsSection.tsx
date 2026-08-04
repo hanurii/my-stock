@@ -13,6 +13,7 @@ export interface Strength {
   signal: "sell_into_strength" | "none" | "not_extended" | "na";
   extended: boolean; gate_detail: string; count: number; signals: StrengthSignal[];
 }
+export interface FilterExclusion { rule: string; detail: string; }
 export interface HoldingFeedback {
   code: string; name: string; market?: string | null; buy_date: string; buy_price: number;
   quantity?: number; stop_loss_pct: number; pivot_price?: number | null; pivot_source?: string | null;
@@ -21,10 +22,17 @@ export interface HoldingFeedback {
   signal: "stop_loss" | "early_sell" | "hold" | "no_data"; violation_count: number; rules: HoldingRule[];
   extension_pct?: number | null; accumulation?: Accumulation; mvp?: Mvp; strength?: Strength;
   superperf?: SuperperfFactors | null;   // 매수 시점 초수익 잠재력 점수
+  filter_excluded?: FilterExclusion[] | null;  // '미너비니가 사지 않는 주식' 필터 사유 — 매도규칙과 별개 축
 }
 export interface HoldingsFeedbackFile { generated_at?: string; asof?: string; holdings?: HoldingFeedback[]; }
 
 const HEAT = "#f5a9ce";
+
+const FILTER_RULE_LABELS: Record<string, string> = {
+  low_liquidity: "저유동성",
+  preferred_stock: "우선주",
+  foreign_listing: "외국법인",
+};
 
 const RULE_LABELS: Record<string, string> = {
   low_volume_breakout: "① 저거래량 돌파",
@@ -87,7 +95,7 @@ function sellStrength(h: HoldingFeedback): number {
   if (h.signal === "stop_loss") return 1000;
   if (h.signal === "early_sell") return 500 + (h.violation_count ?? 0);
   if (h.strength?.signal === "sell_into_strength") return 300 + (h.strength.count ?? 0);
-  if (h.signal === "hold") return 100;
+  if (h.signal === "hold") return 100 + (h.filter_excluded?.length ? 10 : 0);
   return 0;
 }
 
@@ -191,6 +199,12 @@ export function SepaHoldingsSection({ data }: { data: HoldingsFeedbackFile | nul
                 <div className="flex flex-wrap gap-1.5">
                   <span className="text-[11px] font-medium px-2 py-0.5 rounded whitespace-nowrap"
                     style={{ backgroundColor: meta.bg, color: meta.fg }}>{badgeLabel}</span>
+                  {(h.filter_excluded?.length ?? 0) > 0 && (
+                    <span className="text-[11px] font-medium px-2 py-0.5 rounded whitespace-nowrap"
+                      style={{ backgroundColor: "rgba(255,180,171,0.12)", color: "#ffb4ab", border: "1px solid rgba(255,180,171,0.4)" }}>
+                      ⛔ 필터 제외 · {h.filter_excluded!.map((e) => FILTER_RULE_LABELS[e.rule] ?? e.rule).join("·")}
+                    </span>
+                  )}
                   {sellStrong && (
                     <span className="text-[11px] font-medium px-2 py-0.5 rounded whitespace-nowrap"
                       style={{ backgroundColor: "rgba(245,169,206,0.14)", color: HEAT, border: `1px solid rgba(245,169,206,0.34)` }}>
@@ -223,6 +237,29 @@ export function SepaHoldingsSection({ data }: { data: HoldingsFeedbackFile | nul
                   손절선 {fmtWon(h.stop_price)}원({h.stop_loss_pct}%) · 돌파일 {h.breakout_date ?? "-"}
                   {h.breakout_date_estimated ? " (매수일 추정)" : ""}
                 </p>
+
+                {/* 미너비니 제외 필터 — 매도규칙(가격 행동)과 별개 축. 🟢 정상보유여도 정리 대상. */}
+                {(h.filter_excluded?.length ?? 0) > 0 && (
+                  <div className="pt-3 border-t border-outline-variant/10">
+                    <div className="text-[10px] font-bold tracking-wider text-[#ffb4ab]/90 mb-2 uppercase">
+                      ⛔ 미너비니가 사지 않는 주식 — 필터 제외 대상
+                    </div>
+                    <ul className="text-[11px] space-y-1.5">
+                      {h.filter_excluded!.map((e) => (
+                        <li key={e.rule} className="flex gap-1.5 leading-relaxed">
+                          <span className="text-[#ffb4ab] font-bold shrink-0 w-3 text-center">✗</span>
+                          <span className="text-on-surface-variant">
+                            <strong className="text-[#ffb4ab]">{FILTER_RULE_LABELS[e.rule] ?? e.rule}</strong>{" "}
+                            — {e.detail}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                    <p className="mt-2 text-[10.5px] text-on-surface-variant/60 leading-relaxed">
+                      매도 규칙(가격 행동) 점검과는 별개 기준입니다. 신호가 🟢 정상 보유라도 필터에 걸린 종목은 정리 대상입니다.
+                    </p>
+                  </div>
+                )}
 
                 {/* 매수 시점 초수익 잠재력 점수 내역 */}
                 {h.superperf && (

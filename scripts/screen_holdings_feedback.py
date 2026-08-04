@@ -29,8 +29,26 @@ from canslim_lib.sell_rules import evaluate_holding, find_breakout_index  # noqa
 KST = timezone(timedelta(hours=9))
 IN_PATH = ROOT / "public" / "data" / "sepa-holdings.json"
 OUT_PATH = ROOT / "public" / "data" / "sepa-holdings-feedback.json"
+EXCLUDED_PATH = ROOT / "public" / "data" / "sepa-minervini-excluded.json"
 SIGNAL_LABEL = {"stop_loss": "🔴 손절", "early_sell": "🟠 조기매도",
                 "hold": "🟢 정상보유", "no_data": "⚫ 데이터없음"}
+
+
+def load_filter_exclusions() -> dict:
+    """code → [{rule, detail}] — '미너비니가 사지 않는 주식' 필터 사유.
+
+    매도 규칙(가격 행동)과 별개 축이라, 🟢 정상보유여도 필터에 걸린 종목은
+    카드에서 바로 보이도록 피드백에 함께 실어준다.
+    """
+    if not EXCLUDED_PATH.exists():
+        return {}
+    data = json.loads(EXCLUDED_PATH.read_text(encoding="utf-8"))
+    out = {}
+    for s in data.get("stocks", []):
+        reasons = [r for r in (s.get("reasons") or []) if isinstance(r, dict)]
+        if reasons:
+            out[s["code"]] = reasons
+    return out
 
 
 def load_pivots() -> dict:
@@ -139,6 +157,7 @@ def run(out_path: Path) -> None:
         return
     default_stop = data.get("stop_loss_pct_default", -4)
     pivots = load_pivots()
+    exclusions = load_filter_exclusions()
     superperf_by = _compute_holdings_superperf(data["holdings"])  # 매수 시점 초수익 점수
 
     out_holdings, asof = [], None
@@ -170,6 +189,7 @@ def run(out_path: Path) -> None:
             "quantity": h.get("quantity"), "stop_loss_pct": stop_pct,
             "pivot_price": chosen.get("pivot") if chosen else None,
             "pivot_source": chosen.get("source") if chosen else None,
+            "filter_excluded": exclusions.get(code),
         }
         sp = superperf_by.get((code, buy_date))
         if not s or not s.get("closes"):
@@ -195,7 +215,8 @@ def run(out_path: Path) -> None:
     for x in out_holdings:
         label = SIGNAL_LABEL.get(x["signal"], x["signal"])
         extra = f" 위반 {x['violation_count']}건" if x["signal"] == "early_sell" else ""
-        print(f"  [{label}{extra}] {x['code']} {x['name']} "
+        excl = " ⛔필터제외" if x.get("filter_excluded") else ""
+        print(f"  [{label}{extra}{excl}] {x['code']} {x['name']} "
               f"매수 {x['buy_price']:,} → 현재 {x.get('current_price') or '?'} "
               f"({x.get('profit_pct', '?')}%)")
         for r in x.get("rules", []):
