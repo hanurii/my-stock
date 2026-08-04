@@ -138,6 +138,7 @@ function mkTrade(net: number, days: number, month: string, code = "X"): Trade {
     code, name: code, open_date: `${month}-01`, close_date: `${month}-05`,
     avg_buy: 100, avg_sell: 100 * (1 + net / 100),
     gross_pct: net, net_pct: net, hold_days: days,
+    gross_won: net, net_won: net,
     outcome: net > 0 ? "win" : "loss", month,
     buy_qty: 1, sell_qty: 1,
   };

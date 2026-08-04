@@ -20,6 +20,9 @@ description: >
   없거나 비면 빈 결과로 정상 종료.
 - 피벗 참고: `sepa-vcp-candidates.json` / `sepa-power-play-candidates.json`
   (있으면 사용, 없어도 매수 시점 스냅샷 `pivot_price`로 판정).
+- 필터 참고: `sepa-minervini-excluded.json` — 보유 종목이 '미너비니가 사지
+  않는 주식' 필터(우선주·외국법인·저유동성)에 걸리면 사유를 `filter_excluded`
+  로 함께 실어준다(있으면 사용, 없어도 정상 동작).
 - 시세: `update-data`가 갱신하는 OHLCV 캐시(추가 수집 없음).
 
 ## 실행 (1줄)
@@ -37,6 +40,8 @@ python scripts/screen_holdings_feedback.py
   ④ 이평선 아래 마감 · ⑤ 하락일·나쁜 마감 우세 · ⑥ 돌파 실패(스쿼트+비대칭).
 - 신호: 🔴 손절(현재가 ≤ 손절선) > 🟠 조기 매도(위반 ≥ 1건) > 🟢 정상 보유.
 - 🟡 소프트 경고(거래량 낮은 저점경신·스쿼트 관찰중)는 위반이 아니라 detail 표기.
+- ⛔ 필터 제외: 매도 규칙과 **별개 축**. 신호가 🟢 정상 보유라도
+  `filter_excluded`가 있으면 필터(저유동성 등)에 걸린 정리 대상 종목이다.
 
 ## 안 하는 것
 - 매수 목록 편집 · 공유/수급 파일 갱신 · 페이지 코드 수정 · 자동 commit.
