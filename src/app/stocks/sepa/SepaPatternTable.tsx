@@ -9,6 +9,7 @@ import {
   fmtPrice,
   fmtCell,
 } from "./sepaPatterns";
+import { ExportBadge, type ExportTagMap } from "./ExportBadge";
 
 const TIER_META: Record<Tier, { label: string; color: string; bg: string; dot: string }> = {
   breakout: { label: "돌파", color: "#ffb4ab", bg: "rgba(255,180,171,0.15)", dot: "🔴" },
@@ -68,9 +69,10 @@ interface Props {
   rows: ClassifiedRow[];
   columns: PatternColumn[];
   trendByCode?: Record<string, string>;
+  exportTags?: ExportTagMap;
 }
 
-export function SepaPatternTable({ rows, columns, trendByCode }: Props) {
+export function SepaPatternTable({ rows, columns, trendByCode, exportTags }: Props) {
   const [sortKey, setSortKey] = useState<SortKey>("tier");
   const [sortDesc, setSortDesc] = useState(false);
 
@@ -152,7 +154,9 @@ export function SepaPatternTable({ rows, columns, trendByCode }: Props) {
               <tr key={r.code} className="border-t border-outline-variant/10 hover:bg-surface-container-high/50 transition-colors">
                 <td className="px-2 py-2 sticky left-0 bg-surface-container-low">
                   <div className="flex flex-col">
-                    <span className="text-on-surface font-medium leading-tight">{r.name}</span>
+                    <span className="text-on-surface font-medium leading-tight">
+                      {r.name} <ExportBadge tag={exportTags?.[r.code]} />
+                    </span>
                     <span className="text-[10px] text-on-surface-variant/50 font-mono">{r.code}</span>
                   </div>
                 </td>
