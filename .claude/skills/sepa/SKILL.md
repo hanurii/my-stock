@@ -73,6 +73,14 @@ SEPA 종목 발굴 전체 파이프라인을 한 번에 돌리는 **부모 스�
    - **비차단**: 실패(예: FDR 지수 수집 오류)해도 파이프라인 실패로 보지 않고 오류
      한 줄만 보고 후 넘어간다(그 경우 아래 커밋에서 `sepa-buy-recommendations.json`
      은 빼고 나머지만 커밋).
+7.5 **수출 주도 태깅 — `python scripts/tag_export_leaders.py`.** (오케스트레이터
+   전용 마무리 스텝 — 후보 4파일+매수추천에 등장한 종목을 수출 주도 품목
+   (설정: `export-leading-config.json`, 사용자 직접 관리)으로 분류해
+   `sepa-export-tags.json` 산출. `/stocks/sepa` 후보 테이블·매수 추천의
+   🚢 배지가 읽는다. 표시 전용 — 정렬·점수·보유 점검 무관여.)
+   - 후보·매수추천 파일을 읽으므로 **3단계와 7단계 뒤에** 실행.
+   - **비차단**: 실패해도 파이프라인 실패 아님 — 오류 한 줄 보고 후 진행
+     (그 경우 아래 커밋에서 `sepa-export-tags.json` 은 빼고 나머지만 커밋).
 8. **통합 요약 보고** — 표 하나로:
    - 추세 통과 N종목 (market_status 포함)
    - VCP: breakout / actionable 종목과 피벗
@@ -97,6 +105,8 @@ SEPA 종목 발굴 전체 파이프라인을 한 번에 돌리는 **부모 스�
      '매수 추천 리스트' 섹션. 7단계가 실패해 갱신 안 됐으면 제외)
    - `public/data/sepa-buy-rec-ledger.json` (7단계 살아있는 검증 원장 — 추천의
      전방 성과 누적. 7단계가 실패해 갱신 안 됐으면 제외)
+   - `public/data/sepa-export-tags.json` (7.5단계 수출 주도 태그 — /stocks/sepa
+     🚢 배지. 7.5단계가 실패해 갱신 안 됐으면 제외)
    - 커밋 메시지: `chore(sepa): 파이프라인 결과 갱신 (YYYY-MM-DD)` —
      날짜는 실행일(오늘).
    - 현재 브랜치로 push. **브랜치가 master가 아니면 경고 한 줄**:

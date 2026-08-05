@@ -44,10 +44,18 @@ KRX 업종·주요제품(FDR, 캐시) ─┼→ tag_export_leaders.py → sepa-e
   }
 }
 ```
-- 키워드는 KRX `Sector`(업종명)·`Products`(주요제품) 텍스트에 부분 일치.
+- 키워드는 KRX `Industry`(KSIC 업종명)·`Products`(주요제품) 텍스트에 부분 일치
+  (`Sector` 컬럼은 KOSDAQ에서 소속부명이라 Industry 와 합쳐 사용 — 구현 시 실측).
+- **자동 매칭은 업종명에 `auto_match_requires`(기본 "제조업"·"건조업") 마커가
+  있을 때만** — 품목을 만들지 않고 이용·유통하는 회사(통신사·해운사·홈쇼핑·
+  상사)가 제품명 텍스트로 걸리는 오탐을 구조적으로 차단(적대 리뷰에서 SKT·
+  KSS해운·CJ ENM 등 8건 실측 후 추가). 서비스업 밸류체인 편입은 include
+  오버라이드로만.
 - 키워드 매칭 = `direct` 후보, 오버라이드 include 는 `tier` 명시(직/간접).
+  tier 오타는 indirect 로 클램프(분류기·배지 양쪽 방어).
 - 장비·소재사가 업종명만으로 안 잡히면 include 오버라이드로 추가(예:
-  뉴파워프라즈마 → semiconductor/indirect).
+  뉴파워프라즈마 → semiconductor/indirect, 타이거일렉·샘씨엔에스 → KRX
+  Products 에 '반도체' 키워드가 없어 오버라이드로 편입 — 실측 반영).
 
 ### 2. 태깅 스크립트 `scripts/tag_export_leaders.py`
 - 입력: 후보 4파일(sepa-trend / vcp / power-play-all / 3c) + 매수추천에 등장하는
@@ -75,7 +83,8 @@ KRX 업종·주요제품(FDR, 캐시) ─┼→ tag_export_leaders.py → sepa-e
 - 태그 파일 없거나 fetch 실패 → 배지 없이 기존 렌더 그대로(그레이스풀).
 
 ### 4. /sepa 오케스트레이터 통합
-- 5단계(티어 스냅샷) 다음에 **비차단** 스텝으로 `python scripts/tag_export_leaders.py`.
+- 7단계(매수 추천) 다음(7.5)에 **비차단** 스텝으로 `python scripts/tag_export_leaders.py`
+  (매수추천 파일도 입력이라 5.5가 아닌 7.5 — 구현 시 정정).
 - 커밋 목록에 `sepa-export-tags.json` 추가(실패 시 제외하고 나머지 커밋).
 - 스킬 문서(`.claude/skills/sepa/SKILL.md`) 갱신 — 단계·커밋 목록.
   ([doc-logic-sync] 코드와 문서 같은 라운드 동기화.)
@@ -88,7 +97,11 @@ KRX 업종·주요제품(FDR, 캐시) ─┼→ tag_export_leaders.py → sepa-e
 ## 테스트 (오늘 32종목 = 오라클)
 `tests/test_export_tags.py` — 분류 함수 단위 테스트(고정 입력, 네트워크 없음):
 - S-Oil(010950) → petroleum/direct (업종 "석유 정제품 제조업")
-- 샘씨엔에스(252990)·타이거일렉(219130) → semiconductor (전자부품+반도체 제품 텍스트)
+- 샘씨엔에스(252990)·타이거일렉(219130) → semiconductor/indirect (KRX Products 에
+  '반도체' 키워드가 없음이 실측 확인돼 include 오버라이드로 편입)
+- 서비스업 가드: SKT(전기 통신업)·KSS해운(해상 운송업)·CJ ENM(방송업)은 제품명에
+  키워드가 있어도 미태깅
+- 조선 "건조업" 도 제조 마커로 인정 (선박 및 보트 건조업 → ships/direct)
 - 뉴파워프라즈마(144960) → semiconductor/indirect (오버라이드)
 - GS(078930) → petroleum/indirect (오버라이드 include)
 - 슈프리마에이치큐(094840) → 태그 없음 (오버라이드 exclude — KSIC 오탐 차단)
