@@ -2,6 +2,7 @@
 
 import { useState, Fragment } from "react";
 import { fmtPrice } from "./sepaPatterns";
+import { ExportBadge, type ExportTagMap } from "./ExportBadge";
 
 export interface BuyRec {
   code: string;
@@ -127,7 +128,7 @@ function Detail({ r }: { r: BuyRec }) {
   );
 }
 
-export function BuyRecommendationSection({ data }: { data: BuyRecFile | null }) {
+export function BuyRecommendationSection({ data, exportTags }: { data: BuyRecFile | null; exportTags?: ExportTagMap }) {
   const [open, setOpen] = useState<string | null>(null);
 
   if (!data) {
@@ -196,7 +197,9 @@ export function BuyRecommendationSection({ data }: { data: BuyRecFile | null }) 
                       </td>
                       <td className="px-2 py-2 sticky left-0 bg-surface-container-low">
                         <div className="flex flex-col">
-                          <span className="text-on-surface font-medium leading-tight">{r.name}</span>
+                          <span className="text-on-surface font-medium leading-tight">
+                            {r.name} <ExportBadge tag={exportTags?.[r.code]} />
+                          </span>
                           <span className="text-[10px] text-on-surface-variant/50 font-mono">{r.code}</span>
                         </div>
                       </td>
