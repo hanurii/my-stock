@@ -1,13 +1,13 @@
 {
   "code": "175330",
   "name": "JB금융지주",
-  "last_checked": "2026-08-06T17:10:49.923+09:00",
+  "last_checked": "2026-08-06T20:26:53.807+09:00",
   "metrics": [
     {
       "id": "pbr",
       "label": "PBR",
-      "value": 0.85,
-      "display": "0.85배",
+      "value": 0.87,
+      "display": "0.87배",
       "threshold": "1.1배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,17 +15,17 @@
     {
       "id": "pbr_premium_pp",
       "label": "지방지주 평균 대비 PBR 프리미엄",
-      "value": 0.44,
-      "display": "0.440pp",
+      "value": 0.46,
+      "display": "0.460pp",
       "threshold": "+0.50pp 이상",
       "hit": false,
-      "tone": "good"
+      "tone": "warn"
     },
     {
       "id": "foreign_ratio",
       "label": "외국인 지분율",
-      "value": 34.37,
-      "display": "34.37%",
+      "value": 34.4,
+      "display": "34.40%",
       "threshold": "25% 이하",
       "hit": false,
       "tone": "good"
@@ -33,8 +33,8 @@
     {
       "id": "foreign_net_buy_4w",
       "label": "최근 20거래일 외국인 순매수",
-      "value": -124632,
-      "display": "-12만주",
+      "value": -183172,
+      "display": "-18만주",
       "threshold": "순매도 전환",
       "hit": true,
       "tone": "bad"
@@ -105,10 +105,16 @@
   ],
   "alerts": [
     {
+      "severity": "warn",
+      "type": "pbr_premium_pp",
+      "title": "지방지주 평균 대비 PBR 프리미엄 임계 근접",
+      "message": "현재 0.460pp (임계 +0.50pp 이상)"
+    },
+    {
       "severity": "bad",
       "type": "foreign_net_buy_4w",
       "title": "최근 20거래일 외국인 순매수 순매도 전환",
-      "message": "현재 -12만주 — 매도 트리거 도달"
+      "message": "현재 -18만주 — 매도 트리거 도달"
     },
     {
       "severity": "info",
@@ -122,7 +128,7 @@
       "keyword": "지방은행 부실",
       "date": "2026-08-03",
       "title": "지방은행, 몸집 키웠지만…부실채권 1조 털어내도 늘어나는 연체 - 네이트",
-      "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE9HODlLWVJ2c2x3SUZndVNXWVRCRW9ZenczeENBM1FXVE45b3pjci10X3lCZGtOZlRfUnpJNzZJMENEMk9kXzQ3MjlHQ0U4TWtZV3hoVGtXY2Fub0RWcFR4ZQ?oc=5",
+      "url": "https://news.google.com/rss/articles/CBMiU0FVX3lxTE5McjVfNDlraUJkeklkeXFGQmtZR2dBd2RSUUp3d0EyOHUzTGFQTWdic24tYXNpUWtsYXBVUU04Z3JFU1pYT21mZTNyTGwxdG9uTV9r?oc=5",
       "severity": "info",
       "signals": []
     }
@@ -142,7 +148,7 @@
     },
     {
       "label": "외국인 순매수 누적 (20일)",
-      "ref": "네이버 dealTrendInfos / history 2026-08-05"
+      "ref": "네이버 dealTrendInfos / history 2026-08-06"
     },
     {
       "label": "최근 분기 순이익 (2025-FY)",
