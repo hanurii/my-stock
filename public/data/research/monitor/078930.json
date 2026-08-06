@@ -1,13 +1,13 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-08-06T14:50:28.244+09:00",
+  "last_checked": "2026-08-06T17:11:10.752+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 7.11,
-      "display": "7.11배",
+      "value": 7.1,
+      "display": "7.10배",
       "threshold": "10배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "dividend_yield",
       "label": "배당수익률",
-      "value": 3.03,
-      "display": "3.03%",
+      "value": 3.04,
+      "display": "3.04%",
       "threshold": "3.5% 이하",
       "hit": true,
       "tone": "bad"
@@ -60,8 +60,8 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 84.51,
-      "display": "84.51$",
+      "value": 84.59,
+      "display": "84.59$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
@@ -72,7 +72,7 @@
       "severity": "bad",
       "type": "dividend_yield",
       "title": "배당수익률 3.5% 이하",
-      "message": "현재 3.03% — 매도 트리거 도달"
+      "message": "현재 3.04% — 매도 트리거 도달"
     },
     {
       "severity": "bad",
@@ -95,7 +95,7 @@
     {
       "severity": "bad",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 12건 (부정 시그널 1건 포함)",
+      "title": "리스크 키워드 매칭 뉴스 13건 (부정 시그널 1건 포함)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
@@ -111,9 +111,19 @@
       ]
     },
     {
+      "keyword": "정제마진 하락",
+      "date": "2026-07-31",
+      "title": "ECB 블로그: 유로존 정제마진 8월 정점 후 하락 전망 - Investing.com 한국어",
+      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE8teUJFdkZ2WUpYMHlERzdJTXV4VkFFZXkwN0VMRDg4NmtDS01ENGpXQWtsN3JpcDFiTExGdS0tUldfY3BOckp1bnNLR3hYR1EwdnFzdHo4SmI3Rmp2ZVlCWEdDT3RVbmdKdzVBS213LWI?oc=5",
+      "severity": "warn",
+      "signals": [
+        "하락"
+      ]
+    },
+    {
       "keyword": "GS칼텍스 정제마진",
       "date": "2026-08-05",
-      "title": "GS칼텍스도 2분기 깜짝 실적 예약…정제마진 증가ㆍ윤활유 특수 - 대한경제",
+      "title": "GS칼텍스도 2분기 깜짝 실적 예약…정제마진 증가ㆍ윤활유 특수 - dnews.co.kr",
       "url": "https://news.google.com/rss/articles/CBMidEFVX3lxTE9NVTlnMG1YZ1NXQ1lMczNORlFNUXR6OUlrb3VkSTItVmRQUW1mVlhuR1ZsLTFpTWNEVXNESFR2NnVwdEN5cVh6QWxkOTNCenphbE9vcE5Oc1F1QWx4UUU1aFgtSHNiUkhUcnYtMUlZS0xrTkxJ?oc=5",
       "severity": "info",
       "signals": []
@@ -122,7 +132,7 @@
       "keyword": "이란 미국 합의",
       "date": "2026-08-06",
       "title": "트럼프 \"이란과 합의하고 싶어\"...이란 \"미국과 대화 없어\" - YTN",
-      "url": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE02TmJCRGtKemdSYk1UMVNRVlZhMm9XYW4zbHZyNnhXOWxWZ0xxTUpUR3ZKdXQyb1BsZWJoOFdKNjFzZ2tTakRHcXNlMElfelBWWlNjQ0ZjZ2tRSWdhZEE?oc=5",
+      "url": "https://news.google.com/rss/articles/CBMidkFVX3lxTFBBRWpiaF9EdWRJSmlkZmxwNFNLWlV2UUpuZ19sTUl5ZlpwaWotT3NXSk5hRUxNNnFQcHZ2RDA4YnVtRU9WYnpCMEhScUlTYmlCV2dHTERJMlpGSTF4dWJPdzE2S1A0b1BZUDZQaXV6MGkwSDRzaHc?oc=5",
       "severity": "info",
       "signals": []
     },
@@ -136,9 +146,9 @@
     },
     {
       "keyword": "중동 긴장 완화",
-      "date": "2026-08-05",
-      "title": "비트코인 9100만원대 강보합...중동 긴장 완화 기대 속 관망세 - 메트로신문",
-      "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE1qWk5qWGdwQTlOT3E3bm5wLW9BZjUyUjhaSE9vTFBLU3pJaWFTbkUta04wdXVfVUdwNWF3OFlpU29OMUJDRHRfbEdQYmZrLTQ3RlFpcUNHLWktaW9OREw1NQ?oc=5",
+      "date": "2026-08-06",
+      "title": "원·달러, 중동긴장 완화 등 영향에 0.7원 내린 1423.8원 마감 - 뉴시스",
+      "url": "https://news.google.com/rss/articles/CBMieEFVX3lxTE11VXE5SC1scDVoMFFEMDEyempqM0JwRmhsSGg0WUgxamNuVzlrTXFRcjZNbV93S2NPSUNCc0pfVWNhNmFoLVZWb3Fib1JlSEJaTVB3WkdYMHVMcEp1Q2VzRDQ1eVFhZEdSUWFlOTFXV0pPUWJRVy1rZNIBeEFVX3lxTE11VXE5SC1scDVoMFFEMDEyempqM0JwRmhsSGg0WUgxamNuVzlrTXFRcjZNbV93S2NPSUNCc0pfVWNhNmFoLVZWb3Fib1JlSEJaTVB3WkdYMHVMcEp1Q2VzRDQ1eVFhZEdSUWFlOTFXV0pPUWJRVy1rZA?oc=5",
       "severity": "info",
       "signals": []
     },
@@ -147,6 +157,14 @@
       "date": "2026-08-04",
       "title": "美 국채가, 중동 긴장 완화 기대로 강세 지속 - 연합인포맥스",
       "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTFBfa3BDakNDbF8wSDJpUnFxX2pGMnlPbE1tbzdlUEhEOTZiZFRfajZGc0VSaC1mU29GXzB5T0FoaGpkanBiYUhOWGR2RHhqUFplTXN3N1FZSXZSeE5ZaFJTTWt1RnBNYnFGbk1BQmlBTGk?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "중동 긴장 완화",
+      "date": "2026-08-05",
+      "title": "비트코인 9100만원대 강보합...중동 긴장 완화 기대 속 관망세 - 메트로신문",
+      "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE1qWk5qWGdwQTlOT3E3bm5wLW9BZjUyUjhaSE9vTFBLU3pJaWFTbkUta04wdXVfVUdwNWF3OFlpU29OMUJDRHRfbEdQYmZrLTQ3RlFpcUNHLWktaW9OREw1NQ?oc=5",
       "severity": "info",
       "signals": []
     },
@@ -171,7 +189,7 @@
     {
       "keyword": "중동 긴장 완화",
       "date": "2026-08-03",
-      "title": "독일 DAX지수 사상 최고치…중동 긴장 완화 기대(종합) - yna.co.kr",
+      "title": "독일 DAX지수 사상 최고치…중동 긴장 완화 기대(종합) - 연합뉴스",
       "url": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE51YU1mOFV5ejlVNm93RC1DZ2JWT195MFVicVBZSjVaT1d2MjctUVRIZlpRbGtybUFPR3licjVkUEF4VGFyNUZPTHFiMXB6OW85RmwzNktnQmpmcTDSAWBBVV95cUxQMWRCRjBJR0tsdHJVRmZvQVM5WUhRZm03aUVqZ3p6akUya1lSVzA5UHZZRWJ2ZkVKY1VXd19ua1RtUVByZXZkM0tiSm5mcVB3REloR29RajJVN3ZlZ2o1cWg?oc=5",
       "severity": "info",
       "signals": []
@@ -179,7 +197,7 @@
     {
       "keyword": "중동 긴장 완화",
       "date": "2026-08-05",
-      "title": "S&amp;P500 선물, 중동 긴장 완화에 상승…美 국채금리↑ - kbthink.com",
+      "title": "S&amp;P500 선물, 중동 긴장 완화에 상승…美 국채금리↑ - KB Think",
       "url": "https://news.google.com/rss/articles/CBMickFVX3lxTE55ZXlnamM2X25ta21YVUhjbVBmQ2JrUkRTZFEwNDh1Zy1wSm9uUjcwdzhXVVFrZzAza3NRSmtYYkFROFdpNHJTanZMZG5sVkJJZEtzeDM3TWdXZ01TYXVKSXFwc0ktVlZrVkF3QVd6cnFGdw?oc=5",
       "severity": "info",
       "signals": []
@@ -193,16 +211,6 @@
       "signals": [
         "급락"
       ]
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-08-03",
-      "title": "중동 긴장 완화에 유가·금리 하락…빅테크 중심 상승 [뉴욕증시 브리핑",
-      "url": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE00R2YwYjJNaXBHdUdxZlRhTFBqeHhLWmRhai1sNXJiN0l3YTZGclAxelJnek5PVDZOdUVlMVUtUFVfN0Y2Q25jREhlUWlteWl6bVNDckxjajhUZw?oc=5",
-      "severity": "warn",
-      "signals": [
-        "하락"
-      ]
     }
   ],
   "sources": [
@@ -211,7 +219,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 79.13 USD (2026-08-06, 7일 평균 84.51)",
+      "label": "Brent 원유 종가 79.64 USD (2026-08-06, 7일 평균 84.59)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
