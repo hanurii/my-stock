@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-08-05 22:12",
-  "asof": "2026-08-05",
+  "generated_at": "2026-08-06 20:09",
+  "asof": "2026-08-06",
   "source": "sepa-trend-candidates.json",
   "params": {
     "lookback_days": 120,
@@ -9,21 +9,152 @@
     "breakout_vol_mult": 1.4,
     "near_pivot_pct": 5.0
   },
-  "vcp_count": 6,
-  "entry_ready_count": 3,
+  "vcp_count": 12,
+  "entry_ready_count": 4,
   "status_distribution": {
-    "breakout": 1,
-    "actionable": 5,
-    "forming": 26,
+    "breakout": 3,
+    "actionable": 3,
+    "forming": 41,
     "failed": 0
   },
   "candidates": [
     {
+      "code": "001540",
+      "name": "안국약품",
+      "market": "KOSDAQ",
+      "current_price": 12560.0,
+      "rs": 91,
+      "vcp_detected": true,
+      "num_contractions": 2,
+      "contractions": [
+        18.35,
+        17.96
+      ],
+      "base_length_days": 48,
+      "base_depth_pct": 18.35,
+      "pivot_price": 11179.75,
+      "pct_to_pivot": -12.35,
+      "volume_dryup_ratio": 0.686,
+      "tightness_pct": 6.16,
+      "status": "breakout",
+      "swings": [
+        {
+          "date": "2026-02-09",
+          "price": 8532.41,
+          "kind": "high"
+        },
+        {
+          "date": "2026-03-04",
+          "price": 7281.47,
+          "kind": "low"
+        },
+        {
+          "date": "2026-05-29",
+          "price": 11499.42,
+          "kind": "high"
+        },
+        {
+          "date": "2026-06-26",
+          "price": 9389.57,
+          "kind": "low"
+        },
+        {
+          "date": "2026-07-15",
+          "price": 12128.4,
+          "kind": "high"
+        },
+        {
+          "date": "2026-07-29",
+          "price": 9950.01,
+          "kind": "low"
+        },
+        {
+          "date": "2026-08-06",
+          "price": 12560.0,
+          "kind": "high"
+        }
+      ],
+      "reason": null,
+      "entry_ready": true,
+      "coil_len": 8,
+      "coil_dry_mean": 0.327,
+      "coil_range_pct": 11.0,
+      "coil_min_dry": 0.166
+    },
+    {
+      "code": "204610",
+      "name": "티쓰리",
+      "market": "KOSDAQ",
+      "current_price": 3325.0,
+      "rs": 90,
+      "vcp_detected": true,
+      "num_contractions": 2,
+      "contractions": [
+        37.76,
+        8.19
+      ],
+      "base_length_days": 68,
+      "base_depth_pct": 37.76,
+      "pivot_price": 3100.0,
+      "pct_to_pivot": -7.26,
+      "volume_dryup_ratio": 0.803,
+      "tightness_pct": 4.48,
+      "status": "breakout",
+      "swings": [
+        {
+          "date": "2026-02-09",
+          "price": 1813.29,
+          "kind": "low"
+        },
+        {
+          "date": "2026-03-25",
+          "price": 2925.4,
+          "kind": "high"
+        },
+        {
+          "date": "2026-04-02",
+          "price": 2490.29,
+          "kind": "low"
+        },
+        {
+          "date": "2026-04-28",
+          "price": 3655.11,
+          "kind": "high"
+        },
+        {
+          "date": "2026-06-23",
+          "price": 2275.07,
+          "kind": "low"
+        },
+        {
+          "date": "2026-07-10",
+          "price": 3055.19,
+          "kind": "high"
+        },
+        {
+          "date": "2026-07-29",
+          "price": 2805.08,
+          "kind": "low"
+        },
+        {
+          "date": "2026-08-06",
+          "price": 3325.0,
+          "kind": "high"
+        }
+      ],
+      "reason": null,
+      "entry_ready": true,
+      "coil_len": 12,
+      "coil_dry_mean": 0.556,
+      "coil_range_pct": 9.51,
+      "coil_min_dry": 0.207
+    },
+    {
       "code": "003690",
       "name": "코리안리",
       "market": "KOSPI",
-      "current_price": 13830.0,
-      "rs": 85,
+      "current_price": 14630.0,
+      "rs": 86,
       "vcp_detected": true,
       "num_contractions": 3,
       "contractions": [
@@ -31,441 +162,72 @@
         12.23,
         11.36
       ],
-      "base_length_days": 100,
+      "base_length_days": 101,
       "base_depth_pct": 15.92,
-      "pivot_price": 13950.6,
-      "pct_to_pivot": 0.86,
-      "volume_dryup_ratio": 0.677,
-      "tightness_pct": 4.52,
-      "status": "actionable",
+      "pivot_price": 13949.91,
+      "pct_to_pivot": -4.88,
+      "volume_dryup_ratio": 0.702,
+      "tightness_pct": 4.81,
+      "status": "breakout",
       "swings": [
         {
-          "date": "2026-02-06",
-          "price": 12212.31,
+          "date": "2026-02-09",
+          "price": 12622.02,
           "kind": "high"
         },
         {
           "date": "2026-03-04",
-          "price": 12362.04,
+          "price": 12361.43,
           "kind": "low"
         },
         {
           "date": "2026-03-12",
-          "price": 13713.84,
+          "price": 13713.16,
           "kind": "high"
         },
         {
           "date": "2026-05-13",
-          "price": 11530.85,
+          "price": 11530.28,
           "kind": "low"
         },
         {
           "date": "2026-05-21",
-          "price": 14539.66,
+          "price": 14538.94,
           "kind": "high"
         },
         {
           "date": "2026-06-08",
-          "price": 12761.21,
+          "price": 12760.57,
           "kind": "low"
         },
         {
           "date": "2026-06-16",
-          "price": 14001.04,
+          "price": 14000.34,
           "kind": "high"
         },
         {
           "date": "2026-06-24",
-          "price": 12410.99,
+          "price": 12410.38,
           "kind": "low"
         },
         {
-          "date": "2026-07-24",
-          "price": 13950.6,
+          "date": "2026-08-06",
+          "price": 14630.0,
           "kind": "high"
         }
       ],
       "reason": null,
       "entry_ready": true,
       "coil_len": 12,
-      "coil_dry_mean": 0.524,
+      "coil_dry_mean": 0.548,
       "coil_range_pct": 4.73,
       "coil_min_dry": 0.208
-    },
-    {
-      "code": "055550",
-      "name": "신한지주",
-      "market": "KOSPI",
-      "current_price": 103600.0,
-      "rs": 90,
-      "vcp_detected": true,
-      "num_contractions": 2,
-      "contractions": [
-        14.14,
-        9.97
-      ],
-      "base_length_days": 36,
-      "base_depth_pct": 14.14,
-      "pivot_price": 104998.91,
-      "pct_to_pivot": 1.33,
-      "volume_dryup_ratio": 0.773,
-      "tightness_pct": 4.81,
-      "status": "actionable",
-      "swings": [
-        {
-          "date": "2026-02-06",
-          "price": 93551.87,
-          "kind": "high"
-        },
-        {
-          "date": "2026-03-09",
-          "price": 88451.85,
-          "kind": "low"
-        },
-        {
-          "date": "2026-03-20",
-          "price": 97845.75,
-          "kind": "high"
-        },
-        {
-          "date": "2026-03-31",
-          "price": 87652.5,
-          "kind": "low"
-        },
-        {
-          "date": "2026-06-05",
-          "price": 107460.28,
-          "kind": "high"
-        },
-        {
-          "date": "2026-06-11",
-          "price": 96874.83,
-          "kind": "low"
-        },
-        {
-          "date": "2026-06-16",
-          "price": 106670.16,
-          "kind": "high"
-        },
-        {
-          "date": "2026-06-26",
-          "price": 91583.54,
-          "kind": "low"
-        },
-        {
-          "date": "2026-07-10",
-          "price": 109192.48,
-          "kind": "high"
-        },
-        {
-          "date": "2026-07-29",
-          "price": 98300.63,
-          "kind": "low"
-        }
-      ],
-      "reason": null,
-      "entry_ready": true,
-      "coil_len": 12,
-      "coil_dry_mean": 0.77,
-      "coil_range_pct": 6.38,
-      "coil_min_dry": 0.46
-    },
-    {
-      "code": "001540",
-      "name": "안국약품",
-      "market": "KOSDAQ",
-      "current_price": 11020.0,
-      "rs": 87,
-      "vcp_detected": true,
-      "num_contractions": 2,
-      "contractions": [
-        18.35,
-        17.96
-      ],
-      "base_length_days": 47,
-      "base_depth_pct": 18.35,
-      "pivot_price": 11179.82,
-      "pct_to_pivot": 1.43,
-      "volume_dryup_ratio": 0.337,
-      "tightness_pct": 5.27,
-      "status": "actionable",
-      "swings": [
-        {
-          "date": "2026-02-06",
-          "price": 8402.23,
-          "kind": "high"
-        },
-        {
-          "date": "2026-03-04",
-          "price": 7281.52,
-          "kind": "low"
-        },
-        {
-          "date": "2026-05-29",
-          "price": 11499.49,
-          "kind": "high"
-        },
-        {
-          "date": "2026-06-26",
-          "price": 9389.63,
-          "kind": "low"
-        },
-        {
-          "date": "2026-07-15",
-          "price": 12128.48,
-          "kind": "high"
-        },
-        {
-          "date": "2026-07-29",
-          "price": 9950.08,
-          "kind": "low"
-        },
-        {
-          "date": "2026-08-04",
-          "price": 11030.0,
-          "kind": "high"
-        }
-      ],
-      "reason": null,
-      "entry_ready": true,
-      "coil_len": 7,
-      "coil_dry_mean": 0.309,
-      "coil_range_pct": 11.0,
-      "coil_min_dry": 0.166
-    },
-    {
-      "code": "219130",
-      "name": "타이거일렉",
-      "market": "KOSDAQ",
-      "current_price": 73100.0,
-      "rs": 99,
-      "vcp_detected": false,
-      "num_contractions": 1,
-      "contractions": [
-        32.07
-      ],
-      "base_length_days": 15,
-      "base_depth_pct": null,
-      "pivot_price": 64100.0,
-      "pct_to_pivot": -14.04,
-      "volume_dryup_ratio": 0.623,
-      "tightness_pct": 10.04,
-      "status": "breakout",
-      "swings": [
-        {
-          "date": "2026-02-06",
-          "price": 35698.6,
-          "kind": "high"
-        },
-        {
-          "date": "2026-03-04",
-          "price": 25701.46,
-          "kind": "low"
-        },
-        {
-          "date": "2026-03-20",
-          "price": 33903.43,
-          "kind": "high"
-        },
-        {
-          "date": "2026-04-02",
-          "price": 27052.89,
-          "kind": "low"
-        },
-        {
-          "date": "2026-05-21",
-          "price": 67796.84,
-          "kind": "high"
-        },
-        {
-          "date": "2026-06-08",
-          "price": 48801.98,
-          "kind": "low"
-        },
-        {
-          "date": "2026-06-12",
-          "price": 78711.0,
-          "kind": "high"
-        },
-        {
-          "date": "2026-06-26",
-          "price": 58011.18,
-          "kind": "low"
-        },
-        {
-          "date": "2026-07-15",
-          "price": 81704.77,
-          "kind": "high"
-        },
-        {
-          "date": "2026-07-30",
-          "price": 55499.2,
-          "kind": "low"
-        },
-        {
-          "date": "2026-08-05",
-          "price": 73100.0,
-          "kind": "high"
-        }
-      ],
-      "reason": "contraction_count_not_2_6",
-      "entry_ready": false,
-      "coil_len": 3,
-      "coil_dry_mean": 0.527,
-      "coil_range_pct": 5.46,
-      "coil_min_dry": 0.211
-    },
-    {
-      "code": "017890",
-      "name": "한국알콜",
-      "market": "KOSDAQ",
-      "current_price": 13480.0,
-      "rs": 87,
-      "vcp_detected": false,
-      "num_contractions": 1,
-      "contractions": [
-        13.64
-      ],
-      "base_length_days": 15,
-      "base_depth_pct": null,
-      "pivot_price": 13668.4,
-      "pct_to_pivot": 1.38,
-      "volume_dryup_ratio": 0.617,
-      "tightness_pct": 4.62,
-      "status": "actionable",
-      "swings": [
-        {
-          "date": "2026-02-06",
-          "price": 11182.9,
-          "kind": "high"
-        },
-        {
-          "date": "2026-04-02",
-          "price": 10142.17,
-          "kind": "low"
-        },
-        {
-          "date": "2026-04-29",
-          "price": 14211.01,
-          "kind": "high"
-        },
-        {
-          "date": "2026-06-08",
-          "price": 10800.9,
-          "kind": "low"
-        },
-        {
-          "date": "2026-06-10",
-          "price": 12400.52,
-          "kind": "high"
-        },
-        {
-          "date": "2026-06-25",
-          "price": 11060.29,
-          "kind": "low"
-        },
-        {
-          "date": "2026-07-15",
-          "price": 14439.76,
-          "kind": "high"
-        },
-        {
-          "date": "2026-07-29",
-          "price": 12469.54,
-          "kind": "low"
-        }
-      ],
-      "reason": "contraction_count_not_2_6",
-      "entry_ready": false,
-      "coil_len": 12,
-      "coil_dry_mean": 0.715,
-      "coil_range_pct": 8.77,
-      "coil_min_dry": 0.422
-    },
-    {
-      "code": "105560",
-      "name": "KB금융",
-      "market": "KOSPI",
-      "current_price": 170700.0,
-      "rs": 89,
-      "vcp_detected": false,
-      "num_contractions": 3,
-      "contractions": [
-        11.71,
-        13.19,
-        14.02
-      ],
-      "base_length_days": 43,
-      "base_depth_pct": null,
-      "pivot_price": 176302.84,
-      "pct_to_pivot": 3.18,
-      "volume_dryup_ratio": 0.733,
-      "tightness_pct": 5.0,
-      "status": "actionable",
-      "swings": [
-        {
-          "date": "2026-02-06",
-          "price": 149211.8,
-          "kind": "high"
-        },
-        {
-          "date": "2026-03-04",
-          "price": 137624.53,
-          "kind": "low"
-        },
-        {
-          "date": "2026-03-19",
-          "price": 155635.75,
-          "kind": "high"
-        },
-        {
-          "date": "2026-03-31",
-          "price": 141832.62,
-          "kind": "low"
-        },
-        {
-          "date": "2026-06-05",
-          "price": 171564.6,
-          "kind": "high"
-        },
-        {
-          "date": "2026-06-08",
-          "price": 151474.38,
-          "kind": "low"
-        },
-        {
-          "date": "2026-06-16",
-          "price": 171976.83,
-          "kind": "high"
-        },
-        {
-          "date": "2026-06-26",
-          "price": 149292.1,
-          "kind": "low"
-        },
-        {
-          "date": "2026-07-13",
-          "price": 186202.91,
-          "kind": "high"
-        },
-        {
-          "date": "2026-07-29",
-          "price": 160095.6,
-          "kind": "low"
-        }
-      ],
-      "reason": "contraction_not_converging",
-      "entry_ready": false,
-      "coil_len": 12,
-      "coil_dry_mean": 0.768,
-      "coil_range_pct": 9.19,
-      "coil_min_dry": 0.477
     },
     {
       "code": "019540",
       "name": "일지테크",
       "market": "KOSDAQ",
-      "current_price": 6610.0,
+      "current_price": 6500.0,
       "rs": 89,
       "vcp_detected": true,
       "num_contractions": 3,
@@ -474,62 +236,62 @@
         16.8,
         15.95
       ],
-      "base_length_days": 74,
+      "base_length_days": 75,
       "base_depth_pct": 28.48,
-      "pivot_price": 6350.0,
-      "pct_to_pivot": -4.09,
-      "volume_dryup_ratio": 0.523,
-      "tightness_pct": 5.87,
-      "status": "forming",
+      "pivot_price": 6610.0,
+      "pct_to_pivot": 1.66,
+      "volume_dryup_ratio": 0.487,
+      "tightness_pct": 5.4,
+      "status": "actionable",
       "swings": [
         {
-          "date": "2026-02-06",
-          "price": 4985.38,
+          "date": "2026-02-09",
+          "price": 5100.77,
           "kind": "high"
         },
         {
           "date": "2026-03-04",
-          "price": 4350.98,
+          "price": 4351.17,
           "kind": "low"
         },
         {
           "date": "2026-03-18",
-          "price": 6851.79,
+          "price": 6852.09,
           "kind": "high"
         },
         {
           "date": "2026-03-31",
-          "price": 5891.41,
+          "price": 5891.67,
           "kind": "low"
         },
         {
           "date": "2026-04-17",
-          "price": 7760.28,
+          "price": 7760.62,
           "kind": "high"
         },
         {
           "date": "2026-06-08",
-          "price": 5550.02,
+          "price": 5550.26,
           "kind": "low"
         },
         {
           "date": "2026-06-16",
-          "price": 6429.85,
+          "price": 6430.12,
           "kind": "high"
         },
         {
           "date": "2026-06-26",
-          "price": 5349.9,
+          "price": 5350.13,
           "kind": "low"
         },
         {
           "date": "2026-07-23",
-          "price": 6770.31,
+          "price": 6770.6,
           "kind": "high"
         },
         {
           "date": "2026-07-29",
-          "price": 5690.28,
+          "price": 5690.53,
           "kind": "low"
         },
         {
@@ -539,70 +301,608 @@
         }
       ],
       "reason": null,
-      "entry_ready": false,
-      "coil_len": 8,
-      "coil_dry_mean": 0.635,
-      "coil_range_pct": 10.39,
+      "entry_ready": true,
+      "coil_len": 4,
+      "coil_dry_mean": 0.499,
+      "coil_range_pct": 6.5,
       "coil_min_dry": 0.401
     },
     {
-      "code": "222040",
-      "name": "코스맥스엔비티",
+      "code": "017890",
+      "name": "한국알콜",
       "market": "KOSDAQ",
-      "current_price": 7770.0,
-      "rs": 93,
-      "vcp_detected": true,
-      "num_contractions": 2,
+      "current_price": 13580.0,
+      "rs": 88,
+      "vcp_detected": false,
+      "num_contractions": 1,
       "contractions": [
-        34.9,
-        20.07
+        13.64
       ],
-      "base_length_days": 54,
-      "base_depth_pct": 34.9,
-      "pivot_price": 7490.0,
-      "pct_to_pivot": -3.74,
-      "volume_dryup_ratio": 0.806,
-      "tightness_pct": 10.17,
-      "status": "forming",
+      "base_length_days": 16,
+      "base_depth_pct": null,
+      "pivot_price": 13668.5,
+      "pct_to_pivot": 0.65,
+      "volume_dryup_ratio": 0.633,
+      "tightness_pct": 4.58,
+      "status": "actionable",
       "swings": [
         {
-          "date": "2026-02-06",
-          "price": 3350.34,
+          "date": "2026-02-09",
+          "price": 11533.01,
+          "kind": "high"
+        },
+        {
+          "date": "2026-04-02",
+          "price": 10142.24,
           "kind": "low"
         },
         {
-          "date": "2026-05-19",
-          "price": 8679.05,
+          "date": "2026-04-29",
+          "price": 14211.11,
+          "kind": "high"
+        },
+        {
+          "date": "2026-06-08",
+          "price": 10800.98,
+          "kind": "low"
+        },
+        {
+          "date": "2026-06-10",
+          "price": 12400.61,
+          "kind": "high"
+        },
+        {
+          "date": "2026-06-25",
+          "price": 11060.37,
+          "kind": "low"
+        },
+        {
+          "date": "2026-07-15",
+          "price": 14439.87,
+          "kind": "high"
+        },
+        {
+          "date": "2026-07-29",
+          "price": 12469.63,
+          "kind": "low"
+        }
+      ],
+      "reason": "contraction_count_not_2_6",
+      "entry_ready": false,
+      "coil_len": 12,
+      "coil_dry_mean": 0.711,
+      "coil_range_pct": 8.77,
+      "coil_min_dry": 0.422
+    },
+    {
+      "code": "105560",
+      "name": "KB금융",
+      "market": "KOSPI",
+      "current_price": 171500.0,
+      "rs": 89,
+      "vcp_detected": false,
+      "num_contractions": 3,
+      "contractions": [
+        11.71,
+        13.19,
+        14.02
+      ],
+      "base_length_days": 44,
+      "base_depth_pct": null,
+      "pivot_price": 176295.15,
+      "pct_to_pivot": 2.72,
+      "volume_dryup_ratio": 0.614,
+      "tightness_pct": 4.86,
+      "status": "actionable",
+      "swings": [
+        {
+          "date": "2026-02-09",
+          "price": 151309.1,
+          "kind": "high"
+        },
+        {
+          "date": "2026-03-04",
+          "price": 137618.54,
+          "kind": "low"
+        },
+        {
+          "date": "2026-03-19",
+          "price": 155628.97,
+          "kind": "high"
+        },
+        {
+          "date": "2026-03-31",
+          "price": 141826.44,
+          "kind": "low"
+        },
+        {
+          "date": "2026-06-05",
+          "price": 171557.12,
+          "kind": "high"
+        },
+        {
+          "date": "2026-06-08",
+          "price": 151467.78,
+          "kind": "low"
+        },
+        {
+          "date": "2026-06-16",
+          "price": 171969.33,
           "kind": "high"
         },
         {
           "date": "2026-06-26",
-          "price": 5649.85,
+          "price": 149285.59,
           "kind": "low"
         },
         {
           "date": "2026-07-13",
-          "price": 8519.68,
+          "price": 186194.79,
           "kind": "high"
         },
         {
-          "date": "2026-08-03",
-          "price": 6809.71,
+          "date": "2026-07-29",
+          "price": 160088.62,
           "kind": "low"
+        }
+      ],
+      "reason": "contraction_not_converging",
+      "entry_ready": false,
+      "coil_len": 12,
+      "coil_dry_mean": 0.717,
+      "coil_range_pct": 9.19,
+      "coil_min_dry": 0.477
+    },
+    {
+      "code": "161890",
+      "name": "한국콜마",
+      "market": "KOSPI",
+      "current_price": 106900.0,
+      "rs": 80,
+      "vcp_detected": false,
+      "num_contractions": 1,
+      "contractions": [
+        19.51
+      ],
+      "base_length_days": 18,
+      "base_depth_pct": null,
+      "pivot_price": 102491.35,
+      "pct_to_pivot": -4.3,
+      "volume_dryup_ratio": 0.722,
+      "tightness_pct": 7.32,
+      "status": "forming",
+      "swings": [
+        {
+          "date": "2026-02-09",
+          "price": 72695.62,
+          "kind": "high"
+        },
+        {
+          "date": "2026-03-04",
+          "price": 64200.22,
+          "kind": "low"
+        },
+        {
+          "date": "2026-05-14",
+          "price": 100797.29,
+          "kind": "high"
+        },
+        {
+          "date": "2026-06-08",
+          "price": 77398.46,
+          "kind": "low"
+        },
+        {
+          "date": "2026-07-03",
+          "price": 117787.44,
+          "kind": "high"
+        },
+        {
+          "date": "2026-07-09",
+          "price": 102786.34,
+          "kind": "low"
+        },
+        {
+          "date": "2026-07-13",
+          "price": 115782.93,
+          "kind": "high"
+        },
+        {
+          "date": "2026-07-30",
+          "price": 93193.18,
+          "kind": "low"
+        },
+        {
+          "date": "2026-08-06",
+          "price": 106900.0,
+          "kind": "high"
+        }
+      ],
+      "reason": "contraction_count_not_2_6",
+      "entry_ready": false,
+      "coil_len": 12,
+      "coil_dry_mean": 0.822,
+      "coil_range_pct": 9.07,
+      "coil_min_dry": 0.398
+    },
+    {
+      "code": "001800",
+      "name": "오리온홀딩스",
+      "market": "KOSPI",
+      "current_price": 26900.0,
+      "rs": 82,
+      "vcp_detected": true,
+      "num_contractions": 2,
+      "contractions": [
+        17.53,
+        6.35
+      ],
+      "base_length_days": 40,
+      "base_depth_pct": 17.53,
+      "pivot_price": 25949.13,
+      "pct_to_pivot": -3.66,
+      "volume_dryup_ratio": 0.654,
+      "tightness_pct": 4.86,
+      "status": "forming",
+      "swings": [
+        {
+          "date": "2026-02-09",
+          "price": 22560.58,
+          "kind": "high"
+        },
+        {
+          "date": "2026-03-04",
+          "price": 21955.69,
+          "kind": "low"
+        },
+        {
+          "date": "2026-03-26",
+          "price": 25449.48,
+          "kind": "high"
+        },
+        {
+          "date": "2026-04-06",
+          "price": 22650.54,
+          "kind": "low"
+        },
+        {
+          "date": "2026-04-30",
+          "price": 25849.54,
+          "kind": "high"
+        },
+        {
+          "date": "2026-05-13",
+          "price": 23146.14,
+          "kind": "low"
+        },
+        {
+          "date": "2026-05-15",
+          "price": 28295.25,
+          "kind": "high"
+        },
+        {
+          "date": "2026-05-20",
+          "price": 24497.28,
+          "kind": "low"
+        },
+        {
+          "date": "2026-06-04",
+          "price": 26598.74,
+          "kind": "high"
+        },
+        {
+          "date": "2026-06-08",
+          "price": 24299.33,
+          "kind": "low"
+        },
+        {
+          "date": "2026-06-11",
+          "price": 27949.42,
+          "kind": "high"
+        },
+        {
+          "date": "2026-06-26",
+          "price": 23050.71,
+          "kind": "low"
+        },
+        {
+          "date": "2026-07-10",
+          "price": 26801.49,
+          "kind": "high"
+        },
+        {
+          "date": "2026-07-29",
+          "price": 25099.3,
+          "kind": "low"
+        },
+        {
+          "date": "2026-08-06",
+          "price": 26900.0,
+          "kind": "high"
         }
       ],
       "reason": null,
       "entry_ready": false,
-      "coil_len": 6,
-      "coil_dry_mean": 0.864,
-      "coil_range_pct": 9.08,
-      "coil_min_dry": 0.401
+      "coil_len": 12,
+      "coil_dry_mean": 0.543,
+      "coil_range_pct": 3.27,
+      "coil_min_dry": 0.309
+    },
+    {
+      "code": "055550",
+      "name": "신한지주",
+      "market": "KOSPI",
+      "current_price": 107400.0,
+      "rs": 90,
+      "vcp_detected": true,
+      "num_contractions": 2,
+      "contractions": [
+        14.14,
+        9.97
+      ],
+      "base_length_days": 37,
+      "base_depth_pct": 14.14,
+      "pivot_price": 104999.71,
+      "pct_to_pivot": -2.29,
+      "volume_dryup_ratio": 0.71,
+      "tightness_pct": 4.84,
+      "status": "forming",
+      "swings": [
+        {
+          "date": "2026-02-09",
+          "price": 93356.13,
+          "kind": "high"
+        },
+        {
+          "date": "2026-03-09",
+          "price": 88452.52,
+          "kind": "low"
+        },
+        {
+          "date": "2026-03-20",
+          "price": 97846.5,
+          "kind": "high"
+        },
+        {
+          "date": "2026-03-31",
+          "price": 87653.17,
+          "kind": "low"
+        },
+        {
+          "date": "2026-06-05",
+          "price": 107461.1,
+          "kind": "high"
+        },
+        {
+          "date": "2026-06-11",
+          "price": 96875.57,
+          "kind": "low"
+        },
+        {
+          "date": "2026-06-16",
+          "price": 106670.98,
+          "kind": "high"
+        },
+        {
+          "date": "2026-06-26",
+          "price": 91584.24,
+          "kind": "low"
+        },
+        {
+          "date": "2026-07-10",
+          "price": 109193.31,
+          "kind": "high"
+        },
+        {
+          "date": "2026-07-29",
+          "price": 98301.38,
+          "kind": "low"
+        },
+        {
+          "date": "2026-08-06",
+          "price": 107400.0,
+          "kind": "high"
+        }
+      ],
+      "reason": null,
+      "entry_ready": false,
+      "coil_len": 12,
+      "coil_dry_mean": 0.743,
+      "coil_range_pct": 6.38,
+      "coil_min_dry": 0.46
+    },
+    {
+      "code": "005950",
+      "name": "이수화학",
+      "market": "KOSPI",
+      "current_price": 13700.0,
+      "rs": 95,
+      "vcp_detected": true,
+      "num_contractions": 3,
+      "contractions": [
+        33.43,
+        32.26,
+        25.32
+      ],
+      "base_length_days": 51,
+      "base_depth_pct": 33.43,
+      "pivot_price": 13599.51,
+      "pct_to_pivot": -0.74,
+      "volume_dryup_ratio": 0.529,
+      "tightness_pct": 10.58,
+      "status": "forming",
+      "swings": [
+        {
+          "date": "2026-02-09",
+          "price": 9289.71,
+          "kind": "high"
+        },
+        {
+          "date": "2026-03-04",
+          "price": 7159.37,
+          "kind": "low"
+        },
+        {
+          "date": "2026-04-29",
+          "price": 11851.2,
+          "kind": "high"
+        },
+        {
+          "date": "2026-05-12",
+          "price": 9360.26,
+          "kind": "low"
+        },
+        {
+          "date": "2026-05-26",
+          "price": 16510.56,
+          "kind": "high"
+        },
+        {
+          "date": "2026-06-08",
+          "price": 10991.36,
+          "kind": "low"
+        },
+        {
+          "date": "2026-06-12",
+          "price": 16701.47,
+          "kind": "high"
+        },
+        {
+          "date": "2026-06-26",
+          "price": 11312.88,
+          "kind": "low"
+        },
+        {
+          "date": "2026-07-23",
+          "price": 14850.4,
+          "kind": "high"
+        },
+        {
+          "date": "2026-07-29",
+          "price": 11090.18,
+          "kind": "low"
+        },
+        {
+          "date": "2026-08-06",
+          "price": 13700.0,
+          "kind": "high"
+        }
+      ],
+      "reason": null,
+      "entry_ready": false,
+      "coil_len": 4,
+      "coil_dry_mean": 0.448,
+      "coil_range_pct": 10.66,
+      "coil_min_dry": 0.283
+    },
+    {
+      "code": "000810",
+      "name": "삼성화재",
+      "market": "KOSPI",
+      "current_price": 648000.0,
+      "rs": 88,
+      "vcp_detected": true,
+      "num_contractions": 2,
+      "contractions": [
+        14.12,
+        8.99
+      ],
+      "base_length_days": 15,
+      "base_depth_pct": 14.12,
+      "pivot_price": 644948.47,
+      "pct_to_pivot": -0.47,
+      "volume_dryup_ratio": 0.522,
+      "tightness_pct": 4.91,
+      "status": "forming",
+      "swings": [
+        {
+          "date": "2026-02-09",
+          "price": 530806.69,
+          "kind": "high"
+        },
+        {
+          "date": "2026-03-23",
+          "price": 455349.35,
+          "kind": "low"
+        },
+        {
+          "date": "2026-03-25",
+          "price": 489858.92,
+          "kind": "high"
+        },
+        {
+          "date": "2026-03-31",
+          "price": 440358.22,
+          "kind": "low"
+        },
+        {
+          "date": "2026-06-04",
+          "price": 729805.71,
+          "kind": "high"
+        },
+        {
+          "date": "2026-06-10",
+          "price": 615866.88,
+          "kind": "low"
+        },
+        {
+          "date": "2026-06-18",
+          "price": 699768.13,
+          "kind": "high"
+        },
+        {
+          "date": "2026-07-02",
+          "price": 613891.19,
+          "kind": "low"
+        },
+        {
+          "date": "2026-07-07",
+          "price": 681890.65,
+          "kind": "high"
+        },
+        {
+          "date": "2026-07-09",
+          "price": 621935.62,
+          "kind": "low"
+        },
+        {
+          "date": "2026-07-16",
+          "price": 700888.07,
+          "kind": "high"
+        },
+        {
+          "date": "2026-07-20",
+          "price": 601922.67,
+          "kind": "low"
+        },
+        {
+          "date": "2026-07-27",
+          "price": 644948.47,
+          "kind": "high"
+        },
+        {
+          "date": "2026-07-29",
+          "price": 586976.88,
+          "kind": "low"
+        },
+        {
+          "date": "2026-08-06",
+          "price": 648000.0,
+          "kind": "high"
+        }
+      ],
+      "reason": null,
+      "entry_ready": false,
+      "coil_len": 12,
+      "coil_dry_mean": 0.629,
+      "coil_range_pct": 8.99,
+      "coil_min_dry": 0.303
     },
     {
       "code": "086670",
       "name": "비엠티",
       "market": "KOSDAQ",
-      "current_price": 16180.0,
+      "current_price": 16230.0,
       "rs": 92,
       "vcp_detected": false,
       "num_contractions": 2,
@@ -610,157 +910,379 @@
         23.24,
         24.89
       ],
-      "base_length_days": 61,
+      "base_length_days": 62,
       "base_depth_pct": null,
-      "pivot_price": 15880.0,
-      "pct_to_pivot": -1.89,
-      "volume_dryup_ratio": 0.653,
-      "tightness_pct": 5.65,
+      "pivot_price": 16180.0,
+      "pct_to_pivot": -0.31,
+      "volume_dryup_ratio": 0.654,
+      "tightness_pct": 5.4,
       "status": "forming",
       "swings": [
         {
-          "date": "2026-02-06",
-          "price": 11952.22,
+          "date": "2026-02-09",
+          "price": 12362.08,
           "kind": "high"
         },
         {
           "date": "2026-03-04",
-          "price": 11280.54,
+          "price": 11280.44,
           "kind": "low"
         },
         {
           "date": "2026-05-08",
-          "price": 17851.14,
+          "price": 17850.99,
           "kind": "high"
         },
         {
           "date": "2026-06-02",
-          "price": 13702.58,
+          "price": 13702.47,
           "kind": "low"
         },
         {
           "date": "2026-06-15",
-          "price": 17853.76,
+          "price": 17853.62,
           "kind": "high"
         },
         {
           "date": "2026-07-29",
-          "price": 13409.89,
+          "price": 13409.78,
           "kind": "low"
         },
         {
-          "date": "2026-08-05",
-          "price": 16180.0,
+          "date": "2026-08-06",
+          "price": 16230.0,
           "kind": "high"
         }
       ],
       "reason": "contraction_not_converging",
       "entry_ready": false,
-      "coil_len": 3,
-      "coil_dry_mean": 0.672,
-      "coil_range_pct": 1.26,
+      "coil_len": 4,
+      "coil_dry_mean": 0.706,
+      "coil_range_pct": 3.1,
       "coil_min_dry": 0.296
     },
     {
-      "code": "204610",
-      "name": "티쓰리",
-      "market": "KOSDAQ",
-      "current_price": 3100.0,
-      "rs": 89,
+      "code": "093050",
+      "name": "LF",
+      "market": "KOSPI",
+      "current_price": 22650.0,
+      "rs": 81,
       "vcp_detected": true,
-      "num_contractions": 2,
+      "num_contractions": 3,
       "contractions": [
-        37.76,
-        8.19
+        21.31,
+        13.74,
+        9.24
       ],
-      "base_length_days": 67,
-      "base_depth_pct": 37.76,
-      "pivot_price": 3090.0,
-      "pct_to_pivot": -0.32,
-      "volume_dryup_ratio": 0.614,
-      "tightness_pct": 4.02,
+      "base_length_days": 74,
+      "base_depth_pct": 21.31,
+      "pivot_price": 22600.3,
+      "pct_to_pivot": -0.22,
+      "volume_dryup_ratio": 0.802,
+      "tightness_pct": 5.05,
       "status": "forming",
       "swings": [
         {
-          "date": "2026-02-06",
-          "price": 1798.3,
-          "kind": "low"
-        },
-        {
-          "date": "2026-03-25",
-          "price": 2925.3,
+          "date": "2026-02-09",
+          "price": 20490.46,
           "kind": "high"
         },
         {
-          "date": "2026-04-02",
-          "price": 2490.2,
+          "date": "2026-03-04",
+          "price": 19990.97,
           "kind": "low"
         },
         {
-          "date": "2026-04-28",
-          "price": 3654.98,
+          "date": "2026-04-20",
+          "price": 26243.23,
           "kind": "high"
         },
         {
-          "date": "2026-06-23",
-          "price": 2274.99,
+          "date": "2026-06-08",
+          "price": 20650.06,
           "kind": "low"
         },
         {
-          "date": "2026-07-10",
-          "price": 3055.08,
+          "date": "2026-06-15",
+          "price": 24000.12,
+          "kind": "high"
+        },
+        {
+          "date": "2026-06-26",
+          "price": 20703.43,
+          "kind": "low"
+        },
+        {
+          "date": "2026-07-06",
+          "price": 23854.21,
           "kind": "high"
         },
         {
           "date": "2026-07-29",
-          "price": 2804.97,
+          "price": 21649.95,
           "kind": "low"
-        },
-        {
-          "date": "2026-08-05",
-          "price": 3100.0,
-          "kind": "high"
         }
       ],
       "reason": null,
       "entry_ready": false,
       "coil_len": 12,
-      "coil_dry_mean": 0.556,
-      "coil_range_pct": 9.22,
-      "coil_min_dry": 0.207
+      "coil_dry_mean": 0.616,
+      "coil_range_pct": 4.21,
+      "coil_min_dry": 0.316
+    },
+    {
+      "code": "271560",
+      "name": "오리온",
+      "market": "KOSPI",
+      "current_price": 135500.0,
+      "rs": 83,
+      "vcp_detected": true,
+      "num_contractions": 3,
+      "contractions": [
+        12.52,
+        9.63,
+        9.48
+      ],
+      "base_length_days": 67,
+      "base_depth_pct": 12.52,
+      "pivot_price": 135307.12,
+      "pct_to_pivot": -0.14,
+      "volume_dryup_ratio": 0.935,
+      "tightness_pct": 4.49,
+      "status": "forming",
+      "swings": [
+        {
+          "date": "2026-02-09",
+          "price": 126507.69,
+          "kind": "high"
+        },
+        {
+          "date": "2026-03-04",
+          "price": 123590.11,
+          "kind": "low"
+        },
+        {
+          "date": "2026-03-20",
+          "price": 137764.77,
+          "kind": "high"
+        },
+        {
+          "date": "2026-03-30",
+          "price": 126950.95,
+          "kind": "low"
+        },
+        {
+          "date": "2026-04-29",
+          "price": 145965.32,
+          "kind": "high"
+        },
+        {
+          "date": "2026-06-01",
+          "price": 127690.23,
+          "kind": "low"
+        },
+        {
+          "date": "2026-06-11",
+          "price": 138090.7,
+          "kind": "high"
+        },
+        {
+          "date": "2026-06-25",
+          "price": 124798.44,
+          "kind": "low"
+        },
+        {
+          "date": "2026-07-08",
+          "price": 140296.47,
+          "kind": "high"
+        },
+        {
+          "date": "2026-07-20",
+          "price": 127002.82,
+          "kind": "low"
+        }
+      ],
+      "reason": null,
+      "entry_ready": false,
+      "coil_len": 12,
+      "coil_dry_mean": 0.947,
+      "coil_range_pct": 5.4,
+      "coil_min_dry": 0.418
+    },
+    {
+      "code": "161390",
+      "name": "한국타이어앤테크놀로지",
+      "market": "KOSPI",
+      "current_price": 70500.0,
+      "rs": 89,
+      "vcp_detected": true,
+      "num_contractions": 3,
+      "contractions": [
+        25.49,
+        18.5,
+        15.11
+      ],
+      "base_length_days": 120,
+      "base_depth_pct": 25.49,
+      "pivot_price": 70490.45,
+      "pct_to_pivot": -0.01,
+      "volume_dryup_ratio": 0.636,
+      "tightness_pct": 5.72,
+      "status": "forming",
+      "swings": [
+        {
+          "date": "2026-02-09",
+          "price": 69782.88,
+          "kind": "high"
+        },
+        {
+          "date": "2026-04-03",
+          "price": 51992.76,
+          "kind": "low"
+        },
+        {
+          "date": "2026-06-15",
+          "price": 73481.51,
+          "kind": "high"
+        },
+        {
+          "date": "2026-06-25",
+          "price": 59887.59,
+          "kind": "low"
+        },
+        {
+          "date": "2026-07-23",
+          "price": 76686.73,
+          "kind": "high"
+        },
+        {
+          "date": "2026-07-30",
+          "price": 65096.16,
+          "kind": "low"
+        }
+      ],
+      "reason": null,
+      "entry_ready": false,
+      "coil_len": 9,
+      "coil_dry_mean": 0.766,
+      "coil_range_pct": 7.65,
+      "coil_min_dry": 0.398
+    },
+    {
+      "code": "001450",
+      "name": "현대해상",
+      "market": "KOSPI",
+      "current_price": 38650.0,
+      "rs": 88,
+      "vcp_detected": true,
+      "num_contractions": 2,
+      "contractions": [
+        16.6,
+        9.04
+      ],
+      "base_length_days": 37,
+      "base_depth_pct": 16.6,
+      "pivot_price": 40348.93,
+      "pct_to_pivot": 4.21,
+      "volume_dryup_ratio": 1.004,
+      "tightness_pct": 6.82,
+      "status": "forming",
+      "swings": [
+        {
+          "date": "2026-02-09",
+          "price": 30797.35,
+          "kind": "low"
+        },
+        {
+          "date": "2026-02-20",
+          "price": 38791.19,
+          "kind": "high"
+        },
+        {
+          "date": "2026-03-04",
+          "price": 29189.8,
+          "kind": "low"
+        },
+        {
+          "date": "2026-03-25",
+          "price": 32142.35,
+          "kind": "high"
+        },
+        {
+          "date": "2026-04-07",
+          "price": 29595.51,
+          "kind": "low"
+        },
+        {
+          "date": "2026-05-19",
+          "price": 38844.22,
+          "kind": "high"
+        },
+        {
+          "date": "2026-06-08",
+          "price": 34197.61,
+          "kind": "low"
+        },
+        {
+          "date": "2026-06-16",
+          "price": 41245.76,
+          "kind": "high"
+        },
+        {
+          "date": "2026-07-01",
+          "price": 34397.23,
+          "kind": "low"
+        },
+        {
+          "date": "2026-07-24",
+          "price": 40348.93,
+          "kind": "high"
+        },
+        {
+          "date": "2026-08-05",
+          "price": 36700.0,
+          "kind": "low"
+        }
+      ],
+      "reason": null,
+      "entry_ready": false,
+      "coil_len": 12,
+      "coil_dry_mean": 0.887,
+      "coil_range_pct": 9.04,
+      "coil_min_dry": 0.392
     },
     {
       "code": "006340",
       "name": "대원전선",
       "market": "KOSPI",
-      "current_price": 15450.0,
+      "current_price": 14400.0,
       "rs": 99,
       "vcp_detected": false,
       "num_contractions": 1,
       "contractions": [
         49.9
       ],
-      "base_length_days": 63,
+      "base_length_days": 64,
       "base_depth_pct": null,
       "pivot_price": null,
       "pct_to_pivot": null,
-      "volume_dryup_ratio": 1.454,
-      "tightness_pct": 14.6,
+      "volume_dryup_ratio": 1.489,
+      "tightness_pct": 14.27,
       "status": "forming",
       "swings": [
         {
-          "date": "2026-02-06",
-          "price": 3561.34,
+          "date": "2026-02-09",
+          "price": 3761.41,
           "kind": "low"
         },
         {
           "date": "2026-05-06",
-          "price": 18041.76,
+          "price": 18041.39,
           "kind": "high"
         },
         {
           "date": "2026-06-26",
-          "price": 9039.39,
+          "price": 9039.2,
           "kind": "low"
         },
         {
@@ -777,71 +1299,149 @@
       "coil_min_dry": null
     },
     {
-      "code": "252990",
-      "name": "샘씨엔에스",
+      "code": "219130",
+      "name": "타이거일렉",
       "market": "KOSDAQ",
-      "current_price": 13300.0,
-      "rs": 97,
+      "current_price": 75100.0,
+      "rs": 99,
       "vcp_detected": false,
       "num_contractions": 1,
       "contractions": [
-        42.2
+        32.07
       ],
-      "base_length_days": 15,
+      "base_length_days": 16,
       "base_depth_pct": null,
       "pivot_price": null,
       "pct_to_pivot": null,
-      "volume_dryup_ratio": 0.904,
-      "tightness_pct": 13.19,
+      "volume_dryup_ratio": 0.7,
+      "tightness_pct": 10.37,
       "status": "forming",
       "swings": [
         {
-          "date": "2026-02-06",
-          "price": 10718.31,
+          "date": "2026-02-09",
+          "price": 34449.32,
           "kind": "high"
         },
         {
-          "date": "2026-03-31",
-          "price": 8761.79,
+          "date": "2026-03-04",
+          "price": 25701.59,
           "kind": "low"
         },
         {
-          "date": "2026-05-22",
-          "price": 14942.94,
+          "date": "2026-03-20",
+          "price": 33903.6,
+          "kind": "high"
+        },
+        {
+          "date": "2026-04-02",
+          "price": 27053.03,
+          "kind": "low"
+        },
+        {
+          "date": "2026-05-21",
+          "price": 67797.17,
           "kind": "high"
         },
         {
           "date": "2026-06-08",
-          "price": 11381.89,
+          "price": 48802.22,
           "kind": "low"
         },
         {
           "date": "2026-06-12",
-          "price": 16322.93,
+          "price": 78711.38,
           "kind": "high"
         },
         {
-          "date": "2026-07-09",
-          "price": 10621.33,
+          "date": "2026-06-26",
+          "price": 58011.46,
           "kind": "low"
         },
         {
           "date": "2026-07-15",
-          "price": 15691.87,
+          "price": 81705.17,
           "kind": "high"
         },
         {
           "date": "2026-07-30",
-          "price": 9069.71,
+          "price": 55499.47,
           "kind": "low"
         },
         {
-          "date": "2026-08-05",
-          "price": 13300.0,
+          "date": "2026-08-06",
+          "price": 75100.0,
           "kind": "high"
         }
       ],
       "reason": "contraction_count_not_2_6",
+      "entry_ready": false,
+      "coil_len": null,
+      "coil_dry_mean": null,
+      "coil_range_pct": null,
+      "coil_min_dry": null
+    },
+    {
+      "code": "159010",
+      "name": "아스플로",
+      "market": "KOSDAQ",
+      "current_price": 19000.0,
+      "rs": 99,
+      "vcp_detected": false,
+      "num_contractions": 2,
+      "contractions": [
+        42.11,
+        34.45
+      ],
+      "base_length_days": 35,
+      "base_depth_pct": null,
+      "pivot_price": null,
+      "pct_to_pivot": null,
+      "volume_dryup_ratio": 1.308,
+      "tightness_pct": 14.55,
+      "status": "forming",
+      "swings": [
+        {
+          "date": "2026-02-09",
+          "price": 5119.68,
+          "kind": "low"
+        },
+        {
+          "date": "2026-02-19",
+          "price": 6769.01,
+          "kind": "high"
+        },
+        {
+          "date": "2026-03-04",
+          "price": 4564.8,
+          "kind": "low"
+        },
+        {
+          "date": "2026-06-18",
+          "price": 22694.57,
+          "kind": "high"
+        },
+        {
+          "date": "2026-07-13",
+          "price": 13137.61,
+          "kind": "low"
+        },
+        {
+          "date": "2026-07-21",
+          "price": 16687.38,
+          "kind": "high"
+        },
+        {
+          "date": "2026-07-29",
+          "price": 10939.13,
+          "kind": "low"
+        },
+        {
+          "date": "2026-08-06",
+          "price": 19000.0,
+          "kind": "high"
+        }
+      ],
+      "reason": "no_tight_coil",
       "entry_ready": false,
       "coil_len": null,
       "coil_dry_mean": null,
@@ -852,54 +1452,54 @@
       "code": "041830",
       "name": "인바디",
       "market": "KOSDAQ",
-      "current_price": 56700.0,
-      "rs": 96,
+      "current_price": 70000.0,
+      "rs": 98,
       "vcp_detected": false,
       "num_contractions": 1,
       "contractions": [
         25.48
       ],
-      "base_length_days": 25,
+      "base_length_days": 26,
       "base_depth_pct": null,
       "pivot_price": null,
       "pct_to_pivot": null,
-      "volume_dryup_ratio": 0.915,
-      "tightness_pct": 8.41,
+      "volume_dryup_ratio": 1.821,
+      "tightness_pct": 9.97,
       "status": "forming",
       "swings": [
         {
-          "date": "2026-02-06",
-          "price": 33497.38,
+          "date": "2026-02-09",
+          "price": 34696.76,
           "kind": "high"
         },
         {
           "date": "2026-04-07",
-          "price": 27392.99,
+          "price": 27393.13,
           "kind": "low"
         },
         {
           "date": "2026-05-22",
-          "price": 47335.73,
+          "price": 47335.96,
           "kind": "high"
         },
         {
           "date": "2026-06-08",
-          "price": 37641.44,
+          "price": 37641.63,
           "kind": "low"
         },
         {
           "date": "2026-07-01",
-          "price": 61991.48,
+          "price": 61991.78,
           "kind": "high"
         },
         {
           "date": "2026-07-31",
-          "price": 46197.91,
+          "price": 46198.14,
           "kind": "low"
         },
         {
-          "date": "2026-08-04",
-          "price": 57400.0,
+          "date": "2026-08-06",
+          "price": 70000.0,
           "kind": "high"
         }
       ],
@@ -911,58 +1511,251 @@
       "coil_min_dry": null
     },
     {
+      "code": "252990",
+      "name": "샘씨엔에스",
+      "market": "KOSDAQ",
+      "current_price": 13740.0,
+      "rs": 98,
+      "vcp_detected": false,
+      "num_contractions": 1,
+      "contractions": [
+        42.2
+      ],
+      "base_length_days": 16,
+      "base_depth_pct": null,
+      "pivot_price": null,
+      "pct_to_pivot": null,
+      "volume_dryup_ratio": 0.839,
+      "tightness_pct": 13.78,
+      "status": "forming",
+      "swings": [
+        {
+          "date": "2026-02-09",
+          "price": 11058.55,
+          "kind": "high"
+        },
+        {
+          "date": "2026-03-31",
+          "price": 8762.16,
+          "kind": "low"
+        },
+        {
+          "date": "2026-05-22",
+          "price": 14943.57,
+          "kind": "high"
+        },
+        {
+          "date": "2026-06-08",
+          "price": 11382.37,
+          "kind": "low"
+        },
+        {
+          "date": "2026-06-12",
+          "price": 16323.61,
+          "kind": "high"
+        },
+        {
+          "date": "2026-07-09",
+          "price": 10621.78,
+          "kind": "low"
+        },
+        {
+          "date": "2026-07-15",
+          "price": 15692.53,
+          "kind": "high"
+        },
+        {
+          "date": "2026-07-30",
+          "price": 9070.09,
+          "kind": "low"
+        },
+        {
+          "date": "2026-08-06",
+          "price": 13740.0,
+          "kind": "high"
+        }
+      ],
+      "reason": "contraction_count_not_2_6",
+      "entry_ready": false,
+      "coil_len": 3,
+      "coil_dry_mean": 0.825,
+      "coil_range_pct": 11.65,
+      "coil_min_dry": 0.771
+    },
+    {
+      "code": "127120",
+      "name": "제이에스링크",
+      "market": "KOSDAQ",
+      "current_price": 40100.0,
+      "rs": 97,
+      "vcp_detected": false,
+      "num_contractions": 2,
+      "contractions": [
+        27.88,
+        31.06
+      ],
+      "base_length_days": 47,
+      "base_depth_pct": null,
+      "pivot_price": null,
+      "pct_to_pivot": null,
+      "volume_dryup_ratio": 1.279,
+      "tightness_pct": 12.36,
+      "status": "forming",
+      "swings": [
+        {
+          "date": "2026-02-09",
+          "price": 28848.69,
+          "kind": "high"
+        },
+        {
+          "date": "2026-05-18",
+          "price": 33903.45,
+          "kind": "low"
+        },
+        {
+          "date": "2026-06-01",
+          "price": 42848.47,
+          "kind": "high"
+        },
+        {
+          "date": "2026-06-23",
+          "price": 30903.69,
+          "kind": "low"
+        },
+        {
+          "date": "2026-07-15",
+          "price": 40252.91,
+          "kind": "high"
+        },
+        {
+          "date": "2026-07-30",
+          "price": 27749.89,
+          "kind": "low"
+        },
+        {
+          "date": "2026-08-06",
+          "price": 40100.0,
+          "kind": "high"
+        }
+      ],
+      "reason": "contraction_not_converging",
+      "entry_ready": false,
+      "coil_len": null,
+      "coil_dry_mean": null,
+      "coil_range_pct": null,
+      "coil_min_dry": null
+    },
+    {
       "code": "317400",
       "name": "자이에스앤디",
       "market": "KOSPI",
-      "current_price": 7530.0,
-      "rs": 95,
+      "current_price": 8140.0,
+      "rs": 96,
       "vcp_detected": false,
       "num_contractions": 2,
       "contractions": [
         34.5,
         33.57
       ],
-      "base_length_days": 66,
+      "base_length_days": 67,
       "base_depth_pct": null,
       "pivot_price": null,
       "pct_to_pivot": null,
-      "volume_dryup_ratio": 1.891,
-      "tightness_pct": 16.93,
+      "volume_dryup_ratio": 2.375,
+      "tightness_pct": 16.2,
       "status": "forming",
       "swings": [
         {
-          "date": "2026-02-06",
-          "price": 4594.24,
+          "date": "2026-02-09",
+          "price": 4659.24,
           "kind": "high"
         },
         {
           "date": "2026-04-02",
-          "price": 4034.14,
+          "price": 4034.33,
           "kind": "low"
         },
         {
           "date": "2026-04-29",
-          "price": 5129.14,
+          "price": 5129.38,
           "kind": "high"
         },
         {
           "date": "2026-06-26",
-          "price": 3359.49,
+          "price": 3359.65,
           "kind": "low"
         },
         {
           "date": "2026-07-23",
-          "price": 8249.56,
+          "price": 8249.95,
           "kind": "high"
         },
         {
           "date": "2026-07-29",
-          "price": 5480.24,
+          "price": 5480.5,
           "kind": "low"
         },
         {
-          "date": "2026-08-04",
-          "price": 7670.0,
+          "date": "2026-08-06",
+          "price": 8140.0,
+          "kind": "high"
+        }
+      ],
+      "reason": "no_tight_coil",
+      "entry_ready": false,
+      "coil_len": null,
+      "coil_dry_mean": null,
+      "coil_range_pct": null,
+      "coil_min_dry": null
+    },
+    {
+      "code": "222040",
+      "name": "코스맥스엔비티",
+      "market": "KOSDAQ",
+      "current_price": 9000.0,
+      "rs": 95,
+      "vcp_detected": false,
+      "num_contractions": 2,
+      "contractions": [
+        34.9,
+        20.07
+      ],
+      "base_length_days": 55,
+      "base_depth_pct": null,
+      "pivot_price": null,
+      "pct_to_pivot": null,
+      "volume_dryup_ratio": 1.459,
+      "tightness_pct": 10.79,
+      "status": "forming",
+      "swings": [
+        {
+          "date": "2026-02-09",
+          "price": 3300.36,
+          "kind": "low"
+        },
+        {
+          "date": "2026-05-19",
+          "price": 8678.91,
+          "kind": "high"
+        },
+        {
+          "date": "2026-06-26",
+          "price": 5649.76,
+          "kind": "low"
+        },
+        {
+          "date": "2026-07-13",
+          "price": 8519.55,
+          "kind": "high"
+        },
+        {
+          "date": "2026-08-03",
+          "price": 6809.6,
+          "kind": "low"
+        },
+        {
+          "date": "2026-08-06",
+          "price": 9000.0,
           "kind": "high"
         }
       ],
@@ -977,7 +1770,7 @@
       "code": "010950",
       "name": "S-Oil",
       "market": "KOSPI",
-      "current_price": 122500.0,
+      "current_price": 124900.0,
       "rs": 94,
       "vcp_detected": false,
       "num_contractions": 2,
@@ -985,47 +1778,47 @@
         30.71,
         19.51
       ],
-      "base_length_days": 65,
+      "base_length_days": 66,
       "base_depth_pct": null,
       "pivot_price": null,
       "pct_to_pivot": null,
-      "volume_dryup_ratio": 0.971,
-      "tightness_pct": 7.03,
+      "volume_dryup_ratio": 0.915,
+      "tightness_pct": 6.72,
       "status": "forming",
       "swings": [
         {
-          "date": "2026-02-06",
-          "price": 97992.59,
+          "date": "2026-02-09",
+          "price": 99586.59,
           "kind": "low"
         },
         {
           "date": "2026-03-03",
-          "price": 141305.61,
+          "price": 141300.95,
           "kind": "high"
         },
         {
           "date": "2026-03-31",
-          "price": 105296.26,
+          "price": 105292.79,
           "kind": "low"
         },
         {
           "date": "2026-04-30",
-          "price": 134501.17,
+          "price": 134496.73,
           "kind": "high"
         },
         {
           "date": "2026-06-26",
-          "price": 93194.43,
+          "price": 93191.35,
           "kind": "low"
         },
         {
           "date": "2026-07-24",
-          "price": 151191.44,
+          "price": 151186.46,
           "kind": "high"
         },
         {
           "date": "2026-08-03",
-          "price": 121698.75,
+          "price": 121694.74,
           "kind": "low"
         }
       ],
@@ -1040,7 +1833,7 @@
       "code": "028050",
       "name": "삼성E&A",
       "market": "KOSPI",
-      "current_price": 49100.0,
+      "current_price": 49450.0,
       "rs": 94,
       "vcp_detected": false,
       "num_contractions": 3,
@@ -1049,268 +1842,57 @@
         26.9,
         24.17
       ],
-      "base_length_days": 62,
+      "base_length_days": 63,
       "base_depth_pct": null,
       "pivot_price": null,
       "pct_to_pivot": null,
-      "volume_dryup_ratio": 0.945,
-      "tightness_pct": 9.29,
+      "volume_dryup_ratio": 0.942,
+      "tightness_pct": 8.05,
       "status": "forming",
       "swings": [
         {
-          "date": "2026-02-06",
-          "price": 31846.88,
+          "date": "2026-02-09",
+          "price": 33295.01,
           "kind": "high"
         },
         {
           "date": "2026-03-04",
-          "price": 30896.29,
+          "price": 30895.45,
           "kind": "low"
         },
         {
           "date": "2026-05-07",
-          "price": 64389.25,
+          "price": 64387.52,
           "kind": "high"
         },
         {
           "date": "2026-06-08",
-          "price": 44445.32,
+          "price": 44444.12,
           "kind": "low"
         },
         {
           "date": "2026-06-16",
-          "price": 56692.43,
+          "price": 56690.9,
           "kind": "high"
         },
         {
           "date": "2026-06-26",
-          "price": 41443.78,
+          "price": 41442.66,
           "kind": "low"
         },
         {
           "date": "2026-07-01",
-          "price": 51694.15,
+          "price": 51692.76,
           "kind": "high"
         },
         {
           "date": "2026-07-20",
-          "price": 39200.41,
+          "price": 39199.35,
           "kind": "low"
         },
         {
-          "date": "2026-08-05",
-          "price": 49100.0,
-          "kind": "high"
-        }
-      ],
-      "reason": "no_dry_coil_day",
-      "entry_ready": false,
-      "coil_len": 3,
-      "coil_dry_mean": 0.927,
-      "coil_range_pct": 8.28,
-      "coil_min_dry": 0.796
-    },
-    {
-      "code": "079940",
-      "name": "가비아",
-      "market": "KOSDAQ",
-      "current_price": 46500.0,
-      "rs": 94,
-      "vcp_detected": false,
-      "num_contractions": 3,
-      "contractions": [
-        17.53,
-        15.56,
-        14.46
-      ],
-      "base_length_days": 120,
-      "base_depth_pct": null,
-      "pivot_price": null,
-      "pct_to_pivot": null,
-      "volume_dryup_ratio": 0.693,
-      "tightness_pct": 1.0,
-      "status": "forming",
-      "swings": [
-        {
-          "date": "2026-02-06",
-          "price": 32506.52,
-          "kind": "high"
-        },
-        {
-          "date": "2026-03-04",
-          "price": 26808.46,
-          "kind": "low"
-        },
-        {
-          "date": "2026-03-06",
-          "price": 29910.02,
-          "kind": "high"
-        },
-        {
-          "date": "2026-03-31",
-          "price": 25254.73,
-          "kind": "low"
-        },
-        {
-          "date": "2026-05-14",
-          "price": 33903.36,
-          "kind": "high"
-        },
-        {
-          "date": "2026-06-23",
-          "price": 29000.86,
-          "kind": "low"
-        },
-        {
-          "date": "2026-07-23",
-          "price": 47550.71,
-          "kind": "high"
-        }
-      ],
-      "reason": "no_tight_coil",
-      "entry_ready": false,
-      "coil_len": null,
-      "coil_dry_mean": null,
-      "coil_range_pct": null,
-      "coil_min_dry": null
-    },
-    {
-      "code": "144960",
-      "name": "뉴파워프라즈마",
-      "market": "KOSDAQ",
-      "current_price": 10490.0,
-      "rs": 94,
-      "vcp_detected": false,
-      "num_contractions": 3,
-      "contractions": [
-        32.86,
-        29.65,
-        25.86
-      ],
-      "base_length_days": 57,
-      "base_depth_pct": null,
-      "pivot_price": null,
-      "pct_to_pivot": null,
-      "volume_dryup_ratio": 1.033,
-      "tightness_pct": 13.01,
-      "status": "forming",
-      "swings": [
-        {
-          "date": "2026-02-06",
-          "price": 6043.21,
-          "kind": "high"
-        },
-        {
-          "date": "2026-03-04",
-          "price": 4977.36,
-          "kind": "low"
-        },
-        {
-          "date": "2026-05-14",
-          "price": 11633.49,
-          "kind": "high"
-        },
-        {
-          "date": "2026-06-08",
-          "price": 7810.48,
-          "kind": "low"
-        },
-        {
-          "date": "2026-06-12",
-          "price": 10050.21,
-          "kind": "high"
-        },
-        {
-          "date": "2026-06-26",
-          "price": 7070.31,
-          "kind": "low"
-        },
-        {
-          "date": "2026-07-27",
-          "price": 10521.61,
-          "kind": "high"
-        },
-        {
-          "date": "2026-07-30",
-          "price": 7800.46,
-          "kind": "low"
-        },
-        {
-          "date": "2026-08-05",
-          "price": 10490.0,
-          "kind": "high"
-        }
-      ],
-      "reason": "no_tight_coil",
-      "entry_ready": false,
-      "coil_len": null,
-      "coil_dry_mean": null,
-      "coil_range_pct": null,
-      "coil_min_dry": null
-    },
-    {
-      "code": "094840",
-      "name": "슈프리마에이치큐",
-      "market": "KOSDAQ",
-      "current_price": 14840.0,
-      "rs": 94,
-      "vcp_detected": false,
-      "num_contractions": 2,
-      "contractions": [
-        29.24,
-        10.94
-      ],
-      "base_length_days": 62,
-      "base_depth_pct": null,
-      "pivot_price": null,
-      "pct_to_pivot": null,
-      "volume_dryup_ratio": 1.424,
-      "tightness_pct": 6.3,
-      "status": "forming",
-      "swings": [
-        {
-          "date": "2026-02-06",
-          "price": 6799.97,
-          "kind": "high"
-        },
-        {
-          "date": "2026-03-04",
-          "price": 6250.39,
-          "kind": "low"
-        },
-        {
-          "date": "2026-03-27",
-          "price": 8269.8,
-          "kind": "high"
-        },
-        {
-          "date": "2026-03-31",
-          "price": 7549.93,
-          "kind": "low"
-        },
-        {
-          "date": "2026-05-07",
-          "price": 12658.99,
-          "kind": "high"
-        },
-        {
-          "date": "2026-06-08",
-          "price": 8957.91,
-          "kind": "low"
-        },
-        {
-          "date": "2026-07-15",
-          "price": 13809.65,
-          "kind": "high"
-        },
-        {
-          "date": "2026-07-20",
-          "price": 12299.3,
-          "kind": "low"
-        },
-        {
-          "date": "2026-07-31",
-          "price": 15099.68,
+          "date": "2026-08-06",
+          "price": 49450.0,
           "kind": "high"
         }
       ],
@@ -1325,75 +1907,358 @@
       "code": "078930",
       "name": "GS",
       "market": "KOSPI",
-      "current_price": 95000.0,
-      "rs": 93,
+      "current_price": 98800.0,
+      "rs": 94,
       "vcp_detected": false,
       "num_contractions": 2,
       "contractions": [
         21.08,
         11.76
       ],
-      "base_length_days": 36,
+      "base_length_days": 37,
       "base_depth_pct": null,
       "pivot_price": null,
       "pct_to_pivot": null,
-      "volume_dryup_ratio": 1.623,
-      "tightness_pct": 10.4,
+      "volume_dryup_ratio": 1.537,
+      "tightness_pct": 9.66,
       "status": "forming",
       "swings": [
         {
-          "date": "2026-02-06",
-          "price": 67685.93,
+          "date": "2026-02-09",
+          "price": 71286.25,
           "kind": "high"
         },
         {
           "date": "2026-03-04",
-          "price": 61388.46,
+          "price": 61387.97,
           "kind": "low"
         },
         {
           "date": "2026-03-25",
-          "price": 70196.77,
+          "price": 70196.2,
           "kind": "high"
         },
         {
           "date": "2026-04-02",
-          "price": 62791.72,
+          "price": 62791.22,
           "kind": "low"
         },
         {
           "date": "2026-04-29",
-          "price": 82089.28,
+          "price": 82088.62,
           "kind": "high"
         },
         {
           "date": "2026-06-08",
-          "price": 69903.36,
+          "price": 69902.8,
           "kind": "low"
         },
         {
           "date": "2026-06-16",
-          "price": 79205.81,
+          "price": 79205.18,
           "kind": "high"
         },
         {
           "date": "2026-06-26",
-          "price": 62509.53,
+          "price": 62509.03,
           "kind": "low"
         },
         {
           "date": "2026-07-24",
-          "price": 95304.78,
+          "price": 95304.02,
           "kind": "high"
         },
         {
           "date": "2026-07-29",
-          "price": 84099.1,
+          "price": 84098.42,
           "kind": "low"
         },
         {
-          "date": "2026-08-04",
-          "price": 96900.0,
+          "date": "2026-08-06",
+          "price": 98800.0,
+          "kind": "high"
+        }
+      ],
+      "reason": "no_tight_coil",
+      "entry_ready": false,
+      "coil_len": null,
+      "coil_dry_mean": null,
+      "coil_range_pct": null,
+      "coil_min_dry": null
+    },
+    {
+      "code": "009420",
+      "name": "한올바이오파마",
+      "market": "KOSPI",
+      "current_price": 55600.0,
+      "rs": 94,
+      "vcp_detected": false,
+      "num_contractions": 1,
+      "contractions": [
+        43.46
+      ],
+      "base_length_days": 28,
+      "base_depth_pct": null,
+      "pivot_price": null,
+      "pct_to_pivot": null,
+      "volume_dryup_ratio": 0.601,
+      "tightness_pct": 9.28,
+      "status": "forming",
+      "swings": [
+        {
+          "date": "2026-02-09",
+          "price": 51679.79,
+          "kind": "high"
+        },
+        {
+          "date": "2026-03-04",
+          "price": 49175.21,
+          "kind": "low"
+        },
+        {
+          "date": "2026-03-26",
+          "price": 64360.56,
+          "kind": "high"
+        },
+        {
+          "date": "2026-05-20",
+          "price": 39178.37,
+          "kind": "low"
+        },
+        {
+          "date": "2026-05-27",
+          "price": 70658.4,
+          "kind": "high"
+        },
+        {
+          "date": "2026-06-23",
+          "price": 49278.8,
+          "kind": "low"
+        },
+        {
+          "date": "2026-06-29",
+          "price": 68969.29,
+          "kind": "high"
+        },
+        {
+          "date": "2026-07-30",
+          "price": 38996.12,
+          "kind": "low"
+        },
+        {
+          "date": "2026-08-06",
+          "price": 55600.0,
+          "kind": "high"
+        }
+      ],
+      "reason": "contraction_count_not_2_6",
+      "entry_ready": false,
+      "coil_len": null,
+      "coil_dry_mean": null,
+      "coil_range_pct": null,
+      "coil_min_dry": null
+    },
+    {
+      "code": "079940",
+      "name": "가비아",
+      "market": "KOSDAQ",
+      "current_price": 45000.0,
+      "rs": 94,
+      "vcp_detected": false,
+      "num_contractions": 3,
+      "contractions": [
+        15.85,
+        15.56,
+        14.46
+      ],
+      "base_length_days": 120,
+      "base_depth_pct": null,
+      "pivot_price": null,
+      "pct_to_pivot": null,
+      "volume_dryup_ratio": 1.106,
+      "tightness_pct": 1.18,
+      "status": "forming",
+      "swings": [
+        {
+          "date": "2026-02-09",
+          "price": 31856.94,
+          "kind": "high"
+        },
+        {
+          "date": "2026-03-04",
+          "price": 26808.93,
+          "kind": "low"
+        },
+        {
+          "date": "2026-03-06",
+          "price": 29910.54,
+          "kind": "high"
+        },
+        {
+          "date": "2026-03-31",
+          "price": 25255.17,
+          "kind": "low"
+        },
+        {
+          "date": "2026-05-14",
+          "price": 33903.96,
+          "kind": "high"
+        },
+        {
+          "date": "2026-06-23",
+          "price": 29001.36,
+          "kind": "low"
+        },
+        {
+          "date": "2026-07-23",
+          "price": 47551.54,
+          "kind": "high"
+        }
+      ],
+      "reason": "no_tight_coil",
+      "entry_ready": false,
+      "coil_len": null,
+      "coil_dry_mean": null,
+      "coil_range_pct": null,
+      "coil_min_dry": null
+    },
+    {
+      "code": "144960",
+      "name": "뉴파워프라즈마",
+      "market": "KOSDAQ",
+      "current_price": 10980.0,
+      "rs": 94,
+      "vcp_detected": false,
+      "num_contractions": 3,
+      "contractions": [
+        32.86,
+        29.65,
+        25.86
+      ],
+      "base_length_days": 58,
+      "base_depth_pct": null,
+      "pivot_price": null,
+      "pct_to_pivot": null,
+      "volume_dryup_ratio": 1.393,
+      "tightness_pct": 13.01,
+      "status": "forming",
+      "swings": [
+        {
+          "date": "2026-02-09",
+          "price": 6413.85,
+          "kind": "high"
+        },
+        {
+          "date": "2026-03-04",
+          "price": 4977.51,
+          "kind": "low"
+        },
+        {
+          "date": "2026-05-14",
+          "price": 11633.84,
+          "kind": "high"
+        },
+        {
+          "date": "2026-06-08",
+          "price": 7810.72,
+          "kind": "low"
+        },
+        {
+          "date": "2026-06-12",
+          "price": 10050.52,
+          "kind": "high"
+        },
+        {
+          "date": "2026-06-26",
+          "price": 7070.53,
+          "kind": "low"
+        },
+        {
+          "date": "2026-07-27",
+          "price": 10521.93,
+          "kind": "high"
+        },
+        {
+          "date": "2026-07-30",
+          "price": 7800.69,
+          "kind": "low"
+        },
+        {
+          "date": "2026-08-06",
+          "price": 10980.0,
+          "kind": "high"
+        }
+      ],
+      "reason": "no_tight_coil",
+      "entry_ready": false,
+      "coil_len": null,
+      "coil_dry_mean": null,
+      "coil_range_pct": null,
+      "coil_min_dry": null
+    },
+    {
+      "code": "094840",
+      "name": "슈프리마에이치큐",
+      "market": "KOSDAQ",
+      "current_price": 14770.0,
+      "rs": 94,
+      "vcp_detected": false,
+      "num_contractions": 2,
+      "contractions": [
+        29.24,
+        10.94
+      ],
+      "base_length_days": 63,
+      "base_depth_pct": null,
+      "pivot_price": null,
+      "pct_to_pivot": null,
+      "volume_dryup_ratio": 1.263,
+      "tightness_pct": 5.86,
+      "status": "forming",
+      "swings": [
+        {
+          "date": "2026-02-09",
+          "price": 6999.58,
+          "kind": "high"
+        },
+        {
+          "date": "2026-03-04",
+          "price": 6250.12,
+          "kind": "low"
+        },
+        {
+          "date": "2026-03-27",
+          "price": 8269.43,
+          "kind": "high"
+        },
+        {
+          "date": "2026-03-31",
+          "price": 7549.59,
+          "kind": "low"
+        },
+        {
+          "date": "2026-05-07",
+          "price": 12658.43,
+          "kind": "high"
+        },
+        {
+          "date": "2026-06-08",
+          "price": 8957.51,
+          "kind": "low"
+        },
+        {
+          "date": "2026-07-15",
+          "price": 13809.03,
+          "kind": "high"
+        },
+        {
+          "date": "2026-07-20",
+          "price": 12298.75,
+          "kind": "low"
+        },
+        {
+          "date": "2026-07-31",
+          "price": 15099.01,
           "kind": "high"
         }
       ],
@@ -1408,55 +2273,55 @@
       "code": "049430",
       "name": "코메론",
       "market": "KOSDAQ",
-      "current_price": 20000.0,
-      "rs": 92,
+      "current_price": 20650.0,
+      "rs": 93,
       "vcp_detected": false,
       "num_contractions": 2,
       "contractions": [
         23.3,
         10.42
       ],
-      "base_length_days": 86,
+      "base_length_days": 87,
       "base_depth_pct": null,
       "pivot_price": null,
       "pct_to_pivot": null,
-      "volume_dryup_ratio": 1.481,
-      "tightness_pct": 3.68,
+      "volume_dryup_ratio": 1.692,
+      "tightness_pct": 3.71,
       "status": "forming",
       "swings": [
         {
-          "date": "2026-02-06",
-          "price": 15579.71,
+          "date": "2026-02-09",
+          "price": 15349.47,
           "kind": "high"
         },
         {
           "date": "2026-03-04",
-          "price": 14247.84,
+          "price": 14248.16,
           "kind": "low"
         },
         {
           "date": "2026-04-01",
-          "price": 23148.18,
+          "price": 23148.69,
           "kind": "high"
         },
         {
           "date": "2026-06-08",
-          "price": 17754.31,
+          "price": 17754.7,
           "kind": "low"
         },
         {
           "date": "2026-06-22",
-          "price": 20394.39,
+          "price": 20394.84,
           "kind": "high"
         },
         {
           "date": "2026-07-20",
-          "price": 18269.91,
+          "price": 18270.31,
           "kind": "low"
         },
         {
-          "date": "2026-08-05",
-          "price": 20000.0,
+          "date": "2026-08-06",
+          "price": 20650.0,
           "kind": "high"
         }
       ],
@@ -1471,205 +2336,141 @@
       "code": "007340",
       "name": "DN오토모티브",
       "market": "KOSPI",
-      "current_price": 46400.0,
-      "rs": 91,
+      "current_price": 47800.0,
+      "rs": 92,
       "vcp_detected": false,
       "num_contractions": 2,
       "contractions": [
         25.78,
         24.38
       ],
-      "base_length_days": 62,
+      "base_length_days": 63,
       "base_depth_pct": null,
       "pivot_price": null,
       "pct_to_pivot": null,
-      "volume_dryup_ratio": 1.049,
-      "tightness_pct": 8.69,
+      "volume_dryup_ratio": 0.936,
+      "tightness_pct": 8.68,
       "status": "forming",
       "swings": [
         {
-          "date": "2026-02-06",
-          "price": 26345.25,
+          "date": "2026-02-09",
+          "price": 27995.68,
           "kind": "high"
         },
         {
           "date": "2026-03-04",
-          "price": 23341.72,
+          "price": 23342.74,
           "kind": "low"
         },
         {
           "date": "2026-03-26",
-          "price": 41236.83,
+          "price": 41238.63,
           "kind": "high"
         },
         {
           "date": "2026-04-07",
-          "price": 34439.94,
+          "price": 34441.44,
           "kind": "low"
         },
         {
           "date": "2026-05-07",
-          "price": 51191.51,
+          "price": 51193.74,
           "kind": "high"
         },
         {
           "date": "2026-06-08",
-          "price": 37994.32,
+          "price": 37995.97,
           "kind": "low"
         },
         {
           "date": "2026-06-17",
-          "price": 45095.92,
+          "price": 45097.88,
           "kind": "high"
         },
         {
           "date": "2026-07-09",
-          "price": 34101.55,
+          "price": 34103.04,
           "kind": "low"
         },
         {
-          "date": "2026-08-05",
-          "price": 46400.0,
+          "date": "2026-08-06",
+          "price": 47800.0,
           "kind": "high"
         }
       ],
-      "reason": "no_tight_coil",
+      "reason": "no_dry_coil_day",
       "entry_ready": false,
-      "coil_len": null,
-      "coil_dry_mean": null,
-      "coil_range_pct": null,
-      "coil_min_dry": null
+      "coil_len": 3,
+      "coil_dry_mean": 0.817,
+      "coil_range_pct": 11.85,
+      "coil_min_dry": 0.561
     },
     {
-      "code": "093320",
-      "name": "케이아이엔엑스",
-      "market": "KOSDAQ",
-      "current_price": 140500.0,
-      "rs": 91,
+      "code": "006360",
+      "name": "GS건설",
+      "market": "KOSPI",
+      "current_price": 32600.0,
+      "rs": 92,
       "vcp_detected": false,
-      "num_contractions": 2,
+      "num_contractions": 1,
       "contractions": [
-        25.92,
-        12.6
+        35.46
       ],
-      "base_length_days": 37,
+      "base_length_days": 11,
       "base_depth_pct": null,
       "pivot_price": null,
       "pct_to_pivot": null,
-      "volume_dryup_ratio": 1.066,
-      "tightness_pct": 8.12,
+      "volume_dryup_ratio": 1.894,
+      "tightness_pct": 12.7,
       "status": "forming",
       "swings": [
         {
-          "date": "2026-02-06",
-          "price": 127170.61,
+          "date": "2026-02-09",
+          "price": 20304.17,
           "kind": "high"
         },
         {
-          "date": "2026-03-23",
-          "price": 98687.24,
-          "kind": "low"
-        },
-        {
-          "date": "2026-04-16",
-          "price": 116585.73,
-          "kind": "high"
-        },
-        {
-          "date": "2026-05-06",
-          "price": 103579.1,
-          "kind": "low"
-        },
-        {
-          "date": "2026-06-15",
-          "price": 135779.31,
-          "kind": "high"
-        },
-        {
-          "date": "2026-06-26",
-          "price": 100580.35,
-          "kind": "low"
-        },
-        {
-          "date": "2026-07-23",
-          "price": 148384.04,
-          "kind": "high"
-        },
-        {
-          "date": "2026-07-31",
-          "price": 129691.02,
-          "kind": "low"
-        }
-      ],
-      "reason": "no_tight_coil",
-      "entry_ready": false,
-      "coil_len": null,
-      "coil_dry_mean": null,
-      "coil_range_pct": null,
-      "coil_min_dry": null
-    },
-    {
-      "code": "189330",
-      "name": "씨이랩",
-      "market": "KOSDAQ",
-      "current_price": 10990.0,
-      "rs": 91,
-      "vcp_detected": false,
-      "num_contractions": 2,
-      "contractions": [
-        34.95,
-        38.3
-      ],
-      "base_length_days": 46,
-      "base_depth_pct": null,
-      "pivot_price": null,
-      "pct_to_pivot": null,
-      "volume_dryup_ratio": 0.817,
-      "tightness_pct": 13.28,
-      "status": "forming",
-      "swings": [
-        {
-          "date": "2026-02-06",
-          "price": 4292.03,
+          "date": "2026-03-04",
+          "price": 18752.39,
           "kind": "low"
         },
         {
           "date": "2026-04-21",
-          "price": 8952.19,
+          "price": 43094.28,
           "kind": "high"
         },
         {
-          "date": "2026-04-24",
-          "price": 6560.7,
+          "date": "2026-06-08",
+          "price": 25600.82,
           "kind": "low"
         },
         {
-          "date": "2026-06-01",
-          "price": 11899.2,
+          "date": "2026-06-16",
+          "price": 31847.25,
           "kind": "high"
         },
         {
           "date": "2026-06-26",
-          "price": 7740.51,
+          "price": 23298.34,
           "kind": "low"
         },
         {
-          "date": "2026-07-09",
-          "price": 13129.5,
+          "date": "2026-07-23",
+          "price": 34395.23,
           "kind": "high"
         },
         {
-          "date": "2026-07-30",
-          "price": 8100.26,
+          "date": "2026-07-29",
+          "price": 22198.89,
           "kind": "low"
         },
         {
-          "date": "2026-08-04",
-          "price": 11020.0,
+          "date": "2026-08-06",
+          "price": 32600.0,
           "kind": "high"
         }
       ],
-      "reason": "contraction_not_converging",
+      "reason": "contraction_count_not_2_6",
       "entry_ready": false,
       "coil_len": null,
       "coil_dry_mean": null,
@@ -1680,466 +2481,302 @@
       "code": "007070",
       "name": "GS리테일",
       "market": "KOSPI",
-      "current_price": 24800.0,
-      "rs": 89,
+      "current_price": 26450.0,
+      "rs": 91,
       "vcp_detected": false,
       "num_contractions": 2,
       "contractions": [
         22.41,
         16.21
       ],
-      "base_length_days": 56,
+      "base_length_days": 57,
       "base_depth_pct": null,
       "pivot_price": null,
       "pct_to_pivot": null,
-      "volume_dryup_ratio": 1.127,
-      "tightness_pct": 6.3,
+      "volume_dryup_ratio": 1.212,
+      "tightness_pct": 6.17,
       "status": "forming",
       "swings": [
         {
-          "date": "2026-02-06",
-          "price": 20809.58,
+          "date": "2026-02-09",
+          "price": 21009.77,
           "kind": "high"
         },
         {
           "date": "2026-03-09",
-          "price": 18470.68,
+          "price": 18471.06,
           "kind": "low"
         },
         {
           "date": "2026-05-15",
-          "price": 29457.22,
+          "price": 29457.82,
           "kind": "high"
         },
         {
           "date": "2026-06-08",
-          "price": 22854.93,
+          "price": 22855.39,
           "kind": "low"
         },
         {
           "date": "2026-06-16",
-          "price": 25605.61,
+          "price": 25606.12,
           "kind": "high"
         },
         {
           "date": "2026-06-26",
-          "price": 21454.11,
+          "price": 21454.55,
           "kind": "low"
         },
         {
           "date": "2026-07-13",
-          "price": 26604.64,
+          "price": 26605.18,
           "kind": "high"
         }
       ],
       "reason": "no_dry_coil_day",
       "entry_ready": false,
       "coil_len": 12,
-      "coil_dry_mean": 0.889,
-      "coil_range_pct": 5.61,
+      "coil_dry_mean": 0.929,
+      "coil_range_pct": 5.24,
       "coil_min_dry": 0.504
+    },
+    {
+      "code": "093320",
+      "name": "케이아이엔엑스",
+      "market": "KOSDAQ",
+      "current_price": 139000.0,
+      "rs": 91,
+      "vcp_detected": false,
+      "num_contractions": 2,
+      "contractions": [
+        25.92,
+        12.6
+      ],
+      "base_length_days": 38,
+      "base_depth_pct": null,
+      "pivot_price": null,
+      "pct_to_pivot": null,
+      "volume_dryup_ratio": 0.88,
+      "tightness_pct": 7.09,
+      "status": "forming",
+      "swings": [
+        {
+          "date": "2026-02-09",
+          "price": 124066.53,
+          "kind": "high"
+        },
+        {
+          "date": "2026-03-23",
+          "price": 98686.35,
+          "kind": "low"
+        },
+        {
+          "date": "2026-04-16",
+          "price": 116584.68,
+          "kind": "high"
+        },
+        {
+          "date": "2026-05-06",
+          "price": 103578.17,
+          "kind": "low"
+        },
+        {
+          "date": "2026-06-15",
+          "price": 135778.08,
+          "kind": "high"
+        },
+        {
+          "date": "2026-06-26",
+          "price": 100579.44,
+          "kind": "low"
+        },
+        {
+          "date": "2026-07-23",
+          "price": 148382.69,
+          "kind": "high"
+        },
+        {
+          "date": "2026-07-31",
+          "price": 129689.85,
+          "kind": "low"
+        }
+      ],
+      "reason": "no_tight_coil",
+      "entry_ready": false,
+      "coil_len": null,
+      "coil_dry_mean": null,
+      "coil_range_pct": null,
+      "coil_min_dry": null
     },
     {
       "code": "086790",
       "name": "하나금융지주",
       "market": "KOSPI",
-      "current_price": 128600.0,
-      "rs": 88,
+      "current_price": 133300.0,
+      "rs": 89,
       "vcp_detected": false,
       "num_contractions": 2,
       "contractions": [
         16.9,
         11.99
       ],
-      "base_length_days": 36,
+      "base_length_days": 37,
       "base_depth_pct": null,
       "pivot_price": null,
       "pct_to_pivot": null,
-      "volume_dryup_ratio": 0.799,
-      "tightness_pct": 5.04,
+      "volume_dryup_ratio": 0.7,
+      "tightness_pct": 5.01,
       "status": "forming",
       "swings": [
         {
-          "date": "2026-02-06",
-          "price": 114599.9,
+          "date": "2026-02-09",
+          "price": 118798.62,
           "kind": "high"
         },
         {
           "date": "2026-03-04",
-          "price": 105489.39,
+          "price": 105493.26,
           "kind": "low"
         },
         {
           "date": "2026-05-07",
-          "price": 128779.65,
+          "price": 128784.38,
           "kind": "high"
         },
         {
           "date": "2026-06-08",
-          "price": 112394.23,
+          "price": 112398.35,
           "kind": "low"
         },
         {
           "date": "2026-06-16",
-          "price": 131997.92,
+          "price": 132002.76,
           "kind": "high"
         },
         {
           "date": "2026-06-26",
-          "price": 109688.94,
+          "price": 109692.97,
           "kind": "low"
         },
         {
           "date": "2026-07-15",
-          "price": 136795.42,
+          "price": 136800.44,
           "kind": "high"
         },
         {
           "date": "2026-07-29",
-          "price": 120397.94,
-          "kind": "low"
-        }
-      ],
-      "reason": "no_tight_coil",
-      "entry_ready": false,
-      "coil_len": null,
-      "coil_dry_mean": null,
-      "coil_range_pct": null,
-      "coil_min_dry": null
-    },
-    {
-      "code": "079550",
-      "name": "LIG디펜스앤에어로스페이스",
-      "market": "KOSPI",
-      "current_price": 798000.0,
-      "rs": 87,
-      "vcp_detected": false,
-      "num_contractions": 4,
-      "contractions": [
-        31.75,
-        28.25,
-        18.4,
-        18.64
-      ],
-      "base_length_days": 71,
-      "base_depth_pct": null,
-      "pivot_price": null,
-      "pct_to_pivot": null,
-      "volume_dryup_ratio": 0.691,
-      "tightness_pct": 10.39,
-      "status": "forming",
-      "swings": [
-        {
-          "date": "2026-02-06",
-          "price": 426828.58,
+          "price": 120402.36,
           "kind": "low"
         },
         {
-          "date": "2026-03-06",
-          "price": 833762.65,
-          "kind": "high"
-        },
-        {
-          "date": "2026-03-23",
-          "price": 639799.44,
-          "kind": "low"
-        },
-        {
-          "date": "2026-03-26",
-          "price": 734833.88,
-          "kind": "high"
-        },
-        {
-          "date": "2026-03-31",
-          "price": 610860.29,
-          "kind": "low"
-        },
-        {
-          "date": "2026-04-22",
-          "price": 1019816.11,
-          "kind": "high"
-        },
-        {
-          "date": "2026-06-08",
-          "price": 695998.16,
-          "kind": "low"
-        },
-        {
-          "date": "2026-06-16",
-          "price": 1002149.0,
-          "kind": "high"
-        },
-        {
-          "date": "2026-06-30",
-          "price": 719022.4,
-          "kind": "low"
-        },
-        {
-          "date": "2026-07-06",
-          "price": 815056.84,
-          "kind": "high"
-        },
-        {
-          "date": "2026-07-14",
-          "price": 665092.73,
-          "kind": "low"
-        },
-        {
-          "date": "2026-07-24",
-          "price": 762021.18,
-          "kind": "high"
-        },
-        {
-          "date": "2026-07-29",
-          "price": 619985.58,
-          "kind": "low"
-        },
-        {
-          "date": "2026-08-04",
-          "price": 801000.0,
+          "date": "2026-08-06",
+          "price": 133300.0,
           "kind": "high"
         }
       ],
-      "reason": "no_tight_coil",
+      "reason": "no_dry_coil_day",
       "entry_ready": false,
-      "coil_len": null,
-      "coil_dry_mean": null,
-      "coil_range_pct": null,
-      "coil_min_dry": null
+      "coil_len": 12,
+      "coil_dry_mean": 0.898,
+      "coil_range_pct": 9.19,
+      "coil_min_dry": 0.538
     },
     {
-      "code": "028670",
-      "name": "팬오션",
+      "code": "033780",
+      "name": "KT&G",
       "market": "KOSPI",
-      "current_price": 5860.0,
-      "rs": 87,
+      "current_price": 182700.0,
+      "rs": 88,
       "vcp_detected": false,
       "num_contractions": 2,
       "contractions": [
-        22.27,
-        25.18
+        11.35,
+        7.21
       ],
-      "base_length_days": 107,
+      "base_length_days": 38,
       "base_depth_pct": null,
       "pivot_price": null,
       "pct_to_pivot": null,
-      "volume_dryup_ratio": 2.363,
-      "tightness_pct": 7.75,
+      "volume_dryup_ratio": 1.03,
+      "tightness_pct": 3.52,
       "status": "forming",
       "swings": [
         {
-          "date": "2026-02-06",
-          "price": 4888.34,
-          "kind": "low"
-        },
-        {
-          "date": "2026-03-03",
-          "price": 6204.27,
-          "kind": "high"
-        },
-        {
-          "date": "2026-03-23",
-          "price": 4822.48,
-          "kind": "low"
-        },
-        {
-          "date": "2026-05-13",
-          "price": 6122.72,
-          "kind": "high"
-        },
-        {
-          "date": "2026-06-26",
-          "price": 4581.0,
-          "kind": "low"
-        },
-        {
-          "date": "2026-08-05",
-          "price": 5860.0,
-          "kind": "high"
-        }
-      ],
-      "reason": "contraction_not_converging",
-      "entry_ready": false,
-      "coil_len": null,
-      "coil_dry_mean": null,
-      "coil_range_pct": null,
-      "coil_min_dry": null
-    },
-    {
-      "code": "002810",
-      "name": "삼영무역",
-      "market": "KOSPI",
-      "current_price": 23350.0,
-      "rs": 87,
-      "vcp_detected": false,
-      "num_contractions": 2,
-      "contractions": [
-        14.97,
-        8.08
-      ],
-      "base_length_days": 40,
-      "base_depth_pct": null,
-      "pivot_price": null,
-      "pct_to_pivot": null,
-      "volume_dryup_ratio": 1.312,
-      "tightness_pct": 5.48,
-      "status": "forming",
-      "swings": [
-        {
-          "date": "2026-02-06",
-          "price": 17461.0,
-          "kind": "low"
-        },
-        {
-          "date": "2026-02-23",
-          "price": 23602.71,
+          "date": "2026-02-09",
+          "price": 168489.15,
           "kind": "high"
         },
         {
           "date": "2026-03-04",
-          "price": 18651.26,
+          "price": 151597.38,
           "kind": "low"
         },
         {
-          "date": "2026-03-25",
-          "price": 20351.91,
+          "date": "2026-05-14",
+          "price": 189008.9,
           "kind": "high"
         },
         {
-          "date": "2026-03-31",
-          "price": 18701.32,
+          "date": "2026-06-04",
+          "price": 175794.0,
           "kind": "low"
         },
         {
-          "date": "2026-06-10",
-          "price": 22049.85,
+          "date": "2026-06-15",
+          "price": 188489.76,
           "kind": "high"
         },
         {
-          "date": "2026-07-09",
-          "price": 18749.53,
+          "date": "2026-07-01",
+          "price": 167094.03,
           "kind": "low"
         },
         {
-          "date": "2026-07-27",
-          "price": 23499.93,
+          "date": "2026-07-08",
+          "price": 184284.15,
           "kind": "high"
         },
         {
-          "date": "2026-08-04",
-          "price": 21600.0,
+          "date": "2026-07-14",
+          "price": 170989.83,
           "kind": "low"
         },
         {
-          "date": "2026-08-05",
-          "price": 23350.0,
+          "date": "2026-07-30",
+          "price": 185795.57,
           "kind": "high"
         }
       ],
-      "reason": "no_tight_coil",
+      "reason": "no_dry_coil_day",
       "entry_ready": false,
-      "coil_len": null,
-      "coil_dry_mean": null,
-      "coil_range_pct": null,
-      "coil_min_dry": null
-    },
-    {
-      "code": "005430",
-      "name": "한국공항",
-      "market": "KOSPI",
-      "current_price": 91800.0,
-      "rs": 87,
-      "vcp_detected": false,
-      "num_contractions": 3,
-      "contractions": [
-        23.19,
-        12.07,
-        12.94
-      ],
-      "base_length_days": 48,
-      "base_depth_pct": null,
-      "pivot_price": null,
-      "pct_to_pivot": null,
-      "volume_dryup_ratio": 1.19,
-      "tightness_pct": 8.23,
-      "status": "forming",
-      "swings": [
-        {
-          "date": "2026-02-06",
-          "price": 67984.15,
-          "kind": "high"
-        },
-        {
-          "date": "2026-04-07",
-          "price": 54978.13,
-          "kind": "low"
-        },
-        {
-          "date": "2026-05-28",
-          "price": 89695.51,
-          "kind": "high"
-        },
-        {
-          "date": "2026-06-08",
-          "price": 68890.9,
-          "kind": "low"
-        },
-        {
-          "date": "2026-06-12",
-          "price": 87889.82,
-          "kind": "high"
-        },
-        {
-          "date": "2026-06-26",
-          "price": 77283.41,
-          "kind": "low"
-        },
-        {
-          "date": "2026-07-03",
-          "price": 89587.61,
-          "kind": "high"
-        },
-        {
-          "date": "2026-07-29",
-          "price": 77995.39,
-          "kind": "low"
-        },
-        {
-          "date": "2026-08-05",
-          "price": 91800.0,
-          "kind": "high"
-        }
-      ],
-      "reason": "no_tight_coil",
-      "entry_ready": false,
-      "coil_len": null,
-      "coil_dry_mean": null,
-      "coil_range_pct": null,
-      "coil_min_dry": null
+      "coil_len": 12,
+      "coil_dry_mean": 0.906,
+      "coil_range_pct": 5.49,
+      "coil_min_dry": 0.525
     },
     {
       "code": "071200",
       "name": "인피니트헬스케어",
       "market": "KOSDAQ",
-      "current_price": 9410.0,
-      "rs": 87,
+      "current_price": 9790.0,
+      "rs": 88,
       "vcp_detected": false,
       "num_contractions": 2,
       "contractions": [
         29.87,
         19.08
       ],
-      "base_length_days": 55,
+      "base_length_days": 56,
       "base_depth_pct": null,
       "pivot_price": null,
       "pct_to_pivot": null,
-      "volume_dryup_ratio": 0.774,
-      "tightness_pct": 6.93,
+      "volume_dryup_ratio": 1.006,
+      "tightness_pct": 7.1,
       "status": "forming",
       "swings": [
         {
-          "date": "2026-02-06",
-          "price": 6683.59,
+          "date": "2026-02-09",
+          "price": 6613.41,
           "kind": "high"
         },
         {
@@ -2178,8 +2815,212 @@
           "kind": "low"
         },
         {
+          "date": "2026-08-06",
+          "price": 9790.0,
+          "kind": "high"
+        }
+      ],
+      "reason": "no_dry_coil_day",
+      "entry_ready": false,
+      "coil_len": 3,
+      "coil_dry_mean": 0.916,
+      "coil_range_pct": 7.76,
+      "coil_min_dry": 0.62
+    },
+    {
+      "code": "189330",
+      "name": "씨이랩",
+      "market": "KOSDAQ",
+      "current_price": 10500.0,
+      "rs": 88,
+      "vcp_detected": false,
+      "num_contractions": 2,
+      "contractions": [
+        34.95,
+        38.3
+      ],
+      "base_length_days": 47,
+      "base_depth_pct": null,
+      "pivot_price": null,
+      "pct_to_pivot": null,
+      "volume_dryup_ratio": 0.862,
+      "tightness_pct": 12.44,
+      "status": "forming",
+      "swings": [
+        {
+          "date": "2026-02-09",
+          "price": 4401.8,
+          "kind": "low"
+        },
+        {
+          "date": "2026-04-21",
+          "price": 8951.99,
+          "kind": "high"
+        },
+        {
+          "date": "2026-04-24",
+          "price": 6560.55,
+          "kind": "low"
+        },
+        {
+          "date": "2026-06-01",
+          "price": 11898.93,
+          "kind": "high"
+        },
+        {
+          "date": "2026-06-26",
+          "price": 7740.34,
+          "kind": "low"
+        },
+        {
+          "date": "2026-07-09",
+          "price": 13129.21,
+          "kind": "high"
+        },
+        {
+          "date": "2026-07-30",
+          "price": 8100.08,
+          "kind": "low"
+        },
+        {
           "date": "2026-08-04",
-          "price": 9410.0,
+          "price": 11019.75,
+          "kind": "high"
+        }
+      ],
+      "reason": "contraction_not_converging",
+      "entry_ready": false,
+      "coil_len": null,
+      "coil_dry_mean": null,
+      "coil_range_pct": null,
+      "coil_min_dry": null
+    },
+    {
+      "code": "028670",
+      "name": "팬오션",
+      "market": "KOSPI",
+      "current_price": 5850.0,
+      "rs": 87,
+      "vcp_detected": false,
+      "num_contractions": 2,
+      "contractions": [
+        22.27,
+        25.18
+      ],
+      "base_length_days": 108,
+      "base_depth_pct": null,
+      "pivot_price": null,
+      "pct_to_pivot": null,
+      "volume_dryup_ratio": 2.254,
+      "tightness_pct": 7.69,
+      "status": "forming",
+      "swings": [
+        {
+          "date": "2026-02-09",
+          "price": 4993.48,
+          "kind": "low"
+        },
+        {
+          "date": "2026-03-03",
+          "price": 6204.31,
+          "kind": "high"
+        },
+        {
+          "date": "2026-03-23",
+          "price": 4822.51,
+          "kind": "low"
+        },
+        {
+          "date": "2026-05-13",
+          "price": 6122.77,
+          "kind": "high"
+        },
+        {
+          "date": "2026-06-26",
+          "price": 4581.03,
+          "kind": "low"
+        },
+        {
+          "date": "2026-08-05",
+          "price": 5860.0,
+          "kind": "high"
+        }
+      ],
+      "reason": "contraction_not_converging",
+      "entry_ready": false,
+      "coil_len": null,
+      "coil_dry_mean": null,
+      "coil_range_pct": null,
+      "coil_min_dry": null
+    },
+    {
+      "code": "002810",
+      "name": "삼영무역",
+      "market": "KOSPI",
+      "current_price": 22850.0,
+      "rs": 87,
+      "vcp_detected": false,
+      "num_contractions": 2,
+      "contractions": [
+        14.97,
+        8.08
+      ],
+      "base_length_days": 41,
+      "base_depth_pct": null,
+      "pivot_price": null,
+      "pct_to_pivot": null,
+      "volume_dryup_ratio": 1.089,
+      "tightness_pct": 5.66,
+      "status": "forming",
+      "swings": [
+        {
+          "date": "2026-02-09",
+          "price": 17700.52,
+          "kind": "low"
+        },
+        {
+          "date": "2026-02-23",
+          "price": 23603.11,
+          "kind": "high"
+        },
+        {
+          "date": "2026-03-04",
+          "price": 18651.58,
+          "kind": "low"
+        },
+        {
+          "date": "2026-03-25",
+          "price": 20352.25,
+          "kind": "high"
+        },
+        {
+          "date": "2026-03-31",
+          "price": 18701.64,
+          "kind": "low"
+        },
+        {
+          "date": "2026-06-10",
+          "price": 22050.23,
+          "kind": "high"
+        },
+        {
+          "date": "2026-07-09",
+          "price": 18749.85,
+          "kind": "low"
+        },
+        {
+          "date": "2026-07-27",
+          "price": 23500.33,
+          "kind": "high"
+        },
+        {
+          "date": "2026-08-04",
+          "price": 21600.37,
+          "kind": "low"
+        },
+        {
+          "date": "2026-08-05",
+          "price": 23350.0,
           "kind": "high"
         }
       ],
@@ -2191,10 +3032,156 @@
       "coil_min_dry": null
     },
     {
+      "code": "005430",
+      "name": "한국공항",
+      "market": "KOSPI",
+      "current_price": 90700.0,
+      "rs": 87,
+      "vcp_detected": false,
+      "num_contractions": 3,
+      "contractions": [
+        23.19,
+        12.07,
+        12.94
+      ],
+      "base_length_days": 49,
+      "base_depth_pct": null,
+      "pivot_price": null,
+      "pct_to_pivot": null,
+      "volume_dryup_ratio": 0.676,
+      "tightness_pct": 8.38,
+      "status": "forming",
+      "swings": [
+        {
+          "date": "2026-02-09",
+          "price": 67384.48,
+          "kind": "high"
+        },
+        {
+          "date": "2026-04-07",
+          "price": 54976.98,
+          "kind": "low"
+        },
+        {
+          "date": "2026-05-28",
+          "price": 89693.63,
+          "kind": "high"
+        },
+        {
+          "date": "2026-06-08",
+          "price": 68889.46,
+          "kind": "low"
+        },
+        {
+          "date": "2026-06-12",
+          "price": 87887.98,
+          "kind": "high"
+        },
+        {
+          "date": "2026-06-26",
+          "price": 77281.8,
+          "kind": "low"
+        },
+        {
+          "date": "2026-07-03",
+          "price": 89585.74,
+          "kind": "high"
+        },
+        {
+          "date": "2026-07-29",
+          "price": 77993.76,
+          "kind": "low"
+        },
+        {
+          "date": "2026-08-05",
+          "price": 91800.0,
+          "kind": "high"
+        }
+      ],
+      "reason": "no_tight_coil",
+      "entry_ready": false,
+      "coil_len": null,
+      "coil_dry_mean": null,
+      "coil_range_pct": null,
+      "coil_min_dry": null
+    },
+    {
+      "code": "139130",
+      "name": "iM금융지주",
+      "market": "KOSPI",
+      "current_price": 17680.0,
+      "rs": 84,
+      "vcp_detected": false,
+      "num_contractions": 1,
+      "contractions": [
+        15.98
+      ],
+      "base_length_days": 22,
+      "base_depth_pct": null,
+      "pivot_price": null,
+      "pct_to_pivot": null,
+      "volume_dryup_ratio": 0.815,
+      "tightness_pct": 5.62,
+      "status": "forming",
+      "swings": [
+        {
+          "date": "2026-02-09",
+          "price": 17865.43,
+          "kind": "high"
+        },
+        {
+          "date": "2026-03-04",
+          "price": 16271.63,
+          "kind": "low"
+        },
+        {
+          "date": "2026-05-04",
+          "price": 19292.24,
+          "kind": "high"
+        },
+        {
+          "date": "2026-06-08",
+          "price": 16596.89,
+          "kind": "low"
+        },
+        {
+          "date": "2026-06-11",
+          "price": 18318.69,
+          "kind": "high"
+        },
+        {
+          "date": "2026-06-26",
+          "price": 15828.38,
+          "kind": "low"
+        },
+        {
+          "date": "2026-07-07",
+          "price": 18707.43,
+          "kind": "high"
+        },
+        {
+          "date": "2026-07-29",
+          "price": 15718.68,
+          "kind": "low"
+        },
+        {
+          "date": "2026-08-06",
+          "price": 17680.0,
+          "kind": "high"
+        }
+      ],
+      "reason": "contraction_count_not_2_6",
+      "entry_ready": false,
+      "coil_len": null,
+      "coil_dry_mean": null,
+      "coil_range_pct": null,
+      "coil_min_dry": null
+    },
+    {
       "code": "089860",
       "name": "롯데렌탈",
       "market": "KOSPI",
-      "current_price": 39400.0,
+      "current_price": 40100.0,
       "rs": 84,
       "vcp_detected": false,
       "num_contractions": 3,
@@ -2203,17 +3190,17 @@
         13.61,
         7.51
       ],
-      "base_length_days": 69,
+      "base_length_days": 70,
       "base_depth_pct": null,
       "pivot_price": null,
       "pct_to_pivot": null,
-      "volume_dryup_ratio": 1.181,
-      "tightness_pct": 4.69,
+      "volume_dryup_ratio": 1.16,
+      "tightness_pct": 4.51,
       "status": "forming",
       "swings": [
         {
-          "date": "2026-02-06",
-          "price": 32107.11,
+          "date": "2026-02-09",
+          "price": 32457.08,
           "kind": "high"
         },
         {
@@ -2250,6 +3237,163 @@
           "date": "2026-07-29",
           "price": 36999.59,
           "kind": "low"
+        },
+        {
+          "date": "2026-08-06",
+          "price": 40100.0,
+          "kind": "high"
+        }
+      ],
+      "reason": "no_tight_coil",
+      "entry_ready": false,
+      "coil_len": null,
+      "coil_dry_mean": null,
+      "coil_range_pct": null,
+      "coil_min_dry": null
+    },
+    {
+      "code": "483650",
+      "name": "달바글로벌",
+      "market": "KOSPI",
+      "current_price": 247000.0,
+      "rs": 83,
+      "vcp_detected": false,
+      "num_contractions": 3,
+      "contractions": [
+        29.25,
+        18.05,
+        16.6
+      ],
+      "base_length_days": 58,
+      "base_depth_pct": null,
+      "pivot_price": null,
+      "pct_to_pivot": null,
+      "volume_dryup_ratio": 0.866,
+      "tightness_pct": 10.51,
+      "status": "forming",
+      "swings": [
+        {
+          "date": "2026-02-09",
+          "price": 173599.93,
+          "kind": "high"
+        },
+        {
+          "date": "2026-03-09",
+          "price": 140078.23,
+          "kind": "low"
+        },
+        {
+          "date": "2026-05-14",
+          "price": 259972.95,
+          "kind": "high"
+        },
+        {
+          "date": "2026-06-08",
+          "price": 183932.43,
+          "kind": "low"
+        },
+        {
+          "date": "2026-07-01",
+          "price": 241450.31,
+          "kind": "high"
+        },
+        {
+          "date": "2026-07-10",
+          "price": 197866.26,
+          "kind": "low"
+        },
+        {
+          "date": "2026-07-29",
+          "price": 264996.51,
+          "kind": "high"
+        },
+        {
+          "date": "2026-07-31",
+          "price": 220996.79,
+          "kind": "low"
+        }
+      ],
+      "reason": "no_tight_coil",
+      "entry_ready": false,
+      "coil_len": null,
+      "coil_dry_mean": null,
+      "coil_range_pct": null,
+      "coil_min_dry": null
+    },
+    {
+      "code": "044820",
+      "name": "코스맥스비티아이",
+      "market": "KOSPI",
+      "current_price": 22900.0,
+      "rs": 81,
+      "vcp_detected": false,
+      "num_contractions": 2,
+      "contractions": [
+        18.81,
+        9.73
+      ],
+      "base_length_days": 52,
+      "base_depth_pct": null,
+      "pivot_price": null,
+      "pct_to_pivot": null,
+      "volume_dryup_ratio": 1.25,
+      "tightness_pct": 6.35,
+      "status": "forming",
+      "swings": [
+        {
+          "date": "2026-02-09",
+          "price": 13194.01,
+          "kind": "high"
+        },
+        {
+          "date": "2026-03-04",
+          "price": 12520.79,
+          "kind": "low"
+        },
+        {
+          "date": "2026-05-08",
+          "price": 22649.94,
+          "kind": "high"
+        },
+        {
+          "date": "2026-05-13",
+          "price": 19470.61,
+          "kind": "low"
+        },
+        {
+          "date": "2026-05-14",
+          "price": 21300.85,
+          "kind": "high"
+        },
+        {
+          "date": "2026-05-21",
+          "price": 18811.63,
+          "kind": "low"
+        },
+        {
+          "date": "2026-05-22",
+          "price": 20151.02,
+          "kind": "high"
+        },
+        {
+          "date": "2026-06-23",
+          "price": 16361.26,
+          "kind": "low"
+        },
+        {
+          "date": "2026-07-13",
+          "price": 20949.02,
+          "kind": "high"
+        },
+        {
+          "date": "2026-07-21",
+          "price": 18910.53,
+          "kind": "low"
+        },
+        {
+          "date": "2026-08-06",
+          "price": 22900.0,
+          "kind": "high"
         }
       ],
       "reason": "no_tight_coil",
