@@ -1,13 +1,13 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-08-06T09:02:01.780+09:00",
+  "last_checked": "2026-08-06T14:50:28.244+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 6.95,
-      "display": "6.95배",
+      "value": 7.11,
+      "display": "7.11배",
       "threshold": "10배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "dividend_yield",
       "label": "배당수익률",
-      "value": 3.1,
-      "display": "3.10%",
+      "value": 3.03,
+      "display": "3.03%",
       "threshold": "3.5% 이하",
       "hit": true,
       "tone": "bad"
@@ -60,8 +60,8 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 85.21,
-      "display": "85.21$",
+      "value": 84.51,
+      "display": "84.51$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
@@ -72,7 +72,7 @@
       "severity": "bad",
       "type": "dividend_yield",
       "title": "배당수익률 3.5% 이하",
-      "message": "현재 3.10% — 매도 트리거 도달"
+      "message": "현재 3.03% — 매도 트리거 도달"
     },
     {
       "severity": "bad",
@@ -95,7 +95,7 @@
     {
       "severity": "bad",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 10건 (부정 시그널 1건 포함)",
+      "title": "리스크 키워드 매칭 뉴스 12건 (부정 시그널 1건 포함)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
@@ -119,12 +119,46 @@
       "signals": []
     },
     {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-08-05",
-      "title": "S&amp;P500 선물, 중동 긴장 완화에 상승…美 국채금리↑ - news.einfomax.co.kr",
-      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE9WSVlIblN0ME9rU3YwNENOSE15c2lVaDVBNUgyb0c2X3lfWHpneDVnT0JUQ2hpUnNwT0pkRFhGM2JVR2FXZTJzQWJWYlZORHZUZXlUS1ZyYUVTMnRmdzd2YjYzdFpvTG1mcTVuSlZKWXQ?oc=5",
+      "keyword": "이란 미국 합의",
+      "date": "2026-08-06",
+      "title": "트럼프 \"이란과 합의하고 싶어\"...이란 \"미국과 대화 없어\" - YTN",
+      "url": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE02TmJCRGtKemdSYk1UMVNRVlZhMm9XYW4zbHZyNnhXOWxWZ0xxTUpUR3ZKdXQyb1BsZWJoOFdKNjFzZ2tTakRHcXNlMElfelBWWlNjQ0ZjZ2tRSWdhZEE?oc=5",
       "severity": "info",
       "signals": []
+    },
+    {
+      "keyword": "이란 미국 합의",
+      "date": "2026-08-06",
+      "title": "이란·오만, 호르무즈 새 통항로 합의…미국과 이견 탓 최종 타결은 ‘아직’ - 한겨레",
+      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE1Ya3NlUnpHM1RBcmxZck5ZLW96Zm1vTHRLRGp4THJlRHZqaGZvQjg0VF9GYjFoMjVFYVdiNlVwUExLSXhacE1qbWYzNVJOVjRxWlBLSEpUVHRmTUNxYjdZOU5CX3o1dDM3WWFlYXJ6U2JmQUU?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "중동 긴장 완화",
+      "date": "2026-08-05",
+      "title": "비트코인 9100만원대 강보합...중동 긴장 완화 기대 속 관망세 - 메트로신문",
+      "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE1qWk5qWGdwQTlOT3E3bm5wLW9BZjUyUjhaSE9vTFBLU3pJaWFTbkUta04wdXVfVUdwNWF3OFlpU29OMUJDRHRfbEdQYmZrLTQ3RlFpcUNHLWktaW9OREw1NQ?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "중동 긴장 완화",
+      "date": "2026-08-04",
+      "title": "美 국채가, 중동 긴장 완화 기대로 강세 지속 - 연합인포맥스",
+      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTFBfa3BDakNDbF8wSDJpUnFxX2pGMnlPbE1tbzdlUEhEOTZiZFRfajZGc0VSaC1mU29GXzB5T0FoaGpkanBiYUhOWGR2RHhqUFplTXN3N1FZSXZSeE5ZaFJTTWt1RnBNYnFGbk1BQmlBTGk?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "중동 긴장 완화",
+      "date": "2026-08-06",
+      "title": "환율, 중동 긴장 완화에 달러 약세···1410원 후반대 - ziksir.com",
+      "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE9oR2szb29Ub1RrNFAwYnA5bmFwekpzR3FvWk9jMjRuSjh4M2w5OHhNZFMzb2RTN1IzX3llWHEwZDg0bHJacjZRNVFGQ0hCR3k0YWphZVlrRzl6MmgzYURFaHNmUGJ5Yllz0gFsQVVfeXFMTW9SMGVBUTNDamxYOFVmRThZdWRMZm40WG9vdlZrNlRSVXFQRk9CdnA2WkZHemNNYU50U19idG9HV0ptM29SQi1Fem42RGFlZmdqNG94LTcySWdFQkJfUF9WcndncEUxTXdoT05H?oc=5",
+      "severity": "warn",
+      "signals": [
+        "약세"
+      ]
     },
     {
       "keyword": "중동 긴장 완화",
@@ -137,7 +171,7 @@
     {
       "keyword": "중동 긴장 완화",
       "date": "2026-08-03",
-      "title": "독일 DAX지수 사상 최고치…중동 긴장 완화 기대(종합) - 연합뉴스",
+      "title": "독일 DAX지수 사상 최고치…중동 긴장 완화 기대(종합) - yna.co.kr",
       "url": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE51YU1mOFV5ejlVNm93RC1DZ2JWT195MFVicVBZSjVaT1d2MjctUVRIZlpRbGtybUFPR3licjVkUEF4VGFyNUZPTHFiMXB6OW85RmwzNktnQmpmcTDSAWBBVV95cUxQMWRCRjBJR0tsdHJVRmZvQVM5WUhRZm03aUVqZ3p6akUya1lSVzA5UHZZRWJ2ZkVKY1VXd19ua1RtUVByZXZkM0tiSm5mcVB3REloR29RajJVN3ZlZ2o1cWg?oc=5",
       "severity": "info",
       "signals": []
@@ -145,8 +179,8 @@
     {
       "keyword": "중동 긴장 완화",
       "date": "2026-08-05",
-      "title": "원·달러, 중동긴장 완화에 8.0원 내린 1424.5원 마감(종합) - 뉴시스",
-      "url": "https://news.google.com/rss/articles/CBMieEFVX3lxTE53N1h1REV1M3RNa1JZaXBqaVpuZ2pPTENjN1NPeXdzY1NaVU52QTdESGE4TnRQRllhWURoNnl1SlBwVXNNb0JKN3ExNW9sYmU3d2ZWNEtOWmRaNFp4b2tfdExxWFV4d2syZ3ctZFdQZmhQUF90MXpBRNIBeEFVX3lxTE53N1h1REV1M3RNa1JZaXBqaVpuZ2pPTENjN1NPeXdzY1NaVU52QTdESGE4TnRQRllhWURoNnl1SlBwVXNNb0JKN3ExNW9sYmU3d2ZWNEtOWmRaNFp4b2tfdExxWFV4d2syZ3ctZFdQZmhQUF90MXpBRA?oc=5",
+      "title": "S&amp;P500 선물, 중동 긴장 완화에 상승…美 국채금리↑ - kbthink.com",
+      "url": "https://news.google.com/rss/articles/CBMickFVX3lxTE55ZXlnamM2X25ta21YVUhjbVBmQ2JrUkRTZFEwNDh1Zy1wSm9uUjcwdzhXVVFrZzAza3NRSmtYYkFROFdpNHJTanZMZG5sVkJJZEtzeDM3TWdXZ01TYXVKSXFwc0ktVlZrVkF3QVd6cnFGdw?oc=5",
       "severity": "info",
       "signals": []
     },
@@ -169,22 +203,6 @@
       "signals": [
         "하락"
       ]
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-08-03",
-      "title": "중동 긴장 완화 기대감↑…단, 양측 동상이몽 여전 [글로벌 머니플로우",
-      "url": "https://news.google.com/rss/articles/CBMiVEFVX3lxTE5DSFVWVW5ENENJUnNiRUdlTXVoYTZSYkQzd3QzZkV0LS03QmE0Q3lhc0JCU3ZPaUxYeGZSNml3OTBweWtOalhmQnZvUVVGdmZRcnBJLQ?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-08-05",
-      "title": "엔화, 중동 긴장완화 기대에 상승 출발…호르무즈 합의 기대감 확산 - 서울뉴스통신",
-      "url": "https://news.google.com/rss/articles/CBMia0FVX3lxTFB2bmQtNHN5a2hXTXE0UE0zVkFJQXpmWl9NMl93dHFOcTNSZi1tQzM5U1NDaDhWcU1CTjZwSUJnNGcyTEZrNjFxQWFSMTV4Rkd3X2JDMlhxSEhyU1VTLUp1RnN1OHdQcUp6VnU4?oc=5",
-      "severity": "info",
-      "signals": []
     }
   ],
   "sources": [
@@ -193,7 +211,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 79.36 USD (2026-08-05, 7일 평균 85.21)",
+      "label": "Brent 원유 종가 79.13 USD (2026-08-06, 7일 평균 84.51)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
