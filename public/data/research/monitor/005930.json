@@ -1,22 +1,22 @@
 {
   "code": "005930",
   "name": "삼성전자",
-  "last_checked": "2026-08-06T20:25:05.983+09:00",
+  "last_checked": "2026-08-07T10:43:10.301+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 34.9,
-      "display": "34.90배",
+      "value": 35.62,
+      "display": "35.62배",
       "threshold": "35배 돌파",
-      "hit": false,
-      "tone": "warn"
+      "hit": true,
+      "tone": "bad"
     },
     {
       "id": "buyback_gap",
       "label": "자사주 소각 공시 공백",
-      "value": 128,
-      "display": "128일",
+      "value": 129,
+      "display": "129일",
       "threshold": "180일 경과",
       "hit": false,
       "tone": "warn"
@@ -69,16 +69,16 @@
   ],
   "alerts": [
     {
-      "severity": "warn",
+      "severity": "bad",
       "type": "per",
-      "title": "PER 임계 근접",
-      "message": "현재 34.90배 (임계 35배 돌파)"
+      "title": "PER 35배 돌파",
+      "message": "현재 35.62배 — 매도 트리거 도달"
     },
     {
       "severity": "warn",
       "type": "buyback_gap",
       "title": "자사주 소각 공시 공백 임계 근접",
-      "message": "현재 128일 (임계 180일 경과)"
+      "message": "현재 129일 (임계 180일 경과)"
     }
   ],
   "news_hits": [],

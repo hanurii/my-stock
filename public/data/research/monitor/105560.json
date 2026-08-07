@@ -1,22 +1,22 @@
 {
   "code": "105560",
   "name": "KB금융",
-  "last_checked": "2026-08-06T20:25:54.183+09:00",
+  "last_checked": "2026-08-07T10:43:58.469+09:00",
   "metrics": [
     {
       "id": "pbr",
       "label": "PBR",
-      "value": 1.08,
-      "display": "1.08배",
+      "value": 1.1,
+      "display": "1.10배",
       "threshold": "1.1배 돌파",
-      "hit": false,
-      "tone": "warn"
+      "hit": true,
+      "tone": "bad"
     },
     {
       "id": "pbr_premium_pp",
       "label": "4대 지주 평균 대비 PBR 프리미엄",
-      "value": 0.307,
-      "display": "0.307pp",
+      "value": 0.317,
+      "display": "0.317pp",
       "threshold": "+0.20pp 이상",
       "hit": true,
       "tone": "bad"
@@ -24,8 +24,8 @@
     {
       "id": "foreign_ratio",
       "label": "외국인 지분율",
-      "value": 79.32,
-      "display": "79.32%",
+      "value": 79.3,
+      "display": "79.30%",
       "threshold": "70% 이하",
       "hit": false,
       "tone": "good"
@@ -51,8 +51,8 @@
     {
       "id": "buyback_cancellation_gap",
       "label": "자사주 소각결정 후 경과일",
-      "value": 14,
-      "display": "14일",
+      "value": 15,
+      "display": "15일",
       "threshold": "365일 후속 부재",
       "hit": false,
       "tone": "good"
@@ -96,16 +96,16 @@
   ],
   "alerts": [
     {
-      "severity": "warn",
+      "severity": "bad",
       "type": "pbr",
-      "title": "PBR 임계 근접",
-      "message": "현재 1.08배 (임계 1.1배 돌파)"
+      "title": "PBR 1.1배 돌파",
+      "message": "현재 1.10배 — 매도 트리거 도달"
     },
     {
       "severity": "bad",
       "type": "pbr_premium_pp",
       "title": "4대 지주 평균 대비 PBR 프리미엄 +0.20pp 이상",
-      "message": "현재 0.307pp — 매도 트리거 도달"
+      "message": "현재 0.317pp — 매도 트리거 도달"
     },
     {
       "severity": "bad",
@@ -126,7 +126,7 @@
     },
     {
       "label": "4대 지주 평균 PBR 비교 (3종목)",
-      "ref": "peers: 086790, 316140, 055550 / avg 0.773"
+      "ref": "peers: 086790, 316140, 055550 / avg 0.783"
     },
     {
       "label": "분기 배당 결정 ([기재정정]사업보고서 (2025.12))",

@@ -1,13 +1,13 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-08-06T20:27:17.820+09:00",
+  "last_checked": "2026-08-07T10:45:22.008+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 7.1,
-      "display": "7.10배",
+      "value": 7,
+      "display": "7배",
       "threshold": "10배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "dividend_yield",
       "label": "배당수익률",
-      "value": 3.04,
-      "display": "3.04%",
+      "value": 3.08,
+      "display": "3.08%",
       "threshold": "3.5% 이하",
       "hit": true,
       "tone": "bad"
@@ -24,8 +24,8 @@
     {
       "id": "price_high",
       "label": "주가",
-      "value": 95000,
-      "display": "95,000원",
+      "value": 98800,
+      "display": "98,800원",
       "threshold": "85,000원+ 돌파",
       "hit": true,
       "tone": "bad"
@@ -51,17 +51,17 @@
     {
       "id": "buyback_acquisition",
       "label": "자사주 취득결정 공시 (90일·긍정)",
-      "value": 1,
-      "display": "1건",
+      "value": 0,
+      "display": "0건",
       "threshold": "공시 1건+ (재평가 신호)",
-      "hit": true,
-      "tone": "good"
+      "hit": false,
+      "tone": "neutral"
     },
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 84.69,
-      "display": "84.69$",
+      "value": 83.17,
+      "display": "83.17$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
@@ -72,13 +72,13 @@
       "severity": "bad",
       "type": "dividend_yield",
       "title": "배당수익률 3.5% 이하",
-      "message": "현재 3.04% — 매도 트리거 도달"
+      "message": "현재 3.08% — 매도 트리거 도달"
     },
     {
       "severity": "bad",
       "type": "price_high",
       "title": "주가 85,000원+ 돌파",
-      "message": "현재 95,000원 — 매도 트리거 도달"
+      "message": "현재 98,800원 — 매도 트리거 도달"
     },
     {
       "severity": "bad",
@@ -87,15 +87,9 @@
       "message": "현재 2건 — 매도 트리거 도달"
     },
     {
-      "severity": "info",
-      "type": "buyback_acquisition",
-      "title": "자사주 취득결정 공시 (90일·긍정) 공시 1건+ (재평가 신호)",
-      "message": "현재 1건 — 긍정 시그널 발생 (재평가 검토)"
-    },
-    {
-      "severity": "warn",
+      "severity": "bad",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 11건 (관찰 신호 2건 포함)",
+      "title": "리스크 키워드 매칭 뉴스 14건 (부정 시그널 1건 포함)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
@@ -103,8 +97,18 @@
     {
       "keyword": "정제마진 하락",
       "date": "2026-08-03",
-      "title": "S-OIL, 유가 하락에도 2분기 영업익 9650억원… 정제마진·윤활유 '쌍끌이' - v.daum.net",
-      "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTFBxdFhwZnU4c3RpZmp5dHk5R00xejdYZEQ0TlVPQW9WaGhIVG0zNGlRcVdxS1JncjJ4eXBqQ2tZYnFoMHVlVzUtdjA3OER0MG8?oc=5",
+      "title": "S-OIL, 유가 하락에도 2분기 영업익 9650억원… 정제마진·윤활유 '쌍끌이' - 아시아경제",
+      "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE5hMGJ3ZTU5Zi1zb3dXbXlacXdpRXRmajN1WFVqTl9Scll6bjFfTktza3E3cFlWYk9jZkNTMHFEMFl5WEotVjdIMkMzT0w1UDNWSmQ2SzExMzJEM25HV0lyaw?oc=5",
+      "severity": "warn",
+      "signals": [
+        "하락"
+      ]
+    },
+    {
+      "keyword": "정제마진 하락",
+      "date": "2026-07-31",
+      "title": "ECB 블로그: 유로존 정제마진 8월 정점 후 하락 전망 - Investing.com 한국어",
+      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE8teUJFdkZ2WUpYMHlERzdJTXV4VkFFZXkwN0VMRDg4NmtDS01ENGpXQWtsN3JpcDFiTExGdS0tUldfY3BOckp1bnNLR3hYR1EwdnFzdHo4SmI3Rmp2ZVlCWEdDT3RVbmdKdzVBS213LWI?oc=5",
       "severity": "warn",
       "signals": [
         "하락"
@@ -114,7 +118,15 @@
       "keyword": "GS칼텍스 정제마진",
       "date": "2026-08-05",
       "title": "GS칼텍스도 2분기 깜짝 실적 예약…정제마진 증가ㆍ윤활유 특수 - 대한경제",
-      "url": "https://news.google.com/rss/articles/CBMidEFVX3lxTE9NVTlnMG1YZ1NXQ1lMczNORlFNUXR6OUlrb3VkSTItVmRQUW1mVlhuR1ZsLTFpTWNEVXNESFR2NnVwdEN5cVh6QWxkOTNCenphbE9vcE5Oc1F1QWx4UUU1aFgtSHNiUkhUcnYtMUlZS0xrTkxJ?oc=5",
+      "url": "https://news.google.com/rss/articles/CBMihwFBVV95cUxNUGpOYklhRm5Dc3BjSnpqbnowcmZpb3pQS3NicDZlZ0VCdnZaVWJDcGtRUzlfdFlQVlltLTBTMnYzakdhRjcxRFF3b0NYcFJMR25yblNSTXZMTHV0Wk5vQ3VpQmw5eVF2Y2VPUE5aMHVjMXZUQWptZVNQZjFDTjFObkQ4X1p1X2M?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "이란 미국 합의",
+      "date": "2026-08-06",
+      "title": "미국-이란 합의? '노땡큐'‥트럼프 발목 잡는 건 이스라엘 - MBC 뉴스",
+      "url": "https://news.google.com/rss/articles/CBMieEFVX3lxTFB5Y2xEQkljbHJFMDNwUEprN2tyYm5JNDdwVDJGTWZDY1VxM3E0c0ZDODJuX2tpVnItb3RtUXEzX3lHVVR0T2tHTEJiajhjZF9tZ2N6WXgzR29KcmxqWk1EM0x5QmJyTTdHZkFwNWNqbHVpQVFGVUJ6ZQ?oc=5",
       "severity": "info",
       "signals": []
     },
@@ -127,26 +139,10 @@
       "signals": []
     },
     {
-      "keyword": "중동 긴장 완화",
+      "keyword": "이란 미국 합의",
       "date": "2026-08-06",
-      "title": "'중동 긴장 완화·엔화 강세' 원·달러 환율, 장중 1410원대로...10개월 만에 최저치 - 베타뉴스",
-      "url": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE1BTU1UQWUwQlBmYUdhSy1lcERvQWNqWUFhSTFJSHVRYlZ6a25ZaEpLQlBIcnFBUWRFSWxvZ0tWR0I1SVRVdVR1TXpfaEw0NndpRHBDSGo5Yzl4UGlHbEVwZnp0SFk?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-08-06",
-      "title": "원·달러, 중동긴장 완화 등 영향에 0.7원 내린 1423.8원 마감 - newsis.com",
-      "url": "https://news.google.com/rss/articles/CBMieEFVX3lxTE11VXE5SC1scDVoMFFEMDEyempqM0JwRmhsSGg0WUgxamNuVzlrTXFRcjZNbV93S2NPSUNCc0pfVWNhNmFoLVZWb3Fib1JlSEJaTVB3WkdYMHVMcEp1Q2VzRDQ1eVFhZEdSUWFlOTFXV0pPUWJRVy1rZNIBeEFVX3lxTE11VXE5SC1scDVoMFFEMDEyempqM0JwRmhsSGg0WUgxamNuVzlrTXFRcjZNbV93S2NPSUNCc0pfVWNhNmFoLVZWb3Fib1JlSEJaTVB3WkdYMHVMcEp1Q2VzRDQ1eVFhZEdSUWFlOTFXV0pPUWJRVy1rZA?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-08-06",
-      "title": "중동 긴장 완화·엔화 강세…환율 장중 1414.5원 10개월 만에 최저 - 글로벌이코노믹",
-      "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxOR1A0ZC05cUdPTUNSYU9UUENxakhCY1duMnBqNi1vMUd3NkdFVEQybUtkeXFJX25jaW1XRjZyWklZMlNaVmZJQ0pDUnRlN0VOZS1rb2hBc2QydGZaWTNnaEZ1d1IzR2JMY2YtMjA1Sjd3dnJHcHk2a1RrSDQ5Zm4wek5XQmo?oc=5",
+      "title": "미국-이란 합의? '노땡큐'‥트럼프 발목 잡는 건 이스라엘 - v.daum.net",
+      "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTFBrTE5sSGhod1dUaHZlZkowcUIxbmFVN016bmNEa0h4RnFITGViVk11OXNuU0U5d1N3NFR3VDBFdG9nUDEzSmhTd2JfRXMxa00?oc=5",
       "severity": "info",
       "signals": []
     },
@@ -160,21 +156,19 @@
     },
     {
       "keyword": "중동 긴장 완화",
-      "date": "2026-08-05",
-      "title": "비트코인 9100만원대 강보합...중동 긴장 완화 기대 속 관망세 - 메트로신문",
-      "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE1qWk5qWGdwQTlOT3E3bm5wLW9BZjUyUjhaSE9vTFBLU3pJaWFTbkUta04wdXVfVUdwNWF3OFlpU29OMUJDRHRfbEdQYmZrLTQ3RlFpcUNHLWktaW9OREw1NQ?oc=5",
+      "date": "2026-08-06",
+      "title": "중동 긴장 완화·엔화 강세…환율, 장중 1414.5원 '10개월 만에 최저' - 글로벌이코노믹",
+      "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxOR1A0ZC05cUdPTUNSYU9UUENxakhCY1duMnBqNi1vMUd3NkdFVEQybUtkeXFJX25jaW1XRjZyWklZMlNaVmZJQ0pDUnRlN0VOZS1rb2hBc2QydGZaWTNnaEZ1d1IzR2JMY2YtMjA1Sjd3dnJHcHk2a1RrSDQ5Zm4wek5XQmo?oc=5",
       "severity": "info",
       "signals": []
     },
     {
       "keyword": "중동 긴장 완화",
       "date": "2026-08-06",
-      "title": "환율, 중동 긴장 완화에 달러 약세···1410원 후반대 - ziksir.com",
-      "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE9oR2szb29Ub1RrNFAwYnA5bmFwekpzR3FvWk9jMjRuSjh4M2w5OHhNZFMzb2RTN1IzX3llWHEwZDg0bHJacjZRNVFGQ0hCR3k0YWphZVlrRzl6MmgzYURFaHNmUGJ5Yllz0gFsQVVfeXFMTW9SMGVBUTNDamxYOFVmRThZdWRMZm40WG9vdlZrNlRSVXFQRk9CdnA2WkZHemNNYU50U19idG9HV0ptM29SQi1Fem42RGFlZmdqNG94LTcySWdFQkJfUF9WcndncEUxTXdoT05H?oc=5",
-      "severity": "warn",
-      "signals": [
-        "약세"
-      ]
+      "title": "'중동 긴장 완화·엔화 강세' 원·달러 환율, 장중 1410원대로...10개월 만에 최저치 - 베타뉴스",
+      "url": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE1BTU1UQWUwQlBmYUdhSy1lcERvQWNqWUFhSTFJSHVRYlZ6a25ZaEpLQlBIcnFBUWRFSWxvZ0tWR0I1SVRVdVR1TXpfaEw0NndpRHBDSGo5Yzl4UGlHbEVwZnp0SFk?oc=5",
+      "severity": "info",
+      "signals": []
     },
     {
       "keyword": "중동 긴장 완화",
@@ -186,11 +180,37 @@
     },
     {
       "keyword": "중동 긴장 완화",
+      "date": "2026-08-06",
+      "title": "원·달러, 중동긴장 완화 등 영향에 0.7원 내린 1423.8원 마감 - 뉴시스",
+      "url": "https://news.google.com/rss/articles/CBMieEFVX3lxTE11VXE5SC1scDVoMFFEMDEyempqM0JwRmhsSGg0WUgxamNuVzlrTXFRcjZNbV93S2NPSUNCc0pfVWNhNmFoLVZWb3Fib1JlSEJaTVB3WkdYMHVMcEp1Q2VzRDQ1eVFhZEdSUWFlOTFXV0pPUWJRVy1rZNIBeEFVX3lxTE11VXE5SC1scDVoMFFEMDEyempqM0JwRmhsSGg0WUgxamNuVzlrTXFRcjZNbV93S2NPSUNCc0pfVWNhNmFoLVZWb3Fib1JlSEJaTVB3WkdYMHVMcEp1Q2VzRDQ1eVFhZEdSUWFlOTFXV0pPUWJRVy1rZA?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "중동 긴장 완화",
+      "date": "2026-08-05",
+      "title": "S&amp;P500 선물, 중동 긴장 완화에 상승…美 국채금리↑ - KB Think",
+      "url": "https://news.google.com/rss/articles/CBMickFVX3lxTE55ZXlnamM2X25ta21YVUhjbVBmQ2JrUkRTZFEwNDh1Zy1wSm9uUjcwdzhXVVFrZzAza3NRSmtYYkFROFdpNHJTanZMZG5sVkJJZEtzeDM3TWdXZ01TYXVKSXFwc0ktVlZrVkF3QVd6cnFGdw?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "중동 긴장 완화",
       "date": "2026-08-03",
       "title": "독일 DAX지수 사상 최고치…중동 긴장 완화 기대(종합) - 연합뉴스",
       "url": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE51YU1mOFV5ejlVNm93RC1DZ2JWT195MFVicVBZSjVaT1d2MjctUVRIZlpRbGtybUFPR3licjVkUEF4VGFyNUZPTHFiMXB6OW85RmwzNktnQmpmcTDSAWBBVV95cUxQMWRCRjBJR0tsdHJVRmZvQVM5WUhRZm03aUVqZ3p6akUya1lSVzA5UHZZRWJ2ZkVKY1VXd19ua1RtUVByZXZkM0tiSm5mcVB3REloR29RajJVN3ZlZ2o1cWg?oc=5",
       "severity": "info",
       "signals": []
+    },
+    {
+      "keyword": "중동 긴장 완화",
+      "date": "2026-08-04",
+      "title": "중동 긴장 완화 기대에 국제유가 5%대 급락…80달러 아래로 - 뉴스1",
+      "url": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE5qajNhcm9mNUN0ZlZFRW1qSzNvYVpyWWsybDd4MHRFa093UHZDUXRZVzFlc0wyaGdIeThUd25lbnRiUVl6bk1SZXJ4MnJrNGJ2bHR5UmN5MXM3clVQYk40cEoyX05hZWc?oc=5",
+      "severity": "bad",
+      "signals": [
+        "급락"
+      ]
     }
   ],
   "sources": [
@@ -199,7 +219,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 80.35 USD (2026-08-06, 7일 평균 84.69)",
+      "label": "Brent 원유 종가 83.17 USD (2026-08-07, 7일 평균 83.17)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
