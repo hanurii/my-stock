@@ -2,7 +2,7 @@
 name: sepa
 description: >
   SEPA 파이프라인 오케스트레이터(부모 스킬). update-data → find-trend-template
-  → {find-vcp·find-power-play·find-3c 형제 동시} 를 정기 순서대로 전부 실행하고,
+  → {find-vcp·find-power-play·find-3c·find-ipo 형제 동시} 를 정기 순서대로 전부 실행하고,
   통합 요약 후 결과 파일(sepa-*-candidates.json)만 자동 commit+push 한다. 직접
   계산은 없음 — 하위 스킬을 Skill 도구로 호출하는 지휘 문서. 사용자가 "/sepa",
   "sepa 돌려줘", "세파 전체 실행", "SEPA 파이프라인", "오늘 세파 후보 갱신"
@@ -30,12 +30,15 @@ SEPA 종목 발굴 전체 파이프라인을 한 번에 돌리는 **부모 스�
 2. **`find-trend-template` 스킬 호출** — SEPA 1단계 추세 관문.
    - **통과 0종목이면 여기서 중단**하고 보고(약세장이면 정상). 3단계 이후·
      커밋 진행 안 함.
-3. **패턴 검출기 동시 실행(백그라운드 병렬) — 네 갈래:**
-   `find-vcp` · `find-power-play`(트렌드) · **`find-power-play` 전수** · `find-3c`.
+3. **패턴 검출기 동시 실행(백그라운드 병렬) — 다섯 갈래:**
+   `find-vcp` · `find-power-play`(트렌드) · **`find-power-play` 전수** · `find-3c`
+   · **`find-ipo`**(IPO 트랙 정리 — 26-08-08 편입).
    - 형제 스킬들의 지시를 모두 로드한 뒤, 각 스크립트를 **백그라운드로
      동시에** 실행한다(Bash `run_in_background`, 전부 종료 후 결과 취합).
      모두 `sepa-trend-candidates.json`/OHLCV 캐시를 읽기만 하고 서로 다른
      파일에 쓰므로 병렬 안전.
+   - `find-ipo` 는 1단계의 `ipo_candidates` 를 정리만 하는 가벼운 단계(비차단) —
+     입력에 `ipo_candidates` 가 없으면 경고 후 건너뜀(실패 취급 안 함).
    - **전수 파워플레이**: `find-power-play` 스킬을 그 스킬 문서의
      `--universe all --rs-min 80` 옵션으로 **한 번 더** 실행 →
      `sepa-power-play-all-candidates.json`. `/stocks/sepa` 페이지의 '전수'
@@ -88,8 +91,9 @@ SEPA 종목 발굴 전체 파이프라인을 한 번에 돌리는 **부모 스�
      assignments(편입) 또는 reviewed_none(해당 없음)에 추가한다(증분 큐레이션).
 8. **통합 요약 보고** — 표 하나로:
    - 추세 통과 N종목 (market_status 포함)
-   - 🐣 IPO 트랙(신규상장 대체 관문): 평가 N · 통과 종목(이름·상장일수·iRS).
-     통과 0이면 "통과 없음" 한 줄만.
+   - 🐣 IPO 트랙(신규상장 대체 관문, `find-ipo` 산출): 평가 N · 통과 종목
+     (이름·상장일수·iRS·과열 딱지) + 임박(5~6/7) 몇 개. 통과 0이면 "통과 없음"
+     한 줄만. 통과 종목엔 청산 주의(-10% 손절 부적합) 문구 붙임.
    - VCP: breakout / actionable 종목과 피벗
    - 파워플레이(트렌드): entry_ready 종목과 피벗
    - 파워플레이(전수): entry_ready 종목과 피벗 (입력 종목 수 포함)
@@ -103,6 +107,7 @@ SEPA 종목 발굴 전체 파이프라인을 한 번에 돌리는 **부모 스�
    - `public/data/sepa-power-play-candidates.json`
    - `public/data/sepa-power-play-all-candidates.json` (전수 — 페이지 '전수' 섹션)
    - `public/data/sepa-3c-candidates.json` (find-3c가 실행됐을 때만)
+   - `public/data/sepa-ipo-candidates.json` (find-ipo 산출 — 건너뛰었으면 제외)
    - `public/data/sepa-holdings-feedback.json`
    - `public/data/sepa-tier-history.json` (5단계 스냅샷 결과 — 빠뜨리면 추이가
      갱신돼도 배포에 안 실려 낡은 채로 보인다)
