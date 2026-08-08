@@ -1,13 +1,13 @@
 {
   "code": "175330",
   "name": "JB금융지주",
-  "last_checked": "2026-08-04T20:28:00.077+09:00",
+  "last_checked": "2026-08-07T19:05:35.162+09:00",
   "metrics": [
     {
       "id": "pbr",
       "label": "PBR",
-      "value": 0.83,
-      "display": "0.83배",
+      "value": 0.89,
+      "display": "0.89배",
       "threshold": "1.1배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,17 +15,17 @@
     {
       "id": "pbr_premium_pp",
       "label": "지방지주 평균 대비 PBR 프리미엄",
-      "value": 0.41,
-      "display": "0.410pp",
+      "value": 0.47,
+      "display": "0.470pp",
       "threshold": "+0.50pp 이상",
       "hit": false,
-      "tone": "good"
+      "tone": "warn"
     },
     {
       "id": "foreign_ratio",
       "label": "외국인 지분율",
-      "value": 34.43,
-      "display": "34.43%",
+      "value": 34.39,
+      "display": "34.39%",
       "threshold": "25% 이하",
       "hit": false,
       "tone": "good"
@@ -33,8 +33,8 @@
     {
       "id": "foreign_net_buy_4w",
       "label": "최근 20거래일 외국인 순매수",
-      "value": -191917,
-      "display": "-19만주",
+      "value": -205108,
+      "display": "-21만주",
       "threshold": "순매도 전환",
       "hit": true,
       "tone": "bad"
@@ -51,8 +51,8 @@
     {
       "id": "buyback_program_status",
       "label": "자사주 프로그램 (마지막 소각결정 · 진행 중)",
-      "value": 12,
-      "display": "12일",
+      "value": 15,
+      "display": "15일",
       "threshold": "180일+ (1,550억 트랜치 미집행)",
       "hit": false,
       "tone": "good"
@@ -105,10 +105,16 @@
   ],
   "alerts": [
     {
+      "severity": "warn",
+      "type": "pbr_premium_pp",
+      "title": "지방지주 평균 대비 PBR 프리미엄 임계 근접",
+      "message": "현재 0.470pp (임계 +0.50pp 이상)"
+    },
+    {
       "severity": "bad",
       "type": "foreign_net_buy_4w",
       "title": "최근 20거래일 외국인 순매수 순매도 전환",
-      "message": "현재 -19만주 — 매도 트리거 도달"
+      "message": "현재 -21만주 — 매도 트리거 도달"
     },
     {
       "severity": "info",
@@ -121,16 +127,16 @@
     {
       "keyword": "지방은행 부실",
       "date": "2026-08-03",
-      "title": "지방은행, 몸집 키웠지만…부실채권 1조 털어내도 늘어나는 연체 - 네이트",
-      "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE9HODlLWVJ2c2x3SUZndVNXWVRCRW9ZenczeENBM1FXVE45b3pjci10X3lCZGtOZlRfUnpJNzZJMENEMk9kXzQ3MjlHQ0U4TWtZV3hoVGtXY2Fub0RWcFR4ZQ?oc=5",
+      "title": "지방은행, 몸집 키웠지만…부실채권 1조 털어내도 늘어나는 연체 - 머니투데이 - 머니투데이",
+      "url": "https://news.google.com/rss/articles/CBMia0FVX3lxTFBjemJSQVl4U3ZESldyZmJzb1l6YWx0SFB4bGZnX0tkcms0MHBzeDBEV2dEZ0l1cXlkNDgwZGRQamN0WW91VWhuWGtGb29tTmd6YlF4YVU1ZWJQX051ajA4MkZIWFlncXd2NjZz0gFwQVVfeXFMTjZvYXM1RVp0NzJnUDRQeVNTLS1nN2pueGJ0Y1p4aWlSSDFkY2tEd1otS2RDdzU4dXdrekRDaFYzM2JnTnJqRk96ckdmY0hvTHRFNVczbGdwR3J4UGJYU3hLZFF4U3hFeGpWQ21VbkZGNQ?oc=5",
       "severity": "info",
       "signals": []
     },
     {
       "keyword": "지방은행 부실",
-      "date": "2026-07-31",
-      "title": "지방은행 부실채권 1.4조, 올해만 39% 증가…\"구조 변화도 동반돼야\" | 1min요약 - joongang.co.kr",
-      "url": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE1xclFrU0U3VDVtTDg0Y0pzZDBEbGdCdEJNOFFkYzlWT3RNNVdfNFl1eFdDN001TWgxYXFWYmIzRWdFYnBjdDBQVlBsaDFfXzV5em9ZNVNqT2hOWTA?oc=5",
+      "date": "2026-08-03",
+      "title": "지방은행, 몸집 키웠지만…부실채권 1조 털어내도 늘어나는 연체 - 네이트",
+      "url": "https://news.google.com/rss/articles/CBMiU0FVX3lxTE5McjVfNDlraUJkeklkeXFGQmtZR2dBd2RSUUp3d0EyOHUzTGFQTWdic24tYXNpUWtsYXBVUU04Z3JFU1pYT21mZTNyTGwxdG9uTV9r?oc=5",
       "severity": "info",
       "signals": []
     }
@@ -150,7 +156,7 @@
     },
     {
       "label": "외국인 순매수 누적 (20일)",
-      "ref": "네이버 dealTrendInfos / history 2026-08-04"
+      "ref": "네이버 dealTrendInfos / history 2026-08-07"
     },
     {
       "label": "최근 분기 순이익 (2025-FY)",
