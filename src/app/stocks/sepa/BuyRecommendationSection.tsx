@@ -3,6 +3,7 @@
 import { useState, Fragment } from "react";
 import { fmtPrice } from "./sepaPatterns";
 import { ExportBadge, type ExportTagMap } from "./ExportBadge";
+import { SectorBadge, type SectorTagMap } from "./SectorBadge";
 
 export interface BuyRec {
   code: string;
@@ -21,12 +22,18 @@ export interface BuyRec {
   rs_nh_days: number | null;
   rs_leads: number | null;
   pattern: string;
+  adv_50d_eok?: number | null;
+  position_pct_of_adv?: number | null;
+  one_day_exit?: boolean | null;
+  liquidity?: string | null;
+  demand_watch?: { reason?: string; added?: string | null } | null;
 }
 
 export interface BuyRecFile {
   generated_at?: string;
   asof?: string;
   min_score?: number;
+  position_krw?: number;
   count?: number;
   candidates?: BuyRec[];
 }
@@ -38,6 +45,15 @@ const STATUS_META: Record<string, { dot: string; label: string; color: string; b
   forming: { dot: "🟡", label: "예의주시", color: "#e9c176", bg: "rgba(233,193,118,0.15)" },
 };
 
+// 유동성(청산 용이성) = 기준 포지션 ÷ 하루 평균 거래대금(50일). 낮을수록 빠져나오기 쉬움.
+const LIQ_META: Record<string, { dot: string; label: string; color: string; bg: string }> = {
+  ok: { dot: "🟢", label: "여유", color: "#34d399", bg: "rgba(52,211,153,0.15)" },
+  caution: { dot: "🟡", label: "주의", color: "#e9c176", bg: "rgba(233,193,118,0.15)" },
+  danger: { dot: "🔴", label: "위험", color: "#ffb4ab", bg: "rgba(255,180,171,0.15)" },
+};
+function fmtManwon(n?: number): string {
+  return n == null ? "3,000만원" : `${Math.round(n / 10000).toLocaleString()}만원`;
+}
 // 초수익 점수 색: 4+ 초록 · 2~3 금색(동일) · 0~1 회색
 function scoreStyle(s: number): { color: string; bg: string } {
   if (s >= 4) return { color: "#10b981", bg: "rgba(16,185,129,0.16)" };
@@ -73,7 +89,7 @@ function fmtFromPivot(n: number | null): string {
   return `${v > 0 ? "+" : ""}${v.toFixed(1)}%`;
 }
 
-const COLS = 11;
+const COLS = 12;
 
 function Detail({ r }: { r: BuyRec }) {
   // 각 요인이 획득한 점수(만점 대비) — 어디서 점수를 받았는지 한눈에.
@@ -92,6 +108,9 @@ function Detail({ r }: { r: BuyRec }) {
     ["현재가", fmtPrice(r.current_price)],
     ["피벗(매수 기준선)", fmtPrice(r.pivot_price)],
     ["피벗 대비", fmtFromPivot(r.pct_to_pivot)],
+    ["하루 평균 거래대금(50일)", r.adv_50d_eok != null ? `${r.adv_50d_eok}억` : "—"],
+    ["포지션 비중(유동성)", r.position_pct_of_adv != null ? `하루 거래대금의 ${r.position_pct_of_adv}%` : "—"],
+    ["하루 청산", r.one_day_exit == null ? "—" : r.one_day_exit ? "가능" : "불가 (며칠 분할 필요)"],
   ];
   return (
     <div className="space-y-3">
@@ -128,7 +147,7 @@ function Detail({ r }: { r: BuyRec }) {
   );
 }
 
-export function BuyRecommendationSection({ data, exportTags }: { data: BuyRecFile | null; exportTags?: ExportTagMap }) {
+export function BuyRecommendationSection({ data, exportTags, sectorTags }: { data: BuyRecFile | null; exportTags?: ExportTagMap; sectorTags?: SectorTagMap }) {
   const [open, setOpen] = useState<string | null>(null);
 
   if (!data) {
@@ -175,21 +194,24 @@ export function BuyRecommendationSection({ data, exportTags }: { data: BuyRecFil
                 <th className="px-2 py-2 text-right text-[11px] font-medium text-on-surface-variant/80">현재가</th>
                 <th className="px-2 py-2 text-right text-[11px] font-medium text-on-surface-variant/80" title="피벗 = 매수 기준선(이 가격 돌파가 매수 신호)">피벗</th>
                 <th className="px-2 py-2 text-right text-[11px] font-medium text-on-surface-variant/80" title="현재가와 피벗(매수 기준선) 차이. 0에 가까울수록 진입 적기 · 양수=피벗 위">피벗대비</th>
+                <th className="px-2 py-2 text-center text-[11px] font-medium text-on-surface-variant/80" title={`기준 포지션 ${fmtManwon(data.position_krw)}으로 살 때 하루 평균 거래대금(50일)에서 차지하는 비율 — 5% 이하면 하루 만에 흔적 없이 청산 가능`}>유동성</th>
                 <th className="px-2 py-2 text-center text-[11px] font-medium text-on-surface-variant/80">매수</th>
               </tr>
             </thead>
             <tbody>
               {rows.map((r, i) => {
                 const sm = STATUS_META[r.status ?? ""] ?? { dot: "", label: r.status ?? "—", color: "#a8b5d0", bg: "rgba(168,181,208,0.10)" };
+                const lm = r.liquidity != null ? LIQ_META[r.liquidity] ?? null : null;
                 const ss = scoreStyle(r.superperf_score);
                 const isOpen = open === r.code;
+                const dimmed = r.demand_watch != null; // 기관 수요 유보 — 순위 제외·딤드(모니터링용으로 남김)
                 return (
                   <Fragment key={r.code}>
                     <tr
                       onClick={() => setOpen(isOpen ? null : r.code)}
-                      className="border-t border-outline-variant/10 hover:bg-surface-container-high/50 transition-colors cursor-pointer"
+                      className={`border-t border-outline-variant/10 hover:bg-surface-container-high/50 transition-colors cursor-pointer ${dimmed ? "opacity-40 hover:opacity-70" : ""}`}
                     >
-                      <td className="px-2 py-2 text-center text-on-surface-variant/50 font-mono">{i + 1}</td>
+                      <td className="px-2 py-2 text-center text-on-surface-variant/50 font-mono">{dimmed ? "—" : i + 1}</td>
                       <td className="px-2 py-2 text-center whitespace-nowrap">
                         <span className="text-[11px] px-1.5 py-0.5 rounded font-bold" style={{ backgroundColor: ss.bg, color: ss.color }}>
                           {scoreText(r.superperf_score)}
@@ -198,7 +220,16 @@ export function BuyRecommendationSection({ data, exportTags }: { data: BuyRecFil
                       <td className="px-2 py-2 sticky left-0 bg-surface-container-low">
                         <div className="flex flex-col">
                           <span className="text-on-surface font-medium leading-tight">
-                            {r.name} <ExportBadge tag={exportTags?.[r.code]} />
+                            {r.name} <SectorBadge tag={sectorTags?.[r.code]} /> <ExportBadge tag={exportTags?.[r.code]} />
+                            {dimmed && (
+                              <span
+                                title={`기관 수요 유보(${r.demand_watch?.added ?? ""}) — ${r.demand_watch?.reason ?? ""}`}
+                                className="inline-flex items-center rounded px-1 py-px text-[10px] leading-none align-middle whitespace-nowrap ml-0.5"
+                                style={{ backgroundColor: "rgba(168,181,208,0.14)", color: "#a8b5d0" }}
+                              >
+                                🚫 기관수요 유보
+                              </span>
+                            )}
                           </span>
                           <span className="text-[10px] text-on-surface-variant/50 font-mono">{r.code}</span>
                         </div>
@@ -214,6 +245,15 @@ export function BuyRecommendationSection({ data, exportTags }: { data: BuyRecFil
                       <td className="px-2 py-2 text-right tabular-nums text-on-surface">{fmtPrice(r.current_price)}</td>
                       <td className="px-2 py-2 text-right tabular-nums text-on-surface-variant/80">{fmtPrice(r.pivot_price)}</td>
                       <td className="px-2 py-2 text-right tabular-nums" style={{ color: pivotColor(r.pct_to_pivot) }}>{fmtFromPivot(r.pct_to_pivot)}</td>
+                      <td className="px-2 py-2 text-center whitespace-nowrap">
+                        {lm == null ? (
+                          <span className="text-on-surface-variant/50">—</span>
+                        ) : (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded font-medium tabular-nums" style={{ backgroundColor: lm.bg, color: lm.color }}>
+                            {lm.dot} {r.position_pct_of_adv != null ? `${r.position_pct_of_adv < 1 ? r.position_pct_of_adv.toFixed(1) : Math.round(r.position_pct_of_adv)}%` : lm.label}
+                          </span>
+                        )}
+                      </td>
                       <td className="px-2 py-2 text-center whitespace-nowrap">
                         <span className="text-[10px] px-1.5 py-0.5 rounded font-medium" style={{ backgroundColor: sm.bg, color: sm.color }}>
                           {sm.dot} {sm.label}
@@ -245,6 +285,16 @@ export function BuyRecommendationSection({ data, exportTags }: { data: BuyRecFil
           <li>· <strong className="text-on-surface">RS선 신고가</strong> : 최근 10거래일 내 신고가 = 1점</li>
           <li>· <strong className="text-on-surface">RS선 선행</strong> : RS선이 주가보다 먼저 신고가 = 1점</li>
         </ul>
+        <p className="mt-2 pt-2 border-t border-outline-variant/10">
+          <strong className="text-on-surface">유동성</strong> : 기준 포지션 {fmtManwon(data.position_krw)} ÷ 하루 평균
+          거래대금(50일) — 🟢 5% 이하 = 하루 만에 흔적 없이 청산 · 🟡 5~20% = 하루 청산 한계 ·
+          🔴 20% 초과 = 하루 청산 불가(며칠 분할 필요)
+        </p>
+        <p className="mt-1.5">
+          <strong className="text-on-surface">🚫 기관수요 유보</strong> : 셋업은 점등하지만 돌파일 거래량 등 기관 매집
+          증거가 없어 매수 유보한 종목(<code className="text-[10px]">sepa-demand-watchlist.json</code> 직접 관리) —
+          순위에서 빼고 흐리게 표시만. 기관 수요가 붙으면 목록에서 제거해 복귀.
+        </p>
       </div>
     </section>
   );
