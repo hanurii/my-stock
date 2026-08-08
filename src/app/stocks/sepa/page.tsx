@@ -8,6 +8,7 @@ import { MarketRegimeChart } from "./MarketRegimeChart";
 import { type MarketRegime } from "./marketRegime";
 import { BuyRecommendationSection, type BuyRecFile } from "./BuyRecommendationSection";
 import { type ExportTagMap, type ExportTagsFile } from "./ExportBadge";
+import { type SectorTagMap, type SectorTagsFile } from "./SectorBadge";
 
 interface MarketStatus {
   passed: boolean;
@@ -43,12 +44,14 @@ function PatternSection({
   trendByCode,
   excludeCodes,
   exportTags,
+  sectorTags,
 }: {
   config: PatternConfig;
   data: CandidateFile | null;
   trendByCode?: Record<string, string>;
   excludeCodes: ReadonlySet<string>;
   exportTags?: ExportTagMap;
+  sectorTags?: SectorTagMap;
 }) {
   if (!data) {
     return (
@@ -73,7 +76,7 @@ function PatternSection({
           🔴 {counts.breakout} · 🟢 {counts.actionable} · 🟡 {counts.watch}
         </span>
       </h3>
-      <SepaPatternTable rows={rows} columns={config.columns} trendByCode={trendByCode} exportTags={exportTags} />
+      <SepaPatternTable rows={rows} columns={config.columns} trendByCode={trendByCode} exportTags={exportTags} sectorTags={sectorTags} />
     </section>
   );
 }
@@ -97,6 +100,10 @@ export default async function SepaPage() {
   // 수출 주도 품목 태그 — 파일 없으면 배지 없이 기존 렌더 그대로(그레이스풀).
   const exportTagsFile = await readJson<ExportTagsFile>("sepa-export-tags.json");
   const exportTags: ExportTagMap = exportTagsFile?.tags ?? {};
+
+  // 8대 주도 섹터 태그 — 동일하게 그레이스풀.
+  const sectorTagsFile = await readJson<SectorTagsFile>("sepa-leading-sectors.json");
+  const sectorTags: SectorTagMap = sectorTagsFile?.tags ?? {};
 
   const history = await readJson<TierHistory>("sepa-tier-history.json");
   const trends = history
@@ -166,12 +173,12 @@ export default async function SepaPage() {
         <p className="text-[11px] text-on-surface-variant/70 leading-relaxed">{trend.market_status.detail}</p>
       </section>
 
-      <BuyRecommendationSection data={buyRecs} exportTags={exportTags} />
+      <BuyRecommendationSection data={buyRecs} exportTags={exportTags} sectorTags={sectorTags} />
 
-      <PatternSection config={PATTERNS.vcp} data={vcp} trendByCode={trends?.vcp} excludeCodes={excludeCodes} exportTags={exportTags} />
-      <PatternSection config={PATTERNS.powerplayTrend} data={ppTrend} trendByCode={trends?.powerplayTrend} excludeCodes={excludeCodes} exportTags={exportTags} />
-      <PatternSection config={PATTERNS.powerplayAll} data={ppAll} trendByCode={trends?.powerplayAll} excludeCodes={excludeCodes} exportTags={exportTags} />
-      <PatternSection config={PATTERNS.threeC} data={threeC} trendByCode={trends?.threeC} excludeCodes={excludeCodes} exportTags={exportTags} />
+      <PatternSection config={PATTERNS.vcp} data={vcp} trendByCode={trends?.vcp} excludeCodes={excludeCodes} exportTags={exportTags} sectorTags={sectorTags} />
+      <PatternSection config={PATTERNS.powerplayTrend} data={ppTrend} trendByCode={trends?.powerplayTrend} excludeCodes={excludeCodes} exportTags={exportTags} sectorTags={sectorTags} />
+      <PatternSection config={PATTERNS.powerplayAll} data={ppAll} trendByCode={trends?.powerplayAll} excludeCodes={excludeCodes} exportTags={exportTags} sectorTags={sectorTags} />
+      <PatternSection config={PATTERNS.threeC} data={threeC} trendByCode={trends?.threeC} excludeCodes={excludeCodes} exportTags={exportTags} sectorTags={sectorTags} />
 
       {/* 포지션 크기 계산기 */}
       <section className="bg-surface-container-low rounded-xl ghost-border p-4 space-y-3">

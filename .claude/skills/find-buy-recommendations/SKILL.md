@@ -44,6 +44,14 @@ python scripts/track_buy_recommendations.py
   **표시만** — 정렬엔 반영 안 함(사용자 확정: 초수익 점수 순수).
 - **검출된 후보만 채점**(forming·failed 제외) = `/stocks/sepa` 페이지 표시와 일치.
 - 각 종목: `superperf_score`, `score_reasons`, `prior_adv_pct`, `dist_52wh`, `pattern`, `entry_tier`.
+- **유동성(청산 용이성)**: 기준 포지션 `strategy_params.POSITION_KRW`(투자금 늘리면 여기만 수정)이
+  50일 평균 거래대금에서 차지하는 비율. 종목별 `adv_50d_eok`·`position_pct_of_adv`·`one_day_exit`·
+  `liquidity`(🟢ok ≤5% 하루 청산 여유 · 🟡caution ≤20% 하루 청산 한계 · 🔴danger >20% 며칠 분할).
+  에스에스알·로스웰 청산 불능 사고 후 도입(26-08-08). 파일 상단 `position_krw`에 기준 금액 기록.
+- **🚫 기관 수요 유보**: `sepa-demand-watchlist.json`(사용자 직접 관리)에 등록된 종목은 숨기지
+  않고 **순위만 제외**(점수 무관 최하단 + `demand_watch` 필드 부착 → 페이지 딤드 표시).
+  한국공항 반복 손절 사례(저거래량 돌파+분산 거래량 = 기관 매집 부재) 후 도입(26-08-08).
+  기관 수요가 붙으면 목록에서 항목을 제거해 복귀시킨다.
 
 ## 안 하는 것
 - 전 종목 스캔(검출된 후보만) · 후보/공유 파일 갱신 · 자동 commit(부모 `sepa`가 커밋).
