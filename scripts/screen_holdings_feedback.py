@@ -145,6 +145,35 @@ def _compute_holdings_superperf(holdings) -> dict:
     return out
 
 
+def merge_lots(holdings: list[dict]) -> list[dict]:
+    """같은 종목 분할 매수(lot)를 한 항목으로 합친다 — 사용자 확정(26-08-08).
+
+    수량 = 합산, 매수가 = 가중평균(혼합단가, 원 단위 반올림). 판정 기준(매수일·
+    피벗·셋업·손절%)은 **가장 최근 lot** — 추가 매수로 셋업을 다시 잡은 것으로 보고
+    돌파 품질·경과일을 최근 매수 기준으로 측정한다. 원본 lot 내역은 lots 필드로 보존.
+    sepa-holdings.json 자체는 계속 lot 단위로 기록한다(원장 역할).
+    """
+    by_code: dict[str, list[dict]] = {}
+    for h in holdings:
+        by_code.setdefault(h["code"], []).append(h)
+    out = []
+    for lots in by_code.values():
+        if len(lots) == 1:
+            out.append(lots[0])
+            continue
+        lots_sorted = sorted(lots, key=lambda x: x.get("buy_datetime") or "")
+        latest = lots_sorted[-1]
+        qty = sum(x.get("quantity") or 0 for x in lots_sorted)
+        cost = sum((x.get("quantity") or 0) * (x.get("buy_price") or 0) for x in lots_sorted)
+        out.append({**latest,
+                    "quantity": qty,
+                    "buy_price": round(cost / qty) if qty else latest.get("buy_price"),
+                    "lots": [{"buy_datetime": x.get("buy_datetime"),
+                              "buy_price": x.get("buy_price"),
+                              "quantity": x.get("quantity")} for x in lots_sorted]})
+    return out
+
+
 def run(out_path: Path) -> None:
     if not IN_PATH.exists():
         print(f"⏭️  매수 목록 없음({IN_PATH.relative_to(ROOT)}) — 빈 결과로 종료")
@@ -158,10 +187,11 @@ def run(out_path: Path) -> None:
     default_stop = data.get("stop_loss_pct_default", -4)
     pivots = load_pivots()
     exclusions = load_filter_exclusions()
-    superperf_by = _compute_holdings_superperf(data["holdings"])  # 매수 시점 초수익 점수
+    holdings = merge_lots(data["holdings"])  # 분할 매수 → 한 항목(최근 매수 기준 판정)
+    superperf_by = _compute_holdings_superperf(holdings)  # 매수 시점 초수익 점수
 
     out_holdings, asof = [], None
-    for h in data.get("holdings", []):
+    for h in holdings:
         code = h["code"]
         buy_date = h["buy_datetime"][:10]
         stop_pct = h.get("stop_loss_pct", default_stop)
@@ -190,6 +220,7 @@ def run(out_path: Path) -> None:
             "pivot_price": chosen.get("pivot") if chosen else None,
             "pivot_source": chosen.get("source") if chosen else None,
             "filter_excluded": exclusions.get(code),
+            "lots": h.get("lots"),
         }
         sp = superperf_by.get((code, buy_date))
         if not s or not s.get("closes"):
