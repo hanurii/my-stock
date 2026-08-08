@@ -56,6 +56,10 @@ def run(args, out_path: Path) -> None:
     targets = all_cands if args.universe == "all" else [c for c in all_cands if c.get("all_pass")]
     if args.rs_min:
         targets = [c for c in targets if (c.get("rs") or 0) >= args.rs_min]
+    if getattr(args, "include_ipo", False):
+        # IPO 트랙(신규상장 대체 관문) 편입 — iRS 는 트랙에서 이미 게이트, --rs-min(기존 RS 축) 미적용
+        ipo = data.get("ipo_candidates", [])
+        targets += ipo if args.universe == "all" else [c for c in ipo if c.get("all_pass")]
     if args.ticker:
         targets = [c for c in targets if c.get("code") == args.ticker]
 
@@ -138,6 +142,9 @@ def main():
     ap.add_argument("--rs-min", dest="rs_min", type=float, default=0,
                     help="RS 강도 하한(이상만 평가). 전수 스캔 노이즈 축소용(예: 80)")
     ap.add_argument("--ticker", default=None, help="단일 종목 디버그(저장 안 함)")
+    ap.add_argument("--include-ipo", action="store_true",
+                    help="IPO 트랙(신규상장 대체 관문, ipo_candidates) 종목도 포함 "
+                         "(trend=통과분만, all=평가 전체)")
     ap.add_argument("--lookback-days", type=int, default=DEFAULT_PARAMS["lookback_days"])
     ap.add_argument("--min-flagpole-gain", type=float, default=DEFAULT_PARAMS["min_flagpole_gain"])
     ap.add_argument("--max-flagpole-days", type=int, default=DEFAULT_PARAMS["max_flagpole_days"])

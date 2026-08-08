@@ -88,6 +88,8 @@ SEPA 종목 발굴 전체 파이프라인을 한 번에 돌리는 **부모 스�
      assignments(편입) 또는 reviewed_none(해당 없음)에 추가한다(증분 큐레이션).
 8. **통합 요약 보고** — 표 하나로:
    - 추세 통과 N종목 (market_status 포함)
+   - 🐣 IPO 트랙(신규상장 대체 관문): 평가 N · 통과 종목(이름·상장일수·iRS).
+     통과 0이면 "통과 없음" 한 줄만.
    - VCP: breakout / actionable 종목과 피벗
    - 파워플레이(트렌드): entry_ready 종목과 피벗
    - 파워플레이(전수): entry_ready 종목과 피벗 (입력 종목 수 포함)

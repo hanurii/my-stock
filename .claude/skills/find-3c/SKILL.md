@@ -26,6 +26,8 @@ python scripts/screen_3c.py
 ```
 - 산출: `public/data/sepa-3c-candidates.json`
 - 콘솔: 상태 분포 + entry_ready 종목 표(컵 깊이·기간, 선반 깊이·위치, 피벗).
+- `--include-ipo`(온디맨드): IPO 트랙(신규상장 대체 관문, `ipo_candidates`) 통과
+  종목도 검출 대상에 포함 — 정기 순서엔 미포함(specs/2026-08-08 설계 1단계).
 
 ### 옵션
 - `--ticker CODE` : 단일 종목 디버그(저장 안 함).
