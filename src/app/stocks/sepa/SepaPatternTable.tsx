@@ -72,9 +72,10 @@ interface Props {
   trendByCode?: Record<string, string>;
   exportTags?: ExportTagMap;
   sectorTags?: SectorTagMap;
+  ipoDays?: Record<string, number>;
 }
 
-export function SepaPatternTable({ rows, columns, trendByCode, exportTags, sectorTags }: Props) {
+export function SepaPatternTable({ rows, columns, trendByCode, exportTags, sectorTags, ipoDays }: Props) {
   const [sortKey, setSortKey] = useState<SortKey>("tier");
   const [sortDesc, setSortDesc] = useState(false);
 
@@ -158,6 +159,15 @@ export function SepaPatternTable({ rows, columns, trendByCode, exportTags, secto
                   <div className="flex flex-col">
                     <span className="text-on-surface font-medium leading-tight">
                       {r.name} <SectorBadge tag={sectorTags?.[r.code]} /> <ExportBadge tag={exportTags?.[r.code]} />
+                      {ipoDays?.[r.code] != null && (
+                        <span
+                          title={`신규상장 IPO 트랙(대체 관문) 통과 — 상장 ${ipoDays[r.code]}거래일. 데이터가 짧아 기존 8조건 대신 상장 후 고저가·기준MA·iRS로 평가된 종목`}
+                          className="inline-flex items-center rounded px-1 py-px text-[10px] leading-none align-middle whitespace-nowrap ml-0.5"
+                          style={{ backgroundColor: "rgba(233,193,118,0.14)", color: "#e9c176" }}
+                        >
+                          🐣{ipoDays[r.code]}일
+                        </span>
+                      )}
                     </span>
                     <span className="text-[10px] text-on-surface-variant/50 font-mono">{r.code}</span>
                   </div>

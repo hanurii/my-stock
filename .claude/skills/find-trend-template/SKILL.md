@@ -59,10 +59,17 @@ SEPA(Specific Entry Point Analysis) 종목을 찾는 파이프라인의 **첫 �
 ## 실행 절차 (1줄)
 
 ```
-python scripts/screen_trend_template.py --rs-min 80 --minervini-filter --out public/data/sepa-trend-candidates.json --save
+python scripts/screen_trend_template.py --rs-min 80 --minervini-filter --ipo-track --out public/data/sepa-trend-candidates.json --save
 ```
 
 - 산출: `public/data/sepa-trend-candidates.json`
+- `--ipo-track`: 신규상장(상장 20~199거래일) 예외 트랙 — 200일 데이터가 없어 8조건
+  평가가 불가능한 종목을 대체 7조건(상장 후 고저가·기준MA·iRS=전 종목 동일 창
+  percentile·미너비니 필터)으로 별도 평가해 `ipo_candidates` 배열에 담는다.
+  기존 candidates/failed_stocks 는 불변(플래그 없으면 산출 종전과 동일).
+  파라미터 정본: `scripts/canslim_lib/ipo_track.py` DEFAULT_PARAMS.
+  설계·근거: `docs/superpowers/specs/2026-08-08-ipo-exception-track-design.md`.
+  `/stocks/sepa` 1단계 섹션에 "🐣 IPO 트랙" 요약이 뜬다.
   - 부산출(진단용): `public/data/sepa-halted-stocks.json` — 유니버스에서 빠진
     거래정지·제외 종목과 **정지 사유**(DART 공시 기준 `temporary` 일시적 기업행위 /
     `serious` 상장적격성 등 / `unknown` 불명). "이 종목이 왜 후보에 안 나오지?"를

@@ -1,9 +1,25 @@
-# 신규상장(IPO) 예외 트랙 — 설계 (구현 전)
+# 신규상장(IPO) 예외 트랙 — 설계·구현
 
-날짜: 2026-08-08
-상태: **설계만** — 사용자 승인 후 구현
-대상 모듈(예정): `scripts/screen_trend_template.py` (+ 페이지 `/stocks/sepa`)
+날짜: 2026-08-08 (같은 날 사용자 승인으로 구현 완료)
+상태: **구현·검증 완료** — 관문 `--ipo-track`(SEPA 정기 실행에 포함), 패턴 `--include-ipo`(온디맨드)
+모듈: `scripts/canslim_lib/ipo_track.py` (평가기·파라미터 정본 DEFAULT_PARAMS)
+      + `scripts/screen_trend_template.py --ipo-track` (iRS 산출·오케스트레이션)
+      + `screen_{vcp,3c,power_play}.py --include-ipo` + 페이지 🐣 배지·1단계 요약
+테스트: `tests/test_ipo_track.py` (5 passed)
 오라클: 마키나락스(477850, 2026-05-20 상장, 조사 시점 55거래일)
+
+구현 시 설계에서 달라진 점 2가지:
+- 파라미터 정본은 screen 상수가 아니라 `canslim_lib/ipo_track.py` DEFAULT_PARAMS —
+  "검출기값은 각 모듈 DEFAULT_PARAMS가 정본" 원칙에 맞춤.
+- iRS 비교풀은 60일 고정 창이 아니라 **종목 창 win=min(보유-1, 60)별로 전 종목
+  같은 창 수익률 풀**을 구성(창이 다른 종목 간 사과-오렌지 비교 방지, 상장주 수가
+  적어 비용 무시 가능).
+
+검증 실측(2026-08-08, 시총 상위 900 유니버스):
+- 상장 20~199일 종목 17개 평가 · iRS 전 시장 풀(767) 대비 산출 · 통과 0
+  (예: 케이뱅크 iRS86이나 3/7, 마키나락스 iRS2 — 상장 최고가 -63% 급락 상태)
+- 회귀: 플래그 없는 실행의 candidates/failed_stocks 는 종전과 완전 동일,
+  ipo 키도 미생성. 마키나락스는 failed_stocks 에도 그대로 유지(이중 기록 의도).
 
 ## 배경 — 왜 필요한가
 

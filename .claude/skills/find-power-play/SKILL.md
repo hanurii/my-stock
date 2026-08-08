@@ -31,6 +31,8 @@ python scripts/screen_power_play.py
 ```
 - 산출: `public/data/sepa-power-play-candidates.json`
 - 콘솔: 상태 분포 + entry_ready 종목 표(깃대 상승률·기간, 깃발 깊이·길이, 피벗).
+- `--include-ipo`(온디맨드): IPO 트랙(신규상장 대체 관문, `ipo_candidates`) 종목도
+  포함(trend=통과분만, all=평가 전체) — 정기 순서엔 미포함(specs/2026-08-08 설계 1단계).
 
 ### 옵션
 - `--universe all` : **전수 스캔** — 트렌드 통과뿐 아니라 평가된 전 종목(컷오프 없음)을

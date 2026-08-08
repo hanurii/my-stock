@@ -62,6 +62,10 @@ from canslim_lib.trend_template import (  # noqa: E402
     WINDOW_52W,
     SMA_WINDOW_200,
 )
+from canslim_lib.ipo_track import (  # noqa: E402
+    evaluate_ipo_track,
+    DEFAULT_PARAMS as IPO_PARAMS,
+)
 
 KST = timezone(timedelta(hours=9))
 OUTPUT_PATH = ROOT / "public" / "data" / "trend-template-candidates.json"
@@ -376,6 +380,77 @@ def _save_minervini_report(dropped: list[dict], asof: str | None,
         print(f"  ⚠️  제외 내역 기록 실패(무시하고 진행): {type(e).__name__}: {e}")
 
 
+def _run_ipo_track(raw_results: list[dict], asof: str | None,
+                   args: argparse.Namespace) -> tuple[list[dict], int]:
+    """신규상장(IPO) 예외 트랙 — 상장 20~199거래일 종목 대체 평가.
+
+    기존 candidates/failed_stocks 는 건드리지 않는다(데이터부족 종목은 여전히
+    failed_stocks 에 남고, 여기서 별도 배열로만 추가 평가). 설계·근거:
+    docs/superpowers/specs/2026-08-08-ipo-exception-track-design.md
+    """
+    p = IPO_PARAMS
+    rows = [r for r in raw_results
+            if not r["ok"] and r.get("closes")
+            and p["min_days"] <= len(r["closes"]) <= p["max_days"]]
+    if not rows:
+        print(f"\n🐣 IPO 트랙: 대상 없음 (상장 {p['min_days']}~{p['max_days']}거래일 종목 0)")
+        return [], 0
+
+    # iRS: 종목 창 win=min(보유-1, 60) 수익률을 **전 종목**의 같은 창 수익률 분포
+    # percentile 로 환산 — 기존 RS 의 "같은 win 끼리만 비교" 풀 제약을 우회한다.
+    ok_rows = [r for r in raw_results if r.get("ok") and r.get("closes")]
+    pools: dict[int, list[float]] = {}
+    for r in rows:
+        win = min(len(r["closes"]) - 1, p["rs_window"])
+        if win not in pools:
+            pool = []
+            for x in ok_rows:
+                ret = _ret_over_window(x["closes"], win)
+                if ret is not None:
+                    pool.append(ret)
+            pools[win] = sorted(pool)
+
+    out: list[dict] = []
+    npass = 0
+    for r in rows:
+        closes = r["closes"]
+        win = min(len(closes) - 1, p["rs_window"])
+        pool = pools.get(win) or []
+        ret = _ret_over_window(closes, win)
+        ipo_rs = None
+        if ret is not None and len(pool) >= args.rs_pool_min:
+            below = bisect.bisect_left(pool, ret)
+            ipo_rs = max(1, min(99, round(below / len(pool) * 100)))
+        filter_reasons = None
+        if args.minervini_filter:
+            filter_reasons = classify_non_minervini(
+                {"code": r["code"], "name": r["name"]},
+                ohlcv_matrix.get_series(r["code"]), asof=asof,
+                min_turnover_eok=args.min_turnover_eok) or []
+        res = evaluate_ipo_track(closes, ipo_rs, filter_reasons=filter_reasons)
+        out.append({
+            "code": r["code"], "name": r["name"], "market": r["market"],
+            "market_cap_eok": r["market_cap_eok"],
+            "current_price": closes[-1], "last_date": r["dates"][-1],
+            "first_date": r["dates"][0], "listed_days": len(closes),
+            "ipo_rs": ipo_rs, "ipo_rs_window": win,
+            "ipo_rs_universe_n": len(pool),
+            "ipo_return_window_pct": round(ret * 100, 2) if ret is not None else None,
+            "passed_count": res["passed_count"], "all_pass": res["pass"],
+            "criteria": res["criteria"], "extras": res["extras"],
+        })
+        if res["pass"]:
+            npass += 1
+
+    out.sort(key=lambda c: (-1 if c["all_pass"] else 0,
+                            -(c["ipo_rs"] or -1), -c["passed_count"]))
+    print(f"\n🐣 IPO 트랙(상장 {p['min_days']}~{p['max_days']}거래일): "
+          f"평가 {len(out)}종목 · 7조건 통과 {npass}종목")
+    for c in [x for x in out if x["all_pass"]][:10]:
+        print(f"   {c['code']} {c['name']} 상장{c['listed_days']}일 iRS{c['ipo_rs']}")
+    return out, npass
+
+
 def run_full_scan(args: argparse.Namespace) -> None:
     """전체 스캔 → JSON 저장."""
     asof = args.asof
@@ -518,6 +593,12 @@ def run_full_scan(args: argparse.Namespace) -> None:
 
     print(f"\n✨ 8개 모두 통과: {pass_count}종목")
 
+    # ── 5.5단계: 신규상장(IPO) 예외 트랙 (opt-in) — 기존 산출 무접촉
+    ipo_candidates: list[dict] = []
+    ipo_pass_count = 0
+    if args.ipo_track:
+        ipo_candidates, ipo_pass_count = _run_ipo_track(raw_results, asof, args)
+
     # ── 6단계: JSON 저장 / 콘솔 출력
     output = {
         "generated_at": datetime.now(KST).strftime("%Y-%m-%d %H:%M"),
@@ -541,6 +622,16 @@ def run_full_scan(args: argparse.Namespace) -> None:
         "candidates": candidates,
         "failed_stocks": failed_stocks,
     }
+    if args.ipo_track:
+        # 키 자체를 opt-in 시에만 추가 — 플래그 없는 실행의 산출은 종전과 바이트 동일
+        output["ipo_track"] = {
+            "min_days": IPO_PARAMS["min_days"], "max_days": IPO_PARAMS["max_days"],
+            "rs_window": IPO_PARAMS["rs_window"], "rs_min": IPO_PARAMS["rs_min"],
+            "low_min_pct": IPO_PARAMS["low_min_pct"],
+            "high_max_pct": IPO_PARAMS["high_max_pct"],
+        }
+        output["ipo_pass_count"] = ipo_pass_count
+        output["ipo_candidates"] = ipo_candidates
 
     if args.save:
         out_path = Path(args.out) if args.out else OUTPUT_PATH
@@ -551,7 +642,11 @@ def run_full_scan(args: argparse.Namespace) -> None:
             json.dumps(output, ensure_ascii=False, indent=2),
             encoding="utf-8",
         )
-        print(f"\n💾 저장: {out_path.relative_to(ROOT)}")
+        try:
+            rel = out_path.relative_to(ROOT)
+        except ValueError:  # --out 이 프로젝트 밖(임시 폴더 등)이면 절대경로 그대로
+            rel = out_path
+        print(f"\n💾 저장: {rel}")
         print(f"   (총 {len(candidates)}종목, 8개 통과 {pass_count}종목)")
     else:
         # 상위 20개만 콘솔 미리보기
@@ -586,6 +681,9 @@ def main():
                         help="'미너비니가 사지 않는 주식'(우선주·외국법인·저유동성) 제외 — SEPA 전용")
     parser.add_argument("--min-turnover-eok", type=float, default=MIN_TURNOVER_EOK_DEFAULT,
                         help="저유동성 기준: 50일 평균 거래대금 하한(억원, 기본 5)")
+    parser.add_argument("--ipo-track", action="store_true",
+                        help="신규상장(상장 20~199거래일) 예외 트랙 평가 — ipo_candidates 배열 추가 "
+                             "(기존 candidates/failed_stocks 불변). specs/2026-08-08 설계")
     parser.add_argument("--save", action="store_true",
                         help=f"결과를 {OUTPUT_PATH.name} 에 저장")
     parser.add_argument("--out", default=None,

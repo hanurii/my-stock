@@ -15,11 +15,20 @@ interface MarketStatus {
   value: string;
   detail: string;
 }
+interface IpoCandidate {
+  code: string;
+  name: string;
+  listed_days: number;
+  ipo_rs: number | null;
+  all_pass: boolean;
+}
 interface TrendData {
   asof: string;
   evaluated_count: number;
   all_pass_count: number;
   market_status: MarketStatus;
+  ipo_pass_count?: number;
+  ipo_candidates?: IpoCandidate[];
 }
 interface CandidateFile {
   asof?: string;
@@ -45,6 +54,7 @@ function PatternSection({
   excludeCodes,
   exportTags,
   sectorTags,
+  ipoDays,
 }: {
   config: PatternConfig;
   data: CandidateFile | null;
@@ -52,6 +62,7 @@ function PatternSection({
   excludeCodes: ReadonlySet<string>;
   exportTags?: ExportTagMap;
   sectorTags?: SectorTagMap;
+  ipoDays?: Record<string, number>;
 }) {
   if (!data) {
     return (
@@ -76,7 +87,7 @@ function PatternSection({
           🔴 {counts.breakout} · 🟢 {counts.actionable} · 🟡 {counts.watch}
         </span>
       </h3>
-      <SepaPatternTable rows={rows} columns={config.columns} trendByCode={trendByCode} exportTags={exportTags} sectorTags={sectorTags} />
+      <SepaPatternTable rows={rows} columns={config.columns} trendByCode={trendByCode} exportTags={exportTags} sectorTags={sectorTags} ipoDays={ipoDays} />
     </section>
   );
 }
@@ -132,6 +143,11 @@ export default async function SepaPage() {
     new Set([trend.asof, vcp?.asof, ppTrend?.asof, ppAll?.asof, threeC?.asof].filter(Boolean))
   );
 
+  // IPO 트랙(신규상장 대체 관문) — 🐣 배지용 상장 일수 맵 + 통과 종목 목록
+  const ipoDays: Record<string, number> = {};
+  for (const c of trend.ipo_candidates ?? []) ipoDays[c.code] = c.listed_days;
+  const ipoPassers = (trend.ipo_candidates ?? []).filter((c) => c.all_pass);
+
   return (
     <div className="space-y-10">
       <header>
@@ -171,14 +187,25 @@ export default async function SepaPage() {
           </span>
         </h3>
         <p className="text-[11px] text-on-surface-variant/70 leading-relaxed">{trend.market_status.detail}</p>
+        {trend.ipo_candidates != null && (
+          <p className="text-[11px] text-on-surface-variant/70 leading-relaxed mt-1.5 pt-1.5 border-t border-outline-variant/10">
+            🐣 <strong className="text-on-surface">IPO 트랙</strong>(상장 200거래일 미만 대체 관문 — 상장 후
+            고저가·기준MA·iRS로 평가): 평가 {trend.ipo_candidates.length}종목 · 통과 {trend.ipo_pass_count ?? 0}종목
+            {ipoPassers.length > 0 && (
+              <span className="block mt-0.5 text-on-surface-variant/60">
+                {ipoPassers.map((c) => `${c.name}(상장 ${c.listed_days}일 · iRS ${c.ipo_rs ?? "—"})`).join(" · ")}
+              </span>
+            )}
+          </p>
+        )}
       </section>
 
       <BuyRecommendationSection data={buyRecs} exportTags={exportTags} sectorTags={sectorTags} />
 
-      <PatternSection config={PATTERNS.vcp} data={vcp} trendByCode={trends?.vcp} excludeCodes={excludeCodes} exportTags={exportTags} sectorTags={sectorTags} />
-      <PatternSection config={PATTERNS.powerplayTrend} data={ppTrend} trendByCode={trends?.powerplayTrend} excludeCodes={excludeCodes} exportTags={exportTags} sectorTags={sectorTags} />
-      <PatternSection config={PATTERNS.powerplayAll} data={ppAll} trendByCode={trends?.powerplayAll} excludeCodes={excludeCodes} exportTags={exportTags} sectorTags={sectorTags} />
-      <PatternSection config={PATTERNS.threeC} data={threeC} trendByCode={trends?.threeC} excludeCodes={excludeCodes} exportTags={exportTags} sectorTags={sectorTags} />
+      <PatternSection config={PATTERNS.vcp} data={vcp} trendByCode={trends?.vcp} excludeCodes={excludeCodes} exportTags={exportTags} sectorTags={sectorTags} ipoDays={ipoDays} />
+      <PatternSection config={PATTERNS.powerplayTrend} data={ppTrend} trendByCode={trends?.powerplayTrend} excludeCodes={excludeCodes} exportTags={exportTags} sectorTags={sectorTags} ipoDays={ipoDays} />
+      <PatternSection config={PATTERNS.powerplayAll} data={ppAll} trendByCode={trends?.powerplayAll} excludeCodes={excludeCodes} exportTags={exportTags} sectorTags={sectorTags} ipoDays={ipoDays} />
+      <PatternSection config={PATTERNS.threeC} data={threeC} trendByCode={trends?.threeC} excludeCodes={excludeCodes} exportTags={exportTags} sectorTags={sectorTags} ipoDays={ipoDays} />
 
       {/* 포지션 크기 계산기 */}
       <section className="bg-surface-container-low rounded-xl ghost-border p-4 space-y-3">

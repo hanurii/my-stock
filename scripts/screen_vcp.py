@@ -41,6 +41,9 @@ def run(args, out_path: Path) -> None:
         sys.exit(1)
     data = json.loads(in_path.read_text(encoding="utf-8"))
     passers = [c for c in data.get("candidates", []) if c.get("all_pass")]
+    if getattr(args, "include_ipo", False):
+        # IPO 트랙(신규상장 대체 관문) 통과분 편입 — specs/2026-08-08-ipo-exception-track-design.md
+        passers += [c for c in data.get("ipo_candidates", []) if c.get("all_pass")]
     if args.ticker:
         passers = [c for c in passers if c.get("code") == args.ticker]
 
@@ -115,6 +118,8 @@ def main():
     ap.add_argument("--in", dest="inp", default=None, help=f"입력(default {IN_PATH.name})")
     ap.add_argument("--out", dest="out", default=None, help=f"출력(default {OUT_PATH.name})")
     ap.add_argument("--ticker", default=None, help="단일 종목 디버그(저장 안 함)")
+    ap.add_argument("--include-ipo", action="store_true",
+                    help="IPO 트랙(신규상장 대체 관문, ipo_candidates) 통과 종목도 포함")
     ap.add_argument("--lookback-days", type=int, default=DEFAULT_PARAMS["lookback_days"])
     ap.add_argument("--zigzag-pct", type=float, default=DEFAULT_PARAMS["zigzag_pct"],
                     help="(현재 미사용 — evaluate_vcp 재설계로 적응형 전환)")
