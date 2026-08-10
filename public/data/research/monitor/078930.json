@@ -1,13 +1,13 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-08-10T13:30:38.082+09:00",
+  "last_checked": "2026-08-10T16:04:09.222+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 6.93,
-      "display": "6.93배",
+      "value": 7,
+      "display": "7배",
       "threshold": "10배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "dividend_yield",
       "label": "배당수익률",
-      "value": 3.11,
-      "display": "3.11%",
+      "value": 3.08,
+      "display": "3.08%",
       "threshold": "3.5% 이하",
       "hit": true,
       "tone": "bad"
@@ -60,8 +60,8 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 83.31,
-      "display": "83.31$",
+      "value": 83.2,
+      "display": "83.20$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
@@ -72,7 +72,7 @@
       "severity": "bad",
       "type": "dividend_yield",
       "title": "배당수익률 3.5% 이하",
-      "message": "현재 3.11% — 매도 트리거 도달"
+      "message": "현재 3.08% — 매도 트리거 도달"
     },
     {
       "severity": "bad",
@@ -95,18 +95,20 @@
   ],
   "news_hits": [
     {
+      "keyword": "정제마진 하락",
+      "date": "2026-08-09",
+      "title": "러시아 석유 수출 금지 연장에도 정제마진 하락 전환 - 에너지플랫폼뉴스",
+      "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE5EcGF6V3FNUWg0dG13UWdra0J5a3FDWVVoZVd2enY4d0xJVUV0QWh4QnREbXljMzRmMWVteDhiMjVPMm9KLVdCdDF1RTlkS2dPcEZFM0l2dS1uNnV4ZjFLOERZWE1STUNmaThuZNIBcEFVX3lxTFBaem9vd05iRzZtQkhFRC1vN09pY25OanB6Zk44aDJxT0IydGEzNlBQRGo0M0VSWVA0SmVMYkJUcDNVS2MxdmlYQUVXR0hDaENaWktrMTk1bVEtMWgxSE5rS1ZxYzJ4RlRPSkszWWlkOXk?oc=5",
+      "severity": "warn",
+      "signals": [
+        "하락"
+      ]
+    },
+    {
       "keyword": "GS칼텍스 정제마진",
       "date": "2026-08-05",
       "title": "GS칼텍스도 2분기 깜짝 실적 예약…정제마진 증가ㆍ윤활유 특수 - 대한경제",
       "url": "https://news.google.com/rss/articles/CBMihwFBVV95cUxNUGpOYklhRm5Dc3BjSnpqbnowcmZpb3pQS3NicDZlZ0VCdnZaVWJDcGtRUzlfdFlQVlltLTBTMnYzakdhRjcxRFF3b0NYcFJMR25yblNSTXZMTHV0Wk5vQ3VpQmw5eVF2Y2VPUE5aMHVjMXZUQWptZVNQZjFDTjFObkQ4X1p1X2M?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "이란 미국 합의",
-      "date": "2026-08-06",
-      "title": "트럼프 \"이란과 합의하고 싶어\"...이란 \"미국과 대화 없어\" - YTN",
-      "url": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE02TmJCRGtKemdSYk1UMVNRVlZhMm9XYW4zbHZyNnhXOWxWZ0xxTUpUR3ZKdXQyb1BsZWJoOFdKNjFzZ2tTakRHcXNlMElfelBWWlNjQ0ZjZ2tRSWdhZEE?oc=5",
       "severity": "info",
       "signals": []
     },
@@ -120,17 +122,17 @@
     },
     {
       "keyword": "이란 미국 합의",
-      "date": "2026-08-09",
-      "title": "이란 \"오만과 호르무즈 항로 합의 단계…미국 조건 이행이 재개방 변수\" - 글로벌이코노믹",
-      "url": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxOcDNaRHJGNTdUQWxPaXo3TVBqVDM3Z2VaRHAxSkNkYllfMXJvNm9Xd2gyVzVYLWt6WjZxZlVIXzJUVk1UaHl6Yk4tRVlLeUxmeU15NmM1UThZLUJkRVk4bTJBdUhtX3dtYmwtUzljRm5BejROMFF1MlM2NlJqV3BnYUNfRS1qZ25T?oc=5",
+      "date": "2026-08-06",
+      "title": "트럼프 \"이란과 합의하고 싶어\"...이란 \"미국과 대화 없어\" - YTN",
+      "url": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE02TmJCRGtKemdSYk1UMVNRVlZhMm9XYW4zbHZyNnhXOWxWZ0xxTUpUR3ZKdXQyb1BsZWJoOFdKNjFzZ2tTakRHcXNlMElfelBWWlNjQ0ZjZ2tRSWdhZEE?oc=5",
       "severity": "info",
       "signals": []
     },
     {
       "keyword": "이란 미국 합의",
       "date": "2026-08-09",
-      "title": "이란, 미국에 호르무즈 합의 조건 제시…美 “경기 아직 안 끝나” [종합",
-      "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE1RUnRydnZ2ZjZOYTJzdFRreWJ3cjFIaFhCekFMZzBjU3J0cVI3WnRmMGdpb0ZnMWg2V2w4c1JyVktVTnJFWjhqa0FrSmFheVU?oc=5",
+      "title": "이란 \"오만과 호르무즈 항로 합의 단계…미국 조건 이행이 재개방 변수\" - 글로벌이코노믹",
+      "url": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxOcDNaRHJGNTdUQWxPaXo3TVBqVDM3Z2VaRHAxSkNkYllfMXJvNm9Xd2gyVzVYLWt6WjZxZlVIXzJUVk1UaHl6Yk4tRVlLeUxmeU15NmM1UThZLUJkRVk4bTJBdUhtX3dtYmwtUzljRm5BejROMFF1MlM2NlJqV3BnYUNfRS1qZ25T?oc=5",
       "severity": "info",
       "signals": []
     },
@@ -196,17 +198,17 @@
     },
     {
       "keyword": "중동 긴장 완화",
-      "date": "2026-08-03",
-      "title": "독일 DAX지수 사상 최고치…중동 긴장 완화 기대(종합) - 연합뉴스",
-      "url": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE51YU1mOFV5ejlVNm93RC1DZ2JWT195MFVicVBZSjVaT1d2MjctUVRIZlpRbGtybUFPR3licjVkUEF4VGFyNUZPTHFiMXB6OW85RmwzNktnQmpmcTDSAWBBVV95cUxQMWRCRjBJR0tsdHJVRmZvQVM5WUhRZm03aUVqZ3p6akUya1lSVzA5UHZZRWJ2ZkVKY1VXd19ua1RtUVByZXZkM0tiSm5mcVB3REloR29RajJVN3ZlZ2o1cWg?oc=5",
+      "date": "2026-08-05",
+      "title": "엔화, 중동 긴장완화 기대에 상승 출발…호르무즈 합의 기대감 확산 - 서울뉴스통신",
+      "url": "https://news.google.com/rss/articles/CBMia0FVX3lxTFB2bmQtNHN5a2hXTXE0UE0zVkFJQXpmWl9NMl93dHFOcTNSZi1tQzM5U1NDaDhWcU1CTjZwSUJnNGcyTEZrNjFxQWFSMTV4Rkd3X2JDMlhxSEhyU1VTLUp1RnN1OHdQcUp6VnU4?oc=5",
       "severity": "info",
       "signals": []
     },
     {
       "keyword": "중동 긴장 완화",
       "date": "2026-08-03",
-      "title": "중동 긴장 완화 기대감↑…단, 양측 동상이몽 여전 [글로벌 머니플로우",
-      "url": "https://news.google.com/rss/articles/CBMiVEFVX3lxTE5DSFVWVW5ENENJUnNiRUdlTXVoYTZSYkQzd3QzZkV0LS03QmE0Q3lhc0JCU3ZPaUxYeGZSNml3OTBweWtOalhmQnZvUVVGdmZRcnBJLQ?oc=5",
+      "title": "독일 DAX지수 사상 최고치…중동 긴장 완화 기대(종합) - 연합뉴스",
+      "url": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE51YU1mOFV5ejlVNm93RC1DZ2JWT195MFVicVBZSjVaT1d2MjctUVRIZlpRbGtybUFPR3licjVkUEF4VGFyNUZPTHFiMXB6OW85RmwzNktnQmpmcTDSAWBBVV95cUxQMWRCRjBJR0tsdHJVRmZvQVM5WUhRZm03aUVqZ3p6akUya1lSVzA5UHZZRWJ2ZkVKY1VXd19ua1RtUVByZXZkM0tiSm5mcVB3REloR29RajJVN3ZlZ2o1cWg?oc=5",
       "severity": "info",
       "signals": []
     }
@@ -217,7 +219,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 84.43 USD (2026-08-10, 7일 평균 83.31)",
+      "label": "Brent 원유 종가 83.64 USD (2026-08-10, 7일 평균 83.2)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
