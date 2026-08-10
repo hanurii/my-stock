@@ -54,6 +54,17 @@ const LIQ_META: Record<string, { dot: string; label: string; color: string; bg: 
 function fmtManwon(n?: number): string {
   return n == null ? "3,000만원" : `${Math.round(n / 10000).toLocaleString()}만원`;
 }
+// 안전 매수 한도 = 하루 평균 거래대금(50일) × 5% — 이 금액까지는 하루 만에 흔적 없이 청산 가능.
+const SAFE_ADV_RATIO = 0.05;
+function safeLimitEok(advEok?: number | null): number | null {
+  return advEok == null ? null : advEok * SAFE_ADV_RATIO;
+}
+function fmtLimitEok(limitEok: number | null): string {
+  if (limitEok == null) return "—";
+  if (limitEok >= 1) return `~${limitEok.toFixed(1).replace(/\.0$/, "")}억`;
+  // 1억 미만은 100만원 단위 반올림 (0.895억 → ~9,000만)
+  return `~${(Math.round(limitEok * 100) * 100).toLocaleString()}만`;
+}
 // 초수익 점수 색: 4+ 초록 · 2~3 금색(동일) · 0~1 회색
 function scoreStyle(s: number): { color: string; bg: string } {
   if (s >= 4) return { color: "#10b981", bg: "rgba(16,185,129,0.16)" };
@@ -109,6 +120,7 @@ function Detail({ r }: { r: BuyRec }) {
     ["피벗(매수 기준선)", fmtPrice(r.pivot_price)],
     ["피벗 대비", fmtFromPivot(r.pct_to_pivot)],
     ["하루 평균 거래대금(50일)", r.adv_50d_eok != null ? `${r.adv_50d_eok}억` : "—"],
+    ["안전 매수 한도(거래대금 5%)", fmtLimitEok(safeLimitEok(r.adv_50d_eok))],
     ["포지션 비중(유동성)", r.position_pct_of_adv != null ? `하루 거래대금의 ${r.position_pct_of_adv}%` : "—"],
     ["하루 청산", r.one_day_exit == null ? "—" : r.one_day_exit ? "가능" : "불가 (며칠 분할 필요)"],
   ];
@@ -194,7 +206,7 @@ export function BuyRecommendationSection({ data, exportTags, sectorTags }: { dat
                 <th className="px-2 py-2 text-right text-[11px] font-medium text-on-surface-variant/80">현재가</th>
                 <th className="px-2 py-2 text-right text-[11px] font-medium text-on-surface-variant/80" title="피벗 = 매수 기준선(이 가격 돌파가 매수 신호)">피벗</th>
                 <th className="px-2 py-2 text-right text-[11px] font-medium text-on-surface-variant/80" title="현재가와 피벗(매수 기준선) 차이. 0에 가까울수록 진입 적기 · 양수=피벗 위">피벗대비</th>
-                <th className="px-2 py-2 text-center text-[11px] font-medium text-on-surface-variant/80" title={`기준 포지션 ${fmtManwon(data.position_krw)}으로 살 때 하루 평균 거래대금(50일)에서 차지하는 비율 — 5% 이하면 하루 만에 흔적 없이 청산 가능`}>유동성</th>
+                <th className="px-2 py-2 text-center text-[11px] font-medium text-on-surface-variant/80" title={`이 종목에 안전하게 넣을 수 있는 최대 금액 = 하루 평균 거래대금(50일)의 5% — 이 금액까지는 하루 만에 흔적 없이 청산 가능. 색은 기준 포지션 ${fmtManwon(data.position_krw)} 기준 여유도`}>매수한도</th>
                 <th className="px-2 py-2 text-center text-[11px] font-medium text-on-surface-variant/80">매수</th>
               </tr>
             </thead>
@@ -249,8 +261,12 @@ export function BuyRecommendationSection({ data, exportTags, sectorTags }: { dat
                         {lm == null ? (
                           <span className="text-on-surface-variant/50">—</span>
                         ) : (
-                          <span className="text-[10px] px-1.5 py-0.5 rounded font-medium tabular-nums" style={{ backgroundColor: lm.bg, color: lm.color }}>
-                            {lm.dot} {r.position_pct_of_adv != null ? `${r.position_pct_of_adv < 1 ? r.position_pct_of_adv.toFixed(1) : Math.round(r.position_pct_of_adv)}%` : lm.label}
+                          <span
+                            className="text-[10px] px-1.5 py-0.5 rounded font-medium tabular-nums"
+                            style={{ backgroundColor: lm.bg, color: lm.color }}
+                            title={r.adv_50d_eok != null ? `하루 평균 거래대금 ${r.adv_50d_eok}억의 5% — 기준 포지션은 거래대금의 ${r.position_pct_of_adv ?? "—"}%` : undefined}
+                          >
+                            {lm.dot} {r.adv_50d_eok != null ? fmtLimitEok(safeLimitEok(r.adv_50d_eok)) : lm.label}
                           </span>
                         )}
                       </td>
@@ -286,9 +302,10 @@ export function BuyRecommendationSection({ data, exportTags, sectorTags }: { dat
           <li>· <strong className="text-on-surface">RS선 선행</strong> : RS선이 주가보다 먼저 신고가 = 1점</li>
         </ul>
         <p className="mt-2 pt-2 border-t border-outline-variant/10">
-          <strong className="text-on-surface">유동성</strong> : 기준 포지션 {fmtManwon(data.position_krw)} ÷ 하루 평균
-          거래대금(50일) — 🟢 5% 이하 = 하루 만에 흔적 없이 청산 · 🟡 5~20% = 하루 청산 한계 ·
-          🔴 20% 초과 = 하루 청산 불가(며칠 분할 필요)
+          <strong className="text-on-surface">매수한도</strong> : 이 종목에 안전하게 넣을 수 있는 최대 금액 = 하루 평균
+          거래대금(50일) × 5% — 이 금액까지는 하루 만에 흔적 없이 청산 가능. 색은 기준 포지션{" "}
+          {fmtManwon(data.position_krw)} 기준 여유도 — 🟢 여유 = 포지션이 한도 안 · 🟡 주의 = 한도 초과(하루 청산
+          한계) · 🔴 위험 = 거래대금의 20% 초과(며칠 분할 필요)
         </p>
         <p className="mt-1.5">
           <strong className="text-on-surface">🚫 기관수요 유보</strong> : 셋업은 점등하지만 돌파일 거래량 등 기관 매집
