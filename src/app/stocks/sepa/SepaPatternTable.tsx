@@ -168,8 +168,24 @@ export function SepaPatternTable({ rows, columns, trendByCode, exportTags, secto
                           🐣{ipoDays[r.code]}일
                         </span>
                       )}
+                      {r.raw.gate_near === true && (
+                        <span
+                          title={`관문 임박 — 트렌드 8조건 중 ${r.raw.gate_near_reasons?.join(" · ") || "이평선 근접(①⑤)"}만 미달(52주고가 -25% 이내 등 나머지 통과). 이평선 바로 밑 코일이 돌파 전날 리스트에서 빠지지 않게 편입. 돌파 시 관문도 대개 함께 통과`}
+                          className="inline-flex items-center rounded px-1 py-px text-[10px] leading-none align-middle whitespace-nowrap ml-0.5"
+                          style={{ backgroundColor: "rgba(168,181,208,0.14)", color: "#a8b5d0" }}
+                        >
+                          ⏳관문임박
+                        </span>
+                      )}
                     </span>
-                    <span className="text-[10px] text-on-surface-variant/50 font-mono">{r.code}</span>
+                    <span className="text-[10px] text-on-surface-variant/50 font-mono">
+                      {r.code}
+                      {r.raw.gate_near === true && (r.raw.gate_near_reasons?.length ?? 0) > 0 && (
+                        <span className="font-sans" style={{ color: "#a8b5d0" }}>
+                          {" · "}⏳ {r.raw.gate_near_reasons!.join(" · ")}
+                        </span>
+                      )}
+                    </span>
                   </div>
                 </td>
                 <td className="px-2 py-2 text-center">

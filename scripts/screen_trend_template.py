@@ -380,6 +380,48 @@ def _save_minervini_report(dropped: list[dict], asof: str | None,
         print(f"  ⚠️  제외 내역 기록 실패(무시하고 진행): {type(e).__name__}: {e}")
 
 
+# 관문 임박(gate_near) 근접 한도 — "어느 조건이 미달인가"뿐 아니라 "얼마나 가까운가"까지 요구.
+# 한도 없으면 이평선에서 한참 아래인 폭락주도 '임박'이 되는 오탐(적대 검증 26-08-11에서 발견).
+# 기준: ①(150·200MA)은 -10% 이내, ⑤(50MA)는 -15% 이내(코일 밑바닥 허용).
+# ⑦(52주고가 -25% 이내)은 **완화하지 않는다** — 미너비니 원칙상 -25% 밖은 추세 손상으로 보며,
+# 사용자 확정(26-08-12)으로 ⑦ 미달 종목은 관문 임박에서 제외(한때 -40%까지 허용했다가 환원.
+# 트레이드오프: 메가터치형(⑦만 미달, -32.3%) 미포착 — 한양이엔지형(①⑤ 미달)은 계속 포착).
+GATE_NEAR_TOL = {"ma150_200": 0.90, "ma50": 0.85}
+
+
+def _gate_near_reasons(result: dict, close: float | None) -> list[str] | None:
+    """관문 임박이면 미달 사유 목록(예: "⑤ 50일선 -2.3%"), 아니면 None.
+
+    관문 임박 = 6~7/8 통과 + 실패가 ①⑤(이평선 근접)뿐 + 근접 한도 이내.
+    ⑦(52주고가 -25%)은 반드시 통과해야 한다 — 미너비니 원칙상 그 밖은 추세 손상
+    (사용자 확정 26-08-12). 이평선 바로 밑 코일(한양이엔지 2026-08-10 미스 사례)이
+    돌파 전날 관문에서 걸러지는 구조적 충돌 완화. 패턴 검출기가 이 종목도 받되
+    gate_near 필드로 구분(페이지 ⏳배지, 사유는 gate_near_reasons 로 표시) —
+    자동매매 봇·백테스트 모집단에선 제외.
+    """
+    if result["pass"] or result["passed_count"] < 6 or not close:
+        return None
+    fails = {k for k, v in result["criteria"].items() if not v["pass"]}
+    if not fails or not fails <= {"1", "5"}:
+        return None
+    ex = result.get("extras") or {}
+    reasons: list[str] = []
+    if "1" in fails:
+        s150, s200 = ex.get("sma150"), ex.get("sma200")
+        if not s150 or not s200 or close < s150 * GATE_NEAR_TOL["ma150_200"] \
+                or close < s200 * GATE_NEAR_TOL["ma150_200"]:
+            return None
+        # 더 아래에 있는(못 넘은) 이평선 기준 격차 — 동일값 탈락 등 엣지에도 빈 min() 없이 안전
+        gap = min((close / s150 - 1), (close / s200 - 1)) * 100
+        reasons.append(f"① 150·200일선 {gap:.1f}%")
+    if "5" in fails:
+        s50 = ex.get("sma50")
+        if not s50 or close < s50 * GATE_NEAR_TOL["ma50"]:
+            return None
+        reasons.append(f"⑤ 50일선 {(close / s50 - 1) * 100:.1f}%")
+    return reasons
+
+
 def _run_ipo_track(raw_results: list[dict], asof: str | None,
                    args: argparse.Namespace) -> tuple[list[dict], int]:
     """신규상장(IPO) 예외 트랙 — 상장 20~199거래일 종목 대체 평가.
@@ -575,6 +617,8 @@ def run_full_scan(args: argparse.Namespace) -> None:
             "rs_note": rs_entry.get("rs_note"),
             "passed_count": result["passed_count"],
             "all_pass": result["pass"],
+            "gate_near": bool(gn_reasons := _gate_near_reasons(result, r["last_close"])),
+            "gate_near_reasons": gn_reasons or [],
             "criteria": result["criteria"],
             "extras": result["extras"],
         }

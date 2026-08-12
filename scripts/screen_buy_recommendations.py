@@ -87,6 +87,8 @@ def liquidity_fields(s: dict) -> dict:
 
 
 def main():
+    if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
+        sys.stdout.reconfigure(encoding="utf-8")  # Windows cp949 콘솔에서 이모지 출력 크래시 방지
     ap = argparse.ArgumentParser(description="매수 추천 리스트(초수익 잠재력 순)")
     ap.add_argument("--min-score", type=int, default=3, help="포함 최소 점수(기본 3; 0~1=엣지 없음 제외)")
     ap.add_argument("--out", default=str(DATA / "sepa-buy-recommendations.json"))
@@ -123,7 +125,8 @@ def main():
                 "superperf_score": pts, "score_reasons": reasons,
                 "prior_adv_pct": round(f["prior_adv"] * 100, 1) if f["prior_adv"] is not None else None,
                 "dist_52wh": f["dist_52wh"], "rs_nh_days": f["rs_nh_days"], "rs_leads": f["rs_leads"],
-                "pattern": pat, **liquidity_fields(s),
+                "pattern": pat, "gate_near": bool(c.get("gate_near")),
+                "gate_near_reasons": c.get("gate_near_reasons") or [], **liquidity_fields(s),
             }
             w = demand_watch.get(code)
             if w:  # 기관 수요 유보 — 숨기지 않고 순위 제외+딤드 표시용 필드만 부착
@@ -131,7 +134,13 @@ def main():
             # dedupe: 같은 종목이 여러 패턴에 검출되면 상태 우선순위(돌파>진입임박>예의주시)로 하나만
             prev = best.get(code)
             if prev is None or _STATUS_PRI.get(rec["status"], 9) < _STATUS_PRI.get(prev["status"], 9):
+                if prev is not None:  # 진 레코드의 관문임박 표시는 승계(패턴별로 갈릴 수 없는 종목 속성)
+                    rec["gate_near"] = rec["gate_near"] or bool(prev.get("gate_near"))
+                    rec["gate_near_reasons"] = rec["gate_near_reasons"] or prev.get("gate_near_reasons") or []
                 best[code] = rec
+            elif rec["gate_near"] and not prev.get("gate_near"):
+                prev["gate_near"] = True
+                prev["gate_near_reasons"] = rec["gate_near_reasons"]
 
     # 점수 min_score 이상 OR 오늘 진입 임박(entry_ready) — 낮은 점수라도 진입 임박이면 포함.
     rows = [r for r in best.values() if r["superperf_score"] >= a.min_score or r["entry_ready"]]

@@ -16,6 +16,8 @@ description: >
 ## 사전 조건
 - **최신 데이터로 돌리려면 먼저 `update-data` → `find-trend-template`** 실행.
 - 입력 `public/data/sepa-trend-candidates.json` 존재(= find-trend-template 산출).
+- 입력은 관문 통과(all_pass) + **관문 임박(gate_near — 이평선 ①⑤만 근소 미달, ⑦ 52주고가는 필수 통과)** 종목.
+  gate_near 는 출력 레코드에 그대로 실려 페이지 ⏳배지로 구분된다(26-08-11 확장).
 
 ## 실행 (1줄)
 ```

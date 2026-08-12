@@ -79,6 +79,8 @@ def summarize(entries: list[dict]) -> None:
 
 
 def main() -> None:
+    if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
+        sys.stdout.reconfigure(encoding="utf-8")
     led = json.loads(LEDGER.read_text(encoding="utf-8")) if LEDGER.exists() else {"entries": []}
     entries = led.get("entries", [])
     seen = {(e["date"], e["code"]) for e in entries}
@@ -94,6 +96,8 @@ def main() -> None:
                     "date": d, "code": c["code"], "name": c.get("name"),
                     "score": c.get("superperf_score"), "status": c.get("status"),
                     "rec_price": c.get("current_price"),
+                    # 관문 임박 코호트 표시 — 점수 검증 통계에서 관문 통과분과 분리 가능하게(원장 오염 방지)
+                    "gate_near": bool(c.get("gate_near")),
                 })
                 seen.add((d, c["code"])); added += 1
 

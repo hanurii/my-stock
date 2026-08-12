@@ -1,7 +1,7 @@
 # scripts/screen_vcp.py
 """find-vcp — SEPA 2단계: 트렌드 통과 종목의 VCP 베이스·피벗 탐지.
 
-입력: public/data/sepa-trend-candidates.json (all_pass 종목)
+입력: public/data/sepa-trend-candidates.json (all_pass + gate_near 관문임박 종목)
 출력: public/data/sepa-vcp-candidates.json
 정의: docs/superpowers/specs/2026-06-29-find-vcp-design.md
 """
@@ -40,9 +40,11 @@ def run(args, out_path: Path) -> None:
               f"   먼저 find-trend-template 을 실행해 sepa-trend-candidates.json 을 생성하세요.")
         sys.exit(1)
     data = json.loads(in_path.read_text(encoding="utf-8"))
-    passers = [c for c in data.get("candidates", []) if c.get("all_pass")]
+    # 관문 통과 + 관문 임박(gate_near: 이평선 ①⑤만 미달, ⑦은 필수 통과) — 임박분은 gate_near 필드로 구분 표시.
+    passers = [c for c in data.get("candidates", []) if c.get("all_pass") or c.get("gate_near")]
     if getattr(args, "include_ipo", False):
         # IPO 트랙(신규상장 대체 관문) 통과분 편입 — specs/2026-08-08-ipo-exception-track-design.md
+        # IPO 트랙은 별도 7조건 관문이라 gate_near 완화 미적용.
         passers += [c for c in data.get("ipo_candidates", []) if c.get("all_pass")]
     if args.ticker:
         passers = [c for c in passers if c.get("code") == args.ticker]
@@ -73,6 +75,8 @@ def run(args, out_path: Path) -> None:
         out_cands.append({
             "code": code, "name": c.get("name"), "market": c.get("market"),
             "current_price": c.get("current_price"), "rs": c.get("rs"),
+            "gate_near": bool(c.get("gate_near")),
+            "gate_near_reasons": c.get("gate_near_reasons") or [],
             **r,
         })
 

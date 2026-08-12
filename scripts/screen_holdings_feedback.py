@@ -61,6 +61,8 @@ def load_pivots() -> dict:
             continue
         data = json.loads(p.read_text(encoding="utf-8"))
         for c in data.get("candidates", []):
+            if c.get("gate_near"):  # 관문 임박은 표시 전용 — 보유 점검 피벗 소스는 종전(관문 통과) 유지
+                continue
             if c.get("pivot_price") is not None:
                 out.setdefault(c["code"], []).append(
                     {"pivot": c["pivot_price"], "source": source,

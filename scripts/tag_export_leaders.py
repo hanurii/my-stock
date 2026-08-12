@@ -65,6 +65,8 @@ def load_krx_desc():
 
 def main():
     # 비차단 계약: 어떤 실패든 경고 한 줄 + 이전 산출 유지 + exit 0.
+    if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
+        sys.stdout.reconfigure(encoding="utf-8")
     try:
         config = load_config(DATA / "export-leading-config.json")
         codes, names, asof = collect_codes()

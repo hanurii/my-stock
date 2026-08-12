@@ -19,6 +19,10 @@ def load_actionable(paths):
             continue
         pat = "VCP" if "vcp" in p else "3C" if "3c" in p else "PP" if "power" in p else "?"
         for c in d.get("candidates", []):
+            # gate_near(관문 임박 — 트렌드 8조건 미통과) 종목은 페이지 표시 전용.
+            # 봇 매수 모집단은 검증된 관문 통과분 유지(백테스트 fidelity와 동일 모집단).
+            if c.get("gate_near"):
+                continue
             if c.get("status") == "actionable" and c.get("entry_ready") and c.get("pivot_price") and c["code"] not in seen:
                 seen.add(c["code"])
                 out.append({"code": c["code"], "name": c.get("name"),
@@ -46,6 +50,8 @@ def load_watchlist_broad(paths):
         pat = "VCP" if "vcp" in fn else "3C" if "3c" in fn else "PP" if "power" in fn else "?"
         rank = _PATTERN_RANK.get(pat, 99)
         for c in d.get("candidates", []):
+            if c.get("gate_near"):  # 관문 임박은 페이지 전용 — 봇 감시목록 제외(load_actionable과 동일)
+                continue
             if c.get("status") in ("actionable", "forming") and c.get("pivot_price"):
                 code = c["code"]
                 if code not in best or rank < best[code][0]:
