@@ -1,13 +1,13 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-08-12T13:47:08.746+09:00",
+  "last_checked": "2026-08-12T16:03:26.971+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 7.16,
-      "display": "7.16배",
+      "value": 7.26,
+      "display": "7.26배",
       "threshold": "10배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "dividend_yield",
       "label": "배당수익률",
-      "value": 3.01,
-      "display": "3.01%",
+      "value": 2.97,
+      "display": "2.97%",
       "threshold": "3.5% 이하",
       "hit": true,
       "tone": "bad"
@@ -60,8 +60,8 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 84.45,
-      "display": "84.45$",
+      "value": 84.38,
+      "display": "84.38$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
@@ -72,7 +72,7 @@
       "severity": "bad",
       "type": "dividend_yield",
       "title": "배당수익률 3.5% 이하",
-      "message": "현재 3.01% — 매도 트리거 도달"
+      "message": "현재 2.97% — 매도 트리거 도달"
     },
     {
       "severity": "bad",
@@ -87,9 +87,9 @@
       "message": "현재 2건 — 매도 트리거 도달"
     },
     {
-      "severity": "bad",
+      "severity": "warn",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 11건 (부정 시그널 1건 포함)",
+      "title": "리스크 키워드 매칭 뉴스 10건 (관찰 신호 3건 포함)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
@@ -131,16 +131,8 @@
     {
       "keyword": "이란 미국 합의",
       "date": "2026-08-11",
-      "title": "중재국 파키스탄 “미국-이란, ‘모종의 합의’ 도달하기 직전” - joongang.co.kr",
+      "title": "중재국 파키스탄 “미국-이란, ‘모종의 합의’ 도달하기 직전” - 중앙일보",
       "url": "https://news.google.com/rss/articles/CBMiVkFVX3lxTE02N0dVRzBPRExLbDU2dGlHTlo5bElTMzdLdW5xdFRWUnVFSkl1aUwxSE83Vk5sY1MzNWgxaE9vOFlYekZEZFJjX21EejN6LWNEZXhQODNR?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "이란 미국 합의",
-      "date": "2026-08-11",
-      "title": "중재국 파키스탄 \"미국·이란 '일종의 합의'에 근접했다\" - 한국경제",
-      "url": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE5OUU50alZqOEJBdWpyUkhxcWRZQlpLd1k5WG5uVjBub0pQdlRTTld4YUczUHJYeTdKaHhkbUUtVEZYSGdsaU1fLU1SbjVpeFR0UGNsNDVRLVp2UQ?oc=5",
       "severity": "info",
       "signals": []
     },
@@ -157,20 +149,18 @@
     {
       "keyword": "이란 미국 합의",
       "date": "2026-08-11",
-      "title": "파키스탄 \"미국-이란, 평화 협상 모종의 합의 근접\" - 블룸버그 통신 - Investing.com 한국어",
-      "url": "https://news.google.com/rss/articles/CBMiakFVX3lxTE5vTUUyX3hXUUo3UDFrTjJKVk9qTDJhSjBaUlFwcTF1RXdqSmVJS3dfOWgySzNOT3JOWGR4NU1uRWVLbmN4TEZkSzFXTFRJZVhkNTJXbkJ1cWJYYW9jZGdVeE45LVZsWGp3OUE?oc=5",
+      "title": "중재국 파키스탄 \"미국·이란 '일종의 합의'에 근접했다\" - 한국경제",
+      "url": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE5OUU50alZqOEJBdWpyUkhxcWRZQlpLd1k5WG5uVjBub0pQdlRTTld4YUczUHJYeTdKaHhkbUUtVEZYSGdsaU1fLU1SbjVpeFR0UGNsNDVRLVp2UQ?oc=5",
       "severity": "info",
       "signals": []
     },
     {
-      "keyword": "중동 긴장 완화",
+      "keyword": "이란 미국 합의",
       "date": "2026-08-11",
-      "title": "중동 긴장 완화에 국제유가 4.9% 급락 - 매일경제TV",
-      "url": "https://news.google.com/rss/articles/CBMidEFVX3lxTE1ZVmhZYndBMjhHNXl6cHFfV19yZnNZSGJveUtTSzdlSWkxVHQ4eU1UMTk0b3ZhLWVOdHFtV0hnT0pxdms1T0VlNm85Wm13TFhzLW9rd2laUmxrTTNRVVVDUm1sckFqVk8zYkNtd19TOXV4dkZa?oc=5",
-      "severity": "bad",
-      "signals": [
-        "급락"
-      ]
+      "title": "파키스탄 \"미국·이란 합의에 근접…평화협정 분위기 조성돼\" - 머니투데이 - 머니투데이",
+      "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTFBTUm9kaVktSExwOVZJNFZEZVlDemh2bFBlVGg2V3IzQmJ0ZGllWGZSVDlMN3lEUkQtU1lYdXp2eUY4ZklvdXdxSzM3ZzVZS25YS1gtUzhUVGxIS2xxV3FXb2g1UXhlM2FS0gFuQVVfeXFMTzhFTkd1NGhRWXhhb25vaTR2OTllTW1qT1ltMnpPWGdDNUxPMHRFclJCdGh1OHBPY3JHWVRwVlB3UFV0TGFqOU81NVRPZWxnUjk4aFNpRXBZRzlZRDRRMVdZSFByejE2Zks2V3B6MWc?oc=5",
+      "severity": "info",
+      "signals": []
     },
     {
       "keyword": "중동 긴장 완화",
@@ -197,7 +187,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 89.7 USD (2026-08-12, 7일 평균 84.45)",
+      "label": "Brent 원유 종가 89.15 USD (2026-08-12, 7일 평균 84.38)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
