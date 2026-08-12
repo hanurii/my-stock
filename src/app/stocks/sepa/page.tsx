@@ -110,11 +110,19 @@ export default async function SepaPage() {
 
   // 수출 주도 품목 태그 — 파일 없으면 배지 없이 기존 렌더 그대로(그레이스풀).
   const exportTagsFile = await readJson<ExportTagsFile>("sepa-export-tags.json");
-  const exportTags: ExportTagMap = exportTagsFile?.tags ?? {};
+  const rawExportTags: ExportTagMap = exportTagsFile?.tags ?? {};
 
-  // 8대 주도 섹터 태그 — 동일하게 그레이스풀.
+  // 주도 섹터 태그(①~⑧ + ⑨백화점) — 동일하게 그레이스풀.
   const sectorTagsFile = await readJson<SectorTagsFile>("sepa-leading-sectors.json");
   const sectorTags: SectorTagMap = sectorTagsFile?.tags ?? {};
+
+  // 같은 이름 배지 중복 제거: 섹터 배지(②반도체)와 수출 배지(반도체)가 같은 라벨이면
+  // 큐레이션된 섹터 배지만 남긴다(메카로 "반도체 ×2" 사용자 지적, 26-08-12).
+  const exportTags: ExportTagMap = Object.fromEntries(
+    Object.entries(rawExportTags).filter(
+      ([code, tag]) => sectorTags[code]?.short !== tag.label,
+    ),
+  );
 
   const history = await readJson<TierHistory>("sepa-tier-history.json");
   const trends = history

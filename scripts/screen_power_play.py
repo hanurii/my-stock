@@ -3,7 +3,7 @@
 
 입력: public/data/sepa-trend-candidates.json
 출력:
-  - --universe trend(기본): 트렌드 통과(all_pass) 종목 → sepa-power-play-candidates.json
+  - --universe trend(기본): 트렌드 통과(all_pass)+관문임박(gate_near) 종목 → sepa-power-play-candidates.json
   - --universe all       : 전수(평가된 전 종목, 컷오프 없음) → sepa-power-play-all-candidates.json
 정의: docs/superpowers/specs/2026-06-29-find-power-play-design.md
 """
@@ -52,8 +52,10 @@ def run(args, out_path: Path) -> None:
         sys.exit(1)
     data = json.loads(in_path.read_text(encoding="utf-8"))
     all_cands = data.get("candidates", [])
-    # --universe all: 전수 스캔(all_pass 필터·컷오프 없음). 기본(trend): 트렌드 통과만.
-    targets = all_cands if args.universe == "all" else [c for c in all_cands if c.get("all_pass")]
+    # --universe all: 전수 스캔(all_pass 필터·컷오프 없음). 기본(trend): 트렌드 통과 + 관문 임박(gate_near).
+    # 주의: all 모드는 이미 전체 포함이라 gate_near 를 별도 추가하면 중복 — 술어 하나로만 거른다.
+    targets = all_cands if args.universe == "all" else [
+        c for c in all_cands if c.get("all_pass") or c.get("gate_near")]
     if args.rs_min:
         targets = [c for c in targets if (c.get("rs") or 0) >= args.rs_min]
     if getattr(args, "include_ipo", False):
@@ -91,6 +93,8 @@ def run(args, out_path: Path) -> None:
         out_cands.append({
             "code": code, "name": c.get("name"), "market": c.get("market"),
             "current_price": c.get("current_price"), "rs": c.get("rs"),
+            "gate_near": bool(c.get("gate_near")),
+            "gate_near_reasons": c.get("gate_near_reasons") or [],
             **r,
         })
 

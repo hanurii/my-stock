@@ -22,6 +22,8 @@ export interface BuyRec {
   rs_nh_days: number | null;
   rs_leads: number | null;
   pattern: string;
+  gate_near?: boolean;
+  gate_near_reasons?: string[];
   adv_50d_eok?: number | null;
   position_pct_of_adv?: number | null;
   one_day_exit?: boolean | null;
@@ -233,6 +235,15 @@ export function BuyRecommendationSection({ data, exportTags, sectorTags }: { dat
                         <div className="flex flex-col">
                           <span className="text-on-surface font-medium leading-tight">
                             {r.name} <SectorBadge tag={sectorTags?.[r.code]} /> <ExportBadge tag={exportTags?.[r.code]} />
+                            {r.gate_near === true && (
+                              <span
+                                title={`관문 임박 — 트렌드 8조건 중 ${r.gate_near_reasons?.join(" · ") || "이평선 근접(①⑤)"}만 미달(52주고가 -25% 이내 등 나머지 통과). 이평선 바로 밑 코일이 돌파 전날 빠지지 않게 편입`}
+                                className="inline-flex items-center rounded px-1 py-px text-[10px] leading-none align-middle whitespace-nowrap ml-0.5"
+                                style={{ backgroundColor: "rgba(168,181,208,0.14)", color: "#a8b5d0" }}
+                              >
+                                ⏳관문임박
+                              </span>
+                            )}
                             {dimmed && (
                               <span
                                 title={`기관 수요 유보(${r.demand_watch?.added ?? ""}) — ${r.demand_watch?.reason ?? ""}`}
@@ -243,7 +254,14 @@ export function BuyRecommendationSection({ data, exportTags, sectorTags }: { dat
                               </span>
                             )}
                           </span>
-                          <span className="text-[10px] text-on-surface-variant/50 font-mono">{r.code}</span>
+                          <span className="text-[10px] text-on-surface-variant/50 font-mono">
+                            {r.code}
+                            {r.gate_near === true && (r.gate_near_reasons?.length ?? 0) > 0 && (
+                              <span className="font-sans" style={{ color: "#a8b5d0" }}>
+                                {" · "}⏳ {r.gate_near_reasons!.join(" · ")}
+                              </span>
+                            )}
+                          </span>
                         </div>
                       </td>
                       <td className="px-2 py-2 text-center">

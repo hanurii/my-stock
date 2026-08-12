@@ -1,4 +1,4 @@
-"""SEPA 후보 종목 8대 주도 섹터 태깅 — /sepa 마무리 비차단 스텝(수출 태깅 형제).
+"""SEPA 후보 종목 주도 섹터 태깅(①~⑧ 주도 + ⑨백화점 동행 소비주) — /sepa 마무리 비차단 스텝(수출 태깅 형제).
 
 입력: sepa-{trend,vcp,power-play-all,3c}-candidates.json + sepa-buy-recommendations.json
       + leading-sectors-config.json (큐레이션 코드→섹터 매핑, 사용자 직접 관리)
@@ -21,6 +21,8 @@ DATA = ROOT / "public" / "data"
 
 
 def main():
+    if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
+        sys.stdout.reconfigure(encoding="utf-8")  # Windows cp949 콘솔에서 이모지 출력 크래시 방지
     # 비차단 계약: 어떤 실패든 경고 한 줄 + 이전 산출 유지 + exit 0.
     try:
         config = json.loads((DATA / "leading-sectors-config.json").read_text(encoding="utf-8"))

@@ -32,6 +32,7 @@ KEEP_KEYS = [
     "code", "name", "market", "rs", "status", "pivot_price", "pct_to_pivot",
     "vcp_detected", "pattern_detected", "num_contractions",
     "flag_length_days", "flag_depth_pct",
+    "gate_near", "entry_ready",  # 관문임박/진입가능 코호트를 이력에서도 구분(26-08-11 확장)
 ]
 
 

@@ -43,7 +43,10 @@ python scripts/track_buy_recommendations.py
 - **정렬 = 점수 내림차순(동점 RS)**. 매수 타이밍(`entry_tier`: ready/near/far)은 배지로
   **표시만** — 정렬엔 반영 안 함(사용자 확정: 초수익 점수 순수).
 - **검출된 후보만 채점**(forming·failed 제외) = `/stocks/sepa` 페이지 표시와 일치.
-- 각 종목: `superperf_score`, `score_reasons`, `prior_adv_pct`, `dist_52wh`, `pattern`, `entry_tier`.
+- 각 종목: `superperf_score`, `score_reasons`, `prior_adv_pct`, `dist_52wh`, `pattern`, `entry_tier`,
+  `gate_near`(관문 임박 — 트렌드 이평선 ①⑤만 미달 종목 표시, 페이지 ⏳배지·정렬 무관여),
+  `gate_near_reasons`(미달 사유 목록, 예 `"⑤ 50일선 -2.3%"` — 트렌드 산출에서 그대로 승계,
+  페이지 종목코드 줄에 표시).
 - **유동성(청산 용이성)**: 기준 포지션 `strategy_params.POSITION_KRW`(투자금 늘리면 여기만 수정)이
   50일 평균 거래대금에서 차지하는 비율. 종목별 `adv_50d_eok`·`position_pct_of_adv`·`one_day_exit`·
   `liquidity`(🟢ok ≤5% 하루 청산 여유 · 🟡caution ≤20% 하루 청산 한계 · 🔴danger >20% 며칠 분할).

@@ -15,6 +15,11 @@ export interface RawCandidate {
   status?: string;
   pivot_price?: number | null;
   pct_to_pivot?: number | null;
+  // 관문 임박: 트렌드 8조건 중 ①⑤(이평선 근접)만 미달한 6~7/8 통과 종목(⑦ 52주고가 -25%는 필수 통과) —
+  // 이평선 바로 밑 코일이 돌파 전날 걸러지지 않게 검출기까지 통과시키되 배지로 구분.
+  gate_near?: boolean;
+  // 관문 임박 미달 사유(예: "⑤ 50일선 -2.3%") — 배지 옆에 그대로 표시.
+  gate_near_reasons?: string[];
   [k: string]: unknown;
 }
 

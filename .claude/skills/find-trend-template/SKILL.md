@@ -96,7 +96,18 @@ python scripts/screen_trend_template.py --rs-min 80 --minervini-filter --ipo-tra
   적음. 강세장에서 수십~100여 종목.
 - 산출 JSON 의 `market_status` 가 `Stage 2`(상승 추세장)인지 — 약세장이면
   통과 종목이 급감하는 게 정상.
-- `candidates[].all_pass == true` 인 종목이 SEPA 다음 단계 입력.
+- `candidates[].all_pass == true` 인 종목이 SEPA 다음 단계 입력. 추가로
+  `gate_near == true`(관문 임박: 6~7/8 통과 + 실패가 **이평선 ①⑤뿐** + 근접 한도
+  이내 — ① 150·200MA -10% · ⑤ 50MA -15%, `GATE_NEAR_TOL`)인 종목도
+  패턴 검출기(find-vcp·find-3c·find-power-play)까지 통과한다 — 이평선 바로 밑
+  코일이 돌파 전날 걸러지는 구조적 충돌 완화(26-08-11, 한양이엔지 미스 사례).
+  **⑦(52주고가 -25% 이내)은 완화하지 않는다** — 미너비니 원칙상 -25% 밖은 추세
+  손상, 사용자 확정(26-08-12)으로 ⑦ 미달은 임박 불허(한때 -40%까지 허용 →
+  환원. 트레이드오프: ⑦만 미달이던 메가터치형 -32.3%는 미포착).
+  미달 사유는 `gate_near_reasons`(예: `"⑤ 50일선 -2.3%"`)로 산출돼 형제 검출기·
+  매수추천까지 그대로 전파된다 — 페이지 ⏳관문임박 배지 옆(종목코드 줄)에 표시.
+  IPO 트랙·자동매매 봇·보유 점검 피벗엔 미적용
+  (봇 모집단은 관문 통과분 유지 — autobuy/watchlist.py 가 gate_near 제외).
 
 ## 다음 단계 (SEPA 파이프라인)
 
