@@ -1,7 +1,7 @@
 {
   "code": "083930",
   "name": "아바코",
-  "last_checked": "2026-08-14T13:46:21.821+09:00",
+  "last_checked": "2026-08-14T16:01:47.791+09:00",
   "metrics": [
     {
       "id": "per",
@@ -32,12 +32,12 @@
     },
     {
       "id": "related_party",
-      "label": "대명ENG 매입 (2025)",
-      "value": 7.94,
-      "display": "7.94%",
+      "label": "대명ENG 매입 비율",
+      "value": null,
+      "display": "—",
       "threshold": "매출의 10% 초과",
       "hit": false,
-      "tone": "good"
+      "tone": "neutral"
     }
   ],
   "alerts": [
@@ -46,6 +46,12 @@
       "type": "supply_gap",
       "title": "수주 공백 90일 경과",
       "message": "현재 176일 — 매도 트리거 도달"
+    },
+    {
+      "severity": "warn",
+      "type": "related_party_missing",
+      "title": "대명ENG 매입 비율 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
     }
   ],
   "news_hits": [],
@@ -57,10 +63,6 @@
     {
       "label": "최근 공급계약 공시",
       "ref": "DART 20260219900327"
-    },
-    {
-      "label": "대명ENG 매입 비율",
-      "ref": "DART 20260608000428 ([기재정정]사업보고서 (2025.12))"
     }
   ]
 }
