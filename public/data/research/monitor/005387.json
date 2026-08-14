@@ -1,7 +1,7 @@
 {
   "code": "005387",
   "name": "현대차2우B",
-  "last_checked": "2026-08-14T08:44:02.881+09:00",
+  "last_checked": "2026-08-14T13:48:25.097+09:00",
   "metrics": [
     {
       "id": "price",
@@ -33,8 +33,8 @@
     {
       "id": "buyback_gap",
       "label": "자사주 소각 공시 공백",
-      "value": 476,
-      "display": "476일",
+      "value": 477,
+      "display": "477일",
       "threshold": "365일 경과",
       "hit": true,
       "tone": "bad"
@@ -54,16 +54,31 @@
       "severity": "bad",
       "type": "buyback_gap",
       "title": "자사주 소각 공시 공백 365일 경과",
-      "message": "현재 476일 — 매도 트리거 도달"
+      "message": "현재 477일 — 매도 트리거 도달"
     },
     {
       "severity": "warn",
       "type": "op_margin",
       "title": "분기 영업이익률 (2025) 임계 근접",
       "message": "현재 6.2% (임계 4% 미만)"
+    },
+    {
+      "severity": "info",
+      "type": "news_keyword_hit",
+      "title": "리스크 키워드 매칭 뉴스 1건 (관찰 신호 0건 — 키워드 단순 매칭만)",
+      "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
-  "news_hits": [],
+  "news_hits": [
+    {
+      "keyword": "현대차 지배구조 개편",
+      "date": "2026-08-14",
+      "title": "현대차그룹 지배구조 개편의 진짜 핵심, 결국 현대모비스입니다 #현대차 #정의선 #현대모비스 Mbappe (nPeMT1FBww) - Mshale",
+      "url": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE5oN29lYjhOcy12QW80QjZTclRvR2RVNTRMRl9MTElNd2VBY1N2QlIyY2E4bHB2QkpPNUQ3enBsMks5WjhMc2t1OTE5RUhoZi1aNnJYd2w1QjNLRjA?oc=5",
+      "severity": "info",
+      "signals": []
+    }
+  ],
   "sources": [
     {
       "label": "PER/PEG/PBR 스코어",
@@ -80,6 +95,10 @@
     {
       "label": "보통주-우선주 디스카운트 (2026-08-13)",
       "ref": "네이버 lastClose 005380/005387: 418,500원/201,500원"
+    },
+    {
+      "label": "뉴스 RSS",
+      "ref": "news.google.com/rss (7일)"
     }
   ]
 }
