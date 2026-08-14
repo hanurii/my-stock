@@ -1,13 +1,13 @@
 {
   "code": "005387",
   "name": "현대차2우B",
-  "last_checked": "2026-08-14T16:04:27.276+09:00",
+  "last_checked": "2026-08-14T19:05:42.213+09:00",
   "metrics": [
     {
       "id": "price",
       "label": "우선주 종가",
-      "value": 201500,
-      "display": "201,500원",
+      "value": 213000,
+      "display": "213,000원",
       "threshold": "320,000원 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "per",
       "label": "PER",
-      "value": 5.32,
-      "display": "5.32배",
+      "value": 5.63,
+      "display": "5.63배",
       "threshold": "9배 돌파",
       "hit": false,
       "tone": "good"
@@ -41,12 +41,12 @@
     },
     {
       "id": "op_margin",
-      "label": "분기 영업이익률 (2025)",
-      "value": 6.16,
-      "display": "6.2%",
+      "label": "분기 영업이익률",
+      "value": null,
+      "display": "—",
       "threshold": "4% 미만",
       "hit": false,
-      "tone": "warn"
+      "tone": "neutral"
     }
   ],
   "alerts": [
@@ -58,9 +58,9 @@
     },
     {
       "severity": "warn",
-      "type": "op_margin",
-      "title": "분기 영업이익률 (2025) 임계 근접",
-      "message": "현재 6.2% (임계 4% 미만)"
+      "type": "op_margin_missing",
+      "title": "분기 영업이익률 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
     },
     {
       "severity": "info",
@@ -73,7 +73,7 @@
     {
       "keyword": "현대차 미국 관세",
       "date": "2026-08-14",
-      "title": "미국 완성차 '빅3' 북미무역협정 갱신 앞두고 로비 박차, \"현대차 토요타보다 관세 불리할지 촉각\" - businesspost.co.kr",
+      "title": "미국 완성차 '빅3' 북미무역협정 갱신 앞두고 로비 박차, \"현대차 토요타보다 관세 불리할지 촉각\" - 비즈니스포스트",
       "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTFBHbEtVellNSktCVUxhSXdKZjdSUFd2MnNHbldBYlR0OHYzVURzOFNRb0x4elMtRnEwVHdqNUxTVUwxcXozVW9jb0thMXVqUDU0SGRKQTdFVWZIMG8taHAyT0xiVnpnRTZyZnRvTVVlOHdIRDA?oc=5",
       "severity": "info",
       "signals": []
@@ -93,15 +93,11 @@
       "ref": "public/data/watchlist.json"
     },
     {
-      "label": "분기 영업이익률 (2025)",
-      "ref": "DART 20260318001394"
-    },
-    {
       "label": "최근 자사주 소각 공시 (2025-04-24)",
       "ref": "DART 20250424800336"
     },
     {
-      "label": "보통주-우선주 디스카운트 (2026-08-13)",
+      "label": "보통주-우선주 디스카운트 (2026-08-14)",
       "ref": "네이버 lastClose 005380/005387: 418,500원/201,500원"
     },
     {

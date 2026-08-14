@@ -1,13 +1,13 @@
 {
   "code": "175330",
   "name": "JB금융지주",
-  "last_checked": "2026-08-14T16:04:16.186+09:00",
+  "last_checked": "2026-08-14T19:05:30.701+09:00",
   "metrics": [
     {
       "id": "pbr",
       "label": "PBR",
-      "value": 0.9,
-      "display": "0.90배",
+      "value": 0.86,
+      "display": "0.86배",
       "threshold": "1.1배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,17 +15,17 @@
     {
       "id": "pbr_premium_pp",
       "label": "지방지주 평균 대비 PBR 프리미엄",
-      "value": 0.49,
-      "display": "0.490pp",
+      "value": 0.44,
+      "display": "0.440pp",
       "threshold": "+0.50pp 이상",
       "hit": false,
-      "tone": "warn"
+      "tone": "good"
     },
     {
       "id": "foreign_ratio",
       "label": "외국인 지분율",
-      "value": 34.25,
-      "display": "34.25%",
+      "value": 34.45,
+      "display": "34.45%",
       "threshold": "25% 이하",
       "hit": false,
       "tone": "good"
@@ -33,8 +33,8 @@
     {
       "id": "foreign_net_buy_4w",
       "label": "최근 20거래일 외국인 순매수",
-      "value": 454333,
-      "display": "45만주",
+      "value": 419557,
+      "display": "42만주",
       "threshold": "순매도 전환",
       "hit": false,
       "tone": "good"
@@ -60,11 +60,11 @@
     {
       "id": "quarterly_net_income",
       "label": "최근 분기 순이익",
-      "value": null,
-      "display": "—",
+      "value": 2265,
+      "display": "2,265억",
       "threshold": "분기 적자 전환",
       "hit": false,
-      "tone": "neutral"
+      "tone": "good"
     },
     {
       "id": "pf_loss_disclosure",
@@ -96,30 +96,18 @@
     {
       "id": "quarterly_roe",
       "label": "ROE (사업보고서 기준 연환산)",
-      "value": null,
-      "display": "—",
+      "value": 7.18,
+      "display": "7.18%",
       "threshold": "8% 이하",
-      "hit": false,
-      "tone": "neutral"
+      "hit": true,
+      "tone": "bad"
     }
   ],
   "alerts": [
     {
       "severity": "warn",
-      "type": "pbr_premium_pp",
-      "title": "지방지주 평균 대비 PBR 프리미엄 임계 근접",
-      "message": "현재 0.490pp (임계 +0.50pp 이상)"
-    },
-    {
-      "severity": "warn",
       "type": "dividend_qoq_change_missing",
       "title": "분기배당 QoQ 변화율 데이터 미수집",
-      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
-    },
-    {
-      "severity": "warn",
-      "type": "quarterly_net_income_missing",
-      "title": "최근 분기 순이익 데이터 미수집",
       "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
     }
   ],
@@ -131,7 +119,7 @@
     },
     {
       "label": "4대 지주 평균 PBR 비교 (1종목)",
-      "ref": "peers: 138930 / avg 0.41"
+      "ref": "peers: 138930 / avg 0.42"
     },
     {
       "label": "분기 배당 결정 ()",
@@ -139,11 +127,19 @@
     },
     {
       "label": "외국인 순매수 누적 (20일)",
-      "ref": "네이버 dealTrendInfos / history 2026-08-13"
+      "ref": "네이버 dealTrendInfos / history 2026-08-14"
+    },
+    {
+      "label": "최근 분기 순이익 (2026-H1)",
+      "ref": "DART 20260814002218 (fnlttSinglAcntAll)"
     },
     {
       "label": "자사주 프로그램 마지막 활동 (2026-07-23 · 소각결정) — 누적 취득 10 / 결과 0 / 소각 10",
       "ref": "DART 20260723800818"
+    },
+    {
+      "label": "분기 ROE 연환산 (2026-H1 · 7.18%)",
+      "ref": "DART 20260814002218 (fnlttSinglAcntAll: 자본총계+분기순이익)"
     }
   ]
 }

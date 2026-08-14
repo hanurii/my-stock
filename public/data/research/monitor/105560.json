@@ -1,13 +1,13 @@
 {
   "code": "105560",
   "name": "KB금융",
-  "last_checked": "2026-08-14T16:04:03.633+09:00",
+  "last_checked": "2026-08-14T19:05:17.271+09:00",
   "metrics": [
     {
       "id": "pbr",
       "label": "PBR",
-      "value": 1.05,
-      "display": "1.05배",
+      "value": 1.06,
+      "display": "1.06배",
       "threshold": "1.1배 돌파",
       "hit": false,
       "tone": "warn"
@@ -15,8 +15,8 @@
     {
       "id": "pbr_premium_pp",
       "label": "4대 지주 평균 대비 PBR 프리미엄",
-      "value": 0.28,
-      "display": "0.280pp",
+      "value": 0.287,
+      "display": "0.287pp",
       "threshold": "+0.20pp 이상",
       "hit": true,
       "tone": "bad"
@@ -24,8 +24,8 @@
     {
       "id": "foreign_ratio",
       "label": "외국인 지분율",
-      "value": 79.21,
-      "display": "79.21%",
+      "value": 79.31,
+      "display": "79.31%",
       "threshold": "70% 이하",
       "hit": false,
       "tone": "good"
@@ -33,20 +33,20 @@
     {
       "id": "foreign_net_buy_4w",
       "label": "최근 20거래일 외국인 순매수",
-      "value": -133599,
-      "display": "-13만주",
+      "value": 2415,
+      "display": "2,415주",
       "threshold": "순매도 전환",
-      "hit": true,
-      "tone": "bad"
+      "hit": false,
+      "tone": "good"
     },
     {
       "id": "dividend_qoq_change",
       "label": "분기배당 QoQ 변화율",
-      "value": 37.59,
-      "display": "37.6%",
+      "value": null,
+      "display": "—",
       "threshold": "동결 또는 감소",
       "hit": false,
-      "tone": "good"
+      "tone": "neutral"
     },
     {
       "id": "buyback_cancellation_gap",
@@ -60,11 +60,11 @@
     {
       "id": "quarterly_net_income",
       "label": "최근 분기 순이익",
-      "value": 58407,
-      "display": "58,407억",
+      "value": null,
+      "display": "—",
       "threshold": "1.3조 이하 (Q1’26 1.89조 대비 -30%)",
       "hit": false,
-      "tone": "good"
+      "tone": "neutral"
     },
     {
       "id": "group_nim",
@@ -87,11 +87,11 @@
     {
       "id": "quarterly_roe",
       "label": "ROE (사업보고서 기준 연환산)",
-      "value": 9.6,
-      "display": "9.60%",
+      "value": null,
+      "display": "—",
       "threshold": "10% 이하",
-      "hit": true,
-      "tone": "bad"
+      "hit": false,
+      "tone": "neutral"
     }
   ],
   "alerts": [
@@ -99,19 +99,25 @@
       "severity": "warn",
       "type": "pbr",
       "title": "PBR 임계 근접",
-      "message": "현재 1.05배 (임계 1.1배 돌파)"
+      "message": "현재 1.06배 (임계 1.1배 돌파)"
     },
     {
       "severity": "bad",
       "type": "pbr_premium_pp",
       "title": "4대 지주 평균 대비 PBR 프리미엄 +0.20pp 이상",
-      "message": "현재 0.280pp — 매도 트리거 도달"
+      "message": "현재 0.287pp — 매도 트리거 도달"
     },
     {
-      "severity": "bad",
-      "type": "foreign_net_buy_4w",
-      "title": "최근 20거래일 외국인 순매수 순매도 전환",
-      "message": "현재 -13만주 — 매도 트리거 도달"
+      "severity": "warn",
+      "type": "dividend_qoq_change_missing",
+      "title": "분기배당 QoQ 변화율 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
+    },
+    {
+      "severity": "warn",
+      "type": "quarterly_net_income_missing",
+      "title": "최근 분기 순이익 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
     }
   ],
   "news_hits": [],
@@ -126,23 +132,15 @@
     },
     {
       "label": "4대 지주 평균 PBR 비교 (3종목)",
-      "ref": "peers: 086790, 316140, 055550 / avg 0.77"
+      "ref": "peers: 086790, 316140, 055550 / avg 0.773"
     },
     {
-      "label": "분기 배당 결정 ([기재정정]사업보고서 (2025.12))",
-      "ref": "DART 20260619000667 (alotMatter)"
+      "label": "분기 배당 결정 ()",
+      "ref": "DART 20260814004200 (alotMatter)"
     },
     {
       "label": "외국인 순매수 누적 (20일)",
-      "ref": "네이버 dealTrendInfos / history 2026-08-13"
-    },
-    {
-      "label": "최근 분기 순이익 (2025-FY)",
-      "ref": "DART 20260619000667 (fnlttSinglAcntAll)"
-    },
-    {
-      "label": "분기 ROE 연환산 (2025-FY · 9.6%)",
-      "ref": "DART 20260619000667 (fnlttSinglAcntAll: 자본총계+분기순이익)"
+      "ref": "네이버 dealTrendInfos / history 2026-08-14"
     }
   ]
 }

@@ -1,13 +1,13 @@
 {
   "code": "005930",
   "name": "삼성전자",
-  "last_checked": "2026-08-14T16:03:17.994+09:00",
+  "last_checked": "2026-08-14T19:04:30.661+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 40.58,
-      "display": "40.58배",
+      "value": 41.56,
+      "display": "41.56배",
       "threshold": "35배 돌파",
       "hit": true,
       "tone": "bad"
@@ -33,20 +33,20 @@
     {
       "id": "lee_jae_yong_ratio",
       "label": "이재용 지분 비율",
-      "value": 1.65,
-      "display": "1.65%",
+      "value": null,
+      "display": "—",
       "threshold": "1.4% 이하로 감소",
       "hit": false,
-      "tone": "good"
+      "tone": "neutral"
     },
     {
       "id": "lee_jae_yong_change_pp",
       "label": "이재용 기초→기말 변화",
-      "value": 0.02,
-      "display": "0.02%p",
+      "value": null,
+      "display": "—",
       "threshold": "-0.1%p 이상 감소",
       "hit": false,
-      "tone": "good"
+      "tone": "neutral"
     },
     {
       "id": "family_sell_count",
@@ -72,13 +72,25 @@
       "severity": "bad",
       "type": "per",
       "title": "PER 35배 돌파",
-      "message": "현재 40.58배 — 매도 트리거 도달"
+      "message": "현재 41.56배 — 매도 트리거 도달"
     },
     {
       "severity": "warn",
       "type": "buyback_gap",
       "title": "자사주 소각 공시 공백 임계 근접",
       "message": "현재 136일 (임계 180일 경과)"
+    },
+    {
+      "severity": "warn",
+      "type": "lee_jae_yong_ratio_missing",
+      "title": "이재용 지분 비율 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
+    },
+    {
+      "severity": "warn",
+      "type": "lee_jae_yong_change_pp_missing",
+      "title": "이재용 기초→기말 변화 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
     }
   ],
   "news_hits": [],
@@ -88,8 +100,8 @@
       "ref": "public/data/watchlist.json"
     },
     {
-      "label": "이재용 보유 비율 (2025)",
-      "ref": "DART 20260310002820 (hyslrSttus)"
+      "label": "이재용 보유 비율 (2026)",
+      "ref": "DART 20260814003699 (hyslrSttus)"
     },
     {
       "label": "최근 자사주 소각 공시 (2026-03-31)",
