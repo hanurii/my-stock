@@ -1,7 +1,7 @@
 {
   "code": "265560",
   "name": "영화테크",
-  "last_checked": "2026-08-14T19:06:06.471+09:00",
+  "last_checked": "2026-08-17T08:22:46.185+09:00",
   "metrics": [
     {
       "id": "no_capital_issuance",
@@ -15,20 +15,20 @@
     {
       "id": "op_margin_collapse",
       "label": "❌ 분기 영업이익률 후퇴",
-      "value": null,
-      "display": "—",
+      "value": 14.21,
+      "display": "14.2%",
       "threshold": "10% 이하",
       "hit": false,
-      "tone": "neutral"
+      "tone": "good"
     },
     {
       "id": "op_margin_strong",
       "label": "✅ 분기 영업이익률 견조",
-      "value": null,
-      "display": "—",
+      "value": 14.21,
+      "display": "14.2%",
       "threshold": "16% 이상",
       "hit": false,
-      "tone": "neutral"
+      "tone": "warn"
     },
     {
       "id": "per_value_zone",
@@ -61,15 +61,9 @@
   "alerts": [
     {
       "severity": "warn",
-      "type": "op_margin_collapse_missing",
-      "title": "❌ 분기 영업이익률 후퇴 데이터 미수집",
-      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
-    },
-    {
-      "severity": "warn",
-      "type": "op_margin_strong_missing",
-      "title": "✅ 분기 영업이익률 견조 데이터 미수집",
-      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
+      "type": "op_margin_strong",
+      "title": "✅ 분기 영업이익률 견조 임계 근접",
+      "message": "현재 14.2% (임계 16% 이상)"
     },
     {
       "severity": "info",
@@ -83,6 +77,10 @@
     {
       "label": "PER/PEG/PBR 스코어",
       "ref": "public/data/growth-watchlist.json"
+    },
+    {
+      "label": "분기 영업이익률 (2026)",
+      "ref": "DART 20260814003332"
     }
   ]
 }

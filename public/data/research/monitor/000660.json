@@ -1,7 +1,7 @@
 {
   "code": "000660",
   "name": "SK하이닉스",
-  "last_checked": "2026-08-14T19:03:34.554+09:00",
+  "last_checked": "2026-08-17T08:19:05.123+09:00",
   "metrics": [
     {
       "id": "pbr",
@@ -14,12 +14,12 @@
     },
     {
       "id": "op_margin",
-      "label": "분기 영업이익률",
-      "value": null,
-      "display": "—",
+      "label": "분기 영업이익률 (2026)",
+      "value": 76.33,
+      "display": "76.3%",
       "threshold": "30% 이하",
       "hit": false,
-      "tone": "neutral"
+      "tone": "good"
     },
     {
       "id": "affiliate_ratio",
@@ -51,20 +51,20 @@
     {
       "id": "sk_square_ratio",
       "label": "SK스퀘어 보유 비율",
-      "value": null,
-      "display": "—",
+      "value": 20.5,
+      "display": "20.50%",
       "threshold": "19% 이하로 감소",
       "hit": false,
-      "tone": "neutral"
+      "tone": "good"
     },
     {
       "id": "sk_square_change_pp",
       "label": "SK스퀘어 기초→기말 변화",
-      "value": null,
-      "display": "—",
+      "value": 0.43,
+      "display": "0.43%p",
       "threshold": "-0.1%p 이상 감소",
       "hit": false,
-      "tone": "neutral"
+      "tone": "good"
     }
   ],
   "alerts": [
@@ -73,24 +73,6 @@
       "type": "pbr",
       "title": "PBR 8배 돌파",
       "message": "현재 9.92배 — 매도 트리거 도달"
-    },
-    {
-      "severity": "warn",
-      "type": "op_margin_missing",
-      "title": "분기 영업이익률 데이터 미수집",
-      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
-    },
-    {
-      "severity": "warn",
-      "type": "sk_square_ratio_missing",
-      "title": "SK스퀘어 보유 비율 데이터 미수집",
-      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
-    },
-    {
-      "severity": "warn",
-      "type": "sk_square_change_pp_missing",
-      "title": "SK스퀘어 기초→기말 변화 데이터 미수집",
-      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
     }
   ],
   "news_hits": [],
@@ -100,11 +82,15 @@
       "ref": "public/data/growth-watchlist.json"
     },
     {
+      "label": "분기 영업이익률 (2026)",
+      "ref": "DART 20260814003509"
+    },
+    {
       "label": "계열사 거래 비율 (365일 누적, 9건)",
       "ref": "DART 특수관계인내부거래·출자계열사거래 20260727000169, 20260727000166, 20260727000162 외"
     },
     {
-      "label": "SK스퀘어 보유 비율 (2026)",
+      "label": "SK스퀘어(주) 보유 비율 (2026)",
       "ref": "DART 20260814003509 (hyslrSttus)"
     }
   ]

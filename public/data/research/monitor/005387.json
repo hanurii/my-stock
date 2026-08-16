@@ -1,7 +1,7 @@
 {
   "code": "005387",
   "name": "현대차2우B",
-  "last_checked": "2026-08-14T19:05:42.213+09:00",
+  "last_checked": "2026-08-17T08:22:17.937+09:00",
   "metrics": [
     {
       "id": "price",
@@ -33,20 +33,20 @@
     {
       "id": "buyback_gap",
       "label": "자사주 소각 공시 공백",
-      "value": 477,
-      "display": "477일",
+      "value": 479,
+      "display": "479일",
       "threshold": "365일 경과",
       "hit": true,
       "tone": "bad"
     },
     {
       "id": "op_margin",
-      "label": "분기 영업이익률",
-      "value": null,
-      "display": "—",
+      "label": "분기 영업이익률 (2026)",
+      "value": 5.79,
+      "display": "5.8%",
       "threshold": "4% 미만",
       "hit": false,
-      "tone": "neutral"
+      "tone": "warn"
     }
   ],
   "alerts": [
@@ -54,13 +54,13 @@
       "severity": "bad",
       "type": "buyback_gap",
       "title": "자사주 소각 공시 공백 365일 경과",
-      "message": "현재 477일 — 매도 트리거 도달"
+      "message": "현재 479일 — 매도 트리거 도달"
     },
     {
       "severity": "warn",
-      "type": "op_margin_missing",
-      "title": "분기 영업이익률 데이터 미수집",
-      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
+      "type": "op_margin",
+      "title": "분기 영업이익률 (2026) 임계 근접",
+      "message": "현재 5.8% (임계 4% 미만)"
     },
     {
       "severity": "info",
@@ -91,6 +91,10 @@
     {
       "label": "PER/PEG/PBR 스코어",
       "ref": "public/data/watchlist.json"
+    },
+    {
+      "label": "분기 영업이익률 (2026)",
+      "ref": "DART 20260814003521"
     },
     {
       "label": "최근 자사주 소각 공시 (2025-04-24)",

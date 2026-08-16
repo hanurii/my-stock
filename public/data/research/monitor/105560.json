@@ -1,7 +1,7 @@
 {
   "code": "105560",
   "name": "KB금융",
-  "last_checked": "2026-08-14T19:05:17.271+09:00",
+  "last_checked": "2026-08-17T08:21:34.703+09:00",
   "metrics": [
     {
       "id": "pbr",
@@ -42,17 +42,17 @@
     {
       "id": "dividend_qoq_change",
       "label": "분기배당 QoQ 변화율",
-      "value": null,
-      "display": "—",
+      "value": -47.38,
+      "display": "-47.4%",
       "threshold": "동결 또는 감소",
-      "hit": false,
-      "tone": "neutral"
+      "hit": true,
+      "tone": "bad"
     },
     {
       "id": "buyback_cancellation_gap",
       "label": "자사주 소각결정 후 경과일",
-      "value": 22,
-      "display": "22일",
+      "value": 24,
+      "display": "24일",
       "threshold": "365일 후속 부재",
       "hit": false,
       "tone": "good"
@@ -60,11 +60,11 @@
     {
       "id": "quarterly_net_income",
       "label": "최근 분기 순이익",
-      "value": null,
-      "display": "—",
+      "value": 20105,
+      "display": "20,105억",
       "threshold": "1.3조 이하 (Q1’26 1.89조 대비 -30%)",
       "hit": false,
-      "tone": "neutral"
+      "tone": "good"
     },
     {
       "id": "group_nim",
@@ -87,11 +87,11 @@
     {
       "id": "quarterly_roe",
       "label": "ROE (사업보고서 기준 연환산)",
-      "value": null,
-      "display": "—",
+      "value": 6.41,
+      "display": "6.41%",
       "threshold": "10% 이하",
-      "hit": false,
-      "tone": "neutral"
+      "hit": true,
+      "tone": "bad"
     }
   ],
   "alerts": [
@@ -108,16 +108,10 @@
       "message": "현재 0.287pp — 매도 트리거 도달"
     },
     {
-      "severity": "warn",
-      "type": "dividend_qoq_change_missing",
-      "title": "분기배당 QoQ 변화율 데이터 미수집",
-      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
-    },
-    {
-      "severity": "warn",
-      "type": "quarterly_net_income_missing",
-      "title": "최근 분기 순이익 데이터 미수집",
-      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
+      "severity": "bad",
+      "type": "dividend_qoq_change",
+      "title": "분기배당 QoQ 변화율 동결 또는 감소",
+      "message": "현재 -47.4% — 매도 트리거 도달"
     }
   ],
   "news_hits": [],
@@ -135,12 +129,28 @@
       "ref": "peers: 086790, 316140, 055550 / avg 0.773"
     },
     {
-      "label": "분기 배당 결정 ()",
+      "label": "분기 배당 결정 (반기보고서 (2026.06))",
       "ref": "DART 20260814004200 (alotMatter)"
     },
     {
       "label": "외국인 순매수 누적 (20일)",
       "ref": "네이버 dealTrendInfos / history 2026-08-14"
+    },
+    {
+      "label": "최근 분기 순이익 (2026-H1)",
+      "ref": "DART 20260814004200 (fnlttSinglAcntAll)"
+    },
+    {
+      "label": "NIM (2026-H1 · 은행 1.76%)",
+      "ref": "DART 20260814004200 (본문 정규식 추출)"
+    },
+    {
+      "label": "여신 건전성 (2026-H1 · 연체 0.27%)",
+      "ref": "DART 20260814004200 (본문 정규식 추출)"
+    },
+    {
+      "label": "분기 ROE 연환산 (2026-H1 · 6.41%)",
+      "ref": "DART 20260814004200 (fnlttSinglAcntAll: 자본총계+분기순이익)"
     }
   ]
 }
