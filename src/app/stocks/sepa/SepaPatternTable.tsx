@@ -11,6 +11,7 @@ import {
 } from "./sepaPatterns";
 import { ExportBadge, type ExportTagMap } from "./ExportBadge";
 import { SectorBadge, type SectorTagMap } from "./SectorBadge";
+import { EarningsBadge, type EarningsMap } from "./EarningsBadge";
 
 const TIER_META: Record<Tier, { label: string; color: string; bg: string; dot: string }> = {
   breakout: { label: "돌파", color: "#ffb4ab", bg: "rgba(255,180,171,0.15)", dot: "🔴" },
@@ -73,9 +74,10 @@ interface Props {
   exportTags?: ExportTagMap;
   sectorTags?: SectorTagMap;
   ipoDays?: Record<string, number>;
+  earnings?: EarningsMap;
 }
 
-export function SepaPatternTable({ rows, columns, trendByCode, exportTags, sectorTags, ipoDays }: Props) {
+export function SepaPatternTable({ rows, columns, trendByCode, exportTags, sectorTags, ipoDays, earnings }: Props) {
   const [sortKey, setSortKey] = useState<SortKey>("tier");
   const [sortDesc, setSortDesc] = useState(false);
 
@@ -158,7 +160,8 @@ export function SepaPatternTable({ rows, columns, trendByCode, exportTags, secto
                 <td className="px-2 py-2 sticky left-0 bg-surface-container-low">
                   <div className="flex flex-col">
                     <span className="text-on-surface font-medium leading-tight">
-                      {r.name} <SectorBadge tag={sectorTags?.[r.code]} /> <ExportBadge tag={exportTags?.[r.code]} />
+                      {r.name} <SectorBadge tag={sectorTags?.[r.code]} /> <ExportBadge tag={exportTags?.[r.code]} />{" "}
+                      <EarningsBadge entry={earnings?.[r.code]} />
                       {ipoDays?.[r.code] != null && (
                         <span
                           title={`신규상장 IPO 트랙(대체 관문) 통과 — 상장 ${ipoDays[r.code]}거래일. 데이터가 짧아 기존 8조건 대신 상장 후 고저가·기준MA·iRS로 평가된 종목`}

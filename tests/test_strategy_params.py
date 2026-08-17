@@ -10,6 +10,7 @@ def test_canonical_values():
     assert SP.CHASE_MAX_PCT == 3.0
     assert SP.SLOTS == 5
     assert SP.REGIME_MA == 20
+    assert SP.POSITION_KRW == 10_000_000  # 실제 슬롯 단위(26-08-17 3,000만→1,000만 정정)
 
 
 def test_config_uses_strategy_params():

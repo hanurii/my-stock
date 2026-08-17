@@ -9,6 +9,7 @@ import { type MarketRegime } from "./marketRegime";
 import { BuyRecommendationSection, type BuyRecFile } from "./BuyRecommendationSection";
 import { type ExportTagMap, type ExportTagsFile } from "./ExportBadge";
 import { type SectorTagMap, type SectorTagsFile } from "./SectorBadge";
+import { EarningsWeekSummary, type EarningsCalendarFile, type EarningsMap } from "./EarningsBadge";
 
 interface MarketStatus {
   passed: boolean;
@@ -55,6 +56,7 @@ function PatternSection({
   exportTags,
   sectorTags,
   ipoDays,
+  earnings,
 }: {
   config: PatternConfig;
   data: CandidateFile | null;
@@ -63,6 +65,7 @@ function PatternSection({
   exportTags?: ExportTagMap;
   sectorTags?: SectorTagMap;
   ipoDays?: Record<string, number>;
+  earnings?: EarningsMap;
 }) {
   if (!data) {
     return (
@@ -87,7 +90,7 @@ function PatternSection({
           🔴 {counts.breakout} · 🟢 {counts.actionable} · 🟡 {counts.watch}
         </span>
       </h3>
-      <SepaPatternTable rows={rows} columns={config.columns} trendByCode={trendByCode} exportTags={exportTags} sectorTags={sectorTags} ipoDays={ipoDays} />
+      <SepaPatternTable rows={rows} columns={config.columns} trendByCode={trendByCode} exportTags={exportTags} sectorTags={sectorTags} ipoDays={ipoDays} earnings={earnings} />
     </section>
   );
 }
@@ -123,6 +126,10 @@ export default async function SepaPage() {
       ([code, tag]) => sectorTags[code]?.short !== tag.label,
     ),
   );
+
+  // 실적 발표 임박 달력(📅 배지 + 주간 요약) — 파일 없으면 배지·요약 없이 렌더(그레이스풀).
+  const earningsFile = await readJson<EarningsCalendarFile>("sepa-earnings-calendar.json");
+  const earnings: EarningsMap = earningsFile?.byCode ?? {};
 
   const history = await readJson<TierHistory>("sepa-tier-history.json");
   const trends = history
@@ -208,12 +215,14 @@ export default async function SepaPage() {
         )}
       </section>
 
-      <BuyRecommendationSection data={buyRecs} exportTags={exportTags} sectorTags={sectorTags} />
+      <EarningsWeekSummary byCode={earnings} />
 
-      <PatternSection config={PATTERNS.vcp} data={vcp} trendByCode={trends?.vcp} excludeCodes={excludeCodes} exportTags={exportTags} sectorTags={sectorTags} ipoDays={ipoDays} />
-      <PatternSection config={PATTERNS.powerplayTrend} data={ppTrend} trendByCode={trends?.powerplayTrend} excludeCodes={excludeCodes} exportTags={exportTags} sectorTags={sectorTags} ipoDays={ipoDays} />
-      <PatternSection config={PATTERNS.powerplayAll} data={ppAll} trendByCode={trends?.powerplayAll} excludeCodes={excludeCodes} exportTags={exportTags} sectorTags={sectorTags} ipoDays={ipoDays} />
-      <PatternSection config={PATTERNS.threeC} data={threeC} trendByCode={trends?.threeC} excludeCodes={excludeCodes} exportTags={exportTags} sectorTags={sectorTags} ipoDays={ipoDays} />
+      <BuyRecommendationSection data={buyRecs} exportTags={exportTags} sectorTags={sectorTags} earnings={earnings} />
+
+      <PatternSection config={PATTERNS.vcp} data={vcp} trendByCode={trends?.vcp} excludeCodes={excludeCodes} exportTags={exportTags} sectorTags={sectorTags} ipoDays={ipoDays} earnings={earnings} />
+      <PatternSection config={PATTERNS.powerplayTrend} data={ppTrend} trendByCode={trends?.powerplayTrend} excludeCodes={excludeCodes} exportTags={exportTags} sectorTags={sectorTags} ipoDays={ipoDays} earnings={earnings} />
+      <PatternSection config={PATTERNS.powerplayAll} data={ppAll} trendByCode={trends?.powerplayAll} excludeCodes={excludeCodes} exportTags={exportTags} sectorTags={sectorTags} ipoDays={ipoDays} earnings={earnings} />
+      <PatternSection config={PATTERNS.threeC} data={threeC} trendByCode={trends?.threeC} excludeCodes={excludeCodes} exportTags={exportTags} sectorTags={sectorTags} ipoDays={ipoDays} earnings={earnings} />
 
       {/* 포지션 크기 계산기 */}
       <section className="bg-surface-container-low rounded-xl ghost-border p-4 space-y-3">
@@ -245,6 +254,9 @@ export default async function SepaPage() {
             <li><strong style={{ color: "#ffb4ab" }}>🔴 돌파</strong> — 패턴 확정 + 당일 피벗 첫 돌파(거래량 터짐). 지금 뚫는 중.</li>
             <li><strong style={{ color: "#34d399" }}>🟢 진입임박</strong> — 패턴 확정 + 피벗 코앞(~5%)·거래량 마름 = <strong className="text-on-surface">돌파 초읽기</strong>(매수 준비 구간).</li>
             <li><strong style={{ color: "#e9c176" }}>🟡 예의주시</strong> — 형성 중이거나 피벗 12% 이내로 접근 중. 관심종목, 바로 매수는 아님.</li>
+            <li>
+              <strong style={{ color: "#e9c176" }}>📅 실적임박</strong> — 2주 내 실적 발표 예정. D-n=확정(예고공시·IR 근거, <strong style={{ color: "#ffb4ab" }}>D-2 이내는 빨강</strong>) · ~날짜=과거 발표 패턴 추정(회색). 발표는 쿠션 없는 이진 이벤트 — 발표 전 신규 매수 주의.
+            </li>
           </ul>
         </div>
 
