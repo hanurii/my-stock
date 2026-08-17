@@ -1,7 +1,7 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-08-17T08:22:28.174+09:00",
+  "last_checked": "2026-08-17T12:51:02.269+09:00",
   "metrics": [
     {
       "id": "per",
@@ -60,8 +60,8 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 87.63,
-      "display": "87.63$",
+      "value": 87.67,
+      "display": "87.67$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
@@ -95,11 +95,21 @@
     {
       "severity": "bad",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 3건 (부정 시그널 1건 포함)",
+      "title": "리스크 키워드 매칭 뉴스 4건 (부정 시그널 1건 포함)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
   "news_hits": [
+    {
+      "keyword": "정제마진 하락",
+      "date": "2026-08-17",
+      "title": "정제마진 호조에 정유사 실적 ‘고공행진’…원유 수요 늘며 유가 하락 제동 - 산경투데이",
+      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE9ZVUstc2dKSmEwRzNjRXJmQldsNlBzOWlvN0JsMGtsVG9OM2FiNjY0ak1QdXdicDJVcktjcThiTHlVUG0ycEdULTNlRjNVaVl4TF83OFN1TlNZOXBoZUlPLVd3RERqMmtNa1RpVVZ5WE7SAXRBVV95cUxQenVNY0xYemdseG1xdndmRVRNd18weUVOazNPY1ZMWHNIeTU0NWxBN1dpRmJ4RGFDcm1vVDhHeWZCSTB3dmxfaUIxajc5RUc0UElMU2U3anBuQXQ3ZlZLdkNFTVFoaHc4Z0UwaHhGVTdaSUpGaw?oc=5",
+      "severity": "warn",
+      "signals": [
+        "하락"
+      ]
+    },
     {
       "keyword": "GS칼텍스 정제마진",
       "date": "2026-08-12",
@@ -133,7 +143,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 88.67 USD (2026-08-16, 7일 평균 87.63)",
+      "label": "Brent 원유 종가 88.93 USD (2026-08-17, 7일 평균 87.67)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
