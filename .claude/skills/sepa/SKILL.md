@@ -90,6 +90,16 @@ SEPA 종목 발굴 전체 파이프라인을 한 번에 돌리는 **부모 스�
    - 섹터 태깅 콘솔에 **미분류 N종목**이 뜨면 통합 요약(8단계)에 그 목록을 포함 —
      새로 파이프라인에 진입한 종목이니 분류해서 `leading-sectors-config.json` 의
      assignments(편입) 또는 reviewed_none(해당 없음)에 추가한다(증분 큐레이션).
+7.7 **실적 발표 캘린더 — `python scripts/screen_earnings_calendar.py --save`.**
+   (오케스트레이터 전용 마무리 스텝 — 후보(관문 통과+관문임박+패턴 후보)와 보유
+   종목의 다음 실적 발표 예상 시기를 DART 공시 이력 3단계 신호(결산실적공시예고 →
+   IR 개최 안내 → 작년 같은 분기 제출일 패턴+법정기한)로 산출해
+   `sepa-earnings-calendar.json` 저장. `/stocks/sepa` 📅배지·주간 요약 박스가 읽는다.
+   d_day가 실행일 기준으로 박제되므로 **매일 재실행해야 정확**하다.)
+   - 후보 파일을 읽으므로 **3단계 뒤에** 실행. DART 조회는 `.cache/earnings_calendar/`
+     3일 TTL 캐시라 웜런은 API 콜 ~0회.
+   - **비차단**: 실패해도 파이프라인 실패 아님 — 오류 한 줄 보고 후 진행
+     (그 경우 아래 커밋에서 해당 산출 파일 제외).
 8. **통합 요약 보고** — 표 하나로:
    - 추세 통과 N종목 (market_status 포함)
    - 🐣 IPO 트랙(신규상장 대체 관문, `find-ipo` 산출): 평가 N · 통과 종목
@@ -123,6 +133,8 @@ SEPA 종목 발굴 전체 파이프라인을 한 번에 돌리는 **부모 스�
    - `public/data/sepa-leading-sectors.json` (7.5단계 주도 섹터 태그 — /stocks/sepa
      ①~⑧ 배지. 실패해 갱신 안 됐으면 제외)
    - `public/data/leading-sectors-config.json` (미분류 증분 큐레이션으로 바뀐 경우만)
+   - `public/data/sepa-earnings-calendar.json` (7.7단계 실적 캘린더 — /stocks/sepa
+     📅 배지·주간 요약. 실패해 갱신 안 됐으면 제외)
    - 커밋 메시지: `chore(sepa): 파이프라인 결과 갱신 (YYYY-MM-DD)` —
      날짜는 실행일(오늘).
    - 현재 브랜치로 push. **브랜치가 master가 아니면 경고 한 줄**:

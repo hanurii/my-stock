@@ -4,6 +4,7 @@ import { useState, Fragment } from "react";
 import { fmtPrice } from "./sepaPatterns";
 import { ExportBadge, type ExportTagMap } from "./ExportBadge";
 import { SectorBadge, type SectorTagMap } from "./SectorBadge";
+import { EarningsBadge, type EarningsMap } from "./EarningsBadge";
 
 export interface BuyRec {
   code: string;
@@ -28,6 +29,12 @@ export interface BuyRec {
   position_pct_of_adv?: number | null;
   one_day_exit?: boolean | null;
   liquidity?: string | null;
+  /** 최근 20일 평균 거래대금(억원) — 청산 부담 N/M의 분모 */
+  adv_20d_eok?: number | null;
+  /** N: 기준 슬롯(position_krw) 매수 시 청산 부담률(%, ADV20 대비) */
+  burden_pct?: number | null;
+  /** M: 분할매도 가능성이 시작되는 금액(원) = ADV20 × 5% */
+  split_risk_krw?: number | null;
   demand_watch?: { reason?: string; added?: string | null } | null;
 }
 
@@ -54,9 +61,9 @@ const LIQ_META: Record<string, { dot: string; label: string; color: string; bg: 
   danger: { dot: "🔴", label: "위험", color: "#ffb4ab", bg: "rgba(255,180,171,0.15)" },
 };
 function fmtManwon(n?: number): string {
-  return n == null ? "3,000만원" : `${Math.round(n / 10000).toLocaleString()}만원`;
+  return n == null ? "1,000만원" : `${Math.round(n / 10000).toLocaleString()}만원`;
 }
-// 안전 매수 한도 = 하루 평균 거래대금(50일) × 5% — 이 금액까지는 하루 만에 흔적 없이 청산 가능.
+// (구 데이터 폴백용) 안전 매수 한도 = 하루 평균 거래대금(50일) × 5%.
 const SAFE_ADV_RATIO = 0.05;
 function safeLimitEok(advEok?: number | null): number | null {
   return advEok == null ? null : advEok * SAFE_ADV_RATIO;
@@ -66,6 +73,18 @@ function fmtLimitEok(limitEok: number | null): string {
   if (limitEok >= 1) return `~${limitEok.toFixed(1).replace(/\.0$/, "")}억`;
   // 1억 미만은 100만원 단위 반올림 (0.895억 → ~9,000만)
   return `~${(Math.round(limitEok * 100) * 100).toLocaleString()}만`;
+}
+// 청산 부담 색: N(burden_pct) 기준 — 실제 손절 34건 슬리피지 실측 앵커
+// 🟢 5% 미만(비용 사실상 0) · 🟡 5~30%(분할 매도 가능성) · 🔴 30% 이상(실측 사고 구간)
+function burdenMeta(pct: number): { dot: string; color: string; bg: string } {
+  if (pct < 5) return { dot: "🟢", color: "#34d399", bg: "rgba(52,211,153,0.15)" };
+  if (pct < 30) return { dot: "🟡", color: "#e9c176", bg: "rgba(233,193,118,0.15)" };
+  return { dot: "🔴", color: "#ffb4ab", bg: "rgba(255,180,171,0.15)" };
+}
+// M(분할매도 가능성 시작 금액, 원) 표시: 1억 이상 "N.N억"(끝 .0 제거) · 미만은 10만 단위 반올림 "3,730만"
+function fmtSplitRisk(krw: number): string {
+  if (krw >= 100_000_000) return `${(krw / 100_000_000).toFixed(1).replace(/\.0$/, "")}억`;
+  return `${(Math.round(krw / 100_000) * 10).toLocaleString()}만`;
 }
 // 초수익 점수 색: 4+ 초록 · 2~3 금색(동일) · 0~1 회색
 function scoreStyle(s: number): { color: string; bg: string } {
@@ -104,7 +123,7 @@ function fmtFromPivot(n: number | null): string {
 
 const COLS = 12;
 
-function Detail({ r }: { r: BuyRec }) {
+function Detail({ r, slotLabel }: { r: BuyRec; slotLabel: string }) {
   // 각 요인이 획득한 점수(만점 대비) — 어디서 점수를 받았는지 한눈에.
   const priorEarned = r.prior_adv_pct == null ? 0 : r.prior_adv_pct >= 100 ? 2 : r.prior_adv_pct >= 50 ? 1 : 0;
   const rsEarned = r.rs == null ? 0 : r.rs >= 90 ? 2 : r.rs >= 80 ? 1 : 0;
@@ -116,15 +135,26 @@ function Detail({ r }: { r: BuyRec }) {
     { name: "RS선 신고가", value: r.rs_nh_days == null ? "—" : r.rs_nh_days === 0 ? "오늘 (0일 전)" : `${r.rs_nh_days}일 전`, earned: nhEarned, max: 1 },
     { name: "RS선 선행", value: r.rs_leads == null ? "—" : r.rs_leads > 0 ? `주가보다 ${r.rs_leads}일 먼저` : "뒤처짐 (주가가 먼저)", earned: leadEarned, max: 1 },
   ];
+  const hasBurden = r.burden_pct != null && r.split_risk_krw != null;
+  const liquidityRows: [string, string][] = hasBurden
+    ? [
+        ["최근 20일 평균 거래대금", r.adv_20d_eok != null ? `${r.adv_20d_eok}억` : "—"],
+        ["참고: 50일 평균", r.adv_50d_eok != null ? `${r.adv_50d_eok}억` : "—"],
+        [`${slotLabel} 매수 시 부담`, `${r.burden_pct!.toFixed(1)}%`],
+        ["분할매도 가능성 시작", `약 ${fmtSplitRisk(r.split_risk_krw!)}부터`],
+      ]
+    : [
+        ["하루 평균 거래대금(50일)", r.adv_50d_eok != null ? `${r.adv_50d_eok}억` : "—"],
+        ["안전 매수 한도(거래대금 5%)", fmtLimitEok(safeLimitEok(r.adv_50d_eok))],
+        ["포지션 비중(유동성)", r.position_pct_of_adv != null ? `하루 거래대금의 ${r.position_pct_of_adv}%` : "—"],
+        ["하루 청산", r.one_day_exit == null ? "—" : r.one_day_exit ? "가능" : "불가 (며칠 분할 필요)"],
+      ];
   const extra: [string, string][] = [
     ["52주 고가 대비", r.dist_52wh != null ? `${r.dist_52wh}%` : "—"],
     ["현재가", fmtPrice(r.current_price)],
     ["피벗(매수 기준선)", fmtPrice(r.pivot_price)],
     ["피벗 대비", fmtFromPivot(r.pct_to_pivot)],
-    ["하루 평균 거래대금(50일)", r.adv_50d_eok != null ? `${r.adv_50d_eok}억` : "—"],
-    ["안전 매수 한도(거래대금 5%)", fmtLimitEok(safeLimitEok(r.adv_50d_eok))],
-    ["포지션 비중(유동성)", r.position_pct_of_adv != null ? `하루 거래대금의 ${r.position_pct_of_adv}%` : "—"],
-    ["하루 청산", r.one_day_exit == null ? "—" : r.one_day_exit ? "가능" : "불가 (며칠 분할 필요)"],
+    ...liquidityRows,
   ];
   return (
     <div className="space-y-3">
@@ -161,7 +191,7 @@ function Detail({ r }: { r: BuyRec }) {
   );
 }
 
-export function BuyRecommendationSection({ data, exportTags, sectorTags }: { data: BuyRecFile | null; exportTags?: ExportTagMap; sectorTags?: SectorTagMap }) {
+export function BuyRecommendationSection({ data, exportTags, sectorTags, earnings }: { data: BuyRecFile | null; exportTags?: ExportTagMap; sectorTags?: SectorTagMap; earnings?: EarningsMap }) {
   const [open, setOpen] = useState<string | null>(null);
 
   if (!data) {
@@ -208,7 +238,7 @@ export function BuyRecommendationSection({ data, exportTags, sectorTags }: { dat
                 <th className="px-2 py-2 text-right text-[11px] font-medium text-on-surface-variant/80">현재가</th>
                 <th className="px-2 py-2 text-right text-[11px] font-medium text-on-surface-variant/80" title="피벗 = 매수 기준선(이 가격 돌파가 매수 신호)">피벗</th>
                 <th className="px-2 py-2 text-right text-[11px] font-medium text-on-surface-variant/80" title="현재가와 피벗(매수 기준선) 차이. 0에 가까울수록 진입 적기 · 양수=피벗 위">피벗대비</th>
-                <th className="px-2 py-2 text-center text-[11px] font-medium text-on-surface-variant/80" title={`이 종목에 안전하게 넣을 수 있는 최대 금액 = 하루 평균 거래대금(50일)의 5% — 이 금액까지는 하루 만에 흔적 없이 청산 가능. 색은 기준 포지션 ${fmtManwon(data.position_krw)} 기준 여유도`}>매수한도</th>
+                <th className="px-2 py-2 text-center text-[11px] font-medium text-on-surface-variant/80" title={`N / M — N: 기준 슬롯(${fmtManwon(data.position_krw)}) 매수 시 청산 부담률(최근 20일 평균 거래대금 대비) · M: 분할매도 가능성이 시작되는 금액(거래대금의 5%). 막지 않는 정보 표시.`}>청산 부담</th>
                 <th className="px-2 py-2 text-center text-[11px] font-medium text-on-surface-variant/80">매수</th>
               </tr>
             </thead>
@@ -216,6 +246,10 @@ export function BuyRecommendationSection({ data, exportTags, sectorTags }: { dat
               {rows.map((r, i) => {
                 const sm = STATUS_META[r.status ?? ""] ?? { dot: "", label: r.status ?? "—", color: "#a8b5d0", bg: "rgba(168,181,208,0.10)" };
                 const lm = r.liquidity != null ? LIQ_META[r.liquidity] ?? null : null;
+                const burden =
+                  r.burden_pct != null && r.split_risk_krw != null
+                    ? { n: r.burden_pct.toFixed(1), m: fmtSplitRisk(r.split_risk_krw), ...burdenMeta(r.burden_pct) }
+                    : null;
                 const ss = scoreStyle(r.superperf_score);
                 const isOpen = open === r.code;
                 const dimmed = r.demand_watch != null; // 기관 수요 유보 — 순위 제외·딤드(모니터링용으로 남김)
@@ -234,7 +268,8 @@ export function BuyRecommendationSection({ data, exportTags, sectorTags }: { dat
                       <td className="px-2 py-2 sticky left-0 bg-surface-container-low">
                         <div className="flex flex-col">
                           <span className="text-on-surface font-medium leading-tight">
-                            {r.name} <SectorBadge tag={sectorTags?.[r.code]} /> <ExportBadge tag={exportTags?.[r.code]} />
+                            {r.name} <SectorBadge tag={sectorTags?.[r.code]} /> <ExportBadge tag={exportTags?.[r.code]} />{" "}
+                            <EarningsBadge entry={earnings?.[r.code]} />
                             {r.gate_near === true && (
                               <span
                                 title={`관문 임박 — 트렌드 8조건 중 ${r.gate_near_reasons?.join(" · ") || "이평선 근접(①⑤)"}만 미달(52주고가 -25% 이내 등 나머지 통과). 이평선 바로 밑 코일이 돌파 전날 빠지지 않게 편입`}
@@ -276,7 +311,15 @@ export function BuyRecommendationSection({ data, exportTags, sectorTags }: { dat
                       <td className="px-2 py-2 text-right tabular-nums text-on-surface-variant/80">{fmtPrice(r.pivot_price)}</td>
                       <td className="px-2 py-2 text-right tabular-nums" style={{ color: pivotColor(r.pct_to_pivot) }}>{fmtFromPivot(r.pct_to_pivot)}</td>
                       <td className="px-2 py-2 text-center whitespace-nowrap">
-                        {lm == null ? (
+                        {burden != null ? (
+                          <span
+                            className="text-[10px] px-1.5 py-0.5 rounded font-medium tabular-nums"
+                            style={{ backgroundColor: burden.bg, color: burden.color }}
+                            title={`${fmtManwon(data.position_krw)} 매수 시 부담 ${burden.n}%(최근 20일 평균 거래대금 ${r.adv_20d_eok ?? "—"}억 기준) — 분할매도 가능성은 약 ${burden.m}부터`}
+                          >
+                            {burden.dot} {burden.n}% / {burden.m}
+                          </span>
+                        ) : lm == null ? (
                           <span className="text-on-surface-variant/50">—</span>
                         ) : (
                           <span
@@ -297,7 +340,7 @@ export function BuyRecommendationSection({ data, exportTags, sectorTags }: { dat
                     {isOpen && (
                       <tr className="bg-surface-container/25">
                         <td colSpan={COLS} className="px-4 py-3 border-t border-outline-variant/10">
-                          <Detail r={r} />
+                          <Detail r={r} slotLabel={fmtManwon(data.position_krw)} />
                         </td>
                       </tr>
                     )}
@@ -320,10 +363,10 @@ export function BuyRecommendationSection({ data, exportTags, sectorTags }: { dat
           <li>· <strong className="text-on-surface">RS선 선행</strong> : RS선이 주가보다 먼저 신고가 = 1점</li>
         </ul>
         <p className="mt-2 pt-2 border-t border-outline-variant/10">
-          <strong className="text-on-surface">매수한도</strong> : 이 종목에 안전하게 넣을 수 있는 최대 금액 = 하루 평균
-          거래대금(50일) × 5% — 이 금액까지는 하루 만에 흔적 없이 청산 가능. 색은 기준 포지션{" "}
-          {fmtManwon(data.position_krw)} 기준 여유도 — 🟢 여유 = 포지션이 한도 안 · 🟡 주의 = 한도 초과(하루 청산
-          한계) · 🔴 위험 = 거래대금의 20% 초과(며칠 분할 필요)
+          <strong className="text-on-surface">청산 부담 (N / M)</strong> : N = 기준 슬롯 {fmtManwon(data.position_krw)}{" "}
+          매수 시 청산 부담률(최근 20일 평균 거래대금 대비) — 🟢 5% 미만 = 시장가 즉시 청산(실측 슬리피지 사실상 0) ·
+          🟡 5~30% = 분할 매도 가능성 · 🔴 30% 이상 = 여러 날 각오(실측 사고 구간). M = 분할매도 가능성이 시작되는
+          금액(거래대금의 5% 경계) — 이 금액까지는 🟢. 경계는 실제 손절 34건의 슬리피지 실측이 앵커.
         </p>
         <p className="mt-1.5">
           <strong className="text-on-surface">🚫 기관수요 유보</strong> : 셋업은 점등하지만 돌파일 거래량 등 기관 매집
