@@ -47,10 +47,15 @@ python scripts/track_buy_recommendations.py
   `gate_near`(관문 임박 — 트렌드 이평선 ①⑤만 미달 종목 표시, 페이지 ⏳배지·정렬 무관여),
   `gate_near_reasons`(미달 사유 목록, 예 `"⑤ 50일선 -2.3%"` — 트렌드 산출에서 그대로 승계,
   페이지 종목코드 줄에 표시).
-- **유동성(청산 용이성)**: 기준 포지션 `strategy_params.POSITION_KRW`(투자금 늘리면 여기만 수정)이
-  50일 평균 거래대금에서 차지하는 비율. 종목별 `adv_50d_eok`·`position_pct_of_adv`·`one_day_exit`·
-  `liquidity`(🟢ok ≤5% 하루 청산 여유 · 🟡caution ≤20% 하루 청산 한계 · 🔴danger >20% 며칠 분할).
-  에스에스알·로스웰 청산 불능 사고 후 도입(26-08-08). 파일 상단 `position_krw`에 기준 금액 기록.
+- **청산 부담 N/M**: 실제 슬롯 `strategy_params.POSITION_KRW`(=1,000만, 투자금 늘리면 여기만 수정)
+  기준. **N** = `burden_pct` = 1,000만원 매수 시 최근 20일 평균 거래대금(`adv_20d_eok`) 대비 %,
+  **M** = `split_risk_krw` = ADV20×5% = 분할매도 가능성 시작 금액(이 금액까지는 🟢).
+  밴드(`liquidity`): 🟢ok N<5 · 🟡caution 5≤N<30 · 🔴danger N≥30 — 실측 손절 34왕복 슬리피지 기준
+  (<5% 비용≈0, ≥30% 실통증: 에스에스알 32%·로스웰 72%). 분모가 ADV50이 아닌 ADV20인 이유:
+  실측 손절일 거래대금 중앙값=ADV20의 1.02배, ADV50은 대양금속 유동성 붕괴(11.9억→5.7억)를 가림.
+  구 필드 `adv_50d_eok`·`position_pct_of_adv`·`one_day_exit`는 하위 호환 유지.
+  에스에스알·로스웰 청산 불능 사고 후 도입(26-08-08), N/M 개편 26-08-17.
+  파일 상단 `position_krw`에 기준 금액 기록.
 - **🚫 기관 수요 유보**: `sepa-demand-watchlist.json`(사용자 직접 관리)에 등록된 종목은 숨기지
   않고 **순위만 제외**(점수 무관 최하단 + `demand_watch` 필드 부착 → 페이지 딤드 표시).
   한국공항 반복 손절 사례(저거래량 돌파+분산 거래량 = 기관 매집 부재) 후 도입(26-08-08).

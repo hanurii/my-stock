@@ -61,28 +61,54 @@ def load_demand_watch() -> dict[str, dict]:
         return {}
 
 
-def liquidity_fields(s: dict) -> dict:
-    """유동성(청산 용이성): 기준 포지션(POSITION_KRW)이 하루 평균 거래대금에서 차지하는 비율.
+def burden_band(burden_pct: float | None) -> str | None:
+    """청산 부담률 N(%) → 신호등 밴드. 🟢ok <5 · 🟡caution 5~30 미만 · 🔴danger ≥30.
 
-    ≤5% ok(하루 만에 흔적 없이 청산) · ≤20% caution(하루 청산 한계) · >20% danger(며칠 분할 필요).
-    창 50일·최소 20일은 minervini_filter.avg_turnover_eok 와 동일 기준.
+    경계 근거: 실측 손절 34왕복 슬리피지 — N<5%는 비용≈0, N≥30%는 실통증
+    (에스에스알 32%·로스웰 72%). 경계값 자체(5.0·30.0)는 위 밴드에 붙는다.
+    """
+    if burden_pct is None:
+        return None
+    if burden_pct < 5:
+        return "ok"
+    if burden_pct < 30:
+        return "caution"
+    return "danger"
+
+
+def liquidity_fields(s: dict) -> dict:
+    """청산 부담 N/M: 실제 슬롯(POSITION_KRW=1,000만)으로 살 때 얼마나 쉽게 빠져나오나.
+
+    N = burden_pct = POSITION_KRW ÷ ADV20(최근 20일 평균 거래대금) × 100.
+    M = split_risk_krw = ADV20 × 5% = 분할매도 가능성이 시작되는 매수 금액(이 금액까지는 🟢).
+    분모를 ADV50이 아닌 ADV20으로 쓰는 이유: 실측 손절일 거래대금 중앙값 = ADV20의 1.02배,
+    ADV50은 대양금속의 최근 유동성 붕괴(11.9억→5.7억)를 가렸다.
+    구 필드(adv_50d_eok·position_pct_of_adv·one_day_exit·liquidity)는 하위 호환으로 유지하되
+    liquidity 밴드는 burden_pct 기준(burden_band)으로 재산정. 최소 20일은 기존과 동일.
     """
     closes, vols = s.get("closes") or [], s.get("volumes") or []
     n = min(len(closes), len(vols))
-    empty = {"adv_50d_eok": None, "position_pct_of_adv": None, "one_day_exit": None, "liquidity": None}
+    empty = {"adv_20d_eok": None, "burden_pct": None, "split_risk_krw": None,
+             "adv_50d_eok": None, "position_pct_of_adv": None, "one_day_exit": None, "liquidity": None}
     if n < 20:
         return empty
-    pairs = list(zip(closes[-50:], vols[-50:]))
-    adv = sum(c * v for c, v in pairs) / len(pairs)
-    if adv <= 0:
-        return {"adv_50d_eok": 0.0, "position_pct_of_adv": None, "one_day_exit": False, "liquidity": "danger"}
-    pct = POSITION_KRW / adv * 100
-    grade = "ok" if pct <= 5 else ("caution" if pct <= 20 else "danger")
+    turnover = [c * v for c, v in zip(closes[-50:], vols[-50:])]
+    adv50 = sum(turnover) / len(turnover)
+    t20 = turnover[-20:]
+    adv20 = sum(t20) / len(t20)
+    if adv20 <= 0:
+        return {"adv_20d_eok": 0.0, "burden_pct": None, "split_risk_krw": 0,
+                "adv_50d_eok": round(adv50 / 1e8, 2), "position_pct_of_adv": None,
+                "one_day_exit": False, "liquidity": "danger"}
+    burden = round(POSITION_KRW / adv20 * 100, 1)  # N(%) — UI가 이 값에서 색을 직접 유도
     return {
-        "adv_50d_eok": round(adv / 1e8, 2),
-        "position_pct_of_adv": round(pct, 1),
-        "one_day_exit": pct <= 20,
-        "liquidity": grade,
+        "adv_20d_eok": round(adv20 / 1e8, 2),
+        "burden_pct": burden,                          # N: 1,000만원 매수 시 청산 부담률
+        "split_risk_krw": int(round(adv20 * 0.05)),    # M: 분할매도 가능성 시작 금액(원)
+        "adv_50d_eok": round(adv50 / 1e8, 2) if adv50 > 0 else 0.0,
+        "position_pct_of_adv": round(POSITION_KRW / adv50 * 100, 1) if adv50 > 0 else None,
+        "one_day_exit": burden < 30,
+        "liquidity": burden_band(burden),
     }
 
 
@@ -158,12 +184,15 @@ def main():
     Path(a.out).write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"💾 저장: {a.out}  ({len(rows)}종목, 점수≥{a.min_score})")
     for r in rows[:15]:
-        pct = r["position_pct_of_adv"]
-        liq = f"{_LIQ_BADGE.get(r['liquidity'], '·')}{pct:.1f}%" if pct is not None and pct < 1 else (
-              f"{_LIQ_BADGE.get(r['liquidity'], '·')}{pct:.0f}%" if pct is not None else "—")
+        b, m = r["burden_pct"], r["split_risk_krw"]
+        if b is not None:
+            mstr = f"{m / 1e4:,.0f}만" if m else "0"
+            liq = f"{_LIQ_BADGE.get(r['liquidity'], '·')}N{b:.1f}%·M{mstr}"
+        else:
+            liq = "—"
         mark = "🚫유보 " if r.get("demand_watch") else ""
         print(f"  {r['superperf_score']}점 {mark}{r['name']:<12} {r['pattern']:>5} RS{r['rs']} "
-              f"직전{r['prior_adv_pct']:+.0f}% 유동성{liq} {_BADGE.get(r['status'], r['status'])}  {'·'.join(r['score_reasons'])}")
+              f"직전{r['prior_adv_pct']:+.0f}% 청산부담{liq} {_BADGE.get(r['status'], r['status'])}  {'·'.join(r['score_reasons'])}")
 
 
 if __name__ == "__main__":

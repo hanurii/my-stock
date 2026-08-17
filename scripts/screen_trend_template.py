@@ -382,27 +382,27 @@ def _save_minervini_report(dropped: list[dict], asof: str | None,
 
 # 관문 임박(gate_near) 근접 한도 — "어느 조건이 미달인가"뿐 아니라 "얼마나 가까운가"까지 요구.
 # 한도 없으면 이평선에서 한참 아래인 폭락주도 '임박'이 되는 오탐(적대 검증 26-08-11에서 발견).
-# 기준: ①(150·200MA)은 -10% 이내, ⑤(50MA)는 -15% 이내(코일 밑바닥 허용).
-# ⑦(52주고가 -25% 이내)은 **완화하지 않는다** — 미너비니 원칙상 -25% 밖은 추세 손상으로 보며,
-# 사용자 확정(26-08-12)으로 ⑦ 미달 종목은 관문 임박에서 제외(한때 -40%까지 허용했다가 환원.
-# 트레이드오프: 메가터치형(⑦만 미달, -32.3%) 미포착 — 한양이엔지형(①⑤ 미달)은 계속 포착).
-GATE_NEAR_TOL = {"ma150_200": 0.90, "ma50": 0.85}
+# 기준: ①(150·200MA)은 -10% 이내, ⑤(50MA)는 -15% 이내(코일 밑바닥 허용),
+# ⑦(52주고가)은 -35% 이내(사용자 결정 26-08-17 — 변천: 26-08-11 -40% 허용(40종목 유입)
+# → 26-08-12 필수 환원 → 26-08-17 -35% 재완화. 계기: ⑦만 미달이던 딥베이스 VCP 3연속 미스
+# — 메가터치 -32.3%(08-07)·네오오토 -34.1%(08-13, 다음날 +20.2% 폭발). 미너비니 원칙상
+# -25% 밖은 추세 손상이므로 all_pass 아닌 ⏳관문임박으로만 표시, 봇·백테스트 모집단 제외 유지).
+GATE_NEAR_TOL = {"ma150_200": 0.90, "ma50": 0.85, "high52w": 0.65}
 
 
 def _gate_near_reasons(result: dict, close: float | None) -> list[str] | None:
     """관문 임박이면 미달 사유 목록(예: "⑤ 50일선 -2.3%"), 아니면 None.
 
-    관문 임박 = 6~7/8 통과 + 실패가 ①⑤(이평선 근접)뿐 + 근접 한도 이내.
-    ⑦(52주고가 -25%)은 반드시 통과해야 한다 — 미너비니 원칙상 그 밖은 추세 손상
-    (사용자 확정 26-08-12). 이평선 바로 밑 코일(한양이엔지 2026-08-10 미스 사례)이
-    돌파 전날 관문에서 걸러지는 구조적 충돌 완화. 패턴 검출기가 이 종목도 받되
-    gate_near 필드로 구분(페이지 ⏳배지, 사유는 gate_near_reasons 로 표시) —
-    자동매매 봇·백테스트 모집단에선 제외.
+    관문 임박 = 6~7/8 통과 + 실패가 ①⑤(이평선 근접)·⑦(52주고가 -35% 이내)뿐
+    + 근접 한도 이내. 이평선 바로 밑 코일(한양이엔지 2026-08-10 미스)과 깊은 베이스
+    VCP(메가터치 08-07·네오오토 08-14 미스, ⑦만 미달)가 돌파 전날 관문에서 걸러지는
+    구조적 충돌 완화. 패턴 검출기가 이 종목도 받되 gate_near 필드로 구분(페이지
+    ⏳배지, 사유는 gate_near_reasons 로 표시) — 자동매매 봇·백테스트 모집단에선 제외.
     """
     if result["pass"] or result["passed_count"] < 6 or not close:
         return None
     fails = {k for k, v in result["criteria"].items() if not v["pass"]}
-    if not fails or not fails <= {"1", "5"}:
+    if not fails or not fails <= {"1", "5", "7"}:
         return None
     ex = result.get("extras") or {}
     reasons: list[str] = []
@@ -419,6 +419,11 @@ def _gate_near_reasons(result: dict, close: float | None) -> list[str] | None:
         if not s50 or close < s50 * GATE_NEAR_TOL["ma50"]:
             return None
         reasons.append(f"⑤ 50일선 {(close / s50 - 1) * 100:.1f}%")
+    if "7" in fails:
+        h52 = ex.get("high_52w")
+        if not h52 or close < h52 * GATE_NEAR_TOL["high52w"]:
+            return None
+        reasons.append(f"⑦ 52주고가 {(close / h52 - 1) * 100:.1f}%")
     return reasons
 
 
