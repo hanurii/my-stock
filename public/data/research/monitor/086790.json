@@ -1,13 +1,13 @@
 {
   "code": "086790",
   "name": "하나금융지주",
-  "last_checked": "2026-08-18T15:21:14.565+09:00",
+  "last_checked": "2026-08-18T18:36:28.787+09:00",
   "metrics": [
     {
       "id": "pbr",
       "label": "PBR",
-      "value": 0.81,
-      "display": "0.81배",
+      "value": 0.8,
+      "display": "0.80배",
       "threshold": "1.0 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "pbr_premium_pp",
       "label": "4대 지주 평균 대비 PBR 프리미엄",
-      "value": -0.047,
-      "display": "-0.047pp",
+      "value": -0.057,
+      "display": "-0.057pp",
       "threshold": "+0.10pp 이상",
       "hit": false,
       "tone": "good"
@@ -24,8 +24,8 @@
     {
       "id": "foreign_ratio",
       "label": "외국인 지분율",
-      "value": 68.34,
-      "display": "68.34%",
+      "value": 68.37,
+      "display": "68.37%",
       "threshold": "65% 이하",
       "hit": false,
       "tone": "good"
@@ -33,11 +33,11 @@
     {
       "id": "foreign_net_buy_4w",
       "label": "최근 20거래일 외국인 순매수",
-      "value": 75975,
-      "display": "8만주",
+      "value": -121721,
+      "display": "-12만주",
       "threshold": "순매도 전환",
-      "hit": false,
-      "tone": "good"
+      "hit": true,
+      "tone": "bad"
     },
     {
       "id": "dividend_qoq_change",
@@ -87,10 +87,10 @@
   ],
   "alerts": [
     {
-      "severity": "info",
-      "type": "all_clear",
-      "title": "모든 매도 트리거 범위 내",
-      "message": "현재 지표·공시·뉴스 기준 즉각 매도 사유 없음. 보유 유지."
+      "severity": "bad",
+      "type": "foreign_net_buy_4w",
+      "title": "최근 20거래일 외국인 순매수 순매도 전환",
+      "message": "현재 -12만주 — 매도 트리거 도달"
     }
   ],
   "news_hits": [],
@@ -109,7 +109,7 @@
     },
     {
       "label": "외국인 순매수 누적 (20일)",
-      "ref": "네이버 dealTrendInfos / history 2026-08-14"
+      "ref": "네이버 dealTrendInfos / history 2026-08-18"
     },
     {
       "label": "최근 분기 순이익 (2025-FY)",
