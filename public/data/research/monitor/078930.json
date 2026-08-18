@@ -1,13 +1,13 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-08-18T08:25:49.718+09:00",
+  "last_checked": "2026-08-18T12:45:13.800+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 8.41,
-      "display": "8.41배",
+      "value": 8.42,
+      "display": "8.42배",
       "threshold": "10배 돌파",
       "hit": false,
       "tone": "good"
@@ -60,8 +60,8 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 88,
-      "display": "88$",
+      "value": 88.03,
+      "display": "88.03$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
@@ -93,9 +93,9 @@
       "message": "현재 2건 — 매도 트리거 도달"
     },
     {
-      "severity": "bad",
+      "severity": "warn",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 5건 (부정 시그널 1건 포함)",
+      "title": "리스크 키워드 매칭 뉴스 4건 (관찰 신호 1건 포함)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
@@ -103,7 +103,7 @@
     {
       "keyword": "정제마진 하락",
       "date": "2026-08-17",
-      "title": "정제마진 호조에 정유사 실적 ‘고공행진’…원유 수요 늘며 유가 하락 제동 - sankyungtoday.com",
+      "title": "정제마진 호조에 정유사 실적 ‘고공행진’…원유 수요 늘며 유가 하락 제동 - 산경투데이",
       "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE9ZVUstc2dKSmEwRzNjRXJmQldsNlBzOWlvN0JsMGtsVG9OM2FiNjY0ak1QdXdicDJVcktjcThiTHlVUG0ycEdULTNlRjNVaVl4TF83OFN1TlNZOXBoZUlPLVd3RERqMmtNa1RpVVZ5WE7SAXRBVV95cUxQenVNY0xYemdseG1xdndmRVRNd18weUVOazNPY1ZMWHNIeTU0NWxBN1dpRmJ4RGFDcm1vVDhHeWZCSTB3dmxfaUIxajc5RUc0UElMU2U3anBuQXQ3ZlZLdkNFTVFoaHc4Z0UwaHhGVTdaSUpGaw?oc=5",
       "severity": "warn",
       "signals": [
@@ -129,20 +129,10 @@
     {
       "keyword": "GS칼텍스 적자",
       "date": "2026-08-11",
-      "title": "GS칼텍스 매출 늘었지만…석유화학 부문 영업 적자 - 매일경제 마켓",
-      "url": "https://news.google.com/rss/articles/CBMiUkFVX3lxTE9qNl9vWnhKNk9jeFU1cmNqTXFHT21VWWdGUHAwY25ISHdRUHdYaTNxNWVuR19wVXY4UWhsMC01N2FBX1VHNWlGTzRMNEt2N0JCN0E?oc=5",
+      "title": "GS칼텍스 매출 늘었지만…석유화학 부문 영업 적자 - 매일경제",
+      "url": "https://news.google.com/rss/articles/CBMiUkFVX3lxTE1JOWN1S3huZEozclRNcnpacUl6SjI4MTM3UVFReF9MV1I2OUZhdmhBeDhHOUQ0dGZsQWFZcVNfRmV4THRnbTVpSmNGb005TUpEaEE?oc=5",
       "severity": "info",
       "signals": []
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-08-11",
-      "title": "중동 긴장 완화에 국제유가 4.9% 급락 - 매일경제TV",
-      "url": "https://news.google.com/rss/articles/CBMidEFVX3lxTE1ZVmhZYndBMjhHNXl6cHFfV19yZnNZSGJveUtTSzdlSWkxVHQ4eU1UMTk0b3ZhLWVOdHFtV0hnT0pxdms1T0VlNm85Wm13TFhzLW9rd2laUmxrTTNRVVVDUm1sckFqVk8zYkNtd19TOXV4dkZa?oc=5",
-      "severity": "bad",
-      "signals": [
-        "급락"
-      ]
     }
   ],
   "sources": [
@@ -151,7 +141,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 91.22 USD (2026-08-17, 7일 평균 88)",
+      "label": "Brent 원유 종가 91.43 USD (2026-08-18, 7일 평균 88.03)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
