@@ -1,22 +1,22 @@
 {
   "code": "083650",
   "name": "비에이치아이",
-  "last_checked": "2026-08-12T13:46:09.305+09:00",
+  "last_checked": "2026-08-19T18:36:14.130+09:00",
   "metrics": [
     {
       "id": "op_margin",
-      "label": "분기 영업이익률 (2025)",
-      "value": 9.75,
-      "display": "9.8%",
+      "label": "분기 영업이익률",
+      "value": null,
+      "display": "—",
       "threshold": "7% 이하",
       "hit": false,
-      "tone": "warn"
+      "tone": "neutral"
     },
     {
       "id": "supply_gap",
       "label": "수주 공백",
-      "value": 5,
-      "display": "5일",
+      "value": 0,
+      "display": "0일",
       "threshold": "90일 경과",
       "hit": false,
       "tone": "good"
@@ -61,24 +61,20 @@
   "alerts": [
     {
       "severity": "warn",
-      "type": "op_margin",
-      "title": "분기 영업이익률 (2025) 임계 근접",
-      "message": "현재 9.8% (임계 7% 이하)"
+      "type": "op_margin_missing",
+      "title": "분기 영업이익률 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
     }
   ],
   "news_hits": [],
   "sources": [
     {
       "label": "최근 공급계약 공시",
-      "ref": "DART 20260807900674"
+      "ref": "DART 20260819900396"
     },
     {
-      "label": "분기 영업이익률 (2025)",
-      "ref": "DART 20260320000821"
-    },
-    {
-      "label": "박은미 보유 비율 (2025)",
-      "ref": "DART 20260320000821 (hyslrSttus)"
+      "label": "박은미 보유 비율 (2026)",
+      "ref": "DART 20260814000764 (hyslrSttus)"
     }
   ]
 }

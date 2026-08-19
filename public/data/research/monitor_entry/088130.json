@@ -1,7 +1,7 @@
 {
   "code": "088130",
   "name": "동아엘텍",
-  "last_checked": "2026-08-12T13:47:18.932+09:00",
+  "last_checked": "2026-08-19T18:37:25.985+09:00",
   "metrics": [
     {
       "id": "no_capital_issuance",
@@ -15,26 +15,26 @@
     {
       "id": "op_margin_collapse",
       "label": "❌ 분기 영업이익률 후퇴",
-      "value": 19.44,
-      "display": "19.4%",
+      "value": null,
+      "display": "—",
       "threshold": "12% 이하",
       "hit": false,
-      "tone": "good"
+      "tone": "neutral"
     },
     {
       "id": "op_margin_strong",
       "label": "✅ 분기 영업이익률 견조",
-      "value": 19.44,
-      "display": "19.4%",
+      "value": null,
+      "display": "—",
       "threshold": "18% 이상",
-      "hit": true,
-      "tone": "good"
+      "hit": false,
+      "tone": "neutral"
     },
     {
       "id": "per_value_zone",
       "label": "✅ PER 본격 저평가",
-      "value": 2.01,
-      "display": "2.01배",
+      "value": 1.86,
+      "display": "1.86배",
       "threshold": "3.5배 이하",
       "hit": true,
       "tone": "good"
@@ -60,16 +60,22 @@
   ],
   "alerts": [
     {
-      "severity": "info",
-      "type": "op_margin_strong",
-      "title": "✅ 분기 영업이익률 견조 18% 이상",
-      "message": "현재 19.4% — 매수 시그널 (분할 진입 검토 권장)"
+      "severity": "warn",
+      "type": "op_margin_collapse_missing",
+      "title": "❌ 분기 영업이익률 후퇴 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
+    },
+    {
+      "severity": "warn",
+      "type": "op_margin_strong_missing",
+      "title": "✅ 분기 영업이익률 견조 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
     },
     {
       "severity": "info",
       "type": "per_value_zone",
       "title": "✅ PER 본격 저평가 3.5배 이하",
-      "message": "현재 2.01배 — 매수 시그널 (분할 진입 검토 권장)"
+      "message": "현재 1.86배 — 매수 시그널 (분할 진입 검토 권장)"
     }
   ],
   "news_hits": [],
@@ -77,10 +83,6 @@
     {
       "label": "PER/PEG/PBR 스코어",
       "ref": "public/data/growth-watchlist.json"
-    },
-    {
-      "label": "분기 영업이익률 (2025)",
-      "ref": "DART 20260316001316"
     }
   ]
 }
