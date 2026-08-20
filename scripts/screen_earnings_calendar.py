@@ -8,10 +8,13 @@
 판정 로직 (estimate_next_earnings — 순수 함수, 단위테스트 대상):
   1. confirmed: asof 21일 이내 결산실적공시예고(이후 잠정/정기 없음) → 창 [예고+1, 예고+14],
      대표일 = 작년 같은 분기 잠정실적 월/일이 창 안이면 그 날, 아니면 예고+8.
-     예고 없고 10일 이내 IR개최 안내 → 창 [IR일, IR+7] (약한 신호).
+     예고 없고 10일 이내 IR개최 안내 → 창 [IR일, IR+7] (약한 신호) — 단 두 겹 조건:
+     ① IR 창이 아직 실적이 안 나온 실적시즌 창(SEASON_SPANS_MD)과 겹치고(시즌 마감
+     직후 NDR·발표된 실적의 사후 설명회 배제 — 26-08-20 오탐 6건 교훈), ② 작년 자사
+     발표일 패턴이 창 안에 투영될 때만(콘퍼런스 참가류 비실적 IR 배제, IR+N 폴백 없음).
   2. estimated: 작년 같은 시기 이벤트(잠정실적·분기/반기/사업보고서) 월/일 투영(±4일 창,
      법정기한 상한: 분기 5/15·11/14, 반기 8/14, 사업 3/31) + 법정기한 자체를 후보로 추가,
-     가장 이른 다가올 후보 채택.
+     가장 이른 다가올 후보 채택. 기한·투영일이 주말이면 다음 영업일(공휴일 미반영).
   3. 다가올 예상일이 지평(HORIZON_DAYS) 안일 때만 byCode 에 수록. 페이지는 ≤14일만 표시.
 
 출력: public/data/sepa-earnings-calendar.json  (--save 시 저장, 아니면 드라이런)
@@ -76,6 +79,21 @@ HORIZON_DAYS = 100
 # 실적 이벤트로 취급하는 공시 종류 (잠정실적 + 정기보고서 3종)
 EVENT_KINDS = {"잠정실적", "분기보고서", "반기보고서", "사업보고서"}
 
+# 실적시즌 창(12월 결산 가정): 각 회계기간 실적이 실제로 나올 수 있는 [최속일, 법정기한].
+# 시작 = 기간말 +5일(최속 잠정 실측 앵커: 삼성전자류 +7일), 끝 = 법정 제출기한.
+# IR개최 안내가 "발표 예고"로 인정되려면 IR 창이 아직 실적이 안 나온 시즌 창과 겹쳐야 함.
+SEASON_SPANS_MD = [
+    ((1, 5), (3, 31)),    # 4Q/연간 (전년 12월 결산분)
+    ((4, 5), (5, 15)),    # 1Q
+    ((7, 5), (8, 14)),    # 반기
+    ((10, 5), (11, 14)),  # 3Q
+]
+
+
+def _season_spans(*years: int) -> list[tuple[date, date]]:
+    return [(date(y, sm, sd), _next_bizday(date(y, em, ed)))
+            for y in sorted(set(years)) for (sm, sd), (em, ed) in SEASON_SPANS_MD]
+
 
 # ── 제목 분류 ─────────────────────────────────────────────────────────
 
@@ -116,23 +134,35 @@ def _project(d: date, year: int) -> date:
         return date(year, 2, 28)
 
 
+def _next_bizday(d: date) -> date:
+    """토·일이면 다음 월요일. 공시 제출·법정기한은 영업일만 유효
+    (기한이 주말이면 다음 영업일로 법정 연장; 공휴일은 미반영 한계)."""
+    while d.weekday() >= 5:
+        d += timedelta(days=1)
+    return d
+
+
 def _legal_deadline(kind: str, month: int, year: int) -> date | None:
-    """12월 결산 가정 법정 제출기한 — 투영일의 상한."""
+    """12월 결산 가정 법정 제출기한 — 투영일의 상한. 주말이면 다음 영업일로 연장
+    (예: 2026-11-14 토 → 실기한 11/16 월)."""
     if kind == "사업보고서":
-        return date(year, 3, 31)
-    if kind == "반기보고서":
-        return date(year, 8, 14)
-    if kind == "분기보고서":
-        return date(year, 5, 15) if month <= 7 else date(year, 11, 14)
-    if kind == "잠정실적":  # 잠정은 해당 시기 정기보고서 기한을 상한으로
+        d = date(year, 3, 31)
+    elif kind == "반기보고서":
+        d = date(year, 8, 14)
+    elif kind == "분기보고서":
+        d = date(year, 5, 15) if month <= 7 else date(year, 11, 14)
+    elif kind == "잠정실적":  # 잠정은 해당 시기 정기보고서 기한을 상한으로
         if month <= 3:
-            return date(year, 3, 31)
-        if month <= 6:
-            return date(year, 5, 15)
-        if month <= 9:
-            return date(year, 8, 14)
-        return date(year, 11, 14)
-    return None
+            d = date(year, 3, 31)
+        elif month <= 6:
+            d = date(year, 5, 15)
+        elif month <= 9:
+            d = date(year, 8, 14)
+        else:
+            d = date(year, 11, 14)
+    else:
+        return None
+    return _next_bizday(d)
 
 
 # ── 핵심: 다음 실적발표 추정 (순수 함수) ──────────────────────────────
@@ -194,16 +224,27 @@ def estimate_next_earnings(filings: list[dict], asof: date | str) -> dict | None
         if not any(d >= yd for d, _t, _k in events):
             win = (yd + timedelta(days=1), yd + timedelta(days=14))
             exp = _pattern_in_window(yd, win, {"잠정실적"}) or (yd + timedelta(days=8))
-            return _pack("confirmed", exp, win, f"{yd.month}/{yd.day} 결산실적공시예고")
+            return _pack("confirmed", _next_bizday(exp), win,
+                         f"{yd.month}/{yd.day} 결산실적공시예고")
 
-    # 1b. confirmed(약) — IR개최 안내 (asof 10일 이내, 예고 없고 이후 잠정/정기 없음)
+    # 1b. confirmed(약) — IR개최 안내 (asof 10일 이내, 예고 없고 이후 잠정/정기 없음).
+    # 두 겹 방어: ① IR 창이 "아직 실적이 안 나온 실적시즌 창"과 겹치고(시즌 마감 직후
+    # NDR·발표된 실적의 사후 설명회 IR 배제), ② 작년 자사 발표일 패턴이 창 안에
+    # 투영될 때만(시즌 중 콘퍼런스 참가류 비실적 IR 배제 — IR+N 폴백 금지).
     irs = [d for d, _t, k in past if k == "IR" and (asof - d).days <= 10]
     if irs:
         ird = max(irs)
-        if not any(d >= ird for d, _t, _k in events):  # 같은 날 공시도 소진으로 간주
-            win = (ird, ird + timedelta(days=7))
-            exp = _pattern_in_window(ird, win, EVENT_KINDS) or (ird + timedelta(days=3))
-            return _pack("confirmed", exp, win, f"{ird.month}/{ird.day} IR개최 안내")
+        win = (ird, ird + timedelta(days=7))
+        heralds = any(
+            not (s > win[1] or e < win[0])                    # IR 창과 시즌 창이 겹치고
+            and not any(s <= d <= e for d, _t, _k in events)  # 그 시즌 실적이 아직 없음
+            for s, e in _season_spans(win[0].year, win[1].year)
+        )
+        if heralds and not any(d >= ird for d, _t, _k in events):  # 같은 날 공시도 소진
+            exp = _pattern_in_window(ird, win, EVENT_KINDS)
+            if exp:
+                return _pack("confirmed", _next_bizday(exp), win,
+                             f"{ird.month}/{ird.day} IR개최 안내")
 
     # 2. estimated — 작년 패턴 투영 + 법정기한 후보 중 가장 이른 다가올 날짜
     cands: list[tuple[date, int, tuple[date, date], str]] = []  # (expected, 우선순위, 창, 근거)
@@ -215,8 +256,8 @@ def estimate_next_earnings(filings: list[dict], asof: date | str) -> dict | None
 
     for d, _t, k in events:
         for yr in (asof.year, asof.year + 1):
-            c = _project(d, yr)
-            if c <= asof or _already_filed(k, c):
+            c = _next_bizday(_project(d, yr))  # 주말 투영은 다음 영업일로
+            if c < asof or _already_filed(k, c):  # 예상 당일(c == asof)은 유지
                 continue
             dl = _legal_deadline(k, c.month, c.year)
             exp = min(c, dl) if dl else c
@@ -235,10 +276,11 @@ def estimate_next_earnings(filings: list[dict], asof: date | str) -> dict | None
             continue
         for m, dd in mds:
             for yr in (asof.year, asof.year + 1):
-                c = date(yr, m, dd)
-                if c <= asof or _already_filed(k, c):
+                c = _next_bizday(date(yr, m, dd))  # 주말 기한은 다음 영업일로 연장
+                if c < asof or _already_filed(k, c):  # 기한 당일(c == asof)은 유지
                     continue
-                cands.append((c, 1, (c - timedelta(days=14), c), f"{k} 기한 {m}/{dd}"))
+                cands.append((c, 1, (c - timedelta(days=14), c),
+                              f"{k} 기한 {c.month}/{c.day}"))
 
     if not cands:
         return None
