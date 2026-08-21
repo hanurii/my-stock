@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-21 16:17",
+  "generated_at": "2026-08-21 18:26",
   "asof": "2026-08-21",
   "stop_loss_pct_default": -10,
   "holdings": [
@@ -655,111 +655,6 @@
       }
     },
     {
-      "code": "212560",
-      "name": "네오오토",
-      "market": null,
-      "buy_date": "2026-08-19",
-      "buy_price": 10698,
-      "quantity": 934,
-      "stop_loss_pct": -10,
-      "pivot_price": 10690.29,
-      "pivot_source": "manual",
-      "filter_excluded": null,
-      "lots": null,
-      "current_price": 9610.0,
-      "profit_pct": -10.17,
-      "stop_price": 9628.2,
-      "pct_to_stop": 0.19,
-      "breakout_date": "2026-08-10",
-      "breakout_date_estimated": false,
-      "signal": "stop_loss",
-      "violation_count": 2,
-      "rules": [
-        {
-          "id": "low_volume_breakout",
-          "status": "na",
-          "detail": "매수가 돌파(2026-08-10)보다 6거래일 뒤 — 돌파 품질 판정 제외"
-        },
-        {
-          "id": "heavy_volume_pullback",
-          "status": "pass",
-          "detail": "대량 거래 하락일 없음"
-        },
-        {
-          "id": "consecutive_lower_lows",
-          "status": "pass",
-          "detail": "연속 저저점 없음"
-        },
-        {
-          "id": "close_below_ma",
-          "status": "violation",
-          "detail": "2026-08-20 20일선 아래 마감 (돌파 1거래일째)"
-        },
-        {
-          "id": "weak_days_dominant",
-          "status": "pending",
-          "detail": "경과 2거래일 — 5거래일부터 판정"
-        },
-        {
-          "id": "breakout_failure",
-          "status": "violation",
-          "detail": "거래량 동반 돌파 실패 — 2026-08-20 거래량 3.8배(돌파일 대비)"
-        }
-      ],
-      "extension_pct": -10.1,
-      "accumulation": {
-        "window": "D+2/15",
-        "elapsed": 2,
-        "signals": [
-          {
-            "id": "up_days_dominant",
-            "status": "unmet",
-            "detail": "상승 0 · 하락 2"
-          },
-          {
-            "id": "quality_closes",
-            "status": "unmet",
-            "detail": "좋은 0 · 나쁜 2"
-          },
-          {
-            "id": "up_streak_7",
-            "status": "unmet",
-            "detail": "최고 0일"
-          }
-        ]
-      },
-      "mvp": {
-        "status": "pending",
-        "m": {
-          "ok": null,
-          "detail": "2/15일 (판정 전)"
-        },
-        "v": {
-          "ok": null,
-          "detail": "판정 전"
-        },
-        "p": {
-          "ok": null,
-          "detail": "-7%"
-        }
-      },
-      "strength": {
-        "signal": "not_extended",
-        "extended": false,
-        "gate_detail": "확장 -10.1% < 5%",
-        "count": 0,
-        "signals": []
-      },
-      "superperf": {
-        "score": 4,
-        "rs": 94,
-        "prior_adv_pct": 51.0,
-        "rs_nh_days": 22,
-        "rs_leads": 35,
-        "dist_52wh": -32.4
-      }
-    },
-    {
       "code": "071200",
       "name": "인피니트헬스케어",
       "market": "KOSDAQ",
@@ -1072,6 +967,216 @@
         "rs_nh_days": 14,
         "rs_leads": -7,
         "dist_52wh": -15.3
+      }
+    },
+    {
+      "code": "034730",
+      "name": "SK",
+      "market": null,
+      "buy_date": "2026-08-21",
+      "buy_price": 590000,
+      "quantity": 16,
+      "stop_loss_pct": -10,
+      "pivot_price": 562039.0,
+      "pivot_source": "manual",
+      "filter_excluded": null,
+      "lots": null,
+      "current_price": 586000.0,
+      "profit_pct": -0.68,
+      "stop_price": 531000.0,
+      "pct_to_stop": -9.39,
+      "breakout_date": "2026-08-20",
+      "breakout_date_estimated": false,
+      "signal": "hold",
+      "violation_count": 0,
+      "rules": [
+        {
+          "id": "low_volume_breakout",
+          "status": "na",
+          "detail": "매수가 돌파(2026-08-20)보다 1거래일 뒤 — 돌파 품질 판정 제외"
+        },
+        {
+          "id": "heavy_volume_pullback",
+          "status": "pending",
+          "detail": "돌파 다음 날 데이터 없음"
+        },
+        {
+          "id": "consecutive_lower_lows",
+          "status": "pending",
+          "detail": "돌파 다음 날 데이터 없음"
+        },
+        {
+          "id": "close_below_ma",
+          "status": "pending",
+          "detail": "돌파 다음 날 데이터 없음"
+        },
+        {
+          "id": "weak_days_dominant",
+          "status": "pending",
+          "detail": "경과 0거래일 — 5거래일부터 판정"
+        },
+        {
+          "id": "breakout_failure",
+          "status": "pass",
+          "detail": "피벗 위 유지"
+        }
+      ],
+      "extension_pct": 4.3,
+      "accumulation": {
+        "window": "D+0/15",
+        "elapsed": 0,
+        "signals": [
+          {
+            "id": "up_days_dominant",
+            "status": "pending",
+            "detail": "상승 0 · 하락 0"
+          },
+          {
+            "id": "quality_closes",
+            "status": "pending",
+            "detail": "좋은 0 · 나쁜 0"
+          },
+          {
+            "id": "up_streak_7",
+            "status": "pending",
+            "detail": "최고 0일"
+          }
+        ]
+      },
+      "mvp": {
+        "status": "pending",
+        "m": {
+          "ok": null,
+          "detail": "0/15일 (판정 전)"
+        },
+        "v": {
+          "ok": null,
+          "detail": "판정 전"
+        },
+        "p": {
+          "ok": null,
+          "detail": "—"
+        }
+      },
+      "strength": {
+        "signal": "not_extended",
+        "extended": false,
+        "gate_detail": "확장 +4.3% < 5%",
+        "count": 0,
+        "signals": []
+      },
+      "superperf": {
+        "score": 4,
+        "rs": 98,
+        "prior_adv_pct": 94.8,
+        "rs_nh_days": 36,
+        "rs_leads": 3,
+        "dist_52wh": -33.6
+      }
+    },
+    {
+      "code": "053260",
+      "name": "금강철강",
+      "market": null,
+      "buy_date": "2026-08-21",
+      "buy_price": 5790,
+      "quantity": 1727,
+      "stop_loss_pct": -10,
+      "pivot_price": 5790,
+      "pivot_source": "manual",
+      "filter_excluded": null,
+      "lots": null,
+      "current_price": 5380.0,
+      "profit_pct": -7.08,
+      "stop_price": 5211.0,
+      "pct_to_stop": -3.14,
+      "breakout_date": "2026-08-20",
+      "breakout_date_estimated": false,
+      "signal": "hold",
+      "violation_count": 0,
+      "rules": [
+        {
+          "id": "low_volume_breakout",
+          "status": "na",
+          "detail": "매수가 돌파(2026-08-20)보다 1거래일 뒤 — 돌파 품질 판정 제외"
+        },
+        {
+          "id": "heavy_volume_pullback",
+          "status": "pending",
+          "detail": "돌파 다음 날 데이터 없음"
+        },
+        {
+          "id": "consecutive_lower_lows",
+          "status": "pending",
+          "detail": "돌파 다음 날 데이터 없음"
+        },
+        {
+          "id": "close_below_ma",
+          "status": "pending",
+          "detail": "돌파 다음 날 데이터 없음"
+        },
+        {
+          "id": "weak_days_dominant",
+          "status": "pending",
+          "detail": "경과 0거래일 — 5거래일부터 판정"
+        },
+        {
+          "id": "breakout_failure",
+          "status": "watch",
+          "detail": "🟡 반전 회복 관찰중 (D+0/10)"
+        }
+      ],
+      "extension_pct": -7.1,
+      "accumulation": {
+        "window": "D+0/15",
+        "elapsed": 0,
+        "signals": [
+          {
+            "id": "up_days_dominant",
+            "status": "pending",
+            "detail": "상승 0 · 하락 0"
+          },
+          {
+            "id": "quality_closes",
+            "status": "pending",
+            "detail": "좋은 0 · 나쁜 0"
+          },
+          {
+            "id": "up_streak_7",
+            "status": "pending",
+            "detail": "최고 0일"
+          }
+        ]
+      },
+      "mvp": {
+        "status": "pending",
+        "m": {
+          "ok": null,
+          "detail": "0/15일 (판정 전)"
+        },
+        "v": {
+          "ok": null,
+          "detail": "판정 전"
+        },
+        "p": {
+          "ok": null,
+          "detail": "—"
+        }
+      },
+      "strength": {
+        "signal": "not_extended",
+        "extended": false,
+        "gate_detail": "확장 -7.1% < 5%",
+        "count": 0,
+        "signals": []
+      },
+      "superperf": {
+        "score": 3,
+        "rs": 84,
+        "prior_adv_pct": 40.1,
+        "rs_nh_days": 7,
+        "rs_leads": 70,
+        "dist_52wh": -33.8
       }
     }
   ]
