@@ -1,18 +1,30 @@
 """관문 임박(gate_near) 판정 테스트 — screen_trend_template._gate_near_reasons.
 
-실증 근거: 깊은 베이스 VCP가 돌파 전날까지 관문에 걸리는 구조적 충돌
-(메가터치·한양이엔지 26-08-07 미스, 네오오토 26-08-14 +20.2% 미스).
-⑦(52주고가) 허용 한도 변천: 26-08-11 -40% 허용 → 26-08-12 필수 환원
-→ 26-08-17 -35% 재완화 → **26-08-21 필수 환원(사용자 결정)**.
-재환원 근거: 완화 관문 종목 실전 7건 0승(청산 4건 -413만원), 8/18 손절 6종목이
-전부 52주고가 -12~-35% 딥베이스인 반면 승자는 전부 -4% 이내.
+**현재 상태: 완화 전면 중단(26-08-21, 사용자 결정) — 미너비니 8조건 전부 필수.**
+
+변천사:
+- 26-08-11 도입: ①150·200MA·⑤50MA 근접 + ⑦52주고가 -40%까지 허용.
+  계기 = 딥베이스 VCP가 돌파 전날 관문에 걸려 "이미 오른 뒤 등장"하는 구조적 충돌
+  (메가터치·한양이엔지 26-08-07 미스, 네오오토 26-08-14 +20.2% 미스).
+- 26-08-12 ⑦ 필수 환원(-40%는 40종목 유입) → 26-08-17 ⑦ -35% 재완화
+- 26-08-21 ⑦ 필수 환원: 완화 종목 실전 7건 0승(청산 4건 -413만원), 8/18 손절
+  6종목 전원이 52주고가 -12~-35% 딥베이스인 반면 승자는 전부 -4% 이내.
+- 26-08-21 ①⑤ 완화도 중단(GATE_NEAR_ENABLED=False): "좋은 주식을 놓치는 것보다
+  손실을 막는 게 우선". 한양이엔지형(이평선 바로 밑 코일) 미포착은 감수한다.
+
+기계(GATE_NEAR_TOL·_gate_near_reasons)는 남겨두되 스위치만 끈다 — ⑦ 한도가 네 번
+뒤집힌 이력이 있어 되살릴 수 있게. 되살릴 때는 GATE_NEAR_ENABLED 만 True 로.
 """
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
-from screen_trend_template import GATE_NEAR_TOL, _gate_near_reasons  # noqa: E402
+from screen_trend_template import (  # noqa: E402
+    GATE_NEAR_ENABLED,
+    GATE_NEAR_TOL,
+    _gate_near_reasons,
+)
 
 
 def _result(fails, extras, passed_count=None, all_pass=False):
@@ -25,82 +37,70 @@ def _result(fails, extras, passed_count=None, all_pass=False):
     }
 
 
-# ── ⑦ 52주고가는 완화 대상이 아님(필수 통과) ────────────────────────────────
+# ── 스위치가 꺼져 있다 ───────────────────────────────────────────────────────
 
-def test_high52w_fail_is_never_gate_near():
-    # -30%: 한때 -35% 한도로 허용했으나 26-08-21 환원 → 이제는 임박 아님
-    r = _result({"7"}, {"high_52w": 10_000})
-    assert _gate_near_reasons(r, 7_000) is None
+def test_gate_near_switch_is_off():
+    assert GATE_NEAR_ENABLED is False
 
 
-def test_high52w_slightly_outside_25pct_is_not_gate_near():
-    # -26%: 미너비니 기준(-25%)을 조금만 벗어나도 제외 — 완화 폭 자체가 없다
-    r = _result({"7"}, {"high_52w": 10_000})
-    assert _gate_near_reasons(r, 7_400) is None
+def test_preserved_tolerances_are_unchanged():
+    """되살릴 때 쓸 한도값은 보존한다(①150·200MA -10% · ⑤50MA -15%).
+
+    ⑦(52주고가)은 26-08-21 환원으로 키 자체가 없다 — 되살려도 ⑦은 완화 대상 아님.
+    """
+    assert GATE_NEAR_TOL == {"ma150_200": 0.90, "ma50": 0.85}
 
 
-def test_neoauto_2026_08_13_case_now_excluded():
-    # 실사례: 네오오토 8/13 (-34.1%) — 완화 시절엔 포착됐으나 환원 후 미포착(감수한 트레이드오프)
-    r = _result({"7"}, {"high_52w": 15_570.26})
-    assert _gate_near_reasons(r, 10_260.0) is None
+# ── 어떤 근접도 임박이 되지 않는다 ───────────────────────────────────────────
 
-
-def test_megatouch_2026_08_07_case_now_excluded():
-    # 실사례: 메가터치 8/7 (-32.3%) — 8/18 매수 후 -10.1% 손절난 종목. 환원 후 미포착.
-    r = _result({"7"}, {"high_52w": 9_900})
-    assert _gate_near_reasons(r, 9_900 * 0.677) is None
-
-
-def test_combined_5_and_7_is_not_gate_near():
-    # ⑤는 한도 이내여도 ⑦이 섞이면 전체 탈락
-    r = _result({"5", "7"}, {"sma50": 10_000, "high_52w": 13_000})
+def test_ma50_near_miss_is_not_gate_near():
+    # 완화 시절엔 "⑤ 50일선 -10.0%"로 통과했다
+    r = _result({"5"}, {"sma50": 10_000})
     assert _gate_near_reasons(r, 9_000) is None
 
 
-# ── ①⑤ 이평선 근접만 완화 대상 ──────────────────────────────────────────────
-
-def test_ma50_only_within_15pct_is_gate_near():
-    r = _result({"5"}, {"sma50": 10_000})
-    assert _gate_near_reasons(r, 9_000) == ["⑤ 50일선 -10.0%"]
-
-
-def test_ma50_beyond_15pct_is_not_gate_near():
-    # 한도 없으면 이평선 한참 아래 폭락주도 '임박'이 되는 오탐(적대 검증 26-08-11)
-    r = _result({"5"}, {"sma50": 10_000})
-    assert _gate_near_reasons(r, 8_400) is None
-
-
-def test_ma50_exact_boundary_is_gate_near():
-    r = _result({"5"}, {"sma50": 10_000})
-    assert _gate_near_reasons(r, 8_500) == ["⑤ 50일선 -15.0%"]
-
-
-def test_hanyang_eng_2026_08_07_case():
-    # 실사례: 한양이엔지 8/7 — ①150일선 -0.12%·⑤50일선 -2.3%만 미달(코일 밑바닥)
-    r = _result({"1", "5"}, {"sma150": 10_000, "sma200": 9_500, "sma50": 10_230})
-    assert _gate_near_reasons(r, 9_988) == ["① 150·200일선 -0.1%", "⑤ 50일선 -2.4%"]
-
-
-def test_ma150_200_beyond_10pct_is_not_gate_near():
+def test_ma150_200_near_miss_is_not_gate_near():
     r = _result({"1"}, {"sma150": 10_000, "sma200": 10_000})
-    assert _gate_near_reasons(r, 8_900) is None
+    assert _gate_near_reasons(r, 9_990) is None
 
 
-def test_ma_missing_extras_is_not_gate_near():
-    r = _result({"5"}, {})
-    assert _gate_near_reasons(r, 9_000) is None
+def test_hanyang_eng_2026_08_07_case_now_excluded():
+    """실사례: 한양이엔지 8/7 — ①150일선 -0.12%·⑤50일선 -2.3%만 미달.
+
+    완화 도입의 계기였던 종목. 완화 폐지로 이제 미포착 — 감수한 트레이드오프.
+    """
+    r = _result({"1", "5"}, {"sma150": 10_000, "sma200": 9_500, "sma50": 10_230})
+    assert _gate_near_reasons(r, 9_988) is None
 
 
-# ── 공통 가드 ────────────────────────────────────────────────────────────────
+def test_high52w_fail_is_not_gate_near():
+    # 네오오토 8/13 (-34.1%) · 메가터치 8/7 (-32.3%) 계열 — 26-08-21 환원분
+    for high, close in ((15_570.26, 10_260.0), (9_900, 9_900 * 0.677), (10_000, 7_400)):
+        assert _gate_near_reasons(_result({"7"}, {"high_52w": high}), close) is None
 
-def test_non_relaxable_criterion_fails():
-    # ②(150MA>200MA)는 완화 불가 → None
-    r = _result({"2", "5"}, {"sma50": 10_000})
-    assert _gate_near_reasons(r, 9_000) is None
 
+def test_no_near_miss_combination_can_be_gate_near():
+    """근접 정도·조건 조합과 무관하게 항상 None — 8조건 전부 필수."""
+    cases = [
+        ({"1"}, {"sma150": 10_000, "sma200": 10_000}, 9_999),
+        ({"5"}, {"sma50": 10_000}, 9_999),
+        ({"1", "5"}, {"sma150": 10_000, "sma200": 9_900, "sma50": 10_000}, 9_999),
+        ({"5", "7"}, {"sma50": 10_000, "high_52w": 13_000}, 9_900),
+    ]
+    for fails, extras, close in cases:
+        assert _gate_near_reasons(_result(fails, extras), close) is None
+
+
+# ── 공통 가드(스위치와 무관하게 유지) ────────────────────────────────────────
 
 def test_all_pass_returns_none():
     r = _result(set(), {"high_52w": 10_000}, all_pass=True)
+    assert _gate_near_reasons(r, 9_000) is None
+
+
+def test_non_relaxable_criterion_returns_none():
+    # ②(150MA>200MA)는 애초에 완화 대상이 아니었다
+    r = _result({"2", "5"}, {"sma50": 10_000})
     assert _gate_near_reasons(r, 9_000) is None
 
 
@@ -114,8 +114,3 @@ def test_too_many_fails_returns_none():
 def test_no_close_returns_none():
     r = _result({"5"}, {"sma50": 10_000})
     assert _gate_near_reasons(r, None) is None
-
-
-def test_tol_constants():
-    # 한도 정본: ① -10% · ⑤ -15% (⑦은 완화 대상 아님 — 키 자체가 없어야 한다)
-    assert GATE_NEAR_TOL == {"ma150_200": 0.90, "ma50": 0.85}

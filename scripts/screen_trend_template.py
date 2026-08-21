@@ -391,6 +391,15 @@ def _save_minervini_report(dropped: list[dict], asof: str | None,
 # 사용자 판단: "좋은 주식을 놓치는 것보다 손실을 막는 게 우선"(네오오토형 미포착은 감수).
 GATE_NEAR_TOL = {"ma150_200": 0.90, "ma50": 0.85}
 
+# **완화 전면 중단 스위치 (사용자 결정 26-08-21: "완화도 끕시다").**
+# ⑦ 환원(위)에 이어 ①⑤ 이평선 근접 완화도 끈다 → 미너비니 8조건 전부 필수.
+# 근거: ⑦ 완화분이 실전 7건 0승이었고, 사용자 우선순위가 "좋은 주식을 놓치는 것보다
+# 손실을 막는 것". ①⑤ 자체는 실패 근거가 없었으나(8월 200일선 아래 매수 0건)
+# 같은 기준을 일관되게 적용한다. 감수하는 트레이드오프: 한양이엔지형(이평선 바로 밑
+# 코일)은 돌파 전날 관문에 걸려 미포착.
+# 기계와 한도값은 보존 — 되살리려면 이 스위치만 True 로.
+GATE_NEAR_ENABLED = False
+
 
 def _gate_near_reasons(result: dict, close: float | None) -> list[str] | None:
     """관문 임박이면 미달 사유 목록(예: "⑤ 50일선 -2.3%"), 아니면 None.
@@ -402,6 +411,8 @@ def _gate_near_reasons(result: dict, close: float | None) -> list[str] | None:
     걸러지는 구조적 충돌 완화. 패턴 검출기가 이 종목도 받되 gate_near 필드로 구분
     (페이지 ⏳배지, 사유는 gate_near_reasons 로 표시) — 봇·백테스트 모집단에선 제외.
     """
+    if not GATE_NEAR_ENABLED:
+        return None
     if result["pass"] or result["passed_count"] < 6 or not close:
         return None
     fails = {k for k, v in result["criteria"].items() if not v["pass"]}
