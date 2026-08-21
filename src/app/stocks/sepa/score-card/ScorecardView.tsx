@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { Scorecard, OverallStats, MonthlyRow, Trade } from "@/lib/scorecard";
+import { summarizeDataErrors } from "@/lib/scorecard";
 import { fmtPct, fmtLossPct, fmtSignedPct, fmtNum, fmtRatio, plColor, fmtSignedWon, PROFIT_COLOR, LOSS_COLOR } from "./format";
 
 function StatCard({ label, value, sub, color }: { label: string; value: string; sub?: string; color?: string }) {
@@ -54,6 +55,7 @@ export function ScorecardView({ data }: { data: Scorecard }) {
   const o: OverallStats = data.overall[basis];
   const monthly = data.monthly[basis];
   const hasTrades = o.trade_count > 0;
+  const dataErrors = summarizeDataErrors(data.errors ?? []);
   const rba = data.rba;
   const rbaColor = rba.status === "too_wide" ? LOSS_COLOR : rba.status === "ok" ? PROFIT_COLOR : "inherit";
 
@@ -100,6 +102,29 @@ export function ScorecardView({ data }: { data: Scorecard }) {
           {fmtSignedWon(o.total_won)}
         </p>
       </div>
+
+      {/* 데이터 오류 경고 — 삼항 바깥. 오류로 거래가 0건이 되면 안내문만 뜨고 경고가 묻히기 때문. */}
+      {dataErrors && (
+        <section
+          className="rounded-xl p-4 space-y-2"
+          style={{ backgroundColor: "rgba(255,180,171,0.12)", border: "1px solid rgba(255,180,171,0.45)" }}
+        >
+          <p className="text-sm font-bold flex items-center gap-2" style={{ color: LOSS_COLOR }}>
+            <span>❗</span>
+            <span>체결 장부에 데이터 오류 {dataErrors.count}건 — 아래 숫자를 믿지 마세요</span>
+          </p>
+          <p className="text-xs text-on-surface-variant/80 leading-relaxed">
+            오류가 난 종목({dataErrors.codes.length}개)은 <b className="text-on-surface">거래가 통째로 집계에서 빠집니다.</b>{" "}
+            승률·손익·월별표가 실제와 다릅니다. 대부분 원인은 같은 날 매수·매도의 <b className="text-on-surface">기록 순서</b>입니다 —{" "}
+            <code className="text-[11px]">scorecard-fills.json</code>의 배열 순서가 곧 장중 체결 순서이므로 임의로 정렬하면 안 됩니다.
+          </p>
+          <ul className="space-y-0.5">
+            {dataErrors.lines.map((e, i) => (
+              <li key={i} className="text-xs text-on-surface-variant/70 font-mono">{e}</li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {!hasTrades ? (
         <div className="bg-surface-container-low rounded-xl ghost-border p-6 text-sm text-on-surface-variant/70">
