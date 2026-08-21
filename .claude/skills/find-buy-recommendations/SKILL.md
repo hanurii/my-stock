@@ -35,6 +35,8 @@ python scripts/track_buy_recommendations.py
 
 ### 옵션
 - `--min-score N` : 포함 최소 점수(기본 3; 0~1점=검증상 엣지 없어 제외).
+  **예외: 진입임박(`entry_ready`) 종목은 점수와 무관하게 포함** — 피벗 바로 밑이라 오늘내일 매수
+  타이밍인 종목을 점수 낮다고 빼지 않는다(리스트에 1~2점이 보이는 이유).
 - `--out PATH` : 출력 경로 변경.
 
 ## 결과 확인
@@ -42,7 +44,9 @@ python scripts/track_buy_recommendations.py
   RS선 신고가(주가÷지수 선이 최근 10일 내 신고가=+1)·RS선 선행(RS선이 주가보다 먼저 신고가=+1).
 - **정렬 = 점수 내림차순(동점 RS)**. 매수 타이밍(`entry_tier`: ready/near/far)은 배지로
   **표시만** — 정렬엔 반영 안 함(사용자 확정: 초수익 점수 순수).
-- **검출된 후보만 채점**(forming·failed 제외) = `/stocks/sepa` 페이지 표시와 일치.
+- **검출된 후보만 채점**(패턴 미검출·failed 제외; 예의주시(forming)라도 검출 플래그가 켜졌으면
+  포함) = `/stocks/sepa` 페이지 표시와 일치. 편입 깔때기: ①트렌드 관문 통과 → ②패턴 검출 →
+  ③점수≥min_score **또는** 진입임박.
 - 각 종목: `superperf_score`, `score_reasons`, `prior_adv_pct`, `dist_52wh`, `pattern`, `entry_tier`,
   `gate_near`(관문 임박 — 트렌드 이평선 ①⑤만 미달 종목 표시, 페이지 ⏳배지·정렬 무관여),
   `gate_near_reasons`(미달 사유 목록, 예 `"⑤ 50일선 -2.3%"` — 트렌드 산출에서 그대로 승계,
