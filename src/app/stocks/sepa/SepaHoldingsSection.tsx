@@ -3,7 +3,13 @@ import type { ReactNode } from "react";
 import { accumTally, ruleTally, strengthTally } from "./holdingsSummary";
 import { SuperperfBreakdown, scoreStyle, type SuperperfFactors } from "./superperfScore";
 
-export interface HoldingRule { id: string; status: "violation" | "pass" | "pending" | "na" | "watch"; detail: string; }
+export interface HoldingRule {
+  id: string;
+  status: "violation" | "pass" | "pending" | "na" | "watch";
+  detail: string;
+  /** "exit" = 매도 신호 · "entry_quality" = 매수 품질(매도 판정 제외). 옛 산출물엔 없음. */
+  kind?: "exit" | "entry_quality";
+}
 export interface AccumulationSignal { id: string; status: "met" | "unmet" | "pending"; detail: string; }
 export interface Accumulation { window: string; elapsed: number; signals: AccumulationSignal[]; }
 export interface MvpCheck { ok: boolean | null; detail: string; }
@@ -348,16 +354,25 @@ export function SepaHoldingsSection({ data }: { data: HoldingsFeedbackFile | nul
                         통과 {rt.pass}{rt.violation > 0 ? ` · 위반 ${rt.violation}` : ""}{rt.watch > 0 ? ` · 관찰 ${rt.watch}` : ""}
                       </span>
                     </div>
+                    <p className="text-[10.5px] text-on-surface-variant/55 leading-relaxed mb-2">
+                      ①돌파 품질은 <strong className="text-on-surface-variant/80">매수 순간 확정</strong>돼 이후 바뀌지 않으므로
+                      매도 판정에서 제외합니다{rt.weakEntry ? " — 이 종목은 돌파 거래량이 약했습니다(참고용)" : ""}.
+                    </p>
                     <ul className="text-[11px] space-y-1.5">
                       {h.rules.map((r) => {
-                        const sm = STATUS_MARK[r.status] ?? STATUS_MARK.na;
+                        // 매수 품질은 매도 판정과 무관하므로 ✗ 대신 중립 기호로 표시한다.
+                        const isEntry = r.kind === "entry_quality";
+                        const sm = isEntry
+                          ? { mark: "·", cls: "text-on-surface-variant/40" }
+                          : (STATUS_MARK[r.status] ?? STATUS_MARK.na);
                         return (
-                          <li key={r.id} className="flex gap-1.5 leading-relaxed">
+                          <li key={r.id} className={`flex gap-1.5 leading-relaxed ${isEntry ? "opacity-60" : ""}`}>
                             <span className={`${sm.cls} font-bold shrink-0 w-3 text-center`}>{sm.mark}</span>
                             <span className="text-on-surface-variant">
-                              <strong className={r.status === "violation" ? "text-[#ffb4ab]" : "text-on-surface"}>
+                              <strong className={!isEntry && r.status === "violation" ? "text-[#ffb4ab]" : "text-on-surface"}>
                                 {RULE_LABELS[r.id] ?? r.id}
-                              </strong>{" "}
+                              </strong>
+                              {isEntry && <span className="text-on-surface-variant/45"> (매수 품질)</span>}{" "}
                               — {r.detail}
                             </span>
                           </li>

@@ -371,13 +371,15 @@ def test_evaluate_holding_hold_when_clean():
 
 
 def test_evaluate_holding_early_sell_counts_violations():
-    # 저거래량 돌파(①) + 피벗 아래 복귀(⑥) → 위반 2건
+    # 저거래량 돌파(①) + 피벗 아래 복귀(⑥)
+    # ①은 26-08-22부터 매수 품질로 분리돼 위반에 안 센다 → 위반은 ⑥ 하나뿐.
     closes = [100.0] * 60 + [106.0, 103.0]
     vols = [1000.0] * 60 + [800.0, 900.0]
     s = make_series(closes, volumes=vols)
     r = evaluate_holding(s, s["dates"][60], 106.0, -4.0, pivot_price=105.0)
     assert r["signal"] == "early_sell"
-    assert r["violation_count"] == 2
+    assert r["violation_count"] == 1
+    assert r["weak_entry"] is True
 
 
 def test_evaluate_holding_ignores_pre_buy_violations():
@@ -736,3 +738,49 @@ def test_evaluate_holding_includes_strength():
     r = evaluate_holding(s, s["dates"][0], 100.0, -4, pivot_price=100.0)
     assert "strength" in r and r["strength"]["signal"] in {
         "sell_into_strength", "none", "not_extended", "na"}
+
+
+# ── 돌파 품질(①)은 매도 신호가 아니다 (26-08-22) ────────────────────────────
+# ①low_volume_breakout 은 '돌파일 거래량'이라 매수 순간 확정되고 이후 절대 안 바뀐다.
+# 실측: 실거래 왕복 63건 중 43건(68%)에 상시 점등 → 매일 "팔아라"를 반복하는 배경 소음이었다.
+# 조기청산 20건 중 19건이 이 규칙 때문에 🟠였고 그중 53%가 이후 +20%에 도달했다.
+# → 정보는 남기되(매수 품질) 매도 판정(violation_count·early_sell)에서는 뺀다.
+
+def test_low_volume_breakout_is_tagged_as_entry_quality_not_exit():
+    s = _clean_series()
+    r = evaluate_holding(s, s["dates"][60], 106.0, -4.0, pivot_price=105.0)
+    r1 = next(x for x in r["rules"] if x["id"] == "low_volume_breakout")
+    assert r1["kind"] == "entry_quality"
+    for x in r["rules"]:
+        if x["id"] != "low_volume_breakout":
+            assert x["kind"] == "exit"
+
+
+def test_weak_breakout_alone_does_not_trigger_early_sell():
+    """돌파 거래량만 약하고 이후 움직임은 멀쩡하면 계속 보유해야 한다."""
+    closes = [100.0] * 60 + [106.0] + [107.0] * 8      # 돌파 후 잘 버팀
+    vols = [1000.0] * 60 + [800.0] + [1000.0] * 8      # 돌파일만 거래량 약함
+    s = make_series(closes, volumes=vols)
+    r = evaluate_holding(s, s["dates"][60], 106.0, -10.0, pivot_price=105.0)
+    r1 = next(x for x in r["rules"] if x["id"] == "low_volume_breakout")
+    assert r1["status"] == "violation"      # 사실은 그대로 기록된다
+    assert r["violation_count"] == 0        # 그러나 매도 위반으로는 안 센다
+    assert r["signal"] == "hold"
+
+
+def test_weak_breakout_reported_separately_from_exit_violations():
+    s = _clean_series()
+    r = evaluate_holding(s, s["dates"][60], 106.0, -4.0, pivot_price=105.0)
+    assert "weak_entry" in r                # 돌파 품질은 따로 실어 보낸다
+    assert isinstance(r["weak_entry"], bool)
+
+
+def test_real_exit_violations_still_trigger_early_sell():
+    """움직이는 규칙(⑥ 돌파 실패)이 뜨면 여전히 조기매도다 — 기능을 없앤 게 아니다."""
+    closes = [100.0] * 60 + [106.0, 103.0]   # 피벗 아래로 되돌림
+    vols = [1000.0] * 60 + [800.0, 900.0]
+    s = make_series(closes, volumes=vols)
+    r = evaluate_holding(s, s["dates"][60], 106.0, -4.0, pivot_price=105.0)
+    assert r["signal"] == "early_sell"
+    assert r["violation_count"] == 1         # ⑥만 셈(①은 제외)
+    assert r["weak_entry"] is True           # 돌파가 약했다는 사실 자체는 남는다
