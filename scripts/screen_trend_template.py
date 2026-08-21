@@ -53,6 +53,7 @@ from canslim_lib.minervini_filter import (  # noqa: E402
 from canslim_lib import halt_reason  # noqa: E402
 from canslim_lib.criteria import evaluate_m  # noqa: E402
 from canslim_lib.trend_template import (  # noqa: E402
+    compute_gate_margin,
     evaluate_trend_template,
     TT_RS_MIN_DEFAULT,
     TT_LOW_MIN_PCT,
@@ -633,6 +634,9 @@ def run_full_scan(args: argparse.Namespace) -> None:
             "all_pass": result["pass"],
             "gate_near": bool(gn_reasons := _gate_near_reasons(result, r["last_close"])),
             "gate_near_reasons": gn_reasons or [],
+            # 관문 여유도 — 8조건을 얼마나 넉넉히 통과했나(제일 약한 고리 기준).
+            # 통과/탈락 이진 판정만으로는 "겨우 통과"와 "넉넉히 통과"가 구분되지 않는다.
+            "gate_margin": compute_gate_margin(result, r["last_close"], rs_val, args.rs_min),
             "criteria": result["criteria"],
             "extras": result["extras"],
         }

@@ -88,6 +88,7 @@ def run(args, out_path: Path) -> None:
             "current_price": c.get("current_price"), "rs": c.get("rs"),
             "gate_near": bool(c.get("gate_near")),
             "gate_near_reasons": c.get("gate_near_reasons") or [],
+            "gate_margin": c.get("gate_margin"),
             **r,
         })
 

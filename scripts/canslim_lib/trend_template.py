@@ -222,3 +222,109 @@ def evaluate_trend_template(
             "data_days": n_days,
         },
     }
+
+
+# ── 관문 여유도(gate margin) ────────────────────────────────────────────────
+# 8조건은 통과/탈락 이진 판정이라 "1%p 차이로 겨우 통과"와 "두 배 여유로 통과"가
+# 구분되지 않는다. 조건마다 여유를 재고 **가장 빡빡한 조건 하나**로 점수를 낸다
+# (체인의 강도는 제일 약한 고리가 정한다).
+#
+# 여유율 = min(실제 여유 ÷ '충분' 기준, 1) × 100
+# '충분' 기준은 미너비니 원전의 권장선을 그대로 옮긴 값이다:
+#   ⑦ 52주고가는 기준 -25%인데 "가까울수록 좋다"고 했으므로 -5%면 만점(20%p)
+#   ⑧ RS는 합격선 위 10점(SEPA 기준 80 → 90)이면 만점
+#   ①④ 이평선 정렬은 +10%, ②⑤ 는 +5%, ③ 200일선 한 달 상승폭은 +5%
+#   ⑥ 52주저가 대비는 기준 +30% 위로 +70%p(= 저가 대비 +100%)
+GATE_MARGIN_REF = {
+    "1": 10.0,   # 종가가 150·200일선 위로 몇 %
+    "2": 5.0,    # 150일선이 200일선 위로 몇 %
+    "3": 5.0,    # 200일선이 한 달 전보다 몇 % 위
+    "4": 10.0,   # 50일선이 150·200일선 위로 몇 %
+    "5": 5.0,    # 종가가 50일선 위로 몇 %
+    "6": 70.0,   # 52주저가 대비 상승률에서 기준(30%)을 뺀 %p
+    "7": 20.0,   # 52주고가 -25% 선까지 남은 %p
+    "8": 10.0,   # RS 합격선 위 점수
+}
+
+GATE_MARGIN_LABEL = {
+    "1": "① 150·200일선",
+    "2": "② 150>200일선",
+    "3": "③ 200일선 상승",
+    "4": "④ 50일선 정렬",
+    "5": "⑤ 50일선",
+    "6": "⑥ 52주저가 대비",
+    "7": "⑦ 52주고가",
+    "8": "⑧ RS",
+}
+
+
+def _pct_over(a: float | None, b: float | None) -> float | None:
+    """a 가 b 보다 몇 % 위인지. 하나라도 없거나 b<=0 이면 None."""
+    if a is None or b is None or b <= 0:
+        return None
+    return (a / b - 1.0) * 100.0
+
+
+def compute_gate_margin(
+    result: dict,
+    close: float | None,
+    rs: int | None,
+    rs_min: int = TT_RS_MIN_DEFAULT,
+) -> dict | None:
+    """8조건의 여유를 재서 종합 점수와 '가장 빡빡한 조건'을 돌려준다.
+
+    Args:
+      result: evaluate_trend_template() 산출(extras 사용).
+      close:  평가 기준일 종가.
+      rs:     RS 점수(1~99).
+      rs_min: RS 합격선.
+
+    Returns:
+      {"score": 0~100, "tightest": "7", "tightest_label": "⑦ 52주고가",
+       "tightest_detail": "…", "per_condition": {"1": {"margin": …, "pct": …}, …}}
+      계산에 필요한 값이 없으면 None.
+    """
+    if close is None or rs is None:
+        return None
+    ex = result.get("extras") or {}
+    sma50, sma150, sma200 = ex.get("sma50"), ex.get("sma150"), ex.get("sma200")
+    sma200_1m, high52, low52 = ex.get("sma200_1m_ago"), ex.get("high_52w"), ex.get("low_52w")
+    if None in (sma50, sma150, sma200, sma200_1m, high52, low52):
+        return None
+    if high52 <= 0 or low52 <= 0:
+        return None
+
+    m1 = min(_pct_over(close, sma150), _pct_over(close, sma200))
+    m2 = _pct_over(sma150, sma200)
+    m3 = _pct_over(sma200, sma200_1m)
+    m4 = min(_pct_over(sma50, sma150), _pct_over(sma50, sma200))
+    m5 = _pct_over(close, sma50)
+    m6 = _pct_over(close, low52) - 30.0
+    m7 = _pct_over(close, high52) + 25.0   # 기준선(-25%)까지 남은 %p
+    m8 = float(rs - rs_min)
+
+    margins = {"1": m1, "2": m2, "3": m3, "4": m4, "5": m5, "6": m6, "7": m7, "8": m8}
+    per = {}
+    for k, m in margins.items():
+        pct = max(0.0, min(100.0, m / GATE_MARGIN_REF[k] * 100.0))
+        per[k] = {"margin": _round(m, 2), "pct": _round(pct, 1), "ref": GATE_MARGIN_REF[k]}
+
+    tightest = min(per, key=lambda k: (per[k]["pct"], int(k)))
+    detail = {
+        "1": lambda: f"종가가 150·200일선 위로 {per['1']['margin']:+.1f}%",
+        "2": lambda: f"150일선이 200일선 위로 {per['2']['margin']:+.1f}%",
+        "3": lambda: f"200일선이 한 달 전보다 {per['3']['margin']:+.1f}%",
+        "4": lambda: f"50일선이 150·200일선 위로 {per['4']['margin']:+.1f}%",
+        "5": lambda: f"종가가 50일선 위로 {per['5']['margin']:+.1f}%",
+        "6": lambda: f"52주저가 대비 +{per['6']['margin'] + 30:.0f}% (기준 +30%)",
+        "7": lambda: f"52주고가 대비 {_pct_over(close, high52):.1f}% (기준 -25%까지 {per['7']['margin']:.1f}%p)",
+        "8": lambda: f"RS {rs} (합격선 {rs_min} 위 {per['8']['margin']:+.0f}점)",
+    }[tightest]()
+
+    return {
+        "score": per[tightest]["pct"],
+        "tightest": tightest,
+        "tightest_label": GATE_MARGIN_LABEL[tightest],
+        "tightest_detail": detail,
+        "per_condition": per,
+    }
