@@ -161,6 +161,42 @@ def entry_price(pivot: float, open_px: float | None) -> float:
     return max(pivot, open_px)
 
 
+# ── 백테스트 전용: 관문임박(gate_near) 재현 ────────────────────────────────
+# 프로덕션은 26-08-21부터 GATE_NEAR_ENABLED=False 라 항상 None 이지만, 여기서는
+# "완화를 켰다면 어땠을까"를 시험하기 위해 그 시절 판정 로직을 그대로 재현한다.
+# 한도 정본(끄기 전 값): ①150·200MA -10% · ⑤50MA -15% · ⑦52주고가 -35%
+GATE_NEAR_TOL_BT = {"ma150_200": 0.90, "ma50": 0.85, "high52w": 0.65}
+
+
+def is_gate_near(result: dict, close: float | None, allow: set) -> bool:
+    """6~7/8 통과 + 실패가 allow 안에만 + 근접 한도 이내면 True."""
+    if result["pass"] or result["passed_count"] < 6 or not close:
+        return False
+    fails = {k for k, v in result["criteria"].items() if not v["pass"]}
+    if not fails or not fails <= allow:
+        return False
+    ex = result.get("extras") or {}
+    if "1" in fails:
+        a, b = ex.get("sma150"), ex.get("sma200")
+        if not a or not b or close < a * GATE_NEAR_TOL_BT["ma150_200"] or close < b * GATE_NEAR_TOL_BT["ma150_200"]:
+            return False
+    if "5" in fails:
+        a = ex.get("sma50")
+        if not a or close < a * GATE_NEAR_TOL_BT["ma50"]:
+            return False
+    if "7" in fails:
+        h = ex.get("high_52w")
+        if not h or close < h * GATE_NEAR_TOL_BT["high52w"]:
+            return False
+    return True
+
+
+# 진입 후보로 삼을 패턴 상태. 기본은 actionable(피벗 미돌파)만 —
+# forming(예의주시)까지 넓히면 "치솟기 전에 미리 걸어두기"를 시험한다.
+ENTRY_STATUSES = {"actionable"}
+GATE_NEAR_ALLOW: set = set()
+
+
 # ── 패턴: entry_ready(검출 AND 진입임박)만 ──────────────────────────────────
 
 def detect_entry_ready(st: dict, pname: str):
@@ -178,7 +214,7 @@ def detect_entry_ready(st: dict, pname: str):
     detected = r.get("vcp_detected")
     if detected is None:
         detected = r.get("pattern_detected")
-    if not detected or r.get("status") != "actionable" or not r.get("pivot_price"):
+    if not detected or r.get("status") not in ENTRY_STATUSES or not r.get("pivot_price"):
         return None
     return r["pivot_price"]
 
@@ -233,7 +269,9 @@ def run(start: str, end: str, step: int) -> dict:
         n_cand = n_ent = 0
         for c, t in stD.items():
             rsv = (rs.get(c) or {}).get("rs")
-            if not evaluate_trend_template(t["closes"], rs=rsv, rs_min=RS_MIN)["pass"]:
+            tt = evaluate_trend_template(t["closes"], rs=rsv, rs_min=RS_MIN)
+            near = bool(GATE_NEAR_ALLOW) and is_gate_near(tt, t["closes"][-1], GATE_NEAR_ALLOW)
+            if not tt["pass"] and not near:
                 continue
             for pname in ("VCP", "3C", "PP"):
                 pivot = detect_entry_ready(t, pname)
@@ -260,7 +298,7 @@ def run(start: str, end: str, step: int) -> dict:
                 v = atr_pct(t)
                 events.append({
                     "code": c, "name": day_univ[c]["name"], "market": day_univ[c]["market"],
-                    "pattern": pname, "scan_date": D, "entry_date": edate,
+                    "pattern": pname, "gate_near": near, "scan_date": D, "entry_date": edate,
                     "resolve_date": sim.get("resolve_date"), "month": edate[:7],
                     "pivot": round(pivot, 2), "entry_price": round(epx, 2),
                     "gap_up_pct": round((epx / pivot - 1) * 100, 2), "rs": rsv,
@@ -310,8 +348,19 @@ def main():
     ap.add_argument("--end", default="2026-08-21")
     ap.add_argument("--step", type=int, default=1)
     ap.add_argument("--out", default="public/data/backtest-volatility-pilot.json")
+    ap.add_argument("--gate-near", choices=["off", "ma", "ma+high"], default="off",
+                    help="관문임박 포함 범위: off=8조건 필수 · ma=①⑤ 완화 · ma+high=①⑤⑦ 완화")
+    ap.add_argument("--include-forming", action="store_true",
+                    help="예의주시(forming) 단계 종목도 피벗 도달 시 매수 대상에 포함")
     a = ap.parse_args()
+    global GATE_NEAR_ALLOW, ENTRY_STATUSES
+    GATE_NEAR_ALLOW = {"off": set(), "ma": {"1", "5"}, "ma+high": {"1", "5", "7"}}[a.gate_near]
+    if a.include_forming:
+        ENTRY_STATUSES = {"actionable", "forming"}
+    print(f"설정: 관문임박={a.gate_near} · 진입상태={sorted(ENTRY_STATUSES)}", flush=True)
     res = run(a.start, a.end, a.step)
+    res["params"]["gate_near"] = a.gate_near
+    res["params"]["entry_statuses"] = sorted(ENTRY_STATUSES)
     Path(a.out).write_text(json.dumps(res, ensure_ascii=False, indent=1), encoding="utf-8")
     s = res["summary"]
     print(f"\n💾 저장: {a.out}")
