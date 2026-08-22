@@ -169,3 +169,26 @@ def test_exclude_pattern_catches_convertible_preferred_names():
 def test_lookahead_volume_field_is_named_so_nobody_filters_on_it():
     """진입일 '종일' 거래량은 장중엔 알 수 없다. 이걸 필터로 쓰면 과거 69%→41% 붕괴가 재현된다."""
     assert bt.REL_VOL_FIELD.endswith("_LOOKAHEAD_DO_NOT_FILTER")
+
+
+class TestPdataResolutionTail:
+    """pdata 모드는 매수 뒤 결착(+20/-10 도달)을 보려면 end 이후 시세도 있어야 한다.
+
+    시계열을 end 에서 끊으면 마지막 몇 주 매수분이 전부 '미결'로 빠져
+    승률이 조용히 왜곡된다(스모크에서 미결 4/19 발생).
+    """
+
+    def test_series_end_extends_past_scan_end(self):
+        from backtest_volatility_pilot import series_load_end
+        # 결착까지 볼 여유가 붙어야 한다
+        assert series_load_end("2026-06-30") > "2026-06-30"
+
+    def test_tail_is_bounded(self):
+        """무한정 늘리면 메모리·시간이 터진다 — 1년 이내로 묶는다."""
+        from backtest_volatility_pilot import series_load_end
+        assert series_load_end("2024-01-31") <= "2025-01-31"
+
+    def test_tail_long_enough_for_slowest_resolution(self):
+        """관측된 최장 보유 79거래일 → 넉넉히 6개월 이상은 확보해야 한다."""
+        from backtest_volatility_pilot import series_load_end
+        assert series_load_end("2024-01-31") >= "2024-08-01"
