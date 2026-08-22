@@ -355,7 +355,20 @@ export function BuyRecommendationSection({ data, exportTags, sectorTags, earning
       {/* 채점 기준 — 리스트 하단 */}
       <div className="mt-3 text-[11px] text-on-surface-variant/70 leading-relaxed bg-surface-container/20 rounded-lg px-3 py-2.5">
         <p className="font-semibold text-on-surface">초수익 잠재력 점수 (6점 만점)</p>
-        <p className="mb-2 text-on-surface-variant/55">방법충실 돌파 백테스트로 검증 — 4점↑ = 6개월 내 더블 도달률 36% vs 0~1점 15%</p>
+        <p className="mb-2 text-on-surface-variant/55">
+          “잘 나갔던 주식이 또 잘 나간다”를 점수화한 것 — 네 항목이 모두 <strong className="text-on-surface-variant/80">이미 얼마나 올랐나</strong>를 본다.
+          방법충실 돌파 백테스트(2022~2026)에서 4점↑ = 6개월 내 더블 도달률 36% vs 0~1점 15%.
+        </p>
+        <p
+          className="mb-2 rounded px-2 py-1.5 leading-relaxed"
+          style={{ backgroundColor: "rgba(233,193,118,0.10)", border: "1px solid rgba(233,193,118,0.35)" }}
+        >
+          <strong style={{ color: "#e9c176" }}>⚠️ 매수 필터로 쓰지 마세요.</strong>{" "}
+          이 점수가 맞히는 건 <strong className="text-on-surface">6개월 대박</strong>이지 <strong className="text-on-surface">+20% 단기 목표</strong>가 아닙니다.
+          백테스트 614건에서 +20% 도달과의 관계를 확인하니 1점 46% · 3점 38% · 5점 35%로 오히려 역순이었고,
+          같은 날 후보끼리 비교하면 차이가 아예 없었습니다(25승 32패 22무). 점수가 낮다고 거르면
+          현대해상(1점 → +24.5%) 같은 종목을 놓칩니다. 오래 들고 갈 종목을 고를 때만 참고하세요. (26-08-22 검증)
+        </p>
         <ul className="space-y-1 tabular-nums">
           <li>· <strong className="text-on-surface">직전 상승폭</strong> : 100%+ = 2점 · 50~100% = 1점</li>
           <li>· <strong className="text-on-surface">RS 상대강도</strong> : 90+ = 2점 · 80~89 = 1점</li>

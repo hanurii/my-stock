@@ -43,6 +43,7 @@ function buildTrade(code: string, name: string, buys: Fill[], sells: Fill[], ope
   const avgBuy = buyVal / buyQty;
   const avgSell = sellVal / sellQty;
   const grossPct = (avgSell / avgBuy - 1) * 100;
+  const grossPctR = round2(grossPct);
 
   const buyFees = sum(buys, (b) => b.fees ?? 0);
   const sellCosts = sum(sells, (s) => (s.fees ?? 0) + (s.tax ?? 0));
@@ -59,14 +60,17 @@ function buildTrade(code: string, name: string, buys: Fill[], sells: Fill[], ope
     ? (firstStop / avgBuy - 1) * 100
     : (defaultStopPct != null ? -Math.abs(defaultStopPct) : null);
   if (plannedPct != null) {
-    stopViolation = outcome === "loss" && netPctR < plannedPct - 1e-9;
+    // 손절선(stop)은 '가격'으로 적히므로 비교 대상도 가격 기준 총수익률이어야 한다.
+    // 순수익률(수수료·세금 반영)과 비교하면 손절선을 지킨 거래도 왕복 비용(0.2~0.6%p)만큼
+    // 위반으로 찍힌다 — 실제로 오탐 3건이 있었다(26-08-21 수정).
+    stopViolation = outcome === "loss" && grossPctR < plannedPct - 1e-9;
   }
 
   return {
     code, name,
     open_date: openDate, close_date: closeDate,
     avg_buy: round2(avgBuy), avg_sell: round2(avgSell),
-    gross_pct: round2(grossPct), net_pct: netPctR,
+    gross_pct: grossPctR, net_pct: netPctR,
     gross_won: Math.round(sellVal - buyVal),
     net_won: Math.round(netProceeds - netCost),
     hold_days: daysBetween(openDate, closeDate),
@@ -123,6 +127,22 @@ export function matchTrades(fills: Fill[], defaultStopPct: number | null = null)
     }
   }
   return { trades, open, errors };
+}
+
+export type DataErrorSummary = { count: number; codes: string[]; lines: string[] };
+
+/** 집계 중 발견된 데이터 오류를 화면 경고용으로 요약. 오류가 없으면 null.
+ *
+ * 오류가 하나라도 있으면 그 종목의 거래는 통계에서 통째로 빠지므로(matchTrades),
+ * 화면이 조용히 정상처럼 보이지 않도록 반드시 눈에 띄게 알려야 한다. */
+export function summarizeDataErrors(errors: string[]): DataErrorSummary | null {
+  if (errors.length === 0) return null;
+  const codes: string[] = [];
+  for (const e of errors) {
+    const m = /^([A-Za-z0-9]+):/.exec(e);
+    if (m && !codes.includes(m[1])) codes.push(m[1]);
+  }
+  return { count: errors.length, codes, lines: [...errors] };
 }
 
 export type MaxTrade = { pct: number; code: string; name: string; date: string } | null;

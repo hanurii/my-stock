@@ -53,6 +53,7 @@ from canslim_lib.minervini_filter import (  # noqa: E402
 from canslim_lib import halt_reason  # noqa: E402
 from canslim_lib.criteria import evaluate_m  # noqa: E402
 from canslim_lib.trend_template import (  # noqa: E402
+    compute_gate_margin,
     evaluate_trend_template,
     TT_RS_MIN_DEFAULT,
     TT_LOW_MIN_PCT,
@@ -382,27 +383,41 @@ def _save_minervini_report(dropped: list[dict], asof: str | None,
 
 # 관문 임박(gate_near) 근접 한도 — "어느 조건이 미달인가"뿐 아니라 "얼마나 가까운가"까지 요구.
 # 한도 없으면 이평선에서 한참 아래인 폭락주도 '임박'이 되는 오탐(적대 검증 26-08-11에서 발견).
-# 기준: ①(150·200MA)은 -10% 이내, ⑤(50MA)는 -15% 이내(코일 밑바닥 허용),
-# ⑦(52주고가)은 -35% 이내(사용자 결정 26-08-17 — 변천: 26-08-11 -40% 허용(40종목 유입)
-# → 26-08-12 필수 환원 → 26-08-17 -35% 재완화. 계기: ⑦만 미달이던 딥베이스 VCP 3연속 미스
-# — 메가터치 -32.3%(08-07)·네오오토 -34.1%(08-13, 다음날 +20.2% 폭발). 미너비니 원칙상
-# -25% 밖은 추세 손상이므로 all_pass 아닌 ⏳관문임박으로만 표시, 봇·백테스트 모집단 제외 유지).
-GATE_NEAR_TOL = {"ma150_200": 0.90, "ma50": 0.85, "high52w": 0.65}
+# 기준: ①(150·200MA)은 -10% 이내, ⑤(50MA)는 -15% 이내(코일 밑바닥 허용).
+# ⑦(52주고가 -25% 이내)은 **완화하지 않는다** — 미너비니 원칙상 -25% 밖은 추세 손상.
+# 변천: 26-08-11 -40% 허용(40종목 유입) → 26-08-12 필수 환원 → 26-08-17 -35% 재완화
+# → **26-08-21 필수 환원(사용자 결정)**. 재환원 근거: 8월 실전에서 완화 관문 종목 7건
+# 0승(청산 4건 -413만원, 미청산 3건도 전부 마이너스)이고, 8/18 손절 6종목이 전부
+# 52주고가 -12~-35% 딥베이스였던 반면 승자(DN오토·골프존·아스플로)는 전부 -4% 이내였음.
+# 사용자 판단: "좋은 주식을 놓치는 것보다 손실을 막는 게 우선"(네오오토형 미포착은 감수).
+GATE_NEAR_TOL = {"ma150_200": 0.90, "ma50": 0.85}
+
+# **완화 전면 중단 스위치 (사용자 결정 26-08-21: "완화도 끕시다").**
+# ⑦ 환원(위)에 이어 ①⑤ 이평선 근접 완화도 끈다 → 미너비니 8조건 전부 필수.
+# 근거: ⑦ 완화분이 실전 7건 0승이었고, 사용자 우선순위가 "좋은 주식을 놓치는 것보다
+# 손실을 막는 것". ①⑤ 자체는 실패 근거가 없었으나(8월 200일선 아래 매수 0건)
+# 같은 기준을 일관되게 적용한다. 감수하는 트레이드오프: 한양이엔지형(이평선 바로 밑
+# 코일)은 돌파 전날 관문에 걸려 미포착.
+# 기계와 한도값은 보존 — 되살리려면 이 스위치만 True 로.
+GATE_NEAR_ENABLED = False
 
 
 def _gate_near_reasons(result: dict, close: float | None) -> list[str] | None:
     """관문 임박이면 미달 사유 목록(예: "⑤ 50일선 -2.3%"), 아니면 None.
 
-    관문 임박 = 6~7/8 통과 + 실패가 ①⑤(이평선 근접)·⑦(52주고가 -35% 이내)뿐
-    + 근접 한도 이내. 이평선 바로 밑 코일(한양이엔지 2026-08-10 미스)과 깊은 베이스
-    VCP(메가터치 08-07·네오오토 08-14 미스, ⑦만 미달)가 돌파 전날 관문에서 걸러지는
-    구조적 충돌 완화. 패턴 검출기가 이 종목도 받되 gate_near 필드로 구분(페이지
-    ⏳배지, 사유는 gate_near_reasons 로 표시) — 자동매매 봇·백테스트 모집단에선 제외.
+    관문 임박 = 6~7/8 통과 + 실패가 ①⑤(이평선 근접)뿐 + 근접 한도 이내.
+    ⑦(52주고가 -25%)은 반드시 통과해야 한다 — 미너비니 원칙상 그 밖은 추세 손상
+    (사용자 확정 26-08-12, 26-08-17 -35% 완화했다가 26-08-21 실전 0승으로 재환원).
+    이평선 바로 밑 코일(한양이엔지 2026-08-10 미스 사례)이 돌파 전날 관문에서
+    걸러지는 구조적 충돌 완화. 패턴 검출기가 이 종목도 받되 gate_near 필드로 구분
+    (페이지 ⏳배지, 사유는 gate_near_reasons 로 표시) — 봇·백테스트 모집단에선 제외.
     """
+    if not GATE_NEAR_ENABLED:
+        return None
     if result["pass"] or result["passed_count"] < 6 or not close:
         return None
     fails = {k for k, v in result["criteria"].items() if not v["pass"]}
-    if not fails or not fails <= {"1", "5", "7"}:
+    if not fails or not fails <= {"1", "5"}:
         return None
     ex = result.get("extras") or {}
     reasons: list[str] = []
@@ -419,11 +434,6 @@ def _gate_near_reasons(result: dict, close: float | None) -> list[str] | None:
         if not s50 or close < s50 * GATE_NEAR_TOL["ma50"]:
             return None
         reasons.append(f"⑤ 50일선 {(close / s50 - 1) * 100:.1f}%")
-    if "7" in fails:
-        h52 = ex.get("high_52w")
-        if not h52 or close < h52 * GATE_NEAR_TOL["high52w"]:
-            return None
-        reasons.append(f"⑦ 52주고가 {(close / h52 - 1) * 100:.1f}%")
     return reasons
 
 
@@ -624,6 +634,9 @@ def run_full_scan(args: argparse.Namespace) -> None:
             "all_pass": result["pass"],
             "gate_near": bool(gn_reasons := _gate_near_reasons(result, r["last_close"])),
             "gate_near_reasons": gn_reasons or [],
+            # 관문 여유도 — 8조건을 얼마나 넉넉히 통과했나(제일 약한 고리 기준).
+            # 통과/탈락 이진 판정만으로는 "겨우 통과"와 "넉넉히 통과"가 구분되지 않는다.
+            "gate_margin": compute_gate_margin(result, r["last_close"], rs_val, args.rs_min),
             "criteria": result["criteria"],
             "extras": result["extras"],
         }

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-21 20:11",
+  "generated_at": "2026-08-22 05:19",
   "asof": "2026-08-21",
   "stop_loss_pct_default": -10,
   "holdings": [
@@ -23,36 +23,43 @@
       "breakout_date_estimated": false,
       "signal": "early_sell",
       "violation_count": 1,
+      "weak_entry": false,
       "rules": [
         {
           "id": "low_volume_breakout",
           "status": "na",
-          "detail": "매수가 돌파(2026-08-12)보다 1거래일 뒤 — 돌파 품질 판정 제외"
+          "detail": "매수가 돌파(2026-08-12)보다 1거래일 뒤 — 돌파 품질 판정 제외",
+          "kind": "entry_quality"
         },
         {
           "id": "heavy_volume_pullback",
           "status": "pass",
-          "detail": "대량 거래 하락일 없음"
+          "detail": "대량 거래 하락일 없음",
+          "kind": "exit"
         },
         {
           "id": "consecutive_lower_lows",
           "status": "pass",
-          "detail": "연속 저저점 없음"
+          "detail": "연속 저저점 없음",
+          "kind": "exit"
         },
         {
           "id": "close_below_ma",
           "status": "pass",
-          "detail": "20일선 위 유지"
+          "detail": "20일선 위 유지",
+          "kind": "exit"
         },
         {
           "id": "weak_days_dominant",
           "status": "violation",
-          "detail": "하락 4·상승 1 / 나쁜마감 2·좋은마감 3"
+          "detail": "하락 4·상승 1 / 나쁜마감 2·좋은마감 3",
+          "kind": "exit"
         },
         {
           "id": "breakout_failure",
           "status": "watch",
-          "detail": "🟡 반전 회복 관찰중 (D+5/10)"
+          "detail": "🟡 반전 회복 관찰중 (D+5/10)",
+          "kind": "exit"
         }
       ],
       "extension_pct": -0.9,
@@ -128,36 +135,43 @@
       "breakout_date_estimated": false,
       "signal": "early_sell",
       "violation_count": 2,
+      "weak_entry": false,
       "rules": [
         {
           "id": "low_volume_breakout",
           "status": "na",
-          "detail": "매수가 돌파(2026-08-05)보다 6거래일 뒤 — 돌파 품질 판정 제외"
+          "detail": "매수가 돌파(2026-08-05)보다 6거래일 뒤 — 돌파 품질 판정 제외",
+          "kind": "entry_quality"
         },
         {
           "id": "heavy_volume_pullback",
           "status": "pass",
-          "detail": "대량 거래 하락일 없음"
+          "detail": "대량 거래 하락일 없음",
+          "kind": "exit"
         },
         {
           "id": "consecutive_lower_lows",
           "status": "pass",
-          "detail": "연속 저저점 없음"
+          "detail": "연속 저저점 없음",
+          "kind": "exit"
         },
         {
           "id": "close_below_ma",
           "status": "violation",
-          "detail": "2026-08-18 20일선 아래 마감 (돌파 2거래일째)"
+          "detail": "2026-08-18 20일선 아래 마감 (돌파 2거래일째)",
+          "kind": "exit"
         },
         {
           "id": "weak_days_dominant",
           "status": "violation",
-          "detail": "하락 4·상승 1 / 나쁜마감 3·좋은마감 2"
+          "detail": "하락 4·상승 1 / 나쁜마감 3·좋은마감 2",
+          "kind": "exit"
         },
         {
           "id": "breakout_failure",
           "status": "watch",
-          "detail": "🟡 반전 회복 관찰중 (D+5/10)"
+          "detail": "🟡 반전 회복 관찰중 (D+5/10)",
+          "kind": "exit"
         }
       ],
       "extension_pct": -6.4,
@@ -233,36 +247,43 @@
       "breakout_date_estimated": false,
       "signal": "hold",
       "violation_count": 0,
+      "weak_entry": false,
       "rules": [
         {
           "id": "low_volume_breakout",
           "status": "na",
-          "detail": "매수가 돌파(2026-08-13)보다 1거래일 뒤 — 돌파 품질 판정 제외"
+          "detail": "매수가 돌파(2026-08-13)보다 1거래일 뒤 — 돌파 품질 판정 제외",
+          "kind": "entry_quality"
         },
         {
           "id": "heavy_volume_pullback",
           "status": "pass",
-          "detail": "대량 거래 하락일 없음"
+          "detail": "대량 거래 하락일 없음",
+          "kind": "exit"
         },
         {
           "id": "consecutive_lower_lows",
           "status": "pass",
-          "detail": "연속 저저점 없음"
+          "detail": "연속 저저점 없음",
+          "kind": "exit"
         },
         {
           "id": "close_below_ma",
           "status": "pass",
-          "detail": "20일선 위 유지"
+          "detail": "20일선 위 유지",
+          "kind": "exit"
         },
         {
           "id": "weak_days_dominant",
           "status": "pending",
-          "detail": "경과 4거래일 — 5거래일부터 판정"
+          "detail": "경과 4거래일 — 5거래일부터 판정",
+          "kind": "exit"
         },
         {
           "id": "breakout_failure",
           "status": "watch",
-          "detail": "🟡 반전 회복 관찰중 (D+4/10)"
+          "detail": "🟡 반전 회복 관찰중 (D+4/10)",
+          "kind": "exit"
         }
       ],
       "extension_pct": -5.4,
@@ -338,36 +359,43 @@
       "breakout_date_estimated": false,
       "signal": "hold",
       "violation_count": 0,
+      "weak_entry": false,
       "rules": [
         {
           "id": "low_volume_breakout",
           "status": "na",
-          "detail": "매수가 돌파(2026-08-11)보다 3거래일 뒤 — 돌파 품질 판정 제외"
+          "detail": "매수가 돌파(2026-08-11)보다 3거래일 뒤 — 돌파 품질 판정 제외",
+          "kind": "entry_quality"
         },
         {
           "id": "heavy_volume_pullback",
           "status": "pass",
-          "detail": "대량 거래 하락일 없음"
+          "detail": "대량 거래 하락일 없음",
+          "kind": "exit"
         },
         {
           "id": "consecutive_lower_lows",
           "status": "pass",
-          "detail": "연속 저저점 없음"
+          "detail": "연속 저저점 없음",
+          "kind": "exit"
         },
         {
           "id": "close_below_ma",
           "status": "pass",
-          "detail": "20일선 위 유지"
+          "detail": "20일선 위 유지",
+          "kind": "exit"
         },
         {
           "id": "weak_days_dominant",
           "status": "pending",
-          "detail": "경과 4거래일 — 5거래일부터 판정"
+          "detail": "경과 4거래일 — 5거래일부터 판정",
+          "kind": "exit"
         },
         {
           "id": "breakout_failure",
           "status": "watch",
-          "detail": "🟡 반전 회복 관찰중 (D+4/10)"
+          "detail": "🟡 반전 회복 관찰중 (D+4/10)",
+          "kind": "exit"
         }
       ],
       "extension_pct": -0.4,
@@ -443,36 +471,43 @@
       "breakout_date_estimated": false,
       "signal": "hold",
       "violation_count": 0,
+      "weak_entry": false,
       "rules": [
         {
           "id": "low_volume_breakout",
           "status": "na",
-          "detail": "매수가 돌파(2026-08-13)보다 2거래일 뒤 — 돌파 품질 판정 제외"
+          "detail": "매수가 돌파(2026-08-13)보다 2거래일 뒤 — 돌파 품질 판정 제외",
+          "kind": "entry_quality"
         },
         {
           "id": "heavy_volume_pullback",
           "status": "pass",
-          "detail": "대량 거래 하락일 없음"
+          "detail": "대량 거래 하락일 없음",
+          "kind": "exit"
         },
         {
           "id": "consecutive_lower_lows",
           "status": "pass",
-          "detail": "연속 저저점 없음"
+          "detail": "연속 저저점 없음",
+          "kind": "exit"
         },
         {
           "id": "close_below_ma",
           "status": "pass",
-          "detail": "20일선 위 유지"
+          "detail": "20일선 위 유지",
+          "kind": "exit"
         },
         {
           "id": "weak_days_dominant",
           "status": "pending",
-          "detail": "경과 3거래일 — 5거래일부터 판정"
+          "detail": "경과 3거래일 — 5거래일부터 판정",
+          "kind": "exit"
         },
         {
           "id": "breakout_failure",
           "status": "watch",
-          "detail": "🟡 반전 회복 관찰중 (D+3/10)"
+          "detail": "🟡 반전 회복 관찰중 (D+3/10)",
+          "kind": "exit"
         }
       ],
       "extension_pct": -5.3,
@@ -548,36 +583,43 @@
       "breakout_date_estimated": false,
       "signal": "hold",
       "violation_count": 0,
+      "weak_entry": false,
       "rules": [
         {
           "id": "low_volume_breakout",
           "status": "pass",
-          "detail": "돌파일 거래량 1.28배 — 정상 돌파(1.5배+)에는 못 미침"
+          "detail": "돌파일 거래량 1.28배 — 정상 돌파(1.5배+)에는 못 미침",
+          "kind": "entry_quality"
         },
         {
           "id": "heavy_volume_pullback",
           "status": "pass",
-          "detail": "대량 거래 하락일 없음"
+          "detail": "대량 거래 하락일 없음",
+          "kind": "exit"
         },
         {
           "id": "consecutive_lower_lows",
           "status": "pass",
-          "detail": "연속 저저점 없음"
+          "detail": "연속 저저점 없음",
+          "kind": "exit"
         },
         {
           "id": "close_below_ma",
           "status": "pass",
-          "detail": "20일선 위 유지"
+          "detail": "20일선 위 유지",
+          "kind": "exit"
         },
         {
           "id": "weak_days_dominant",
           "status": "pending",
-          "detail": "경과 2거래일 — 5거래일부터 판정"
+          "detail": "경과 2거래일 — 5거래일부터 판정",
+          "kind": "exit"
         },
         {
           "id": "breakout_failure",
           "status": "pass",
-          "detail": "피벗 위 유지"
+          "detail": "피벗 위 유지",
+          "kind": "exit"
         }
       ],
       "extension_pct": 7.4,
@@ -674,36 +716,43 @@
       "breakout_date_estimated": false,
       "signal": "hold",
       "violation_count": 0,
+      "weak_entry": false,
       "rules": [
         {
           "id": "low_volume_breakout",
           "status": "na",
-          "detail": "매수가 돌파(2026-08-06)보다 9거래일 뒤 — 돌파 품질 판정 제외"
+          "detail": "매수가 돌파(2026-08-06)보다 9거래일 뒤 — 돌파 품질 판정 제외",
+          "kind": "entry_quality"
         },
         {
           "id": "heavy_volume_pullback",
           "status": "pass",
-          "detail": "대량 거래 하락일 없음"
+          "detail": "대량 거래 하락일 없음",
+          "kind": "exit"
         },
         {
           "id": "consecutive_lower_lows",
           "status": "pass",
-          "detail": "연속 저저점 없음"
+          "detail": "연속 저저점 없음",
+          "kind": "exit"
         },
         {
           "id": "close_below_ma",
           "status": "pass",
-          "detail": "20일선 위 유지"
+          "detail": "20일선 위 유지",
+          "kind": "exit"
         },
         {
           "id": "weak_days_dominant",
           "status": "pending",
-          "detail": "경과 1거래일 — 5거래일부터 판정"
+          "detail": "경과 1거래일 — 5거래일부터 판정",
+          "kind": "exit"
         },
         {
           "id": "breakout_failure",
           "status": "watch",
-          "detail": "🟡 반전 회복 관찰중 (D+1/10)"
+          "detail": "🟡 반전 회복 관찰중 (D+1/10)",
+          "kind": "exit"
         }
       ],
       "extension_pct": -3.1,
@@ -779,36 +828,43 @@
       "breakout_date_estimated": false,
       "signal": "hold",
       "violation_count": 0,
+      "weak_entry": false,
       "rules": [
         {
           "id": "low_volume_breakout",
           "status": "na",
-          "detail": "매수가 돌파(2026-08-19)보다 1거래일 뒤 — 돌파 품질 판정 제외"
+          "detail": "매수가 돌파(2026-08-19)보다 1거래일 뒤 — 돌파 품질 판정 제외",
+          "kind": "entry_quality"
         },
         {
           "id": "heavy_volume_pullback",
           "status": "pass",
-          "detail": "대량 거래 하락일 없음"
+          "detail": "대량 거래 하락일 없음",
+          "kind": "exit"
         },
         {
           "id": "consecutive_lower_lows",
           "status": "pass",
-          "detail": "연속 저저점 없음"
+          "detail": "연속 저저점 없음",
+          "kind": "exit"
         },
         {
           "id": "close_below_ma",
           "status": "pass",
-          "detail": "20일선 위 유지"
+          "detail": "20일선 위 유지",
+          "kind": "exit"
         },
         {
           "id": "weak_days_dominant",
           "status": "pending",
-          "detail": "경과 1거래일 — 5거래일부터 판정"
+          "detail": "경과 1거래일 — 5거래일부터 판정",
+          "kind": "exit"
         },
         {
           "id": "breakout_failure",
           "status": "watch",
-          "detail": "🟡 반전 회복 관찰중 (D+1/10)"
+          "detail": "🟡 반전 회복 관찰중 (D+1/10)",
+          "kind": "exit"
         }
       ],
       "extension_pct": -6.0,
@@ -884,36 +940,43 @@
       "breakout_date_estimated": false,
       "signal": "early_sell",
       "violation_count": 1,
+      "weak_entry": false,
       "rules": [
         {
           "id": "low_volume_breakout",
           "status": "na",
-          "detail": "매수가 돌파(2026-08-18)보다 2거래일 뒤 — 돌파 품질 판정 제외"
+          "detail": "매수가 돌파(2026-08-18)보다 2거래일 뒤 — 돌파 품질 판정 제외",
+          "kind": "entry_quality"
         },
         {
           "id": "heavy_volume_pullback",
           "status": "pass",
-          "detail": "대량 거래 하락일 없음"
+          "detail": "대량 거래 하락일 없음",
+          "kind": "exit"
         },
         {
           "id": "consecutive_lower_lows",
           "status": "pass",
-          "detail": "연속 저저점 없음"
+          "detail": "연속 저저점 없음",
+          "kind": "exit"
         },
         {
           "id": "close_below_ma",
           "status": "violation",
-          "detail": "2026-08-21 20일선 아래 마감 (돌파 1거래일째)"
+          "detail": "2026-08-21 20일선 아래 마감 (돌파 1거래일째)",
+          "kind": "exit"
         },
         {
           "id": "weak_days_dominant",
           "status": "pending",
-          "detail": "경과 1거래일 — 5거래일부터 판정"
+          "detail": "경과 1거래일 — 5거래일부터 판정",
+          "kind": "exit"
         },
         {
           "id": "breakout_failure",
           "status": "watch",
-          "detail": "🟡 반전 회복 관찰중 (D+1/10)"
+          "detail": "🟡 반전 회복 관찰중 (D+1/10)",
+          "kind": "exit"
         }
       ],
       "extension_pct": -0.5,
@@ -989,36 +1052,43 @@
       "breakout_date_estimated": false,
       "signal": "hold",
       "violation_count": 0,
+      "weak_entry": false,
       "rules": [
         {
           "id": "low_volume_breakout",
           "status": "na",
-          "detail": "매수가 돌파(2026-08-20)보다 1거래일 뒤 — 돌파 품질 판정 제외"
+          "detail": "매수가 돌파(2026-08-20)보다 1거래일 뒤 — 돌파 품질 판정 제외",
+          "kind": "entry_quality"
         },
         {
           "id": "heavy_volume_pullback",
           "status": "pending",
-          "detail": "돌파 다음 날 데이터 없음"
+          "detail": "돌파 다음 날 데이터 없음",
+          "kind": "exit"
         },
         {
           "id": "consecutive_lower_lows",
           "status": "pending",
-          "detail": "돌파 다음 날 데이터 없음"
+          "detail": "돌파 다음 날 데이터 없음",
+          "kind": "exit"
         },
         {
           "id": "close_below_ma",
           "status": "pending",
-          "detail": "돌파 다음 날 데이터 없음"
+          "detail": "돌파 다음 날 데이터 없음",
+          "kind": "exit"
         },
         {
           "id": "weak_days_dominant",
           "status": "pending",
-          "detail": "경과 0거래일 — 5거래일부터 판정"
+          "detail": "경과 0거래일 — 5거래일부터 판정",
+          "kind": "exit"
         },
         {
           "id": "breakout_failure",
           "status": "pass",
-          "detail": "피벗 위 유지"
+          "detail": "피벗 위 유지",
+          "kind": "exit"
         }
       ],
       "extension_pct": 4.3,
@@ -1094,36 +1164,43 @@
       "breakout_date_estimated": false,
       "signal": "hold",
       "violation_count": 0,
+      "weak_entry": false,
       "rules": [
         {
           "id": "low_volume_breakout",
           "status": "na",
-          "detail": "매수가 돌파(2026-08-20)보다 1거래일 뒤 — 돌파 품질 판정 제외"
+          "detail": "매수가 돌파(2026-08-20)보다 1거래일 뒤 — 돌파 품질 판정 제외",
+          "kind": "entry_quality"
         },
         {
           "id": "heavy_volume_pullback",
           "status": "pending",
-          "detail": "돌파 다음 날 데이터 없음"
+          "detail": "돌파 다음 날 데이터 없음",
+          "kind": "exit"
         },
         {
           "id": "consecutive_lower_lows",
           "status": "pending",
-          "detail": "돌파 다음 날 데이터 없음"
+          "detail": "돌파 다음 날 데이터 없음",
+          "kind": "exit"
         },
         {
           "id": "close_below_ma",
           "status": "pending",
-          "detail": "돌파 다음 날 데이터 없음"
+          "detail": "돌파 다음 날 데이터 없음",
+          "kind": "exit"
         },
         {
           "id": "weak_days_dominant",
           "status": "pending",
-          "detail": "경과 0거래일 — 5거래일부터 판정"
+          "detail": "경과 0거래일 — 5거래일부터 판정",
+          "kind": "exit"
         },
         {
           "id": "breakout_failure",
           "status": "watch",
-          "detail": "🟡 반전 회복 관찰중 (D+0/10)"
+          "detail": "🟡 반전 회복 관찰중 (D+0/10)",
+          "kind": "exit"
         }
       ],
       "extension_pct": -7.1,

@@ -471,15 +471,24 @@ def evaluate_holding(series, buy_date, buy_price, stop_loss_pct, pivot_price=Non
                  "detail": f"매수가 돌파({dates[bi]})보다 {buy_idx - bi}거래일 뒤 — 돌파 품질 판정 제외"}
     else:
         rule1 = rule_low_volume_breakout(series, bi)
-    rules = [
-        rule1,
+    # ★규칙①(저거래량 돌파)은 '돌파일 거래량'이라 매수 순간 확정되고 이후 절대 안 바뀐다.
+    # 매일 다시 봐도 답이 같으니 매도 신호가 아니라 **매수 품질** 정보다.
+    # 실측(26-08-22): 실거래 왕복 63건 중 43건(68%)에 상시 점등 → 사실상 배경 소음이었고,
+    # 조기청산 20건 중 19건이 이것 때문에 🟠였는데 그중 53%가 이후 +20%에 도달했다.
+    # → 사실은 그대로 기록하되 violation_count·early_sell 판정에서는 뺀다(kind 로 구분).
+    rule1["kind"] = "entry_quality"
+    exit_rules = [
         rule_heavy_volume_pullback(series, si),
         rule_consecutive_lower_lows(series, si),
         rule_close_below_ma(series, si),
         rule_weak_days_dominant(series, si),
         rule_breakout_failure(series, bi, pivot_price, breakout_confirmed=not estimated, start=si),
     ]
-    violation_count = sum(1 for r in rules if r["status"] == "violation")
+    for r in exit_rules:
+        r["kind"] = "exit"
+    rules = [rule1, *exit_rules]
+    violation_count = sum(1 for r in exit_rules if r["status"] == "violation")
+    weak_entry = rule1["status"] == "violation"
     if current <= stop_price:
         signal = "stop_loss"
     elif violation_count >= 1:
@@ -500,6 +509,7 @@ def evaluate_holding(series, buy_date, buy_price, stop_loss_pct, pivot_price=Non
         "breakout_date_estimated": estimated,
         "signal": signal,
         "violation_count": violation_count,
+        "weak_entry": weak_entry,   # 돌파 거래량이 약했나(매수 품질 — 매도 판정과 무관)
         "rules": rules,
         "extension_pct": extension_pct,
         "accumulation": accumulation,

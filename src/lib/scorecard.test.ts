@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { matchTrades, type Fill } from "./scorecard";
 import { computeOverall, type Trade } from "./scorecard";
-import { computeScorecard } from "./scorecard";
+import { computeScorecard, summarizeDataErrors } from "./scorecard";
 
 const buy = (date: string, code: string, price: number, qty: number, extra: Partial<Fill> = {}): Fill =>
   ({ date, code, name: code, side: "buy", price, qty, ...extra });
@@ -300,5 +300,110 @@ describe("원 손익(net_won/gross_won/total_won)", () => {
   });
   it("거래 0건이면 total_won === 0", () => {
     expect(computeOverall([], "net").total_won).toBe(0);
+  });
+});
+
+// ── 손절 규율 판정 축 (26-08-21) ────────────────────────────────────────────
+// 손절선(stop)은 '가격'으로 적히므로 비교 대상도 가격 기준 총수익률이어야 한다.
+// 순수익률(수수료·세금 반영)과 비교하면 손절선을 지킨 거래도 왕복 비용만큼 위반으로 찍힌다.
+describe("stop_violation 판정 축", () => {
+  it("가격은 손절선 안인데 비용 때문에 순수익률만 넘은 경우 → 위반 아님", () => {
+    const { trades } = matchTrades([
+      buy("2026-01-01", "A", 1000, 100, { stop: 950, fees: 1000 }), // 계획 -5%
+      sell("2026-01-02", "A", 952, 100, { fees: 300 }),             // 가격 -4.8%
+    ]);
+    const t = trades[0];
+    expect(t.gross_pct).toBe(-4.8);
+    expect(t.net_pct).toBe(-6.04);
+    expect(t.outcome).toBe("loss");
+    expect(t.stop_violation).toBe(false);
+  });
+
+  it("가격 자체가 손절선을 넘겼으면 비용과 무관하게 위반", () => {
+    const { trades } = matchTrades([
+      buy("2026-01-01", "A", 1000, 100, { stop: 950, fees: 1000 }),
+      sell("2026-01-02", "A", 900, 100, { fees: 300 }),             // 가격 -10%
+    ]);
+    expect(trades[0].gross_pct).toBe(-10);
+    expect(trades[0].stop_violation).toBe(true);
+  });
+
+  it("손절가 없이 기본 손절폭으로 판정할 때도 가격 기준", () => {
+    const { trades } = matchTrades(
+      [
+        buy("2026-01-01", "A", 1000, 100, { fees: 1000 }),
+        sell("2026-01-02", "A", 952, 100, { fees: 300 }),
+      ],
+      -5,
+    );
+    expect(trades[0].stop_violation).toBe(false);
+  });
+});
+
+// ── 같은 날 매수·매도: 배열 순서가 곧 장중 순서 (26-08-21) ──────────────────
+// 체결 레코드에 시각이 없어 matchTrades 는 (날짜, 배열 인덱스)로만 정렬한다.
+// 따라서 같은 날 안의 기록 순서는 데이터이며, 임의 재정렬은 집계를 조용히 망가뜨린다.
+describe("같은 날 매수·매도 순서", () => {
+  it("당일 매수→당일 매도(단타)는 보유일 0의 정상 왕복거래", () => {
+    const { trades, open, errors } = matchTrades([
+      buy("2026-01-05", "A", 100, 100),
+      sell("2026-01-05", "A", 105, 100),
+    ]);
+    expect(errors).toEqual([]);
+    expect(open).toEqual([]);
+    expect(trades).toHaveLength(1);
+    expect(trades[0].hold_days).toBe(0);
+    expect(trades[0].gross_pct).toBe(5);
+  });
+
+  it("전량 청산 후 같은 날 재진입 → 왕복거래 1건 + 미청산 1건(합쳐지지 않는다)", () => {
+    const { trades, open, errors } = matchTrades([
+      buy("2026-01-05", "A", 100, 100),
+      sell("2026-01-08", "A", 110, 100),
+      buy("2026-01-08", "A", 112, 50),
+    ]);
+    expect(errors).toEqual([]);
+    expect(trades).toHaveLength(1);
+    expect(trades[0].close_date).toBe("2026-01-08");
+    expect(open).toHaveLength(1);
+    expect(open[0].qty).toBe(50);
+    expect(open[0].open_date).toBe("2026-01-08");
+  });
+
+  it("당일 매수분을 이틀에 나눠 팔아도 오류가 아니다", () => {
+    const { trades, errors } = matchTrades([
+      buy("2026-01-05", "A", 100, 120),
+      sell("2026-01-05", "A", 105, 70),
+      sell("2026-01-06", "A", 108, 50),
+    ]);
+    expect(errors).toEqual([]);
+    expect(trades).toHaveLength(1);
+    expect(trades[0].sell_qty).toBe(120);
+  });
+});
+
+// ── 데이터 오류 요약(화면 경고 배너용) (26-08-21) ───────────────────────────
+describe("summarizeDataErrors", () => {
+  it("오류가 없으면 null", () => {
+    expect(summarizeDataErrors([])).toBeNull();
+  });
+
+  it("건수·영향 종목코드(첫 등장 순, 중복 제거)·원문을 담는다", () => {
+    const s = summarizeDataErrors([
+      "009150: 매도 수량이 보유수량 초과 (2026-07-01)",
+      "086670: 매도 수량이 보유수량 초과 (2026-07-01)",
+      "009150: 매도 수량이 보유수량 초과 (2026-07-02)",
+    ]);
+    expect(s).not.toBeNull();
+    expect(s!.count).toBe(3);
+    expect(s!.codes).toEqual(["009150", "086670"]);
+    expect(s!.lines).toHaveLength(3);
+  });
+
+  it("코드를 못 읽는 형식이어도 건수는 세고 원문을 보존한다", () => {
+    const s = summarizeDataErrors(["알 수 없는 오류"]);
+    expect(s!.count).toBe(1);
+    expect(s!.codes).toEqual([]);
+    expect(s!.lines).toEqual(["알 수 없는 오류"]);
   });
 });

@@ -152,7 +152,8 @@ def main():
                 "prior_adv_pct": round(f["prior_adv"] * 100, 1) if f["prior_adv"] is not None else None,
                 "dist_52wh": f["dist_52wh"], "rs_nh_days": f["rs_nh_days"], "rs_leads": f["rs_leads"],
                 "pattern": pat, "gate_near": bool(c.get("gate_near")),
-                "gate_near_reasons": c.get("gate_near_reasons") or [], **liquidity_fields(s),
+                "gate_near_reasons": c.get("gate_near_reasons") or [],
+                "gate_margin": c.get("gate_margin"), **liquidity_fields(s),
             }
             w = demand_watch.get(code)
             if w:  # 기관 수요 유보 — 숨기지 않고 순위 제외+딤드 표시용 필드만 부착
