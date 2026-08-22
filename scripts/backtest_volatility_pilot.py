@@ -387,6 +387,10 @@ def main():
     ap.add_argument("--end", default="2026-08-21")
     ap.add_argument("--step", type=int, default=1)
     ap.add_argument("--out", default="public/data/backtest-volatility-pilot.json")
+    ap.add_argument("--target", type=float, default=20.0,
+                    help="익절 목표(%%) — 청산 규칙 비교용")
+    ap.add_argument("--stop", type=float, default=10.0,
+                    help="손절폭(%%) — 청산 규칙 비교용")
     ap.add_argument("--series", choices=["cache", "pdata"], default="cache",
                     help="시세 출처: cache=400일 롤링(최근만) · pdata=원본 2020~(과거 가능)")
     ap.add_argument("--gate-near", choices=["off", "ma", "ma+high"], default="off",
@@ -394,8 +398,9 @@ def main():
     ap.add_argument("--include-forming", action="store_true",
                     help="예의주시(forming) 단계 종목도 피벗 도달 시 매수 대상에 포함")
     a = ap.parse_args()
-    global GATE_NEAR_ALLOW, ENTRY_STATUSES, SERIES_SOURCE
+    global GATE_NEAR_ALLOW, ENTRY_STATUSES, SERIES_SOURCE, TARGET_PCT, STOP_PCT
     SERIES_SOURCE = a.series
+    TARGET_PCT, STOP_PCT = a.target, a.stop
     GATE_NEAR_ALLOW = {"off": set(), "ma": {"1", "5"}, "ma+high": {"1", "5", "7"}}[a.gate_near]
     if a.include_forming:
         ENTRY_STATUSES = {"actionable", "forming"}
