@@ -1,0 +1,765 @@
+{
+  "asof": "2026-08-17",
+  "period": "202606",
+  "metric": "영업이익 (operating profit)",
+  "unit": "억원",
+  "source": "m.stock.naver.com/api/stock/<code>/finance/quarter (FnGuide consensus, trTitleList isConsensus flag)",
+  "notes": {
+    "flags": {
+      "consensus": "isConsensus=Y + numeric value -> analyst consensus estimate",
+      "no_estimate": "isConsensus=Y but value '-' -> no analyst coverage (covered:false)",
+      "actual_reported": "isConsensus=N -> Naver already replaced with reported actual; pre-report consensus not retrievable from this endpoint (covered:false, actual in q2_op_actual_eok)",
+      "no_data": "endpoint returned nothing or no 202606 period"
+    },
+    "n_analysts": "not exposed by any probed Naver endpoint (integration consensusInfo has only target-price mean/recommendation) -> always null"
+  },
+  "coverage": {
+    "consensus": 52,
+    "no_estimate": 35,
+    "actual_reported": 5,
+    "no_data": 0
+  },
+  "byCode": {
+    "095610": {
+      "name": "테스",
+      "covered": true,
+      "q2_op_consensus_eok": 264.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "037710": {
+      "name": "광주신세계",
+      "covered": false,
+      "q2_op_consensus_eok": null,
+      "n_analysts": null,
+      "source_field": null,
+      "flag": "no_estimate"
+    },
+    "241770": {
+      "name": "메카로",
+      "covered": false,
+      "q2_op_consensus_eok": null,
+      "n_analysts": null,
+      "source_field": null,
+      "flag": "no_estimate"
+    },
+    "036930": {
+      "name": "주성엔지니어링",
+      "covered": true,
+      "q2_op_consensus_eok": 61.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "252990": {
+      "name": "샘씨엔에스",
+      "covered": true,
+      "q2_op_consensus_eok": 83.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "009150": {
+      "name": "삼성전기",
+      "covered": true,
+      "q2_op_consensus_eok": 4061.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "009420": {
+      "name": "한올바이오파마",
+      "covered": true,
+      "q2_op_consensus_eok": 1.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "236200": {
+      "name": "슈프리마",
+      "covered": true,
+      "q2_op_consensus_eok": 83.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "010950": {
+      "name": "S-Oil",
+      "covered": true,
+      "q2_op_consensus_eok": 9551.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "028670": {
+      "name": "팬오션",
+      "covered": false,
+      "q2_op_consensus_eok": null,
+      "n_analysts": null,
+      "source_field": null,
+      "flag": "actual_reported",
+      "q2_op_actual_eok": 1937.0
+    },
+    "317400": {
+      "name": "자이에스앤디",
+      "covered": true,
+      "q2_op_consensus_eok": 90.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "007340": {
+      "name": "DN오토모티브",
+      "covered": true,
+      "q2_op_consensus_eok": 1604.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "089860": {
+      "name": "롯데렌탈",
+      "covered": true,
+      "q2_op_consensus_eok": 868.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "007070": {
+      "name": "GS리테일",
+      "covered": true,
+      "q2_op_consensus_eok": 1013.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "041830": {
+      "name": "인바디",
+      "covered": true,
+      "q2_op_consensus_eok": 130.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "078930": {
+      "name": "GS",
+      "covered": true,
+      "q2_op_consensus_eok": 11204.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "079550": {
+      "name": "LIG디펜스앤에어로스페이스",
+      "covered": true,
+      "q2_op_consensus_eok": 1105.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "241710": {
+      "name": "코스메카코리아",
+      "covered": true,
+      "q2_op_consensus_eok": 277.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "278470": {
+      "name": "에이피알",
+      "covered": true,
+      "q2_op_consensus_eok": 1781.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "092730": {
+      "name": "네오팜",
+      "covered": true,
+      "q2_op_consensus_eok": 90.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "161390": {
+      "name": "한국타이어앤테크놀로지",
+      "covered": true,
+      "q2_op_consensus_eok": 5323.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "161890": {
+      "name": "한국콜마",
+      "covered": true,
+      "q2_op_consensus_eok": 952.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "222040": {
+      "name": "코스맥스엔비티",
+      "covered": true,
+      "q2_op_consensus_eok": 86.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "222800": {
+      "name": "심텍",
+      "covered": true,
+      "q2_op_consensus_eok": 473.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "005430": {
+      "name": "한국공항",
+      "covered": false,
+      "q2_op_consensus_eok": null,
+      "n_analysts": null,
+      "source_field": null,
+      "flag": "no_estimate"
+    },
+    "036710": {
+      "name": "심텍홀딩스",
+      "covered": false,
+      "q2_op_consensus_eok": null,
+      "n_analysts": null,
+      "source_field": null,
+      "flag": "no_estimate"
+    },
+    "052460": {
+      "name": "아이크래프트",
+      "covered": false,
+      "q2_op_consensus_eok": null,
+      "n_analysts": null,
+      "source_field": null,
+      "flag": "no_estimate"
+    },
+    "086670": {
+      "name": "비엠티",
+      "covered": false,
+      "q2_op_consensus_eok": null,
+      "n_analysts": null,
+      "source_field": null,
+      "flag": "no_estimate"
+    },
+    "181710": {
+      "name": "NHN",
+      "covered": true,
+      "q2_op_consensus_eok": 429.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "311320": {
+      "name": "지오엘리먼트",
+      "covered": false,
+      "q2_op_consensus_eok": null,
+      "n_analysts": null,
+      "source_field": null,
+      "flag": "actual_reported",
+      "q2_op_actual_eok": 34.0
+    },
+    "010060": {
+      "name": "OCI홀딩스",
+      "covered": true,
+      "q2_op_consensus_eok": 1218.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "036570": {
+      "name": "NC",
+      "covered": true,
+      "q2_op_consensus_eok": 1320.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "079940": {
+      "name": "가비아",
+      "covered": false,
+      "q2_op_consensus_eok": null,
+      "n_analysts": null,
+      "source_field": null,
+      "flag": "no_estimate"
+    },
+    "093320": {
+      "name": "케이아이엔엑스",
+      "covered": false,
+      "q2_op_consensus_eok": null,
+      "n_analysts": null,
+      "source_field": null,
+      "flag": "no_estimate"
+    },
+    "005090": {
+      "name": "SGC에너지",
+      "covered": true,
+      "q2_op_consensus_eok": 426.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "006340": {
+      "name": "대원전선",
+      "covered": false,
+      "q2_op_consensus_eok": null,
+      "n_analysts": null,
+      "source_field": null,
+      "flag": "actual_reported",
+      "q2_op_actual_eok": 37.0
+    },
+    "025560": {
+      "name": "미래산업",
+      "covered": false,
+      "q2_op_consensus_eok": null,
+      "n_analysts": null,
+      "source_field": null,
+      "flag": "no_estimate"
+    },
+    "000810": {
+      "name": "삼성화재",
+      "covered": true,
+      "q2_op_consensus_eok": 8867.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "001800": {
+      "name": "오리온홀딩스",
+      "covered": true,
+      "q2_op_consensus_eok": 1224.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "003550": {
+      "name": "LG",
+      "covered": true,
+      "q2_op_consensus_eok": 4051.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "017890": {
+      "name": "한국알콜",
+      "covered": false,
+      "q2_op_consensus_eok": null,
+      "n_analysts": null,
+      "source_field": null,
+      "flag": "no_estimate"
+    },
+    "031980": {
+      "name": "피에스케이홀딩스",
+      "covered": true,
+      "q2_op_consensus_eok": 198.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "044820": {
+      "name": "코스맥스비티아이",
+      "covered": false,
+      "q2_op_consensus_eok": null,
+      "n_analysts": null,
+      "source_field": null,
+      "flag": "no_estimate"
+    },
+    "045100": {
+      "name": "한양이엔지",
+      "covered": false,
+      "q2_op_consensus_eok": null,
+      "n_analysts": null,
+      "source_field": null,
+      "flag": "no_estimate"
+    },
+    "088350": {
+      "name": "한화생명",
+      "covered": false,
+      "q2_op_consensus_eok": null,
+      "n_analysts": null,
+      "source_field": null,
+      "flag": "no_estimate"
+    },
+    "094840": {
+      "name": "슈프리마에이치큐",
+      "covered": false,
+      "q2_op_consensus_eok": null,
+      "n_analysts": null,
+      "source_field": null,
+      "flag": "no_estimate"
+    },
+    "212560": {
+      "name": "네오오토",
+      "covered": false,
+      "q2_op_consensus_eok": null,
+      "n_analysts": null,
+      "source_field": null,
+      "flag": "no_estimate"
+    },
+    "417840": {
+      "name": "저스템",
+      "covered": false,
+      "q2_op_consensus_eok": null,
+      "n_analysts": null,
+      "source_field": null,
+      "flag": "actual_reported",
+      "q2_op_actual_eok": 93.0
+    },
+    "475150": {
+      "name": "SK이터닉스",
+      "covered": true,
+      "q2_op_consensus_eok": 186.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "001450": {
+      "name": "현대해상",
+      "covered": false,
+      "q2_op_consensus_eok": null,
+      "n_analysts": null,
+      "source_field": null,
+      "flag": "no_estimate"
+    },
+    "001540": {
+      "name": "안국약품",
+      "covered": false,
+      "q2_op_consensus_eok": null,
+      "n_analysts": null,
+      "source_field": null,
+      "flag": "no_estimate"
+    },
+    "002810": {
+      "name": "삼영무역",
+      "covered": false,
+      "q2_op_consensus_eok": null,
+      "n_analysts": null,
+      "source_field": null,
+      "flag": "no_estimate"
+    },
+    "002990": {
+      "name": "금호건설",
+      "covered": true,
+      "q2_op_consensus_eok": 174.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "003690": {
+      "name": "코리안리",
+      "covered": false,
+      "q2_op_consensus_eok": null,
+      "n_analysts": null,
+      "source_field": null,
+      "flag": "no_estimate"
+    },
+    "005680": {
+      "name": "삼영전자",
+      "covered": false,
+      "q2_op_consensus_eok": null,
+      "n_analysts": null,
+      "source_field": null,
+      "flag": "no_estimate"
+    },
+    "005930": {
+      "name": "삼성전자",
+      "covered": true,
+      "q2_op_consensus_eok": 850494.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "005950": {
+      "name": "이수화학",
+      "covered": false,
+      "q2_op_consensus_eok": null,
+      "n_analysts": null,
+      "source_field": null,
+      "flag": "no_estimate"
+    },
+    "006360": {
+      "name": "GS건설",
+      "covered": true,
+      "q2_op_consensus_eok": 1207.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "008060": {
+      "name": "대덕",
+      "covered": false,
+      "q2_op_consensus_eok": null,
+      "n_analysts": null,
+      "source_field": null,
+      "flag": "no_estimate"
+    },
+    "011560": {
+      "name": "세보엠이씨",
+      "covered": true,
+      "q2_op_consensus_eok": 120.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "012330": {
+      "name": "현대모비스",
+      "covered": true,
+      "q2_op_consensus_eok": 9075.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "013700": {
+      "name": "까뮤이앤씨",
+      "covered": false,
+      "q2_op_consensus_eok": null,
+      "n_analysts": null,
+      "source_field": null,
+      "flag": "no_estimate"
+    },
+    "017670": {
+      "name": "SK텔레콤",
+      "covered": true,
+      "q2_op_consensus_eok": 5458.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "018260": {
+      "name": "삼성에스디에스",
+      "covered": true,
+      "q2_op_consensus_eok": 2375.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "019210": {
+      "name": "와이지-원",
+      "covered": false,
+      "q2_op_consensus_eok": null,
+      "n_analysts": null,
+      "source_field": null,
+      "flag": "no_estimate"
+    },
+    "026910": {
+      "name": "광진실업",
+      "covered": false,
+      "q2_op_consensus_eok": null,
+      "n_analysts": null,
+      "source_field": null,
+      "flag": "actual_reported",
+      "q2_op_actual_eok": 2.0
+    },
+    "028050": {
+      "name": "삼성E&A",
+      "covered": true,
+      "q2_op_consensus_eok": 2188.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "028260": {
+      "name": "삼성물산",
+      "covered": true,
+      "q2_op_consensus_eok": 8646.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "033780": {
+      "name": "KT&G",
+      "covered": true,
+      "q2_op_consensus_eok": 3967.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "034730": {
+      "name": "SK",
+      "covered": true,
+      "q2_op_consensus_eok": 27352.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "049430": {
+      "name": "코메론",
+      "covered": false,
+      "q2_op_consensus_eok": null,
+      "n_analysts": null,
+      "source_field": null,
+      "flag": "no_estimate"
+    },
+    "053260": {
+      "name": "금강철강",
+      "covered": false,
+      "q2_op_consensus_eok": null,
+      "n_analysts": null,
+      "source_field": null,
+      "flag": "no_estimate"
+    },
+    "053610": {
+      "name": "프로텍",
+      "covered": true,
+      "q2_op_consensus_eok": 177.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "055550": {
+      "name": "신한지주",
+      "covered": true,
+      "q2_op_consensus_eok": 22532.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "066980": {
+      "name": "한성크린텍",
+      "covered": false,
+      "q2_op_consensus_eok": null,
+      "n_analysts": null,
+      "source_field": null,
+      "flag": "no_estimate"
+    },
+    "071200": {
+      "name": "인피니트헬스케어",
+      "covered": false,
+      "q2_op_consensus_eok": null,
+      "n_analysts": null,
+      "source_field": null,
+      "flag": "no_estimate"
+    },
+    "083450": {
+      "name": "GST",
+      "covered": true,
+      "q2_op_consensus_eok": 167.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "086790": {
+      "name": "하나금융지주",
+      "covered": true,
+      "q2_op_consensus_eok": 16580.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "105560": {
+      "name": "KB금융",
+      "covered": true,
+      "q2_op_consensus_eok": 26142.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "109070": {
+      "name": "주성코퍼레이션",
+      "covered": false,
+      "q2_op_consensus_eok": null,
+      "n_analysts": null,
+      "source_field": null,
+      "flag": "no_estimate"
+    },
+    "121440": {
+      "name": "골프존홀딩스",
+      "covered": false,
+      "q2_op_consensus_eok": null,
+      "n_analysts": null,
+      "source_field": null,
+      "flag": "no_estimate"
+    },
+    "122640": {
+      "name": "예스티",
+      "covered": true,
+      "q2_op_consensus_eok": 37.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "127120": {
+      "name": "제이에스링크",
+      "covered": false,
+      "q2_op_consensus_eok": null,
+      "n_analysts": null,
+      "source_field": null,
+      "flag": "no_estimate"
+    },
+    "131290": {
+      "name": "티에스이",
+      "covered": true,
+      "q2_op_consensus_eok": 428.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "144960": {
+      "name": "뉴파워프라즈마",
+      "covered": true,
+      "q2_op_consensus_eok": 262.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "159010": {
+      "name": "아스플로",
+      "covered": false,
+      "q2_op_consensus_eok": null,
+      "n_analysts": null,
+      "source_field": null,
+      "flag": "no_estimate"
+    },
+    "160980": {
+      "name": "싸이맥스",
+      "covered": true,
+      "q2_op_consensus_eok": 89.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "189330": {
+      "name": "씨이랩",
+      "covered": false,
+      "q2_op_consensus_eok": null,
+      "n_analysts": null,
+      "source_field": null,
+      "flag": "no_estimate"
+    },
+    "204610": {
+      "name": "티쓰리",
+      "covered": false,
+      "q2_op_consensus_eok": null,
+      "n_analysts": null,
+      "source_field": null,
+      "flag": "no_estimate"
+    },
+    "219130": {
+      "name": "타이거일렉",
+      "covered": true,
+      "q2_op_consensus_eok": 60.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "375500": {
+      "name": "DL이앤씨",
+      "covered": true,
+      "q2_op_consensus_eok": 1238.0,
+      "n_analysts": null,
+      "source_field": "m.stock.naver.com finance/quarter 202606 isConsensus=Y 영업이익",
+      "flag": "consensus"
+    },
+    "446540": {
+      "name": "메가터치",
+      "covered": false,
+      "q2_op_consensus_eok": null,
+      "n_analysts": null,
+      "source_field": null,
+      "flag": "no_estimate"
+    }
+  }
+}

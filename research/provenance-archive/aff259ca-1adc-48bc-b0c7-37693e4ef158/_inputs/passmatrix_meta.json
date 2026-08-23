@@ -1,0 +1,302 @@
+{
+  "built_at": "2026-08-17 04:51",
+  "shape": {
+    "T_days": 1624,
+    "N_codes": 3121,
+    "date_range": [
+      "2020-01-02",
+      "2026-08-13"
+    ]
+  },
+  "rules": {
+    "rs_min": 80,
+    "rs_pool_min": 100,
+    "rs_pool": "same-win pool (win=min(n-1,252)); rank=bisect_left; rs=clip(round(rank/size*100),1,99); pool excludes KONEX+halted+n<200",
+    "min_closes_for_tt": 200,
+    "turnover_rule": "50d avg(raw clpr*trqu)>=5 eok, needs>=20d else pass",
+    "liveness": "last 5 trading-day volumes all 0 -> excluded (is_halted mirror)",
+    "eligibility": "KOSPI/KOSDAQ + not preferred(last char != '0') + not 9xxxxx + turnover + liveness",
+    "all_pass_is_pure_8_criteria": true,
+    "tenure10": "count of all_pass among prior 10 global trading days (missing=fail)"
+  },
+  "rs_pool_252_size_last_day": 2549,
+  "per_year": {
+    "2020": {
+      "trading_days": 248,
+      "all_pass_stockdays": 7205,
+      "all_pass_eligible_stockdays": 6715,
+      "avg_daily_all_pass": 29.1,
+      "avg_daily_all_pass_eligible": 27.1
+    },
+    "2021": {
+      "trading_days": 248,
+      "all_pass_stockdays": 53038,
+      "all_pass_eligible_stockdays": 50098,
+      "avg_daily_all_pass": 213.9,
+      "avg_daily_all_pass_eligible": 202.0
+    },
+    "2022": {
+      "trading_days": 246,
+      "all_pass_stockdays": 20315,
+      "all_pass_eligible_stockdays": 18531,
+      "avg_daily_all_pass": 82.6,
+      "avg_daily_all_pass_eligible": 75.3
+    },
+    "2023": {
+      "trading_days": 245,
+      "all_pass_stockdays": 40744,
+      "all_pass_eligible_stockdays": 38038,
+      "avg_daily_all_pass": 166.3,
+      "avg_daily_all_pass_eligible": 155.3
+    },
+    "2024": {
+      "trading_days": 244,
+      "all_pass_stockdays": 35147,
+      "all_pass_eligible_stockdays": 31019,
+      "avg_daily_all_pass": 144.0,
+      "avg_daily_all_pass_eligible": 127.1
+    },
+    "2025": {
+      "trading_days": 242,
+      "all_pass_stockdays": 54045,
+      "all_pass_eligible_stockdays": 46412,
+      "avg_daily_all_pass": 223.3,
+      "avg_daily_all_pass_eligible": 191.8
+    },
+    "2026": {
+      "trading_days": 151,
+      "all_pass_stockdays": 36102,
+      "all_pass_eligible_stockdays": 32564,
+      "avg_daily_all_pass": 239.1,
+      "avg_daily_all_pass_eligible": 215.7
+    }
+  },
+  "quality": {
+    "missing_clpr": 0,
+    "nonpos_clpr": 0,
+    "missing_fltRt": 0,
+    "flt_minus100": 0,
+    "missing_trqu": 0,
+    "missing_trPrc": 0,
+    "other_mrktCtg": 0,
+    "rows_total": 4391760,
+    "missing_fltRt_by_year": {},
+    "present_rows_missing_close": 0,
+    "flt_fallback_ratio_steps": 0,
+    "dropped_pure_konex_codes": 173
+  },
+  "quirks": [
+    "pdata starts 2020-01-02: nhist is truncated for pre-2020 listings -> no evaluation until day 200 of grid (~2020-10-21); RS uses shortened same-win pools until day 253 (~2021-01); first ~1yr of matrix is warm-up, not true history.",
+    "RS pool = pdata KOSPI+KOSDAQ (~2,700) vs production FDR listing (~2,520): pdata includes vehicles FDR listing drops; percentiles can shift 1-2 points near the 80 cut.",
+    "turnover filter uses raw clpr*trqu; production uses back-adjusted closes*volumes — differs only when corporate action within the 50d window.",
+    "manual excluded-codes.json not applied historically (time-invariant file, would be look-ahead).",
+    "production cache history starts 2024-12-19 (401d on 2026-08-13); win=252 both sides, but 52w windows identical only when both have >=252d."
+  ],
+  "validation": {
+    "snapshot_2026_08_13": {
+      "snapshot_all_pass": 61,
+      "mine_all_pass_eligible": 62,
+      "mine_all_pass_prefilter": 82,
+      "overlap": 61,
+      "jaccard": 0.984,
+      "rs_absdiff_on_overlap_mean": 0.1,
+      "rs_absdiff_on_overlap_max": 1,
+      "diffs": [
+        {
+          "code": "417310",
+          "side": "mine_only",
+          "my_rs": 94,
+          "my_pc": 8,
+          "snap": "not in candidates[] (failed/filtered/absent)",
+          "explanation": "417310=코람코더원리츠(KOSPI REIT). Production universe comes from fdr.StockListing which omits REITs/funds (scanned 2520 vs pdata main-market 2763); the code appears nowhere in the snapshot (candidates/failed/ipo all absent) so it was never scanned. Not an algorithm mismatch."
+        }
+      ],
+      "note": "All 61 snapshot all_pass codes reproduced (100% recall, jaccard 0.984). RS on overlap: mean abs diff 0.1, max 1 (pool-size difference: my win=252 pool 2549 vs production 2455).",
+      "snapshot_scanned_count": 2520,
+      "my_universe_main_market_count": 2763
+    },
+    "oracle_3x2": [
+      {
+        "code": "005930",
+        "date": "2026-04-02",
+        "oracle_pass": true,
+        "mine_pass": true,
+        "oracle_criteria": {
+          "1": true,
+          "2": true,
+          "3": true,
+          "4": true,
+          "5": true,
+          "6": true,
+          "7": true,
+          "8": true
+        },
+        "mine_criteria": {
+          "1": true,
+          "2": true,
+          "3": true,
+          "4": true,
+          "5": true,
+          "6": true,
+          "7": true,
+          "8": true
+        },
+        "mismatched_criteria": [],
+        "oracle_n_closes": 310,
+        "mine_nhist": 1534
+      },
+      {
+        "code": "005930",
+        "date": "2026-08-13",
+        "oracle_pass": false,
+        "mine_pass": false,
+        "oracle_criteria": {
+          "1": true,
+          "2": true,
+          "3": true,
+          "4": true,
+          "5": false,
+          "6": true,
+          "7": false,
+          "8": true
+        },
+        "mine_criteria": {
+          "1": true,
+          "2": true,
+          "3": true,
+          "4": true,
+          "5": false,
+          "6": true,
+          "7": false,
+          "8": true
+        },
+        "mismatched_criteria": [],
+        "oracle_n_closes": 400,
+        "mine_nhist": 1624
+      },
+      {
+        "code": "219130",
+        "date": "2026-04-02",
+        "oracle_pass": false,
+        "mine_pass": false,
+        "oracle_criteria": {
+          "1": true,
+          "2": true,
+          "3": true,
+          "4": true,
+          "5": false,
+          "6": true,
+          "7": false,
+          "8": true
+        },
+        "mine_criteria": {
+          "1": true,
+          "2": true,
+          "3": true,
+          "4": true,
+          "5": false,
+          "6": true,
+          "7": false,
+          "8": true
+        },
+        "mismatched_criteria": [],
+        "oracle_n_closes": 310,
+        "mine_nhist": 1534
+      },
+      {
+        "code": "219130",
+        "date": "2026-08-13",
+        "oracle_pass": true,
+        "mine_pass": true,
+        "oracle_criteria": {
+          "1": true,
+          "2": true,
+          "3": true,
+          "4": true,
+          "5": true,
+          "6": true,
+          "7": true,
+          "8": true
+        },
+        "mine_criteria": {
+          "1": true,
+          "2": true,
+          "3": true,
+          "4": true,
+          "5": true,
+          "6": true,
+          "7": true,
+          "8": true
+        },
+        "mismatched_criteria": [],
+        "oracle_n_closes": 400,
+        "mine_nhist": 1624
+      },
+      {
+        "code": "007340",
+        "date": "2026-04-02",
+        "oracle_pass": true,
+        "mine_pass": true,
+        "oracle_criteria": {
+          "1": true,
+          "2": true,
+          "3": true,
+          "4": true,
+          "5": true,
+          "6": true,
+          "7": true,
+          "8": true
+        },
+        "mine_criteria": {
+          "1": true,
+          "2": true,
+          "3": true,
+          "4": true,
+          "5": true,
+          "6": true,
+          "7": true,
+          "8": true
+        },
+        "mismatched_criteria": [],
+        "oracle_n_closes": 310,
+        "mine_nhist": 1534
+      },
+      {
+        "code": "007340",
+        "date": "2026-08-13",
+        "oracle_pass": true,
+        "mine_pass": true,
+        "oracle_criteria": {
+          "1": true,
+          "2": true,
+          "3": true,
+          "4": true,
+          "5": true,
+          "6": true,
+          "7": true,
+          "8": true
+        },
+        "mine_criteria": {
+          "1": true,
+          "2": true,
+          "3": true,
+          "4": true,
+          "5": true,
+          "6": true,
+          "7": true,
+          "8": true
+        },
+        "mismatched_criteria": [],
+        "oracle_n_closes": 400,
+        "mine_nhist": 1624
+      }
+    ],
+    "oracle_criteria_match_rate": 1.0,
+    "fltRt_chain_005930": {
+      "n_common_days_2025_2026": 393,
+      "max_abs_daily_return_diff": 1.6567347937979093e-07,
+      "worst_date": "2025-05-28",
+      "mean_abs_diff": 3.492939194090477e-08
+    }
+  }
+}

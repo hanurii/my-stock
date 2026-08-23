@@ -1,0 +1,6645 @@
+{
+ "meta": {
+  "n_snapshots": 31,
+  "snapshot_dates": [
+   "2026-06-30",
+   "2026-07-01",
+   "2026-07-02",
+   "2026-07-03",
+   "2026-07-05",
+   "2026-07-06",
+   "2026-07-07",
+   "2026-07-08",
+   "2026-07-10",
+   "2026-07-13",
+   "2026-07-14",
+   "2026-07-15",
+   "2026-07-20",
+   "2026-07-21",
+   "2026-07-22",
+   "2026-07-23",
+   "2026-07-24",
+   "2026-07-27",
+   "2026-07-28",
+   "2026-07-29",
+   "2026-07-31",
+   "2026-08-03",
+   "2026-08-04",
+   "2026-08-05",
+   "2026-08-06",
+   "2026-08-07",
+   "2026-08-10",
+   "2026-08-11",
+   "2026-08-12",
+   "2026-08-13",
+   "2026-08-15"
+  ],
+  "note_universe": "08-03부터 스냅샷 유니버스 축소(2485→1346); 파일 부재=all_pass 아님으로 처리",
+  "n_trades": 53,
+  "n_bt_entered_dedup": 110,
+  "n_bt_closed": 74,
+  "bt_dups_dropped": 72,
+  "early_trades_low_history": [
+   "삼성전기(2026-07-01,n_prior=1)",
+   "나이스정보통신(2026-07-01,n_prior=1)",
+   "비엠티(2026-07-01,n_prior=1)",
+   "타이거일렉(2026-07-01,n_prior=1)",
+   "오리온(2026-07-02,n_prior=2)",
+   "한국공항(2026-07-03,n_prior=3)",
+   "S-Oil우(2026-07-03,n_prior=3)"
+  ]
+ },
+ "definitions": {
+  "tenure10_strict": "진입일 09:00 이전 마지막 10개 스냅샷 중 all_pass(8/8) 횟수",
+  "tenure10_loose": "같은 창에서 passed_count>=7 횟수",
+  "streak": "직전 스냅샷에서 끝나는 연속 all_pass 길이(창 제한 없음)",
+  "newcomer": "(직전 스냅샷 all_pass 또는 페이지 노출) AND tenure10_strict<=2",
+  "regular": "tenure10_strict>=5",
+  "rs_floor": "표시 RS<=82",
+  "rs_vol10": "창 내 RS 최대-최소"
+ },
+ "trades_split": {
+  "label": "53 실거래(청산완료)",
+  "n": 53,
+  "newcomer": {
+   "n": 12,
+   "wins": 2,
+   "win_rate": 16.7,
+   "avg_net": -4.96,
+   "sum_net": -59.47
+  },
+  "mid_3_4": {
+   "n": 12,
+   "wins": 5,
+   "win_rate": 41.7,
+   "avg_net": -0.05,
+   "sum_net": -0.59
+  },
+  "regular_ge5": {
+   "n": 29,
+   "wins": 12,
+   "win_rate": 41.4,
+   "avg_net": -0.44,
+   "sum_net": -12.77
+  },
+  "fisher_new_vs_reg": 0.165,
+  "fisher_new_vs_rest": 0.1744,
+  "newcomer_loose": {
+   "n": 7,
+   "wins": 2,
+   "win_rate": 28.6,
+   "avg_net": -2.43,
+   "sum_net": -16.98
+  },
+  "regular_loose": {
+   "n": 39,
+   "wins": 13,
+   "win_rate": 33.3,
+   "avg_net": -1.36,
+   "sum_net": -53.22
+  },
+  "fisher_loose": 1.0,
+  "rs_le82": {
+   "n": 8,
+   "wins": 3,
+   "win_rate": 37.5,
+   "avg_net": -4.51,
+   "sum_net": -36.06
+  },
+  "rs_83_89": {
+   "n": 27,
+   "wins": 9,
+   "win_rate": 33.3,
+   "avg_net": -1.18,
+   "sum_net": -31.91
+  },
+  "rs_ge90": {
+   "n": 18,
+   "wins": 7,
+   "win_rate": 38.9,
+   "avg_net": -0.27,
+   "sum_net": -4.86
+  },
+  "fisher_rslo_vs_hi": 1.0,
+  "streak0": {
+   "n": 1,
+   "wins": 0,
+   "win_rate": 0.0,
+   "avg_net": -4.91,
+   "sum_net": -4.91
+  },
+  "streak1": {
+   "n": 18,
+   "wins": 6,
+   "win_rate": 33.3,
+   "avg_net": -1.81,
+   "sum_net": -32.64
+  },
+  "streak2_4": {
+   "n": 15,
+   "wins": 5,
+   "win_rate": 33.3,
+   "avg_net": -1.36,
+   "sum_net": -20.34
+  },
+  "streak_ge5": {
+   "n": 19,
+   "wins": 8,
+   "win_rate": 42.1,
+   "avg_net": -0.79,
+   "sum_net": -14.94
+  },
+  "rsvol_ge15": {
+   "n": 1,
+   "wins": 0,
+   "win_rate": 0.0,
+   "avg_net": -21.25,
+   "sum_net": -21.25
+  },
+  "rsvol_lt15": {
+   "n": 48,
+   "wins": 18,
+   "win_rate": 37.5,
+   "avg_net": -0.94,
+   "sum_net": -44.93
+  }
+ },
+ "trades_split_excl_low_history": {
+  "label": "실거래(스냅샷 5개 이상 확보분)",
+  "n": 46,
+  "newcomer": {
+   "n": 7,
+   "wins": 1,
+   "win_rate": 14.3,
+   "avg_net": -6.66,
+   "sum_net": -46.62
+  },
+  "mid_3_4": {
+   "n": 10,
+   "wins": 4,
+   "win_rate": 40.0,
+   "avg_net": -0.61,
+   "sum_net": -6.11
+  },
+  "regular_ge5": {
+   "n": 29,
+   "wins": 12,
+   "win_rate": 41.4,
+   "avg_net": -0.44,
+   "sum_net": -12.77
+  },
+  "fisher_new_vs_reg": 0.3822,
+  "fisher_new_vs_rest": 0.234,
+  "newcomer_loose": {
+   "n": 2,
+   "wins": 1,
+   "win_rate": 50.0,
+   "avg_net": -2.06,
+   "sum_net": -4.13
+  },
+  "regular_loose": {
+   "n": 39,
+   "wins": 13,
+   "win_rate": 33.3,
+   "avg_net": -1.36,
+   "sum_net": -53.22
+  },
+  "fisher_loose": 1.0,
+  "rs_le82": {
+   "n": 7,
+   "wins": 3,
+   "win_rate": 42.9,
+   "avg_net": -4.27,
+   "sum_net": -29.86
+  },
+  "rs_83_89": {
+   "n": 25,
+   "wins": 8,
+   "win_rate": 32.0,
+   "avg_net": -1.48,
+   "sum_net": -36.98
+  },
+  "rs_ge90": {
+   "n": 14,
+   "wins": 6,
+   "win_rate": 42.9,
+   "avg_net": 0.1,
+   "sum_net": 1.34
+  },
+  "fisher_rslo_vs_hi": 1.0,
+  "streak0": {
+   "n": 1,
+   "wins": 0,
+   "win_rate": 0.0,
+   "avg_net": -4.91,
+   "sum_net": -4.91
+  },
+  "streak1": {
+   "n": 13,
+   "wins": 5,
+   "win_rate": 38.5,
+   "avg_net": -1.52,
+   "sum_net": -19.79
+  },
+  "streak2_4": {
+   "n": 13,
+   "wins": 4,
+   "win_rate": 30.8,
+   "avg_net": -1.99,
+   "sum_net": -25.86
+  },
+  "streak_ge5": {
+   "n": 19,
+   "wins": 8,
+   "win_rate": 42.1,
+   "avg_net": -0.79,
+   "sum_net": -14.94
+  },
+  "rsvol_ge15": {
+   "n": 1,
+   "wins": 0,
+   "win_rate": 0.0,
+   "avg_net": -21.25,
+   "sum_net": -21.25
+  },
+  "rsvol_lt15": {
+   "n": 45,
+   "wins": 17,
+   "win_rate": 37.8,
+   "avg_net": -0.98,
+   "sum_net": -44.25
+  }
+ },
+ "crosstabs": {
+  "setup": {
+   "setup_null": {
+    "setup_null": {
+     "all": {
+      "n": 10,
+      "wins": 1,
+      "win_rate": 10.0,
+      "avg_net": -6.05,
+      "sum_net": -60.46
+     },
+     "newcomer": {
+      "n": 2,
+      "wins": 0,
+      "win_rate": 0.0,
+      "avg_net": -13.29,
+      "sum_net": -26.59
+     },
+     "non_newcomer": {
+      "n": 8,
+      "wins": 1,
+      "win_rate": 12.5,
+      "avg_net": -4.23,
+      "sum_net": -33.87
+     }
+    },
+    "setup_present": {
+     "all": {
+      "n": 43,
+      "wins": 18,
+      "win_rate": 41.9,
+      "avg_net": -0.29,
+      "sum_net": -12.37
+     },
+     "newcomer": {
+      "n": 10,
+      "wins": 2,
+      "win_rate": 20.0,
+      "avg_net": -3.29,
+      "sum_net": -32.88
+     },
+     "non_newcomer": {
+      "n": 33,
+      "wins": 16,
+      "win_rate": 48.5,
+      "avg_net": 0.62,
+      "sum_net": 20.51
+     }
+    }
+   }
+  },
+  "regime": {
+   "regime": {
+    "regime_up": {
+     "all": {
+      "n": 11,
+      "wins": 7,
+      "win_rate": 63.6,
+      "avg_net": 2.64,
+      "sum_net": 29.05
+     },
+     "newcomer": {
+      "n": 1,
+      "wins": 0,
+      "win_rate": 0.0,
+      "avg_net": -4.91,
+      "sum_net": -4.91
+     },
+     "non_newcomer": {
+      "n": 10,
+      "wins": 7,
+      "win_rate": 70.0,
+      "avg_net": 3.4,
+      "sum_net": 33.96
+     }
+    },
+    "regime_down": {
+     "all": {
+      "n": 42,
+      "wins": 12,
+      "win_rate": 28.6,
+      "avg_net": -2.43,
+      "sum_net": -101.88
+     },
+     "newcomer": {
+      "n": 11,
+      "wins": 2,
+      "win_rate": 18.2,
+      "avg_net": -4.96,
+      "sum_net": -54.56
+     },
+     "non_newcomer": {
+      "n": 31,
+      "wins": 10,
+      "win_rate": 32.3,
+      "avg_net": -1.53,
+      "sum_net": -47.32
+     }
+    }
+   }
+  },
+  "relvol": {
+   "relvol": {
+    "relvol_ge1": {
+     "all": {
+      "n": 16,
+      "wins": 3,
+      "win_rate": 18.8,
+      "avg_net": -4.07,
+      "sum_net": -65.07
+     },
+     "newcomer": {
+      "n": 5,
+      "wins": 1,
+      "win_rate": 20.0,
+      "avg_net": -6.11,
+      "sum_net": -30.53
+     },
+     "non_newcomer": {
+      "n": 11,
+      "wins": 2,
+      "win_rate": 18.2,
+      "avg_net": -3.14,
+      "sum_net": -34.54
+     }
+    },
+    "relvol_lt1": {
+     "all": {
+      "n": 37,
+      "wins": 16,
+      "win_rate": 43.2,
+      "avg_net": -0.21,
+      "sum_net": -7.76
+     },
+     "newcomer": {
+      "n": 7,
+      "wins": 1,
+      "win_rate": 14.3,
+      "avg_net": -4.13,
+      "sum_net": -28.94
+     },
+     "non_newcomer": {
+      "n": 30,
+      "wins": 15,
+      "win_rate": 50.0,
+      "avg_net": 0.71,
+      "sum_net": 21.18
+     }
+    }
+   }
+  }
+ },
+ "newcomer_composition": {
+  "n": 12,
+  "setup_null_share": 16.7,
+  "regime_down_share": 91.7,
+  "relvol_lt1_share": 58.3,
+  "vs_all": {
+   "setup_null_share": 18.9,
+   "regime_down_share": 79.2,
+   "relvol_lt1_share": 69.8
+  }
+ },
+ "strict_loose_divergent_trades": [
+  {
+   "name": "GS우",
+   "open_date": "2026-07-07",
+   "net_pct": -5.34,
+   "tenure_strict": 1,
+   "tenure_loose": 5
+  },
+  {
+   "name": "제이에스링크",
+   "open_date": "2026-07-16",
+   "net_pct": -5.3,
+   "tenure_strict": 2,
+   "tenure_loose": 6
+  },
+  {
+   "name": "에스에스알",
+   "open_date": "2026-07-16",
+   "net_pct": -5.27,
+   "tenure_strict": 1,
+   "tenure_loose": 5
+  },
+  {
+   "name": "일지테크",
+   "open_date": "2026-07-20",
+   "net_pct": -5.33,
+   "tenure_strict": 1,
+   "tenure_loose": 8
+  },
+  {
+   "name": "F&F",
+   "open_date": "2026-07-31",
+   "net_pct": -21.25,
+   "tenure_strict": 1,
+   "tenure_loose": 3
+  }
+ ],
+ "flag_proposed_trades": {
+  "n": 53,
+  "n_flagged": 15,
+  "losses_total": 34,
+  "losses_flagged": 11,
+  "wins_total": 19,
+  "wins_flagged": 4,
+  "wins_flagged_names": [
+   "타이거일렉(2026-07-01,+7.6%)",
+   "가비아(2026-07-06,+0.8%)",
+   "한국주강(2026-07-16,+0.6%)",
+   "달바글로벌(2026-07-21,+5.2%)"
+  ],
+  "flagged": {
+   "n": 15,
+   "wins": 4,
+   "win_rate": 26.7,
+   "avg_net": -3.91,
+   "sum_net": -58.68
+  },
+  "kept": {
+   "n": 38,
+   "wins": 15,
+   "win_rate": 39.5,
+   "avg_net": -0.37,
+   "sum_net": -14.15
+  },
+  "fisher_flag": 0.5284,
+  "net_avoided_sum": 58.68
+ },
+ "bt_closed_split_all": {
+  "label": "백테스트 청산완료(코드당 첫 진입)",
+  "n": 74,
+  "newcomer": {
+   "n": 49,
+   "wins": 12,
+   "win_rate": 24.5,
+   "avg_net": -2.99,
+   "sum_net": -146.66
+  },
+  "mid_3_4": {
+   "n": 13,
+   "wins": 4,
+   "win_rate": 30.8,
+   "avg_net": -1.11,
+   "sum_net": -14.42
+  },
+  "regular_ge5": {
+   "n": 12,
+   "wins": 1,
+   "win_rate": 8.3,
+   "avg_net": -7.84,
+   "sum_net": -94.08
+  },
+  "fisher_new_vs_reg": 0.4318,
+  "fisher_new_vs_rest": 0.7751,
+  "newcomer_loose": {
+   "n": 40,
+   "wins": 8,
+   "win_rate": 20.0,
+   "avg_net": -4.34,
+   "sum_net": -173.6
+  },
+  "regular_loose": {
+   "n": 25,
+   "wins": 6,
+   "win_rate": 24.0,
+   "avg_net": -3.14,
+   "sum_net": -78.5
+  },
+  "fisher_loose": 0.7618,
+  "rs_le82": {
+   "n": 10,
+   "wins": 4,
+   "win_rate": 40.0,
+   "avg_net": 1.66,
+   "sum_net": 16.6
+  },
+  "rs_83_89": {
+   "n": 24,
+   "wins": 7,
+   "win_rate": 29.2,
+   "avg_net": -1.59,
+   "sum_net": -38.16
+  },
+  "rs_ge90": {
+   "n": 40,
+   "wins": 6,
+   "win_rate": 15.0,
+   "avg_net": -5.84,
+   "sum_net": -233.6
+  },
+  "fisher_rslo_vs_hi": 0.0966,
+  "streak0": {
+   "n": 16,
+   "wins": 4,
+   "win_rate": 25.0,
+   "avg_net": -2.84,
+   "sum_net": -45.44
+  },
+  "streak1": {
+   "n": 31,
+   "wins": 8,
+   "win_rate": 25.8,
+   "avg_net": -2.6,
+   "sum_net": -80.54
+  },
+  "streak2_4": {
+   "n": 17,
+   "wins": 4,
+   "win_rate": 23.5,
+   "avg_net": -3.28,
+   "sum_net": -55.78
+  },
+  "streak_ge5": {
+   "n": 10,
+   "wins": 1,
+   "win_rate": 10.0,
+   "avg_net": -7.34,
+   "sum_net": -73.4
+  },
+  "rsvol_ge15": {
+   "n": 3,
+   "wins": 1,
+   "win_rate": 33.3,
+   "avg_net": -0.34,
+   "sum_net": -1.02
+  },
+  "rsvol_lt15": {
+   "n": 44,
+   "wins": 11,
+   "win_rate": 25.0,
+   "avg_net": -2.84,
+   "sum_net": -124.96
+  }
+ },
+ "bt_closed_hist_ge5": {
+  "n": 35,
+  "baseline": {
+   "n": 35,
+   "wins": 8,
+   "win_rate": 22.9,
+   "avg_net": -3.48,
+   "sum_net": -121.9
+  },
+  "newcomer": {
+   "n": 13,
+   "wins": 4,
+   "win_rate": 30.8,
+   "avg_net": -1.11,
+   "sum_net": -14.42
+  },
+  "mid_3_4": {
+   "n": 10,
+   "wins": 3,
+   "win_rate": 30.0,
+   "avg_net": -1.34,
+   "sum_net": -13.4
+  },
+  "regular_ge5": {
+   "n": 12,
+   "wins": 1,
+   "win_rate": 8.3,
+   "avg_net": -7.84,
+   "sum_net": -94.08
+  },
+  "fisher_new_vs_reg": 0.3217,
+  "rs_le82": {
+   "n": 7,
+   "wins": 3,
+   "win_rate": 42.9,
+   "avg_net": 2.52,
+   "sum_net": 17.62
+  },
+  "rs_83_89": {
+   "n": 14,
+   "wins": 3,
+   "win_rate": 21.4,
+   "avg_net": -3.91,
+   "sum_net": -54.76
+  },
+  "rs_ge90": {
+   "n": 14,
+   "wins": 2,
+   "win_rate": 14.3,
+   "avg_net": -6.05,
+   "sum_net": -84.76
+  },
+  "fisher_rslo_vs_hi": 0.28,
+  "flag_proposed": {
+   "flagged": {
+    "n": 16,
+    "wins": 5,
+    "win_rate": 31.2,
+    "avg_net": -0.96,
+    "sum_net": -15.44
+   },
+   "kept": {
+    "n": 19,
+    "wins": 3,
+    "win_rate": 15.8,
+    "avg_net": -5.6,
+    "sum_net": -106.46
+   },
+   "fisher": 0.4236
+  },
+  "variant_ten1_and_rs84": {
+   "flagged": {
+    "n": 3,
+    "wins": 1,
+    "win_rate": 33.3,
+    "avg_net": -0.34,
+    "sum_net": -1.02
+   },
+   "kept": {
+    "n": 32,
+    "wins": 7,
+    "win_rate": 21.9,
+    "avg_net": -3.78,
+    "sum_net": -120.88
+   },
+   "flagged_names": [
+    "한국주강(2026-07-08,+19.7)",
+    "F&F(2026-07-30,-10.3)",
+    "삼진엘앤디(2026-08-03,-10.3)"
+   ]
+  }
+ },
+ "flag_proposed_bt_closed_all": {
+  "n": 74,
+  "n_flagged": 52,
+  "losses_total": 57,
+  "losses_flagged": 39,
+  "wins_total": 17,
+  "wins_flagged": 13,
+  "wins_flagged_names": [
+   "유진테크(2026-06-30,+19.7%)",
+   "심텍(2026-06-30,+19.7%)",
+   "안국약품(2026-07-01,+19.7%)",
+   "슈프리마에이치큐(2026-07-01,+19.7%)",
+   "타이거일렉(2026-07-01,+19.7%)",
+   "S-Oil우(2026-07-02,+19.7%)",
+   "한국알콜(2026-07-03,+19.7%)",
+   "코스맥스엔비티(2026-07-03,+19.7%)",
+   "GS(2026-07-07,+19.7%)",
+   "한국주강(2026-07-08,+19.7%)",
+   "블루콤(2026-07-20,+19.7%)",
+   "씨이랩(2026-08-04,+19.7%)",
+   "코스맥스비티아이(2026-08-10,+19.7%)"
+  ],
+  "flagged": {
+   "n": 52,
+   "wins": 13,
+   "win_rate": 25.0,
+   "avg_net": -2.84,
+   "sum_net": -147.68
+  },
+  "kept": {
+   "n": 22,
+   "wins": 4,
+   "win_rate": 18.2,
+   "avg_net": -4.89,
+   "sum_net": -107.48
+  },
+  "fisher_flag": 0.7632,
+  "net_avoided_sum": 147.68
+ },
+ "variants_trades": [
+  {
+   "rule": "rs<=80",
+   "ten": null,
+   "rs": 80,
+   "op": "-",
+   "n_flagged": 3,
+   "losses_flagged": 2,
+   "wins_flagged": 1,
+   "kept_n": 50,
+   "kept_win_rate": 36.0,
+   "kept_avg_net": -1.36,
+   "avoided_net_sum": 4.74
+  },
+  {
+   "rule": "rs<=82",
+   "ten": null,
+   "rs": 82,
+   "op": "-",
+   "n_flagged": 8,
+   "losses_flagged": 5,
+   "wins_flagged": 3,
+   "kept_n": 45,
+   "kept_win_rate": 35.6,
+   "kept_avg_net": -0.82,
+   "avoided_net_sum": 36.06
+  },
+  {
+   "rule": "rs<=84",
+   "ten": null,
+   "rs": 84,
+   "op": "-",
+   "n_flagged": 15,
+   "losses_flagged": 9,
+   "wins_flagged": 6,
+   "kept_n": 38,
+   "kept_win_rate": 34.2,
+   "kept_avg_net": -0.9,
+   "avoided_net_sum": 38.5
+  },
+  {
+   "rule": "tenure10<=1",
+   "ten": 1,
+   "rs": null,
+   "op": "-",
+   "n_flagged": 10,
+   "losses_flagged": 9,
+   "wins_flagged": 1,
+   "kept_n": 43,
+   "kept_win_rate": 41.9,
+   "kept_avg_net": -0.42,
+   "avoided_net_sum": 54.95
+  },
+  {
+   "rule": "tenure10<=1 OR rs<=80",
+   "ten": 1,
+   "rs": 80,
+   "op": "OR",
+   "n_flagged": 12,
+   "losses_flagged": 10,
+   "wins_flagged": 2,
+   "kept_n": 41,
+   "kept_win_rate": 41.5,
+   "kept_avg_net": -0.44,
+   "avoided_net_sum": 54.78
+  },
+  {
+   "rule": "tenure10<=1 AND rs<=80",
+   "ten": 1,
+   "rs": 80,
+   "op": "AND",
+   "n_flagged": 1,
+   "losses_flagged": 1,
+   "wins_flagged": 0,
+   "kept_n": 52,
+   "kept_win_rate": 36.5,
+   "kept_avg_net": -1.31,
+   "avoided_net_sum": 4.91
+  },
+  {
+   "rule": "tenure10<=1 OR rs<=82",
+   "ten": 1,
+   "rs": 82,
+   "op": "OR",
+   "n_flagged": 14,
+   "losses_flagged": 10,
+   "wins_flagged": 4,
+   "kept_n": 39,
+   "kept_win_rate": 38.5,
+   "kept_avg_net": -0.5,
+   "avoided_net_sum": 53.38
+  },
+  {
+   "rule": "tenure10<=1 AND rs<=82",
+   "ten": 1,
+   "rs": 82,
+   "op": "AND",
+   "n_flagged": 4,
+   "losses_flagged": 4,
+   "wins_flagged": 0,
+   "kept_n": 49,
+   "kept_win_rate": 38.8,
+   "kept_avg_net": -0.72,
+   "avoided_net_sum": 37.63
+  },
+  {
+   "rule": "tenure10<=1 OR rs<=84",
+   "ten": 1,
+   "rs": 84,
+   "op": "OR",
+   "n_flagged": 19,
+   "losses_flagged": 12,
+   "wins_flagged": 7,
+   "kept_n": 34,
+   "kept_win_rate": 35.3,
+   "kept_avg_net": -0.83,
+   "avoided_net_sum": 44.77
+  },
+  {
+   "rule": "tenure10<=1 AND rs<=84",
+   "ten": 1,
+   "rs": 84,
+   "op": "AND",
+   "n_flagged": 6,
+   "losses_flagged": 6,
+   "wins_flagged": 0,
+   "kept_n": 47,
+   "kept_win_rate": 40.4,
+   "kept_avg_net": -0.51,
+   "avoided_net_sum": 48.68
+  },
+  {
+   "rule": "tenure10<=2",
+   "ten": 2,
+   "rs": null,
+   "op": "-",
+   "n_flagged": 12,
+   "losses_flagged": 10,
+   "wins_flagged": 2,
+   "kept_n": 41,
+   "kept_win_rate": 41.5,
+   "kept_avg_net": -0.33,
+   "avoided_net_sum": 59.47
+  },
+  {
+   "rule": "tenure10<=2 OR rs<=80",
+   "ten": 2,
+   "rs": 80,
+   "op": "OR",
+   "n_flagged": 14,
+   "losses_flagged": 11,
+   "wins_flagged": 3,
+   "kept_n": 39,
+   "kept_win_rate": 41.0,
+   "kept_avg_net": -0.35,
+   "avoided_net_sum": 59.3
+  },
+  {
+   "rule": "tenure10<=2 AND rs<=80",
+   "ten": 2,
+   "rs": 80,
+   "op": "AND",
+   "n_flagged": 1,
+   "losses_flagged": 1,
+   "wins_flagged": 0,
+   "kept_n": 52,
+   "kept_win_rate": 36.5,
+   "kept_avg_net": -1.31,
+   "avoided_net_sum": 4.91
+  },
+  {
+   "rule": "tenure10<=2 OR rs<=82",
+   "ten": 2,
+   "rs": 82,
+   "op": "OR",
+   "n_flagged": 15,
+   "losses_flagged": 11,
+   "wins_flagged": 4,
+   "kept_n": 38,
+   "kept_win_rate": 39.5,
+   "kept_avg_net": -0.37,
+   "avoided_net_sum": 58.68
+  },
+  {
+   "rule": "tenure10<=2 AND rs<=82",
+   "ten": 2,
+   "rs": 82,
+   "op": "AND",
+   "n_flagged": 5,
+   "losses_flagged": 4,
+   "wins_flagged": 1,
+   "kept_n": 48,
+   "kept_win_rate": 37.5,
+   "kept_avg_net": -0.75,
+   "avoided_net_sum": 36.85
+  },
+  {
+   "rule": "tenure10<=2 OR rs<=84",
+   "ten": 2,
+   "rs": 84,
+   "op": "OR",
+   "n_flagged": 20,
+   "losses_flagged": 13,
+   "wins_flagged": 7,
+   "kept_n": 33,
+   "kept_win_rate": 36.4,
+   "kept_avg_net": -0.69,
+   "avoided_net_sum": 50.07
+  },
+  {
+   "rule": "tenure10<=2 AND rs<=84",
+   "ten": 2,
+   "rs": 84,
+   "op": "AND",
+   "n_flagged": 7,
+   "losses_flagged": 6,
+   "wins_flagged": 1,
+   "kept_n": 46,
+   "kept_win_rate": 39.1,
+   "kept_avg_net": -0.54,
+   "avoided_net_sum": 47.9
+  },
+  {
+   "rule": "tenure10<=3",
+   "ten": 3,
+   "rs": null,
+   "op": "-",
+   "n_flagged": 19,
+   "losses_flagged": 13,
+   "wins_flagged": 6,
+   "kept_n": 34,
+   "kept_win_rate": 38.2,
+   "kept_avg_net": -0.95,
+   "avoided_net_sum": 40.47
+  },
+  {
+   "rule": "tenure10<=3 OR rs<=80",
+   "ten": 3,
+   "rs": 80,
+   "op": "OR",
+   "n_flagged": 20,
+   "losses_flagged": 14,
+   "wins_flagged": 6,
+   "kept_n": 33,
+   "kept_win_rate": 39.4,
+   "kept_avg_net": -0.83,
+   "avoided_net_sum": 45.52
+  },
+  {
+   "rule": "tenure10<=3 AND rs<=80",
+   "ten": 3,
+   "rs": 80,
+   "op": "AND",
+   "n_flagged": 2,
+   "losses_flagged": 1,
+   "wins_flagged": 1,
+   "kept_n": 51,
+   "kept_win_rate": 35.3,
+   "kept_avg_net": -1.43,
+   "avoided_net_sum": -0.31
+  },
+  {
+   "rule": "tenure10<=3 OR rs<=82",
+   "ten": 3,
+   "rs": 82,
+   "op": "OR",
+   "n_flagged": 21,
+   "losses_flagged": 14,
+   "wins_flagged": 7,
+   "kept_n": 32,
+   "kept_win_rate": 37.5,
+   "kept_avg_net": -0.87,
+   "avoided_net_sum": 44.9
+  },
+  {
+   "rule": "tenure10<=3 AND rs<=82",
+   "ten": 3,
+   "rs": 82,
+   "op": "AND",
+   "n_flagged": 6,
+   "losses_flagged": 4,
+   "wins_flagged": 2,
+   "kept_n": 47,
+   "kept_win_rate": 36.2,
+   "kept_avg_net": -0.88,
+   "avoided_net_sum": 31.63
+  },
+  {
+   "rule": "tenure10<=3 OR rs<=84",
+   "ten": 3,
+   "rs": 84,
+   "op": "OR",
+   "n_flagged": 24,
+   "losses_flagged": 15,
+   "wins_flagged": 9,
+   "kept_n": 29,
+   "kept_win_rate": 34.5,
+   "kept_avg_net": -1.25,
+   "avoided_net_sum": 36.55
+  },
+  {
+   "rule": "tenure10<=3 AND rs<=84",
+   "ten": 3,
+   "rs": 84,
+   "op": "AND",
+   "n_flagged": 10,
+   "losses_flagged": 7,
+   "wins_flagged": 3,
+   "kept_n": 43,
+   "kept_win_rate": 37.2,
+   "kept_avg_net": -0.71,
+   "avoided_net_sum": 42.42
+  }
+ ],
+ "variants_recommended": {
+  "tenure_only_le2": {
+   "flagged_trades": [
+    "삼성전기(2026-07-01,-5.6%)",
+    "나이스정보통신(2026-07-01,-5.7%)",
+    "비엠티(2026-07-01,-2.9%)",
+    "타이거일렉(2026-07-01,+7.6%)",
+    "오리온(2026-07-02,-6.2%)",
+    "가비아(2026-07-06,+0.8%)",
+    "GS우(2026-07-07,-5.3%)",
+    "제이에스링크(2026-07-16,-5.3%)",
+    "에스에스알(2026-07-16,-5.3%)",
+    "일지테크(2026-07-20,-5.3%)",
+    "F&F(2026-07-31,-21.2%)",
+    "대양금속(2026-08-13,-4.9%)"
+   ],
+   "trades": {
+    "flagged": {
+     "n": 12,
+     "wins": 2,
+     "win_rate": 16.7,
+     "avg_net": -4.96,
+     "sum_net": -59.47
+    },
+    "kept": {
+     "n": 41,
+     "wins": 17,
+     "win_rate": 41.5,
+     "avg_net": -0.33,
+     "sum_net": -13.36
+    }
+   },
+   "bt_h5": {
+    "flagged": {
+     "n": 13,
+     "wins": 4,
+     "win_rate": 30.8,
+     "avg_net": -1.11,
+     "sum_net": -14.42
+    },
+    "kept": {
+     "n": 22,
+     "wins": 4,
+     "win_rate": 18.2,
+     "avg_net": -4.89,
+     "sum_net": -107.48
+    }
+   }
+  },
+  "ten1_and_rs84": {
+   "flagged_trades": [
+    "나이스정보통신(2026-07-01,-5.7%)",
+    "오리온(2026-07-02,-6.2%)",
+    "GS우(2026-07-07,-5.3%)",
+    "에스에스알(2026-07-16,-5.3%)",
+    "F&F(2026-07-31,-21.2%)",
+    "대양금속(2026-08-13,-4.9%)"
+   ],
+   "trades": {
+    "flagged": {
+     "n": 6,
+     "wins": 0,
+     "win_rate": 0.0,
+     "avg_net": -8.11,
+     "sum_net": -48.68
+    },
+    "kept": {
+     "n": 47,
+     "wins": 19,
+     "win_rate": 40.4,
+     "avg_net": -0.51,
+     "sum_net": -24.15
+    }
+   },
+   "bt_h5": {
+    "flagged": {
+     "n": 3,
+     "wins": 1,
+     "win_rate": 33.3,
+     "avg_net": -0.34,
+     "sum_net": -1.02
+    },
+    "kept": {
+     "n": 32,
+     "wins": 7,
+     "win_rate": 21.9,
+     "avg_net": -3.78,
+     "sum_net": -120.88
+    },
+    "flagged_names": [
+     "한국주강(2026-07-08,+19.7)",
+     "F&F(2026-07-30,-10.3)",
+     "삼진엘앤디(2026-08-03,-10.3)"
+    ]
+   }
+  }
+ },
+ "trades_listing": [
+  {
+   "code": "009150",
+   "name": "삼성전기",
+   "open_date": "2026-07-01",
+   "net_pct": -5.62,
+   "win": false,
+   "setup": "VCP",
+   "regime_up": false,
+   "relvol_entry": 0.8,
+   "rs_display": 99,
+   "rs_latest": 99,
+   "tenure10_strict": 1,
+   "tenure10_loose": 1,
+   "streak_strict": 1,
+   "streak_loose": 1,
+   "rs_vol10": null,
+   "n_prior_snaps": 1,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "rs_trail": [
+    [
+     "2026-06-30",
+     99,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "036800",
+   "name": "나이스정보통신",
+   "open_date": "2026-07-01",
+   "net_pct": -5.71,
+   "win": false,
+   "setup": "VCP",
+   "regime_up": false,
+   "relvol_entry": 0.28,
+   "rs_display": 83,
+   "rs_latest": 83,
+   "tenure10_strict": 1,
+   "tenure10_loose": 1,
+   "streak_strict": 1,
+   "streak_loose": 1,
+   "rs_vol10": null,
+   "n_prior_snaps": 1,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "rs_trail": [
+    [
+     "2026-06-30",
+     83,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "086670",
+   "name": "비엠티",
+   "open_date": "2026-07-01",
+   "net_pct": -2.88,
+   "win": false,
+   "setup": "VCP",
+   "regime_up": false,
+   "relvol_entry": 0.27,
+   "rs_display": 90,
+   "rs_latest": 90,
+   "tenure10_strict": 1,
+   "tenure10_loose": 1,
+   "streak_strict": 1,
+   "streak_loose": 1,
+   "rs_vol10": null,
+   "n_prior_snaps": 1,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "rs_trail": [
+    [
+     "2026-06-30",
+     90,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "219130",
+   "name": "타이거일렉",
+   "open_date": "2026-07-01",
+   "net_pct": 7.56,
+   "win": true,
+   "setup": "VCP",
+   "regime_up": false,
+   "relvol_entry": 1.94,
+   "rs_display": 99,
+   "rs_latest": 99,
+   "tenure10_strict": 1,
+   "tenure10_loose": 1,
+   "streak_strict": 1,
+   "streak_loose": 1,
+   "rs_vol10": null,
+   "n_prior_snaps": 1,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "rs_trail": [
+    [
+     "2026-06-30",
+     99,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "271560",
+   "name": "오리온",
+   "open_date": "2026-07-02",
+   "net_pct": -6.2,
+   "win": false,
+   "setup": "3C",
+   "regime_up": false,
+   "relvol_entry": 1.62,
+   "rs_display": 82,
+   "rs_latest": 82,
+   "tenure10_strict": 1,
+   "tenure10_loose": 2,
+   "streak_strict": 1,
+   "streak_loose": 2,
+   "rs_vol10": 0,
+   "n_prior_snaps": 2,
+   "newcomer": true,
+   "rs_floor": true,
+   "flag_raw": true,
+   "rs_trail": [
+    [
+     "2026-06-30",
+     82,
+     7
+    ],
+    [
+     "2026-07-01",
+     82,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "005430",
+   "name": "한국공항",
+   "open_date": "2026-07-03",
+   "net_pct": -5.26,
+   "win": false,
+   "setup": "VCP",
+   "regime_up": false,
+   "relvol_entry": 0.7,
+   "rs_display": 90,
+   "rs_latest": 90,
+   "tenure10_strict": 3,
+   "tenure10_loose": 3,
+   "streak_strict": 3,
+   "streak_loose": 3,
+   "rs_vol10": 2,
+   "n_prior_snaps": 3,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "rs_trail": [
+    [
+     "2026-06-30",
+     88,
+     8
+    ],
+    [
+     "2026-07-01",
+     89,
+     8
+    ],
+    [
+     "2026-07-02",
+     90,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "010955",
+   "name": "S-Oil우",
+   "open_date": "2026-07-03",
+   "net_pct": 10.78,
+   "win": true,
+   "setup": "VCP",
+   "regime_up": false,
+   "relvol_entry": 0.55,
+   "rs_display": 87,
+   "rs_latest": 87,
+   "tenure10_strict": 3,
+   "tenure10_loose": 3,
+   "streak_strict": 3,
+   "streak_loose": 3,
+   "rs_vol10": 1,
+   "n_prior_snaps": 3,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "rs_trail": [
+    [
+     "2026-06-30",
+     86,
+     8
+    ],
+    [
+     "2026-07-01",
+     86,
+     8
+    ],
+    [
+     "2026-07-02",
+     87,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "001540",
+   "name": "안국약품",
+   "open_date": "2026-07-06",
+   "net_pct": 12.61,
+   "win": true,
+   "setup": "3C",
+   "regime_up": false,
+   "relvol_entry": 0.2,
+   "rs_display": 83,
+   "rs_latest": 83,
+   "tenure10_strict": 5,
+   "tenure10_loose": 5,
+   "streak_strict": 5,
+   "streak_loose": 5,
+   "rs_vol10": 1,
+   "n_prior_snaps": 5,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "rs_trail": [
+    [
+     "2026-06-30",
+     83,
+     8
+    ],
+    [
+     "2026-07-01",
+     82,
+     8
+    ],
+    [
+     "2026-07-02",
+     83,
+     8
+    ],
+    [
+     "2026-07-03",
+     83,
+     8
+    ],
+    [
+     "2026-07-05",
+     83,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "007070",
+   "name": "GS리테일",
+   "open_date": "2026-07-06",
+   "net_pct": -4.23,
+   "win": false,
+   "setup": "VCP",
+   "regime_up": false,
+   "relvol_entry": 0.74,
+   "rs_display": 88,
+   "rs_latest": 88,
+   "tenure10_strict": 3,
+   "tenure10_loose": 5,
+   "streak_strict": 3,
+   "streak_loose": 5,
+   "rs_vol10": 2,
+   "n_prior_snaps": 5,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "rs_trail": [
+    [
+     "2026-06-30",
+     87,
+     7
+    ],
+    [
+     "2026-07-01",
+     86,
+     7
+    ],
+    [
+     "2026-07-02",
+     88,
+     8
+    ],
+    [
+     "2026-07-03",
+     88,
+     8
+    ],
+    [
+     "2026-07-05",
+     88,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "069730",
+   "name": "DSR제강",
+   "open_date": "2026-07-06",
+   "net_pct": -5.32,
+   "win": false,
+   "setup": "3C",
+   "regime_up": false,
+   "relvol_entry": 1.05,
+   "rs_display": 88,
+   "rs_latest": 88,
+   "tenure10_strict": 5,
+   "tenure10_loose": 5,
+   "streak_strict": 5,
+   "streak_loose": 5,
+   "rs_vol10": 1,
+   "n_prior_snaps": 5,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "rs_trail": [
+    [
+     "2026-06-30",
+     88,
+     8
+    ],
+    [
+     "2026-07-01",
+     87,
+     8
+    ],
+    [
+     "2026-07-02",
+     88,
+     8
+    ],
+    [
+     "2026-07-03",
+     88,
+     8
+    ],
+    [
+     "2026-07-05",
+     88,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "079940",
+   "name": "가비아",
+   "open_date": "2026-07-06",
+   "net_pct": 0.78,
+   "win": true,
+   "setup": "VCP",
+   "regime_up": false,
+   "relvol_entry": 0.37,
+   "rs_display": 82,
+   "rs_latest": 82,
+   "tenure10_strict": 2,
+   "tenure10_loose": 2,
+   "streak_strict": 2,
+   "streak_loose": 2,
+   "rs_vol10": 1,
+   "n_prior_snaps": 5,
+   "newcomer": true,
+   "rs_floor": true,
+   "flag_raw": true,
+   "rs_trail": [
+    [
+     "2026-06-30",
+     81,
+     6
+    ],
+    [
+     "2026-07-01",
+     81,
+     6
+    ],
+    [
+     "2026-07-02",
+     82,
+     6
+    ],
+    [
+     "2026-07-03",
+     82,
+     8
+    ],
+    [
+     "2026-07-05",
+     82,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "222040",
+   "name": "코스맥스엔비티",
+   "open_date": "2026-07-06",
+   "net_pct": 12.23,
+   "win": true,
+   "setup": "VCP",
+   "regime_up": false,
+   "relvol_entry": 1.16,
+   "rs_display": 85,
+   "rs_latest": 85,
+   "tenure10_strict": 3,
+   "tenure10_loose": 4,
+   "streak_strict": 3,
+   "streak_loose": 3,
+   "rs_vol10": 3,
+   "n_prior_snaps": 5,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "rs_trail": [
+    [
+     "2026-06-30",
+     83,
+     7
+    ],
+    [
+     "2026-07-01",
+     82,
+     6
+    ],
+    [
+     "2026-07-02",
+     85,
+     8
+    ],
+    [
+     "2026-07-03",
+     85,
+     8
+    ],
+    [
+     "2026-07-05",
+     85,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "339950",
+   "name": "아이비김영",
+   "open_date": "2026-07-06",
+   "net_pct": 1,
+   "win": true,
+   "setup": "VCP",
+   "regime_up": false,
+   "relvol_entry": 0.51,
+   "rs_display": 84,
+   "rs_latest": 84,
+   "tenure10_strict": 4,
+   "tenure10_loose": 4,
+   "streak_strict": 4,
+   "streak_loose": 4,
+   "rs_vol10": 6,
+   "n_prior_snaps": 5,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "rs_trail": [
+    [
+     "2026-06-30",
+     78,
+     6
+    ],
+    [
+     "2026-07-01",
+     82,
+     8
+    ],
+    [
+     "2026-07-02",
+     84,
+     8
+    ],
+    [
+     "2026-07-03",
+     84,
+     8
+    ],
+    [
+     "2026-07-05",
+     84,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "000810",
+   "name": "삼성화재",
+   "open_date": "2026-07-07",
+   "net_pct": -5.13,
+   "win": false,
+   "setup": "VCP",
+   "regime_up": false,
+   "relvol_entry": 0.5,
+   "rs_display": 89,
+   "rs_latest": 89,
+   "tenure10_strict": 6,
+   "tenure10_loose": 6,
+   "streak_strict": 6,
+   "streak_loose": 6,
+   "rs_vol10": 2,
+   "n_prior_snaps": 6,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "rs_trail": [
+    [
+     "2026-06-30",
+     87,
+     8
+    ],
+    [
+     "2026-07-01",
+     87,
+     8
+    ],
+    [
+     "2026-07-02",
+     88,
+     8
+    ],
+    [
+     "2026-07-03",
+     88,
+     8
+    ],
+    [
+     "2026-07-05",
+     88,
+     8
+    ],
+    [
+     "2026-07-06",
+     89,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "078935",
+   "name": "GS우",
+   "open_date": "2026-07-07",
+   "net_pct": -5.34,
+   "win": false,
+   "setup": null,
+   "regime_up": false,
+   "relvol_entry": 1.76,
+   "rs_display": 84,
+   "rs_latest": 84,
+   "tenure10_strict": 1,
+   "tenure10_loose": 5,
+   "streak_strict": 1,
+   "streak_loose": 5,
+   "rs_vol10": 3,
+   "n_prior_snaps": 6,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "rs_trail": [
+    [
+     "2026-06-30",
+     81,
+     5
+    ],
+    [
+     "2026-07-01",
+     82,
+     7
+    ],
+    [
+     "2026-07-02",
+     84,
+     7
+    ],
+    [
+     "2026-07-03",
+     83,
+     7
+    ],
+    [
+     "2026-07-05",
+     83,
+     7
+    ],
+    [
+     "2026-07-06",
+     84,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "138930",
+   "name": "BNK금융지주",
+   "open_date": "2026-07-07",
+   "net_pct": -5.35,
+   "win": false,
+   "setup": "VCP",
+   "regime_up": false,
+   "relvol_entry": 0.7,
+   "rs_display": 90,
+   "rs_latest": 90,
+   "tenure10_strict": 4,
+   "tenure10_loose": 4,
+   "streak_strict": 4,
+   "streak_loose": 4,
+   "rs_vol10": 3,
+   "n_prior_snaps": 6,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "rs_trail": [
+    [
+     "2026-06-30",
+     87,
+     6
+    ],
+    [
+     "2026-07-01",
+     87,
+     6
+    ],
+    [
+     "2026-07-02",
+     89,
+     8
+    ],
+    [
+     "2026-07-03",
+     89,
+     8
+    ],
+    [
+     "2026-07-05",
+     89,
+     8
+    ],
+    [
+     "2026-07-06",
+     90,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "037760",
+   "name": "쎄니트",
+   "open_date": "2026-07-08",
+   "net_pct": -5.21,
+   "win": false,
+   "setup": null,
+   "regime_up": false,
+   "relvol_entry": 0.42,
+   "rs_display": 89,
+   "rs_latest": 89,
+   "tenure10_strict": 6,
+   "tenure10_loose": 7,
+   "streak_strict": 6,
+   "streak_loose": 7,
+   "rs_vol10": 2,
+   "n_prior_snaps": 7,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "rs_trail": [
+    [
+     "2026-06-30",
+     87,
+     7
+    ],
+    [
+     "2026-07-01",
+     87,
+     8
+    ],
+    [
+     "2026-07-02",
+     89,
+     8
+    ],
+    [
+     "2026-07-03",
+     88,
+     8
+    ],
+    [
+     "2026-07-05",
+     88,
+     8
+    ],
+    [
+     "2026-07-06",
+     88,
+     8
+    ],
+    [
+     "2026-07-07",
+     89,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "093050",
+   "name": "LF",
+   "open_date": "2026-07-08",
+   "net_pct": -5.28,
+   "win": false,
+   "setup": "VCP",
+   "regime_up": false,
+   "relvol_entry": 0.61,
+   "rs_display": 86,
+   "rs_latest": 86,
+   "tenure10_strict": 5,
+   "tenure10_loose": 6,
+   "streak_strict": 5,
+   "streak_loose": 6,
+   "rs_vol10": 5,
+   "n_prior_snaps": 7,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "rs_trail": [
+    [
+     "2026-06-30",
+     82,
+     6
+    ],
+    [
+     "2026-07-01",
+     81,
+     7
+    ],
+    [
+     "2026-07-02",
+     85,
+     8
+    ],
+    [
+     "2026-07-03",
+     84,
+     8
+    ],
+    [
+     "2026-07-05",
+     84,
+     8
+    ],
+    [
+     "2026-07-06",
+     85,
+     8
+    ],
+    [
+     "2026-07-07",
+     86,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "094860",
+   "name": "네오리진",
+   "open_date": "2026-07-08",
+   "net_pct": -9.86,
+   "win": false,
+   "setup": "VCP",
+   "regime_up": false,
+   "relvol_entry": 0.65,
+   "rs_display": 88,
+   "rs_latest": 88,
+   "tenure10_strict": 5,
+   "tenure10_loose": 6,
+   "streak_strict": 5,
+   "streak_loose": 6,
+   "rs_vol10": 5,
+   "n_prior_snaps": 7,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "rs_trail": [
+    [
+     "2026-06-30",
+     83,
+     6
+    ],
+    [
+     "2026-07-01",
+     83,
+     7
+    ],
+    [
+     "2026-07-02",
+     87,
+     8
+    ],
+    [
+     "2026-07-03",
+     87,
+     8
+    ],
+    [
+     "2026-07-05",
+     87,
+     8
+    ],
+    [
+     "2026-07-06",
+     88,
+     8
+    ],
+    [
+     "2026-07-07",
+     88,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "192080",
+   "name": "더블유게임즈",
+   "open_date": "2026-07-09",
+   "net_pct": -5.05,
+   "win": false,
+   "setup": "3C",
+   "regime_up": false,
+   "relvol_entry": 0.94,
+   "rs_display": 80,
+   "rs_latest": 80,
+   "tenure10_strict": 4,
+   "tenure10_loose": 8,
+   "streak_strict": 2,
+   "streak_loose": 8,
+   "rs_vol10": 7,
+   "n_prior_snaps": 8,
+   "newcomer": false,
+   "rs_floor": true,
+   "flag_raw": true,
+   "rs_trail": [
+    [
+     "2026-06-30",
+     80,
+     8
+    ],
+    [
+     "2026-07-01",
+     79,
+     7
+    ],
+    [
+     "2026-07-02",
+     81,
+     8
+    ],
+    [
+     "2026-07-03",
+     79,
+     7
+    ],
+    [
+     "2026-07-05",
+     79,
+     7
+    ],
+    [
+     "2026-07-06",
+     74,
+     7
+    ],
+    [
+     "2026-07-07",
+     80,
+     8
+    ],
+    [
+     "2026-07-08",
+     80,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "001800",
+   "name": "오리온홀딩스",
+   "open_date": "2026-07-10",
+   "net_pct": -5.26,
+   "win": false,
+   "setup": "VCP",
+   "regime_up": false,
+   "relvol_entry": 0.85,
+   "rs_display": 83,
+   "rs_latest": 83,
+   "tenure10_strict": 4,
+   "tenure10_loose": 7,
+   "streak_strict": 3,
+   "streak_loose": 7,
+   "rs_vol10": 6,
+   "n_prior_snaps": 8,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "rs_trail": [
+    [
+     "2026-06-30",
+     78,
+     5
+    ],
+    [
+     "2026-07-01",
+     77,
+     7
+    ],
+    [
+     "2026-07-02",
+     80,
+     8
+    ],
+    [
+     "2026-07-03",
+     79,
+     7
+    ],
+    [
+     "2026-07-05",
+     79,
+     7
+    ],
+    [
+     "2026-07-06",
+     80,
+     8
+    ],
+    [
+     "2026-07-07",
+     83,
+     8
+    ],
+    [
+     "2026-07-08",
+     83,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "003690",
+   "name": "코리안리",
+   "open_date": "2026-07-10",
+   "net_pct": -5.33,
+   "win": false,
+   "setup": "VCP",
+   "regime_up": false,
+   "relvol_entry": 0.45,
+   "rs_display": 86,
+   "rs_latest": 87,
+   "tenure10_strict": 6,
+   "tenure10_loose": 6,
+   "streak_strict": 5,
+   "streak_loose": 5,
+   "rs_vol10": 5,
+   "n_prior_snaps": 8,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "rs_trail": [
+    [
+     "2026-06-30",
+     84,
+     8
+    ],
+    [
+     "2026-07-01",
+     82,
+     6
+    ],
+    [
+     "2026-07-02",
+     84,
+     6
+    ],
+    [
+     "2026-07-03",
+     84,
+     8
+    ],
+    [
+     "2026-07-05",
+     84,
+     8
+    ],
+    [
+     "2026-07-06",
+     85,
+     8
+    ],
+    [
+     "2026-07-07",
+     85,
+     8
+    ],
+    [
+     "2026-07-08",
+     87,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "219130",
+   "name": "타이거일렉",
+   "open_date": "2026-07-10",
+   "net_pct": 14.79,
+   "win": true,
+   "setup": "VCP",
+   "regime_up": false,
+   "relvol_entry": 0.95,
+   "rs_display": 99,
+   "rs_latest": 99,
+   "tenure10_strict": 8,
+   "tenure10_loose": 8,
+   "streak_strict": 8,
+   "streak_loose": 8,
+   "rs_vol10": 0,
+   "n_prior_snaps": 8,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "rs_trail": [
+    [
+     "2026-06-30",
+     99,
+     8
+    ],
+    [
+     "2026-07-01",
+     99,
+     8
+    ],
+    [
+     "2026-07-02",
+     99,
+     8
+    ],
+    [
+     "2026-07-03",
+     99,
+     8
+    ],
+    [
+     "2026-07-05",
+     99,
+     8
+    ],
+    [
+     "2026-07-06",
+     99,
+     8
+    ],
+    [
+     "2026-07-07",
+     99,
+     8
+    ],
+    [
+     "2026-07-08",
+     99,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "094840",
+   "name": "슈프리마에이치큐",
+   "open_date": "2026-07-13",
+   "net_pct": 5.02,
+   "win": true,
+   "setup": "VCP",
+   "regime_up": false,
+   "relvol_entry": 0.89,
+   "rs_display": 91,
+   "rs_latest": 91,
+   "tenure10_strict": 9,
+   "tenure10_loose": 9,
+   "streak_strict": 9,
+   "streak_loose": 9,
+   "rs_vol10": 4,
+   "n_prior_snaps": 9,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "rs_trail": [
+    [
+     "2026-06-30",
+     87,
+     8
+    ],
+    [
+     "2026-07-01",
+     87,
+     8
+    ],
+    [
+     "2026-07-02",
+     90,
+     8
+    ],
+    [
+     "2026-07-03",
+     90,
+     8
+    ],
+    [
+     "2026-07-05",
+     90,
+     8
+    ],
+    [
+     "2026-07-06",
+     89,
+     8
+    ],
+    [
+     "2026-07-07",
+     89,
+     8
+    ],
+    [
+     "2026-07-08",
+     91,
+     8
+    ],
+    [
+     "2026-07-10",
+     91,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "052330",
+   "name": "코텍",
+   "open_date": "2026-07-15",
+   "net_pct": -5.33,
+   "win": false,
+   "setup": "VCP",
+   "regime_up": false,
+   "relvol_entry": 0.37,
+   "rs_display": 86,
+   "rs_latest": 86,
+   "tenure10_strict": 5,
+   "tenure10_loose": 10,
+   "streak_strict": 3,
+   "streak_loose": 11,
+   "rs_vol10": 5,
+   "n_prior_snaps": 11,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "rs_trail": [
+    [
+     "2026-07-01",
+     81,
+     7
+    ],
+    [
+     "2026-07-02",
+     82,
+     7
+    ],
+    [
+     "2026-07-03",
+     83,
+     8
+    ],
+    [
+     "2026-07-05",
+     83,
+     8
+    ],
+    [
+     "2026-07-06",
+     83,
+     7
+    ],
+    [
+     "2026-07-07",
+     83,
+     7
+    ],
+    [
+     "2026-07-08",
+     84,
+     7
+    ],
+    [
+     "2026-07-10",
+     84,
+     8
+    ],
+    [
+     "2026-07-13",
+     85,
+     8
+    ],
+    [
+     "2026-07-14",
+     86,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "025890",
+   "name": "한국주강",
+   "open_date": "2026-07-16",
+   "net_pct": 0.62,
+   "win": true,
+   "setup": "VCP",
+   "regime_up": false,
+   "relvol_entry": 0.67,
+   "rs_display": 82,
+   "rs_latest": 82,
+   "tenure10_strict": 6,
+   "tenure10_loose": 8,
+   "streak_strict": 6,
+   "streak_loose": 7,
+   "rs_vol10": 4,
+   "n_prior_snaps": 12,
+   "newcomer": false,
+   "rs_floor": true,
+   "flag_raw": true,
+   "rs_trail": [
+    [
+     "2026-07-02",
+     80,
+     7
+    ],
+    [
+     "2026-07-03",
+     79,
+     6
+    ],
+    [
+     "2026-07-05",
+     79,
+     6
+    ],
+    [
+     "2026-07-06",
+     81,
+     7
+    ],
+    [
+     "2026-07-07",
+     81,
+     8
+    ],
+    [
+     "2026-07-08",
+     82,
+     8
+    ],
+    [
+     "2026-07-10",
+     80,
+     8
+    ],
+    [
+     "2026-07-13",
+     82,
+     8
+    ],
+    [
+     "2026-07-14",
+     83,
+     8
+    ],
+    [
+     "2026-07-15",
+     82,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "084870",
+   "name": "TBH글로벌",
+   "open_date": "2026-07-16",
+   "net_pct": -5.32,
+   "win": false,
+   "setup": "VCP",
+   "regime_up": false,
+   "relvol_entry": 3.44,
+   "rs_display": 89,
+   "rs_latest": 89,
+   "tenure10_strict": 6,
+   "tenure10_loose": 10,
+   "streak_strict": 4,
+   "streak_loose": 12,
+   "rs_vol10": 2,
+   "n_prior_snaps": 12,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "rs_trail": [
+    [
+     "2026-07-02",
+     88,
+     7
+    ],
+    [
+     "2026-07-03",
+     87,
+     8
+    ],
+    [
+     "2026-07-05",
+     87,
+     8
+    ],
+    [
+     "2026-07-06",
+     88,
+     7
+    ],
+    [
+     "2026-07-07",
+     88,
+     7
+    ],
+    [
+     "2026-07-08",
+     89,
+     7
+    ],
+    [
+     "2026-07-10",
+     87,
+     8
+    ],
+    [
+     "2026-07-13",
+     89,
+     8
+    ],
+    [
+     "2026-07-14",
+     89,
+     8
+    ],
+    [
+     "2026-07-15",
+     89,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "127120",
+   "name": "제이에스링크",
+   "open_date": "2026-07-16",
+   "net_pct": -5.3,
+   "win": false,
+   "setup": "VCP",
+   "regime_up": false,
+   "relvol_entry": 1.03,
+   "rs_display": 98,
+   "rs_latest": 98,
+   "tenure10_strict": 2,
+   "tenure10_loose": 6,
+   "streak_strict": 1,
+   "streak_loose": 4,
+   "rs_vol10": 1,
+   "n_prior_snaps": 12,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "rs_trail": [
+    [
+     "2026-07-02",
+     98,
+     6
+    ],
+    [
+     "2026-07-03",
+     98,
+     6
+    ],
+    [
+     "2026-07-05",
+     98,
+     6
+    ],
+    [
+     "2026-07-06",
+     98,
+     7
+    ],
+    [
+     "2026-07-07",
+     99,
+     7
+    ],
+    [
+     "2026-07-08",
+     99,
+     6
+    ],
+    [
+     "2026-07-10",
+     98,
+     8
+    ],
+    [
+     "2026-07-13",
+     98,
+     7
+    ],
+    [
+     "2026-07-14",
+     98,
+     7
+    ],
+    [
+     "2026-07-15",
+     98,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "275630",
+   "name": "에스에스알",
+   "open_date": "2026-07-16",
+   "net_pct": -5.27,
+   "win": false,
+   "setup": "3C",
+   "regime_up": false,
+   "relvol_entry": 0.84,
+   "rs_display": 82,
+   "rs_latest": 82,
+   "tenure10_strict": 1,
+   "tenure10_loose": 5,
+   "streak_strict": 1,
+   "streak_loose": 5,
+   "rs_vol10": 13,
+   "n_prior_snaps": 12,
+   "newcomer": true,
+   "rs_floor": true,
+   "flag_raw": true,
+   "rs_trail": [
+    [
+     "2026-07-02",
+     73,
+     4
+    ],
+    [
+     "2026-07-03",
+     72,
+     4
+    ],
+    [
+     "2026-07-05",
+     72,
+     4
+    ],
+    [
+     "2026-07-06",
+     79,
+     5
+    ],
+    [
+     "2026-07-07",
+     79,
+     5
+    ],
+    [
+     "2026-07-08",
+     84,
+     7
+    ],
+    [
+     "2026-07-10",
+     83,
+     7
+    ],
+    [
+     "2026-07-13",
+     83,
+     7
+    ],
+    [
+     "2026-07-14",
+     85,
+     7
+    ],
+    [
+     "2026-07-15",
+     82,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "339950",
+   "name": "아이비김영",
+   "open_date": "2026-07-16",
+   "net_pct": 5.66,
+   "win": true,
+   "setup": "VCP",
+   "regime_up": false,
+   "relvol_entry": 0.77,
+   "rs_display": 85,
+   "rs_latest": 85,
+   "tenure10_strict": 10,
+   "tenure10_loose": 10,
+   "streak_strict": 11,
+   "streak_loose": 11,
+   "rs_vol10": 3,
+   "n_prior_snaps": 12,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "rs_trail": [
+    [
+     "2026-07-02",
+     84,
+     8
+    ],
+    [
+     "2026-07-03",
+     84,
+     8
+    ],
+    [
+     "2026-07-05",
+     84,
+     8
+    ],
+    [
+     "2026-07-06",
+     84,
+     8
+    ],
+    [
+     "2026-07-07",
+     85,
+     8
+    ],
+    [
+     "2026-07-08",
+     87,
+     8
+    ],
+    [
+     "2026-07-10",
+     86,
+     8
+    ],
+    [
+     "2026-07-13",
+     85,
+     8
+    ],
+    [
+     "2026-07-14",
+     87,
+     8
+    ],
+    [
+     "2026-07-15",
+     85,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "019540",
+   "name": "일지테크",
+   "open_date": "2026-07-20",
+   "net_pct": -5.33,
+   "win": false,
+   "setup": "VCP",
+   "regime_up": false,
+   "relvol_entry": 0.47,
+   "rs_display": 89,
+   "rs_latest": 88,
+   "tenure10_strict": 1,
+   "tenure10_loose": 8,
+   "streak_strict": 1,
+   "streak_loose": 4,
+   "rs_vol10": 2,
+   "n_prior_snaps": 12,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "rs_trail": [
+    [
+     "2026-07-02",
+     86,
+     6
+    ],
+    [
+     "2026-07-03",
+     86,
+     7
+    ],
+    [
+     "2026-07-05",
+     86,
+     7
+    ],
+    [
+     "2026-07-06",
+     87,
+     7
+    ],
+    [
+     "2026-07-07",
+     87,
+     7
+    ],
+    [
+     "2026-07-08",
+     87,
+     6
+    ],
+    [
+     "2026-07-10",
+     86,
+     7
+    ],
+    [
+     "2026-07-13",
+     87,
+     7
+    ],
+    [
+     "2026-07-14",
+     88,
+     7
+    ],
+    [
+     "2026-07-15",
+     88,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "483650",
+   "name": "달바글로벌",
+   "open_date": "2026-07-21",
+   "net_pct": 5.22,
+   "win": true,
+   "setup": "VCP",
+   "regime_up": false,
+   "relvol_entry": 1.18,
+   "rs_display": 80,
+   "rs_latest": 80,
+   "tenure10_strict": 3,
+   "tenure10_loose": 4,
+   "streak_strict": 1,
+   "streak_loose": 1,
+   "rs_vol10": 13,
+   "n_prior_snaps": 13,
+   "newcomer": false,
+   "rs_floor": true,
+   "flag_raw": true,
+   "rs_trail": [
+    [
+     "2026-07-03",
+     79,
+     6
+    ],
+    [
+     "2026-07-05",
+     79,
+     6
+    ],
+    [
+     "2026-07-06",
+     79,
+     7
+    ],
+    [
+     "2026-07-07",
+     83,
+     8
+    ],
+    [
+     "2026-07-08",
+     82,
+     8
+    ],
+    [
+     "2026-07-10",
+     70,
+     6
+    ],
+    [
+     "2026-07-13",
+     75,
+     6
+    ],
+    [
+     "2026-07-14",
+     77,
+     6
+    ],
+    [
+     "2026-07-15",
+     77,
+     6
+    ],
+    [
+     "2026-07-20",
+     80,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "078935",
+   "name": "GS우",
+   "open_date": "2026-07-22",
+   "net_pct": -5.27,
+   "win": false,
+   "setup": "VCP",
+   "regime_up": false,
+   "relvol_entry": 1.68,
+   "rs_display": 84,
+   "rs_latest": 84,
+   "tenure10_strict": 3,
+   "tenure10_loose": 10,
+   "streak_strict": 1,
+   "streak_loose": 13,
+   "rs_vol10": 2,
+   "n_prior_snaps": 14,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "rs_trail": [
+    [
+     "2026-07-05",
+     83,
+     7
+    ],
+    [
+     "2026-07-06",
+     84,
+     8
+    ],
+    [
+     "2026-07-07",
+     84,
+     7
+    ],
+    [
+     "2026-07-08",
+     85,
+     7
+    ],
+    [
+     "2026-07-10",
+     83,
+     7
+    ],
+    [
+     "2026-07-13",
+     83,
+     7
+    ],
+    [
+     "2026-07-14",
+     84,
+     7
+    ],
+    [
+     "2026-07-15",
+     83,
+     8
+    ],
+    [
+     "2026-07-20",
+     84,
+     7
+    ],
+    [
+     "2026-07-21",
+     84,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "002810",
+   "name": "삼영무역",
+   "open_date": "2026-07-23",
+   "net_pct": 5.53,
+   "win": true,
+   "setup": null,
+   "regime_up": true,
+   "relvol_entry": 0.46,
+   "rs_display": 83,
+   "rs_latest": 83,
+   "tenure10_strict": 3,
+   "tenure10_loose": 7,
+   "streak_strict": 3,
+   "streak_loose": 6,
+   "rs_vol10": 5,
+   "n_prior_snaps": 15,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "rs_trail": [
+    [
+     "2026-07-06",
+     83,
+     7
+    ],
+    [
+     "2026-07-07",
+     82,
+     6
+    ],
+    [
+     "2026-07-08",
+     83,
+     6
+    ],
+    [
+     "2026-07-10",
+     80,
+     6
+    ],
+    [
+     "2026-07-13",
+     82,
+     7
+    ],
+    [
+     "2026-07-14",
+     84,
+     7
+    ],
+    [
+     "2026-07-15",
+     82,
+     7
+    ],
+    [
+     "2026-07-20",
+     84,
+     8
+    ],
+    [
+     "2026-07-21",
+     85,
+     8
+    ],
+    [
+     "2026-07-22",
+     83,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "005950",
+   "name": "이수화학",
+   "open_date": "2026-07-23",
+   "net_pct": 10.56,
+   "win": true,
+   "setup": "VCP",
+   "regime_up": true,
+   "relvol_entry": 0.93,
+   "rs_display": 96,
+   "rs_latest": 96,
+   "tenure10_strict": 7,
+   "tenure10_loose": 8,
+   "streak_strict": 1,
+   "streak_loose": 2,
+   "rs_vol10": 3,
+   "n_prior_snaps": 15,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "rs_trail": [
+    [
+     "2026-07-06",
+     95,
+     8
+    ],
+    [
+     "2026-07-07",
+     95,
+     8
+    ],
+    [
+     "2026-07-08",
+     93,
+     6
+    ],
+    [
+     "2026-07-10",
+     94,
+     8
+    ],
+    [
+     "2026-07-13",
+     95,
+     8
+    ],
+    [
+     "2026-07-14",
+     96,
+     8
+    ],
+    [
+     "2026-07-15",
+     95,
+     8
+    ],
+    [
+     "2026-07-20",
+     95,
+     6
+    ],
+    [
+     "2026-07-21",
+     95,
+     7
+    ],
+    [
+     "2026-07-22",
+     96,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "093190",
+   "name": "빅솔론",
+   "open_date": "2026-07-23",
+   "net_pct": 5.47,
+   "win": true,
+   "setup": "VCP",
+   "regime_up": true,
+   "relvol_entry": 0.52,
+   "rs_display": 87,
+   "rs_latest": 87,
+   "tenure10_strict": 9,
+   "tenure10_loose": 10,
+   "streak_strict": 7,
+   "streak_loose": 15,
+   "rs_vol10": 4,
+   "n_prior_snaps": 15,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "rs_trail": [
+    [
+     "2026-07-06",
+     85,
+     8
+    ],
+    [
+     "2026-07-07",
+     85,
+     8
+    ],
+    [
+     "2026-07-08",
+     86,
+     7
+    ],
+    [
+     "2026-07-10",
+     84,
+     8
+    ],
+    [
+     "2026-07-13",
+     86,
+     8
+    ],
+    [
+     "2026-07-14",
+     87,
+     8
+    ],
+    [
+     "2026-07-15",
+     85,
+     8
+    ],
+    [
+     "2026-07-20",
+     87,
+     8
+    ],
+    [
+     "2026-07-21",
+     88,
+     8
+    ],
+    [
+     "2026-07-22",
+     87,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "161390",
+   "name": "한국타이어앤테크놀로지",
+   "open_date": "2026-07-23",
+   "net_pct": -4.24,
+   "win": false,
+   "setup": null,
+   "regime_up": true,
+   "relvol_entry": 1.09,
+   "rs_display": 92,
+   "rs_latest": 92,
+   "tenure10_strict": 10,
+   "tenure10_loose": 10,
+   "streak_strict": 13,
+   "streak_loose": 14,
+   "rs_vol10": 3,
+   "n_prior_snaps": 15,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "rs_trail": [
+    [
+     "2026-07-06",
+     92,
+     8
+    ],
+    [
+     "2026-07-07",
+     93,
+     8
+    ],
+    [
+     "2026-07-08",
+     94,
+     8
+    ],
+    [
+     "2026-07-10",
+     92,
+     8
+    ],
+    [
+     "2026-07-13",
+     92,
+     8
+    ],
+    [
+     "2026-07-14",
+     92,
+     8
+    ],
+    [
+     "2026-07-15",
+     91,
+     8
+    ],
+    [
+     "2026-07-20",
+     92,
+     8
+    ],
+    [
+     "2026-07-21",
+     92,
+     8
+    ],
+    [
+     "2026-07-22",
+     92,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "010950",
+   "name": "S-Oil",
+   "open_date": "2026-07-24",
+   "net_pct": -4.99,
+   "win": false,
+   "setup": null,
+   "regime_up": false,
+   "relvol_entry": 1.31,
+   "rs_display": 96,
+   "rs_latest": 96,
+   "tenure10_strict": 10,
+   "tenure10_loose": 10,
+   "streak_strict": 11,
+   "streak_loose": 16,
+   "rs_vol10": 2,
+   "n_prior_snaps": 16,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "rs_trail": [
+    [
+     "2026-07-07",
+     95,
+     8
+    ],
+    [
+     "2026-07-08",
+     96,
+     8
+    ],
+    [
+     "2026-07-10",
+     95,
+     8
+    ],
+    [
+     "2026-07-13",
+     96,
+     8
+    ],
+    [
+     "2026-07-14",
+     95,
+     8
+    ],
+    [
+     "2026-07-15",
+     95,
+     8
+    ],
+    [
+     "2026-07-20",
+     97,
+     8
+    ],
+    [
+     "2026-07-21",
+     96,
+     8
+    ],
+    [
+     "2026-07-22",
+     96,
+     8
+    ],
+    [
+     "2026-07-23",
+     96,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "010955",
+   "name": "S-Oil우",
+   "open_date": "2026-07-24",
+   "net_pct": -9.9,
+   "win": false,
+   "setup": null,
+   "regime_up": false,
+   "relvol_entry": 1.0,
+   "rs_display": 92,
+   "rs_latest": 92,
+   "tenure10_strict": 10,
+   "tenure10_loose": 10,
+   "streak_strict": 16,
+   "streak_loose": 16,
+   "rs_vol10": 3,
+   "n_prior_snaps": 16,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "rs_trail": [
+    [
+     "2026-07-07",
+     92,
+     8
+    ],
+    [
+     "2026-07-08",
+     93,
+     8
+    ],
+    [
+     "2026-07-10",
+     90,
+     8
+    ],
+    [
+     "2026-07-13",
+     91,
+     8
+    ],
+    [
+     "2026-07-14",
+     91,
+     8
+    ],
+    [
+     "2026-07-15",
+     91,
+     8
+    ],
+    [
+     "2026-07-20",
+     93,
+     8
+    ],
+    [
+     "2026-07-21",
+     93,
+     8
+    ],
+    [
+     "2026-07-22",
+     92,
+     8
+    ],
+    [
+     "2026-07-23",
+     92,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "139130",
+   "name": "iM금융지주",
+   "open_date": "2026-07-27",
+   "net_pct": -5,
+   "win": false,
+   "setup": null,
+   "regime_up": false,
+   "relvol_entry": 0.48,
+   "rs_display": 85,
+   "rs_latest": 85,
+   "tenure10_strict": 9,
+   "tenure10_loose": 10,
+   "streak_strict": 2,
+   "streak_loose": 17,
+   "rs_vol10": 6,
+   "n_prior_snaps": 17,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "rs_trail": [
+    [
+     "2026-07-08",
+     89,
+     8
+    ],
+    [
+     "2026-07-10",
+     87,
+     8
+    ],
+    [
+     "2026-07-13",
+     88,
+     8
+    ],
+    [
+     "2026-07-14",
+     88,
+     8
+    ],
+    [
+     "2026-07-15",
+     86,
+     8
+    ],
+    [
+     "2026-07-20",
+     87,
+     8
+    ],
+    [
+     "2026-07-21",
+     86,
+     8
+    ],
+    [
+     "2026-07-22",
+     85,
+     7
+    ],
+    [
+     "2026-07-23",
+     83,
+     8
+    ],
+    [
+     "2026-07-24",
+     85,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "033780",
+   "name": "KT&G",
+   "open_date": "2026-07-29",
+   "net_pct": -5,
+   "win": false,
+   "setup": null,
+   "regime_up": false,
+   "relvol_entry": 1.43,
+   "rs_display": 89,
+   "rs_latest": 89,
+   "tenure10_strict": 5,
+   "tenure10_loose": 10,
+   "streak_strict": 4,
+   "streak_loose": 19,
+   "rs_vol10": 3,
+   "n_prior_snaps": 19,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "rs_trail": [
+    [
+     "2026-07-13",
+     87,
+     7
+    ],
+    [
+     "2026-07-14",
+     86,
+     7
+    ],
+    [
+     "2026-07-15",
+     86,
+     7
+    ],
+    [
+     "2026-07-20",
+     87,
+     8
+    ],
+    [
+     "2026-07-21",
+     87,
+     7
+    ],
+    [
+     "2026-07-22",
+     87,
+     7
+    ],
+    [
+     "2026-07-23",
+     87,
+     8
+    ],
+    [
+     "2026-07-24",
+     88,
+     8
+    ],
+    [
+     "2026-07-27",
+     87,
+     8
+    ],
+    [
+     "2026-07-28",
+     89,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "093190",
+   "name": "빅솔론",
+   "open_date": "2026-07-29",
+   "net_pct": -5.06,
+   "win": false,
+   "setup": null,
+   "regime_up": false,
+   "relvol_entry": 1.67,
+   "rs_display": 91,
+   "rs_latest": 91,
+   "tenure10_strict": 10,
+   "tenure10_loose": 10,
+   "streak_strict": 11,
+   "streak_loose": 19,
+   "rs_vol10": 6,
+   "n_prior_snaps": 19,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "rs_trail": [
+    [
+     "2026-07-13",
+     86,
+     8
+    ],
+    [
+     "2026-07-14",
+     87,
+     8
+    ],
+    [
+     "2026-07-15",
+     85,
+     8
+    ],
+    [
+     "2026-07-20",
+     87,
+     8
+    ],
+    [
+     "2026-07-21",
+     88,
+     8
+    ],
+    [
+     "2026-07-22",
+     87,
+     8
+    ],
+    [
+     "2026-07-23",
+     86,
+     8
+    ],
+    [
+     "2026-07-24",
+     88,
+     8
+    ],
+    [
+     "2026-07-27",
+     88,
+     8
+    ],
+    [
+     "2026-07-28",
+     91,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "204610",
+   "name": "티쓰리",
+   "open_date": "2026-07-31",
+   "net_pct": 3.72,
+   "win": true,
+   "setup": "3C",
+   "regime_up": false,
+   "relvol_entry": 0.83,
+   "rs_display": 93,
+   "rs_latest": 92,
+   "tenure10_strict": 10,
+   "tenure10_loose": 10,
+   "streak_strict": 19,
+   "streak_loose": 19,
+   "rs_vol10": 4,
+   "n_prior_snaps": 20,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "rs_trail": [
+    [
+     "2026-07-14",
+     89,
+     8
+    ],
+    [
+     "2026-07-15",
+     88,
+     8
+    ],
+    [
+     "2026-07-20",
+     89,
+     8
+    ],
+    [
+     "2026-07-21",
+     89,
+     8
+    ],
+    [
+     "2026-07-22",
+     89,
+     8
+    ],
+    [
+     "2026-07-23",
+     88,
+     8
+    ],
+    [
+     "2026-07-24",
+     88,
+     8
+    ],
+    [
+     "2026-07-27",
+     89,
+     8
+    ],
+    [
+     "2026-07-28",
+     91,
+     8
+    ],
+    [
+     "2026-07-29",
+     92,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "275630",
+   "name": "에스에스알",
+   "open_date": "2026-07-31",
+   "net_pct": -6.89,
+   "win": false,
+   "setup": "VCP",
+   "regime_up": false,
+   "relvol_entry": 1.08,
+   "rs_display": 85,
+   "rs_latest": 85,
+   "tenure10_strict": 8,
+   "tenure10_loose": 10,
+   "streak_strict": 1,
+   "streak_loose": 13,
+   "rs_vol10": 5,
+   "n_prior_snaps": 20,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "rs_trail": [
+    [
+     "2026-07-14",
+     85,
+     7
+    ],
+    [
+     "2026-07-15",
+     82,
+     8
+    ],
+    [
+     "2026-07-20",
+     84,
+     8
+    ],
+    [
+     "2026-07-21",
+     84,
+     8
+    ],
+    [
+     "2026-07-22",
+     85,
+     8
+    ],
+    [
+     "2026-07-23",
+     83,
+     8
+    ],
+    [
+     "2026-07-24",
+     82,
+     8
+    ],
+    [
+     "2026-07-27",
+     80,
+     8
+    ],
+    [
+     "2026-07-28",
+     80,
+     7
+    ],
+    [
+     "2026-07-29",
+     85,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "383220",
+   "name": "F&F",
+   "open_date": "2026-07-31",
+   "net_pct": -21.25,
+   "win": false,
+   "setup": null,
+   "regime_up": false,
+   "relvol_entry": 1.14,
+   "rs_display": 81,
+   "rs_latest": 81,
+   "tenure10_strict": 1,
+   "tenure10_loose": 3,
+   "streak_strict": 1,
+   "streak_loose": 1,
+   "rs_vol10": 15,
+   "n_prior_snaps": 20,
+   "newcomer": true,
+   "rs_floor": true,
+   "flag_raw": true,
+   "rs_trail": [
+    [
+     "2026-07-14",
+     69,
+     5
+    ],
+    [
+     "2026-07-15",
+     68,
+     7
+    ],
+    [
+     "2026-07-20",
+     66,
+     5
+    ],
+    [
+     "2026-07-21",
+     69,
+     5
+    ],
+    [
+     "2026-07-22",
+     67,
+     5
+    ],
+    [
+     "2026-07-23",
+     69,
+     5
+    ],
+    [
+     "2026-07-24",
+     72,
+     5
+    ],
+    [
+     "2026-07-27",
+     73,
+     7
+    ],
+    [
+     "2026-07-28",
+     77,
+     5
+    ],
+    [
+     "2026-07-29",
+     81,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "900260",
+   "name": "로스웰",
+   "open_date": "2026-08-03",
+   "net_pct": -4.93,
+   "win": false,
+   "setup": "VCP",
+   "regime_up": false,
+   "relvol_entry": 0.37,
+   "rs_display": 95,
+   "rs_latest": 95,
+   "tenure10_strict": 4,
+   "tenure10_loose": 5,
+   "streak_strict": 1,
+   "streak_loose": 1,
+   "rs_vol10": 5,
+   "n_prior_snaps": 21,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "rs_trail": [
+    [
+     "2026-07-15",
+     96,
+     8
+    ],
+    [
+     "2026-07-20",
+     91,
+     6
+    ],
+    [
+     "2026-07-21",
+     92,
+     7
+    ],
+    [
+     "2026-07-22",
+     92,
+     6
+    ],
+    [
+     "2026-07-23",
+     92,
+     6
+    ],
+    [
+     "2026-07-24",
+     94,
+     8
+    ],
+    [
+     "2026-07-27",
+     93,
+     6
+    ],
+    [
+     "2026-07-28",
+     95,
+     8
+    ],
+    [
+     "2026-07-29",
+     96,
+     6
+    ],
+    [
+     "2026-07-31",
+     95,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "001540",
+   "name": "안국약품",
+   "open_date": "2026-08-05",
+   "net_pct": 11.98,
+   "win": true,
+   "setup": "VCP",
+   "regime_up": true,
+   "relvol_entry": 0.44,
+   "rs_display": 88,
+   "rs_latest": 88,
+   "tenure10_strict": 6,
+   "tenure10_loose": 10,
+   "streak_strict": 1,
+   "streak_loose": 23,
+   "rs_vol10": 2,
+   "n_prior_snaps": 23,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "rs_trail": [
+    [
+     "2026-07-21",
+     89,
+     8
+    ],
+    [
+     "2026-07-22",
+     89,
+     8
+    ],
+    [
+     "2026-07-23",
+     88,
+     8
+    ],
+    [
+     "2026-07-24",
+     89,
+     8
+    ],
+    [
+     "2026-07-27",
+     88,
+     8
+    ],
+    [
+     "2026-07-28",
+     88,
+     7
+    ],
+    [
+     "2026-07-29",
+     89,
+     7
+    ],
+    [
+     "2026-07-31",
+     87,
+     7
+    ],
+    [
+     "2026-08-03",
+     88,
+     7
+    ],
+    [
+     "2026-08-04",
+     88,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "005430",
+   "name": "한국공항",
+   "open_date": "2026-08-05",
+   "net_pct": -4.86,
+   "win": false,
+   "setup": "3C",
+   "regime_up": true,
+   "relvol_entry": 0.32,
+   "rs_display": 89,
+   "rs_latest": 89,
+   "tenure10_strict": 7,
+   "tenure10_loose": 10,
+   "streak_strict": 3,
+   "streak_loose": 23,
+   "rs_vol10": 3,
+   "n_prior_snaps": 23,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "rs_trail": [
+    [
+     "2026-07-21",
+     90,
+     8
+    ],
+    [
+     "2026-07-22",
+     89,
+     8
+    ],
+    [
+     "2026-07-23",
+     87,
+     8
+    ],
+    [
+     "2026-07-24",
+     88,
+     7
+    ],
+    [
+     "2026-07-27",
+     87,
+     8
+    ],
+    [
+     "2026-07-28",
+     88,
+     7
+    ],
+    [
+     "2026-07-29",
+     88,
+     7
+    ],
+    [
+     "2026-07-31",
+     90,
+     8
+    ],
+    [
+     "2026-08-03",
+     89,
+     8
+    ],
+    [
+     "2026-08-04",
+     89,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "222040",
+   "name": "코스맥스엔비티",
+   "open_date": "2026-08-05",
+   "net_pct": 11.76,
+   "win": true,
+   "setup": "VCP",
+   "regime_up": true,
+   "relvol_entry": 0.46,
+   "rs_display": 93,
+   "rs_latest": 93,
+   "tenure10_strict": 8,
+   "tenure10_loose": 10,
+   "streak_strict": 1,
+   "streak_loose": 21,
+   "rs_vol10": 4,
+   "n_prior_snaps": 23,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "rs_trail": [
+    [
+     "2026-07-21",
+     93,
+     8
+    ],
+    [
+     "2026-07-22",
+     92,
+     8
+    ],
+    [
+     "2026-07-23",
+     91,
+     8
+    ],
+    [
+     "2026-07-24",
+     92,
+     8
+    ],
+    [
+     "2026-07-27",
+     94,
+     8
+    ],
+    [
+     "2026-07-28",
+     94,
+     8
+    ],
+    [
+     "2026-07-29",
+     95,
+     8
+    ],
+    [
+     "2026-07-31",
+     93,
+     7
+    ],
+    [
+     "2026-08-03",
+     92,
+     7
+    ],
+    [
+     "2026-08-04",
+     93,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "005950",
+   "name": "이수화학",
+   "open_date": "2026-08-07",
+   "net_pct": 0.27,
+   "win": true,
+   "setup": "VCP",
+   "regime_up": true,
+   "relvol_entry": 0.7,
+   "rs_display": 95,
+   "rs_latest": 95,
+   "tenure10_strict": 5,
+   "tenure10_loose": 6,
+   "streak_strict": 1,
+   "streak_loose": 3,
+   "rs_vol10": 1,
+   "n_prior_snaps": 25,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "rs_trail": [
+    [
+     "2026-07-23",
+     96,
+     8
+    ],
+    [
+     "2026-07-24",
+     96,
+     8
+    ],
+    [
+     "2026-07-27",
+     96,
+     8
+    ],
+    [
+     "2026-07-28",
+     96,
+     6
+    ],
+    [
+     "2026-07-29",
+     96,
+     6
+    ],
+    [
+     "2026-07-31",
+     96,
+     6
+    ],
+    [
+     "2026-08-03",
+     95,
+     6
+    ],
+    [
+     "2026-08-04",
+     95,
+     8
+    ],
+    [
+     "2026-08-05",
+     95,
+     7
+    ],
+    [
+     "2026-08-06",
+     95,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "019540",
+   "name": "일지테크",
+   "open_date": "2026-08-10",
+   "net_pct": 2.5,
+   "win": true,
+   "setup": "VCP",
+   "regime_up": true,
+   "relvol_entry": 0.65,
+   "rs_display": 89,
+   "rs_latest": 89,
+   "tenure10_strict": 8,
+   "tenure10_loose": 9,
+   "streak_strict": 6,
+   "streak_loose": 6,
+   "rs_vol10": 2,
+   "n_prior_snaps": 26,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "rs_trail": [
+    [
+     "2026-07-24",
+     89,
+     8
+    ],
+    [
+     "2026-07-27",
+     89,
+     8
+    ],
+    [
+     "2026-07-28",
+     90,
+     7
+    ],
+    [
+     "2026-07-29",
+     90,
+     5
+    ],
+    [
+     "2026-07-31",
+     90,
+     8
+    ],
+    [
+     "2026-08-03",
+     91,
+     8
+    ],
+    [
+     "2026-08-04",
+     90,
+     8
+    ],
+    [
+     "2026-08-05",
+     89,
+     8
+    ],
+    [
+     "2026-08-06",
+     89,
+     8
+    ],
+    [
+     "2026-08-07",
+     89,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "007340",
+   "name": "DN오토모티브",
+   "open_date": "2026-08-11",
+   "net_pct": -5.01,
+   "win": false,
+   "setup": "3C",
+   "regime_up": true,
+   "relvol_entry": 0.96,
+   "rs_display": 90,
+   "rs_latest": 90,
+   "tenure10_strict": 7,
+   "tenure10_loose": 7,
+   "streak_strict": 7,
+   "streak_loose": 7,
+   "rs_vol10": 3,
+   "n_prior_snaps": 27,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "rs_trail": [
+    [
+     "2026-07-27",
+     89,
+     6
+    ],
+    [
+     "2026-07-28",
+     90,
+     6
+    ],
+    [
+     "2026-07-29",
+     90,
+     6
+    ],
+    [
+     "2026-07-31",
+     91,
+     8
+    ],
+    [
+     "2026-08-03",
+     91,
+     8
+    ],
+    [
+     "2026-08-04",
+     92,
+     8
+    ],
+    [
+     "2026-08-05",
+     91,
+     8
+    ],
+    [
+     "2026-08-06",
+     92,
+     8
+    ],
+    [
+     "2026-08-07",
+     90,
+     8
+    ],
+    [
+     "2026-08-10",
+     90,
+     8
+    ]
+   ]
+  },
+  {
+   "code": "009190",
+   "name": "대양금속",
+   "open_date": "2026-08-13",
+   "net_pct": -4.91,
+   "win": false,
+   "setup": "3C",
+   "regime_up": true,
+   "relvol_entry": 0.59,
+   "rs_display": 80,
+   "rs_latest": 80,
+   "tenure10_strict": 0,
+   "tenure10_loose": 1,
+   "streak_strict": 0,
+   "streak_loose": 1,
+   "rs_vol10": 8,
+   "n_prior_snaps": 29,
+   "newcomer": true,
+   "rs_floor": true,
+   "flag_raw": true,
+   "rs_trail": [
+    [
+     "2026-07-29",
+     76,
+     4
+    ],
+    [
+     "2026-07-31",
+     72,
+     4
+    ],
+    [
+     "2026-08-03",
+     72,
+     5
+    ],
+    [
+     "2026-08-04",
+     79,
+     6
+    ],
+    [
+     "2026-08-05",
+     78,
+     6
+    ],
+    [
+     "2026-08-06",
+     79,
+     6
+    ],
+    [
+     "2026-08-07",
+     79,
+     6
+    ],
+    [
+     "2026-08-10",
+     77,
+     6
+    ],
+    [
+     "2026-08-11",
+     76,
+     6
+    ],
+    [
+     "2026-08-12",
+     80,
+     7
+    ]
+   ]
+  }
+ ],
+ "bt_listing": [
+  {
+   "code": "000400",
+   "name": "롯데손해보험",
+   "cohort": "control",
+   "entry_date": "2026-06-30",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 84.0,
+   "rs_latest": null,
+   "tenure10_strict": 0,
+   "tenure10_loose": 0,
+   "streak_strict": 0,
+   "rs_vol10": null,
+   "n_prior_snaps": 0,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "004170",
+   "name": "신세계",
+   "cohort": "forming",
+   "entry_date": "2026-06-30",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 98.0,
+   "rs_latest": null,
+   "tenure10_strict": 0,
+   "tenure10_loose": 0,
+   "streak_strict": 0,
+   "rs_vol10": null,
+   "n_prior_snaps": 0,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "009420",
+   "name": "한올바이오파마",
+   "cohort": "control",
+   "entry_date": "2026-06-30",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 95.0,
+   "rs_latest": null,
+   "tenure10_strict": 0,
+   "tenure10_loose": 0,
+   "streak_strict": 0,
+   "rs_vol10": null,
+   "n_prior_snaps": 0,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "011560",
+   "name": "세보엠이씨",
+   "cohort": "control",
+   "entry_date": "2026-06-30",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 93.0,
+   "rs_latest": null,
+   "tenure10_strict": 0,
+   "tenure10_loose": 0,
+   "streak_strict": 0,
+   "rs_vol10": null,
+   "n_prior_snaps": 0,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "019010",
+   "name": "베뉴지",
+   "cohort": "forming",
+   "entry_date": "2026-06-30",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 94.0,
+   "rs_latest": null,
+   "tenure10_strict": 0,
+   "tenure10_loose": 0,
+   "streak_strict": 0,
+   "rs_vol10": null,
+   "n_prior_snaps": 0,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "064850",
+   "name": "에프앤가이드",
+   "cohort": "control",
+   "entry_date": "2026-06-30",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 98.0,
+   "rs_latest": null,
+   "tenure10_strict": 0,
+   "tenure10_loose": 0,
+   "streak_strict": 0,
+   "rs_vol10": null,
+   "n_prior_snaps": 0,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "084370",
+   "name": "유진테크",
+   "cohort": "forming",
+   "entry_date": "2026-06-30",
+   "net_pct": 19.66,
+   "still_open": false,
+   "win": true,
+   "rs_display": 99.0,
+   "rs_latest": null,
+   "tenure10_strict": 0,
+   "tenure10_loose": 0,
+   "streak_strict": 0,
+   "rs_vol10": null,
+   "n_prior_snaps": 0,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "target"
+  },
+  {
+   "code": "101160",
+   "name": "월덱스",
+   "cohort": "control",
+   "entry_date": "2026-06-30",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 86.0,
+   "rs_latest": null,
+   "tenure10_strict": 0,
+   "tenure10_loose": 0,
+   "streak_strict": 0,
+   "rs_vol10": null,
+   "n_prior_snaps": 0,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "137080",
+   "name": "나래나노텍",
+   "cohort": "forming",
+   "entry_date": "2026-06-30",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 91.0,
+   "rs_latest": null,
+   "tenure10_strict": 0,
+   "tenure10_loose": 0,
+   "streak_strict": 0,
+   "rs_vol10": null,
+   "n_prior_snaps": 0,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "222800",
+   "name": "심텍",
+   "cohort": "forming",
+   "entry_date": "2026-06-30",
+   "net_pct": 19.66,
+   "still_open": false,
+   "win": true,
+   "rs_display": 99.0,
+   "rs_latest": null,
+   "tenure10_strict": 0,
+   "tenure10_loose": 0,
+   "streak_strict": 0,
+   "rs_vol10": null,
+   "n_prior_snaps": 0,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "target"
+  },
+  {
+   "code": "226950",
+   "name": "올릭스",
+   "cohort": "control",
+   "entry_date": "2026-06-30",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 98.0,
+   "rs_latest": null,
+   "tenure10_strict": 0,
+   "tenure10_loose": 0,
+   "streak_strict": 0,
+   "rs_vol10": null,
+   "n_prior_snaps": 0,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "240810",
+   "name": "원익IPS",
+   "cohort": "forming",
+   "entry_date": "2026-06-30",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 99.0,
+   "rs_latest": null,
+   "tenure10_strict": 0,
+   "tenure10_loose": 0,
+   "streak_strict": 0,
+   "rs_vol10": null,
+   "n_prior_snaps": 0,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "001540",
+   "name": "안국약품",
+   "cohort": "forming",
+   "entry_date": "2026-07-01",
+   "net_pct": 19.66,
+   "still_open": false,
+   "win": true,
+   "rs_display": 81.0,
+   "rs_latest": 83,
+   "tenure10_strict": 1,
+   "tenure10_loose": 1,
+   "streak_strict": 1,
+   "rs_vol10": null,
+   "n_prior_snaps": 1,
+   "newcomer": true,
+   "rs_floor": true,
+   "flag_raw": true,
+   "exit_kind": "target"
+  },
+  {
+   "code": "005430",
+   "name": "한국공항",
+   "cohort": "forming",
+   "entry_date": "2026-07-01",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 87.0,
+   "rs_latest": 88,
+   "tenure10_strict": 1,
+   "tenure10_loose": 1,
+   "streak_strict": 1,
+   "rs_vol10": null,
+   "n_prior_snaps": 1,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "005950",
+   "name": "이수화학",
+   "cohort": "forming",
+   "entry_date": "2026-07-01",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 94.0,
+   "rs_latest": 95,
+   "tenure10_strict": 1,
+   "tenure10_loose": 1,
+   "streak_strict": 1,
+   "rs_vol10": null,
+   "n_prior_snaps": 1,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "036800",
+   "name": "나이스정보통신",
+   "cohort": "forming",
+   "entry_date": "2026-07-01",
+   "net_pct": -3.8,
+   "still_open": true,
+   "win": false,
+   "rs_display": 83.0,
+   "rs_latest": 83,
+   "tenure10_strict": 1,
+   "tenure10_loose": 1,
+   "streak_strict": 1,
+   "rs_vol10": null,
+   "n_prior_snaps": 1,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "mtm_open"
+  },
+  {
+   "code": "094840",
+   "name": "슈프리마에이치큐",
+   "cohort": "forming",
+   "entry_date": "2026-07-01",
+   "net_pct": 19.66,
+   "still_open": false,
+   "win": true,
+   "rs_display": 87.0,
+   "rs_latest": 87,
+   "tenure10_strict": 1,
+   "tenure10_loose": 1,
+   "streak_strict": 1,
+   "rs_vol10": null,
+   "n_prior_snaps": 1,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "target"
+  },
+  {
+   "code": "131290",
+   "name": "티에스이",
+   "cohort": "forming",
+   "entry_date": "2026-07-01",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 99.0,
+   "rs_latest": 99,
+   "tenure10_strict": 1,
+   "tenure10_loose": 1,
+   "streak_strict": 1,
+   "rs_vol10": null,
+   "n_prior_snaps": 1,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "900260",
+   "name": "로스웰",
+   "cohort": "forming",
+   "entry_date": "2026-07-01",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 95.0,
+   "rs_latest": 95,
+   "tenure10_strict": 1,
+   "tenure10_loose": 1,
+   "streak_strict": 1,
+   "rs_vol10": null,
+   "n_prior_snaps": 1,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "both_same_day_loss"
+  },
+  {
+   "code": "009155",
+   "name": "삼성전기우",
+   "cohort": "forming",
+   "entry_date": "2026-07-01",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 99.0,
+   "rs_latest": 99,
+   "tenure10_strict": 1,
+   "tenure10_loose": 1,
+   "streak_strict": 1,
+   "rs_vol10": null,
+   "n_prior_snaps": 1,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "029460",
+   "name": "케이씨",
+   "cohort": "control",
+   "entry_date": "2026-07-01",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 87.0,
+   "rs_latest": 87,
+   "tenure10_strict": 1,
+   "tenure10_loose": 1,
+   "streak_strict": 1,
+   "rs_vol10": null,
+   "n_prior_snaps": 1,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "034730",
+   "name": "SK",
+   "cohort": "forming",
+   "entry_date": "2026-07-01",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 99.0,
+   "rs_latest": 99,
+   "tenure10_strict": 1,
+   "tenure10_loose": 1,
+   "streak_strict": 1,
+   "rs_vol10": null,
+   "n_prior_snaps": 1,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "080220",
+   "name": "제주반도체",
+   "cohort": "forming",
+   "entry_date": "2026-07-01",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 99.0,
+   "rs_latest": 99,
+   "tenure10_strict": 1,
+   "tenure10_loose": 1,
+   "streak_strict": 1,
+   "rs_vol10": null,
+   "n_prior_snaps": 1,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "086670",
+   "name": "비엠티",
+   "cohort": "control",
+   "entry_date": "2026-07-01",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 90.0,
+   "rs_latest": 90,
+   "tenure10_strict": 1,
+   "tenure10_loose": 1,
+   "streak_strict": 1,
+   "rs_vol10": null,
+   "n_prior_snaps": 1,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "089970",
+   "name": "브이엠",
+   "cohort": "forming",
+   "entry_date": "2026-07-01",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 99.0,
+   "rs_latest": 99,
+   "tenure10_strict": 1,
+   "tenure10_loose": 1,
+   "streak_strict": 1,
+   "rs_vol10": null,
+   "n_prior_snaps": 1,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "091590",
+   "name": "남화토건",
+   "cohort": "forming",
+   "entry_date": "2026-07-01",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 91.0,
+   "rs_latest": 91,
+   "tenure10_strict": 1,
+   "tenure10_loose": 1,
+   "streak_strict": 1,
+   "rs_vol10": null,
+   "n_prior_snaps": 1,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "219130",
+   "name": "타이거일렉",
+   "cohort": "control",
+   "entry_date": "2026-07-01",
+   "net_pct": 19.66,
+   "still_open": false,
+   "win": true,
+   "rs_display": 99.0,
+   "rs_latest": 99,
+   "tenure10_strict": 1,
+   "tenure10_loose": 1,
+   "streak_strict": 1,
+   "rs_vol10": null,
+   "n_prior_snaps": 1,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "target"
+  },
+  {
+   "code": "319660",
+   "name": "피에스케이",
+   "cohort": "forming",
+   "entry_date": "2026-07-01",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 99.0,
+   "rs_latest": 99,
+   "tenure10_strict": 1,
+   "tenure10_loose": 1,
+   "streak_strict": 1,
+   "rs_vol10": null,
+   "n_prior_snaps": 1,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "003490",
+   "name": "대한항공",
+   "cohort": "forming",
+   "entry_date": "2026-07-02",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 83.0,
+   "rs_latest": 83,
+   "tenure10_strict": 2,
+   "tenure10_loose": 2,
+   "streak_strict": 2,
+   "rs_vol10": 0,
+   "n_prior_snaps": 2,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "192080",
+   "name": "더블유게임즈",
+   "cohort": "forming",
+   "entry_date": "2026-07-02",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 80.0,
+   "rs_latest": 79,
+   "tenure10_strict": 1,
+   "tenure10_loose": 2,
+   "streak_strict": 0,
+   "rs_vol10": 1,
+   "n_prior_snaps": 2,
+   "newcomer": true,
+   "rs_floor": true,
+   "flag_raw": true,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "003650",
+   "name": "미창석유",
+   "cohort": "forming",
+   "entry_date": "2026-07-02",
+   "net_pct": 6.47,
+   "still_open": true,
+   "win": true,
+   "rs_display": 80.0,
+   "rs_latest": 80,
+   "tenure10_strict": 1,
+   "tenure10_loose": 1,
+   "streak_strict": 1,
+   "rs_vol10": 1,
+   "n_prior_snaps": 2,
+   "newcomer": true,
+   "rs_floor": true,
+   "flag_raw": true,
+   "exit_kind": "mtm_open"
+  },
+  {
+   "code": "007660",
+   "name": "이수페타시스",
+   "cohort": "control",
+   "entry_date": "2026-07-02",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 96.0,
+   "rs_latest": 96,
+   "tenure10_strict": 1,
+   "tenure10_loose": 1,
+   "streak_strict": 1,
+   "rs_vol10": 1,
+   "n_prior_snaps": 2,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "010955",
+   "name": "S-Oil우",
+   "cohort": "forming",
+   "entry_date": "2026-07-02",
+   "net_pct": 19.66,
+   "still_open": false,
+   "win": true,
+   "rs_display": 86.0,
+   "rs_latest": 86,
+   "tenure10_strict": 2,
+   "tenure10_loose": 2,
+   "streak_strict": 2,
+   "rs_vol10": 0,
+   "n_prior_snaps": 2,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "target"
+  },
+  {
+   "code": "041830",
+   "name": "인바디",
+   "cohort": "forming",
+   "entry_date": "2026-07-02",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 95.0,
+   "rs_latest": 95,
+   "tenure10_strict": 2,
+   "tenure10_loose": 2,
+   "streak_strict": 2,
+   "rs_vol10": 1,
+   "n_prior_snaps": 2,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "062040",
+   "name": "산일전기",
+   "cohort": "control",
+   "entry_date": "2026-07-02",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 96.0,
+   "rs_latest": 96,
+   "tenure10_strict": 1,
+   "tenure10_loose": 1,
+   "streak_strict": 1,
+   "rs_vol10": 0,
+   "n_prior_snaps": 2,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "339950",
+   "name": "아이비김영",
+   "cohort": "control",
+   "entry_date": "2026-07-02",
+   "net_pct": 6.35,
+   "still_open": true,
+   "win": true,
+   "rs_display": 82.0,
+   "rs_latest": 82,
+   "tenure10_strict": 1,
+   "tenure10_loose": 1,
+   "streak_strict": 1,
+   "rs_vol10": 4,
+   "n_prior_snaps": 2,
+   "newcomer": true,
+   "rs_floor": true,
+   "flag_raw": true,
+   "exit_kind": "mtm_open"
+  },
+  {
+   "code": "037760",
+   "name": "쎄니트",
+   "cohort": "forming",
+   "entry_date": "2026-07-03",
+   "net_pct": -3.8,
+   "still_open": true,
+   "win": false,
+   "rs_display": 88.0,
+   "rs_latest": 89,
+   "tenure10_strict": 2,
+   "tenure10_loose": 3,
+   "streak_strict": 2,
+   "rs_vol10": 2,
+   "n_prior_snaps": 3,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "mtm_open"
+  },
+  {
+   "code": "271560",
+   "name": "오리온",
+   "cohort": "forming",
+   "entry_date": "2026-07-03",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 82.0,
+   "rs_latest": 84,
+   "tenure10_strict": 2,
+   "tenure10_loose": 3,
+   "streak_strict": 2,
+   "rs_vol10": 2,
+   "n_prior_snaps": 3,
+   "newcomer": true,
+   "rs_floor": true,
+   "flag_raw": true,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "017890",
+   "name": "한국알콜",
+   "cohort": "control",
+   "entry_date": "2026-07-03",
+   "net_pct": 19.66,
+   "still_open": false,
+   "win": true,
+   "rs_display": 85.0,
+   "rs_latest": 85,
+   "tenure10_strict": 1,
+   "tenure10_loose": 2,
+   "streak_strict": 1,
+   "rs_vol10": 7,
+   "n_prior_snaps": 3,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "target"
+  },
+  {
+   "code": "019210",
+   "name": "와이지-원",
+   "cohort": "forming",
+   "entry_date": "2026-07-03",
+   "net_pct": 19.66,
+   "still_open": false,
+   "win": true,
+   "rs_display": 98.0,
+   "rs_latest": 98,
+   "tenure10_strict": 3,
+   "tenure10_loose": 3,
+   "streak_strict": 3,
+   "rs_vol10": 1,
+   "n_prior_snaps": 3,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "exit_kind": "target"
+  },
+  {
+   "code": "064290",
+   "name": "인텍플러스",
+   "cohort": "forming",
+   "entry_date": "2026-07-03",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 99.0,
+   "rs_latest": 99,
+   "tenure10_strict": 3,
+   "tenure10_loose": 3,
+   "streak_strict": 3,
+   "rs_vol10": 0,
+   "n_prior_snaps": 3,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "222040",
+   "name": "코스맥스엔비티",
+   "cohort": "forming",
+   "entry_date": "2026-07-03",
+   "net_pct": 19.66,
+   "still_open": false,
+   "win": true,
+   "rs_display": 85.0,
+   "rs_latest": 85,
+   "tenure10_strict": 1,
+   "tenure10_loose": 2,
+   "streak_strict": 1,
+   "rs_vol10": 3,
+   "n_prior_snaps": 3,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "target"
+  },
+  {
+   "code": "311320",
+   "name": "지오엘리먼트",
+   "cohort": "forming",
+   "entry_date": "2026-07-03",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 89.0,
+   "rs_latest": 89,
+   "tenure10_strict": 3,
+   "tenure10_loose": 3,
+   "streak_strict": 3,
+   "rs_vol10": 1,
+   "n_prior_snaps": 3,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "005680",
+   "name": "삼영전자",
+   "cohort": "forming",
+   "entry_date": "2026-07-06",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 83.0,
+   "rs_latest": 86,
+   "tenure10_strict": 5,
+   "tenure10_loose": 5,
+   "streak_strict": 5,
+   "rs_vol10": 2,
+   "n_prior_snaps": 5,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "032830",
+   "name": "삼성생명",
+   "cohort": "forming",
+   "entry_date": "2026-07-06",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 97.0,
+   "rs_latest": 97,
+   "tenure10_strict": 4,
+   "tenure10_loose": 5,
+   "streak_strict": 2,
+   "rs_vol10": 0,
+   "n_prior_snaps": 5,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "094860",
+   "name": "네오리진",
+   "cohort": "forming",
+   "entry_date": "2026-07-06",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 87.0,
+   "rs_latest": 87,
+   "tenure10_strict": 3,
+   "tenure10_loose": 4,
+   "streak_strict": 3,
+   "rs_vol10": 4,
+   "n_prior_snaps": 5,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "105560",
+   "name": "KB금융",
+   "cohort": "forming",
+   "entry_date": "2026-07-06",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 89.0,
+   "rs_latest": 89,
+   "tenure10_strict": 5,
+   "tenure10_loose": 5,
+   "streak_strict": 5,
+   "rs_vol10": 2,
+   "n_prior_snaps": 5,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "204610",
+   "name": "티쓰리",
+   "cohort": "forming",
+   "entry_date": "2026-07-06",
+   "net_pct": 9.33,
+   "still_open": true,
+   "win": true,
+   "rs_display": 87.0,
+   "rs_latest": 87,
+   "tenure10_strict": 4,
+   "tenure10_loose": 4,
+   "streak_strict": 4,
+   "rs_vol10": 3,
+   "n_prior_snaps": 5,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "exit_kind": "mtm_open"
+  },
+  {
+   "code": "000810",
+   "name": "삼성화재",
+   "cohort": "forming",
+   "entry_date": "2026-07-07",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 86.0,
+   "rs_latest": 89,
+   "tenure10_strict": 6,
+   "tenure10_loose": 6,
+   "streak_strict": 6,
+   "rs_vol10": 2,
+   "n_prior_snaps": 6,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "023530",
+   "name": "롯데쇼핑",
+   "cohort": "forming",
+   "entry_date": "2026-07-07",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 94.0,
+   "rs_latest": 95,
+   "tenure10_strict": 6,
+   "tenure10_loose": 6,
+   "streak_strict": 6,
+   "rs_vol10": 1,
+   "n_prior_snaps": 6,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "161390",
+   "name": "한국타이어앤테크놀로지",
+   "cohort": "control",
+   "entry_date": "2026-07-07",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 92.0,
+   "rs_latest": 92,
+   "tenure10_strict": 4,
+   "tenure10_loose": 5,
+   "streak_strict": 4,
+   "rs_vol10": 3,
+   "n_prior_snaps": 6,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "052330",
+   "name": "코텍",
+   "cohort": "control",
+   "entry_date": "2026-07-07",
+   "net_pct": 4.96,
+   "still_open": true,
+   "win": true,
+   "rs_display": 83.0,
+   "rs_latest": 83,
+   "tenure10_strict": 2,
+   "tenure10_loose": 6,
+   "streak_strict": 0,
+   "rs_vol10": 2,
+   "n_prior_snaps": 6,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "mtm_open"
+  },
+  {
+   "code": "161890",
+   "name": "한국콜마",
+   "cohort": "forming",
+   "entry_date": "2026-07-07",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 84.0,
+   "rs_latest": 84,
+   "tenure10_strict": 5,
+   "tenure10_loose": 6,
+   "streak_strict": 5,
+   "rs_vol10": 8,
+   "n_prior_snaps": 6,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "000270",
+   "name": "기아",
+   "cohort": "control",
+   "entry_date": "2026-07-07",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 91.0,
+   "rs_latest": 91,
+   "tenure10_strict": 1,
+   "tenure10_loose": 1,
+   "streak_strict": 1,
+   "rs_vol10": 5,
+   "n_prior_snaps": 6,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "078930",
+   "name": "GS",
+   "cohort": "forming",
+   "entry_date": "2026-07-07",
+   "net_pct": 19.66,
+   "still_open": false,
+   "win": true,
+   "rs_display": 91.0,
+   "rs_latest": 91,
+   "tenure10_strict": 2,
+   "tenure10_loose": 5,
+   "streak_strict": 1,
+   "rs_vol10": 4,
+   "n_prior_snaps": 6,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "target"
+  },
+  {
+   "code": "001450",
+   "name": "현대해상",
+   "cohort": "forming",
+   "entry_date": "2026-07-08",
+   "net_pct": 17.61,
+   "still_open": true,
+   "win": true,
+   "rs_display": 84.0,
+   "rs_latest": 88,
+   "tenure10_strict": 6,
+   "tenure10_loose": 7,
+   "streak_strict": 5,
+   "rs_vol10": 3,
+   "n_prior_snaps": 7,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "exit_kind": "mtm_open"
+  },
+  {
+   "code": "055550",
+   "name": "신한지주",
+   "cohort": "forming",
+   "entry_date": "2026-07-08",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 92.0,
+   "rs_latest": 93,
+   "tenure10_strict": 5,
+   "tenure10_loose": 7,
+   "streak_strict": 5,
+   "rs_vol10": 4,
+   "n_prior_snaps": 7,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "020000",
+   "name": "한섬",
+   "cohort": "control",
+   "entry_date": "2026-07-08",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 88.0,
+   "rs_latest": 88,
+   "tenure10_strict": 1,
+   "tenure10_loose": 6,
+   "streak_strict": 1,
+   "rs_vol10": 6,
+   "n_prior_snaps": 7,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "025890",
+   "name": "한국주강",
+   "cohort": "control",
+   "entry_date": "2026-07-08",
+   "net_pct": 19.66,
+   "still_open": false,
+   "win": true,
+   "rs_display": 81.0,
+   "rs_latest": 81,
+   "tenure10_strict": 1,
+   "tenure10_loose": 3,
+   "streak_strict": 1,
+   "rs_vol10": 3,
+   "n_prior_snaps": 7,
+   "newcomer": true,
+   "rs_floor": true,
+   "flag_raw": true,
+   "exit_kind": "target"
+  },
+  {
+   "code": "093190",
+   "name": "빅솔론",
+   "cohort": "forming",
+   "entry_date": "2026-07-10",
+   "net_pct": 10.2,
+   "still_open": true,
+   "win": true,
+   "rs_display": 85.0,
+   "rs_latest": 86,
+   "tenure10_strict": 7,
+   "tenure10_loose": 8,
+   "streak_strict": 0,
+   "rs_vol10": 3,
+   "n_prior_snaps": 8,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "exit_kind": "mtm_open"
+  },
+  {
+   "code": "007070",
+   "name": "GS리테일",
+   "cohort": "forming",
+   "entry_date": "2026-07-10",
+   "net_pct": 5.18,
+   "still_open": true,
+   "win": true,
+   "rs_display": 90.0,
+   "rs_latest": 90,
+   "tenure10_strict": 6,
+   "tenure10_loose": 8,
+   "streak_strict": 6,
+   "rs_vol10": 4,
+   "n_prior_snaps": 8,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "exit_kind": "mtm_open"
+  },
+  {
+   "code": "086790",
+   "name": "하나금융지주",
+   "cohort": "forming",
+   "entry_date": "2026-07-10",
+   "net_pct": 3.4,
+   "still_open": true,
+   "win": true,
+   "rs_display": 89.0,
+   "rs_latest": 89,
+   "tenure10_strict": 6,
+   "tenure10_loose": 8,
+   "streak_strict": 6,
+   "rs_vol10": 3,
+   "n_prior_snaps": 8,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "exit_kind": "mtm_open"
+  },
+  {
+   "code": "420770",
+   "name": "기가비스",
+   "cohort": "forming",
+   "entry_date": "2026-07-13",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 99.0,
+   "rs_latest": 99,
+   "tenure10_strict": 8,
+   "tenure10_loose": 9,
+   "streak_strict": 2,
+   "rs_vol10": 0,
+   "n_prior_snaps": 9,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "010950",
+   "name": "S-Oil",
+   "cohort": "forming",
+   "entry_date": "2026-07-13",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 95.0,
+   "rs_latest": 95,
+   "tenure10_strict": 4,
+   "tenure10_loose": 9,
+   "streak_strict": 4,
+   "rs_vol10": 6,
+   "n_prior_snaps": 9,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "084870",
+   "name": "TBH글로벌",
+   "cohort": "forming",
+   "entry_date": "2026-07-16",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 87.0,
+   "rs_latest": 89,
+   "tenure10_strict": 6,
+   "tenure10_loose": 10,
+   "streak_strict": 4,
+   "rs_vol10": 2,
+   "n_prior_snaps": 12,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "019540",
+   "name": "일지테크",
+   "cohort": "forming",
+   "entry_date": "2026-07-16",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 88.0,
+   "rs_latest": 88,
+   "tenure10_strict": 1,
+   "tenure10_loose": 8,
+   "streak_strict": 1,
+   "rs_vol10": 2,
+   "n_prior_snaps": 12,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "079940",
+   "name": "가비아",
+   "cohort": "forming",
+   "entry_date": "2026-07-20",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 82.0,
+   "rs_latest": 84,
+   "tenure10_strict": 4,
+   "tenure10_loose": 9,
+   "streak_strict": 1,
+   "rs_vol10": 5,
+   "n_prior_snaps": 12,
+   "newcomer": false,
+   "rs_floor": true,
+   "flag_raw": true,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "033560",
+   "name": "블루콤",
+   "cohort": "forming",
+   "entry_date": "2026-07-20",
+   "net_pct": 19.66,
+   "still_open": false,
+   "win": true,
+   "rs_display": 82.0,
+   "rs_latest": 83,
+   "tenure10_strict": 3,
+   "tenure10_loose": 10,
+   "streak_strict": 2,
+   "rs_vol10": 6,
+   "n_prior_snaps": 12,
+   "newcomer": false,
+   "rs_floor": true,
+   "flag_raw": true,
+   "exit_kind": "target"
+  },
+  {
+   "code": "483650",
+   "name": "달바글로벌",
+   "cohort": "forming",
+   "entry_date": "2026-07-21",
+   "net_pct": 19.66,
+   "still_open": false,
+   "win": true,
+   "rs_display": 85.0,
+   "rs_latest": 80,
+   "tenure10_strict": 3,
+   "tenure10_loose": 4,
+   "streak_strict": 1,
+   "rs_vol10": 13,
+   "n_prior_snaps": 13,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "exit_kind": "target"
+  },
+  {
+   "code": "002810",
+   "name": "삼영무역",
+   "cohort": "forming",
+   "entry_date": "2026-07-21",
+   "net_pct": 11.54,
+   "still_open": true,
+   "win": true,
+   "rs_display": 84.0,
+   "rs_latest": 84,
+   "tenure10_strict": 1,
+   "tenure10_loose": 7,
+   "streak_strict": 1,
+   "rs_vol10": 4,
+   "n_prior_snaps": 13,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "mtm_open"
+  },
+  {
+   "code": "078935",
+   "name": "GS우",
+   "cohort": "forming",
+   "entry_date": "2026-07-22",
+   "net_pct": 13.22,
+   "still_open": true,
+   "win": true,
+   "rs_display": 83.0,
+   "rs_latest": 84,
+   "tenure10_strict": 3,
+   "tenure10_loose": 10,
+   "streak_strict": 1,
+   "rs_vol10": 2,
+   "n_prior_snaps": 14,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "exit_kind": "mtm_open"
+  },
+  {
+   "code": "069730",
+   "name": "DSR제강",
+   "cohort": "forming",
+   "entry_date": "2026-07-23",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 88.0,
+   "rs_latest": 90,
+   "tenure10_strict": 10,
+   "tenure10_loose": 10,
+   "streak_strict": 15,
+   "rs_vol10": 3,
+   "n_prior_snaps": 15,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "093320",
+   "name": "케이아이엔엑스",
+   "cohort": "forming",
+   "entry_date": "2026-07-23",
+   "net_pct": 6.12,
+   "still_open": true,
+   "win": true,
+   "rs_display": 89.0,
+   "rs_latest": 89,
+   "tenure10_strict": 6,
+   "tenure10_loose": 10,
+   "streak_strict": 6,
+   "rs_vol10": 6,
+   "n_prior_snaps": 15,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "exit_kind": "mtm_open"
+  },
+  {
+   "code": "005090",
+   "name": "SGC에너지",
+   "cohort": "control",
+   "entry_date": "2026-07-24",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 95.0,
+   "rs_latest": 95,
+   "tenure10_strict": 1,
+   "tenure10_loose": 1,
+   "streak_strict": 1,
+   "rs_vol10": 6,
+   "n_prior_snaps": 16,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "006340",
+   "name": "대원전선",
+   "cohort": "control",
+   "entry_date": "2026-07-24",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 99.0,
+   "rs_latest": 99,
+   "tenure10_strict": 1,
+   "tenure10_loose": 4,
+   "streak_strict": 1,
+   "rs_vol10": 1,
+   "n_prior_snaps": 16,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "017670",
+   "name": "SK텔레콤",
+   "cohort": "control",
+   "entry_date": "2026-07-24",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 93.0,
+   "rs_latest": 93,
+   "tenure10_strict": 1,
+   "tenure10_loose": 2,
+   "streak_strict": 1,
+   "rs_vol10": 4,
+   "n_prior_snaps": 16,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "049070",
+   "name": "인탑스",
+   "cohort": "forming",
+   "entry_date": "2026-07-24",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 81.0,
+   "rs_latest": 81,
+   "tenure10_strict": 2,
+   "tenure10_loose": 2,
+   "streak_strict": 2,
+   "rs_vol10": 14,
+   "n_prior_snaps": 16,
+   "newcomer": true,
+   "rs_floor": true,
+   "flag_raw": true,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "033780",
+   "name": "KT&G",
+   "cohort": "forming",
+   "entry_date": "2026-07-29",
+   "net_pct": -6.22,
+   "still_open": true,
+   "win": false,
+   "rs_display": 87.0,
+   "rs_latest": 89,
+   "tenure10_strict": 5,
+   "tenure10_loose": 10,
+   "streak_strict": 4,
+   "rs_vol10": 3,
+   "n_prior_snaps": 19,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "exit_kind": "mtm_open"
+  },
+  {
+   "code": "383220",
+   "name": "F&F",
+   "cohort": "control",
+   "entry_date": "2026-07-30",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 81.0,
+   "rs_latest": 81,
+   "tenure10_strict": 1,
+   "tenure10_loose": 3,
+   "streak_strict": 1,
+   "rs_vol10": 15,
+   "n_prior_snaps": 20,
+   "newcomer": true,
+   "rs_floor": true,
+   "flag_raw": true,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "049430",
+   "name": "코메론",
+   "cohort": "forming",
+   "entry_date": "2026-07-31",
+   "net_pct": 8.77,
+   "still_open": true,
+   "win": true,
+   "rs_display": 92.0,
+   "rs_latest": 95,
+   "tenure10_strict": 7,
+   "tenure10_loose": 10,
+   "streak_strict": 5,
+   "rs_vol10": 4,
+   "n_prior_snaps": 20,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "exit_kind": "mtm_open"
+  },
+  {
+   "code": "236200",
+   "name": "슈프리마",
+   "cohort": "forming",
+   "entry_date": "2026-07-31",
+   "net_pct": 19.66,
+   "still_open": false,
+   "win": true,
+   "rs_display": 88.0,
+   "rs_latest": 91,
+   "tenure10_strict": 3,
+   "tenure10_loose": 10,
+   "streak_strict": 0,
+   "rs_vol10": 3,
+   "n_prior_snaps": 20,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "exit_kind": "target"
+  },
+  {
+   "code": "028670",
+   "name": "팬오션",
+   "cohort": "forming",
+   "entry_date": "2026-07-31",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 86.0,
+   "rs_latest": 89,
+   "tenure10_strict": 3,
+   "tenure10_loose": 9,
+   "streak_strict": 0,
+   "rs_vol10": 3,
+   "n_prior_snaps": 20,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "290720",
+   "name": "푸드나무",
+   "cohort": "forming",
+   "entry_date": "2026-07-31",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 92.0,
+   "rs_latest": 92,
+   "tenure10_strict": 10,
+   "tenure10_loose": 10,
+   "streak_strict": 15,
+   "rs_vol10": 4,
+   "n_prior_snaps": 20,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "017650",
+   "name": "대림제지",
+   "cohort": "forming",
+   "entry_date": "2026-08-03",
+   "net_pct": 8.94,
+   "still_open": true,
+   "win": true,
+   "rs_display": 85.0,
+   "rs_latest": 87,
+   "tenure10_strict": 7,
+   "tenure10_loose": 8,
+   "streak_strict": 6,
+   "rs_vol10": 5,
+   "n_prior_snaps": 21,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "exit_kind": "mtm_open"
+  },
+  {
+   "code": "053160",
+   "name": "프리엠스",
+   "cohort": "forming",
+   "entry_date": "2026-08-03",
+   "net_pct": 3.86,
+   "still_open": true,
+   "win": true,
+   "rs_display": 80.0,
+   "rs_latest": 82,
+   "tenure10_strict": 7,
+   "tenure10_loose": 9,
+   "streak_strict": 1,
+   "rs_vol10": 7,
+   "n_prior_snaps": 21,
+   "newcomer": false,
+   "rs_floor": true,
+   "flag_raw": true,
+   "exit_kind": "mtm_open"
+  },
+  {
+   "code": "054090",
+   "name": "삼진엘앤디",
+   "cohort": "control",
+   "entry_date": "2026-08-03",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 84.0,
+   "rs_latest": 84,
+   "tenure10_strict": 1,
+   "tenure10_loose": 2,
+   "streak_strict": 1,
+   "rs_vol10": 9,
+   "n_prior_snaps": 21,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "189330",
+   "name": "씨이랩",
+   "cohort": "forming",
+   "entry_date": "2026-08-04",
+   "net_pct": 19.66,
+   "still_open": false,
+   "win": true,
+   "rs_display": 86.0,
+   "rs_latest": 90,
+   "tenure10_strict": 2,
+   "tenure10_loose": 6,
+   "streak_strict": 0,
+   "rs_vol10": 7,
+   "n_prior_snaps": 22,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "target"
+  },
+  {
+   "code": "003690",
+   "name": "코리안리",
+   "cohort": "forming",
+   "entry_date": "2026-08-06",
+   "net_pct": 5.82,
+   "still_open": true,
+   "win": true,
+   "rs_display": 84.0,
+   "rs_latest": 85,
+   "tenure10_strict": 9,
+   "tenure10_loose": 9,
+   "streak_strict": 4,
+   "rs_vol10": 4,
+   "n_prior_snaps": 24,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "exit_kind": "mtm_open"
+  },
+  {
+   "code": "071200",
+   "name": "인피니트헬스케어",
+   "cohort": "forming",
+   "entry_date": "2026-08-06",
+   "net_pct": 7.24,
+   "still_open": true,
+   "win": true,
+   "rs_display": 86.0,
+   "rs_latest": 87,
+   "tenure10_strict": 8,
+   "tenure10_loose": 10,
+   "streak_strict": 4,
+   "rs_vol10": 8,
+   "n_prior_snaps": 24,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "exit_kind": "mtm_open"
+  },
+  {
+   "code": "139130",
+   "name": "iM금융지주",
+   "cohort": "forming",
+   "entry_date": "2026-08-07",
+   "net_pct": -0.57,
+   "still_open": true,
+   "win": false,
+   "rs_display": 89.0,
+   "rs_latest": 84,
+   "tenure10_strict": 4,
+   "tenure10_loose": 4,
+   "streak_strict": 1,
+   "rs_vol10": 3,
+   "n_prior_snaps": 25,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "exit_kind": "mtm_open"
+  },
+  {
+   "code": "317400",
+   "name": "자이에스앤디",
+   "cohort": "forming",
+   "entry_date": "2026-08-07",
+   "net_pct": 14.81,
+   "still_open": true,
+   "win": true,
+   "rs_display": 96.0,
+   "rs_latest": 96,
+   "tenure10_strict": 5,
+   "tenure10_loose": 8,
+   "streak_strict": 5,
+   "rs_vol10": 3,
+   "n_prior_snaps": 25,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "exit_kind": "mtm_open"
+  },
+  {
+   "code": "001800",
+   "name": "오리온홀딩스",
+   "cohort": "forming",
+   "entry_date": "2026-08-10",
+   "net_pct": -4.8,
+   "still_open": true,
+   "win": false,
+   "rs_display": 81.0,
+   "rs_latest": 84,
+   "tenure10_strict": 4,
+   "tenure10_loose": 8,
+   "streak_strict": 2,
+   "rs_vol10": 7,
+   "n_prior_snaps": 26,
+   "newcomer": false,
+   "rs_floor": true,
+   "flag_raw": true,
+   "exit_kind": "mtm_open"
+  },
+  {
+   "code": "089860",
+   "name": "롯데렌탈",
+   "cohort": "forming",
+   "entry_date": "2026-08-10",
+   "net_pct": 7.83,
+   "still_open": true,
+   "win": true,
+   "rs_display": 84.0,
+   "rs_latest": 85,
+   "tenure10_strict": 9,
+   "tenure10_loose": 10,
+   "streak_strict": 9,
+   "rs_vol10": 3,
+   "n_prior_snaps": 26,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "exit_kind": "mtm_open"
+  },
+  {
+   "code": "044820",
+   "name": "코스맥스비티아이",
+   "cohort": "forming",
+   "entry_date": "2026-08-10",
+   "net_pct": 19.66,
+   "still_open": false,
+   "win": true,
+   "rs_display": 81.0,
+   "rs_latest": 81,
+   "tenure10_strict": 2,
+   "tenure10_loose": 9,
+   "streak_strict": 2,
+   "rs_vol10": 22,
+   "n_prior_snaps": 26,
+   "newcomer": true,
+   "rs_floor": true,
+   "flag_raw": true,
+   "exit_kind": "target"
+  },
+  {
+   "code": "144960",
+   "name": "뉴파워프라즈마",
+   "cohort": "forming",
+   "entry_date": "2026-08-10",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 94.0,
+   "rs_latest": 94,
+   "tenure10_strict": 8,
+   "tenure10_loose": 8,
+   "streak_strict": 6,
+   "rs_vol10": 4,
+   "n_prior_snaps": 26,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "278470",
+   "name": "에이피알",
+   "cohort": "forming",
+   "entry_date": "2026-08-10",
+   "net_pct": 0.17,
+   "still_open": true,
+   "win": true,
+   "rs_display": 96.0,
+   "rs_latest": 96,
+   "tenure10_strict": 1,
+   "tenure10_loose": 6,
+   "streak_strict": 1,
+   "rs_vol10": 2,
+   "n_prior_snaps": 26,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "mtm_open"
+  },
+  {
+   "code": "045100",
+   "name": "한양이엔지",
+   "cohort": "forming",
+   "entry_date": "2026-08-11",
+   "net_pct": -0.95,
+   "still_open": true,
+   "win": false,
+   "rs_display": 94.0,
+   "rs_latest": 92,
+   "tenure10_strict": 2,
+   "tenure10_loose": 4,
+   "streak_strict": 1,
+   "rs_vol10": 2,
+   "n_prior_snaps": 27,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "mtm_open"
+  },
+  {
+   "code": "159010",
+   "name": "아스플로",
+   "cohort": "forming",
+   "entry_date": "2026-08-11",
+   "net_pct": 12.77,
+   "still_open": true,
+   "win": true,
+   "rs_display": 99.0,
+   "rs_latest": 99,
+   "tenure10_strict": 3,
+   "tenure10_loose": 3,
+   "streak_strict": 3,
+   "rs_vol10": 0,
+   "n_prior_snaps": 27,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "exit_kind": "mtm_open"
+  },
+  {
+   "code": "446540",
+   "name": "메가터치",
+   "cohort": "control",
+   "entry_date": "2026-08-11",
+   "net_pct": 3.51,
+   "still_open": true,
+   "win": true,
+   "rs_display": 93.0,
+   "rs_latest": 93,
+   "tenure10_strict": 1,
+   "tenure10_loose": 2,
+   "streak_strict": 1,
+   "rs_vol10": 5,
+   "n_prior_snaps": 27,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "mtm_open"
+  },
+  {
+   "code": "241770",
+   "name": "메카로",
+   "cohort": "forming",
+   "entry_date": "2026-08-12",
+   "net_pct": 4.04,
+   "still_open": true,
+   "win": true,
+   "rs_display": 97.0,
+   "rs_latest": 98,
+   "tenure10_strict": 1,
+   "tenure10_loose": 5,
+   "streak_strict": 1,
+   "rs_vol10": 1,
+   "n_prior_snaps": 28,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "mtm_open"
+  },
+  {
+   "code": "054800",
+   "name": "아이디스홀딩스",
+   "cohort": "forming",
+   "entry_date": "2026-08-12",
+   "net_pct": 2.7,
+   "still_open": true,
+   "win": true,
+   "rs_display": 86.0,
+   "rs_latest": null,
+   "tenure10_strict": 1,
+   "tenure10_loose": 3,
+   "streak_strict": 0,
+   "rs_vol10": 3,
+   "n_prior_snaps": 28,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "mtm_open"
+  },
+  {
+   "code": "006360",
+   "name": "GS건설",
+   "cohort": "forming",
+   "entry_date": "2026-08-12",
+   "net_pct": 0.23,
+   "still_open": true,
+   "win": true,
+   "rs_display": 92.0,
+   "rs_latest": 92,
+   "tenure10_strict": 3,
+   "tenure10_loose": 6,
+   "streak_strict": 2,
+   "rs_vol10": 8,
+   "n_prior_snaps": 28,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "exit_kind": "mtm_open"
+  },
+  {
+   "code": "036570",
+   "name": "NC",
+   "cohort": "control",
+   "entry_date": "2026-08-12",
+   "net_pct": -3.47,
+   "still_open": true,
+   "win": false,
+   "rs_display": 84.0,
+   "rs_latest": 84,
+   "tenure10_strict": 1,
+   "tenure10_loose": 1,
+   "streak_strict": 1,
+   "rs_vol10": 3,
+   "n_prior_snaps": 28,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "mtm_open"
+  },
+  {
+   "code": "051360",
+   "name": "토비스",
+   "cohort": "forming",
+   "entry_date": "2026-08-12",
+   "net_pct": -10.34,
+   "still_open": false,
+   "win": false,
+   "rs_display": 82.0,
+   "rs_latest": 82,
+   "tenure10_strict": 3,
+   "tenure10_loose": 7,
+   "streak_strict": 3,
+   "rs_vol10": 21,
+   "n_prior_snaps": 28,
+   "newcomer": false,
+   "rs_floor": true,
+   "flag_raw": true,
+   "exit_kind": "stop"
+  },
+  {
+   "code": "127120",
+   "name": "제이에스링크",
+   "cohort": "forming",
+   "entry_date": "2026-08-12",
+   "net_pct": -3.22,
+   "still_open": true,
+   "win": false,
+   "rs_display": 97.0,
+   "rs_latest": 97,
+   "tenure10_strict": 4,
+   "tenure10_loose": 5,
+   "streak_strict": 4,
+   "rs_vol10": 2,
+   "n_prior_snaps": 28,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "exit_kind": "mtm_open"
+  },
+  {
+   "code": "252990",
+   "name": "샘씨엔에스",
+   "cohort": "forming",
+   "entry_date": "2026-08-13",
+   "net_pct": -0.53,
+   "still_open": true,
+   "win": false,
+   "rs_display": 97.0,
+   "rs_latest": 98,
+   "tenure10_strict": 6,
+   "tenure10_loose": 7,
+   "streak_strict": 6,
+   "rs_vol10": 1,
+   "n_prior_snaps": 29,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "exit_kind": "mtm_open"
+  },
+  {
+   "code": "092730",
+   "name": "네오팜",
+   "cohort": "forming",
+   "entry_date": "2026-08-13",
+   "net_pct": -5.24,
+   "still_open": true,
+   "win": false,
+   "rs_display": 85.0,
+   "rs_latest": 85,
+   "tenure10_strict": 1,
+   "tenure10_loose": 3,
+   "streak_strict": 1,
+   "rs_vol10": 12,
+   "n_prior_snaps": 29,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "mtm_open"
+  },
+  {
+   "code": "092230",
+   "name": "KPX홀딩스",
+   "cohort": "forming",
+   "entry_date": "2026-08-14",
+   "net_pct": 2.2,
+   "still_open": true,
+   "win": true,
+   "rs_display": 84.0,
+   "rs_latest": null,
+   "tenure10_strict": 0,
+   "tenure10_loose": 1,
+   "streak_strict": 0,
+   "rs_vol10": null,
+   "n_prior_snaps": 30,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "mtm_open"
+  },
+  {
+   "code": "007340",
+   "name": "DN오토모티브",
+   "cohort": "forming",
+   "entry_date": "2026-08-14",
+   "net_pct": 19.66,
+   "still_open": false,
+   "win": true,
+   "rs_display": 90.0,
+   "rs_latest": 91,
+   "tenure10_strict": 10,
+   "tenure10_loose": 10,
+   "streak_strict": 10,
+   "rs_vol10": 3,
+   "n_prior_snaps": 30,
+   "newcomer": false,
+   "rs_floor": false,
+   "flag_raw": false,
+   "exit_kind": "target"
+  },
+  {
+   "code": "109070",
+   "name": "주성코퍼레이션",
+   "cohort": "control",
+   "entry_date": "2026-08-14",
+   "net_pct": -4.49,
+   "still_open": true,
+   "win": false,
+   "rs_display": 94.0,
+   "rs_latest": 94,
+   "tenure10_strict": 1,
+   "tenure10_loose": 4,
+   "streak_strict": 1,
+   "rs_vol10": 1,
+   "n_prior_snaps": 30,
+   "newcomer": true,
+   "rs_floor": false,
+   "flag_raw": true,
+   "exit_kind": "mtm_open"
+  }
+ ],
+ "conclusions": {
+  "headline": "신참(직전 10스냅샷 중 8/8 통과 2회 이하) 실거래 12건 승률 16.7%·평균 -4.96% vs 단골(5회 이상) 29건 41.4%·-0.44% — 방향은 가설 지지, Fisher p=0.165로 유의하지는 않음(표본 소)",
+  "anchors": "F&F(tenure=1, streak=1, RS81, RS변동폭15↑ 유일 최대)·대양금속(tenure=0, 직전 스냅샷 7/8, RS80) 둘 다 신참+RS바닥 정의에 정확히 부합",
+  "independence": "신참 열세는 셋업null·조정국면·저거래량의 재탕이 아님 — 셋업 있는 거래 안에서도 20% vs 48.5%, 조정국면 안에서도 18.2% vs 32.3%, relvol<1 안에서도 14.3% vs 50%로 유지",
+  "loose_definition": "7/8 통과까지 재직으로 쳐주면(loose) 신호 소멸(승률 28.6%, p=1.0). 엄격/느슨 판정이 갈린 5건(GS우·제이에스링크·에스에스알·일지테크·F&F)은 전부 손실 = '만성 7/8 언저리였다가 방금 편입된 종목'이 정확히 위험군",
+  "rs_floor_alone": "RS<=82 단독은 실거래에서 승률 신호 없음(37.5%, p=1.0) — 평균 -4.51%는 F&F 한 건이 끌어내린 것. 백테스트에서는 오히려 RS<=82가 최고 그룹(43%/+2.52)·RS>=90이 최악(14%/-6.05)으로 역방향",
+  "proposed_flag": "제안 플래그(tenure<=2 OR rs<=82): 34패 중 11패 포착(32%)·19승 중 4승 오검출(타이거일렉7/1 +7.6%p는 스냅샷 이력 1개뿐인 초기 아티팩트, 가비아 +0.8, 한국주강 +0.6, 달바글로벌 +5.2). 남긴 38건 평균 -0.37%로 개선(전체 -1.37%). 단 손실의 68%는 못 잡음(DN오토모티브형 단골 손실) — 배제 필터가 아니라 주의 배지 수준",
+  "backtest_reversal": "백테스트(청산 74건, 이력>=5 35건)에서는 tenure·RS 효과 모두 역전 — 플래그가 오히려 나은 그룹을 걸러냄(남긴 그룹 16% vs 걸러낸 그룹 31%). 백테스트 모집단은 forming 피벗매수+조정국면+기계적 20/10 청산이라 실거래와 다른 동물; 실거래 신호가 이 표본에는 이식 안 됨",
+  "recommendation": "추천: (a) 넓게 = tenure10<=2 단독(10패/2승 포착, 남긴 41건 -0.33%), (b) 정밀 = tenure10<=1 AND rs<=84(6건 전부 손실: 나이스정보통신·오리온·GS우·에스에스알·F&F·대양금속, 승 희생 0, 회피 +48.7%p; 백테스트 h5에서도 3건만 걸러 거의 중립). RS<=82 OR 결합은 실거래에서 오검출만 보태고 백테스트에선 역신호라 비추천",
+  "caveats": "전부 사후 튜닝·인샘플(n=53, 신참 12)·모든 p>0.1. 7월 초 7건은 스냅샷 이력<5개라 tenure 측정 자체가 불가(타이거일렉 7/1 오검출의 원인). 8/3부터 스냅샷 유니버스 축소(2485→1346)됐으나 all_pass 판정에는 영향 없음. 하드 배제 말고 ⚠️ 배지+비중 축소 용도로만"
+ }
+}
