@@ -100,6 +100,16 @@ def main() -> int:
                     .read_text(encoding="utf-8"))
     tr = sc["trades"]
     op = sc["open_positions"]
+    # ── 진입 원칙 준수로 가른다 (사용자 고지 26-08-25: 63건은 공부하며 한 매매라 오염) ──
+    #   🚨 `setup` 은 **매수 체결 시점에 장부에 적힌** 라벨이라 결과와 무관하다.
+    #   🚨 `stop_violation` 은 «쓰지 않는다» — 손절선을 어겼다 = 크게 잃었다 이므로 순환이다.
+    import os as _os
+    ONLY = _os.environ.get("SETUP_ONLY") == "1"
+    if ONLY:
+        tr = [t for t in tr if t.get("setup")]
+        op = [o for o in op if o.get("setup")]
+        print("🔎 **셋업 있는 진입만** (%d건) — 진입 원칙 준수 부분집합" % len(tr),
+              flush=True)
     lo = min(t["open_date"] for t in tr).replace("-", "")
     hi = "20260821"
     bars, cap, ks = load_days(lo, hi)
