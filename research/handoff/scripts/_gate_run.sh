@@ -25,9 +25,9 @@ while read Y A B; do
   [ -f "$O" ] && { echo "skip $Y (이미 있음)"; DONE=$((DONE+1)); continue; }
   F=$(free)
   if python -c "import sys;sys.exit(0 if float('$F')>=$NEED else 1)"; then
-    echo "=== $MKT $Y (직전 여유 ${F}GB) ==="
+    echo "=== $MKT/$TIE $Y (직전 여유 ${F}GB) ==="
     python -u scripts/backtest_volatility_pilot_us.py --market "$MKT" --arm gate \
-      --start "$A" --end "$B" $EXTRA --out "$O" 2>&1 | tail -2
+      --gate-tie "$TIE" --start "$A" --end "$B" $EXTRA --out "$O" 2>&1 | tail -2
   else
     echo "=== $MKT/$TIE $Y 건너뜀 — 여유 ${F}GB < ${NEED} (조용한 절단 아님: 이 줄이 기록이다) ==="
     SKIPPED=$((SKIPPED+1))

@@ -342,6 +342,57 @@ def tie_rate(mkt):
             "shadow_per_trade": (per_trade(shadow) if shadow else None)}
 
 
+def params_preflight():
+    """🚨 **0단계 — 파일 이름을 믿지 말고 `params` 를 읽는다.** 24/24·항등 검산보다 «먼저».
+
+    항등 검산은 **결과를 만든 뒤에** 이상을 잡는다. `params` 대조는 **읽는 순간에** 잡는다.
+    실제 사고: `_gate_run.sh` 에서 `--gate-tie "$TIE"` 가 빠져 **이름은 `gatege` 인데
+    내용은 `strict`** 인 파일 여섯 개가 만들어졌다.
+    🚨 **그 버그는 「두 판이 완전히 같다」는 «우리가 기대하던 답»을 냈다.**
+       **가장 위험한 버그는 기대하던 답을 내는 버그다.**
+    """
+    import statistics as _st
+    UNI = {"kr": (1800, 3200), "us": (3500, 5600)}
+    bad, ind, seen_n = [], 0, 0
+    for mkt in ("kr", "us"):
+        for tie, sfx in (("strict", ""), ("ge", "ge")):
+            for y in range(2021, 2027):
+                f = BT / "sub" / ("%s_gate%s_%d.json" % (mkt, sfx, y))
+                if not f.exists():
+                    continue
+                seen_n += 1
+                d = json.loads(f.read_text(encoding="utf-8"))
+                pm = d.get("params") or {}
+                if pm.get("arm") != "gate":
+                    bad.append((f.name, "arm", "gate", pm.get("arm")))
+                if pm.get("gate_tie") != tie:
+                    bad.append((f.name, "gate_tie", tie, pm.get("gate_tie")))
+                want_ser = "pdata" if mkt == "kr" else "cache"
+                if pm.get("series_source") != want_ser:
+                    bad.append((f.name, "series_source", want_ser, pm.get("series_source")))
+                gm = pm.get("market")
+                if gm is None:
+                    per = d.get("per_date") or []
+                    u = _st.median([x.get("n_universe") or 0 for x in per]) if per else 0
+                    lo, hi = UNI[mkt]
+                    if not (lo <= u <= hi):
+                        bad.append((f.name, "market(간접)", mkt, "유니버스 %.0f" % u))
+                    else:
+                        ind += 1
+                elif gm != mkt:
+                    bad.append((f.name, "market", mkt, gm))
+    print("0단계 · `params` 대조 — 파일 %d개" % seen_n, flush=True)
+    if bad:
+        print("  🚨 **불일치 %d건**" % len(bad), flush=True)
+        for n, k, w, g in bad:
+            print("    - %-22s %-14s 기대 %r · 실제 %r" % (n, k, w, g), flush=True)
+    else:
+        print("  ✅ **불일치 0건**"
+              + (" (그중 %d개는 `market` 미기록이라 «간접» 확인)" % ind if ind else ""),
+              flush=True)
+    return bad
+
+
 def preflight():
     """🚨 24 실행 중 하나가 조용히 빠져도 안 보인다 → **파일 존재를 먼저 센다.**"""
     miss = []
@@ -398,9 +449,21 @@ def tie_identity():
               % len(rows), flush=True)
     else:
         print("  🚨 **어긋남 %d건** — 발견이 아니라 구현 오류다:" % len(bad), flush=True)
+        # 🚨 관문은 「통과/실패」가 아니라 **「얼마나·어느 방향으로」**까지 낸다.
+        #    그리고 **어긋난 값이 «무엇과 같은지»** 대조해 준다 — 기전에 이름을 붙이는 진단이다.
+        #    실제로 이번 사고에서 「어긋남이 정확히 동점 수의 음수」라는 한 줄이
+        #    원인(`--gate-tie` 누락)을 5분 만에 찾게 했다.
         for mkt, y, es, ts, eg in bad:
-            print("    %s %d: strict %d + 동점 %d = %d  vs  ge %d (차이 %+d)"
-                  % (mkt, y, es, ts, es + ts, eg, eg - es - ts), flush=True)
+            d0 = eg - es - ts
+            hint = ""
+            if d0 == -ts:
+                hint = "  ← **정확히 «−동점 수»** = ge 가 동점에 진입하지 않았다(=strict 로 돌았다)"
+            elif d0 == ts:
+                hint = "  ← 정확히 «+동점 수» = strict 가 동점에 진입했다"
+            elif es and abs(d0) < 0.01 * es:
+                hint = "  ← strict 진입의 1%% 미만 (반올림·경계 사례 의심)"
+            print("    %s %d: strict %d + 동점 %d = %d  vs  ge %d (차이 %+d)%s"
+                  % (mkt, y, es, ts, es + ts, eg, d0, hint), flush=True)
     return rows, bad
 
 
@@ -471,7 +534,32 @@ def paired_tie_diff(ours, gate_s, gate_g):
 def main():
     res = {}
     ties = {}
+    pbad = params_preflight()
+    if pbad:
+        print("", flush=True)
+        print("🚨 **`params` 가 파일 이름과 어긋난다. 여기서 멈춘다 — 결과를 만들지 않는다.**",
+              flush=True)
+        OUT.mkdir(parents=True, exist_ok=True)
+        (OUT / "30-arm25-PARAMS-FAIL.json").write_text(
+            json.dumps([{"file": n, "field": k, "expected": w, "actual": g}
+                        for n, k, w, g in pbad], ensure_ascii=False, indent=1),
+            encoding="utf-8")
+        return
     n_files, miss = preflight()
+    # 🚨 **24칸이 다 차기 전에는 계산하지 않는다.**
+    #    처음엔 이 정지가 없어서 스모크 테스트가 «한국 C 를 미국보다 먼저» 계산해 버렸다.
+    #    사전등록은 「양 시장을 나란히」이고, 한쪽을 먼저 보면 그게 깨진다.
+    #    부분 결과는 만들지도 말고 찍지도 않는다.
+    import os as _os
+    if miss and _os.environ.get("ARM25_ALLOW_PARTIAL") != "1":
+        print("", flush=True)
+        print("🚨 **24칸이 다 차지 않았다(%d/24). 계산하지 않고 멈춘다.**" % n_files,
+              flush=True)
+        print("   부분 결과를 만들면 「한쪽 시장을 먼저 본」 것이 되어 사전등록이 깨진다.",
+              flush=True)
+        print("   (구조 점검만 하려면 `ARM25_ALLOW_PARTIAL=1` — 그때 나온 값은 인용 금지)",
+              flush=True)
+        return
     stash = {}                      # (시장, 동점규칙) → (우리, 관문만) — 짝비교용
     idrows, idbad = tie_identity()
     if idbad:
@@ -635,7 +723,8 @@ def main():
         print("   %-3s 관측(짝비교 중앙) **%+.4f%%p** · 예측 Δ %.4f%%p · 천장 %s → %s"
               % (m.upper(), (pr["median"] if pr else obs), pred,
                  ("%.4f%%p" % ceil_) if ceil_ is not None else "계산 불가(대체 0.2000%p)",
-                 "🚨**천장 초과 = 구현 오류**" if over else "천장 이내"), flush=True)
+                 ("🚨**천장 초과 %.4f%%p = 구현 오류**" % (obs - c_used)) if over
+                 else "천장 이내(여유 %.4f%%p)" % (c_used - obs)), flush=True)
         if pr:
             weak = pr["spread"] > max(pred, 1e-12)
             print("       짝비교 95%% %+.4f ~ %+.4f (퍼짐 **%.4f%%p**) · "
