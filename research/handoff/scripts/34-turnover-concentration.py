@@ -137,6 +137,12 @@ def main():
     print("", flush=True)
     print("=" * 96, flush=True)
     print("%s — 거래대금 총량과 쏠림 (연도별 · 억원 환산)" % mkt.upper(), flush=True)
+    print("🚨 **문턱 통과는 「50일 평균」이 아니라 「그 해 일평균」 기준이다.**", flush=True)
+    print("   하네스는 `TURNOVER_WINDOW=50` 의 **평균**과 `MIN_TURNOVER_EOK` 를 견준다 →",
+          flush=True)
+    print("   **통계 선택(평균/중앙)에 따라 통과율이 크게 흔들린다**"
+          "(같은 자료를 중앙값으로 재면 82.8%→48.7%로 수준이 달라진다 · 변화율은 같다).",
+          flush=True)
     print("=" * 96, flush=True)
     print("  %-6s %6s %8s %12s %11s %8s %8s %8s %10s"
           % ("연도", "거래일", "종목수", "일평균 총액", "종목 중앙",
@@ -252,6 +258,23 @@ def main():
                   % (k0, k1, (turn[k1] / turn[k0] - 1) * 100,
                      (cb["median"] / ca["median"] - 1) * 100), flush=True)
         rows["_turnover_ratio_bp"] = turn
+        # 🚨 **변수를 바꿔 같은 결론이 나오나** — 거래대금이 아니라 «시가총액»으로 묻는다.
+        #    변수가 다르고 결론이 같으면 자료 잡음이 아니라 시장 구조다.
+        print("", flush=True)
+        print("  **다른 변수로 같은 물음 — 고정 코호트의 «중앙 시가총액»(억원)**", flush=True)
+        mcs = {}
+        for y in ys:
+            v = [cap[y][c] / capn[y][c] for c in coh if capn[y].get(c)]
+            if v:
+                mcs[y] = st.median(v)
+                print("   %-6s 중앙 시총 **%.0f억** (n=%d)" % (y, mcs[y], len(v)), flush=True)
+        if len(mcs) >= 2:
+            k0, k1 = ys[0], ys[-1]
+            print("   → %s → %s **%+.1f%%** — 같은 구간 코스피는 +126.2%%"
+                  % (k0, k1, (mcs[k1] / mcs[k0] - 1) * 100), flush=True)
+            print("   → **거래대금이 아니라 시총으로 물어도 「중앙 종목은 작아졌다」가 나온다.**",
+                  flush=True)
+        rows["_cohort_median_marcap"] = mcs
     else:
         print("", flush=True)
         print("  **실질 판(회전율): 확인 불가** — 미국은 시가총액 자료가 없다"

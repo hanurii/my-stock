@@ -9,61 +9,73 @@
 🚨 **`.cache/sharadar/` 는 여기에 절대 넣지 않는다** — 라이선스상 재배포 금지 ·
 해지 후 삭제 의무. 이 스냅샷은 **파생 집계만** 담는다.
 
+## 🚨 **미해결 과제 — 산출 스크립트 «미상» 4파일**
+
+**「정의 미상」으로 분류했으면 정의를 찾는 것이 과제다. 목록이 없으면 아무도 안 찾는다.**
+
+🚨 **채울 때 규칙: 「추정」이 아니라 「파일 내용과 스크립트 출력이 «일치함을 확인»」으로만.**
+추정으로 채우면 21번 감사가 잡은 것과 **같은 병**이다.
+
+- [ ] `19-min-daily-count.json`
+- [ ] `23d-mechanism.json`
+- [ ] `24-universe-union.json`
+- [ ] `_DISCARDED_12-exit-grid-oldcanon.json`
+
 ## 넣은 것 (개당 5MB 이하)
 
 | 파일 | 크기 | 만든 스크립트 |
 |---|---:|---|
-| `01-path-build.json` | 2.1 KB | `**미상 — 적을 것**` |
-| `01b-cand-path-build.json` | 2.6 KB | `**미상 — 적을 것**` |
-| `02-grade-table.json` | 10.7 KB | `**미상 — 적을 것**` |
-| `03-turnover-order.json` | 24.8 KB | `**미상 — 적을 것**` |
-| `03a-circular-shift-check.json` | 0.7 KB | `**미상 — 적을 것**` |
-| `04-superperf-score.json` | 14.4 KB | `**미상 — 적을 것**` |
-| `05-first-day-close.json` | 5.0 KB | `**미상 — 적을 것**` |
-| `06-early-exit-10.json` | 32.8 KB | `**미상 — 적을 것**` |
-| `07-time-limit.json` | 5.1 KB | `**미상 — 적을 것**` |
-| `08-plus8-threshold.json` | 6.1 KB | `**미상 — 적을 것**` |
-| `08b-m1-universe-check.json` | 3.7 KB | `**미상 — 적을 것**` |
-| `09-loss-streak-pause.json` | 9.8 KB | `**미상 — 적을 것**` |
-| `10-breakout-order.json` | 8.9 KB | `**미상 — 적을 것**` |
-| `11-same-day-correlation.json` | 5.2 KB | `**미상 — 적을 것**` |
-| `12-exit-grid-gate.json` | 4.5 KB | `**미상 — 적을 것**` |
-| `12-exit-grid.json` | 345.8 KB | `**미상 — 적을 것**` |
-| `12a-slot-sim-gate.json` | 4.3 KB | `**미상 — 적을 것**` |
-| `12b-exit-grid-thresholds.json` | 53.3 KB | `**미상 — 적을 것**` |
-| `12ii-b-dropyear.json` | 6.7 KB | `**미상 — 적을 것**` |
-| `12ii-self-entry-grid.json` | 40.8 KB | `**미상 — 적을 것**` |
-| `12iii-decompose-slip.json` | 52.0 KB | `**미상 — 적을 것**` |
-| `13-megacap-momentum.json` | 4.8 KB | `**미상 — 적을 것**` |
-| `14-stop-loss-recheck.json` | 64.8 KB | `**미상 — 적을 것**` |
-| `15-variant2-followup.json` | 4.9 KB | `**미상 — 적을 것**` |
-| `15b-neighbor-days.json` | 1.1 KB | `**미상 — 적을 것**` |
-| `16-selection-edge-raw.json` | 721.5 KB | `**미상 — 적을 것**` |
-| `16-selection-edge.json` | 19.2 KB | `**미상 — 적을 것**` |
-| `16b-beta1-slot5.json` | 1.5 KB | `**미상 — 적을 것**` |
-| `16c-trigger-compare.json` | 3.0 KB | `**미상 — 적을 것**` |
-| `17-fee-and-compounding.json` | 18.1 KB | `**미상 — 적을 것**` |
-| `17b-turnover-drag.json` | 0.7 KB | `**미상 — 적을 것**` |
-| `17d-slip-grid.json` | 8.1 KB | `**미상 — 적을 것**` |
-| `17e-selection-noise.json` | 2.1 KB | `**미상 — 적을 것**` |
-| `18-slot-selection-cause.json` | 2.5 KB | `**미상 — 적을 것**` |
-| `18b-premise-and-calendar.json` | 1.1 KB | `**미상 — 적을 것**` |
+| `01-path-build.json` | 2.1 KB | `research/handoff/scripts/01-path-build.py  (본문 대조 확인)` |
+| `01b-cand-path-build.json` | 2.6 KB | `research/handoff/scripts/01b-cand-path-build.py  (본문 대조 확인)` |
+| `02-grade-table.json` | 10.7 KB | `research/handoff/scripts/02-grade-table.py  (본문 대조 확인)` |
+| `03-turnover-order.json` | 24.8 KB | `research/handoff/scripts/03-turnover-order.py  (본문 대조 확인)` |
+| `03a-circular-shift-check.json` | 0.7 KB | `research/handoff/scripts/03a-circular-shift-check.py  (본문 대조 확인)` |
+| `04-superperf-score.json` | 14.4 KB | `research/handoff/scripts/04-superperf-score.py  (본문 대조 확인)` |
+| `05-first-day-close.json` | 5.0 KB | `research/handoff/scripts/05-first-day-close.py  (본문 대조 확인)` |
+| `06-early-exit-10.json` | 32.8 KB | `research/handoff/scripts/06-early-exit-10.py  (본문 대조 확인)` |
+| `07-time-limit.json` | 5.1 KB | `research/handoff/scripts/07-time-limit.py  (본문 대조 확인)` |
+| `08-plus8-threshold.json` | 6.1 KB | `research/handoff/scripts/08-plus8-threshold.py  (본문 대조 확인)` |
+| `08b-m1-universe-check.json` | 3.7 KB | `research/handoff/scripts/08b-m1-universe-check.py  (본문 대조 확인)` |
+| `09-loss-streak-pause.json` | 9.8 KB | `research/handoff/scripts/09-loss-streak-pause.py  (본문 대조 확인)` |
+| `10-breakout-order.json` | 8.9 KB | `research/handoff/scripts/10-breakout-order.py  (본문 대조 확인)` |
+| `11-same-day-correlation.json` | 5.2 KB | `research/handoff/scripts/11-same-day-correlation.py  (본문 대조 확인)` |
+| `12-exit-grid-gate.json` | 4.5 KB | `research/handoff/scripts/12-exit-grid-gate.py  (본문 대조 확인)` |
+| `12-exit-grid.json` | 345.8 KB | `research/handoff/scripts/{12-exit-grid-gate.py, 12-exit-grid.py}  (본문 대조 · **여러 개 — 확정 필요**)` |
+| `12a-slot-sim-gate.json` | 4.3 KB | `research/handoff/scripts/12a-slot-sim-gate.py  (본문 대조 확인)` |
+| `12b-exit-grid-thresholds.json` | 53.3 KB | `research/handoff/scripts/12b-exit-grid-thresholds.py  (본문 대조 확인)` |
+| `12ii-b-dropyear.json` | 6.7 KB | `research/handoff/scripts/12ii-b-dropyear.py  (본문 대조 확인)` |
+| `12ii-self-entry-grid.json` | 40.8 KB | `research/handoff/scripts/12ii-self-entry-grid.py  (본문 대조 확인)` |
+| `12iii-decompose-slip.json` | 52.0 KB | `research/handoff/scripts/12iii-decompose-slip.py  (본문 대조 확인)` |
+| `13-megacap-momentum.json` | 4.8 KB | `research/handoff/scripts/13-megacap-momentum.py  (본문 대조 확인)` |
+| `14-stop-loss-recheck.json` | 64.8 KB | `research/handoff/scripts/14-stop-loss-recheck.py  (본문 대조 확인)` |
+| `15-variant2-followup.json` | 4.9 KB | `research/handoff/scripts/15-variant2-followup.py  (본문 대조 확인)` |
+| `15b-neighbor-days.json` | 1.1 KB | `research/handoff/scripts/15b-neighbor-days.py  (본문 대조 확인)` |
+| `16-selection-edge-raw.json` | 721.5 KB | `research/handoff/scripts/16-selection-edge.py  (본문 대조 확인)` |
+| `16-selection-edge.json` | 19.2 KB | `research/handoff/scripts/16-selection-edge.py  (본문 대조 확인)` |
+| `16b-beta1-slot5.json` | 1.5 KB | `research/handoff/scripts/16b-beta1-slot5.py  (본문 대조 확인)` |
+| `16c-trigger-compare.json` | 3.0 KB | `research/handoff/scripts/16c-trigger-compare.py  (본문 대조 확인)` |
+| `17-fee-and-compounding.json` | 18.1 KB | `research/handoff/scripts/17-fee-and-compounding.py  (본문 대조 확인)` |
+| `17b-turnover-drag.json` | 0.7 KB | `research/handoff/scripts/17b-turnover-drag.py  (본문 대조 확인)` |
+| `17d-slip-grid.json` | 8.1 KB | `research/handoff/scripts/17d-slip-grid.py  (본문 대조 확인)` |
+| `17e-selection-noise.json` | 2.1 KB | `research/handoff/scripts/17e-selection-noise.py  (본문 대조 확인)` |
+| `18-slot-selection-cause.json` | 2.5 KB | `research/handoff/scripts/18-slot-selection-cause.py  (본문 대조 확인)` |
+| `18b-premise-and-calendar.json` | 1.1 KB | `research/handoff/scripts/18b-premise-and-calendar.py  (본문 대조 확인)` |
 | `19-min-daily-count.json` | 0.2 KB | `**미상 — 적을 것**` |
-| `19-volume-axis-stage0.json` | 0.6 KB | `**미상 — 적을 것**` |
-| `19-volume-features.json` | 964.6 KB | `**미상 — 적을 것**` |
-| `19-volume-stage1.json` | 4.8 KB | `**미상 — 적을 것**` |
-| `19c-lookahead-and-484.json` | 2.8 KB | `**미상 — 적을 것**` |
-| `19d-decile-and-months.json` | 13.6 KB | `**미상 — 적을 것**` |
-| `20-slot-full-vs-open.json` | 0.7 KB | `**미상 — 적을 것**` |
+| `19-volume-axis-stage0.json` | 0.6 KB | `research/handoff/scripts/19-volume-axis.py  (본문 대조 확인)` |
+| `19-volume-features.json` | 964.6 KB | `research/handoff/scripts/19-volume-axis.py  (본문 대조 확인)` |
+| `19-volume-stage1.json` | 4.8 KB | `research/handoff/scripts/19b-volume-stage1.py  (본문 대조 확인)` |
+| `19c-lookahead-and-484.json` | 2.8 KB | `research/handoff/scripts/19c-lookahead-and-484.py  (본문 대조 확인)` |
+| `19d-decile-and-months.json` | 13.6 KB | `research/handoff/scripts/19d-decile-and-months.py  (본문 대조 확인)` |
+| `20-slot-full-vs-open.json` | 0.7 KB | `research/handoff/scripts/20-slot-full-vs-open.py  (본문 대조 확인)` |
 | `22-gapup-volume.json` | 5.1 KB | `research/handoff/scripts/22-gapup-volume.py` |
 | `23-gate-path-identity.json` | 0.2 KB | `research/handoff/scripts/23-stage0-ratchet.py 외 23* 계열` |
 | `23-stage0-ratchet.json` | 8.8 KB | `research/handoff/scripts/23-stage0-ratchet.py 외 23* 계열` |
 | `23-stage1-ratchet.json` | 17.7 KB | `research/handoff/scripts/23-stage0-ratchet.py 외 23* 계열` |
-| `23b-loy-and-slip.json` | 13.3 KB | `**미상 — 적을 것**` |
-| `23c-boot-and-maxstat.json` | 3.6 KB | `**미상 — 적을 것**` |
+| `23b-loy-and-slip.json` | 13.3 KB | `research/handoff/scripts/23b-loy-and-slip.py  (본문 대조 확인)` |
+| `23c-boot-and-maxstat.json` | 3.6 KB | `research/handoff/scripts/23c-boot-and-maxstat.py  (본문 대조 확인)` |
 | `23d-mechanism.json` | 2.2 KB | `**미상 — 적을 것**` |
 | `24-universe-union.json` | 26.7 KB | `**미상 — 적을 것**` |
-| `24c-subuniverse.json` | 3.3 KB | `**미상 — 적을 것**` |
+| `24c-subuniverse.json` | 3.3 KB | `research/handoff/scripts/24c-subuniverse.py  (본문 대조 확인)` |
 | `25-g3prime.json` | 203.0 KB | `research/handoff/scripts/25-g3prime.py` |
 | `25-split-factors.json` | 791.9 KB | `research/handoff/scripts/25-split-check.py` |
 | `25-split-impact.json` | 115.9 KB | `research/handoff/scripts/25-split-impact.py` |
@@ -79,7 +91,7 @@
 | `32-funnel-why-kr.json` | 1.9 KB | `research/handoff/scripts/32-funnel-why.py` |
 | `32-funnel-why-us.json` | 1.8 KB | `research/handoff/scripts/32-funnel-why.py` |
 | `33-unresolved-and-extremes.json` | 8.5 KB | `research/handoff/scripts/33-unresolved-and-extremes.py` |
-| `34-turnover-kr-seasonal.json` | 4.4 KB | `research/handoff/scripts/34-turnover-concentration.py` |
+| `34-turnover-kr-seasonal.json` | 4.7 KB | `research/handoff/scripts/34-turnover-concentration.py` |
 | `34-turnover-kr.json` | 4.2 KB | `research/handoff/scripts/34-turnover-concentration.py` |
 | `_DISCARDED_12-exit-grid-oldcanon.json` | 264.2 KB | `**미상 — 적을 것**` |
 

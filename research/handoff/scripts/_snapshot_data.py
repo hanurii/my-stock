@@ -47,12 +47,55 @@ MADE_BY = [
 ]
 
 
+SCRIPTS = ROOT / "research" / "handoff" / "scripts"
+
+
+def _grep_writers():
+    """🚨 **추정이 아니라 확인이다.** 스크립트 본문에 그 JSON 파일 이름이
+    «문자열로 들어 있는지»를 본다 — 들어 있으면 그 스크립트가 그 파일을 쓴다.
+    이름이 비슷하다는 이유로 짝지으면 21번 감사가 잡은 것과 같은 병이 된다."""
+    src = {}
+    for f in sorted(SCRIPTS.glob("*.py")):
+        try:
+            src[f.name] = f.read_text(encoding="utf-8", errors="replace")
+        except Exception:
+            pass
+    return src
+
+
+_SRC = None
+
+
 def made_by(name):
+    global _SRC
     for pre, path in MADE_BY:
         if name.startswith(pre):
             return path
+    if _SRC is None:
+        _SRC = _grep_writers()
+    # 확장자를 뗀 이름이 스크립트 본문에 있으면 그 스크립트가 쓴 것이다
+    stem = name[:-5] if name.endswith(".json") else name
+    # 이름이 «나오는» 것과 «쓰는» 것은 다르다 — 다른 스크립트의 산출을 «읽는» 경우가 있다.
+    # 그래서 그 이름이 나온 줄 주변 3줄에 write_text / json.dump 가 있는지까지 본다.
+    hits = []
+    for k, v in _SRC.items():
+        if stem not in v:
+            continue
+        rows = v.split(chr(10))
+        writes = False
+        for idx, line in enumerate(rows):
+            if stem in line:
+                near = chr(10).join(rows[max(0, idx - 3):idx + 4])
+                if "write_text" in near or "json.dump" in near or "open(" in near:
+                    writes = True
+                    break
+        if writes:
+            hits.append(k)
+    if len(hits) == 1:
+        return "research/handoff/scripts/%s  (본문 대조 확인)" % hits[0]
+    if len(hits) > 1:
+        return "research/handoff/scripts/{%s}  (본문 대조 · **여러 개 — 확정 필요**)" % ", ".join(hits)
     return "**미상 — 적을 것**"
-
 
 def main():
     DST.mkdir(parents=True, exist_ok=True)
@@ -76,6 +119,7 @@ def main():
         "🚨 **`.cache/sharadar/` 는 여기에 절대 넣지 않는다** — 라이선스상 재배포 금지 ·",
         "해지 후 삭제 의무. 이 스냅샷은 **파생 집계만** 담는다.",
         "",
+        "@@UNKNOWN@@",
         "## 넣은 것 (개당 5MB 이하)",
         "",
         "| 파일 | 크기 | 만든 스크립트 |",
@@ -101,7 +145,19 @@ def main():
         "",
         "총 %d개 넣음 · %d개 제외." % (len(kept), len(skipped)),
     ]
-    (DST / "MANIFEST.md").write_text("\n".join(lines), encoding="utf-8")
+    unknown = [n for n, _ in kept if made_by(n).startswith("**미상")]
+    if unknown:
+        blk = ([
+            "## 🚨 **미해결 과제 — 산출 스크립트 «미상» %d파일**" % len(unknown), "",
+            "**「정의 미상」으로 분류했으면 정의를 찾는 것이 과제다. 목록이 없으면 아무도 안 찾는다.**", "",
+            "🚨 **채울 때 규칙: 「추정」이 아니라 「파일 내용과 스크립트 출력이 «일치함을 확인»」으로만.**",
+            "추정으로 채우면 21번 감사가 잡은 것과 **같은 병**이다.", "",
+        ] + ["- [ ] `%s`" % n for n in unknown] + [""])
+    else:
+        blk = ["## 미해결 과제", "", "**없음 — 모든 파일의 산출 스크립트가 확인됐다.**", ""]
+    body = chr(10).join(lines).replace("@@UNKNOWN@@", chr(10).join(blk))
+    (DST / "MANIFEST.md").write_text(body, encoding="utf-8")
+    print("산출 스크립트 «미상» %d파일 — MANIFEST 맨 위에 과제로 올림" % len(unknown))
     print("넣음 %d개 · 제외 %d개" % (len(kept), len(skipped)))
     for n, sz in kept:
         print("  + %-42s %8.1f KB" % (n, sz / 1024))
