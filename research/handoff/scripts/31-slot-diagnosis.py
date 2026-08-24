@@ -68,11 +68,15 @@ def load(mkt):
             for k, v in ((d.get("params") or {}).get("skipped") or {}).items():
                 skip[k] += v
     else:
-        d = json.loads((BT / "sub" / "us_full.json").read_text(encoding="utf-8"))
-        ev = d["events"]
-        per = d.get("per_date") or []
-        for k, v in ((d.get("params") or {}).get("skipped") or {}).items():
-            skip[k] += v
+        # 🚨 미국도 **연도별 여섯 실행**이다(워밍업 430 · `open_until` 연도 초기화)
+        #    → 한국 `bt_YYYY.json` 과 **구조까지 같다**. 옛 연속 실행판은
+        #    `us_full_DEADZONE.json` 으로 보존돼 있고 **인용 금지**다.
+        for f in sorted((BT / "sub").glob("us_20*.json")):
+            d = json.loads(f.read_text(encoding="utf-8"))
+            ev += d["events"]
+            per += d.get("per_date") or []
+            for k, v in ((d.get("params") or {}).get("skipped") or {}).items():
+                skip[k] += v
     seen, out = set(), []
     last = max((e.get("resolve_date") or e["entry_date"]) for e in ev)
     for e in sorted(ev, key=lambda x: (x["entry_date"], x["code"], x.get("pattern", ""))):
@@ -91,6 +95,43 @@ def to_trades(ev):
              "pattern": e.get("pattern", ""), "entry_date": e["entry_date"],
              "resolve_date": e["resolve_date"], "gain": e["gain_at_resolve_pct"],
              "result": e["result"]} for e in ev]
+
+
+def filled_and_occupancy(trades, dates, seed=0, slots=5):
+    """🚨 **슬롯 점유율을 근사로 재면 안 된다.**
+
+    처음엔 `평균보유일 × 체결수 ÷ (5 × 거래일)` 로 쟀는데 미국에서 **106.6%** 가 나왔다.
+    다섯 칸에서 106%는 **불가능**하다 — 원인은 「평균 보유일」을 **전체 거래**로 냈기 때문이다.
+    실측하니 **체결분이 오히려 «더 짧다»**(한국 14.13 vs 전체 15.62 · 미국 21.00 vs 27.86).
+    그래서 `전체평균 × 체결수` 는 참값보다 **크게** 나오고, 미국에서 100%를 넘겼다.
+    (내 처음 추측 「체결분이 더 길 것」은 **실측에 반증됐다.**)
+
+    그래서 `slot_sim.sim` 의 선택 논리를 그대로 되짚어 **체결된 거래를 직접 모으고**
+    **칸-일을 세어** 점유율을 낸다. 아래 관문으로 `slot_sim.sim` 과 같은 값인지 확인한다.
+    """
+    pos = {d: i for i, d in enumerate(dates)}
+    byday = slot_sim._byday(trades, "canonical")
+    all_d = sorted(set(list(byday) + [t["resolve_date"] for t in trades]))
+    eq, held = 1.0, []
+    filled, slot_days = [], 0
+    for d in all_d:
+        done = [h for h in held if h[0] < d]
+        held = [h for h in held if h[0] >= d]
+        for rd, t, wg in sorted(done, key=lambda h: (h[0], h[1]["code"])):
+            eq += wg * slot_sim.net(t["gain"]) / 100
+        free = slots - len(held)
+        if d in byday and free > 0:
+            c = sorted(byday[d], key=lambda t: slot_sim.order_key(seed, t))
+            for t in c[:free]:
+                held.append([t["resolve_date"], t, eq / slots])
+                filled.append(t)
+                i, j = pos.get(t["entry_date"]), pos.get(t["resolve_date"])
+                slot_days += max(1, (j - i)) if (i is not None and j is not None) else 1
+        if d in pos:
+            pass
+    for rd, t, wg in held:
+        eq += wg * slot_sim.net(t["gain"]) / 100
+    return filled, slot_days, (eq - 1) * 100
 
 
 def q(xs, p):
@@ -119,7 +160,21 @@ def main():
         with Cost(*REGIMES["무비용(미국 실제)"]):
             band = slot_sim.band(tr, n_runs=N_SEED)
             pt = st.mean(slot_sim.net(t["gain"]) for t in tr)
-        occ = sum(hold) / len(hold) * band["n_filled"] / (5 * len(dates)) if hold else None
+        # 근사 대신 **직접 세기**. 그리고 정본 시뮬과 같은 값인지 관문으로 확인한다.
+        with Cost(*REGIMES["무비용(미국 실제)"]):
+            fl, sdays, eqx = filled_and_occupancy(tr, dates, seed=0)
+            ref = slot_sim.sim(tr, seed=0)
+        gate_ok = (len(fl) == ref["n_filled"] and abs(eqx - ref["equity_pct"]) < 1e-9)
+        print("  [관문] 점유율 계산기가 `slot_sim.sim` 과 같은가 — 체결 %d vs %d · "
+              "자산 %+.6f vs %+.6f → **%s**"
+              % (len(fl), ref["n_filled"], eqx, ref["equity_pct"],
+                 "일치" if gate_ok else "🚨불일치 — 점유율을 신뢰하지 않는다"), flush=True)
+        occ = (sdays / (5 * len(dates))) if (gate_ok and dates) else None
+        hold_filled = []
+        for t in fl:
+            i, j = pos.get(t["entry_date"]), pos.get(t["resolve_date"])
+            if i is not None and j is not None:
+                hold_filled.append(j - i)
         pred = (math.exp(band["n_filled"] * pt / 500.0) - 1) * 100
         cand = [p.get("n_candidates") or 0 for p in per]
         entered = [p.get("n_entered") or 0 for p in per]
@@ -133,6 +188,9 @@ def main():
             "n_filled": band["n_filled"], "equity_median": band["median"],
             "per_trade": pt, "equity_pred_from_fills": pred,
             "slot_occupancy_pct": occ * 100 if occ else None,
+            "occupancy_gate_ok": gate_ok,
+            "hold_med_filled": st.median(hold_filled) if hold_filled else None,
+            "hold_mean_filled": st.mean(hold_filled) if hold_filled else None,
             "result_dist": dict(rc), "exit_reason_dist": dict(xr),
             "blocked_open_until": skip.get("overlap"),
             "skipped": dict(skip),
@@ -148,8 +206,16 @@ def main():
         print("  보유일수  평균 **%.2f** · P25 %d · 중앙 **%d** · P75 %d · P90 %d · 최대 %d"
               % (r["hold_mean"], r["hold_p25"], r["hold_med"], r["hold_p75"],
                  r["hold_p90"], r["hold_max"]), flush=True)
-        print("  슬롯5 체결 **%.0f** · **슬롯 점유율 %.1f%%** (Σ보유일 ÷ 5칸×거래일)"
-              % (r["n_filled"], r["slot_occupancy_pct"]), flush=True)
+        print("  ⚠️ 점유율은 **seed 0 한 판**의 직접 셈이고 체결 수는 **200 seed 중앙**이다 — "
+              "둘의 분모가 다르다(seed 0 체결 %d)." % len(fl), flush=True)
+        print("  슬롯5 체결 **%.0f** · **슬롯 점유율 %s** (체결분 칸-일 ÷ 5칸×거래일 · 직접 셈)"
+              % (r["n_filled"],
+                 ("%.1f%%" % r["slot_occupancy_pct"]) if r["slot_occupancy_pct"] else "계산 불가"),
+              flush=True)
+        print("  ⚠️ **체결분만의 보유일수**: 평균 %.2f · 중앙 %.0f "
+              "(전체 거래 평균 %.2f · 중앙 %.0f) — 체결분이 더 길면 근사식이 위로 샌다"
+              % (r["hold_mean_filled"] or 0, r["hold_med_filled"] or 0,
+                 r["hold_mean"], r["hold_med"]), flush=True)
         print("  결착 사유(result): %s" % r["result_dist"], flush=True)
         if xr:
             print("  결착 사유(exit_reason · 미국만 있는 키): %s" % r["exit_reason_dist"],

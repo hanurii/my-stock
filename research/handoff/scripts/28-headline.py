@@ -68,11 +68,20 @@ def load_kr():
 
 
 def load_us():
-    f = BT / "sub" / "us_full.json"
-    if not f.exists():
+    # 🚨 미국도 **연도별 여섯 실행**이다(워밍업 430 · `open_until` 연도 초기화)
+    #    → 한국 `bt_YYYY.json` 과 **구조까지 같다**. 옛 연속 실행판은
+    #    `us_full_DEADZONE.json` 으로 보존돼 있고 **인용 금지**다.
+    fs = sorted((BT / "sub").glob("us_20*.json"))
+    if not fs:
         return None, None
-    d = json.loads(f.read_text(encoding="utf-8"))
-    return d["events"], (d.get("per_date") or [])
+    ev, per = [], []
+    for f in fs:
+        d = json.loads(f.read_text(encoding="utf-8"))
+        ev += d["events"]
+        per += d.get("per_date") or []
+    print("  미국 연도별 %d개 합침: %s" % (len(fs), ", ".join(f.stem for f in fs)),
+          flush=True)
+    return ev, per
 
 
 def to_trades(events):
@@ -295,6 +304,14 @@ def drop_extreme(trades, ext):
 
 
 def main():
+    # 🚨 **이 표의 어느 숫자도 `us_full_DEADZONE.json` 에서 나오지 않는다.**
+    #    그 파일은 저장소에 남아 있어 «실수로 읽힐 수» 있으므로, 주장하지 말고 **찍는다** —
+    #    아래에서 실제로 읽은 파일 목록을 출력한다.
+    used = sorted(x.name for x in (BT / "sub").glob("us_20*.json"))
+    print("출처(미국): %s" % ", ".join(used), flush=True)
+    assert not any("DEADZONE" in u for u in used), "🚨 사각지대 판이 섞였다"
+    print("  ✅ `us_full_DEADZONE.json` 미사용 — 위 목록에 없음(assert 로 확인)", flush=True)
+    print("출처(한국): bt_2021.json ~ bt_2026.json (여섯 해 별도 실행)", flush=True)
     kr_ev, kr_per = load_kr()
     us_ev, us_per = load_us()
     if us_ev is None:

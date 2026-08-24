@@ -101,10 +101,45 @@ def scan_kr():
     return by, ndays, cnt, cap, capn
 
 
+# 🚨 **극단 역분할 언더플로 제외** (35번에서 발견 · 두뇌 세션 승인)
+#   Sharadar 의 `volume` 은 **수정 거래량**(실제 × f, `f = closeunadj/close`)이다.
+#   누적 역분할이 극단이면 f 가 1e-12 급이라 **수정 거래량이 1.0 에 바닥친다.**
+#     ADTX 2021-02-10  close 2,001,456,000,480  volume **1.0**  closeunadj **4.1**
+#   → 거래대금 = close × volume = $2조/일 (실제 ≈$200만의 **100만 배**).
+#   문턱 근거는 **언더플로 산수**다. 실제 거래량 1e6주라면
+#     f = 1e-6 → 수정 1.0   **정보 완전 소실**
+#     f = 1e-4 → 수정 100   아직 여유 있다 ← **보수적으로 여기서 자른다**
+#   **보수적으로 잡았다는 것 자체가 문턱이 결과 방향과 무관하다는 증거다.**
+#   실측 분포: f<1e-2 276 · f<1e-3 150 · **f<1e-4 68** · f<1e-5 41 · f<1e-6 22 · f<1e-9 3
+F_CUT_US = 1e-4
+
+
 def scan_us():
     import us_loader as U
     meta = U.load_tickers("base")
     codes = set(meta)
+    # 1차 통과: 종목별 최소 f 를 구해 제외 목록을 만든다
+    minf = {}
+    with zipfile.ZipFile(U.STOCKS_ZIP) as z:
+        rd = csv.reader(io.TextIOWrapper(z.open(z.namelist()[0]), encoding="utf-8"))
+        next(rd)
+        for row in rd:
+            t, d = row[0], row[1]
+            if t not in codes or d < START or d > END or not in_window(d):
+                continue
+            c = float(row[5])
+            if c <= 0:
+                continue
+            f = float(row[8]) / c
+            if t not in minf or f < minf[t]:
+                minf[t] = f
+    for cut in (1e-2, 1e-3, F_CUT_US, 1e-5, 1e-6):
+        print("   f < %-8.0e : %4d 종목"
+              % (cut, sum(1 for v in minf.values() if v < cut)), flush=True)
+    dropped = {t for t, v in minf.items() if v < F_CUT_US}
+    print("  🚨 **극단 역분할 언더플로 제외: %d 종목** (f < %.0e)"
+          % (len(dropped), F_CUT_US), flush=True)
+    codes = codes - dropped
     by = defaultdict(lambda: defaultdict(float))
     cnt = defaultdict(lambda: defaultdict(int))
     days = defaultdict(set)
@@ -121,6 +156,8 @@ def scan_us():
             c, v = float(row[5]), float(row[6])
             if c > 0 and v > 0:
                 by[y][t] += c * v * USD_KRW / 1e8
+    # ⚠️ 미국은 시가총액 자료가 없다(Sharadar SEP 은 가격만 · SF1 은 미구독) →
+    #    **실질 판(회전율)을 미국에는 낼 수 없다. 「확인 불가」로 적는다.**
     # ⚠️ 미국은 시가총액 자료가 없다(Sharadar SEP 은 가격만 · SF1 은 미구독) →
     #    **실질 판(회전율)을 미국에는 낼 수 없다. 「확인 불가」로 적는다.**
     return by, {y: len(s) for y, s in days.items()}, cnt, None, None

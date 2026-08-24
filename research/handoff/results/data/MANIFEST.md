@@ -87,12 +87,14 @@
 | `28-headline.json` | 13.0 KB | `research/handoff/scripts/28-headline.py` |
 | `29-cols-kr.json` | 633.4 KB | `research/handoff/scripts/29-trigger-match.py  ⚠️철회됨` |
 | `29-trigger-match-kr.json` | 1.3 KB | `research/handoff/scripts/29-trigger-match.py  ⚠️철회됨` |
-| `31-slot-diagnosis.json` | 1.6 KB | `research/handoff/scripts/31-slot-diagnosis.py` |
+| `31-slot-diagnosis.json` | 1.8 KB | `research/handoff/scripts/31-slot-diagnosis.py` |
 | `32-funnel-why-kr.json` | 1.9 KB | `research/handoff/scripts/32-funnel-why.py` |
 | `32-funnel-why-us.json` | 1.8 KB | `research/handoff/scripts/32-funnel-why.py` |
 | `33-unresolved-and-extremes.json` | 8.5 KB | `research/handoff/scripts/33-unresolved-and-extremes.py` |
 | `34-turnover-kr-seasonal.json` | 4.7 KB | `research/handoff/scripts/34-turnover-concentration.py` |
 | `34-turnover-kr.json` | 4.2 KB | `research/handoff/scripts/34-turnover-concentration.py` |
+| `34-turnover-us-seasonal.json` | 4.0 KB | `research/handoff/scripts/34-turnover-concentration.py` |
+| `35-extreme-adjust.json` | 1.4 KB | `research/handoff/scripts/35-extreme-adjust.py  (본문 대조 확인)` |
 | `_DISCARDED_12-exit-grid-oldcanon.json` | 264.2 KB | `**미상 — 적을 것**` |
 
 ## 🚨 안 넣은 것 — **무언의 절단이 아니다. 크기와 함께 적는다**
@@ -119,4 +121,4 @@
   나오므로 재현에 필요한 것은 위 표로 충분하다.**
 - **가격 원본** (`.cache/pdata/`, `.cache/sharadar/`) — 전자는 용량, 후자는 라이선스.
 
-총 69개 넣음 · 12개 제외.
+총 71개 넣음 · 12개 제외.

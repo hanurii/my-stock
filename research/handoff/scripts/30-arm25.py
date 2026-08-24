@@ -87,10 +87,12 @@ def load(mkt, tie="strict"):
                 ours += json.loads(f.read_text(encoding="utf-8"))["events"]
         gfs = sorted((BT / "sub").glob("kr_gate%s_*.json" % sfx))
     else:
-        f = BT / "sub" / "us_full.json"
-        if not f.exists():
+        fs = sorted((BT / "sub").glob("us_20*.json"))
+        if not fs:
             return None, None
-        ours = json.loads(f.read_text(encoding="utf-8"))["events"]
+        ours = []
+        for f in fs:
+            ours += json.loads(f.read_text(encoding="utf-8"))["events"]
         gfs = sorted((BT / "sub").glob("us_gate%s_*.json" % sfx))
     if not gfs:
         return dedupe(ours), None
@@ -402,10 +404,75 @@ def tie_identity():
     return rows, bad
 
 
+def paired_tie_diff(ours, gate_s, gate_g):
+    """🚨 `C_> − C_>=` 를 **(스트림, 복제) 짝비교**로 낸다.
+
+    두 판을 각각 평균 낸 뒤 빼면 **추첨 잡음이 두 번 들어간다.** 복제마다 빼면
+    공통 변동(날짜 블록·우리 팔)이 상쇄된다.
+    ⚠️ **풀이 달라서 짝이 완벽하지는 않다**(`>=` 풀에는 동점이 더 들어 있다).
+       그래도 안 짝지은 것보다 낫고, **얼마나 나은지가 퍼짐으로 보인다.**
+
+    반환에 «차이의 퍼짐»을 넣는다 — 이게 Δ보다 크면 **탐지기가 이 표본에서 무력**하다.
+    그 사실을 적고 넘어간다. 억지로 판정하지 않는다.
+    """
+    ss = [draw(ours, gate_s, STREAM_SEED + i)[0] for i in range(N_STREAM)]
+    gg = [draw(ours, gate_g, STREAM_SEED + i)[0] for i in range(N_STREAM)]
+    o_by = defaultdict(list)
+    for e in ours:
+        o_by[e["entry_date"]].append(slot_sim.net(e["gain_at_resolve_pct"]))
+    def byd(rows):
+        d = defaultdict(list)
+        for e in rows:
+            d[e["entry_date"]].append(slot_sim.net(e["gain_at_resolve_pct"]))
+        return d
+    S = [byd(x) for x in ss]
+    G = [byd(x) for x in gg]
+    dates = sorted(o_by)
+    rnd = random.Random(BOOT_SEED + 11)
+    diffs = []
+    per_stream = defaultdict(list)
+    for r in range(N_STREAM * N_REP):
+        i = r % N_STREAM
+        bs = blocks(dates, rnd)          # ← **같은 블록을 두 판에 쓴다**
+        oa = oc = 0.0
+        ocn = 0
+        sa = sc = ga = gc = 0.0
+        scn = gcn = 0
+        for a, L in bs:
+            for j in range(L):
+                d = dates[a + j]
+                v = o_by[d]
+                oa += sum(v)
+                ocn += len(v)
+                w = S[i].get(d)
+                if w:
+                    sa += sum(w)
+                    scn += len(w)
+                u = G[i].get(d)
+                if u:
+                    ga += sum(u)
+                    gcn += len(u)
+        if ocn and scn and gcn:
+            c_s = oa / ocn - sa / scn
+            c_g = oa / ocn - ga / gcn
+            diffs.append(c_g - c_s)
+            per_stream[i].append(c_g - c_s)
+    if not diffs:
+        return None
+    d2 = sorted(diffs)
+    means = [st.mean(v) for v in per_stream.values() if v]
+    return {"median": st.median(diffs), "p2.5": d2[int(len(d2) * .025)],
+            "p97.5": d2[int(len(d2) * .975)],
+            "spread": d2[int(len(d2) * .975)] - d2[int(len(d2) * .025)],
+            "stream_means": means,
+            "stream_spread": (max(means) - min(means)) if means else None}
+
+
 def main():
     res = {}
     ties = {}
     n_files, miss = preflight()
+    stash = {}                      # (시장, 동점규칙) → (우리, 관문만) — 짝비교용
     idrows, idbad = tie_identity()
     if idbad:
         print("", flush=True)
@@ -517,8 +584,15 @@ def main():
         dgap = (abs(u["delta"] - k["delta"])
                 if (u["delta"] is not None and k["delta"] is not None) else None)
         print("", flush=True)
-        print("  🚨 **동점 — «설명 수치»** (발동 조건이 아니다. 두 판이 갈렸을 때 "
-              "**왜 갈렸는지**를 설명한다)", flush=True)
+        print("  🚨 **동점 — «예측 + 구현 오류 탐지기»**", flush=True)
+        print("     동점 규칙은 **대조군에만** 걸리고 패턴 팔은 안 바뀐다. 그러므로", flush=True)
+        print("       C_> − C_>=  =  대조군_>= − 대조군_>  ≈  Δ", flush=True)
+        print("     ⚠️ **이건 «기댓값에서의» 등식이지 매 추첨마다 성립하는 항등식이 아니다** —",
+              flush=True)
+        print("        두 판의 대조군은 «서로 다른 무작위 추첨»이라 추첨 잡음이 남는다.",
+              flush=True)
+        print("        그래서 **Δ 는 예측이고 Δ_bound 가 천장**이다. "
+              "**관측이 천장을 넘으면 발견이 아니라 구현 오류다.**", flush=True)
         print("     ① 비율(닿은 것 대비): 한국 %.3f%% · 미국 %.3f%% · **차이 %.3f%%p**"
               % (k["pct_of_touch"], u["pct_of_touch"], gap), flush=True)
         if dgap is None:
@@ -536,6 +610,55 @@ def main():
               flush=True)
         res["_tie"] = {"kr": k, "us": u, "pct_gap": gap, "delta_gap": dgap,
                        "role": "설명 수치 (발동 조건 아님) — 두 판을 둘 다 돌린다"}
+    # ── 🚨 예측 Δ vs 관측 |C_> − C_>=| ─────────────────────────────────────
+    print("", flush=True)
+    print("  **예측 Δ vs 관측 |C_> − C_>=|** (구간 붙이지 않는다 — Δ는 예측, Δ_bound는 천장)",
+          flush=True)
+    stop = False
+    for m in ("kr", "us"):
+        a, b = res.get("%s/strict" % m), res.get("%s/ge" % m)
+        t = ties.get(m)
+        if not (a and b and t):
+            continue
+        pr = None
+        if ("%s/strict" % m) in stash and ("%s/ge" % m) in stash:
+            pr = paired_tie_diff(stash["%s/strict" % m][0],
+                                 stash["%s/strict" % m][1], stash["%s/ge" % m][1])
+        obs = abs(pr["median"]) if pr else abs(b["C"]["C_mean"] - a["C"]["C_mean"])
+        pred = abs(t.get("delta_point") or 0.0)
+        ceil_ = t.get("delta")
+        # Δ_bound 가 계산 안 되면 대체 천장 0.2%p (한국 호가 단위에서 나온 값이라
+        # 미국엔 헐겁다 — 시장별 Δ_bound 가 계산되면 그쪽이 우선이다)
+        c_used = ceil_ if ceil_ is not None else 0.2
+        over = obs > c_used
+        stop = stop or over
+        print("   %-3s 관측(짝비교 중앙) **%+.4f%%p** · 예측 Δ %.4f%%p · 천장 %s → %s"
+              % (m.upper(), (pr["median"] if pr else obs), pred,
+                 ("%.4f%%p" % ceil_) if ceil_ is not None else "계산 불가(대체 0.2000%p)",
+                 "🚨**천장 초과 = 구현 오류**" if over else "천장 이내"), flush=True)
+        if pr:
+            weak = pr["spread"] > max(pred, 1e-12)
+            print("       짝비교 95%% %+.4f ~ %+.4f (퍼짐 **%.4f%%p**) · "
+                  "스트림 평균 퍼짐 %.4f%%p"
+                  % (pr["p2.5"], pr["p97.5"], pr["spread"], pr["stream_spread"] or 0),
+                  flush=True)
+            print("       → %s"
+                  % ("🚨**퍼짐 > Δ — 이 표본에서 탐지기는 무력하다. "
+                     "억지로 판정하지 않고 그 사실을 적는다.**" if weak
+                     else "퍼짐 < Δ — **탐지기가 실제로 작동한다**"), flush=True)
+        res.setdefault("_tie_predict", {})[m] = {
+            "observed_abs_diff": obs, "predicted_delta": pred,
+            "ceiling_delta_bound": ceil_, "ceiling_used": c_used, "over_ceiling": over,
+            "paired": pr}
+    if stop:
+        print("", flush=True)
+        print("🚨 **관측이 천장을 넘었다. 발견이 아니라 구현 오류다. 여기서 멈춘다.**",
+              flush=True)
+        (OUT / "30-arm25-TIE-CEILING-FAIL.json").write_text(
+            json.dumps(res.get("_tie_predict"), ensure_ascii=False, indent=1),
+            encoding="utf-8")
+        return
+
     if "kr/strict" in res and "us/strict" in res:
         d = res["us/strict"]["C"]["C_mean"] - res["kr/strict"]["C"]["C_mean"]
         print("\n  교호작용 C_US − C_KR = **%+.4f%%p** — **둘이 갈릴 때만 쓴다**" % d,

@@ -64,7 +64,11 @@ def load(mkt):
             if f.exists():
                 ev += json.loads(f.read_text(encoding="utf-8"))["events"]
     else:
-        ev = json.loads((BT / "sub" / "us_full.json").read_text(encoding="utf-8"))["events"]
+        # 🚨 미국도 **연도별 여섯 실행**이다(워밍업 430 · `open_until` 연도 초기화)
+        #    → 한국 `bt_YYYY.json` 과 **구조까지 같다**. 옛 연속 실행판은
+        #    `us_full_DEADZONE.json` 으로 보존돼 있고 **인용 금지**다.
+        for f in sorted((BT / "sub").glob("us_20*.json")):
+            ev += json.loads(f.read_text(encoding="utf-8"))["events"]
     seen, out = set(), []
     last = max((e.get("resolve_date") or e["entry_date"]) for e in ev)
     for e in sorted(ev, key=lambda x: (x["entry_date"], x["code"], x.get("pattern", ""))):
