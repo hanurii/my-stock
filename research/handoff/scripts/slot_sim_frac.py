@@ -59,16 +59,25 @@ def sim_frac(trades, slots: int = SLOTS, seed: int = 0, sizing: str = "canon"):
     streak = best = 0
     expo_max = 0.0
 
+    nomw = {}              # 거래 -> 명목 비중(진입 시점 자산 대비)
+    arith = [0.0]          # 🚨 «곱하지 않은» 합 — 산술 예측(분해 표의 왼쪽)
+    fills = []             # 체결된 거래의 순수익 — 「체결분 거래당」
+
     def credit(items):
         """items: [(청산일, code, 비중, 몫, 총수익%)] — 정본과 «같은» 순서·산술."""
         nonlocal eq
-        for _d, _c, wg, fr, g in sorted(items, key=lambda x: (x[0], x[1])):
+        for _d, _c, wg, fr, g, _t in sorted(items, key=lambda x: (x[0], x[1])):
             eq += wg * fr * net(g) / 100
+            # 🚨 **명목 비중**으로 더한다 — `wg` 는 «그 시점 자산»에 비례하므로
+            #    그대로 더하면 «관측과 항등식»이 되어 격차가 늘 0 이 나온다
+            #    (2026-08-24 실제로 0.00%p 가 나와 잡았다).
+            arith[0] += nomw.get(id(_t), 0.0) * fr * net(g) / 100
 
     def close_out(t):
         """마지막 다리까지 끝난 거래의 승패를 센다 (정본의 credit 안 계수부)."""
         nonlocal n, w, mw, streak, best
         n += 1
+        fills.append(sum(fr * net(g) for _d, fr, g in t["legs"]))
         is_w = t["result"] == "win"
         w += is_w
         mw += sum(fr * g for _d, fr, g in t["legs"]) > 0
@@ -82,7 +91,7 @@ def sim_frac(trades, slots: int = SLOTS, seed: int = 0, sizing: str = "canon"):
             rest = []
             for leg in h[3]:
                 if leg[0] < d:
-                    due.append((leg[0], h[1]["code"], h[2], leg[1], leg[2]))
+                    due.append((leg[0], h[1]["code"], h[2], leg[1], leg[2], h[1]))
                 else:
                     rest.append(leg)
             h[3] = rest          # 남은 다리만 들고 간다 (제자리 갱신)
@@ -111,6 +120,7 @@ def sim_frac(trades, slots: int = SLOTS, seed: int = 0, sizing: str = "canon"):
             if per > 0:
                 c = sorted(byday[d], key=lambda t: order_key(seed, t))
                 for t in c[:free]:
+                    nomw[id(t)] = per / eq if eq > 0 else 0.0   # 명목 비중
                     held.append([t["resolve_date"], t, per, list(t["legs"])])
         expo_max = max(expo_max, sum(h[2] for h in held) / eq if eq > 0 else 0.0)
         curve.append((d, eq))   # 자료 축 밴드용 일별 자산
@@ -118,13 +128,23 @@ def sim_frac(trades, slots: int = SLOTS, seed: int = 0, sizing: str = "canon"):
         mdd = min(mdd, eq / peak - 1)
 
     # ── 남은 보유 정산 ────────────────────────────────────────────────────
-    rest = [(leg[0], h[1]["code"], h[2], leg[1], leg[2]) for h in held for leg in h[3]]
+    rest = [(leg[0], h[1]["code"], h[2], leg[1], leg[2], h[1]) for h in held for leg in h[3]]
     credit(rest)
     for h in sorted(held, key=lambda x: (x[0], x[1]["code"])):   # 같은 이유로 정렬
         close_out(h[1])
     peak = max(peak, eq)
     mdd = min(mdd, eq / peak - 1)
+    import statistics as _st
     return {"curve": curve, "equity_pct": (eq - 1) * 100, "n_filled": n,
+            "arith_pct": arith[0] * 100,
+            # 🚨 «실제 명목 비중» 분포 — 41번 회계(0.20 고정)와의 차이를 만드는 값
+            "nom_w_mean": (_st.mean(nomw.values()) if nomw else 0.0),
+            "nom_w_median": (_st.median(nomw.values()) if nomw else 0.0),
+            "nom_w_p10": (sorted(nomw.values())[len(nomw)//10] if nomw else 0.0),
+            "nom_w_p90": (sorted(nomw.values())[9*len(nomw)//10] if nomw else 0.0),
+            "nom_w_lt20": (100.0 * sum(1 for v in nomw.values() if v < 0.1999)
+                           / len(nomw) if nomw else 0.0),
+            "filled_per_trade": (_st.mean(fills) if fills else 0.0),
             "win_rate": (w / n * 100 if n else 0.0),
             "money_win_rate": (mw / n * 100 if n else 0.0),
             "mdd_pct": mdd * 100, "max_loss_streak": best,

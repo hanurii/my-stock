@@ -39,6 +39,7 @@ BLOCKS = (20, 40, 80)
 N_STREAM = 10          # M32-2
 N_REP = 100            # 스트림당 → 총 1,000
 BOOT_SEED = 420824
+ALIGN_STATS = []       # 정렬 통계 — 「같은 날짜인가」의 증거
 
 
 def rets(curve):
@@ -85,6 +86,30 @@ def band_total(curves, block, n_stream=N_STREAM, n_rep=N_REP, seed=BOOT_SEED):
             "excl0": (vals[int(m * .025)] > 0) or (vals[int(m * .975)] < 0)}
 
 
+def align(cv, c0):
+    """🚨 **두 곡선을 «같은 날짜 축»에 올린다.**
+
+    변형마다 청산일이 달라 곡선 길이가 다르다. 그대로 짝지으면
+    **다른 날의 수익률을 마주 세우게 된다** — 짝비교의 뜻이 사라진다.
+    두 날짜의 «합집합»을 만들고 값이 없는 날은 **직전 값을 끌어온다**(그날 손익이 없다는 뜻).
+    """
+    dv, d0 = dict(cv), dict(c0)
+    days = sorted(set(dv) | set(d0))
+    # 🚨 «버려진 날은 없다»(합집합) — 대신 «한쪽에만 있어 끌어온 날»을 센다.
+    #    많이 끌어왔으면 두 곡선이 다른 달력 위에 있다는 뜻이고 그 자체가 한계다.
+    ALIGN_STATS.append({"days": len(days), "only_v": len(set(dv) - set(d0)),
+                        "only_0": len(set(d0) - set(dv)),
+                        "both": len(set(dv) & set(d0))})
+    out_v, out_0 = [], []
+    lv = l0 = 1.0
+    for d in days:
+        lv = dv.get(d, lv)
+        l0 = d0.get(d, l0)
+        out_v.append((d, lv))
+        out_0.append((d, l0))
+    return out_v, out_0
+
+
 def band_paired(curves_v, curves_0, block, n_stream=N_STREAM, n_rep=N_REP, seed=BOOT_SEED):
     """🚨 **주판정** — 같은 seed·같은 재표집에서 «변형 − 0회차» 누적 상대 성과.
 
@@ -96,8 +121,10 @@ def band_paired(curves_v, curves_0, block, n_stream=N_STREAM, n_rep=N_REP, seed=
     rnd = random.Random(seed)
     vals, n_clamp = [], 0
     for s in range(min(n_stream, len(curves_v), len(curves_0))):
-        rv, r0 = rets(curves_v[s]), rets(curves_0[s])
+        av, a0 = align(curves_v[s], curves_0[s])   # 🚨 같은 날짜 축에 올린다
+        rv, r0 = rets(av), rets(a0)
         n = min(len(rv), len(r0))
+        assert len(rv) == len(r0), "정렬 뒤에도 길이가 다르다"
         d = []
         for i in range(n):
             a, b = rv[i], r0[i]

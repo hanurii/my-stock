@@ -31,7 +31,7 @@ from slot_sim import net, order_key      # noqa: F401
 
 
 def sim_size(trades, risk=0.0125, cap=0.25, seed=0, max_positions=None,
-             use_cash=True):
+             use_cash=True, cash_rule="seq", partial=True):
     """위험 기반 포지션 크기. 반환에 **동시 보유 수 분포**를 함께 낸다."""
     byday = defaultdict(list)
     for t in trades:
@@ -52,14 +52,23 @@ def sim_size(trades, risk=0.0125, cap=0.25, seed=0, max_positions=None,
     overrun = []              # 위험목표 초과분 (%p)
     n_blocked_cash = 0
 
+    nomw = {}              # 거래 -> 명목 비중(진입 시점 자산 대비)
+    arith = [0.0]          # 🚨 «곱하지 않은» 합 — 산술 예측(분해 표의 왼쪽)
+    fills = []             # 체결된 거래의 순수익 — 「체결분 거래당」
+
     def credit(items):
         nonlocal eq
-        for _d, _c, wg, fr, g in sorted(items, key=lambda x: (x[0], x[1])):
+        for _d, _c, wg, fr, g, _t in sorted(items, key=lambda x: (x[0], x[1])):
             eq += wg * fr * net(g) / 100
+            # 🚨 **명목 비중**으로 더한다 — `wg` 는 «그 시점 자산»에 비례하므로
+            #    그대로 더하면 «관측과 항등식»이 되어 격차가 늘 0 이 나온다
+            #    (2026-08-24 실제로 0.00%p 가 나와 잡았다).
+            arith[0] += nomw.get(id(_t), 0.0) * fr * net(g) / 100
 
     def close_out(t):
         nonlocal n, w, mw, streak, best
         n += 1
+        fills.append(sum(fr * net(g) for _d, fr, g in t["legs"]))
         is_w = t["result"] == "win"
         w += is_w
         mw += sum(fr * g for _d, fr, g in t["legs"]) > 0
@@ -72,7 +81,7 @@ def sim_size(trades, risk=0.0125, cap=0.25, seed=0, max_positions=None,
             rest = []
             for leg in h[3]:
                 if leg[0] < d:
-                    due.append((leg[0], h[1]["code"], h[2], leg[1], leg[2]))
+                    due.append((leg[0], h[1]["code"], h[2], leg[1], leg[2], h[1]))
                 else:
                     rest.append(leg)
             h[3] = rest
@@ -87,6 +96,16 @@ def sim_size(trades, risk=0.0125, cap=0.25, seed=0, max_positions=None,
         cash_floor = min(cash_floor, cash)
 
         if d in byday:
+            # 🚨 **현금 규칙이 두 가지다. 섞으면 안 된다.**
+            #   seq      : `min(위험/손절, 상한, 남은현금)` — 먼저 온 것이 다 가져갈 수 있다
+            #              **2회차 사양(`min(..., 가용현금)`)이 이것이다.** 칸 수가 안 정해져
+            #              있으므로 「빈칸수로 나눈다」가 정의되지 않는다.
+            #   per_slot : `min(..., 가용현금 / 빈칸수)` — `slot_sim_frac` 의 현금제약판과 «같은» 규칙.
+            #              **양방향 관문에만 쓴다.**
+            #   ⚠️ 2026-08-24: 관문을 seq 로 걸어 «실패»했는데, 그건 버그가 아니라
+            #      **서로 다른 두 규칙을 마주 세운 내 설계 오류**였다.
+            _free = (max_positions - len(held)) if max_positions else None
+            _share = (max(0.0, cash) / _free) if (cash_rule == "per_slot" and _free) else None
             for t in sorted(byday[d], key=lambda x: order_key(seed, x)):
                 if max_positions is not None and len(held) >= max_positions:
                     break
@@ -94,11 +113,25 @@ def sim_size(trades, risk=0.0125, cap=0.25, seed=0, max_positions=None,
                 # use_cash=True  : **집행 가능한 판** — 현금이 없으면 못 산다
                 # use_cash=False : **정본과 같은 성질의 판** — 현금을 안 보고 산다
                 #                  (0~1회차 정본이 그랬다. 비교를 위해 남긴다)
-                per = (min(eq * risk / sf_, eq * cap, cash) if use_cash
-                       else min(eq * risk / sf_, eq * cap))
+                lim = min(eq * risk / sf_, eq * cap)
+                if not use_cash:
+                    per = lim
+                elif cash_rule == "per_slot":
+                    per = min(lim, _share if _share is not None else cash)
+                else:
+                    per = min(lim, cash)
+                # 🚨 **사양 모호점**: 현금이 목표 크기보다 «적을» 때 쪼개서 잡는가?
+                #    partial=True  : 남은 현금만큼 잡는다 → 작은 포지션이 쌓여 동시 보유가 는다
+                #    partial=False : **목표 크기를 못 채우면 «안 잡는다»**
+                #                    (「자본이 차면 새 진입 없음」의 문자 그대로)
+                #    실측 차이가 크다 — 동시 보유 중앙 13 vs 예측 6.4.
+                if not partial and per < lim - 1e-12:
+                    n_blocked_cash += 1
+                    continue
                 if per <= 1e-12:            # 🚨 현금이 없으면 «새 진입 없음»
                     n_blocked_cash += 1
                     continue
+                nomw[id(t)] = per / eq if eq > 0 else 0.0       # 명목 비중
                 held.append([t["resolve_date"], t, per, list(t["legs"])])
                 cash -= per
                 # 위험목표 초과 — 손절선보다 아래에서 나간 몫
@@ -110,7 +143,7 @@ def sim_size(trades, risk=0.0125, cap=0.25, seed=0, max_positions=None,
         peak = max(peak, eq)
         mdd = min(mdd, eq / peak - 1)
 
-    rest = [(leg[0], h[1]["code"], h[2], leg[1], leg[2]) for h in held for leg in h[3]]
+    rest = [(leg[0], h[1]["code"], h[2], leg[1], leg[2], h[1]) for h in held for leg in h[3]]
     credit(rest)
     for h in sorted(held, key=lambda x: (x[0], x[1]["code"])):
         close_out(h[1])
@@ -118,7 +151,17 @@ def sim_size(trades, risk=0.0125, cap=0.25, seed=0, max_positions=None,
     mdd = min(mdd, eq / peak - 1)
     cc = sorted(conc)
     m = len(cc)
+    import statistics as _st
     return {"curve": curve, "equity_pct": (eq - 1) * 100, "n_filled": n,
+            "arith_pct": arith[0] * 100,
+            # 🚨 «실제 명목 비중» 분포 — 41번 회계(0.20 고정)와의 차이를 만드는 값
+            "nom_w_mean": (_st.mean(nomw.values()) if nomw else 0.0),
+            "nom_w_median": (_st.median(nomw.values()) if nomw else 0.0),
+            "nom_w_p10": (sorted(nomw.values())[len(nomw)//10] if nomw else 0.0),
+            "nom_w_p90": (sorted(nomw.values())[9*len(nomw)//10] if nomw else 0.0),
+            "nom_w_lt20": (100.0 * sum(1 for v in nomw.values() if v < 0.1999)
+                           / len(nomw) if nomw else 0.0),
+            "filled_per_trade": (_st.mean(fills) if fills else 0.0),
             "win_rate": (w / n * 100 if n else 0.0),
             "money_win_rate": (mw / n * 100 if n else 0.0),
             "mdd_pct": mdd * 100, "max_loss_streak": best,
@@ -126,7 +169,9 @@ def sim_size(trades, risk=0.0125, cap=0.25, seed=0, max_positions=None,
             "conc_mean": st.mean(cc) if cc else 0.0,
             "conc_p10": cc[m // 10] if cc else 0, "conc_median": cc[m // 2] if cc else 0,
             "conc_p90": cc[9 * m // 10] if cc else 0, "conc_max": cc[-1] if cc else 0,
-            "risk_overrun_mean": (st.mean(overrun) * 100 if overrun else 0.0),
+            # 🚨 단위: (초과 %p) × (포지션 비중) = **이미 «자산 대비 %p»**.
+            #    예전엔 여기 ×100 이 더 붙어 있어 100배로 보고됐다(2026-08-24 정정).
+            "risk_overrun_mean": (st.mean(overrun) if overrun else 0.0),
             "risk_overrun_n": len(overrun)}
 
 
@@ -159,11 +204,20 @@ def gate_vs_slot5(trades, n_seed: int = 20):
     """
     import slot_sim_frac as sf
     tt = [{**t, "stop_frac": 0.10} for t in trades]
-    bad = []
+    # 🚨 **비트 단위 동일은 «불가능»하다.** 칸 크기를 한쪽은 `eq / 5`, 다른 쪽은
+    #    `eq * 0.02 / 0.10` 으로 만든다 — 수학적으로 같지만 **부동소수점 경로가 다르다.**
+    #    그래서 «상대 오차» 로 잰다. 문턱 1e-9 는 float 누적(1e-14 수준)보다 5자리 위다.
+    #    **관문을 느슨하게 하는 게 아니라, 잴 수 있는 자로 바꾸는 것이다.**
+    TOL = 1e-9
+    bad, worst = [], 0.0
     for s in range(n_seed):
-        a = sim_size(tt, risk=0.02, cap=0.20, seed=s, max_positions=5)
+        a = sim_size(tt, risk=0.02, cap=0.20, seed=s, max_positions=5,
+                     cash_rule="per_slot")   # 🚨 관문은 «같은 현금 규칙»으로 세운다
         b = sf.sim_frac(trades, seed=s, sizing="cash")
         for k in ("equity_pct", "n_filled", "win_rate", "mdd_pct", "max_loss_streak"):
-            if a[k] != b[k]:
-                bad.append((s, k, a[k], b[k]))
-    return bad
+            x, y = a[k], b[k]
+            rel = abs(x - y) / max(1e-12, abs(y))
+            worst = max(worst, rel)
+            if rel > TOL:
+                bad.append((s, k, x, y, rel))
+    return bad, worst
