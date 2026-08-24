@@ -50,6 +50,13 @@ def resolve_base(p, target=20.0, stop=10.0):
        그 뒤부터는 둘 다 → ambiguous · 목표 → win · 손절 → loss.
     """
     epx = p["entry_price"]
+    # 🚨 **규약 통일**: 하네스 `canslim_lib/pivot_backtest.py:47` 이
+    #    `round((closes[i]/pivot - 1)*100, 2)` 로 **소수 2자리**를 낸다.
+    #    오프라인이 전정밀도를 쓰면 **9,138건 중 9,025건이 «다르다»고 나온다**(관문 1차 실패).
+    #    이건 오류 수정이 아니라 **정본 규약을 그대로 쓰는 것**이고,
+    #    **변형도 같은 규약이어야 0회차와 비교가 된다.**
+    def _g(px):
+        return round(px / epx * 100 - 100, 2)
     T, S = epx * (1 + target / 100), epx * (1 - stop / 100)
     h, l, c, d = p["h"], p["l"], p["c"], p["d"]
     n = len(c)
@@ -58,22 +65,22 @@ def resolve_base(p, target=20.0, stop=10.0):
         hit_s = l[i] is not None and l[i] <= S
         if i == 0:
             if hit_t and hit_s:
-                return d[0], "ambiguous", c[0] / epx * 100 - 100
+                return d[0], "ambiguous", _g(c[0])
             if hit_t:
-                return d[0], "win", c[0] / epx * 100 - 100
+                return d[0], "win", _g(c[0])
             if hit_s:
-                return d[0], "ambiguous", c[0] / epx * 100 - 100
+                return d[0], "ambiguous", _g(c[0])
             continue
         if hit_t and hit_s:
-            return d[i], "ambiguous", c[i] / epx * 100 - 100
+            return d[i], "ambiguous", _g(c[i])
         if hit_t:
-            return d[i], "win", c[i] / epx * 100 - 100
+            return d[i], "win", _g(c[i])
         if hit_s:
-            return d[i], "loss", c[i] / epx * 100 - 100
+            return d[i], "loss", _g(c[i])
     # 🚨 여기 닿았다 = **250일 상한**(또는 시계열 끝)에 걸렸다는 뜻이다.
     #    상한은 «우리가 검정하려는 바로 그 변형»(승자를 굴린다)을 잘라낸다 —
     #    **방향이 정해진 편향**이다. 그래서 변형마다 **상한 도달 수·비율·미실현**을 찍는다.
-    return d[n - 1], "unresolved", c[n - 1] / epx * 100 - 100
+    return d[n - 1], "unresolved", _g(c[n - 1])
 
 
 CAP_DAYS = 250
@@ -86,13 +93,26 @@ def cap_report(paths_by_year, ev, label):
     - 2%를 넘으면 **상한에 닿은 방아쇠만 골라 경로를 연장해 다시 뽑는다**(전수 재수집 불필요).
     ⚠️ **그 전까지 「굴려도 안 된다」류 문장을 쓰지 않는다.**
     """
-    plen = {}
+    # 🚨 **끊긴 이유가 둘이라 갈라 센다.**
+    #    ① 250일 상한 — 경로를 250거래일에서 잘랐다 (**우리가 만든 한계**)
+    #    ② 자료 끝    — 그 해 하네스가 본 마지막 날까지 갔다 (**어쩔 수 없는 한계**)
+    #    연장(`40-extend-cap-paths.py`)한 경로는 ②다. 섞어 세면
+    #    「상한이 문다」와 「자료가 없다」를 구분 못 한다.
+    plen, isext = {}, {}
     for y, ps in paths_by_year.items():
         for p in ps:
-            plen[(p["scan_date"], p["code"], p["pattern"])] = len(p["c"])
-    hit = [e for e in ev
-           if e["result"] == "unresolved"
+            k = (p["scan_date"], p["code"], p["pattern"])
+            plen[k] = len(p["c"])
+            isext[k] = "_ext_from" in p
+    unres = [e for e in ev if e["result"] == "unresolved"]
+    hit = [e for e in unres
+           if not isext.get((e["scan_date"], e["code"], e["pattern"]), False)
            and plen.get((e["scan_date"], e["code"], e["pattern"]), 0) >= CAP_DAYS]
+    dend = [e for e in unres if e not in hit]
+    if dend:
+        gd = [e["gain"] for e in dend]
+        print("  [자료끝] %s — 자료 끝까지 가서 미결 **%d건** · 미실현 중앙 %+.2f%%"
+              % (label, len(dend), st.median(gd)), flush=True)
     pct = len(hit) / len(ev) * 100 if ev else 0.0
     g = [e["gain"] for e in hit]
     print("  [상한] %s — **%d일 상한에 닿은 거래 %d / %d = %.2f%%**"
@@ -137,6 +157,26 @@ def load_paths():
         if not f.exists():
             return None, y
         by[y] = json.loads(f.read_text(encoding="utf-8"))["trigger_paths"]
+    # 🚨 **250일 상한에 닿은 방아쇠는 «자료 끝까지» 늘린 판으로 갈아끼운다.**
+    #    (`40-extend-cap-paths.py` · 두뇌 세션 결정 (b))
+    #    상한은 **오래 걸린 거래**만 자르므로 **방향이 정해진 편향**이고,
+    #    그건 **1회차가 검정하려는 대상 그 자체**다. 잘린 채로 재면 안 된다.
+    ef = BT / "sub" / "uspath_ext.json"
+    if ef.exists():
+        ext = json.loads(ef.read_text(encoding="utf-8"))["trigger_paths"]
+        idx = {(q["scan_date"], q["code"], q["pattern"]): q for q in ext}
+        n = 0
+        for y in YEARS:
+            for i, p in enumerate(by[y]):
+                q = idx.get((p["scan_date"], p["code"], p["pattern"]))
+                if q is not None:
+                    by[y][i] = q
+                    n += 1
+        print("  연장 경로 %d개를 갈아끼웠다 (%d개 중)" % (n, len(ext)), flush=True)
+        if n != len(ext):
+            print("  🚨 갈아끼운 수가 다르다 — 확인 필요", flush=True)
+    else:
+        print("  ⚠️ uspath_ext.json 이 없다 — **상한이 잘린 채로 잰다**", flush=True)
     return by, None
 
 
