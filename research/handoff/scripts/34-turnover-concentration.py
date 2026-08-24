@@ -190,6 +190,38 @@ def main():
     print("   → 코호트 문턱통과 %.1f%% → %.1f%% · 전체판 %.1f%% → %.1f%%"
           % (ca["pass_pct"], cb["pass_pct"], a["pass_share_pct"], b["pass_share_pct"]),
           flush=True)
+    # ── 🚨 고정 코호트 «자체의» 편향 — 방향이 정해져 있다 ──────────────────
+    #   「첫 해에도 있고 마지막 해에도 살아 있는 종목」은 그 사이 사라진 것을 배제한다.
+    #   상폐·거래정지의 통상 경로를 생각하면 **사라진 쪽이 저유동에 치우쳐** 있다.
+    #   → **고정 코호트는 「마름」을 «과소평가»한다.**
+    #   그래서 검정력이 한쪽으로만 있다:
+    #     코호트에서도 크게 내려가면 → **쏠림 확정, 그것도 「최소한 그만큼」**
+    #     코호트에서 평평했다면      → 생존자 배제로도 설명되므로 **모호**였을 것
+    #   우리 결과는 유리한 쪽이라 논증이 더 강해진다. **먼저 적는다.**
+    gone = {c for c in cnt[y0] if cnt[y0][c] >= ndays[y0] * 0.90} - coh
+    gv = sorted(by[y0][c] / ndays[y0] for c in gone if c in by[y0])
+    cv = sorted(by[y0][c] / ndays[y0] for c in coh if c in by[y0])
+    if gv:
+        def qq(v, f):
+            return v[min(len(v) - 1, int(len(v) * f))]
+        print("", flush=True)
+        print("  **코호트 탈락분의 첫 해(%s) 거래대금 분포** — 「사라진 쪽이 마른 쪽인가」"
+              % y0, flush=True)
+        print("   %-10s %6s %10s %10s %10s %14s"
+              % ("집단", "종목", "P25", "중앙", "P75", "5억 미만 비율"), flush=True)
+        for lab, v in (("탈락분", gv), ("코호트", cv)):
+            print("   %-10s %6d %10.3f %10.3f %10.3f %13.1f%%"
+                  % (lab, len(v), qq(v, .25), qq(v, .50), qq(v, .75),
+                     sum(1 for x in v if x < MIN_TURNOVER_EOK) / len(v) * 100), flush=True)
+        print("   → 탈락분 중앙이 코호트보다 **낮으면** 「사라진 쪽이 마른 쪽」이고, "
+              "**고정 코호트는 마름을 과소평가**한다(= 우리 하락폭은 «최소값»이다).",
+              flush=True)
+        rows["_cohort_dropped"] = {
+            "n": len(gv), "median": qq(gv, .50), "p25": qq(gv, .25), "p75": qq(gv, .75),
+            "below_threshold_pct": sum(1 for x in gv if x < MIN_TURNOVER_EOK) / len(gv) * 100,
+            "cohort_median": qq(cv, .50),
+            "cohort_below_threshold_pct":
+                sum(1 for x in cv if x < MIN_TURNOVER_EOK) / len(cv) * 100}
     nv = [by[y1][c] / ndays[y1] for c in newc if c in by[y1]]
     if nv:
         print("   → **%s 시점에 있으나 첫 해엔 없던 종목(=그 사이 신규 상장) "

@@ -1,0 +1,266 @@
+{
+ "n_trades": 3681,
+ "n_days": 1163,
+ "note": "판정은 사전등록 문턱 하나로만 한다(M16-3). 렌즈 미적용. ρ 동등성 폭은 정의하지 않는다.",
+ "k_distribution": {
+  "1": 305,
+  "2": 261,
+  "3": 197,
+  "4": 144,
+  "5": 98,
+  "6": 60,
+  "7": 38,
+  "8": 22,
+  "9": 14,
+  "10": 12,
+  "11": 4,
+  "12": 3,
+  "13": 2,
+  "14": 2,
+  "15": 1
+ },
+ "m29_3": {
+  "k1_days": 305,
+  "k1_day_pct": 26.225279449699052,
+  "k1_trades": 305,
+  "k1_trade_pct": 8.285791904373811,
+  "k_ge2_days": 858
+ },
+ "rho": {
+  "point": 0.09572648691189246,
+  "ci": [
+   0.06338911208475792,
+   0.1271348137290888
+  ],
+  "excludes_zero": true
+ },
+ "rho_by_segment": {
+  "2021": {
+   "n_days": 209,
+   "n_trades": 895,
+   "rho": 0.040304869879393405
+  },
+  "2022": {
+   "n_days": 191,
+   "n_trades": 404,
+   "rho": 0.16894231343325658
+  },
+  "2023": {
+   "n_days": 218,
+   "n_trades": 631,
+   "rho": 0.0030622852107288255
+  },
+  "2024": {
+   "n_days": 207,
+   "n_trades": 541,
+   "rho": 0.1480131773922743
+  },
+  "2025~26": {
+   "n_days": 338,
+   "n_trades": 1210,
+   "rho": 0.1493141247989138
+  }
+ },
+ "rho_by_year": {
+  "2021": {
+   "n_days": 209,
+   "rho": 0.040304869879393405
+  },
+  "2022": {
+   "n_days": 191,
+   "rho": 0.16894231343325658
+  },
+  "2023": {
+   "n_days": 218,
+   "rho": 0.0030622852107288255
+  },
+  "2024": {
+   "n_days": 207,
+   "rho": 0.1480131773922743
+  },
+  "2025": {
+   "n_days": 222,
+   "rho": 0.13099632053017388
+  },
+  "2026": {
+   "n_days": 116,
+   "rho": 0.17633624507024004
+  }
+ },
+ "beta_binomial": {
+  "mu": 0.352085,
+  "rho": 0.10070882000000002,
+  "alpha": 3.1439841625619276,
+  "beta": 5.785632727001467,
+  "loglik": -2367.101012060565
+ },
+ "p_hat": 0.3556098886172236,
+ "k_table": {
+  "2": {
+   "n_days": 261,
+   "wipe_actual": 118,
+   "wipe_bb": 115.56235908722068,
+   "wipe_indep": 108.37727868410371,
+   "good_actual": 32,
+   "good_bb": 38.35072908722064,
+   "good_indep": 33.00564054229444
+  },
+  "3": {
+   "n_days": 197,
+   "wipe_actual": 71,
+   "wipe_bb": 62.13425443223371,
+   "wipe_indep": 52.712404584193564,
+   "good_actual": 11,
+   "good_bb": 13.623667236530249,
+   "good_indep": 8.859061436498592
+  },
+  "4": {
+   "n_days": 144,
+   "wipe_actual": 34,
+   "wipe_bb": 33.44828882544343,
+   "wipe_indep": 24.828927541227383,
+   "good_actual": 5,
+   "good_bb": 5.1287777982223925,
+   "good_indep": 2.3028084187758497
+  },
+  "5": {
+   "n_days": 98,
+   "wipe_actual": 15,
+   "wipe_bb": 17.228233267358647,
+   "wipe_indep": 10.88855908064602,
+   "good_actual": 1,
+   "good_bb": 1.9285561764480887,
+   "good_indep": 0.5573079280566187
+  },
+  "6": {
+   "n_days": 60,
+   "wipe_actual": 8,
+   "wipe_bb": 8.167184632279493,
+   "wipe_indep": 4.295803958433937,
+   "good_actual": 1,
+   "good_bb": 0.6903275676358813,
+   "good_indep": 0.12133727156431214
+  },
+  "7": {
+   "n_days": 38,
+   "wipe_actual": 4,
+   "wipe_bb": 4.08327810157885,
+   "wipe_indep": 1.7531766077940834,
+   "good_actual": 0,
+   "good_bb": 0.26777767407022546,
+   "good_indep": 0.027327531296531808
+  },
+  "8": {
+   "n_days": 22,
+   "wipe_actual": 2,
+   "wipe_bb": 1.8974263949918528,
+   "wipe_indep": 0.654054019224799,
+   "good_actual": 0,
+   "good_bb": 0.09872262181611945,
+   "good_indep": 0.005626175998209318
+  }
+ },
+ "posterior_predictive": {
+  "k>=2": {
+   "wipe_actual": 254,
+   "wipe_pred_median": 244.0,
+   "wipe_band_5_95": [
+    225,
+    265
+   ],
+   "wipe_pctl": 76.6,
+   "wipe_inside": true,
+   "good_actual": 50,
+   "good_pred_median": 60.0,
+   "good_band_5_95": [
+    49,
+    72
+   ],
+   "good_pctl": 5.800000000000001,
+   "good_inside": true,
+   "wipe_excess_pct": 4.098360655737698
+  },
+  "k>=3": {
+   "wipe_actual": 136,
+   "wipe_pred_median": 129.0,
+   "wipe_band_5_95": [
+    112,
+    145
+   ],
+   "wipe_pctl": 74.7,
+   "wipe_inside": true,
+   "good_actual": 18,
+   "good_pred_median": 21.0,
+   "good_band_5_95": [
+    15,
+    30
+   ],
+   "good_pctl": 17.0,
+   "good_inside": true,
+   "wipe_excess_pct": 5.4263565891472965
+  }
+ },
+ "holdout": {
+  "fit_days": 581,
+  "test_days": 582,
+  "split_date": "2023-10-27",
+  "fit_rho": 0.05143929500000001,
+  "fit_mu": 0.34965499999999994,
+  "wipe_actual": 143,
+  "wipe_pred_median": 121.0,
+  "wipe_band_5_95": [
+   106,
+   136
+  ],
+  "wipe_inside": false,
+  "wipe_pctl": 99.0,
+  "good_actual": 30,
+  "good_pred_median": 27.0,
+  "good_band_5_95": [
+   20,
+   36
+  ],
+  "good_inside": true
+ },
+ "slot5": {
+  "rho_median": 0.005482331252451962,
+  "rho_band": [
+   -0.1815912202609036,
+   0.14667921088995373
+  ],
+  "wipe_median": 21.0,
+  "wipe_band": [
+   14,
+   27
+  ],
+  "good_median": 8.0,
+  "good_band": [
+   5,
+   12
+  ],
+  "kmax_median": 4.0
+ },
+ "nine_month": {
+  "from": "2025-11-26",
+  "n_days": 139,
+  "n_trades": 581,
+  "wipe_actual": 26,
+  "wipe_pred_median": 26.0,
+  "wipe_band_5_95": [
+   19,
+   33
+  ],
+  "good_actual": 8,
+  "good_pred_median": 6.0,
+  "good_band_5_95": [
+   2,
+   10
+  ],
+  "page_wipe_pred": 12.3,
+  "page_wipe_actual": 14,
+  "page_good_pred": 2.9,
+  "page_good_actual": 2,
+  "page_inside_wipe": false,
+  "page_inside_good": true
+ }
+}
