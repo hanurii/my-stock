@@ -76,7 +76,9 @@ class Cost:
 # ─────────────────────────────────────────────────────────────────────────
 # 청산 규칙 — 다리 목록을 낸다: [(청산일, 몫, 총수익%), ...]
 # ─────────────────────────────────────────────────────────────────────────
-TARGET_FILL = "close"        # "close" (헤드라인) | "limit" (부지표)
+TARGET_FILL = "close"        # "close" | "limit"   — limit = max(목표가, 시가)
+STOP_FILL = "close"          # "close" | "market"  — market = min(선, 시가)
+N_NO_OPEN = [0]              # 시가가 없어 종가로 되돌린 횟수 (0이 아니면 결과에 적는다)
 
 
 def _mk(epx):
@@ -85,29 +87,63 @@ def _mk(epx):
     return g
 
 
-def _tgt_gain(g, close_px, target_pct):
+def _open_px(p, i):
+    o = p.get("o")
+    if not o or i >= len(o) or o[i] is None:
+        N_NO_OPEN[0] += 1
+        return None
+    return o[i]
+
+
+def _tgt_gain(p, g, i, target_pct):
     """목표 다리의 체결 수익률.
 
-    - `close`  : 그날 종가 (하네스 규약 · **헤드라인**)
-    - `limit`  : **목표가 정확히** — 그날 고가가 목표를 찍었으므로 지정가 매도는 체결된다
-    🚨 **손절·추격은 이 함수를 안 쓴다.** 사용자가 손절을 **시장가**로 집행하므로
-       지정가로 바꾸면 «실제보다 좋게» 잡힌다.
+    - `close` : 그날 종가 (하네스 규약 · **헤드라인**)
+    - `limit` : **`max(목표가, 시가)`** — 지정가 매도는 그날 고가가 목표를 찍었으므로
+      체결되고, **시가가 목표 위로 갭업했으면 «시가»에 체결된다.**
+      🚨 처음엔 「목표가 정확히」로 만들었는데 **틀렸다**(2026-08-24 자기 정정).
+         그건 지정가 전략의 **하한**이지 지정가 자체가 아니다.
     """
-    return round(target_pct, 2) if TARGET_FILL == "limit" else g(close_px)
+    c = p["c"][i]
+    if TARGET_FILL != "limit":
+        return g(c)
+    T = p["entry_price"] * (1 + target_pct / 100)
+    o = _open_px(p, i)
+    return g(T if o is None else max(T, o))
+
+
+def _stop_gain(p, g, i, line_pct):
+    """손절·추격 다리의 체결 수익률.
+
+    - `close`  : 그날 종가 (하네스 규약)
+    - `market` : **`min(선, 시가)`** — 사용자는 손절을 **시장가**로 집행하므로
+      선이 걸린 순간 나간다. **갭다운이면 시가에 나간다.**
+      ⚠️ 종가 규약은 「방아쇠가 걸린 뒤 하루 종일 더 떨어지는 것을 그대로 맞는」 모형이다.
+    """
+    c = p["c"][i]
+    if STOP_FILL != "market" or line_pct is None:
+        return g(c)
+    L = p["entry_price"] * (1 + line_pct / 100)
+    o = _open_px(p, i)
+    return g(L if o is None else min(L, o))
 
 
 def resolve_v0(p, target=20.0, stop=10.0):
-    """0회차 — `39-exit-variants.resolve_base` 를 다리 하나로 감싼다."""
+    """0회차 — 판정(날짜·승패)은 `39-exit-variants.resolve_base` 그대로, 체결가만 규약대로."""
     d, res, gain = v39.resolve_base(p, target, stop)
     epx = p["entry_price"]
     g = _mk(epx)
-    if res == "win" and TARGET_FILL == "limit":
-        gain = round(target, 2)
     i = p["d"].index(d) if d in p["d"] else len(p["c"]) - 1
     kind = {"win": "목표", "loss": "손절", "ambiguous": "예외", "unresolved": "미결"}[res]
-    lvl = {"목표": target, "손절": -stop}.get(kind)
-    ex = [(kind, lvl, g(p["c"][i]))]
-    return d, res, [(d, 1.0, gain)], res == "unresolved", ex
+    if kind == "목표":
+        gain = _tgt_gain(p, g, i, target)
+        lvl = target
+    elif kind == "손절":
+        gain = _stop_gain(p, g, i, -stop)
+        lvl = -stop
+    else:
+        lvl = None                      # 예외·미결은 규약을 안 바꾼다
+    return d, res, [(d, 1.0, gain)], res == "unresolved", [(kind, lvl, g(p["c"][i]))]
 
 
 def _trail_stop(lows, j, floor_px):
@@ -137,14 +173,15 @@ def resolve_half_then_trail(p, stop=8.0, half_at=20.0, half=0.5):
             if hit_s:
                 return d[0], "ambiguous", [(d[0], 1.0, g(c[0]))], False, [("예외", -stop, g(c[0]))]
             if hit_t:
-                return _phase2(p, g, i, half, d[i], _tgt_gain(g, c[i], half_at), half_at)
+                return _phase2(p, g, i, half, d[i], _tgt_gain(p, g, i, half_at), half_at)
             continue
         if hit_t and hit_s:
             return d[i], "ambiguous", [(d[i], 1.0, g(c[i]))], False, [("예외", None, g(c[i]))]
         if hit_t:
-            return _phase2(p, g, i, half, d[i], _tgt_gain(g, c[i], half_at), half_at)
+            return _phase2(p, g, i, half, d[i], _tgt_gain(p, g, i, half_at), half_at)
         if hit_s:
-            return d[i], "loss", [(d[i], 1.0, g(c[i]))], False, [("손절", -stop, g(c[i]))]
+            return (d[i], "loss", [(d[i], 1.0, _stop_gain(p, g, i, -stop))], False,
+                    [("손절", -stop, g(c[i]))])
     return (d[n - 1], "unresolved", [(d[n - 1], 1.0, g(c[n - 1]))], True,
             [("미결", None, g(c[n - 1]))])
 
@@ -159,9 +196,9 @@ def _phase2(p, g, i, half, half_date, half_gain, half_at):
     for j in range(i + 1, n):
         s2 = _trail_stop(l, j, epx)          # 본전이 바닥 (내려가지 않는다)
         if l[j] is not None and l[j] <= s2:
-            legs.append((d[j], 1.0 - half, g(c[j])))
-            kind = "본전" if s2 <= epx else "추격"
-            ex.append((kind, round(s2 / epx * 100 - 100, 2), g(c[j])))
+            lvl = round(s2 / epx * 100 - 100, 2)
+            legs.append((d[j], 1.0 - half, _stop_gain(p, g, j, lvl)))
+            ex.append(("본전" if s2 <= epx else "추격", lvl, g(c[j])))
             return d[j], "win", legs, False, ex
     legs.append((d[n - 1], 1.0 - half, g(c[n - 1])))
     ex.append(("미결", None, g(c[n - 1])))
@@ -176,15 +213,17 @@ def resolve_trail_only(p, trail=15.0):
     n = len(c)
     peak = h[0] if h[0] is not None else epx
     for j in range(n):
-        lvl = peak * (1 - trail / 100)
+        lvl_px = peak * (1 - trail / 100)
+        lvl = round(lvl_px / epx * 100 - 100, 2)
         if j > 0:                            # 🚨 추격선은 «어제까지»의 고점으로
-            if l[j] is not None and l[j] <= lvl:
-                return (d[j], ("win" if g(c[j]) > 0 else "loss"), [(d[j], 1.0, g(c[j]))], False,
-                        [("추격", round(lvl / epx * 100 - 100, 2), g(c[j]))])
+            if l[j] is not None and l[j] <= lvl_px:
+                gg = _stop_gain(p, g, j, lvl)
+                return (d[j], ("win" if gg > 0 else "loss"), [(d[j], 1.0, gg)], False,
+                        [("추격", lvl, g(c[j]))])
         else:
-            if l[0] is not None and l[0] <= lvl:
+            if l[0] is not None and l[0] <= lvl_px:
                 return (d[0], "ambiguous", [(d[0], 1.0, g(c[0]))], False,
-                        [("예외", round(lvl / epx * 100 - 100, 2), g(c[0]))])
+                        [("예외", lvl, g(c[0]))])
         if h[j] is not None:
             peak = max(peak, h[j])
     gg = g(c[n - 1])
@@ -302,17 +341,18 @@ def gap_table(ev):
     return out
 
 
-def run_combo(by, fill, sizing):
+def run_combo(by, ft, fs, sizing):
     """한 조합(체결 규약 × 칸 크기 규약)을 통째로 돈다."""
-    global TARGET_FILL
-    TARGET_FILL = fill
+    global TARGET_FILL, STOP_FILL
+    TARGET_FILL, STOP_FILL = ft, fs
+    N_NO_OPEN[0] = 0
     res = {}
     for name, fn, label, has_target in VARIANTS:
         ev, blocked = replay(by, fn)
         row = {"label": label, "n": len(ev), "blocked": blocked,
                "limits": limits(by, ev), "gaps": gap_table(ev),
                "has_target": has_target, "arms": {}}
-        if name == "0회차" and fill == "close" and sizing == "canon":
+        if name == "0회차" and ft == "close" and fs == "close" and sizing == "canon":
             bad = sf.gate_vs_canon(ev, n_seed=20)
             row["gate"] = "통과" if not bad else str(bad[:3])
             print("  🚨 **양방향 관문**(분할 시뮬 vs 정본, seed 0~19): %s"
@@ -335,10 +375,16 @@ def run_combo(by, fill, sizing):
     return res
 
 
-COMBOS = (("cash", "close", "현금제약 · 종가", "**헤드라인**"),
-          ("cash", "limit", "현금제약 · 지정가목표", "부지표"),
-          ("canon", "close", "정본(자산÷5) · 종가", "옛 결과와의 연속성"),
-          ("canon", "limit", "정본(자산÷5) · 지정가목표", "참고"))
+# 체결 규약 네 판 + 정본 연속성 한 판.
+# 🚨 승·패가 «반대로» 당기므로 ①②를 갈라 낸다 — 합치면 상쇄돼 안 보인다
+#    (한국 3,776건: 승 쪽만 −0.069%p · 패 쪽만 +0.132%p · 둘 다 +0.062%p).
+COMBOS = (
+    ("cash", "close", "close", "종가판", "**헤드라인** · 0회차와 짝 · 사전등록 보존"),
+    ("cash", "limit", "close", "① 목표만 지정가", "승 쪽 효과 — max(목표가, 시가)"),
+    ("cash", "close", "market", "② 손절·추격만 시장가", "패 쪽 효과 — min(선, 시가)"),
+    ("cash", "limit", "market", "③ 실집행 근사판", "**사용자가 실제로 하는 것**"),
+    ("canon", "close", "close", "정본 크기 · 종가", "옛 결과와의 연속성"),
+)
 
 
 def main() -> int:
@@ -350,19 +396,23 @@ def main() -> int:
     eqw = json.loads((OUT / "26-eqw-us.json").read_text(encoding="utf-8"))
 
     R = {}
-    for sizing, fill, tag, note in COMBOS:
+    for sizing, ft, fs, tag, note in COMBOS:
         print("", flush=True)
         print("#" * 92, flush=True)
         print("# %s  (%s)" % (tag, note), flush=True)
-        print("#   칸 크기 = %s · 목표 체결 = %s · 손절·추격 체결 = 종가"
+        print("#   칸 크기 = %s · 목표 = %s · 손절·추격 = %s"
               % ("min(자산/5, 가용현금/빈칸)" if sizing == "cash" else "자산/5",
-                 "그날 종가" if fill == "close" else "목표가 정확히"), flush=True)
+                 "그날 종가" if ft == "close" else "**max(목표가, 시가)**",
+                 "그날 종가" if fs == "close" else "**min(선, 시가)**"), flush=True)
         print("#" * 92, flush=True)
-        r = run_combo(by, fill, sizing)
+        r = run_combo(by, ft, fs, sizing)
         if r is None:
             print("  → 분할 시뮬을 쓸 수 없다. 중단한다.", flush=True)
             return 1
-        R["%s|%s" % (sizing, fill)] = r
+        R["%s|%s|%s" % (sizing, ft, fs)] = r
+        if N_NO_OPEN[0]:
+            print("  ⚠️ 시가가 없어 종가로 되돌린 횟수 **%d** — 0이 아니면 결과에 적는다"
+                  % N_NO_OPEN[0], flush=True)
         for name, _f, label, has_t in VARIANTS:
             row = r[name]
             a0 = row["arms"][REGIMES[0][0]]
@@ -377,16 +427,14 @@ def main() -> int:
     print("=" * 92, flush=True)
     print("🚨 **암묵적 레버리지의 값** = 정본판 − 현금제약판 (같은 체결 규약끼리)", flush=True)
     print("=" * 92, flush=True)
-    for fill in ("close", "limit"):
-        print("  [%s]  %-6s %14s %14s %12s"
-              % ("종가" if fill == "close" else "지정가", "변형",
-                 "현금제약(집행가능)", "정본(없는돈)", "차이"), flush=True)
-        for rname, _a, _b in REGIMES:
-            for name, _f, _l, _h in VARIANTS:
-                c = R["cash|" + fill][name]["arms"][rname]["equity_median"]
-                k = R["canon|" + fill][name]["arms"][rname]["equity_median"]
-                print("        %-8s %-6s %+13.2f%% %+13.2f%% %+11.2f%%p"
-                      % (rname[:6], name, c, k, k - c), flush=True)
+    print("  %-8s %-6s %14s %14s %12s"
+          % ("비용", "변형", "현금제약(집행가능)", "정본(없는돈)", "차이"), flush=True)
+    for rname, _a, _b in REGIMES:
+        for name, _f, _l, _h in VARIANTS:
+            c = R["cash|close|close"][name]["arms"][rname]["equity_median"]
+            k = R["canon|close|close"][name]["arms"][rname]["equity_median"]
+            print("  %-8s %-6s %+13.2f%% %+13.2f%% %+11.2f%%p"
+                  % (rname[:6], name, c, k, k - c), flush=True)
     print("  ⚠️ 차이가 **양수면 「없는 돈」이 성적을 부풀렸다**는 뜻이다.", flush=True)
 
     # ── 이격 표 ──────────────────────────────────────────────────────────
@@ -398,7 +446,7 @@ def main() -> int:
           % ("변형", "종류", "n", "중앙", "평균", "P10", "P90"), flush=True)
     for name, _f, _l, _h in VARIANTS:
         for kind in ("목표", "손절", "추격", "본전", "예외"):
-            g = R["cash|close"][name]["gaps"].get(kind)
+            g = R["cash|close|close"][name]["gaps"].get(kind)
             if not g:
                 continue
             print("  %-6s %-6s %7d %+8.2f%% %+8.2f%% %+8.2f%% %+8.2f%%"
@@ -408,7 +456,7 @@ def main() -> int:
           "「가운데가 치우쳤나」와 「꼬리가 두꺼운가」를 갈라 본다.", flush=True)
 
     # ── 분해 (헤드라인 조합) ─────────────────────────────────────────────
-    H = R["cash|close"]
+    H = R["cash|close|close"]
     print("", flush=True)
     print("=" * 92, flush=True)
     print("분해 — 산술 예측 vs 관측 (무비용 팔 · **헤드라인 = 현금제약·종가**)", flush=True)
@@ -443,11 +491,11 @@ def main() -> int:
           flush=True)
     print("  ⚠️ **S&P500 은 시총가중 대형주 · 우리는 중소형 다섯 칸** — "
           "«귀속»이 아니라 **「이 돈으로 이게 최선이었나」의 잣대**다.", flush=True)
-    for sizing, fill, tag, _n in COMBOS:
+    for sizing, ft, fs, tag, _n in COMBOS:
         print("  [%s]" % tag, flush=True)
         for rname, _a, _b in REGIMES:
             for name, _f, _l, _h in VARIANTS:
-                a = R["%s|%s" % (sizing, fill)][name]["arms"][rname]
+                a = R["%s|%s|%s" % (sizing, ft, fs)][name]["arms"][rname]
                 print("    %-8s %-6s 자산 %+8.2f%% (하단 %+8.2f%%) → 본전 %s · 시장 %s"
                       % (rname[:6], name, a["equity_median"], a["p5"],
                          "**통과**" if a["p5"] > 0 else "미통과",
@@ -456,22 +504,21 @@ def main() -> int:
     # ── 증분·누적 ────────────────────────────────────────────────────────
     print("", flush=True)
     print("=" * 92, flush=True)
-    print("0회차 대비 — 증분과 누적 · **네 조합 나란히**", flush=True)
+    print("0회차 대비 — 증분과 누적 · **다섯 조합 나란히**", flush=True)
     print("=" * 92, flush=True)
     for rname, _a, _b in REGIMES:
         print("  [%s]" % rname, flush=True)
-        print("    %-6s %24s %24s" % ("변형", "현금제약(종가/지정가)", "정본(종가/지정가)"),
+        print("    %-6s %-22s %-22s %-22s %-22s %-22s"
+              % ("변형", "종가판(헤드라인)", "①목표만", "②손절·추격만", "③실집행", "정본크기"),
               flush=True)
         for name, _f, _l, _h in VARIANTS:
             cells = []
-            for sizing in ("cash", "canon"):
-                for fill in ("close", "limit"):
-                    k = "%s|%s" % (sizing, fill)
-                    v = R[k][name]["arms"][rname]["equity_median"]
-                    b0 = R[k]["0회차"]["arms"][rname]["equity_median"]
-                    cells.append("%+.2f (%+.2f%%p)" % (v, v - b0))
-            print("    %-6s %24s %24s" % (name, " / ".join(cells[:2]), " / ".join(cells[2:])),
-                  flush=True)
+            for sizing, ft, fs, _tg, _nt in COMBOS:
+                k = "%s|%s|%s" % (sizing, ft, fs)
+                v = R[k][name]["arms"][rname]["equity_median"]
+                b0 = R[k]["0회차"]["arms"][rname]["equity_median"]
+                cells.append("%+.2f (%+.2f%%p)" % (v, v - b0))
+            print("    %-6s %-22s %-22s %-22s %-22s %-22s" % (name, *cells), flush=True)
     print("  ⚠️ **증분은 자산 중앙끼리의 차이지 짝비교가 아니다.**", flush=True)
 
     OUT.mkdir(parents=True, exist_ok=True)

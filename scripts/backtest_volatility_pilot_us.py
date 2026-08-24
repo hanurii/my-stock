@@ -549,7 +549,10 @@ def main():
     TARGET_PCT, STOP_PCT = a.target, a.stop
     global MARKET, US_VARIANT, US_USD_KRW, US_LIMIT, ARM, GATE_TIE, EMIT_PATHS
     ARM, GATE_TIE = a.arm, a.gate_tie
-    EMIT_PATHS = True if a.emit_paths else None
+    # 🚨 **경로 파일 «경로»를 담는다.** 예전엔 `True`(불리언)였는데 스트리밍 싱크가
+    #    이 값으로 사이드카 이름을 만들면서 저장소 루트에 `True.paths.jsonl` 을
+    #    쓰는 사고가 났다(2026-08-24). 변수 이름이 「PATHS」인데 값이 불리언이었다.
+    EMIT_PATHS = a.out if a.emit_paths else None
     MARKET, US_VARIANT = a.market, a.us_variant
     US_USD_KRW, US_LIMIT = a.usd_krw, (a.us_limit or None)
     GATE_NEAR_ALLOW = {"off": set(), "ma": {"1", "5"}, "ma+high": {"1", "5", "7"}}[a.gate_near]

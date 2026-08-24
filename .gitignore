@@ -11,3 +11,8 @@ public/data/.bio-cache.json
 # SDD scratch (briefs, reports, diffs, ledger) — process artifacts, not code
 .superpowers/sdd/
 scripts/autobuy/_run/
+
+# 경로 방출 스트리밍의 «사이드카» — 중간 산출이라 추적 대상이 아니다.
+# 🚨 2026-08-24: 변수 이름이 값을 잘못 말해(`EMIT_PATHS` 가 불리언) 저장소 루트에
+#    `True.paths.jsonl`(50MB) 이 생겼다. 눈으로 잡았지만 다음엔 `git add -A` 에 딸려 간다.
+*.paths.jsonl

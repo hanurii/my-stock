@@ -58,10 +58,22 @@ def series_end(year: int) -> str:
 
 
 def main() -> int:
-    paths, miss = v39.load_paths()
-    if miss:
-        print("🚨 uspath_%d.json 이 없다" % miss)
-        return 2
+    # 🚨 **원본 연도 파일을 «직접» 읽는다. `v39.load_paths()` 를 쓰면 안 된다.**
+    #    그 함수는 `uspath_ext.json` 을 «덮어씌워» 준다. 그러면 이 스크립트가
+    #    **이미 연장된 경로를 다시 연장 대상으로 잡아** 「하나도 안 늘어남」이 나온다
+    #    (2026-08-24 실제로 101 → 43 · 증가 0 으로 잘못 돌았다).
+    #    **연장의 입력은 «날것»이어야 한다.**
+    paths = {}
+    for y in YEARS:
+        f = SUB / ("uspath_%d.json" % y)
+        if not f.exists():
+            print("🚨 uspath_%d.json 이 없다" % y)
+            return 2
+        paths[y] = json.loads(f.read_text(encoding="utf-8"))["trigger_paths"]
+    n_ext_in = sum(1 for ps in paths.values() for q in ps if "_ext_from" in q)
+    print("원본 경로 %d개 적재 (이미 연장된 것 %d개 — 0 이어야 한다)"
+          % (sum(len(v) for v in paths.values()), n_ext_in), flush=True)
+    assert n_ext_in == 0, "🚨 원본에 연장본이 섞였다"
 
     # ── 상한에 닿은 방아쇠 고르기 ─────────────────────────────────────────
     #    `unresolved` 이면서 경로 길이가 상한과 같다 = **잘렸다**
@@ -88,15 +100,16 @@ def main() -> int:
     print("   종목 %d개 · 적재 창 %s ~ %s (한 번만 훑는다)" % (len(codes), lo, hi), flush=True)
 
     # ── 시계열 만들기 — 하네스 `build_all` 의 시계열 부분과 «같은» 규약 ──
-    ser = {c: {"dates": [], "highs": [], "lows": [], "closes": []} for c in codes}
+    ser = {c: {"dates": [], "opens": [], "highs": [], "lows": [], "closes": []} for c in codes}
     n_row = n_bad = 0
-    for t, d, _o, h, l, c, _v, _cu in us_loader._iter_prices(set(codes), lo, hi):
+    for t, d, o_, h, l, c, _v, _cu in us_loader._iter_prices(set(codes), lo, hi):
         cf = float(c)
         if cf <= 0:                 # 하네스와 같은 배제
             n_bad += 1
             continue
         s = ser[t]
         s["dates"].append(d)
+        s["opens"].append(float(o_))
         s["highs"].append(float(h))
         s["lows"].append(float(l))
         s["closes"].append(cf)
@@ -105,7 +118,7 @@ def main() -> int:
         if not s["dates"]:
             continue
         o = sorted(range(len(s["dates"])), key=lambda i: s["dates"][i])
-        for k in ("dates", "highs", "lows", "closes"):
+        for k in ("dates", "opens", "highs", "lows", "closes"):
             s[k] = [s[k][i] for i in o]
     print("   %d행 적재 (종가<=0 배제 %d)" % (n_row, n_bad), flush=True)
 
@@ -127,6 +140,8 @@ def main() -> int:
             i1 += 1
         q = dict(p)
         q["d"] = s["dates"][i0:i1]
+        # 🚨 시가도 실어야 «실집행 근사판»(max(목표,시가) / min(선,시가))이 돈다
+        q["o"] = [round(x, 4) for x in s["opens"][i0:i1]]
         q["h"] = [round(x, 4) for x in s["highs"][i0:i1]]
         q["l"] = [round(x, 4) for x in s["lows"][i0:i1]]
         q["c"] = [round(x, 4) for x in s["closes"][i0:i1]]
