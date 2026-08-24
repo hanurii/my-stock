@@ -233,3 +233,80 @@ def rel_volume(series, idx, window=50):
 그리고 **이 파일 자체도 마찬가지다** — 위 판정표의 12행은 내가 읽고 내가 적은 것이고, 대조한 사람은 없다.
 
 이 파일은 **숫자와 사실만** 담는다. 판정 문장은 쓰지 않았다.
+
+---
+
+# 🚨 정정 (2026-08-23, 23번 작업 중 발견) — **제 탐색 범위가 틀렸습니다**
+
+위 감사는 **`scripts/`·`src/`·`docs/`·`public/data/`만** 훑었습니다.
+23번을 하다가 **`.cache/bt5y/`와 세션 스크래치패드에 산출 코드가 살아 있는 것**을 봤습니다.
+
+## 무엇을 안 봤나
+
+| 위치 | 내용 |
+|---|---|
+| `.cache/bt5y/*.py` | **7개** — `cmp_exit.py` · `analyze.py` · `analyze2.py` · `verify307.py` · `verify_drag.py` · `regime_long.py` · `nasdaq_test.py` |
+| 세션 스크래치패드 | **6개 폴더가 살아 있고 `.py` 562개** (`aff259ca` 46 · `c9b9862c` 453 · `6169d0c4` 36 · `990b6503` 12 · `f3bf3bbc` 15) |
+
+위 감사 본문에 *"과거 세션의 스크래치패드는 이미 정리되었을 수 있고, 나는 그것을 열어 보지 않았다"*고 적었는데,
+**정리되지 않았고, 열어 보지 않은 것은 사실이며, 열어 보니 코드가 있었습니다.**
+
+## 확인된 정정 두 건
+
+### ⑤ `winner-characteristics` — **`cmp_exit.py`는 있습니다**
+위에서 *"`cmp_exit.py`는 `scripts/`·`scripts/_*`에 **없다**"*고 적었습니다.
+**있습니다** — `.cache/bt5y/cmp_exit.py` (3,154바이트 · **git 미추적**).
+머리말: *"청산 규칙 비교 — 슬롯5 자산곡선으로 판정(거래당 수익률로 판정 금지: 사전등록)"*.
+
+**단, 감사한 주장의 산출 코드는 아닙니다** — 파일 안에 `rs`·`pace`·`RS` 문자열이 **0회**입니다.
+→ **출처 `코드 없음`(RS 판별자·903레코드에 대해)은 유지되나, "파일이 없다"는 서술은 틀렸습니다.**
+
+### ② `actionable-leading-discriminators` — **`코드 없음`은 틀렸습니다**
+산출 코드가 있습니다:
+`…/aff259ca-1adc-48bc-b0c7-37693e4ef158/scratchpad/build_events.py`
+머리말: *"Actionable+leading-sector cohort: events, entries, outcomes, discriminators."*
+(같은 폴더에 `aggregate.py`·`adversarial_verify.py`·`verify_stats.py`·`finalize.py` 등 46개)
+
+**그리고 이제 룩어헤드를 추론이 아니라 코드로 확인했습니다** (`build_events.py:124-129`):
+
+```python
+relvol = None
+if entry_i >= 10:
+    w = v[max(0, entry_i - 50):entry_i]
+    m = mean(w) if w else None
+    if m and m > 0:
+        relvol = v[entry_i] / m
+```
+
+필드명 **`relvol_entry`** · **`v[entry_i]` = 진입일 자신의 종일 거래량 ÷ 직전 50일 평균**.
+**`rel_volume(series, ni)`·`rel_vol_entry_LOOKAHEAD_DO_NOT_FILTER`와 구조가 같습니다.**
+
+| ② 두 축 | 정정 전 | **정정 후** |
+|---|---|---|
+| 출처 | `코드 없음` | **`재현 미실행`** (코드 존재 · 저장소 밖 · git 미추적) |
+| 건전성 | `룩어헤드`(본문에서 추론) | **`룩어헤드`(코드에서 확인)** |
+
+## 아직 정정하지 못한 것
+
+**나머지 `코드 없음` 6행(①④⑥⑧⑨⑩⑪)과 `하드코딩·비계산` 1행(⑫)은 다시 보지 않았습니다.**
+다만 주제어 검색에서 **관련 파일이 존재하는 것**까지는 봤습니다:
+
+| 주장 | 스크래치패드에서 걸린 파일(일부) |
+|---|---|
+| ⑥ 정산표 | `c9b9862c :: cf.py · cf2.py · cf3.py · classify.py` · `aff259ca :: verify_stats.py` |
+| ⑦ 통과행렬 | `aff259ca :: build_passmatrix.py · av_load.py · av_matrix_check.py · finalize_newcomer.py` |
+| ⑧ 바닥 | `c9b9862c :: pattern_test.py · price_test.py · regime_test.py · turnover_sameday.py` |
+| ⑫ 유동성 | `c9b9862c :: _liq.py` |
+| ⑩ IPO | `990b6503 :: repro_edges.py` |
+
+**이것들이 그 숫자를 내는 코드인지는 확인하지 않았습니다.** 파일이 걸렸다는 사실까지입니다.
+
+## 이 정정이 위 판정표에 미치는 범위
+
+- **`코드 없음` 8행은 "저장소 안에 없다"까지만 유효합니다.** "존재하지 않는다"로 읽으면 안 됩니다.
+- **② 한 행은 명백히 틀렸고 위에서 고쳤습니다.**
+- **⑤의 파일 부재 서술이 틀렸고 위에서 고쳤습니다**(주장에 대한 출처 판정은 유지).
+- **21번 전체를 다시 돌리려면 스크래치패드 562개를 범위에 넣어야 합니다.** 이번에는 하지 않았습니다.
+
+> ⚠️ **스크래치패드는 세션별 임시 폴더이고 `.cache`는 한 번 사고로 지워진 적이 있습니다**
+> (메모리 `cache-loss-and-backup`). **여기 있는 산출 코드는 백업 대상이 아닙니다.**
