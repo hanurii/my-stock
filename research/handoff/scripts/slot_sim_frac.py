@@ -161,6 +161,9 @@ def band(trades, n_runs: int = 200, seed0: int = 0, **kw):
             "n_filled": st.median([r["n_filled"] for r in rs]),
             "win_rate": st.median([r["win_rate"] for r in rs]),
             "money_win_rate": st.median([r["money_win_rate"] for r in rs]),
+            "arith": st.median([r["arith_pct"] for r in rs]),
+            "filled_per_trade": st.median([r["filled_per_trade"] for r in rs]),
+            "nom_w_mean": st.median([r["nom_w_mean"] for r in rs]),
             "exposure_max": max(r["exposure_max"] for r in rs)}
 
 
