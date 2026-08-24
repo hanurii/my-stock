@@ -122,8 +122,45 @@ def beat(state: str, extra: str = "") -> None:
         pass
 
 
+def sepa_alive():
+    """🚨 **«무엇에» 양보하는지 기록한다.**
+
+    2026-08-24 21:51 에 이 감시기가 처음 발동했는데, **SEPA 는 21:30 에 이미 끝나 있었다.**
+    압박은 claude 세션 셋(1.5GB)이 서로를 밀어낸 것이었다.
+    **끊은 판단은 옳았지만(0.486GB) 「양보한다」는 «이유»는 그 순간 성립하지 않았다.**
+    상대가 없는데 「양보」라고만 적으면 **다음 사람이 「SEPA 가 무거웠구나」로 잘못 읽는다.**
+    """
+    try:
+        for _pid, cl in procs():
+            if any(k in cl for k in ("ohlcv_matrix", "screen_canslim", "canslim_lib")):
+                return True, cl[:70]
+    except Exception:
+        pass
+    return False, ""
+
+
+def top_mem(k=3):
+    ps = ("Get-Process | Sort-Object WorkingSet64 -Descending | Select-Object -First %d "
+          "ProcessName,@{n='MB';e={[math]::Round($_.WorkingSet64/1MB)}} "
+          "| ConvertTo-Json -Compress" % k)
+    try:
+        r = subprocess.run(["powershell", "-NoProfile", "-Command", ps],
+                           capture_output=True, text=True, timeout=30)
+        d = json.loads(r.stdout or "[]")
+        if isinstance(d, dict):
+            d = [d]
+        return " · ".join("%s %dMB" % (x["ProcessName"], x["MB"]) for x in d)
+    except Exception:
+        return "확인 불가"
+
+
 def yield_now(g: float, t) -> None:
-    print("\n🚨 **양보한다** — 여유 %.3f GB < %.2f GB" % (g, FLOOR_GB), flush=True)
+    sepa, scl = sepa_alive()
+    top = top_mem(3)
+    print("\n🚨 **끊는다** — 여유 %.3f GB < %.2f GB" % (g, FLOOR_GB), flush=True)
+    print("   상대: %s" % (("**SEPA 살아 있음** — " + scl) if sepa
+                          else "**SEPA 없음 — 다른 압박이다**"), flush=True)
+    print("   상위 점유: %s" % top, flush=True)
     for pid, cl in t:
         subprocess.run(["taskkill", "/PID", str(pid), "/T", "/F"], capture_output=True)
         print("   죽임 %s · %s" % (pid, cl[:90]), flush=True)
@@ -131,9 +168,12 @@ def yield_now(g: float, t) -> None:
     bad = clean_partial()
     done = sorted(f.stem for f in SUB.glob("uspath_*.json"))
     MARK.write_text(
-        "양보 시각: %s\n여유: %.3f GB\n지운 잘린 파일: %s\n남은 경로: %d개 %s\n"
+        "끊은 시각: %s\n여유: %.3f GB\n상대: %s\n상위 점유: %s\n"
+        "지운 잘린 파일: %s\n남은 경로: %d개 %s\n"
         "재개: bash research/handoff/scripts/_us_paths_run.sh (skip 이 이어받는다)\n"
-        % (time.strftime("%Y-%m-%d %H:%M:%S"), g, bad or "없음", len(done), done),
+        % (time.strftime("%Y-%m-%d %H:%M:%S"), g,
+           ("SEPA 살아 있음: " + scl) if sepa else "SEPA 없음 — 다른 압박",
+           top, bad or "없음", len(done), done),
         encoding="utf-8")
     print("   잘린 파일 지움: %s" % (bad or "없음"), flush=True)
     print("   남은 경로 %d개: %s" % (len(done), done), flush=True)

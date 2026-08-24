@@ -25,6 +25,8 @@ from bisect import bisect_right
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
+import pathsink            # 🚨 경로를 메모리에 안 쌓고 디스크로 흘린다
+
 try:
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 except Exception:
@@ -325,7 +327,11 @@ def run(start: str, end: str, step: int) -> dict:
     print(f"스캔일 {len(scan_dates)}개 ({scan_dates[0]}~{scan_dates[-1]}, step {step})", flush=True)
 
     events, per_date = [], []
-    trig_paths = []            # 방아쇠 전수 경로(38번) — `open_until` 에 막힌 것도 포함
+    # 🚨 **경로를 메모리에 쌓지 않는다** (2026-08-24) — 기계가 실제로 찼다.
+    #    peak 2.09GB 인데 여유 1.75GB 였다. 사양(`PATH_DAYS`)은 «안» 바꾸고
+    #    쌓는 자리만 디스크로 옮긴다. 시세 행렬(~1.5GB)은 못 줄이므로 그 위 몫만 사라진다.
+    trig_paths = pathsink.PathSink(EMIT_PATHS) if EMIT_PATHS is not None else None
+    n_trig = 0
     tie_events = []            # 관문만 팔의 «동점» 그림자 거래 (진입 아님 · 영향 상한 계산용)
     open_until: dict[str, str] = {}
     n_skip_overlap = n_skip_halt = n_skip_liq = 0
@@ -386,6 +392,7 @@ def run(start: str, end: str, step: int) -> dict:
                     _o = (s.get("opens") or [None] * len(s["dates"]))[ni]
                     _epx = entry_price(pivot, _o)
                     _e = min(ni + PATH_DAYS, len(s["dates"]))
+                    n_trig += 1
                     trig_paths.append({
                         "code": c, "pattern": pname, "scan_date": D,
                         "entry_date": s["dates"][ni],
@@ -466,6 +473,8 @@ def run(start: str, end: str, step: int) -> dict:
                             if ARM == "gate" else {})})
         print(f"  {D}: 평가 {len(stD)} · 후보 {n_cand} · 진입 {n_ent} (누적 {len(events)})", flush=True)
 
+    if trig_paths is not None:
+        trig_paths.close()   # 🚨 버퍼를 비운다 — 안 닫으면 마지막 줄이 잘린다
     return {
         "generated_at": datetime.now(KST).strftime("%Y-%m-%d %H:%M"),
         "params": {
@@ -497,7 +506,7 @@ def run(start: str, end: str, step: int) -> dict:
         "by_price": group_win_rate(events, "price_bucket"),
         "per_date": per_date,
         "events": events,
-        **({"trigger_paths": trig_paths} if EMIT_PATHS is not None else {}),
+        **({"n_trigger_paths": n_trig} if EMIT_PATHS is not None else {}),
         # 관문만 팔의 «동점» 그림자 거래. **진입이 아니다** — 영향 상한 Δ 계산 전용.
         **({"tie_events": tie_events} if ARM == "gate" else {}),
     }
@@ -556,6 +565,9 @@ def main():
     res["params"]["arm"] = ARM
     res["params"]["gate_tie"] = GATE_TIE
     Path(a.out).write_text(json.dumps(res, ensure_ascii=False, indent=1), encoding="utf-8")
+    if EMIT_PATHS is not None:
+        _n = pathsink.merge_paths(a.out)
+        print("경로 %d개를 스트리밍으로 이어 붙였다 (메모리에 안 쌓았다)" % _n, flush=True)
     s = res["summary"]
     print(f"\n💾 저장: {a.out}")
     print(f"거래 {s['n']}건 · 승 {s['win']} 패 {s['loss']} 예외 {s['ambiguous']} 미결 {s['unresolved']}")
