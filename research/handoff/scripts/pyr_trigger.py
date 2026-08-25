@@ -57,6 +57,22 @@
    그 경로는 더 이상 증액하지 않는다(더 낮은 자리에서 다시 무장하지 않는다).
    §3 ③ 「그 뒤 고가 ≥ L 인 첫날」의 문자 그대로다.
 
+방아쇠 정의의 손잡이 둘 (검증 세션 지적 · 두뇌 세션 개정 3 · 2026-08-25)
+------------------------------------------------------------------------
+```
+h_lag=False   ← 기본. H 를 «오늘 고가까지» 갱신한 뒤 오늘 저가를 잰다
+h_lag=True       H 를 «어제까지»의 최고 고가로 잠근다 (오늘 고가를 넣고 오늘 저가를 재지 않는다)
+stay_on="low" ← 기본. 「머물다」를 «저가»로 잰다
+stay_on="close"  「머물다」를 «종가»로 잰다
+```
+🚨 **기본값은 지금 동작 그대로다.** `h_lag=False, stay_on="low"` 에서 관문 0·A·B·C·D 와
+   74t·74u 가 **전부 그대로 재현된다**(자기 점검이 그 재현을 찍는다).
+
+⚠️ **`stay_on` 의 적용 범위 — 사양이 정하지 않은 곳.** §3 ②는 「저가가 아래로 «내려가고»,
+   그 아래에서 «머물면»」이라 «내려감»과 «머묾»이 두 문장인데, 이 구현은 **연속 일수를 세는
+   그 한 판정이 곧 「머물다」**다. 그래서 `stay_on="close"` 면 **세는 날 전부를 종가로** 잰다
+   (첫날만 저가, 이후 종가로 나누지 않았다). 다른 뜻이면 한 줄 고치면 된다.
+
 ⚠️ **무장한 그날은 방아쇠가 나지 않는다** — §3 ③ 「그 뒤」. 같은 봉에서 잠그고
    같은 봉에서 재돌파하면 늘 참이 되므로(L = 그날 H ≤ 그날 고가) 자명하게 참이 되는
    방아쇠가 된다.
@@ -164,10 +180,13 @@ def _phase2(p, i, a, half, trail, ft, fs, epx, lots, sched, stop, tpx):
 
 def resolve_one(path, mask, *, ft="limit", fs="market", stop=8.0, target=20.0,
                 half=0.5, trail=25, shares=(0.5, 0.5), atr_n=14, atr_k=1.0,
-                min_days=2, add_stop="floor_entry", atr=None):
+                min_days=2, add_stop="floor_entry", h_lag=False, stay_on="low",
+                atr=None):
     """매수 조합 하나(`mask`)에 대해 경로를 푼다. 반환 형식은 `resolve_all_masks` 참조."""
     if add_stop not in ("floor_entry", "avg"):
         raise ValueError("add_stop 은 'floor_entry' 또는 'avg' 여야 한다: %r" % (add_stop,))
+    if stay_on not in ("low", "close"):
+        raise ValueError("stay_on 은 'low' 또는 'close' 여야 한다: %r" % (stay_on,))
     if len(mask) != len(shares) - 1:
         raise ValueError("mask 길이 %d ≠ shares 길이−1 (%d)" % (len(mask), len(shares) - 1))
     p = path
@@ -206,17 +225,20 @@ def resolve_one(path, mask, *, ft="limit", fs="market", stop=8.0, target=20.0,
                     H = h[i]
                     below, L, armed_at = 0, None, -1
             else:
-                # ① H 갱신 (그날 포함)
-                if h[i] is not None:
+                # ① H 갱신 — `h_lag=False` 면 «그날 포함», True 면 «어제까지»
+                if not h_lag and h[i] is not None:
                     H = h[i] if H is None else max(H, h[i])
-                # ② 눌림 세기
+                # ② 눌림 세기 — `stay_on` 이 「머물다」를 재는 계열을 고른다
                 a_i = atr[i]
-                if H is not None and a_i is not None and l[i] is not None:
-                    below = below + 1 if l[i] < H - atr_k * a_i else 0
+                v = l[i] if stay_on == "low" else c[i]
+                if H is not None and a_i is not None and v is not None:
+                    below = below + 1 if v < H - atr_k * a_i else 0
                 else:
                     below = 0
                 if below >= min_days:
                     L, armed_at = H, i
+                if h_lag and h[i] is not None:
+                    H = h[i] if H is None else max(H, h[i])
 
         # ── 청산 ───────────────────────────────────────────────────────
         a = avg()
@@ -251,7 +273,7 @@ def resolve_all_masks(path, *, ft="limit", fs="market",
                       stop=8.0, target=20.0, half=0.5, trail=25,
                       shares=(0.5, 0.5),
                       atr_n=14, atr_k=1.0, min_days=2,
-                      add_stop="floor_entry"):
+                      add_stop="floor_entry", h_lag=False, stay_on="low"):
     """경로 하나를 «가능한 모든 매수 조합»에 대해 미리 풀어 둔다.
 
     반환: {mask: resolved}
@@ -278,7 +300,7 @@ def resolve_all_masks(path, *, ft="limit", fs="market",
         out[mask] = resolve_one(path, mask, ft=ft, fs=fs, stop=stop, target=target,
                                 half=half, trail=trail, shares=shares, atr_n=atr_n,
                                 atr_k=atr_k, min_days=min_days, add_stop=add_stop,
-                                atr=atr)
+                                h_lag=h_lag, stay_on=stay_on, atr=atr)
     return out
 
 
@@ -384,6 +406,9 @@ def main() -> int:
     #    (두뇌 세션 2026-08-25: 첫 관문은 막힘이 0이라 재해결 경로가 한 번도 안 돌았다)
     n_blocked_exercised = 0
     k_seen = set()
+    # H′ — 방아쇠 정의를 고친 판. **관문 D 만** 다시 찍는다(기본값 판정에는 안 쓴다)
+    HP = dict(h_lag=True, stay_on="close")
+    Dp = {"두 단": [0, 0, {}], "세 단": [0, 0, {}]}
     D3_tot = D3_none = 0
     n_sched_by_mask_differs = 0
     add_hist, add_hist3 = {}, {}
@@ -451,7 +476,15 @@ def main() -> int:
                         k_seen.add(x[3])
                 if len(scheds) > 1:
                     n_sched_by_mask_differs += 1
-                full = got[tuple([True] * (len(shares) - 1))]
+                fullmask = tuple([True] * (len(shares) - 1))
+                gp = resolve_all_masks(p, shares=shares, **HP)[fullmask]
+                sl = Dp["두 단" if is_head else "세 단"]
+                sl[0] += 1
+                if not gp["sched"]:
+                    sl[1] += 1
+                nadd = len(gp["lots"]) - 1
+                sl[2][nadd] = sl[2].get(nadd, 0) + 1
+                full = got[fullmask]
                 if is_head:
                     D_tot += 1
                     if not full["sched"]:
@@ -512,6 +545,20 @@ def main() -> int:
         print("   🚨 **90%% 초과 — 눌림 조건이 빡빡하다. 값은 바꾸지 않고 «보고»만 한다.**",
               flush=True)
 
+    print("", flush=True)
+    print("관문 D′  방아쇠 정의를 고친 판 (h_lag=True · stay_on=\"close\") — **관문 D 만** 다시",
+          flush=True)
+    print("        🚨 기본값 판정에는 안 쓴다. 위 관문들은 전부 기본값(h_lag=False·stay_on=\"low\")",
+          flush=True)
+    for lab in ("두 단", "세 단"):
+        tot, none, hist = Dp[lab]
+        base = D_none if lab == "두 단" else D3_none
+        print("   %s  방아쇠 안 남 %6d / %6d = **%.1f%%**  (기본값 %.1f%% → **%+.1f%%p**)"
+              % (lab, none, tot, 100 * none / max(1, tot), 100 * base / max(1, tot),
+                 100 * (none - base) / max(1, tot)), flush=True)
+        print("        증액 횟수 분포: %s"
+              % " · ".join("%d회 %d건(%.1f%%)" % (k, v, 100 * v / max(1, tot))
+                           for k, v in sorted(hist.items())), flush=True)
     print("", flush=True)
     print("점검  «막힌 트랜치»가 실제로 나온 해결 = **%d**건 (0 이면 그 갈래는 한 번도 안 돌았다)"
           % n_blocked_exercised, flush=True)
