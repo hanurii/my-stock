@@ -1407,7 +1407,164 @@ def stage2d() -> int:
     return 0
 
 
+
+
+def _paths_now():
+    by, miss = r41.v39.load_paths()
+    if miss:
+        raise SystemExit("uspath_%d.json 이 없다" % miss)
+    pack = json.loads((OUT / "61-monthly-us.json").read_text(encoding="utf-8"))
+    monthly, sector = pack["monthly"], pack["sector"]
+    months = sorted({y for dd in monthly.values() for y in dd if y >= "2016-12"})
+    mret = r61b.month_returns(monthly, sector, months)
+    top, pctm = r61b.make_flags(mret, sector)
+
+    def keep(q):
+        sn = sector.get(q["code"])
+        if sn:
+            tp = top.get(r61.prev_ym(q["scan_date"][:7], 1))
+            if tp is not None and sn not in tp:
+                return False
+        v = pctm.get(r61.prev_ym(q["scan_date"][:7], 1), {}).get(q["code"])
+        return (v is None) or (0.10 <= v < 0.30)
+
+    return {y: [q for q in ps if keep(q)] for y, ps in by.items()}
+
+
+def _mk_trades(by2, shares, **kw):
+    """pyr_trigger 로 masks 를 만들되 `open_until` 규약은 73/74 와 같게."""
+    import pyr_trigger as pt
+    out = []
+    for y in sorted(by2):
+        ou = {}
+        for q in by2[y]:
+            cd = q["code"]
+            if cd in ou and q["entry_date"] <= ou[cd]:
+                continue
+            got = pt.resolve_all_masks(q, shares=shares, **kw)
+            full = tuple([True] * (len(shares) - 1))
+            r0 = got[full]
+            ou[cd] = r0["resolve_date"] or q["entry_date"]
+            out.append({"code": q["code"], "scan_date": q["scan_date"],
+                        "pattern": q["pattern"], "entry_date": q["entry_date"],
+                        "entry_px": q["entry_price"], "stop_frac": 0.08,
+                        "shares": tuple(shares),
+                        "masks": {m: {"lots": r["lots"], "sched": r["sched"],
+                                      "exits": r["exits"],
+                                      "resolve_date": r["resolve_date"],
+                                      "result": r["result"]}
+                                  for m, r in got.items()}})
+    return out
+
+
+def stage5() -> int:
+    """④′ (fill_log 로 «밖에서») + 「12판과 200판이 왜 다른가」."""
+    import slot_sim_lots as sl
+    if r41.YEARS[0] != 2017:
+        return 2
+    by2 = _paths_now()
+    H2 = dict(add_stop="floor_entry")
+    HP = dict(add_stop="floor_entry", h_lag=True, stay_on="close")
+    HPA = dict(add_stop="avg", h_lag=True, stay_on="close")
+    print("=" * 92)
+    print("74v 5 - 관문 4' (fill_log) + 12판 vs 200판")
+    print("=" * 92)
+
+    tv = {"P0": _mk_trades(by2, (1.0,)),
+          "H": _mk_trades(by2, (0.5, 0.5), **H2),
+          "H'": _mk_trades(by2, (0.5, 0.5), **HP),
+          "H'-avgstop": _mk_trades(by2, (0.5, 0.5), **HPA)}
+    for k, v in tv.items():
+        print("  %-12s 진입 후보 %d" % (k, len(v)), flush=True)
+
+    # ── 관문 ④′ — 예약함 판에서 «방아쇠 난 트랜치» == «실제로 산 트랜치» ──
+    print("", flush=True)
+    print("-- 관문 4' — 예약함 판: 방아쇠 난 트랜치 == 실제로 산 트랜치 --", flush=True)
+    for lab in ("H", "H'"):
+        tot_add = tot_blocked = tot_short = 0
+        n_runs = 10
+        with r41.Cost(*COST):
+            for s in range(n_runs):
+                r = sl.sim_lots(tv[lab], risk=RISK, cap=CAP, seed=s, slots=5,
+                                reserve=True, fill_rule="truncate",
+                                cash_rule="per_slot")
+                for key, kind, k, d, px, wgt, target in r["fill_log"]:
+                    if kind == "blocked":
+                        tot_blocked += 1
+                    elif kind == "add":
+                        tot_add += 1
+                        want = target * tv[lab][0]["shares"][k + 1]
+                        if wgt < want - 1e-12:
+                            tot_short += 1
+        print("  %-12s 10판 합 — 증액 %d회 · blocked %d회 · **몫이 모자란 증액 %d회** -> %s"
+              % (lab, tot_add, tot_blocked, tot_short,
+                 "통과" if (tot_blocked == 0 and tot_short == 0) else "미통과"),
+              flush=True)
+    # 분해능 — 예약을 «끄면» 이 관문이 깨지는가
+    with r41.Cost(*COST):
+        rr = sl.sim_lots(tv["H"], risk=RISK, cap=CAP, seed=0, slots=5,
+                         reserve=False, fill_rule="truncate", cash_rule="per_slot")
+    nb = sum(1 for x in rr["fill_log"] if x[1] == "blocked")
+    print("  분해능 — 예약을 끄면 blocked 가 %d회 찍힌다 (0 이면 관문 4' 도 무디다)"
+          % nb, flush=True)
+
+    # ── 12판 vs 200판 ────────────────────────────────────────────────────
+    print("", flush=True)
+    print("-- 12판과 200판이 왜 다른가 (같은 200판 벡터에서 앞 12판을 떼어 본다) --",
+          flush=True)
+    N = 200
+    eqs = {}
+    for lab in ("P0", "H'-avgstop", "H", "H'"):
+        rsv = (lab != "P0")
+        with r41.Cost(*COST):
+            eqs[lab] = [sl.sim_lots(tv[lab], risk=RISK, cap=CAP, seed=s, slots=5,
+                                    reserve=rsv, fill_rule="truncate",
+                                    cash_rule="per_slot")["equity_pct"]
+                        for s in range(N)]
+        v = sorted(eqs[lab])
+        print("  %-12s 200판 중앙 %+9.2f%% · P5 %+9.2f%% · P95 %+9.2f%% · "
+              "앞12판 중앙 %+9.2f%%"
+              % (lab, st.median(eqs[lab]), v[int(N * .05)], v[int(N * .95)],
+                 st.median(eqs[lab][:12])), flush=True)
+
+    a, b = eqs["H'-avgstop"], eqs["P0"]
+    d200 = st.median(a) - st.median(b)
+    d12 = st.median(a[:12]) - st.median(b[:12])
+    print("", flush=True)
+    print("  H'-avgstop − P0 :  앞12판 %+.2f%%p   vs   200판 %+.2f%%p"
+          % (d12, d200), flush=True)
+    # 12판을 «무작위로» 골랐다면 얼마나 자주 이겼을까 — 순수한 뽑기 잡음
+    import random as _rnd
+    rg = _rnd.Random(410824)
+    idx = list(range(N))
+    wins, draws = 0, 4000
+    diffs = []
+    for _ in range(draws):
+        pick = rg.sample(idx, 12)
+        dd = st.median([a[i] for i in pick]) - st.median([b[i] for i in pick])
+        diffs.append(dd)
+        wins += dd > 0
+    diffs.sort()
+    print("  🔎 같은 200판에서 12판을 무작위로 뽑으면 — 이기는 비율 **%.1f%%** · "
+          "차 중앙 %+.2f%%p · 2.5%% %+.2f · 97.5%% %+.2f"
+          % (100.0 * wins / draws, diffs[draws // 2], diffs[int(draws * .025)],
+             diffs[int(draws * .975)]), flush=True)
+    print("  -> 12판 표는 «다른 결론»이 아니라 «같은 분포에서 뽑은 한 번»이다.", flush=True)
+
+    # 짝비교(같은 seed) — 뽑기 잡음을 없애면 무엇이 남나
+    pair = [x - y for x, y in zip(a, b)]
+    pair.sort()
+    print("", flush=True)
+    print("  같은 seed 짝비교 H'-avgstop − P0 : 중앙 %+.2f%%p · 음수 %d/%d판 · "
+          "P5 %+.2f · P95 %+.2f"
+          % (st.median(pair), sum(1 for x in pair if x < 0), N,
+             pair[int(N * .05)], pair[int(N * .95)]), flush=True)
+    return 0
+
+
 if __name__ == "__main__":
+    if "--stage5" in sys.argv:
+        raise SystemExit(stage5())
     if "--stage2d" in sys.argv:
         raise SystemExit(stage2d())
     if "--stage3c" in sys.argv:
