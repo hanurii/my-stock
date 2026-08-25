@@ -410,5 +410,166 @@ def main() -> int:
     return 0
 
 
+# ═════════════════════════════════════════════════════════════════════════
+# 단계 ② — 「새 고가 눌림 후 재돌파」 방아쇠, **사양서 §3 만 보고** 짰다
+# ═════════════════════════════════════════════════════════════════════════
+# 🚨 조사 세션의 `pyr_trigger.py` 를 «보기 전»에 쓴다.
+#
+# 사양서 §3 이 정하지 «않은» 것 — 내가 고른 해석을 여기 적는다.
+#   (가) TR 은 첫 봉에서 전일 종가가 없다 → `h−l` 로 둔다.
+#        ATR = 최근 min(14, 쌓인 봉) 의 평균. **3봉 미만이면 눌림 판정 보류**(§3 명시).
+#   (나) H 를 «오늘 고가까지» 갱신한 뒤 오늘 저가를 잰다(문장 순서 그대로).
+#        대안(어제까지의 H 로 잰다)도 같이 세어 «몇 건이 갈리는지» 찍는다.
+#   (다) 「아래로 내려가고」 = 엄격히 `<`.
+#   (라) 「2거래일 이상 머물면」 = **연속 2일** 모두 저가가 선 아래.
+#        선은 그날의 ATR 로 매일 다시 잰다(H 는 달리는 최대).
+#   (마) 잠그는 L = **확정된 날의 달리는 H**.
+#   (바) 「그 뒤」 = 확정일 **다음 날부터** 고가 ≥ L 을 찾는다.
+#   (사) 증액 뒤에는 눌림 상태를 «지우고» 다시 찾는다(H 는 계속 달린다).
+#   (아) ④ 목표는 **진입가 × 1.20**. 평균단가로 잡으면 방아쇠가 트랜치에 의존해
+#        «순환»한다(§2 가 순환 없음을 규약으로 못박았다). **더 «이른» 날에 닿았으면 막는다**
+#        — 같은 날은 막지 않는다(그 날 L 은 목표선보다 아래다).
+#   (자) ⑤ 250봉 = 인덱스 `i < 250`.
+
+ATR_N = 14
+
+
+def my_atr(p, cap=None):
+    """경로 봉만으로 ATR. 어느 시점에서도 «그날까지»만 쓴다(룩어헤드 아님)."""
+    h, l, c = p["h"], p["l"], p["c"]
+    n = len(h) if cap is None else min(len(h), cap)
+    tr, out = [], []
+    for i in range(n):
+        if h[i] is None or l[i] is None:
+            tr.append(None)
+            out.append(None)
+            continue
+        t = h[i] - l[i]
+        if i > 0 and c[i - 1] is not None:
+            t = max(t, abs(h[i] - c[i - 1]), abs(l[i] - c[i - 1]))
+        tr.append(t)
+        w = [x for x in tr[max(0, i - ATR_N + 1):i + 1] if x is not None]
+        out.append(sum(w) / len(w) if len(w) >= 3 else None)
+    return out
+
+
+def my_trigger(p, n_adds, atr_mult=1.0, dwell=2, cap_bars=250, h_incl_today=True,
+               dwell_on="low"):
+    """사양서 §3 의 「새 고가 눌림 후 재돌파」. 반환 [(날짜, 체결가, 인덱스), ...]"""
+    h, l, d, c = p["h"], p["l"], p["d"], p["c"]
+    o = p.get("o") or [None] * len(d)
+    epx = p["entry_price"]
+    tgt = epx * 1.20
+    atr = my_atr(p, cap_bars)
+    n = min(len(d), cap_bars)
+    H = None
+    run = 0                 # 선 아래 연속 일수
+    lock = None             # 잠근 방아쇠 선 L
+    hit_target_before = False
+    out = []
+    for i in range(n):
+        hi, lo = h[i], l[i]
+        H_prev = H
+        if hi is not None:
+            H = hi if H is None else max(H, hi)
+        base = H if h_incl_today else H_prev
+
+        # ③ 재돌파 — 잠긴 선이 있고 «확정일 다음 날부터»
+        if lock is not None and hi is not None and hi >= lock["L"] and i > lock["i"]:
+            if not hit_target_before and len(out) < n_adds:
+                px = lock["L"] if o[i] is None else max(lock["L"], o[i])
+                out.append((d[i], px, i))
+                lock = None
+                run = 0
+            else:
+                lock = None
+                run = 0
+
+        # ② 눌림 — 저가가 base − ATR 아래에서 연속 dwell 일
+        probe = lo if dwell_on == "low" else c[i]
+        if base is not None and probe is not None and atr[i] is not None:
+            if probe < base - atr_mult * atr[i]:
+                run += 1
+                if run >= dwell and lock is None:
+                    lock = {"L": base, "i": i}
+            else:
+                run = 0
+        else:
+            run = 0
+
+        # ④ 목표에 닿았는가 — «다음 날부터» 막는다
+        if hi is not None and hi >= tgt:
+            hit_target_before = True
+        if len(out) >= n_adds:
+            break
+    return out
+
+
+def stage2() -> int:
+    """방아쇠를 내 방식으로 구현해 «후보 증액»을 통째로 내보낸다.
+    조사 세션 `pyr_trigger.py` 가 커밋되면 이 파일과 대조한다."""
+    if r41.YEARS[0] != 2017:
+        print("🚨 BT_Y0=2017 로 실행해야 한다 (지금 %d)" % r41.YEARS[0])
+        return 2
+    by, miss = r41.v39.load_paths()
+    if miss:
+        print("🚨 uspath_%d.json 이 없다" % miss)
+        return 2
+    pack = json.loads((OUT / "61-monthly-us.json").read_text(encoding="utf-8"))
+    monthly, sector = pack["monthly"], pack["sector"]
+    months = sorted({y for d in monthly.values() for y in d if y >= "2016-12"})
+    mret = r61b.month_returns(monthly, sector, months)
+    top, pctm = r61b.make_flags(mret, sector)
+
+    def keep_path(p):
+        sn = sector.get(p["code"])
+        if sn:
+            tp = top.get(r61.prev_ym(p["scan_date"][:7], 1))
+            if tp is not None and sn not in tp:
+                return False
+        v = pctm.get(r61.prev_ym(p["scan_date"][:7], 1), {}).get(p["code"])
+        return (v is None) or (0.10 <= v < 0.30)
+
+    paths = [p for y in sorted(by) for p in by[y] if keep_path(p)]
+    print("=" * 92)
+    print("74v ② — 「새 고가 눌림 후 재돌파」 독립 구현 (사양서 §3 만 보고)")
+    print("=" * 92)
+    print("경로 %d" % len(paths), flush=True)
+
+    dump = {}
+    for lab, nad, mult in (("H 1/2→1/2", 1, 1.0), ("T 1/3×3", 2, 1.0),
+                           ("민감도 0.5ATR", 1, 0.5), ("민감도 1.5ATR", 1, 1.5)):
+        n_any = n_full = 0
+        first_i, diff_alt, diff_cls = [], 0, 0
+        rows = {}
+        for p in paths:
+            a = my_trigger(p, nad, atr_mult=mult)
+            b = my_trigger(p, nad, atr_mult=mult, h_incl_today=False)
+            cc = my_trigger(p, nad, atr_mult=mult, dwell_on="close")
+            key = lambda z: [(x[0], round(x[1], 6)) for x in z]
+            if key(a) != key(b):
+                diff_alt += 1
+            if key(a) != key(cc):
+                diff_cls += 1
+            if a:
+                n_any += 1
+                first_i.append(a[0][2])
+            if len(a) >= nad:
+                n_full += 1
+            rows["%s|%s|%s" % (p["scan_date"], p["code"], p["pattern"])] =                 [[x[0], x[1], 1.0 / (nad + 1)] for x in a]
+        print("  %-14s 증액 한 번 이상 %4d(%.1f%%) · 끝까지 %4d(%.1f%%) · "
+              "첫 증액 봉 중앙 %s · 갈림: H해석 %d(%.1f%%) · 머묾=종가 %d(%.1f%%)"
+              % (lab, n_any, 100.0 * n_any / len(paths), n_full,
+                 100.0 * n_full / len(paths),
+                 ("%d" % st.median(first_i)) if first_i else "—",
+                 diff_alt, 100.0 * diff_alt / len(paths),
+                 diff_cls, 100.0 * diff_cls / len(paths)), flush=True)
+        dump[lab] = rows
+    f = OUT / "74v-trigger.json"
+    f.write_text(json.dumps(dump, ensure_ascii=False), encoding="utf-8")
+    print("저장: %s" % f, flush=True)
+    return 0
+
+
 if __name__ == "__main__":
-    raise SystemExit(main())
+    raise SystemExit(stage2() if "--stage2" in sys.argv else main())
