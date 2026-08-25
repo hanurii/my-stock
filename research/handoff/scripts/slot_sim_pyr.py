@@ -28,7 +28,8 @@ from slot_sim import net, order_key      # noqa: F401
 
 
 def sim_pyr(trades, risk=0.0125, cap=0.25, seed=0, pilot=0.5,
-            use_cash=True, partial=False, size_scale=None, date_scale=None):
+            use_cash=True, partial=False, size_scale=None, date_scale=None,
+            max_positions=None, cash_rule="seq"):
     """점진적 노출. `pilot` = 처음 넣는 몫(1.0 이면 2회차와 같다).
 
     `size_scale(t, state)` 가 주어지면 목표 크기에 곱한다(3c 의 「연속 손실이면 절반」).
@@ -126,7 +127,13 @@ def sim_pyr(trades, risk=0.0125, cap=0.25, seed=0, pilot=0.5,
 
         # ── 새 진입 (파일럿) ─────────────────────────────────────────────
         if d in byday:
+            # 🚨 `slot_sim_size` 와 «같은» 칸/현금 규약을 쓴다 (2026-08-25 추가)
+            #    이게 없으면 5칸 20% 판을 재현하지 못한다 — 73번에서 관문이 깨졌다.
+            _free = (max_positions - len(held)) if max_positions else None
+            _share = (max(0.0, cash) / _free) if (cash_rule == "per_slot" and _free) else None
             for t in sorted(byday[d], key=lambda x: order_key(seed, x)):
+                if max_positions is not None and len(held) >= max_positions:
+                    break
                 sf_ = t.get("stop_frac") or 0.10
                 # 🚨 국면 상한(4c)은 «날짜»에 걸린다 — 스캔일 기준으로 넘겨받는다
                 # 🚨 국면 상한(4c)은 «날짜»에 걸린다 — 스캔일 기준으로 넘겨받는다
@@ -135,11 +142,12 @@ def sim_pyr(trades, risk=0.0125, cap=0.25, seed=0, pilot=0.5,
                 scale = _s1 * _s2
                 lim = min(eq * risk / sf_, eq * cap) * scale
                 w1 = lim * pilot
-                if use_cash and (not partial) and w1 > cash + 1e-12:
+                _avail = cash if _share is None else min(cash, _share)
+                if use_cash and (not partial) and w1 > _avail + 1e-12:
                     n_blocked_cash += 1
                     continue
                 if use_cash:
-                    w1 = min(w1, cash)
+                    w1 = min(w1, _avail)
                 if w1 <= 1e-12:
                     n_blocked_cash += 1
                     continue
