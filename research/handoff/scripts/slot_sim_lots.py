@@ -95,6 +95,7 @@ def sim_lots(trades, risk=0.02, cap=0.20, seed=0, slots=5,
     nomw, arith, fills = {}, [0.0], []
     n_blocked_cash = n_add_blocked = n_added = n_trunc = 0
     resv_frac = []            # 날짜별 «묶여서 놀고 있는» 비중
+    expo_frac = []            # 날짜별 «주식에 들어가 있는» 비중 (노출)
     idle_end = []             # 결착 때 끝내 안 쓴 예약금 (목표 대비 몫)
     # 🚨 «어느 거래가 자본을 얼마나 받았나» — 밖에서 감사할 수 있어야 한다.
     #    (2026-08-25 되살림: 관문 ④ 가 «실패할 수 없는» 관문이라 검증 세션이
@@ -166,6 +167,9 @@ def sim_lots(trades, risk=0.02, cap=0.20, seed=0, slots=5,
         cash = eq - open_w - resv_tot
         cash_floor = min(cash_floor, cash)
         resv_frac.append(resv_tot / eq if eq > 0 else 0.0)
+        # 🚨 «실제로 주식에 들어가 있는» 비중 — 노출을 맞춘 대조에 필요하다.
+        #    이게 없으면 「낙폭이 얕다」와 「그냥 덜 샀다」를 못 가른다.
+        expo_frac.append(open_w / eq if eq > 0 else 0.0)
 
         # ── 증액 ─────────────────────────────────────────────────────────
         for h in sorted(held.values(), key=lambda x: x["t"]["code"]):
@@ -259,6 +263,7 @@ def sim_lots(trades, risk=0.02, cap=0.20, seed=0, slots=5,
             "blocked_cash": n_blocked_cash, "truncated": n_trunc,
             "n_added": n_added, "n_add_blocked": n_add_blocked,
             # 예약의 «대가» — 이걸 안 찍으면 예약판이 공짜로 보인다
+            "expo_mean": (st.mean(expo_frac) * 100 if expo_frac else 0.0),
             "resv_frac_mean": (st.mean(resv_frac) * 100 if resv_frac else 0.0),
             "resv_frac_max": (max(resv_frac) * 100 if resv_frac else 0.0),
             "idle_end_n": len(idle_end),

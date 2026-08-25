@@ -182,9 +182,10 @@ def main() -> int:
           % ("변형", "진입", "체결", "자산중앙", "운나쁠때", "MDD", "승률",
              "거래당", "증액", "막힘", "묶인돈"), flush=True)
     print("  " + "─" * 98, flush=True)
-    res, curves = {}, {}
+    res, curves, evs = {}, {}, {}
     for nm, shares, reserve, add_stop, tkw, _note in VARIANTS:
         ev, blk, spread = replay_masks(by2, shares, add_stop, tkw)
+        evs[nm] = ev
         rs = run(ev, reserve, n_seed)
         eq = sorted(x["equity_pct"] for x in rs)
         res[nm] = {
@@ -196,6 +197,7 @@ def main() -> int:
             "n_added": st.median(x["n_added"] for x in rs),
             "n_add_blocked": st.median(x["n_add_blocked"] for x in rs),
             "resv": st.median(x["resv_frac_mean"] for x in rs),
+            "expo": st.median(x["expo_mean"] for x in rs),
             "per_trade": st.median(x["filled_per_trade"] for x in rs),
             "win": st.median(x["win_rate"] for x in rs),
             "truncated": st.median(x["truncated"] for x in rs)}
@@ -253,6 +255,14 @@ def main() -> int:
     for nm in ("H-avgstop", "H′-avgstop"):
         sws[nm] = da.sweep(curves[nm], curves["P0 한 번에"])
         print(da.fmt(sws[nm], "%s − P0" % nm), flush=True)
+    # ── ⭐ 「손절 바닥 축」 짝비교 — «같은 방아쇠끼리» 손절만 다르다 ──────────
+    #    §4 가 «미리 기대를 낮춰 적어 둔» 축이고, 두 방아쇠에서 «같은 방향»이면
+    #    「여덟 칸 중 최선」보다 다중비교에 훨씬 덜 취약하다(검증 세션 6d41912e).
+    print("\n  ⭐ 손절 바닥 축 (같은 방아쇠끼리 · 손절만 다르다) — 자료 축", flush=True)
+    for a, b in (("H-avgstop", "★ H 헤드라인"), ("H′-avgstop", "★′ H′ 고친방아쇠")):
+        k = "%s − %s" % (a, b)
+        sws[k] = da.sweep(curves[a], curves[b])
+        print(da.fmt(sws[k], k), flush=True)
     sw, sw2 = sws["★ H 헤드라인"], sws["H-avgstop"]
 
     # ── ★ 진짜 질문: 예약이 무엇을 했나 ─────────────────────────────────
@@ -274,6 +284,34 @@ def main() -> int:
     print("  🚨 증액은 정의상 진입가 «위»에서만 난다 → 트랜치 하나만 들어가도 손절선이 "
           "본전으로 점프한다. 이 칸은 «피라미딩»이 아니라 «손절선 점프»를 재고 있을 수 있다.",
           flush=True)
+
+    # ── ★ 노출 맞춘 대조 — 「낙폭이 얕다」 vs 「그냥 덜 샀다」 ────────────────
+    #    검증 세션 지적(2026-08-25): H′ 는 자본의 24% 를 묶어 두고 파일럿은 목표의
+    #    절반이다. **덜 넣으면 낙폭은 기계적으로 얕아진다.** 그러면 C 통과는
+    #    「피라미딩이 위험을 줄인다」와 구분되지 않는다.
+    #    🚨 «딱 맞는 한 칸»을 찾아 보고하면 그 칸을 고른 셈이 되므로 **곡선**으로 낸다.
+    print("\n" + "─" * 96, flush=True)
+    print("★ 노출 맞춘 대조 — P0 를 «작게» 사게 만들어 노출을 맞춘다 (부수 · 판정 아님)",
+          flush=True)
+    print("  %-18s %8s %11s %11s %8s" % ("판", "노출", "자산중앙", "운나쁠때", "MDD"),
+          flush=True)
+    small = {}
+    for c in (0.20, 0.16, 0.13, 0.10, 0.08):
+        with r41.Cost(*COST):
+            rs = [sl.sim_lots(evs["P0 한 번에"], seed=s, slots=SLOTS, risk=RISK,
+                              cap=c, reserve=False, fill_rule="truncate",
+                              cash_rule="per_slot") for s in range(n_seed)]
+        eq = sorted(x["equity_pct"] for x in rs)
+        small["P0 cap %.2f" % c] = {
+            "expo": st.median(x["expo_mean"] for x in rs), "equity": st.median(eq),
+            "p5": eq[int(n_seed * .05)], "mdd": st.median(x["mdd_pct"] for x in rs)}
+        v = small["P0 cap %.2f" % c]
+        print("  P0 · 크기 %.2f    %7.2f%% %+10.2f%% %+10.2f%% %7.1f%%"
+              % (c, v["expo"], v["equity"], v["p5"], v["mdd"]), flush=True)
+    for nm in ("★ H 헤드라인", "★′ H′ 고친방아쇠", "H′-avgstop"):
+        print("  %-16s %7.2f%% %+10.2f%% %+10.2f%% %7.1f%%   ← 이 곡선 «어디»에 놓이나"
+              % (nm, res[nm]["expo"], res[nm]["equity"], res[nm]["p5"],
+                 res[nm]["mdd"]), flush=True)
 
     (OUT / "74-pyramid-rebuilt.json").write_text(
         json.dumps({"res": res, "gate1": ok1, "n_seed": n_seed,
