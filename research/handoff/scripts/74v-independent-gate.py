@@ -571,5 +571,229 @@ def stage2() -> int:
     return 0
 
 
+# ═════════════════════════════════════════════════════════════════════════
+# 단계 ②-대조 — 내 해결자 vs 조사 세션 `pyr_trigger.resolve_all_masks`
+# ═════════════════════════════════════════════════════════════════════════
+# 🚨 **독립인 것은 «방아쇠»뿐이다.** 청산(−8% / +20% 절반 / 본전→25일 추격)은
+#    양쪽 다 `47-round3-pyramid.py::_phase2` 에서 왔다 — «공유 의존»이지 독립이 아니다.
+#    (두뇌 세션이 관문 A 에서 같은 지적을 했다.)
+# 내 해결자는 위 `my_trigger` 의 규약을 그대로 쓰되 청산과 얽히게 «하루씩» 푼다.
+
+def my_resolve(p, shares, atr_mult=1.0, dwell=2, cap_bars=None,
+               stop=8.0, target=20.0, half=0.5, trail=25,
+               add_stop="floor_entry", target_base="avg",
+               h_incl_today=True, dwell_on="low"):
+    """전부 산다고 보고(mask 전부 True) 경로를 푼다.
+    `target_base` — ④ 목표를 무엇에 걸 것인가: "avg"(평균단가) 또는 "entry"(진입가)."""
+    h, l, c, d = p["h"], p["l"], p["c"], p["d"]
+    o = p.get("o") or [None] * len(d)
+    epx = p["entry_price"]
+    atr = my_atr(p, cap_bars)
+    n = len(c) if cap_bars is None else min(len(c), cap_bars)
+    lots = [(d[0], epx, shares[0])]
+    sched = []
+    k, H, run, L, armed = 1, None, 0, None, -1
+
+    def avg():
+        s = sum(x[2] for x in lots)
+        return sum(px * fr for _dt, px, fr in lots) / s if s else epx
+
+    def close(rd, res, ex, at_end):
+        return {"lots": lots, "sched": sched, "exits": ex, "resolve_date": rd,
+                "result": res, "at_end": at_end}
+
+    for i in range(n):
+        if k < len(shares):
+            if L is not None:
+                if i > armed and h[i] is not None and h[i] >= L:
+                    px = L if o[i] is None else max(L, o[i])
+                    sched.append((d[i], px, shares[k]))
+                    lots.append((d[i], px, shares[k]))
+                    k += 1
+                    H, run, L, armed = h[i], 0, None, -1
+            else:
+                H_prev = H
+                if h[i] is not None:
+                    H = h[i] if H is None else max(H, h[i])
+                base = H if h_incl_today else H_prev
+                probe = l[i] if dwell_on == "low" else c[i]
+                if base is not None and atr[i] is not None and probe is not None:
+                    run = run + 1 if probe < base - atr_mult * atr[i] else 0
+                else:
+                    run = 0
+                if run >= dwell:
+                    L, armed = base, i
+        a = avg()
+        S = a * (1 - stop / 100)
+        if add_stop == "floor_entry" and len(lots) > 1:
+            S = max(S, epx)
+        T = (a if target_base == "avg" else epx) * (1 + target / 100)
+        hit_t = h[i] is not None and h[i] >= T
+        hit_s = l[i] is not None and l[i] <= S
+        if i == 0:
+            if hit_s:
+                return close(d[0], "ambiguous", [(d[0], 1.0, c[0])], False)
+            if hit_t:
+                return _my_phase2(p, i, a, half, trail, close, T, o, n)
+            continue
+        if hit_t and hit_s:
+            return close(d[i], "ambiguous", [(d[i], 1.0, c[i])], False)
+        if hit_t:
+            return _my_phase2(p, i, a, half, trail, close, T, o, n)
+        if hit_s:
+            px = S if o[i] is None else min(S, o[i])
+            return close(d[i], "loss", [(d[i], 1.0, px)], False)
+    return close(d[n - 1], "unresolved", [(d[n - 1], 1.0, c[n - 1])], True)
+
+
+def _my_phase2(p, i, a, half, trail, close, T, o, n):
+    l, c, d = p["l"], p["c"], p["d"]
+    tpx = T if o[i] is None else max(T, o[i])
+    ex = [(d[i], half, tpx)]
+    for j in range(i + 1, n):
+        seg = [x for x in l[max(0, j - trail):j] if x is not None]
+        s2 = max(a, min(seg)) if seg else a
+        if l[j] is not None and l[j] <= s2:
+            px = s2 if o[j] is None else min(s2, o[j])
+            ex.append((d[j], 1.0 - half, px))
+            return close(d[j], "win", ex, False)
+    ex.append((d[n - 1], 1.0 - half, c[n - 1]))
+    return close(d[n - 1], "win", ex, True)
+
+
+def stage2b() -> int:
+    import pyr_trigger as pt
+    if r41.YEARS[0] != 2017:
+        print("🚨 BT_Y0=2017 필요")
+        return 2
+    by, miss = r41.v39.load_paths()
+    if miss:
+        print("🚨 uspath_%d.json 이 없다" % miss)
+        return 2
+    pack = json.loads((OUT / "61-monthly-us.json").read_text(encoding="utf-8"))
+    monthly, sector = pack["monthly"], pack["sector"]
+    months = sorted({y for d in monthly.values() for y in d if y >= "2016-12"})
+    mret = r61b.month_returns(monthly, sector, months)
+    top, pctm = r61b.make_flags(mret, sector)
+
+    def keep_path(q):
+        sn = sector.get(q["code"])
+        if sn:
+            tp = top.get(r61.prev_ym(q["scan_date"][:7], 1))
+            if tp is not None and sn not in tp:
+                return False
+        v = pctm.get(r61.prev_ym(q["scan_date"][:7], 1), {}).get(q["code"])
+        return (v is None) or (0.10 <= v < 0.30)
+
+    paths = [q for y in sorted(by) for q in by[y] if keep_path(q)]
+    print("=" * 92)
+    print("74v ②-대조 — 내 해결자 vs pyr_trigger (mask 전부 True)")
+    print("=" * 92)
+    print("경로 %d" % len(paths), flush=True)
+
+    for lab, shares in (("H 1/2→1/2", (0.5, 0.5)), ("T 1/3×3", (1 / 3, 1 / 3, 1 / 3))):
+        mask = tuple([True] * (len(shares) - 1))
+        n_sched_diff = n_rd_diff = n_res_diff = n_px_diff = 0
+        n_both_none = n_only_mine = n_only_theirs = 0
+        ex = []
+        for q in paths:
+            mine = my_resolve(q, shares)
+            got = pt.resolve_all_masks(q, shares=shares)[mask]
+            a = [(x[0], round(x[1], 9), round(x[2], 9)) for x in mine["sched"]]
+            b = [(x[0], round(x[1], 9), round(x[2], 9)) for x in got["sched"]]
+            if a != b:
+                n_sched_diff += 1
+                if [x[0] for x in a] == [x[0] for x in b]:
+                    n_px_diff += 1
+                if not a and b:
+                    n_only_theirs += 1
+                elif a and not b:
+                    n_only_mine += 1
+                if len(ex) < 6:
+                    ex.append((q["code"], q["scan_date"], a[:3], b[:3],
+                               mine["resolve_date"], got["resolve_date"],
+                               mine["result"], got["result"], len(q["d"])))
+            if not a and not b:
+                n_both_none += 1
+            if mine["resolve_date"] != got["resolve_date"]:
+                n_rd_diff += 1
+            if mine["result"] != got["result"]:
+                n_res_diff += 1
+        print("")
+        print("── %s ──" % lab, flush=True)
+        print("  증액 일정 불일치 **%d건 (%.2f%%)** · 그중 날짜는 같고 «가격»만 %d건"
+              % (n_sched_diff, 100.0 * n_sched_diff / len(paths), n_px_diff), flush=True)
+        print("  한쪽만 증액: 나만 %d · 저쪽만 %d · 양쪽 다 증액 없음 %d"
+              % (n_only_mine, n_only_theirs, n_both_none), flush=True)
+        print("  결착일 불일치 %d건 · 결과 라벨 불일치 %d건" % (n_rd_diff, n_res_diff),
+              flush=True)
+        for r in ex:
+            print("     %s %s 봉%d | 나 %s → %s(%s) | 저쪽 %s → %s(%s)"
+                  % (r[0], r[1], r[8], r[2], r[4], r[6], r[3], r[5], r[7]), flush=True)
+    return 0
+
+
+def stage2c() -> int:
+    """🚨 유형 2′ — 「0 불일치」가 «검정이 아니라 같은 계산»일 수 있다.
+    일부러 규약을 하나씩 틀어 **대조가 그걸 잡아내는지** 본다.
+    한 줄이라도 0 이 나오면 그 축은 «대조가 못 보는 축»이다."""
+    import pyr_trigger as pt
+    if r41.YEARS[0] != 2017:
+        return 2
+    by, miss = r41.v39.load_paths()
+    if miss:
+        return 2
+    pack = json.loads((OUT / "61-monthly-us.json").read_text(encoding="utf-8"))
+    monthly, sector = pack["monthly"], pack["sector"]
+    months = sorted({y for d in monthly.values() for y in d if y >= "2016-12"})
+    mret = r61b.month_returns(monthly, sector, months)
+    top, pctm = r61b.make_flags(mret, sector)
+
+    def keep_path(q):
+        sn = sector.get(q["code"])
+        if sn:
+            tp = top.get(r61.prev_ym(q["scan_date"][:7], 1))
+            if tp is not None and sn not in tp:
+                return False
+        v = pctm.get(r61.prev_ym(q["scan_date"][:7], 1), {}).get(q["code"])
+        return (v is None) or (0.10 <= v < 0.30)
+
+    paths = [q for y in sorted(by) for q in by[y] if keep_path(q)]
+    print("=" * 92)
+    print("74v ②-감도 — 「0 불일치」가 진짜 검정인가 (경로 %d)" % len(paths))
+    print("=" * 92)
+    MUT = (("(대조) 내가 고른 그대로", {}),
+           ("④ 목표를 «진입가»에 건다", dict(target_base="entry")),
+           ("⑤ 250봉에서 자른다", dict(cap_bars=250)),
+           ("(나) H 에 오늘 고가를 안 넣는다", dict(h_incl_today=False)),
+           ("(라) 「머물면」을 종가로 잰다", dict(dwell_on="close")),
+           ("머무는 날 2 → 3", dict(dwell=3)),
+           ("눌림 깊이 1.0 → 1.5 ATR", dict(atr_mult=1.5)),
+           ("증액 후 손절 바닥 없음", dict(add_stop="avg")))
+    for vlab, shares in (("H 1/2→1/2", (0.5, 0.5)),
+                         ("T 1/3×3", (1 / 3, 1 / 3, 1 / 3))):
+        mask = tuple([True] * (len(shares) - 1))
+        theirs = []
+        for q in paths:
+            r = pt.resolve_all_masks(q, shares=shares)[mask]
+            theirs.append([(x[0], round(x[1], 9), round(x[2], 9)) for x in r["sched"]])
+        print("")
+        print("── %s ──" % vlab, flush=True)
+        for lab, kw in MUT:
+            bad = 0
+            for q, b in zip(paths, theirs):
+                m = my_resolve(q, shares, **kw)
+                if [(x[0], round(x[1], 9), round(x[2], 9)) for x in m["sched"]] != b:
+                    bad += 1
+            print("  %-28s 불일치 %5d (%5.2f%%)%s"
+                  % (lab, bad, 100.0 * bad / len(paths),
+                     "   ← 대조가 «못 보는» 축" if (bad == 0 and kw) else ""), flush=True)
+    return 0
+
+
 if __name__ == "__main__":
+    if "--stage2c" in sys.argv:
+        raise SystemExit(stage2c())
+    if "--stage2b" in sys.argv:
+        raise SystemExit(stage2b())
     raise SystemExit(stage2() if "--stage2" in sys.argv else main())
