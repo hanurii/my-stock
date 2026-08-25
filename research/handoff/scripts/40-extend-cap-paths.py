@@ -49,7 +49,12 @@ import us_loader  # noqa: E402
 WARM_DAYS = 430          # 하네스와 같다 (미국은 430)
 RESOLVE_TAIL_DAYS = 300  # 하네스와 같다
 CAP_DAYS = 250
-YEARS = tuple(range(2021, 2027))
+# 🚨 기본은 «옛 범위»다 — 바꾸면 지난 결과가 조용히 달라진다.
+#    9년판은 `BT_Y0=2017` 로 «명시해서» 연다.
+import os as _os
+Y0 = int(_os.environ.get("BT_Y0", "2021"))
+YEARS = tuple(range(Y0, 2027))
+EXT_NAME = "uspath_ext.json" if Y0 == 2021 else "uspath_ext%d.json" % Y0
 
 
 def series_end(year: int) -> str:
@@ -164,7 +169,7 @@ def main() -> int:
             print("   ⚠️ 하나도 안 늘어난 것 %d개 — **그 해 경계가 이미 상한이었다**"
                   % len(z), flush=True)
     SUB.mkdir(parents=True, exist_ok=True)
-    (SUB / "uspath_ext.json").write_text(
+    (SUB / EXT_NAME).write_text(
         json.dumps({"trigger_paths": out, "n_skip": len(skip),
                     "cap_days": CAP_DAYS, "resolve_tail_days": RESOLVE_TAIL_DAYS},
                    ensure_ascii=False), encoding="utf-8")

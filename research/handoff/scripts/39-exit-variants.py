@@ -38,7 +38,12 @@ import slot_sim  # noqa: E402
 
 BT = ROOT / ".cache" / "bt5y"
 OUT = BT / "out"
-YEARS = tuple(range(2021, 2027))
+# 🚨 기본은 «옛 범위»다 — 바꾸면 지난 결과가 조용히 달라진다.
+#    9년판은 `BT_Y0=2017` 로 «명시해서» 연다.
+import os as _os
+Y0 = int(_os.environ.get("BT_Y0", "2021"))
+YEARS = tuple(range(Y0, 2027))
+EXT_NAME = "uspath_ext.json" if Y0 == 2021 else "uspath_ext%d.json" % Y0
 N_SEED = 200
 
 
@@ -161,7 +166,7 @@ def load_paths():
     #    (`40-extend-cap-paths.py` · 두뇌 세션 결정 (b))
     #    상한은 **오래 걸린 거래**만 자르므로 **방향이 정해진 편향**이고,
     #    그건 **1회차가 검정하려는 대상 그 자체**다. 잘린 채로 재면 안 된다.
-    ef = BT / "sub" / "uspath_ext.json"
+    ef = BT / "sub" / EXT_NAME
     if ef.exists():
         ext = json.loads(ef.read_text(encoding="utf-8"))["trigger_paths"]
         idx = {(q["scan_date"], q["code"], q["pattern"]): q for q in ext}

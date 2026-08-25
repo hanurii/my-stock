@@ -56,7 +56,12 @@ N_BOOT = 1000
 BOOT_SEED = 410824
 BLOCK = (20, 40)
 TRAIL_WINDOW = 25
-YEARS = tuple(range(2021, 2027))
+# 🚨 기본은 «옛 범위»다 — 바꾸면 지난 결과가 조용히 달라진다.
+#    9년판은 `BT_Y0=2017` 로 «명시해서» 연다.
+import os as _os
+Y0 = int(_os.environ.get("BT_Y0", "2021"))
+YEARS = tuple(range(Y0, 2027))
+EXT_NAME = "uspath_ext.json" if Y0 == 2021 else "uspath_ext%d.json" % Y0
 REGIMES = (("미국 실제(무비용)", 0.0, 0.0),
            ("한국-미래에셋", 0.0014, 0.0034))
 
