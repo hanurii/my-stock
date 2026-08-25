@@ -791,7 +791,565 @@ def stage2c() -> int:
     return 0
 
 
+
+
+# ═════════════════════════════════════════════════════════════════════════
+# 단계 ③ — 관문. 새 시뮬 `slot_sim_lots.py` 에 «내 코드로» 건다
+# ═════════════════════════════════════════════════════════════════════════
+# 관문은 두뇌 세션 개정본(③′③″③‴)을 따른다. 관문마다
+# **「이 관문이 실패할 수 있는가」**를 같이 찍는다 — 두뇌 세션 자기 지적 1.
+
+def my_levels(p, shares, levels, mask, stop=8.0, target=20.0, half=0.5,
+              trail=25, add_stop="avg"):
+    """옛 «+3%/+6% 수준» 방아쇠를 mask 와 함께 푼다 (47번 규약 · 내 구현)."""
+    h, l, c, d = p["h"], p["l"], p["c"], p["d"]
+    o = p.get("o") or [None] * len(d)
+    epx = p["entry_price"]
+    n = len(c)
+    lots = [(d[0], epx, shares[0], -1)]
+    sched = []
+    pend = list(enumerate(levels))
+
+    def avg():
+        s = sum(x[2] for x in lots)
+        return sum(px * fr for _dt, px, fr, _k in lots) / s if s else epx
+
+    def close(rd, res, ex, at_end):
+        return {"lots": lots, "sched": sched, "exits": ex,
+                "resolve_date": rd, "result": res, "at_end": at_end}
+
+    for i in range(n):
+        while pend and h[i] is not None and h[i] >= epx * (1 + pend[0][1] / 100.0):
+            k, lv = pend.pop(0)
+            lvl = epx * (1 + lv / 100.0)
+            px = lvl if o[i] is None else max(lvl, o[i])
+            sched.append((d[i], px, shares[k + 1], k))
+            if mask[k]:
+                lots.append((d[i], px, shares[k + 1], k))
+        a = avg()
+        S = a * (1 - stop / 100)
+        if add_stop == "floor_entry" and len(lots) > 1:
+            S = max(S, epx)
+        T = a * (1 + target / 100)
+        hit_t = h[i] is not None and h[i] >= T
+        hit_s = l[i] is not None and l[i] <= S
+        if i == 0:
+            if hit_s:
+                return close(d[0], "ambiguous", [(d[0], 1.0, c[0])], False)
+            if hit_t:
+                return _my_phase2(p, i, a, half, trail, close, T, o, n)
+            continue
+        if hit_t and hit_s:
+            return close(d[i], "ambiguous", [(d[i], 1.0, c[i])], False)
+        if hit_t:
+            return _my_phase2(p, i, a, half, trail, close, T, o, n)
+        if hit_s:
+            px = S if o[i] is None else min(S, o[i])
+            return close(d[i], "loss", [(d[i], 1.0, px)], False)
+    return close(d[n - 1], "unresolved", [(d[n - 1], 1.0, c[n - 1])], True)
+
+
+def build_masks(p, shares, levels):
+    import itertools
+    m = len(shares) - 1
+    return {"code": p["code"], "scan_date": p["scan_date"], "pattern": p["pattern"],
+            "entry_date": p["entry_date"], "entry_px": p["entry_price"],
+            "stop_frac": 0.08, "shares": tuple(shares),
+            "masks": {mk: my_levels(p, shares, levels, mk)
+                      for mk in itertools.product((False, True), repeat=m)}}
+
+
+def _sel(by2, sector, top, pctm):
+    return by2
+
+
+def stage3() -> int:
+    import slot_sim_frac as sfr
+    import slot_sim_lots as sl
+    if r41.YEARS[0] != 2017:
+        return 2
+    by, miss = r41.v39.load_paths()
+    if miss:
+        return 2
+    pack = json.loads((OUT / "61-monthly-us.json").read_text(encoding="utf-8"))
+    monthly, sector = pack["monthly"], pack["sector"]
+    months = sorted({y for dd in monthly.values() for y in dd if y >= "2016-12"})
+    mret = r61b.month_returns(monthly, sector, months)
+    top, pctm = r61b.make_flags(mret, sector)
+
+    def keep_path(q):
+        sn = sector.get(q["code"])
+        if sn:
+            tp = top.get(r61.prev_ym(q["scan_date"][:7], 1))
+            if tp is not None and sn not in tp:
+                return False
+        v = pctm.get(r61.prev_ym(q["scan_date"][:7], 1), {}).get(q["code"])
+        return (v is None) or (0.10 <= v < 0.30)
+
+    by2 = {y: [q for q in ps if keep_path(q)] for y, ps in by.items()}
+    print("=" * 92)
+    print("74v 3 - 관문 (내 코드로 · slot_sim_lots a3fc4559)")
+    print("=" * 92)
+
+    def replay(adds, shares, levels):
+        old, new = [], []
+        for y in sorted(by2):
+            ou = {}
+            for q in by2[y]:
+                cd = q["code"]
+                if cd in ou and q["entry_date"] <= ou[cd]:
+                    continue
+                e = r47.resolve_pyr(q, "limit", "market", stop=8.0, target=20.0,
+                                    adds=adds)
+                ou[cd] = e.get("resolve_date") or q["entry_date"]
+                e["stop_frac"] = 0.08
+                old.append(e)
+                new.append(build_masks(q, shares, levels))
+        return old, new
+
+    # 관문 1 — 트랜치 1개 == sim_frac(5칸 cash)
+    r41.TARGET_FILL, r41.STOP_FILL = "limit", "market"
+    ev_ref, _b = r41.replay(by2, lambda q: r41.resolve_half_then_trail(q, 8.0, 20.0))
+    one = []
+    for y in sorted(by2):
+        ou = {}
+        for q in by2[y]:
+            cd = q["code"]
+            if cd in ou and q["entry_date"] <= ou[cd]:
+                continue
+            e = r47.resolve_pyr(q, "limit", "market", stop=8.0, target=20.0, adds=())
+            ou[cd] = e.get("resolve_date") or q["entry_date"]
+            one.append(build_masks(q, (1.0,), ()))
+    with r41.Cost(*COST):
+        w1 = [sl.sim_lots(one, risk=RISK, cap=CAP, seed=i, slots=5,
+                          fill_rule="truncate", cash_rule="per_slot")
+              for i in range(10)]
+        w2 = [sfr.sim_frac(ev_ref, slots=5, seed=i, sizing="cash") for i in range(10)]
+    worst = max(abs(a["equity_pct"] - b["equity_pct"]) / max(1e-12, abs(b["equity_pct"]))
+                for a, b in zip(w1, w2))
+    print("관문 1  트랜치 1개 == sim_frac(5칸·cash) — 최대 상대오차 %.3e -> **%s**"
+          % (worst, "통과" if worst < 1e-9 else "미통과"), flush=True)
+    print("        분해능 — seed 10판 자산이 서로 %s"
+          % ("전부 다르다" if len({round(x["equity_pct"], 6) for x in w2}) == 10
+             else "겹친다(관문이 무디다)"), flush=True)
+
+    # 관문 2 — P1 두 단 새 == 옛
+    o1, n1 = replay(((3.0, 0.5),), (0.5, 0.5), (3.0,))
+    with r41.Cost(*COST):
+        a1 = [sp.sim_pyr(o1, risk=RISK, cap=CAP, seed=i, pilot=0.5,
+                         max_positions=5, cash_rule="per_slot") for i in range(10)]
+        b1 = [sl.sim_lots(n1, risk=RISK, cap=CAP, seed=i, slots=5,
+                          fill_rule="block", cash_rule="per_slot") for i in range(10)]
+    w = max(abs(x["equity_pct"] - y["equity_pct"]) / max(1e-12, abs(y["equity_pct"]))
+            for x, y in zip(a1, b1))
+    print("관문 2  P1 두 단 새==옛 — 최대 상대오차 %.3e -> **%s**"
+          % (w, "통과" if w < 1e-9 else "미통과"), flush=True)
+    print("        진단 — 옛 %+.4f%% vs 새 %+.4f%% (seed 0) · 옛 증액 %d/막힘 %d · "
+          "새 증액 %d/막힘 %d/잘림 %d"
+          % (a1[0]["equity_pct"], b1[0]["equity_pct"], a1[0]["n_added"],
+             a1[0]["n_add_blocked"], b1[0]["n_added"], b1[0]["n_add_blocked"],
+             b1[0]["truncated"]), flush=True)
+
+    # 관문 3' — P2 세 단 새 != 옛
+    o2, n2 = replay(((3.0, 1 / 3), (6.0, 1 / 3)), (1 / 3, 1 / 3, 1 / 3), (3.0, 6.0))
+    with r41.Cost(*COST):
+        a2 = [sp.sim_pyr(o2, risk=RISK, cap=CAP, seed=i, pilot=1 / 3,
+                         max_positions=5, cash_rule="per_slot") for i in range(10)]
+        b2 = [sl.sim_lots(n2, risk=RISK, cap=CAP, seed=i, slots=5,
+                          fill_rule="block", cash_rule="per_slot") for i in range(10)]
+    dif = [y["equity_pct"] - x["equity_pct"] for x, y in zip(a2, b2)]
+    print("관문 3'  P2 세 단 새 != 옛 — 다른 판 %d/10 · 차 중앙 %+.2f%%p "
+          "(최소 %+.2f · 최대 %+.2f) -> **%s**"
+          % (sum(1 for x in dif if abs(x) > 1e-9), st.median(dif), min(dif), max(dif),
+             "통과" if all(abs(x) > 1e-9 for x in dif) else "미통과"), flush=True)
+    print("        옛 자산중앙 %+.2f%% · 새 자산중앙 %+.2f%%"
+          % (st.median(x["equity_pct"] for x in a2),
+             st.median(x["equity_pct"] for x in b2)), flush=True)
+
+    # 관문 3'' / 3''' — 크기·평균단가
+    bad2 = tot2 = bad3 = tot3 = inv_ok = inv_bad = 0
+    for t in n2:
+        r = t["masks"][(True, True)]
+        k = len(r["lots"]) - 1
+        ssum = sum(x[2] for x in r["lots"])
+        if k == 1:
+            tot2 += 1
+            if abs(ssum - 2 / 3) > 1e-12:
+                bad2 += 1
+        if k == 2:
+            tot3 += 1
+            if abs(ssum - 1.0) > 1e-12:
+                bad3 += 1
+            a = sum(px * fr for _d, px, fr, _k in r["lots"]) / ssum
+            if r["result"] == "loss":
+                if r["exits"][0][2] <= a * 0.92 + 1e-9:
+                    inv_ok += 1
+                else:
+                    inv_bad += 1
+    print("관문 3'' 증액 1회 Σ몫 == 2/3 — 대상 %d · 어긋남 **%d** -> **%s**"
+          % (tot2, bad2, "통과" if bad2 == 0 else "미통과"), flush=True)
+    print("관문 3''' 증액 2회 Σ몫 == 1.0 — 대상 %d · 어긋남 **%d** · "
+          "손절가 역산 일치 %d / 어긋남 %d -> **%s**"
+          % (tot3, bad3, inv_ok, inv_bad,
+             "통과" if (bad3 == 0 and inv_bad == 0) else "미통과"), flush=True)
+
+    # 관문 4 — 예약함 판 증액막힘 0
+    with r41.Cost(*COST):
+        rv = [sl.sim_lots(n2, risk=RISK, cap=CAP, seed=i, slots=5, reserve=True,
+                          fill_rule="truncate", cash_rule="per_slot") for i in range(10)]
+        nr = [sl.sim_lots(n2, risk=RISK, cap=CAP, seed=i, slots=5, reserve=False,
+                          fill_rule="truncate", cash_rule="per_slot") for i in range(10)]
+    print("관문 4  예약함 증액막힘 == 0 — 중앙 %d -> **%s**"
+          % (st.median(x["n_add_blocked"] for x in rv),
+             "통과" if all(x["n_add_blocked"] == 0 for x in rv) else "미통과"),
+          flush=True)
+    print("        🚨 이 관문은 **실패할 수 없다** — 예약 가지에서는 n_add_blocked 를"
+          " 올리는 줄 자체가 없다(slot_sim_lots.py 증액 블록). 코드가 틀려도 0 이다.",
+          flush=True)
+    print("        대신 재는 것 — 예약함 증액 %d회 vs 예약 안 함 %d회(막힘 %d) · 더 샀는가: %s"
+          % (st.median(x["n_added"] for x in rv), st.median(x["n_added"] for x in nr),
+             st.median(x["n_add_blocked"] for x in nr),
+             "예" if st.median(x["n_added"] for x in rv)
+             > st.median(x["n_added"] for x in nr) else "아니오 — 예약이 안 듣는 것"),
+          flush=True)
+
+    # 관문 5 — 진입·체결·놀린 자본
+    print("관문 5  진입 후보 %d건" % len(n2), flush=True)
+    for lab, rs in (("예약함", rv), ("예약안함", nr)):
+        print("        %-8s 체결 %3d · 증액 %3d · 잘림 %3d · 현금부족 %3d · "
+              "묶인자본 평균 %.2f%%(최대 %.2f%%) · 안 쓴 예약 %d건 평균 %.1f%% · 자산 %+.2f%%"
+              % (lab, st.median(x["n_filled"] for x in rs),
+                 st.median(x["n_added"] for x in rs),
+                 st.median(x["truncated"] for x in rs),
+                 st.median(x["blocked_cash"] for x in rs),
+                 st.median(x["resv_frac_mean"] for x in rs),
+                 st.median(x["resv_frac_max"] for x in rs),
+                 st.median(x["idle_end_n"] for x in rs),
+                 st.median(x["idle_end_mean"] for x in rs),
+                 st.median(x["equity_pct"] for x in rs)), flush=True)
+    return 0
+
+
+
+
+def stage3b() -> int:
+    """관문 2 미통과의 «원인»을 가른다.
+
+    가설 — 두 단에서도 새/옛이 갈리는 이유는 «가격»이 아니라
+    «현금 부족으로 막힌 증액을 어떻게 처리하나»다.
+      옛 `slot_sim_pyr` : 막혀도 청산선은 «샀다고 치고» 그대로 둔다
+      새 `slot_sim_lots`: 안 산 조합으로 «다시 푼다»(reslot)
+    검정 — 위험을 아주 작게 해 **막힘이 0 건**이 되게 만들면 둘이 같아야 한다.
+    같아지면 원인이 확정되고, 안 같아지면 «다른» 원인이 하나 더 있는 것이다.
+    """
+    import slot_sim_lots as sl
+    if r41.YEARS[0] != 2017:
+        return 2
+    by, miss = r41.v39.load_paths()
+    if miss:
+        return 2
+    pack = json.loads((OUT / "61-monthly-us.json").read_text(encoding="utf-8"))
+    monthly, sector = pack["monthly"], pack["sector"]
+    months = sorted({y for dd in monthly.values() for y in dd if y >= "2016-12"})
+    mret = r61b.month_returns(monthly, sector, months)
+    top, pctm = r61b.make_flags(mret, sector)
+
+    def keep_path(q):
+        sn = sector.get(q["code"])
+        if sn:
+            tp = top.get(r61.prev_ym(q["scan_date"][:7], 1))
+            if tp is not None and sn not in tp:
+                return False
+        v = pctm.get(r61.prev_ym(q["scan_date"][:7], 1), {}).get(q["code"])
+        return (v is None) or (0.10 <= v < 0.30)
+
+    by2 = {y: [q for q in ps if keep_path(q)] for y, ps in by.items()}
+    old, new = [], []
+    for y in sorted(by2):
+        ou = {}
+        for q in by2[y]:
+            cd = q["code"]
+            if cd in ou and q["entry_date"] <= ou[cd]:
+                continue
+            e = r47.resolve_pyr(q, "limit", "market", stop=8.0, target=20.0,
+                                adds=((3.0, 0.5),))
+            ou[cd] = e.get("resolve_date") or q["entry_date"]
+            e["stop_frac"] = 0.08
+            old.append(e)
+            new.append(build_masks(q, (0.5, 0.5), (3.0,)))
+
+    print("=" * 92)
+    print("74v 3b - 관문 2 미통과의 원인 가르기 (P1 두 단 · 거래 %d)" % len(old))
+    print("=" * 92)
+    print("  %-22s %10s %12s %12s %8s %8s"
+          % ("판", "옛 자산", "새 자산", "상대오차", "옛 막힘", "새 막힘"), flush=True)
+    for lab, rk, cp, sc in (("헤드라인 5칸 20%", 0.02, 0.20, 5),
+                            ("위험 1/10 (막힘 줄임)", 0.002, 0.02, 5),
+                            ("위험 1/100 (막힘 0 목표)", 0.0002, 0.002, 5)):
+        with r41.Cost(*COST):
+            a = [sp.sim_pyr(old, risk=rk, cap=cp, seed=i, pilot=0.5,
+                            max_positions=sc, cash_rule="per_slot") for i in range(10)]
+            b = [sl.sim_lots(new, risk=rk, cap=cp, seed=i, slots=sc,
+                             fill_rule="block", cash_rule="per_slot") for i in range(10)]
+        w = max(abs(x["equity_pct"] - y["equity_pct"]) / max(1e-12, abs(y["equity_pct"]))
+                for x, y in zip(a, b))
+        print("  %-22s %+9.4f%% %+11.4f%% %11.3e %8d %8d   %s"
+              % (lab, st.median(x["equity_pct"] for x in a),
+                 st.median(y["equity_pct"] for y in b), w,
+                 sum(x["n_add_blocked"] for x in a),
+                 sum(y["n_add_blocked"] for y in b),
+                 "일치" if w < 1e-9 else "다름"), flush=True)
+    print("", flush=True)
+    print("  → 막힘이 0 이 되는 판에서 상대오차가 1e-9 밑으로 내려가면"
+          " 「원인은 막힌 증액 처리」가 확정된다.", flush=True)
+
+    # 관문 3'' 의 짝 — 옛 도구가 정말 3/3 을 거는가 (두뇌 세션 요청)
+    o2, n2 = [], []
+    for y in sorted(by2):
+        ou = {}
+        for q in by2[y]:
+            cd = q["code"]
+            if cd in ou and q["entry_date"] <= ou[cd]:
+                continue
+            e = r47.resolve_pyr(q, "limit", "market", stop=8.0, target=20.0,
+                                adds=((3.0, 1 / 3), (6.0, 1 / 3)))
+            ou[cd] = e.get("resolve_date") or q["entry_date"]
+            e["stop_frac"] = 0.08
+            o2.append(e)
+            n2.append(build_masks(q, (1 / 3, 1 / 3, 1 / 3), (3.0, 6.0)))
+    k1 = k2 = 0
+    old_full = 0
+    for e, t in zip(o2, n2):
+        r = t["masks"][(True, True)]
+        k = len(r["lots"]) - 1
+        if k == 1:
+            k1 += 1
+            # 옛 도구: 파일럿 1/3 + 첫 증액에서 남은 2/3 = 3/3
+            if e["add"] is not None:
+                old_full += 1
+        elif k == 2:
+            k2 += 1
+    print("", flush=True)
+    print("  관문 3'' 의 짝 — 증액 «한 번만» 난 거래 %d건에서" % k1, flush=True)
+    print("      새 도구 Σ몫 = 2/3 (관문 3'' 이 %d번 돌았다)" % k1, flush=True)
+    print("      옛 도구는 `w2 = target*(1-pilot)` 이라 **3/3** — `add` 가 실린 것 %d건"
+          % old_full, flush=True)
+    print("      증액 두 번 난 거래 %d건 (여기서 옛 도구는 취득가를 뭉갠다)" % k2, flush=True)
+    return 0
+
+
+
+
+def stage3c() -> int:
+    """청산 축 — 마지막 남은 미검정 축을 «다시 짜지 않고» 닫는다.
+
+    양쪽 구현이 둘 다 `47-round3-pyramid.py::_phase2` 에서 왔으므로
+    «세 번째 구현»을 또 쓰면 그것도 같은 조상을 갖는다. 그래서 방식을 바꾼다 —
+    **산출물이 청산 규칙의 «정의»를 만족하는지**를 검사한다(성질 검사).
+    구현을 흉내 내지 않으므로 조상이 같아도 독립이다.
+
+    검사하는 성질 (1a · 기준은 «그날까지 실제로 산» lots 의 평균단가)
+      P1  청산 몫의 합 == 1.0
+      P2  loss  : 청산가 == min(S_r, 시가) · S_r = max(a_r×0.92, 진입가)[floor_entry]
+      P3  win   : 첫 청산가 == max(a_t×1.20, 시가) · 몫 0.5
+      P4  ★ «첫» 교차인가 — 결착일 «이전» 어느 날도 목표·손절을 건드리지 않았다
+          (a_i 를 그날까지의 lots 로 매일 다시 낸다)
+      P5  ★ 추격 다리 — 청산가 == min(max(a, 직전 25일 저가 최솟값), 시가) 이고
+          목표일 이후 «그보다 이른» 교차가 없다. 창은 [j−25, j) — 당일 제외(룩어헤드)
+      P6  ambiguous 는 같은 날 목표·손절이 «둘 다» 걸린 날이다
+    """
+    import pyr_trigger as pt
+    if r41.YEARS[0] != 2017:
+        return 2
+    by, miss = r41.v39.load_paths()
+    if miss:
+        return 2
+    pack = json.loads((OUT / "61-monthly-us.json").read_text(encoding="utf-8"))
+    monthly, sector = pack["monthly"], pack["sector"]
+    months = sorted({y for dd in monthly.values() for y in dd if y >= "2016-12"})
+    mret = r61b.month_returns(monthly, sector, months)
+    top, pctm = r61b.make_flags(mret, sector)
+
+    def keep_path(q):
+        sn = sector.get(q["code"])
+        if sn:
+            tp = top.get(r61.prev_ym(q["scan_date"][:7], 1))
+            if tp is not None and sn not in tp:
+                return False
+        v = pctm.get(r61.prev_ym(q["scan_date"][:7], 1), {}).get(q["code"])
+        return (v is None) or (0.10 <= v < 0.30)
+
+    paths = [q for y in sorted(by) for q in by[y] if keep_path(q)]
+    shares = (0.5, 0.5)
+    mask = (True,)
+    T2 = 1e-9
+    bad = {k: 0 for k in ("P1", "P2", "P3", "P4", "P5", "P6")}
+    ran = {k: 0 for k in ("P1", "P2", "P3", "P4", "P5", "P6")}
+    ex_show = []
+
+    for q in paths:
+        r = pt.resolve_all_masks(q, shares=shares)[mask]
+        h, l, c, d = q["h"], q["l"], q["c"], q["d"]
+        o = q.get("o") or [None] * len(d)
+        epx = q["entry_price"]
+        idx = {dt: i for i, dt in enumerate(d)}
+        lots = r["lots"]
+        ri = idx[r["resolve_date"]]
+
+        # 그날까지의 lots 로 평균단가를 매일 다시 낸다
+        def avg_at(i):
+            sel = [(px, fr) for dt, px, fr, _k in lots if idx[dt] <= i]
+            s = sum(f for _p, f in sel)
+            return (sum(px * f for px, f in sel) / s) if s else epx
+
+        ran["P1"] += 1
+        if abs(sum(f for _dt, f, _px in r["exits"]) - 1.0) > T2:
+            bad["P1"] += 1
+
+        first_i = idx[r["exits"][0][0]]
+
+        # P4 — 결착(또는 목표) 이전에 교차가 없었는가
+        ran["P4"] += 1
+        early = None
+        for i in range(0, first_i):
+            a = avg_at(i)
+            S = a * 0.92
+            if len(lots) > 1 and any(idx[dt] <= i for dt, _p, _f, k in lots if k >= 0):
+                S = max(S, epx)
+            T = a * 1.20
+            if i == 0:
+                if (l[0] is not None and l[0] <= S) or (h[0] is not None and h[0] >= T):
+                    early = i
+                    break
+                continue
+            if (h[i] is not None and h[i] >= T) or (l[i] is not None and l[i] <= S):
+                early = i
+                break
+        if early is not None:
+            bad["P4"] += 1
+            if len(ex_show) < 4:
+                ex_show.append(("P4", q["code"], q["scan_date"], early, first_i))
+
+        if r["result"] == "loss":
+            ran["P2"] += 1
+            a = avg_at(ri)
+            S = a * 0.92
+            if any(k >= 0 for _dt, _p, _f, k in lots):
+                S = max(S, epx)
+            want = S if o[ri] is None else min(S, o[ri])
+            if abs(r["exits"][0][2] - want) > T2 * max(1.0, want):
+                bad["P2"] += 1
+        elif r["result"] == "win":
+            ran["P3"] += 1
+            a = avg_at(first_i)
+            Tg = a * 1.20
+            want = Tg if o[first_i] is None else max(Tg, o[first_i])
+            if abs(r["exits"][0][2] - want) > T2 * max(1.0, want) \
+                    or abs(r["exits"][0][1] - 0.5) > T2:
+                bad["P3"] += 1
+            # P5 — 추격 다리
+            if len(r["exits"]) > 1 and not r["at_end"]:
+                ran["P5"] += 1
+                jj = idx[r["exits"][1][0]]
+                ok = True
+                for j in range(first_i + 1, jj + 1):
+                    seg = [x for x in l[max(0, j - 25):j] if x is not None]
+                    s2 = max(a, min(seg)) if seg else a
+                    hit = l[j] is not None and l[j] <= s2
+                    if j < jj and hit:
+                        ok = False
+                        break
+                    if j == jj:
+                        if not hit:
+                            ok = False
+                            break
+                        want2 = s2 if o[j] is None else min(s2, o[j])
+                        if abs(r["exits"][1][2] - want2) > T2 * max(1.0, want2):
+                            ok = False
+                if not ok:
+                    bad["P5"] += 1
+                    if len(ex_show) < 8:
+                        ex_show.append(("P5", q["code"], q["scan_date"], first_i, jj))
+        elif r["result"] == "ambiguous":
+            ran["P6"] += 1
+            a = avg_at(ri)
+            S = a * 0.92
+            if any(k >= 0 for _dt, _p, _f, k in lots):
+                S = max(S, epx)
+            Tg = a * 1.20
+            both = (l[ri] is not None and l[ri] <= S) and (h[ri] is not None and h[ri] >= Tg)
+            if ri == 0:
+                both = l[0] is not None and l[0] <= S
+            if not both or abs(r["exits"][0][2] - c[ri]) > T2 * max(1.0, c[ri]):
+                bad["P6"] += 1
+
+    print("=" * 92)
+    print("74v 3c - 청산 축 성질 검사 (경로 %d · H 1/2->1/2 · mask 전부 True)" % len(paths))
+    print("=" * 92)
+    NAMES = {"P1": "청산 몫 합 == 1.0",
+             "P2": "loss 청산가 == min(손절선, 시가)",
+             "P3": "win 첫 청산가 == max(목표선, 시가) · 몫 0.5",
+             "P4": "★ 결착 이전에 «더 이른 교차»가 없다",
+             "P5": "★ 추격 다리 = min(max(평단, 직전25일 최저), 시가) · 더 이른 교차 없음",
+             "P6": "ambiguous 는 같은 날 둘 다 걸린 날"}
+    for k in ("P1", "P2", "P3", "P4", "P5", "P6"):
+        print("  %-3s %-52s 대상 %5d · 어긋남 **%d**%s"
+              % (k, NAMES[k], ran[k], bad[k],
+                 "" if ran[k] else "   <- 한 번도 안 돌았다(검사 아님)"), flush=True)
+    for e in ex_show:
+        print("     예: %s" % (e,), flush=True)
+    print("", flush=True)
+    print("  이 검사는 «구현을 흉내 내지 않는다» — 산출물이 규칙의 정의를 만족하는지만 본다.",
+          flush=True)
+    print("  분해능 확인 — 추격 창 25 -> 10 으로 바꾸면 P5 가 몇 건 어긋나는가:",
+          flush=True)
+    print("     (창을 [j-25, j] 로 «당일 포함» 바꾸는 변이는 쓸 수 없다 — 그 변이는"
+          " 청산 «날짜»를 바꾸지 않는다. l[j] <= max(a, min) 이 두 창에서 동치임을"
+          " 손으로 확인했다. 그래서 창 «길이»를 흔든다.)", flush=True)
+    mis = tot = 0
+    for q in paths[:2000]:
+        r = pt.resolve_all_masks(q, shares=shares)[mask]
+        if r["result"] != "win" or len(r["exits"]) < 2 or r["at_end"]:
+            continue
+        d = q["d"]
+        l = q["l"]
+        idx = {dt: i for i, dt in enumerate(d)}
+        first_i = idx[r["exits"][0][0]]
+        jj = idx[r["exits"][1][0]]
+        lots = r["lots"]
+        s = sum(f for _dt, _p, f, _k in lots)
+        a = sum(px * f for _dt, px, f, _k in lots) / s
+        tot += 1
+        okj = True
+        for j in range(first_i + 1, jj + 1):
+            seg = [x for x in l[max(0, j - 10):j] if x is not None]
+            s2 = max(a, min(seg)) if seg else a
+            hit = l[j] is not None and l[j] <= s2
+            if j < jj and hit:
+                okj = False
+                break
+            if j == jj:
+                if not hit:
+                    okj = False
+                else:
+                    o3 = (q.get("o") or [None] * len(d))[j]
+                    w3 = s2 if o3 is None else min(s2, o3)
+                    if abs(r["exits"][1][2] - w3) > 1e-9 * max(1.0, w3):
+                        okj = False
+        if not okj:
+            mis += 1
+    print("     -> 대상 %d 중 %d 건 어긋난다 (0 이면 이 검사는 창을 못 본다)"
+          % (tot, mis), flush=True)
+    return 0
+
+
 if __name__ == "__main__":
+    if "--stage3c" in sys.argv:
+        raise SystemExit(stage3c())
+    if "--stage3b" in sys.argv:
+        raise SystemExit(stage3b())
+    if "--stage3" in sys.argv:
+        raise SystemExit(stage3())
     if "--stage2c" in sys.argv:
         raise SystemExit(stage2c())
     if "--stage2b" in sys.argv:
