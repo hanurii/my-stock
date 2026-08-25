@@ -295,13 +295,14 @@ def main() -> int:
           flush=True)
     print("  %-18s %8s %11s %11s %8s" % ("판", "노출", "자산중앙", "운나쁠때", "MDD"),
           flush=True)
-    small = {}
+    small, small_curves = {}, {}
     for c in (0.20, 0.16, 0.13, 0.10, 0.08):
         with r41.Cost(*COST):
             rs = [sl.sim_lots(evs["P0 한 번에"], seed=s, slots=SLOTS, risk=RISK,
                               cap=c, reserve=False, fill_rule="truncate",
                               cash_rule="per_slot") for s in range(n_seed)]
         eq = sorted(x["equity_pct"] for x in rs)
+        small_curves["P0 cap %.2f" % c] = [x["curve"] for x in rs]
         small["P0 cap %.2f" % c] = {
             "expo": st.median(x["expo_mean"] for x in rs), "equity": st.median(eq),
             "p5": eq[int(n_seed * .05)], "mdd": st.median(x["mdd_pct"] for x in rs)}
@@ -312,6 +313,41 @@ def main() -> int:
         print("  %-16s %7.2f%% %+10.2f%% %+10.2f%% %7.1f%%   ← 이 곡선 «어디»에 놓이나"
               % (nm, res[nm]["expo"], res[nm]["equity"], res[nm]["p5"],
                  res[nm]["mdd"]), flush=True)
+
+    # ── ③ 노출 맞춘 짝비교 자료 축 — 「아직 안 걸었다」를 닫는다 ────────────
+    #    🚨 결과가 어느 쪽이든 74번 판정은 안 바뀐다(등록 안 한 칸 · 여덟 칸 중 최선).
+    #       0 포함 → 후보 종결 / 0 배제 → 75번의 «가설». 이 표를 «먼저» 적어 둔다.
+    print("\n  ③ 노출 맞춘 짝비교 — H′-avgstop − P0(cap 0.16) · 노출 59.89 vs 59.93",
+          flush=True)
+    sw_m = da.sweep(curves["H′-avgstop"], small_curves["P0 cap 0.16"])
+    print(da.fmt(sw_m, "H′-avgstop − P0(0.16)"), flush=True)
+
+    # ── ★ 순환 재표집 대조 — `dataaxis` 가장자리 편향의 «크기» ──────────────
+    #    이동 블록은 계열 양 끝을 덜 뽑는다. 순환 블록은 모든 날을 정확히 block 번 덮는다.
+    #    🚨 기본값은 안 바꾼다. 둘을 «대조»해 영향을 재고 결과만 적는다.
+    print("\n★ 순환 재표집 대조 — `dataaxis` 가장자리 편향의 크기 (24·73·74 가 전부 지난다)",
+          flush=True)
+    pairs = (("H − P0", curves["★ H 헤드라인"], curves["P0 한 번에"]),
+             ("H′ − P0", curves["★′ H′ 고친방아쇠"], curves["P0 한 번에"]),
+             ("H-avgstop − H", curves["H-avgstop"], curves["★ H 헤드라인"]),
+             ("H′-avgstop − P0(0.16)", curves["H′-avgstop"],
+              small_curves["P0 cap 0.16"]))
+    cyc = {}
+    for lbl, a, b in pairs:
+        da.CYCLIC[0] = False
+        s0 = da.sweep(a, b)
+        da.CYCLIC[0] = True
+        s1 = da.sweep(a, b)
+        da.CYCLIC[0] = False
+        cyc[lbl] = {"moving": s0, "cyclic": s1}
+        for k in da.BLOCKS:
+            m0, m1 = s0[k], s1[k]
+            print("  %-22s 블록 %2d  이동 [%+8.2f, %+8.2f] 중앙 %+8.2f  →  "
+                  "순환 [%+8.2f, %+8.2f] 중앙 %+8.2f   0배제 %s→%s"
+                  % (lbl if k == da.BLOCKS[0] else "", k,
+                     m0["lo"], m0["hi"], m0["median"],
+                     m1["lo"], m1["hi"], m1["median"],
+                     m0["excl0"], m1["excl0"]), flush=True)
 
     (OUT / "74-pyramid-rebuilt.json").write_text(
         json.dumps({"res": res, "gate1": ok1, "n_seed": n_seed,

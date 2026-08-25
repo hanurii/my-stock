@@ -51,12 +51,31 @@ def rets(curve):
     return out
 
 
+CYCLIC = [False]       # 🚨 True 면 «순환» 블록 재표집. 기본은 옛 동작 그대로.
+
+
 def _resample(r, block, rnd):
-    """블록 재표집 — 원 길이만큼 채운다."""
+    """블록 재표집 — 원 길이만큼 채운다.
+
+    🚨 **기본(이동 블록)은 계열의 «양 끝»을 덜 뽑는다** (2026-08-25, 검증 세션 `fd2f8bc2`).
+       시작점이 `[0, n−block]` 로 제한되므로 가운데 날은 `block` 개의 시작점이 덮지만
+       첫날·마지막날은 **1 개**뿐이다. 블록 80 이면 양 끝 79일씩 ≈ 2,250일의 7% 가
+       덜 들어간다. 이동 블록 부트스트랩의 알려진 성질이다.
+    `CYCLIC[0] = True` 로 두면 **순환 블록**(끝에서 처음으로 감아 시작점을 `[0, n−1]`
+       전체로 여는 것)이 되어 모든 날이 «정확히 block 번» 덮인다.
+    🚨 기본값을 바꾸지 않는다 — 24·73·74 의 옛 값이 조용히 달라지면 안 된다.
+       대신 «둘을 대조해» 영향을 재고, 그 결과를 판정 문서에 적는다.
+    """
     n = len(r)
     if n == 0:
         return []
     out = []
+    if CYCLIC[0]:
+        while len(out) < n:
+            a = rnd.randint(0, n - 1)
+            out.extend(r[a:a + block] if a + block <= n
+                       else r[a:] + r[:a + block - n])
+        return out[:n]
     while len(out) < n:
         a = rnd.randint(0, max(0, n - block))
         out.extend(r[a:a + block])
