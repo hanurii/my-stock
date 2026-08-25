@@ -1343,7 +1343,73 @@ def stage3c() -> int:
     return 0
 
 
+
+
+def stage2d() -> int:
+    """H′ 대조 — 두뇌 세션 개정 3 의 `h_lag=True, stay_on="close"` 판.
+    ②와 «같은 방식»: 먼저 분해능(일부러 틀리기), 그 다음 대조."""
+    import pyr_trigger as pt
+    if r41.YEARS[0] != 2017:
+        return 2
+    by, miss = r41.v39.load_paths()
+    if miss:
+        return 2
+    pack = json.loads((OUT / "61-monthly-us.json").read_text(encoding="utf-8"))
+    monthly, sector = pack["monthly"], pack["sector"]
+    months = sorted({y for dd in monthly.values() for y in dd if y >= "2016-12"})
+    mret = r61b.month_returns(monthly, sector, months)
+    top, pctm = r61b.make_flags(mret, sector)
+
+    def keep_path(q):
+        sn = sector.get(q["code"])
+        if sn:
+            tp = top.get(r61.prev_ym(q["scan_date"][:7], 1))
+            if tp is not None and sn not in tp:
+                return False
+        v = pctm.get(r61.prev_ym(q["scan_date"][:7], 1), {}).get(q["code"])
+        return (v is None) or (0.10 <= v < 0.30)
+
+    paths = [q for y in sorted(by) for q in by[y] if keep_path(q)]
+    print("=" * 92)
+    print("74v 2d - H' 대조 (h_lag=True · stay_on=close) · 경로 %d" % len(paths))
+    print("=" * 92)
+    KEY = dict(h_incl_today=False, dwell_on="close")
+    MUT = (("(대조) H' 규약 그대로", {}),
+           ("h_lag 를 도로 끈다", dict(h_incl_today=True)),
+           ("stay_on 을 도로 저가로", dict(dwell_on="low")),
+           ("머무는 날 2 -> 3", dict(dwell=3)),
+           ("깊이 1.0 -> 1.5 ATR", dict(atr_mult=1.5)))
+    for vlab, shares in (("H' 1/2->1/2", (0.5, 0.5)),
+                         ("T' 1/3x3", (1 / 3, 1 / 3, 1 / 3))):
+        mask = tuple([True] * (len(shares) - 1))
+        theirs, n_any = [], 0
+        for q in paths:
+            r = pt.resolve_all_masks(q, shares=shares, h_lag=True,
+                                     stay_on="close")[mask]
+            b = [(x[0], round(x[1], 9), round(x[2], 9)) for x in r["sched"]]
+            theirs.append(b)
+            if b:
+                n_any += 1
+        print("")
+        print("-- %s -- (방아쇠가 «난» 경로 %d / %d = %.1f%%)"
+              % (vlab, n_any, len(paths), 100.0 * n_any / len(paths)), flush=True)
+        for lab, kw in MUT:
+            kk = dict(KEY)
+            kk.update(kw)
+            bad = 0
+            for q, b in zip(paths, theirs):
+                m = my_resolve(q, shares, **kk)
+                if [(x[0], round(x[1], 9), round(x[2], 9)) for x in m["sched"]] != b:
+                    bad += 1
+            print("  %-26s 불일치 %5d (%5.2f%%)%s"
+                  % (lab, bad, 100.0 * bad / len(paths),
+                     "   <- 대조가 못 보는 축" if (bad == 0 and kw) else ""), flush=True)
+    return 0
+
+
 if __name__ == "__main__":
+    if "--stage2d" in sys.argv:
+        raise SystemExit(stage2d())
     if "--stage3c" in sys.argv:
         raise SystemExit(stage3c())
     if "--stage3b" in sys.argv:
