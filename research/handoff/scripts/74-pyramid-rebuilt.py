@@ -43,13 +43,17 @@ HALF = (0.5, 0.5)
 THIRD = (1 / 3, 1 / 3, 1 / 3)
 
 # ── §4 변형 — 헤드라인 한 칸(★)은 값 보기 «전»에 고정됐다 ─────────────────
+#    §개정 3 — H′(고친 방아쇠)는 **돌리기 «전»에** 등록한 두 번째 칸(★′). 합격선은 §5 그대로.
+FIX = dict(h_lag=True, stay_on="close")     # 고친 방아쇠
 VARIANTS = (
-    ("P0 한 번에",    (1.0,), False, "floor_entry", "대조"),
-    ("★ H 헤드라인",  HALF,   True,  "floor_entry", "1/2→1/2 · 예약 · 원가 아래 금지"),
-    ("H-noreserve",   HALF,   False, "floor_entry", "예약 안 함"),
-    ("H-avgstop",     HALF,   True,  "avg",         "손절 = 평균단가 −8%"),
-    ("T 세 번",       THIRD,  True,  "floor_entry", "1/3씩 · 예약"),
-    ("T-noreserve",   THIRD,  False, "floor_entry", "1/3씩 · 예약 안 함"),
+    ("P0 한 번에",    (1.0,), False, "floor_entry", {}, "대조"),
+    ("★ H 헤드라인",  HALF,   True,  "floor_entry", {}, "1/2→1/2 · 예약 · 원가 아래 금지"),
+    ("H-noreserve",   HALF,   False, "floor_entry", {}, "예약 안 함"),
+    ("H-avgstop",     HALF,   True,  "avg",         {}, "손절 = 평균단가 −8%"),
+    ("T 세 번",       THIRD,  True,  "floor_entry", {}, "1/3씩 · 예약"),
+    ("T-noreserve",   THIRD,  False, "floor_entry", {}, "1/3씩 · 예약 안 함"),
+    ("★′ H′ 고친방아쇠", HALF, True,  "floor_entry", FIX, "개정 3 — 등록된 둘째 칸"),
+    ("H′-avgstop",    HALF,   True,  "avg",         FIX, "부수 — H-avgstop 의 짝"),
 )
 
 
@@ -94,7 +98,7 @@ def load_filtered():
     return by2, n_all, n_sel, n_ext
 
 
-def replay_masks(by, shares, add_stop):
+def replay_masks(by, shares, add_stop, tkw=None):
     """`open_until` 재현 — 39·41번과 같은 규약.
 
     🚨 **사양이 안 정한 곳**: 조합마다 결착일이 다르다. `open_until` 은
@@ -112,7 +116,8 @@ def replay_masks(by, shares, add_stop):
                 blocked += 1
                 continue
             t = pt.resolve_trade(p, ft="limit", fs="market", stop=STOP,
-                                 target=TARGET, shares=shares, add_stop=add_stop)
+                                 target=TARGET, shares=shares, add_stop=add_stop,
+                                 **(tkw or {}))
             rds = {m["resolve_date"] for m in t["masks"].values()}
             if len(rds) > 1:
                 spread += 1
@@ -173,13 +178,13 @@ def main() -> int:
     ok1 = gate_1(by2, n_seed=min(30, n_seed))
     print("", flush=True)
 
-    print("  %-14s %6s %5s %11s %11s %8s %6s %8s %6s %6s %7s"
+    print("  %-17s %6s %5s %11s %11s %8s %6s %8s %6s %6s %7s"
           % ("변형", "진입", "체결", "자산중앙", "운나쁠때", "MDD", "승률",
              "거래당", "증액", "막힘", "묶인돈"), flush=True)
     print("  " + "─" * 98, flush=True)
     res, curves = {}, {}
-    for nm, shares, reserve, add_stop, _note in VARIANTS:
-        ev, blk, spread = replay_masks(by2, shares, add_stop)
+    for nm, shares, reserve, add_stop, tkw, _note in VARIANTS:
+        ev, blk, spread = replay_masks(by2, shares, add_stop, tkw)
         rs = run(ev, reserve, n_seed)
         eq = sorted(x["equity_pct"] for x in rs)
         res[nm] = {
@@ -196,7 +201,7 @@ def main() -> int:
             "truncated": st.median(x["truncated"] for x in rs)}
         curves[nm] = [x["curve"] for x in rs]
         r = res[nm]
-        print("  %-14s %6d %5d %+10.2f%% %+10.2f%% %7.1f%% %5.1f%% %+7.3f%% %6d %6d %6.2f%%"
+        print("  %-17s %6d %5d %+10.2f%% %+10.2f%% %7.1f%% %5.1f%% %+7.3f%% %6d %6d %6.2f%%"
               % (nm, r["n_entry"], r["n_filled"], r["equity"], r["p5"], r["mdd"],
                  r["win"], r["per_trade"], r["n_added"], r["n_add_blocked"],
                  r["resv"]), flush=True)
@@ -207,7 +212,7 @@ def main() -> int:
     # ── 관문 ④⑤ ────────────────────────────────────────────────────────
     print("\n관문 ④  예약함 판에서 «현금 부족 증액 막힘» = 0 건", flush=True)
     for nm in ("★ H 헤드라인", "H-avgstop", "T 세 번"):
-        print("        %-14s 막힘 %d → **%s**"
+        print("        %-17s 막힘 %d → **%s**"
               % (nm, res[nm]["n_add_blocked"],
                  "통과" if res[nm]["n_add_blocked"] == 0 else "🚨 미통과"), flush=True)
     print("관문 ⑤  조용한 절단 금지 — 위 표에 진입·체결·증액·막힘·묶인돈 전부 찍었다.", flush=True)
@@ -219,28 +224,36 @@ def main() -> int:
     # ── §5 합격선 ───────────────────────────────────────────────────────
     print("\n" + "─" * 96, flush=True)
     print("§5 합격선 — 값 보기 «전»에 적힌 것 (대조는 «같은 실행 안의» P0)", flush=True)
-    A = H["equity"] > P0["equity"]
-    B = H["p5"] > P0["p5"]
-    C = H["mdd"] > P0["mdd"]          # MDD 는 음수 — 클수록 얕다
-    print("  A  자산    H %+.2f%%  vs  P0 %+.2f%%   (차 %+.2f%%p)  → **%s**"
-          % (H["equity"], P0["equity"], H["equity"] - P0["equity"],
-             "통과" if A else "미통과"), flush=True)
-    print("     🚨 사전등록에 «장식일 수 있다»고 미리 적었다 — 73번 관측 최대 차이 +25.3%p",
-          flush=True)
-    print("  B★ 운나쁠때 H %+.2f%%  vs  P0 %+.2f%%   (차 %+.2f%%p)  → **%s**"
-          % (H["p5"], P0["p5"], H["p5"] - P0["p5"], "통과" if B else "미통과"), flush=True)
-    print("  C★ MDD     H %.1f%%   vs  P0 %.1f%%    (차 %+.1f%%p)  → **%s**"
-          % (H["mdd"], P0["mdd"], H["mdd"] - P0["mdd"], "통과" if C else "미통과"),
-          flush=True)
+    JUDGED = ("★ H 헤드라인", "★′ H′ 고친방아쇠")
+    verdict, sws = {}, {}
+    for nm in JUDGED:
+        V = res[nm]
+        A = V["equity"] > P0["equity"]
+        B = V["p5"] > P0["p5"]
+        C = V["mdd"] > P0["mdd"]          # MDD 는 음수 — 클수록 얕다
+        verdict[nm] = {"A": A, "B": B, "C": C}
+        print("\n  【%s】" % nm, flush=True)
+        print("  A  자산     %+9.2f%%  vs  P0 %+9.2f%%   (차 %+9.2f%%p)  → **%s**"
+              % (V["equity"], P0["equity"], V["equity"] - P0["equity"],
+                 "통과" if A else "미통과"), flush=True)
+        print("  B★ 운나쁠때 %+9.2f%%  vs  P0 %+9.2f%%   (차 %+9.2f%%p)  → **%s**"
+              % (V["p5"], P0["p5"], V["p5"] - P0["p5"], "통과" if B else "미통과"),
+              flush=True)
+        print("  C★ MDD      %8.1f%%   vs  P0 %8.1f%%    (차 %+8.1f%%p)  → **%s**"
+              % (V["mdd"], P0["mdd"], V["mdd"] - P0["mdd"], "통과" if C else "미통과"),
+              flush=True)
+        sws[nm] = da.sweep(curves[nm], curves["P0 한 번에"])
+        print("  D  자료 축 짝비교 (블록 20/40/80 · **헤드라인은 가장 넓은 구간**)", flush=True)
+        print(da.fmt(sws[nm], "%s − P0" % nm), flush=True)
+    print("\n  🚨 A 는 사전등록에 «장식일 수 있다»고 미리 적었다 "
+          "— 73번 관측 최대 차이 +25.3%p", flush=True)
 
-    # ── D. 자료 축 ──────────────────────────────────────────────────────
-    print("\n  D  자료 축 짝비교 (블록 20/40/80 · **헤드라인은 가장 넓은 구간**)", flush=True)
-    sw = da.sweep(curves["★ H 헤드라인"], curves["P0 한 번에"])
-    print(da.fmt(sw, "H − P0"), flush=True)
-    # 부수 — 손절 축을 뺀 「피라미딩만」 판. **판정 아님**(§4: 합격선은 H 에만)
-    sw2 = da.sweep(curves["H-avgstop"], curves["P0 한 번에"])
-    print("\n  (부수 · 판정 아님) 손절 축을 뺀 판 — 피라미딩만 남긴다", flush=True)
-    print(da.fmt(sw2, "H-avgstop − P0"), flush=True)
+    # ── 부수 — 손절 축을 뺀 판. **판정 아님**(§4: 합격선은 ★·★′ 에만) ────
+    print("\n  (부수 · 판정 아님) 손절 축을 뺀 판 — 「피라미딩만」 남긴다", flush=True)
+    for nm in ("H-avgstop", "H′-avgstop"):
+        sws[nm] = da.sweep(curves[nm], curves["P0 한 번에"])
+        print(da.fmt(sws[nm], "%s − P0" % nm), flush=True)
+    sw, sw2 = sws["★ H 헤드라인"], sws["H-avgstop"]
 
     # ── ★ 진짜 질문: 예약이 무엇을 했나 ─────────────────────────────────
     print("\n" + "─" * 96, flush=True)
@@ -265,7 +278,8 @@ def main() -> int:
     (OUT / "74-pyramid-rebuilt.json").write_text(
         json.dumps({"res": res, "gate1": ok1, "n_seed": n_seed,
                     "n_paths": n_all, "n_combo": n_sel,
-                    "dataaxis_H_vs_P0": sw, "dataaxis_Havg_vs_P0": sw2},
+                    "verdict": verdict,
+                    "dataaxis": {k: v for k, v in sws.items()}},
                    ensure_ascii=False, indent=1,
                    default=str), encoding="utf-8")
     print("\n저장: 74-pyramid-rebuilt.json", flush=True)
