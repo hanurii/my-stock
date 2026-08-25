@@ -292,8 +292,15 @@ def resolve_all_masks(path, *, ft="limit", fs="market",
     🚨 `sched` 는 mask 에 따라 달라질 수 있다 — 모듈 문서 참조.
     """
     tot = sum(shares)
-    if abs(tot - 1.0) > 1e-9:
-        raise ValueError("shares 합이 1.0 이 아니다: %r (합 %.12f)" % (shares, tot))
+    # 🚨 **합 == 1.0 제약을 풀었다** (두뇌 세션 2026-08-26 · 리버모어 재검토).
+    #    `shares` 의 단위는 「평소 한 칸」이다. `shares[0] == 1.0` 이면 파일럿이 평소 전액이고,
+    #    `(1.0, 0.5)` 는 최종 **1.5배**가 된다. 합이 1.0 이면 «같은 크기를 늦게 채우는 것»뿐이라
+    #    크기가 안 커진다 — 그게 74번이 잰 것이었다.
+    #    합 < 1.0 은 여전히 막는다(파일럿조차 한 칸을 못 채우는 판은 이 도구의 물음이 아니다).
+    if tot < 1.0 - 1e-9:
+        raise ValueError("shares 합이 1.0 미만이다: %r (합 %.12f)" % (shares, tot))
+    if any(x <= 0 for x in shares):
+        raise ValueError("shares 는 전부 양수여야 한다: %r" % (shares,))
     atr = atr_series(true_ranges(path), atr_n=atr_n)
     out = {}
     for mask in itertools.product((False, True), repeat=len(shares) - 1):
@@ -409,6 +416,11 @@ def main() -> int:
     # H′ — 방아쇠 정의를 고친 판. **관문 D 만** 다시 찍는다(기본값 판정에는 안 쓴다)
     HP = dict(h_lag=True, stay_on="close")
     Dp = {"두 단": [0, 0, {}], "세 단": [0, 0, {}]}
+    # 관문 E — **규모가 가격 논리로 새지 않는가.** 비율이 같은 두 `shares` 는
+    #          날짜·결과·가격이 «한 자리도» 달라선 안 된다(몫만 배율만큼 커진다).
+    nE = nE_bad = nE_share = nE_px = nE_round = 0
+    E_bad = []
+    E_relmax = [0.0]
     D3_tot = D3_none = 0
     n_sched_by_mask_differs = 0
     add_hist, add_hist3 = {}, {}
@@ -460,11 +472,12 @@ def main() -> int:
                         if len(B_bad) < 5:
                             B_bad.append((p["code"], p["scan_date"], mask, fsum))
                     lsum = sum(f for _d, _px, f, _k in r["lots"])
-                    if lsum > 1.0 + TOL:
+                    ssum = sum(shares)          # 🚨 상한은 1.0 이 아니라 **Σshares** 다
+                    if lsum > ssum + TOL:
                         nC += 1
                         if len(C_bad) < 5:
                             C_bad.append((p["code"], p["scan_date"], mask, lsum))
-                    if all(mask) and abs(lsum - 1.0) > TOL:
+                    if all(mask) and abs(lsum - ssum) > TOL:
                         nCF += 1
                         if len(C_full_bad) < 5:
                             C_full_bad.append((p["code"], p["scan_date"], mask, lsum,
@@ -485,6 +498,43 @@ def main() -> int:
                 nadd = len(gp["lots"]) - 1
                 sl[2][nadd] = sl[2].get(nadd, 0) + 1
                 full = got[fullmask]
+                # ── 관문 E — (1.0,0.5) 는 (2/3,1/3) 의 1.5배 «규모»일 뿐이다
+                if is_head:
+                    g1 = resolve_all_masks(p, shares=(1.0, 0.5))
+                    g2 = resolve_all_masks(p, shares=(2 / 3, 1 / 3))
+                    for mk in g1:
+                        nE += 1
+                        a, b = g1[mk], g2[mk]
+                        # ① 구조 — 날짜·결과·다리 수는 **정확히** 같아야 한다
+                        st_ok = (a["resolve_date"] == b["resolve_date"]
+                                 and a["result"] == b["result"]
+                                 and a["at_end"] == b["at_end"]
+                                 and [x[0] for x in a["exits"]] == [x[0] for x in b["exits"]]
+                                 and [x[:2] for x in a["sched"]] == [x[:2] for x in b["sched"]]
+                                 and [x[:2] for x in a["lots"]] == [x[:2] for x in b["lots"]])
+                        if not st_ok:
+                            nE_bad += 1
+                            if len(E_bad) < 3:
+                                E_bad.append((p["code"], p["scan_date"], mk,
+                                              a["resolve_date"], b["resolve_date"],
+                                              a["result"], b["result"]))
+                            continue
+                        # ② 몫 — 1.5배
+                        for x, y in zip(a["lots"], b["lots"]):
+                            if abs(x[2] - y[2] * 1.5) > TOL * max(1.0, abs(x[2])):
+                                nE_share += 1
+                                break
+                        # ③ 청산가 — 평균단가가 «나눗셈»으로 나오므로 부동소수 마지막 비트가
+                        #    움직인다(Σ(px·fr)/Σfr 은 대수적으로만 규모 불변이다).
+                        #    **하네스가 실제로 쓰는 2자리 반올림값**이 같은지를 함께 본다.
+                        ep = a["entry_px"]
+                        for x, y in zip(a["exits"], b["exits"]):
+                            rel = abs(x[2] - y[2]) / max(1e-12, abs(y[2]))
+                            E_relmax[0] = max(E_relmax[0], rel)
+                            if rel > 1e-12:
+                                nE_px += 1
+                            if round(x[2] / ep * 100 - 100, 2) != round(y[2] / ep * 100 - 100, 2):
+                                nE_round += 1
                 if is_head:
                     D_tot += 1
                     if not full["sched"]:
@@ -519,10 +569,10 @@ def main() -> int:
           % (nB, "**통과**" if not nB else "**미통과** (예시) %s" % B_bad[:3]), flush=True)
 
     print("", flush=True)
-    print("관문 C  Σ lots 몫 ≤ 1.0 · mask 전부 True 면 == 1.0", flush=True)
-    print("   ≤1.0 어긋남 **%d** · 전부-True 인데 ≠1.0 **%d**" % (nC, nCF), flush=True)
+    print("관문 C  Σ lots 몫 ≤ **Σshares** · mask 전부 True 면 == Σshares", flush=True)
+    print("   ≤Σshares 어긋남 **%d** · 전부-True 인데 ≠Σshares **%d**" % (nC, nCF), flush=True)
     if nCF:
-        print("   ⚠️ **계약의 「mask 전부 True → Σ lots == 1.0」은 «방아쇠가 난 경로»에서만 참이다.**",
+        print("   ⚠️ **「mask 전부 True → Σ lots == Σshares」는 «방아쇠가 난 경로»에서만 참이다.**",
               flush=True)
         print("      방아쇠가 한 번도 안 나면 살 기회 자체가 없다 — 관문 D 의 「방아쇠 안 남」과"
               " 「1회만 남」이 여기 다 들어온다.", flush=True)
@@ -544,6 +594,20 @@ def main() -> int:
     if 100 * D_none / max(1, D_tot) > 90:
         print("   🚨 **90%% 초과 — 눌림 조건이 빡빡하다. 값은 바꾸지 않고 «보고»만 한다.**",
               flush=True)
+
+    print("", flush=True)
+    print("관문 E  **규모가 가격 논리로 새지 않는가** — shares=(1.0,0.5) vs (2/3,1/3)", flush=True)
+    print("        비율이 같으니 날짜·결과·청산가가 «한 자리도» 달라선 안 되고, 몫만 1.5배여야 한다",
+          flush=True)
+    print("   ① 구조(날짜·결과·다리) 어긋남 **%d** / %d → %s"
+          % (nE_bad, nE, "**통과**" if not nE_bad else "**미통과** %s" % E_bad[:2]), flush=True)
+    print("   ② 몫이 1.5배 아님 **%d**" % nE_share, flush=True)
+    print("   ③ 청산 «가격» 상대차 > 1e-12 인 다리 **%d** · 최대 상대차 **%.2e**"
+          % (nE_px, E_relmax[0]), flush=True)
+    print("      🚨 평균단가가 Σ(px·fr)/Σfr 이라 **대수적으로만** 규모 불변이다 — 마지막 비트가 움직인다.",
+          flush=True)
+    print("   ④ **하네스 2자리 반올림 뒤** 어긋난 다리 **%d**  ← 시뮬이 실제로 보는 값"
+          % nE_round, flush=True)
 
     print("", flush=True)
     print("관문 D′  방아쇠 정의를 고친 판 (h_lag=True · stay_on=\"close\") — **관문 D 만** 다시",
