@@ -96,6 +96,12 @@ def sim_lots(trades, risk=0.02, cap=0.20, seed=0, slots=5,
     n_blocked_cash = n_add_blocked = n_added = n_trunc = 0
     resv_frac = []            # 날짜별 «묶여서 놀고 있는» 비중
     idle_end = []             # 결착 때 끝내 안 쓴 예약금 (목표 대비 몫)
+    # 🚨 «어느 거래가 자본을 얼마나 받았나» — 밖에서 감사할 수 있어야 한다.
+    #    (2026-08-25 되살림: 관문 ④ 가 «실패할 수 없는» 관문이라 검증 세션이
+    #     밖에서 ④′「방아쇠 난 트랜치 수 == 실제로 산 트랜치 수」를 걸 수 있게.)
+    #    항목: (키, 종류, 트랜치번호 k, 날짜, 체결가, 실제비중, 목표크기)
+    #    종류: "pilot" | "add" | "blocked"(방아쇠는 났으나 현금이 없어 못 삼)
+    fill_log = []
 
     def credit(items):
         nonlocal eq
@@ -173,15 +179,18 @@ def sim_lots(trades, risk=0.02, cap=0.20, seed=0, slots=5,
                     h["resv"] -= take
                     h["w"].append((apx, take))
                     n_added += 1
+                    fill_log.append((h["key"], "add", k, d, apx, take, h["target"]))
                     h["sched"].pop(0)
                 elif need > cash + 1e-12:
                     h["mask"][k] = False
                     n_add_blocked += 1
+                    fill_log.append((h["key"], "blocked", k, d, apx, 0.0, h["target"]))
                     reslot(h, d)             # ← 안 산 것으로 «다시 푼다»
                 else:
                     cash -= need
                     h["w"].append((apx, need))
                     n_added += 1
+                    fill_log.append((h["key"], "add", k, d, apx, need, h["target"]))
                     h["sched"].pop(0)
 
         # ── 새 진입 (파일럿) ─────────────────────────────────────────────
@@ -212,7 +221,10 @@ def sim_lots(trades, risk=0.02, cap=0.20, seed=0, slots=5,
                 nomw[id(t)] = target / eq if eq > 0 else 0.0
                 mask = [True] * (len(t["shares"]) - 1)
                 r0 = _res(t, mask)
-                h = {"t": t, "mask": mask, "k": -1, "target": target,
+                key = (t["scan_date"], t["code"], t.get("pattern", ""))
+                fill_log.append((key, "pilot", -1, d, t["entry_px"],
+                                 target * sh0, target))
+                h = {"t": t, "mask": mask, "k": -1, "target": target, "key": key,
                      "w": [(t["entry_px"], target * sh0)],
                      "resv": (target * (1.0 - sh0)) if reserve else 0.0,
                      "exits": list(r0["exits"]), "all_exits": list(r0["exits"]),
@@ -236,7 +248,8 @@ def sim_lots(trades, risk=0.02, cap=0.20, seed=0, slots=5,
     mdd = min(mdd, eq / peak - 1)
     cc = sorted(conc)
     m = len(cc)
-    return {"curve": curve, "equity_pct": (eq - 1) * 100, "n_filled": n,
+    return {"curve": curve, "fill_log": fill_log,
+            "equity_pct": (eq - 1) * 100, "n_filled": n,
             "arith_pct": arith[0] * 100,
             "filled_per_trade": (st.mean(fills) if fills else 0.0),
             "win_rate": (w / n * 100 if n else 0.0),
