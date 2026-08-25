@@ -73,11 +73,19 @@ def mde(sw):
             out[b] = None
             continue
         L = math.log(1 + md / 100)
-        hw = (math.log(1 + hi / 100) - math.log(1 + lo / 100)) / 2
-        T = (hw / abs(L)) ** 2 if L else float("inf")
-        out[b] = {"median": md, "lo": lo, "hi": hi, "L": L, "hw": hw,
+        lg, hg = math.log(1 + lo / 100), math.log(1 + hi / 100)
+        # 🚨 **0 을 향한 쪽까지의 거리**를 쓴다. 구간이 로그 축에서도 «비대칭»이라
+        #    (상단−하단)/2 로 쓰면 틀린다. 효과가 음수면 «위쪽» 끝이 0 을 향한다.
+        #    2026-08-26 정정 — 처음엔 평균 반폭을 썼고, 그 결과
+        #    「필요 0.9배(=지금 자료로 충분)인데 0 배제 ❌」라는 모순이 나왔다.
+        d = (hg - L) if L < 0 else (L - lg)
+        T = (d / abs(L)) ** 2 if L else float("inf")
+        out[b] = {"median": md, "lo": lo, "hi": hi, "L": L, "d": d,
                   "T": T, "years": T * YEARS_WINDOW,
-                  "need_pct": (math.exp(hw) - 1) * 100, "excl0": v["excl0"]}
+                  "need_pct": (math.exp(d) - 1) * 100, "excl0": v["excl0"],
+                  # ★ 자기 점검: T < 1 이면 «지금 자료로 이미 0 배제»여야 한다.
+                  #   둘이 어긋나면 식이 틀린 것이다 — 값을 쓰지 말고 멈춘다.
+                  "consistent": (T < 1.0) == bool(v["excl0"])}
     return out
 
 
@@ -128,10 +136,11 @@ def main() -> int:
                 print("  %-32s %5d   (로그 불가 — 하단이 −100%% 이하)"
                       % (lbl if blk == da.BLOCKS[0] else "", blk), flush=True)
                 continue
-            print("  %-32s %5d %+9.2f%% %+9.2f%% %8.1f배 %9.0f년 %8s"
+            print("  %-32s %5d %+9.2f%% %+9.2f%% %8.2f배 %9.0f년 %8s%s"
                   % (lbl if blk == da.BLOCKS[0] else "", blk,
                      v["median"], v["need_pct"], v["T"], v["years"],
-                     "✅" if v["excl0"] else "❌"), flush=True)
+                     "✅" if v["excl0"] else "❌",
+                     "" if v["consistent"] else "  🚨자기점검 실패"), flush=True)
         print("", flush=True)
 
     print("─" * 100, flush=True)
@@ -142,6 +151,13 @@ def main() -> int:
           flush=True)
     print("  🚨 **가장 낙관적인 하한이다** — 효과의 하루당 크기가 유지되고 자기상관이 "
           "안 세진다는 가정 둘이 들어 있다.", flush=True)
+    bad = [(k, b) for k, m in RES.items() for b, v in m.items()
+           if v and not v["consistent"]]
+    print("  ★ 자기 점검 (T<1 ⟺ 0배제): **%s**"
+          % ("전부 일치" if not bad else "🚨 어긋난 칸 %d — 값을 쓰지 말 것 %s"
+             % (len(bad), bad)), flush=True)
+    print("  ⚠️ `dataaxis.N_STREAM = 10` — 자료 축은 **앞 10판만** 쓴다. "
+          "seed 60 과 200 이 같은 값을 내는 이유다.", flush=True)
     (OUT / "75a-mde.json").write_text(
         json.dumps({"n_seed": n_seed, "equity": {"P0": e0, "P0_016": e016, "H": eH,
                                                  "H_avg": eHa, "Hp": eHp, "Hp_avg": eHpa},
