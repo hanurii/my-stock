@@ -56,7 +56,10 @@ ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / "scripts"))
 OUT = ROOT / ".cache" / "bt5y" / "out"
 
-START, END = "2021-02-01", "2026-08-21"
+import os as _os
+# 🚨 기본은 옛 창이다 — 9년판은 `EQW_START=2017-06-01` 로 «명시해서» 연다.
+START = _os.environ.get("EQW_START", "2021-02-01")
+END = _os.environ.get("EQW_END", "2026-08-21")
 MIN_TURNOVER_EOK = 5.0
 TURNOVER_WINDOW = 50
 MIN_SAMPLE = TURNOVER_WINDOW // 2
@@ -329,7 +332,7 @@ def main():
     print("상폐(창 끝 전 마지막 거래일) **%d / %d = %.1f%%** — 마지막날까지 포함, -100%% 처리 없음"
           % (len(deli), len(last), len(deli) / len(last) * 100), flush=True)
     OUT.mkdir(parents=True, exist_ok=True)
-    (OUT / ("26-eqw-%s.json" % mkt)).write_text(json.dumps({
+    (OUT / ("26-eqw-%s%s.json" % (mkt, "" if START == "2021-02-01" else "9y"))).write_text(json.dumps({
         "market": mkt, "n_days": R["n_days"], "last_date": end,
         "avg_members": {a: st.mean(R["members"][a]) for a in ("filt", "all")},
         "ladder": {r: {"filt_daily": res[r][0], "filt_bh": res[r][1],
