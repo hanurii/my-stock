@@ -52,7 +52,7 @@ def _res(t, mask):
 
 def sim_lots(trades, risk=0.02, cap=0.20, seed=0, slots=5,
              reserve=False, fill_rule="truncate", cash_rule="per_slot",
-             use_cash=True):
+             use_cash=True, pick=None):
     """자산곡선. 크기 = min(자산×위험÷손절폭, 자산×상한).
 
     reserve   : True 면 진입 때 **목표 금액 전체**를 현금에서 뺀다(안 쓴 몫은 결착 때 복귀).
@@ -96,6 +96,12 @@ def sim_lots(trades, risk=0.02, cap=0.20, seed=0, slots=5,
     n_blocked_cash = n_add_blocked = n_added = n_trunc = 0
     resv_frac = []            # 날짜별 «묶여서 놀고 있는» 비중
     expo_frac = []            # 날짜별 «주식에 들어가 있는» 비중 (노출)
+    # ★ 조건부 분할매수 (78번 A) — 진입 «그때» 전액/파일럿을 고른다.
+    #   `pick(recent) -> True` 면 `t["alt"]`(대개 한 트랜치 전액)를 쓴다.
+    #   `recent` = 직전 청산 «최대 5건»의 승패(True=win). 원문 「last 4 or 5 stocks」.
+    #   🚨 자료가 5건 안 쌓였으면 판단 근거가 없다 — 호출자가 그때 무엇을 반환할지 정한다.
+    recent = []
+    n_alt = n_base = 0
     idle_end = []             # 결착 때 끝내 안 쓴 예약금 (목표 대비 몫)
     # 🚨 «어느 거래가 자본을 얼마나 받았나» — 밖에서 감사할 수 있어야 한다.
     #    (2026-08-25 되살림: 관문 ④ 가 «실패할 수 없는» 관문이라 검증 세션이
@@ -124,6 +130,8 @@ def sim_lots(trades, risk=0.02, cap=0.20, seed=0, slots=5,
                 for _d, fr, px in h["all_exits"] for epx_i, w_i in tw)
         fills.append(r)
         is_w = h["result"] == "win"
+        recent.append(bool(is_w))
+        del recent[:-5]
         w += is_w
         mw += r > 0
         streak = 0 if is_w else streak + 1
@@ -133,7 +141,7 @@ def sim_lots(trades, risk=0.02, cap=0.20, seed=0, slots=5,
 
     def reslot(h, d):
         """실제로 산 조합으로 «다시 푼다» — 그날 «이후»의 청산선만 갈아 끼운다."""
-        r = _res(h["t"], h["mask"])
+        r = _res(h["spec"], h["mask"])
         h["exits"] = [e for e in r["exits"] if e[0] >= d]
         h["sched"] = [s for s in r["sched"] if s[0] >= d and s[3] > h["k"]]
         h["resolve_date"] = r["resolve_date"]
@@ -208,7 +216,14 @@ def sim_lots(trades, risk=0.02, cap=0.20, seed=0, slots=5,
                 sf_ = t.get("stop_frac") or 0.10
                 lim = min(eq * risk / sf_, eq * cap)
                 # 🚨 예약하면 «목표 전체»가 나가고, 아니면 파일럿만 나간다
-                sh0 = t["shares"][0]
+                # ★ 조건부: 이 거래를 «전액»으로 갈지 «파일럿»으로 갈지 지금 고른다
+                spec = t
+                if pick is not None and t.get("alt") is not None and pick(recent):
+                    spec = t["alt"]
+                    n_alt += 1
+                else:
+                    n_base += 1
+                sh0 = spec["shares"][0]
                 need = lim if reserve else lim * sh0
                 avail = cash if not use_cash else (
                     cash if share_cap is None else min(cash, share_cap))
@@ -223,12 +238,13 @@ def sim_lots(trades, risk=0.02, cap=0.20, seed=0, slots=5,
                     continue
                 target = need if reserve else need / sh0
                 nomw[id(t)] = target / eq if eq > 0 else 0.0
-                mask = [True] * (len(t["shares"]) - 1)
-                r0 = _res(t, mask)
+                mask = [True] * (len(spec["shares"]) - 1)
+                r0 = _res(spec, mask)
                 key = (t["scan_date"], t["code"], t.get("pattern", ""))
                 fill_log.append((key, "pilot", -1, d, t["entry_px"],
                                  target * sh0, target))
-                h = {"t": t, "mask": mask, "k": -1, "target": target, "key": key,
+                h = {"t": t, "spec": spec, "mask": mask, "k": -1,
+                     "target": target, "key": key,
                      "w": [(t["entry_px"], target * sh0)],
                      "resv": (target * (1.0 - sh0)) if reserve else 0.0,
                      "exits": list(r0["exits"]), "all_exits": list(r0["exits"]),
@@ -261,6 +277,7 @@ def sim_lots(trades, risk=0.02, cap=0.20, seed=0, slots=5,
             "mdd_pct": mdd * 100, "max_loss_streak": best,
             "cash_floor": cash_floor,
             "blocked_cash": n_blocked_cash, "truncated": n_trunc,
+            "n_alt": n_alt, "n_base": n_base,
             "n_added": n_added, "n_add_blocked": n_add_blocked,
             # 예약의 «대가» — 이걸 안 찍으면 예약판이 공짜로 보인다
             "expo_mean": (st.mean(expo_frac) * 100 if expo_frac else 0.0),

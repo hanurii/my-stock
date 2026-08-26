@@ -230,7 +230,13 @@ def resolve_one(path, mask, *, ft="limit", fs="market", stop=8.0, target=20.0,
             k += 1
             last_add = i
             pend_add = None
-        if k < len(shares) and trig_mode == "traction":
+        # ★ 결합 방아쇠 (78번 D) — **1차는 견인력, 2차 이후는 재돌파**.
+        #   원문 두 대목이 각각 절반씩이라 둘 다 쓰는 판을 만든다:
+        #     ①「잘 진행되면 바로 채운다」 = 견인력   ②「새로운 저위험 진입 시점」 = 재돌파
+        _tm = trig_mode
+        if trig_mode == "hybrid":
+            _tm = "traction" if k == 1 else "rebreak"
+        if k < len(shares) and _tm == "traction":
             # ★ 미너비니 규약 (77번) — 「파일럿을 먼저 보내고 «견인력»이 확인되면 더 넣는다」.
             #   «가격이 얼마 올랐나»가 아니라 «이 파일럿이 살아서 이익 중인가»를 본다.
             #   조건: 진입 후 `trac_days` 거래일이 지났고 종가가 진입가 대비 +`trac_gain`% 이상.
@@ -239,7 +245,7 @@ def resolve_one(path, mask, *, ft="limit", fs="market", stop=8.0, target=20.0,
             if i >= last_add + trac_days and c[i] is not None \
                     and c[i] >= epx * (1 + trac_gain / 100.0):
                 pend_add = (d[i], c[i])          # 다음 봉 시작에 체결
-        elif k < len(shares):
+        elif k < len(shares) and _tm == "rebreak":
             if L is not None:
                 # ③ 무장 상태 — 「그 뒤」 고가 ≥ L 인 첫날
                 if i > armed_at and h[i] is not None and h[i] >= L:
