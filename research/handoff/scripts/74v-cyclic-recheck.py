@@ -31,15 +31,19 @@ sys.path.insert(0, str(HERE))
 import dataaxis as da                                    # noqa: E402
 
 REAL_OUT = ROOT / ".cache" / "bt5y" / "out"
-INPUTS = ("26-eqw-us9y.json", "38-indices.json", "61-monthly-us.json")
-JOBS = {"58": "58-slot-count.py", "59": "59-regime-9y.py",
-        "60": "60-regime-faithful.py", "61": "61-selection-leaders.py"}
+INPUTS = ("26-eqw-us9y.json", "26-eqw-us.json", "38-indices.json",
+          "61-monthly-us.json")
+JOBS = {"59": "59-regime-9y.py", "60": "60-regime-faithful.py",
+        "61": "61-selection-leaders.py", "43": "43-round2-size.py",
+        "47": "47-round3-pyramid.py", "48": "48-round4-regime.py"}
+# 🚨 58 은 «대상이 아니다» — `58-slot-count.py` 는 dataaxis 를 import 하지 않는다
+#    (58 의 자료 축은 `58b-dataaxis.json` 인데 그걸 만든 스크립트가 저장소에 없다)
 
 
 def main() -> int:
     which = [a for a in sys.argv[1:] if a in JOBS]
     if not which:
-        print("쓰기: 74v-cyclic-recheck.py 58|59|60|61")
+        print("쓰기: 74v-cyclic-recheck.py 43|47|48|59|60|61")
         return 2
     if not hasattr(da, "CYCLIC"):
         print("🚨 dataaxis 에 CYCLIC 이 없다 — 두뇌 세션 커밋을 먼저 받아야 한다")
