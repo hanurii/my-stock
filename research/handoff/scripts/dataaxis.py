@@ -164,12 +164,24 @@ def band_paired(curves_v, curves_0, block, n_stream=N_STREAM, n_rep=N_REP, seed=
             "excl0": (vals[int(m * .025)] > 0) or (vals[int(m * .975)] < 0)}
 
 
-def sweep(curves_v, curves_0=None, blocks=BLOCKS):
-    """블록 20/40/80 세 판. **헤드라인은 가장 넓은 구간**을 쓴다."""
+def sweep(curves_v, curves_0=None, blocks=BLOCKS, n_stream=None, n_rep=None):
+    """블록 20/40/80 세 판. **헤드라인은 가장 넓은 구간**을 쓴다.
+
+    🚨 `n_stream`/`n_rep` 은 **기본값 None = 옛 동작 그대로**(스트림 10 × 재표집 100).
+       2026-08-26 검증 세션 지적 — **자산 표는 200판인데 자료 축은 앞 10 seed 만 쓴다.**
+       그래서 `band_paired` 중앙이 관측 짝 성과와 크게 어긋날 수 있다
+       (77번: 짝200 +21.49% vs band_paired(10) +3.2%).
+       **`T > (hw/|L|)²` 에 쓰려면 `L` 과 `hw` 가 «같은 구성»에서 나와야 하므로**
+       그때는 `n_stream=200, n_rep=5` 처럼 «같은 몬테카를로 예산»으로 다시 돌린다."""
+    kw = {}
+    if n_stream is not None:
+        kw["n_stream"] = n_stream
+    if n_rep is not None:
+        kw["n_rep"] = n_rep
     out = {}
     for b in blocks:
-        out[b] = (band_paired(curves_v, curves_0, b) if curves_0 is not None
-                  else band_total(curves_v, b))
+        out[b] = (band_paired(curves_v, curves_0, b, **kw) if curves_0 is not None
+                  else band_total(curves_v, b, **kw))
     widest = max(out, key=lambda b: out[b]["hi"] - out[b]["lo"])
     out["_widest"] = widest
     out["_verdict_block"] = widest

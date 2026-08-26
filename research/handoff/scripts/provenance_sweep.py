@@ -55,8 +55,16 @@ def find(j, src):
     return None
 
 
+CANARY = "__provenance_canary_never_built.json"
+"""🚨 **양성 대조**(유형 24 · 검증 세션 제안 2026-08-26) — 어느 스크립트에도 없는 이름.
+   이게 「없음」으로 안 잡히면 **자가 무뎌진 것**이고, 그때는 이 훑기의 0 이 뜻을 잃는다."""
+
+
 def main() -> int:
     src = load_src()
+    if find(CANARY, src) is not None:
+        print("🚨 **양성 대조 실패** — 있지도 않은 이름을 «찾았다»고 한다. 자가 무뎌졌다.")
+        return 2
     cite = collections.defaultdict(set)
     for sub in ("results", "verdicts"):
         d = HANDOFF / sub

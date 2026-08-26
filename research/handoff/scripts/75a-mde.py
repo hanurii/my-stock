@@ -126,8 +126,16 @@ def main() -> int:
           flush=True)
     print("  " + "─" * 96, flush=True)
     RES = {}
+    # 🚨 **`L` 과 `hw` 를 «같은 구성»에서 낸다** (검증 세션 2026-08-26):
+    #    기본 sweep 은 스트림 10 × 재표집 100 이라 중앙이 관측 짝 성과와 어긋날 수 있다.
+    #    같은 예산(1,000값)을 «스트림 200 × 재표집 5» 로 재배치해 다시 돌린다.
+    NS = None if "--old-streams" in sys.argv else min(n_seed, 200)
+    NR = None if NS is None else max(1, 1000 // NS)
+    print("자료 축 구성 — 스트림 %s × 재표집 %s (기본값은 10 × 100)"
+          % (NS or 10, NR or 100), flush=True)
+    print("", flush=True)
     for lbl, a, b in PAIRS:
-        sw = da.sweep(made[a], made[b])
+        sw = da.sweep(made[a], made[b], n_stream=NS, n_rep=NR)
         m = mde(sw)
         RES[lbl] = {str(k): v for k, v in m.items()}
         for blk in da.BLOCKS:
@@ -156,8 +164,11 @@ def main() -> int:
     print("  ★ 자기 점검 (T<1 ⟺ 0배제): **%s**"
           % ("전부 일치" if not bad else "🚨 어긋난 칸 %d — 값을 쓰지 말 것 %s"
              % (len(bad), bad)), flush=True)
-    print("  ⚠️ `dataaxis.N_STREAM = 10` — 자료 축은 **앞 10판만** 쓴다. "
-          "seed 60 과 200 이 같은 값을 내는 이유다.", flush=True)
+    print("  ⚠️ `dataaxis` 기본값은 «스트림 10 × 재표집 100» 이라 자료 축이 **앞 10판만** 쓴다. "
+          "여기서는 «전 판 × 재표집 %s» 로 재배치해 **`L` 과 `hw` 를 같은 구성에서** 냈다."
+          % (NR or 100), flush=True)
+    print("     (옛 구성으로 보려면 `--old-streams`. 77번에서 짝200 +21.49% vs "
+          "band_paired(10) +3.2% 로 크게 어긋난 것이 계기다.)", flush=True)
     (OUT / "75a-mde.json").write_text(
         json.dumps({"n_seed": n_seed, "equity": {"P0": e0, "P0_016": e016, "H": eH,
                                                  "H_avg": eHa, "Hp": eHp, "Hp_avg": eHpa},
