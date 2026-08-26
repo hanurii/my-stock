@@ -145,9 +145,10 @@ def main() -> int:
     packs = {}
     for nm, thr in OUTC:
         ins, outs, do = split(recs, thr)
+        di = [r["d"][:4] for r in recs if r["d"] < SPLIT]
         per = best_of(ins, outs, want_lift=True)
         bf = max(per, key=lambda f: per[f])
-        packs[nm] = (ins, outs, do, bf, per[bf])
+        packs[nm] = (ins, outs, do, bf, per[bf], di)
         print("  관측 %s — 최선 `%s` **×%.3f** (기준율 대비 %+.1f%%)"
               % (nm, bf, 1 + per[bf], per[bf] * 100), flush=True)
 
@@ -158,9 +159,12 @@ def main() -> int:
         for it in range(N_NULL):
             vals = []
             for nm, _thr in OUTC:
-                ins, outs, do, _bf, _o = packs[nm]
-                bi = [d for d in ["x"] * 0] or None
-                b_in = None if mode == "통째로" else ["in"] * len(ins)
+                ins, outs, do, _bf, _o, di = packs[nm]
+                # 🚨 2026-08-27 수정 — 표본«안»도 연도 블록으로 섞어야 한다.
+                #    처음엔 ["in"]*len(ins) 로 «한 덩어리»를 넘겨 표본안이 통째로 섞였다.
+                #    (두뇌 세션 구현과 어긋났고, 이 판의 백분위를 98.3 으로 부풀렸다.
+                #     같은 값을 연도 블록으로 재면 97.7 이다 — `85v-timeblock.py`.)
+                b_in = None if mode == "통째로" else di
                 b_out = None if mode == "통째로" else do
                 per = best_of(shuffled(ins, rnd, b_in), shuffled(outs, rnd, b_out),
                               want_lift=True)
