@@ -113,11 +113,17 @@ def spans(cal, on):
 # ═════════════════════════════════════════════════════════════════════════
 # 2. 거래를 «자른다» — 경로 재해결 없이 exits 만 손본다
 # ═════════════════════════════════════════════════════════════════════════
+SKIP = {"no_path": 0, "no_date": 0, "no_rest": 0}
+
+
 def cut_events(ev, pmap, no_entry, idx_hold, cal):
     """off 달 첫 거래일 종가에 전량 청산 + off 달 진입 차단.
 
-    🚨 `open_until` 은 «자르기 전» 결착일로 이미 정해졌다. 자르면 실제로는 더 일찍
-       풀려 재진입이 가능해지지만 여기서는 «안 늘린다» → **보수적**이다. 한계에 적는다.
+    🚨 옛 도크스트링은 `open_until` 이 «안 풀린다»고 적었는데 **틀렸다**(검증 33bdb177).
+       `slot_sim_lots` 는 슬롯을 `masks[()]["resolve_date"]` 로 푸는데 여기서 그 값도
+       갈아 끼우므로 **슬롯이 실제로 일찍 풀린다** — ㉡ 체결이 232 → 260 으로 늘어난 게 증거.
+       즉 「보수적 편향」이라는 방어는 필요 없다. 편향이 «없다».
+    🚨 `except ValueError` 갈래는 조용히 넘어가므로 **센다**(검증 세션 지적, 실측 0건).
     """
     starts = sorted(d for d in idx_hold if not idx_hold.get(_prev(cal, d)))
     out, n_cut, n_block, n_gone = [], 0, 0, 0
@@ -138,16 +144,19 @@ def cut_events(ev, pmap, no_entry, idx_hold, cal):
         cut = starts[k]
         p = pmap.get((t["scan_date"], t["code"], t["pattern"]))
         if p is None:
+            SKIP["no_path"] += 1
             out.append(t)
             continue
         try:
             j = p["d"].index(cut)
         except ValueError:
+            SKIP["no_date"] += 1          # ← 조용히 넘어가지 않는다
             out.append(t)
             continue
         keep = [e for e in ex if e[0] < cut]
         rest = 1.0 - sum(e[1] for e in keep)
         if rest <= 1e-9:
+            SKIP["no_rest"] += 1
             out.append(t)
             continue
         new_ex = keep + [(cut, rest, p["c"][j])]
@@ -330,6 +339,33 @@ def main() -> int:
              else "🚨 미통과"), flush=True)
     if abs(got - want) / want >= 1e-9:
         return 3
+
+    # ── 관문 ②″ ★ 검증 세션이 만든 대체 관문 ────────────────────────────
+    # 🚨 관문 ② 는 «구간이 하나»라 양 끝으로 답이 정해진다 → 가운데를 망가뜨려도 안 변한다.
+    #    결함 ①(구간 안이 비어 지수 몫이 1.0 이 됨)이 ② 를 «통과하면서» 살아남은 이유다.
+    #    ②″ 는 «진짜 깃발»(구간 9개)로 걸고, «재개일을 지운» 곡선이 **실패해야** 한다.
+    truth = 1.0
+    for _s0 in sorted(d for d in idx_hold if not idx_hold.get(_prev(cal, d))):
+        _k = cal.index(_s0); _j = _k
+        while _j + 1 < len(cal) and idx_hold.get(cal[_j + 1]):
+            _j += 1
+        truth *= ipx(cal[_j]) / ipx(_s0) * (1 - HEADLINE_COST) ** 2
+    dense = [(d, 1.0) for d in cal]
+    ends = {cal[i] for i in range(len(cal))
+            if idx_hold.get(cal[i]) and not idx_hold.get(cal[i + 1] if i + 1 < len(cal) else "")}
+    holed = [(d, e) for d, e in dense if d not in ends]        # 재개일을 지운 판
+    g_dense = overlay_fold(dense, idx_hold, ipx, HEADLINE_COST)[0][-1][1]
+    g_hole = overlay_fold(holed, idx_hold, ipx, HEADLINE_COST)[0][-1][1]
+    g_fix = overlay_fold(holed, idx_hold, ipx, HEADLINE_COST, cal)[0][-1][1]
+    e_dense, e_hole, e_fix = (abs(g_dense / truth - 1), abs(g_hole / truth - 1),
+                              abs(g_fix / truth - 1))
+    ok2 = e_dense < 1e-9 and e_hole > 1e-3 and e_fix < 1e-9
+    print("관문 ②″ 진짜 깃발(구간 %d개)로 «지수배의 곱» %.6f 을 맞히는가 — "
+          "빽빽 %.1e ✅ · **재개일 지운 판 %.1e (실패해야 통과)** · expand 후 %.1e ✅ → **%s**"
+          % (len(ends), truth, e_dense, e_hole, e_fix, "통과" if ok2 else "🚨 미통과"),
+          flush=True)
+    if not ok2:
+        return 3
     w0, w1_ = base[0]["curve"][0][0], base[0]["curve"][-1][0]
     SP_ALWAYS = (ipx(w1_) / ipx(w0) - 1) * 100
     print("        (항상 지수 = **%+.2f%%** — 우리 곡선과 «같은 창» %s ~ %s)"
@@ -397,10 +433,21 @@ def main() -> int:
           "구간 지수 몫 **%+.2f%%** → **%s**"
           % (n_hold_raw, n_hold_cal, n_want, (idx_span - 1) * 100,
              "통과" if n_hold_cal >= n_want else "🚨 미통과"), flush=True)
-    bad = sum(1 for a, b in zip(curves[0][:-1], curves[0][1:])
-              if idx_hold.get(a[0]) and idx_hold.get(b[0]) and abs(b[1] - a[1]) > 1e-12)
-    print("        (지수 구간 «안»에서 자산이 움직인 날 %d — 보유가 없으니 0 이어야 한다)"
-          % bad, flush=True)
+    # 🚨 옛 ④′ 뒷줄은 «셀 것이 0개»였다 — 구간마다 곡선 점이 하나(자르는 날)뿐이라
+    #    연속 쌍이 안 생긴다. `bad=0` 은 「평평하다」가 아니라 「한 번도 안 봤다」였다.
+    #    대체(검증 세션): **구간마다 «날것» 자산 사건이 정확히 하나인가.**
+    raw = {d for d, _e in curves[0]}
+    per, bad = [], 0
+    for _s0 in sorted(d for d in idx_hold if not idx_hold.get(_prev(cal, d))):
+        _k = cal.index(_s0); _j = _k
+        while _j + 1 < len(cal) and idx_hold.get(cal[_j + 1]):
+            _j += 1
+        c1 = sum(1 for d in cal[_k:_j + 1] if d in raw)
+        per.append(c1)
+        bad += (c1 != 1)
+    print("        ④′b 구간마다 «날것» 자산 사건이 정확히 1개인가 — %s → **%s**"
+          % (per, "통과 %d/%d" % (len(per) - bad, len(per)) if bad == 0
+             else "🚨 미통과 %d구간" % bad), flush=True)
 
     print("\n" + "─" * 100, flush=True)
     print("본체 — 전환비용별 (seed %d 중앙)" % n_seed, flush=True)
@@ -445,18 +492,30 @@ def main() -> int:
           % (n_rand, N_RAND_SEED), flush=True)
     months = sorted(on)
     lbl = [on[m] for m in months]
-    obs_small = st.median(eq_of(x) for x in
-                          [overlay_fold(cv, idx_hold, ipx, HEADLINE_COST, cal)[0]
-                           for cv in curves[:N_RAND_SEED]])
+    # 🚨 옛 판은 «seed 0~4» 한 판을 무작위 분포와 견줬다 — 그 한 판이 자기 분포의
+    #    4.3 백분위(운 나쁜 꼬리)였다(검증 33bdb177). **같은 자로 놓는다**:
+    #    관측도 «seed 5개 중앙»의 «분포»로 만들어 중앙끼리 견준다.
+    _obs_all = [eq_of(x) for x in head_curves]
+    _rr = random.Random(82082082)
+    obs_dist = sorted(st.median(_rr.sample(_obs_all, N_RAND_SEED)) for _ in range(1000))
+    obs_small = obs_dist[len(obs_dist) // 2]
+    obs_naive = st.median(_obs_all[:N_RAND_SEED])
+    print("   관측을 «같은 자»로 — seed %d개 중앙의 분포: 중앙 **%+.2f%%** · "
+          "5%% %+.2f%% · 95%% %+.2f%%   (옛 판이 쓰던 seed 0~4 = %+.2f%% = %.1f 백분위)"
+          % (N_RAND_SEED, obs_small, obs_dist[50], obs_dist[950], obs_naive,
+             100.0 * sum(1 for x in obs_dist if x < obs_naive) / len(obs_dist)), flush=True)
     rnd = random.Random(20260826)
     nulls, nulls_blk = [], []
+    # 🚨 회전은 서로 다른 깃발이 «달 개수 − 1 = %d개»뿐이다 → 뽑지 말고 **전수**로 돈다
+    #    (검증 세션 지적. 300 뽑기로는 서로 다른 것이 ~104개뿐이었다.)
+    ROT = list(range(1, len(lbl)))
     for mode, store in (("shuffle", nulls), ("block", nulls_blk)):
-        for it in range(n_rand):
+        for it in range(n_rand if mode == "shuffle" else len(ROT)):
             if mode == "shuffle":
                 z = lbl[:]
                 rnd.shuffle(z)
             else:
-                k = rnd.randrange(1, len(lbl))
+                k = ROT[it]
                 z = lbl[k:] + lbl[:k]            # 회전 — 자기상관 보존
             fake = dict(zip(months, z))
             ih, ne, _n = spans(cal, fake)
@@ -466,27 +525,42 @@ def main() -> int:
                 eq_of(overlay_fold(settled_curve(r), ih, ipx, HEADLINE_COST, cal)[0]) for r in rs))
             if it % 50 == 0:
                 print("     %s %d/%d" % (mode, it, n_rand), flush=True)
-    for nm, arr in (("섞기(등록된 것)", nulls), ("회전(자기상관 보존·추가)", nulls_blk)):
+    for nm, arr in (("섞기(등록된 것) %d판" % len(nulls), nulls),
+                    ("회전 **전수 %d판**(표집오차 0)" % len(nulls_blk), nulls_blk)):
         a = sorted(arr)
-        print("  %-22s 보통 %+8.2f%% · 95%% %+8.2f%% · **최대 %+8.2f%%**  vs 관측 %+8.2f%% → **%s**"
-              % (nm, a[len(a) // 2], a[int(len(a) * .95)], a[-1], obs_small,
+        pct = 100.0 * sum(1 for x in a if x < obs_small) / len(a)
+        print("  %-30s 보통 %+8.2f%% · 95%% %+8.2f%% · 최대 %+8.2f%%  vs 관측 %+8.2f%% "
+              "(**%.1f 백분위**) → 등록문턱(>최대) **%s**"
+              % (nm, a[len(a) // 2], a[int(len(a) * .95)], a[-1], obs_small, pct,
                  "통과" if obs_small > a[-1] else "미통과"), flush=True)
+        print("     ⚠️ **「무작위보다 나쁘다」는 «말하지 않는다»** — 같은 자로 놓으면 "
+              "%+.2f%% vs %+.2f%% 로 구분 안 됨. 말할 수 있는 건 «무작위보다 낫다는 근거가 없다»뿐."
+              % (obs_small, a[len(a) // 2]), flush=True)
 
     # ── E. 연도 검정 ────────────────────────────────────────────────────
     print("\nE  연도 검정 — 한 해를 빼고 다시 쌓아도 「항상 지수」 위인가", flush=True)
-    yr_ours = _year_factors(head_curves[len(head_curves) // 2])
+    # 🚨 옛 판은 `head_curves[len//2]` 를 «중앙값»이라 부르며 썼는데 **정렬이 안 된
+    #    리스트의 seed 100번**이었다(검증 33bdb177). E 는 seed 하나짜리 통계였다.
+    #    → **200판 전부**를 센다.
     idx_curve = [(d, ipx(d) / ipx(w0)) for d in cal if w0 <= d <= w1_]
     yr_idx = _year_factors(idx_curve)
-    years = sorted(set(yr_ours) & set(yr_idx))
-    win = 0
-    print("  %6s %11s %11s" % ("뺀 해", "우리", "항상지수"), flush=True)
-    for y in years:
-        a = _prod(yr_ours, skip=y)
-        b = _prod(yr_idx, skip=y)
-        win += a > b
-        print("  %6s %+10.2f%% %+10.2f%% %s"
-              % (y, (a - 1) * 100, (b - 1) * 100, "✅" if a > b else "❌"), flush=True)
-    print("  → **%d / %d** (문턱 ≥ 8/9)" % (win, len(years)), flush=True)
+    wins = []
+    for cv in head_curves:
+        yo = _year_factors(cv)
+        ys = sorted(set(yo) & set(yr_idx))
+        wins.append(sum(1 for y in ys if _prod(yo, skip=y) > _prod(yr_idx, skip=y)))
+    years = sorted(set(_year_factors(head_curves[0])) & set(yr_idx))
+    ws = sorted(wins)
+    win = ws[len(ws) // 2]
+    n_ge8 = sum(1 for x in wins if x >= 8)
+    print("  seed 200판 전부 — 중앙 **%d/%d** · 최소 %d · 최대 %d · "
+          "≥8 인 판 **%d개(%.1f%%)** · ≥9 **%d개(%.1f%%)**"
+          % (win, len(years), ws[0], ws[-1], n_ge8, 100.0 * n_ge8 / len(ws),
+             sum(1 for x in wins if x >= 9), 100.0 * sum(1 for x in wins if x >= 9) / len(ws)),
+          flush=True)
+    print("  ⚠️ **70번의 「9/9」도 이 자료에서 %.1f%% 확률로 나온다 → 「정반대」로 못 읽는다.**"
+          % (100.0 * sum(1 for x in wins if x >= 9) / len(ws)), flush=True)
+    print("  → 중앙 **%d / %d** (문턱 ≥ 8/9)" % (win, len(years)), flush=True)
 
     # ── 50MA 부수 ───────────────────────────────────────────────────────
     ab50 = ma_above(cal, v, 50)
@@ -499,7 +573,27 @@ def main() -> int:
           % (sw50, e50, min(40, n_seed), HEAD, n_seed), flush=True)
 
     # ── 판정 ────────────────────────────────────────────────────────────
-    print("\n" + "=" * 100, flush=True)
+    warm = sorted({d[:7] for d in cal if above.get(d) is None})
+    warm_in = [m for m in warm if m >= w0[:7]]
+    inter = (RES[HEADLINE_COST]["equity"] - DEC["㉢ 둘 다(=현금판)"]["equity"])
+    dz = DEC["바탕(둘 다 없음)"]["equity"] - DEC["㉢ 둘 다(=현금판)"]["equity"]
+    da_ = DEC["바탕(둘 다 없음)"]["equity"] - DEC["㉠ 진입차단만"]["equity"]
+    print(chr(10) + "★ 한계 — 검증 세션이 찾은 것 셋", flush=True)
+    print("  ⓐ 200MA 워밍업: 지수 자료가 %s 부터라 강제 on 인 달 %d개(창 «안» %d개) — "
+          "**스위칭에 «유리»한 편향**인데도 전부 미통과 → 결론을 강화한다."
+          % (cal[0], len(warm), len(warm_in)), flush=True)
+    print("  ⓑ **MDD 는 실제보다 «깊다»** — `sim_lots` 가 청산대금을 «다음 사건일»에 넣어"
+          "(162행) 자르는 날 곡선값이 청산 «전»이고 그 값이 구간 내내 채워진다. "
+          "9구간 중 7구간이 플러스 청산 → 가짜 낙폭. **최종 자산은 무사.**", flush=True)
+    print("  ⓒ ㉠ 이 설명하는 몫은 «전부»가 아니라 **%.1f%%** — ㉠ %+.2f%%p · "
+          "㉡ %+.2f%%p · ㉢ %+.2f%%p → **상호작용 %+.2f%%p**"
+          % (100.0 * da_ / dz, -da_,
+             DEC["㉡ 강제청산만"]["equity"] - DEC["바탕(둘 다 없음)"]["equity"], -dz,
+             -(dz - da_ - (DEC["바탕(둘 다 없음)"]["equity"]
+                           - DEC["㉡ 강제청산만"]["equity"]))), flush=True)
+    print("  ⓓ 조용한 건너뜀 — %s (전부 0 이어야 한다)" % SKIP, flush=True)
+
+    print(chr(10) + "=" * 100, flush=True)
     print("사전등록 §2 판정", flush=True)
     A = HEAD > BASE
     B = obs_small > sorted(nulls)[-1]
@@ -508,11 +602,14 @@ def main() -> int:
     E = win >= 8
     F = pr[len(pr) // 2] > 0 and pw > 50
     for k, ok, txt in (("A★", A, "스위칭 %+.2f%% > 바탕 %+.2f%%" % (HEAD, BASE)),
-                       ("B★", B, "무작위 300판 최대 %+.2f%% vs 관측 %+.2f%%"
-                        % (sorted(nulls)[-1], obs_small)),
+                       ("B★", B, "무작위 %d판 최대 %+.2f%% vs 관측 %+.2f%% "
+                        "(⚠️ 보통값 %+.2f%% 와는 «구분 안 됨» — 「해롭다」 금지)"
+                        % (len(nulls), sorted(nulls)[-1], obs_small,
+                           sorted(nulls)[len(nulls) // 2])),
                        ("C ", C, "%+.2f%% vs 나스닥 %+.2f%%" % (HEAD, NASDAQ_9Y)),
                        ("D ", D, "현금판 차 %.2f%%p" % d_gap),
-                       ("E ", E, "%d/%d" % (win, len(years))),
+                       ("E ", E, "중앙 %d/%d — ⚠️ seed 편차가 커서 «인용 주의»"
+                        % (win, len(years))),
                        ("F ", F, "짝 중앙 %+.2f%% · 이기는 판 %.1f%%"
                         % (pr[len(pr) // 2], pw))):
         print("  %s  %s  — %s" % (k, "✅ 통과" if ok else "❌ 미통과", txt), flush=True)
@@ -525,6 +622,9 @@ def main() -> int:
          "obs_small": obs_small, "n_switch": n_sw_flag, "n_off_month": n_off_m,
          "n_cut": n_cut, "n_block": n_block, "n_entry": len(ev_sw),
          "year_win": win, "year_n": len(years), "ma50": e50,
+         "year_wins_all": wins, "obs_dist_median": obs_small, "obs_naive": obs_naive,
+         "null_med": sorted(nulls)[len(nulls) // 2], "n_rot": len(nulls_blk),
+         "skip": dict(SKIP), "warm_months": len(warm_in),
          "decomp": DEC,
          "blocked_mean": st.mean(x for x, _c, _d in bl),
          "kept_mean": st.mean(kp),
