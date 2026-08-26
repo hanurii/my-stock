@@ -173,6 +173,82 @@ def _nan(v):
 
 
 # ═════════════════════════════════════════════════════════════════════════
+# 빠른 귀무 경로 — 라벨만 바뀌므로 «분위 배정»을 미리 계산해 둔다.
+# 🚨 반드시 `test_one`(느린 경로)과 «같은 답»을 내는지 관문으로 확인한 뒤에만 쓴다.
+# ═════════════════════════════════════════════════════════════════════════
+def precompute(ins, outs):
+    """특징 → (표본안 그룹id, 표본밖 그룹id, 그룹 목록).  NaN 은 None."""
+    pre = {}
+    for f in FEATS:
+        if f in CAT:
+            gi = [r[f] for r, _y in ins]
+            go = [r[f] for r, _y in outs]
+            keys = sorted({v for v in gi})
+        else:
+            xs = sorted(r[f] for r, _y in ins if not _nan(r[f]))
+            if len(xs) < NQ * 20:
+                continue
+            cuts = [xs[int(len(xs) * i / NQ)] for i in range(1, NQ)]
+            gi = [None if _nan(r[f]) else bisect.bisect_right(cuts, r[f]) for r, _y in ins]
+            go = [None if _nan(r[f]) else bisect.bisect_right(cuts, r[f]) for r, _y in outs]
+            keys = list(range(NQ))
+        pre[f] = (gi, go, keys)
+    return pre
+
+
+def test_fast(pre, f, ys_in, ys_out):
+    """`test_one` 과 «같은» 계산 — 라벨만 바뀔 때 쓴다."""
+    gi, go, keys = pre[f]
+    tot_i, cnt_i = {}, {}
+    for g, y in zip(gi, ys_in):
+        if g is None:
+            continue
+        tot_i[g] = tot_i.get(g, 0.0) + y
+        cnt_i[g] = cnt_i.get(g, 0) + 1
+    cand = [k for k in keys if cnt_i.get(k, 0) >= 30]
+    if f in CAT:
+        if not cand:
+            return None
+    elif len(cand) < 2:
+        return None
+    best = max(cand, key=lambda k: tot_i[k] / cnt_i[k])
+    ssum = scnt = 0.0
+    bsum = bcnt = 0.0
+    for g, y in zip(go, ys_out):
+        if g is None:
+            continue
+        bsum += y
+        bcnt += 1
+        if g == best:
+            ssum += y
+            scnt += 1
+    if scnt < 30:
+        return None
+    return ssum / scnt, bsum / bcnt
+
+
+def gate_fast(pre, ins, outs, name):
+    """관문 — 빠른 경로가 느린 경로와 «같은 답»을 내는가."""
+    ys_in = [y for _r, y in ins]
+    ys_out = [y for _r, y in outs]
+    worst, seen = 0.0, 0
+    for f in FEATS:
+        a = test_one(ins, outs, f, name)
+        b = test_fast(pre, f, ys_in, ys_out) if f in pre else None
+        if a is None and b is None:
+            continue
+        if (a is None) != (b is None):
+            print("   🚨 관문 실패 — `%s` 에서 한쪽만 None (느림 %s · 빠름 %s)"
+                  % (f, a is not None, b is not None), flush=True)
+            return False
+        worst = max(worst, abs(a[0] - b[0]), abs(a[1] - b[1]))
+        seen += 1
+    ok = worst < 1e-12
+    print("   관문 ⑥ 빠른 귀무 경로 = 느린 경로  (%d칸 · 최대 차 %.2e) → **%s**"
+          % (seen, worst, "통과" if ok else "🚨 미통과"), flush=True)
+    return ok
+
+
 def _shuf_year(ys, yrs, rnd, mode):
     """🚨 통째로 섞으면 «연도 구조»가 지워진다 — 표본밖 기준율이 2022 10.0% ~ 2024 34.8%
     (3.5배)로 흔들린다(검증 d2062269). 헤드라인은 «연도 안»에서만 섞는다."""
@@ -267,6 +343,9 @@ def run_outcome(rows, ev, ykey, gmap, name, base_thresh, n_null, mode="year"):
         print("   🚨 **표본밖이 «단조»가 아니다 → «방향»은 써도 «기울기»는 인용 금지**",
               flush=True)
 
+    pre = precompute(ins, outs)
+    if not gate_fast(pre, ins, outs, name):
+        return None
     rnd = random.Random(85085085)
     ys_in = [y for _r, y in ins]
     ys_out = [y for _r, y in outs]
@@ -274,19 +353,24 @@ def run_outcome(rows, ev, ykey, gmap, name, base_thresh, n_null, mode="year"):
     for it in range(n_null):
         zi = _shuf_year(ys_in, yr_in, rnd, mode)
         zo = _shuf_year(ys_out, yr_out, rnd, mode)
-        i2 = [(r, z) for (r, _y), z in zip(ins, zi)]
-        o2 = [(r, z) for (r, _y), z in zip(outs, zo)]
         best = -9.0
-        for f in FEATS:
-            rr = test_one(i2, o2, f, name)
+        for f in pre:
+            rr = test_fast(pre, f, zi, zo)
             if rr:
                 best = max(best, rr[0] - rr[1])
         null.append(best)
-        if it % 100 == 0:
+        if it % 1000 == 0:
             print("     귀무(%s) %d/%d" % (mode, it, n_null), flush=True)
     a = sorted(null)
     pct = 100.0 * sum(1 for x in a if x < obs) / len(a)
     thr = 100.0 * (1 - 0.05 / BONF)
+    # 🚨 본페로니는 «97.5% 분위»를 요구하는데, 300판에서 그건 293번째 순서통계량이다.
+    #    꼬리로 갈수록 표본 몇 개가 값을 정한다 → **판수가 모자라면 «문턱»이 흔들린다**
+    #    (검증 세션 ec59b616). 백분위의 몬테카를로 95% 구간을 같이 찍는다.
+    _p = pct / 100.0
+    _se = 100.0 * math.sqrt(max(_p * (1 - _p), 1e-12) / len(a))
+    print("   판수 %d · 백분위의 몬테카를로 95%% 구간 **[%.2f, %.2f]**"
+          % (len(a), max(0.0, pct - 1.96 * _se), min(100.0, pct + 1.96 * _se)), flush=True)
     print("   **N★ 귀무 %d회 (섞기 = «%s»)** — 「%d칸 중 최선」이 우연으로: "
           "보통 %+.2f%%p · 95%% %+.2f%%p · **97.5%% %+.2f%%p** · 최대 %+.2f%%p"
           % (n_null, "연도 안" if mode == "year" else "통째로", len(FEATS),
@@ -318,6 +402,9 @@ def mde(n, p, lift):
 def main() -> int:
     quick = "--quick" in sys.argv
     n_null = 30 if quick else N_NULL
+    for _a in sys.argv:
+        if _a.startswith("--null="):
+            n_null = int(_a.split("=", 1)[1])
     if r41.YEARS[0] != 2017:
         print("🚨 BT_Y0=2017 필요")
         return 2
