@@ -37,6 +37,9 @@ N_NULL = 300
 FEATS = ("pattern", "atr_band", "gap", "prior6m", "hi52",
          "base_depth", "ma200", "atr20", "in_pct", "logpx")
 CAT = ("pattern", "atr_band")      # 범주형 — 분위 대신 «값»으로 가른다
+BONF = 2                           # 검정 둘(㉮㉯) → 본페로니 → 97.5 백분위
+NL = chr(10)
+KSTAT = []
 
 
 # ═════════════════════════════════════════════════════════════════════════
@@ -60,6 +63,7 @@ def build_features(ev, pmap):
 
     rows, miss = {}, Counter()
     BATCH = 500
+    KSTAT.clear()
     for bi in range(0, len(codes), BATCH):
         chunk = set(codes[bi:bi + BATCH])
         ser = {c: [] for c in chunk}
@@ -77,6 +81,7 @@ def build_features(ev, pmap):
             for t in need.get(code, []):
                 # 🚨 관문 ① — 진입일 «전날»까지만 본다
                 k = bisect.bisect_left(dd, t["entry_date"])
+                KSTAT.append(k)
                 if k < 210:                       # 200일선 + 여유
                     miss["과거 봉 부족"] += 1
                     continue
@@ -106,6 +111,21 @@ def build_features(ev, pmap):
         del ser
     print("   특징 만든 거래 **%d / %d** · 결측 %s" % (len(rows), len(ev), dict(miss)),
           flush=True)
+    # 🚨 관문 ①′ — 「결측 0건」이 맞나 «와» 그 관문이 «탈 수 있나»는 다른 물음이다(유형 24).
+    #    가격을 2016-06 부터 싣고 첫 진입이 2017-09 이라, 2016년 중반 «뒤» 상장이 아니면
+    #    k<210 은 «구조적으로» 불가능하다. 그래서 min(k) 를 찍어 확인한다.
+    if KSTAT:
+        ks = sorted(KSTAT)
+        print("   관문 ①′ 진입 전 봉 수 — **최소 %d** · P1 %d · 중앙 %d · "
+              "**k<210 %d건 · k<300 %d건** → %s"
+              % (ks[0], ks[len(ks) // 100], ks[len(ks) // 2],
+                 sum(1 for x in ks if x < 210), sum(1 for x in ks if x < 300),
+                 "관문이 «탈 수 있는» 자리에 있다" if ks[0] < 210
+                 else ("🚨 최소 k=%d > 문턱 210 → **이 관문은 «구조적으로 못 탄다». "
+                       "「0건」은 «검사 결과»가 아니라 «검사가 없었다»는 뜻이다** "
+                       "(유형 24). 다만 k<300 이 %d건 있어 문턱을 300 으로 올리면 «탄다»."
+                       % (ks[0], sum(1 for x in ks if x < 300)))),
+              flush=True)
     return rows, miss
 
 
@@ -124,7 +144,7 @@ def test_one(ins, outs, feat, lab):
         sel = [y for r, y in outs if r[feat] == best]
         if len(sel) < 30:
             return None
-        base = st.mean([y for _r, y in outs])
+        base = st.mean([y for r, y in outs if not _nan(r[feat])])
         return (st.mean(sel), base, best, len(sel), "값 = %s" % best)
     xs = sorted(r[feat] for r, _y in ins if not _nan(r[feat]))
     if len(xs) < NQ * 20:
@@ -141,7 +161,8 @@ def test_one(ins, outs, feat, lab):
     sel = [y for r, y in outs if not _nan(r[feat]) and q(r[feat]) == best]
     if len(sel) < 30:
         return None
-    base = st.mean([y for _r, y in outs])
+    # 🚨 기준율도 «같은 모집단»(non-NaN)에서 낸다 — 안 그러면 차이가 부풀 수 있다.
+    base = st.mean([y for r, y in outs if not _nan(r[feat])])
     return (st.mean(sel), base, "%d분위" % (best + 1), len(sel),
             "표본안 최고 %d분위(%.3f) vs 최저 %d분위(%.3f)"
             % (best + 1, st.mean(qi[best]), worst + 1, st.mean(qi[worst])))
@@ -152,74 +173,137 @@ def _nan(v):
 
 
 # ═════════════════════════════════════════════════════════════════════════
-def run_outcome(rows, ev, ykey, name, base_thresh, n_null, quiet=False):
-    ins, outs = [], []
+def _shuf_year(ys, yrs, rnd, mode):
+    """🚨 통째로 섞으면 «연도 구조»가 지워진다 — 표본밖 기준율이 2022 10.0% ~ 2024 34.8%
+    (3.5배)로 흔들린다(검증 d2062269). 헤드라인은 «연도 안»에서만 섞는다."""
+    if mode == "all":
+        z = ys[:]
+        rnd.shuffle(z)
+        return z
+    idx = {}
+    for i, y in enumerate(yrs):
+        idx.setdefault(y, []).append(i)
+    z = ys[:]
+    for _y, ii in idx.items():
+        vv = [ys[i] for i in ii]
+        rnd.shuffle(vv)
+        for i, v in zip(ii, vv):
+            z[i] = v
+    return z
+
+
+def profile(ins, outs, feat):
+    """분위별 프로필 — «기울기»는 인용 금지지만 «보여는» 준다."""
+    if feat in CAT:
+        return None
+    xs = sorted(r[feat] for r, _y in ins if not _nan(r[feat]))
+    cuts = [xs[int(len(xs) * i / NQ)] for i in range(1, NQ)]
+    def q(v):
+        return bisect.bisect_right(cuts, v)
+    a, b = [], []
+    for i in range(NQ):
+        gi = [y for r, y in ins if not _nan(r[feat]) and q(r[feat]) == i]
+        go = [y for r, y in outs if not _nan(r[feat]) and q(r[feat]) == i]
+        a.append(100 * st.mean(gi) if gi else float("nan"))
+        b.append(100 * st.mean(go) if go else float("nan"))
+    return a, b
+
+
+def run_outcome(rows, ev, ykey, gmap, name, base_thresh, n_null, mode="year"):
+    ins, outs, yr_in, yr_out, gi_, go_ = [], [], [], [], [], []
     for t in ev:
         k = (t["scan_date"], t["code"], t["pattern"])
         if k not in rows:
             continue
-        y = ykey(t)
-        (ins if t["entry_date"] < SPLIT else outs).append((rows[k], y))
+        y, yr, g = ykey(t), t["entry_date"][:4], gmap[k]
+        if t["entry_date"] < SPLIT:
+            ins.append((rows[k], y)); yr_in.append(yr); gi_.append(g)
+        else:
+            outs.append((rows[k], y)); yr_out.append(yr); go_.append(g)
     b_in = st.mean([y for _r, y in ins])
     b_out = st.mean([y for _r, y in outs])
-    print("\n" + "─" * 98, flush=True)
-    print("▶ **%s** — 표본안 %d건(기준율 %.2f%%) · 표본밖 %d건(기준율 **%.2f%%**)"
-          % (name, len(ins), b_in * 100, len(outs), b_out * 100), flush=True)
-    print("   %-11s %10s %11s %11s %s" % ("특징", "표본밖 n", "상위분위", "기준율차", "고른 것"),
-          flush=True)
+    print(NL + "─" * 98, flush=True)
+    print("▶ **%s** — 표본안 %d건(기준율 %.2f%%) · 표본밖 %d건(기준율 **%.2f%%**) · "
+          "**사건 %d건**" % (name, len(ins), b_in * 100, len(outs), b_out * 100,
+                            round(b_out * len(outs))), flush=True)
+    print("   한 건이 **%.2f%%p** — 표에서 그보다 작은 차이는 «사건 한 건»이다."
+          % (100.0 / len(outs)), flush=True)
+    print("   %-11s %9s %10s %10s %11s %s"
+          % ("특징", "표본밖n", "상위분위", "기준율차", "거래당평균", "고른 것"), flush=True)
     print("   " + "-" * 84, flush=True)
-    res = {}
+    res, meta = {}, {}
     for f in FEATS:
         r = test_one(ins, outs, f, name)
         if r is None:
             print("   %-11s (분위·표본 부족 → 건너뜀)" % f, flush=True)
             continue
-        rate, base, pick, n, why = r
+        rate, base, pick, nn, why = r
         res[f] = rate - base
-        print("   %-11s %10d %10.2f%% %+10.2f%%p %s (%s)"
-              % (f, n, rate * 100, (rate - base) * 100, pick, why), flush=True)
+        # ★ 「돈」으로도 잰다 — 확률만 보면 «꼬리를 넓히는 칸»과 «버는 칸»을 못 가린다
+        if f in CAT:
+            sel_g = [g for (r0, _y), g in zip(outs, go_) if r0[f] == pick]
+        else:
+            xs = sorted(r0[f] for r0, _y in ins if not _nan(r0[f]))
+            cuts = [xs[int(len(xs) * i / NQ)] for i in range(1, NQ)]
+            qi = int(pick[0]) - 1
+            sel_g = [g for (r0, _y), g in zip(outs, go_)
+                     if not _nan(r0[f]) and bisect.bisect_right(cuts, r0[f]) == qi]
+        meta[f] = (pick, st.mean(sel_g) if sel_g else float("nan"), nn)
+        print("   %-11s %9d %9.2f%% %+9.2f%%p %+10.3f%% %s"
+              % (f, nn, rate * 100, (rate - base) * 100, meta[f][1], pick), flush=True)
     if not res:
         return None
+    print("   (표본밖 전체 거래당 평균 %+.3f%%)" % st.mean(go_), flush=True)
     bf = max(res, key=lambda f: res[f])
     obs = res[bf]
-    print("\n   **관측 최선 = `%s`  %+.2f%%p** (문턱 %+.2f%%p)"
+    print(NL + "   **관측 최선 = `%s`  %+.2f%%p** (등록 문턱 %+.2f%%p)"
           % (bf, obs * 100, base_thresh * 100), flush=True)
+    pr = profile(ins, outs, bf)
+    if pr:
+        print("   분위 프로필 (1→5분위)  표본안 %s" % " → ".join("%.2f" % v for v in pr[0]),
+              flush=True)
+        print("                          표본밖 %s" % " → ".join("%.2f" % v for v in pr[1]),
+              flush=True)
+        print("   🚨 **표본밖이 «단조»가 아니다 → «방향»은 써도 «기울기»는 인용 금지**",
+              flush=True)
 
-    # ── N★ 귀무 대조 — «같은 절차»를 라벨 섞어서 ────────────────────────
     rnd = random.Random(85085085)
     ys_in = [y for _r, y in ins]
     ys_out = [y for _r, y in outs]
     null = []
     for it in range(n_null):
-        zi = ys_in[:]
-        zo = ys_out[:]
-        rnd.shuffle(zi)
-        rnd.shuffle(zo)
+        zi = _shuf_year(ys_in, yr_in, rnd, mode)
+        zo = _shuf_year(ys_out, yr_out, rnd, mode)
         i2 = [(r, z) for (r, _y), z in zip(ins, zi)]
         o2 = [(r, z) for (r, _y), z in zip(outs, zo)]
-        bb = st.mean(zo)
         best = -9.0
-        for f in FEATS:                      # ★ 같은 20칸을 «똑같이» 돈다
+        for f in FEATS:
             rr = test_one(i2, o2, f, name)
             if rr:
-                best = max(best, rr[0] - bb)
+                best = max(best, rr[0] - rr[1])
         null.append(best)
-        if not quiet and it % 60 == 0:
-            print("     귀무 %d/%d" % (it, n_null), flush=True)
+        if it % 100 == 0:
+            print("     귀무(%s) %d/%d" % (mode, it, n_null), flush=True)
     a = sorted(null)
     pct = 100.0 * sum(1 for x in a if x < obs) / len(a)
-    print("   **N★ 귀무 대조 %d회** — 「%d칸 중 최선」이 우연으로: "
-          "보통 %+.2f%%p · 95%% %+.2f%%p · 최대 %+.2f%%p"
-          % (n_null, len(FEATS), a[len(a) // 2] * 100, a[int(len(a) * .95)] * 100,
-             a[-1] * 100), flush=True)
-    okN = pct >= 95.0
+    thr = 100.0 * (1 - 0.05 / BONF)
+    print("   **N★ 귀무 %d회 (섞기 = «%s»)** — 「%d칸 중 최선」이 우연으로: "
+          "보통 %+.2f%%p · 95%% %+.2f%%p · **97.5%% %+.2f%%p** · 최대 %+.2f%%p"
+          % (n_null, "연도 안" if mode == "year" else "통째로", len(FEATS),
+             a[len(a) // 2] * 100, a[int(len(a) * .95)] * 100,
+             a[int(len(a) * .975)] * 100, a[-1] * 100), flush=True)
+    okN = pct >= thr
     okA = obs > base_thresh
-    print("   → 관측 %+.2f%%p = **%.1f 백분위** · **N %s** · **A %s**"
-          % (obs * 100, pct, "✅ 통과" if okN else "❌ 미통과",
+    print("   → 관측 %+.2f%%p = **%.1f 백분위** · 본페로니 %d → 문턱 **%.1f** · "
+          "**N %s** · **A %s**"
+          % (obs * 100, pct, BONF, thr, "✅ 통과" if okN else "❌ 미통과",
              "✅ 통과" if okA else "❌ 미통과"), flush=True)
-    return {"best": bf, "obs": obs, "pct": pct, "okN": okN, "okA": okA,
+    return {"best": bf, "obs": obs, "pct": pct, "okN": okN, "okA": okA, "mode": mode,
             "base_in": b_in, "base_out": b_out, "n_in": len(ins), "n_out": len(outs),
-            "all": res, "null_max": a[-1], "null_med": a[len(a) // 2]}
+            "all": res, "meta": {k: list(v) for k, v in meta.items()},
+            "null_max": a[-1], "null_med": a[len(a) // 2],
+            "null_p95": a[int(len(a) * .95)], "null_p975": a[int(len(a) * .975)],
+            "profile": pr, "bonf_thr": thr}
 
 
 def mde(n, p, lift):
@@ -270,21 +354,78 @@ def main() -> int:
         print("   %-12s 기준율 %.2f%% · %.2f배를 가르려면 **자료 %.1f배 = %.0f년** 필요"
               % (nm, p0 * 100, lift, need, need * 8.956), flush=True)
 
+    gmap = {(t["scan_date"], t["code"], t["pattern"]): r84.gain_of(t) for t in ev}
+
+    # ── ③ 🚨 1등과 2등이 «한 발견»인지 본다 ─────────────────────────────
+    outk = [(t["scan_date"], t["code"], t["pattern"]) for t in ev
+            if t["entry_date"] >= SPLIT and (t["scan_date"], t["code"], t["pattern"]) in rows]
+    ins_v = sorted(rows[k]["atr20"] for t in ev
+                   for k in [(t["scan_date"], t["code"], t["pattern"])]
+                   if t["entry_date"] < SPLIT and k in rows)
+    c5 = ins_v[int(len(ins_v) * 4 / 5)]
+    A = {k for k in outk if rows[k]["atr_band"].startswith("④")}
+    B = {k for k in outk if rows[k]["atr20"] >= c5}
+    if A and B:
+        print(NL + "🚨 **`atr_band ④` 와 `atr20 5분위` 가 «같은 발견»인가** — "
+              "A %d건 · B %d건 · A∩B %d건 → **A 의 %.1f%% 가 B 안에 있다** (자카드 %.1f%%)"
+              % (len(A), len(B), len(A & B), 100.0 * len(A & B) / len(A),
+                 100.0 * len(A & B) / len(A | B)), flush=True)
+        print("   → 1등과 2등을 «두 근거»로 세면 안 된다. 한 축이다.", flush=True)
+
     R = {}
-    R["A"] = run_outcome(rows, ev, y20, "㉮ 「+20% 에 닿는가」", 0.05, n_null)
-    R["B"] = run_outcome(rows, ev, y100, "㉯ 「더블(+100%) 하는가」",
+    R["A"] = run_outcome(rows, ev, y20, gmap, "㉮ 「+20% 에 닿는가」", 0.05, n_null)
+    R["B"] = run_outcome(rows, ev, y100, gmap, "㉯ 「더블(+100%) 하는가」",
                          0.5 * n100 / len(ev), n_null)
+
+    # ── ⑧ 등록했던 «대칭 검정»은 이 하네스에서 답을 못 낸다 ─────────────
+    mae = {}
+    for t in ev:
+        k = (t["scan_date"], t["code"], t["pattern"])
+        p = pmap[k]
+        i0 = p["d"].index(t["entry_date"])
+        i1 = p["d"].index(t["masks"][()]["exits"][-1][0])
+        mae[k] = (min(p["l"][i0:i1 + 1]) / t["entry_px"] - 1) * 100
+    hi_ = [k for k in outk if rows[k]["atr_band"].startswith("④")]
+    r_mfe = (st.mean([1.0 if m[k] >= 100 else 0.0 for k in hi_])
+             / max(1e-9, st.mean([1.0 if m[k] >= 100 else 0.0 for k in outk])))
+    r_mae = (st.mean([1.0 if mae[k] <= -15 else 0.0 for k in hi_])
+             / max(1e-9, st.mean([1.0 if mae[k] <= -15 else 0.0 for k in outk])))
+    print(NL + "🚨 **등록했던 «대칭 검정»(하방도 예측하나)은 이 하네스에서 «답을 못 낸다»**",
+          flush=True)
+    print("   `atr_band ④` 의 배수 — 위쪽 MFE≥+100%% **%.2f배** vs 아래쪽 MAE≤−15%% %.2f배"
+          % (r_mfe, r_mae), flush=True)
+    print("   → 「비대칭 엣지」로 읽으면 «틀린다». **손절 −8%% 가 아래쪽을 «검열»한다** — "
+          "아래로 갈 여지가 애초에 잘려 있다(검증 d2062269).", flush=True)
 
     print("\n" + "=" * 98, flush=True)
     print("사전등록 §4 판정", flush=True)
+    print("🚨 **사전등록 §4 는 「20칸 중 최선」이라 적혀 있는데 코드는 «결과별 10칸»을 돈다.**",
+          flush=True)
+    print("   검증 세션이 20칸 한 가족으로 다시 돌린 결과 — **자를 바꾸면 답이 «정확히» 뒤집힌다**",
+          flush=True)
+    print("     %p 로 묶으면 ㉯ 가 죽고(82.0/69.7 백분위) · 배수로 묶으면 ㉮ 가 죽는다(16.0/15.7)",
+          flush=True)
+    print("     기준율이 25.59%% vs 1.76%% 로 15배 달라 **어느 자도 중립이 아니다(유형 3)**.",
+          flush=True)
+    print("   → **정본 읽기 = 「결과별 10칸 + 본페로니 %d」.** 이건 «사전등록에 없는 읽기»이고,"
+          % BONF, flush=True)
+    print("     그렇게 «벗어나야만» 자에 안 휘둘린다. 이탈을 숨기지 않고 적는다.", flush=True)
     for k, nm in (("A", "㉮ +20% 도달"), ("B", "㉯ 더블")):
         v = R.get(k)
         if not v:
             print("  %s — 산출 실패" % nm)
             continue
-        print("  %-14s N★ %s · A★ %s   (최선 `%s` %+.2f%%p · 귀무 %.1f 백분위)"
+        print("  %-14s N★ %s · A★ %s   (최선 `%s` %+.2f%%p · 귀무 %.1f 백분위 / 문턱 %.1f)"
               % (nm, "✅" if v["okN"] else "❌", "✅" if v["okA"] else "❌",
-                 v["best"], v["obs"] * 100, v["pct"]), flush=True)
+                 v["best"], v["obs"] * 100, v["pct"], v["bonf_thr"]), flush=True)
+    va, vb = R.get("A"), R.get("B")
+    if va and vb:
+        print(NL + "★ **확률과 돈은 다른 축이다** — ㉯ 승자 `%s` 는 더블 확률을 크게 올리지만"
+              % vb["best"], flush=True)
+        print("   거래당 %+.3f%% 로, 더블을 노린 게 «아닌» ㉮ 승자 `%s`(%+.3f%%)보다 «못 번다»."
+              % (vb["meta"][vb["best"]][1], va["best"], va["meta"][va["best"]][1]), flush=True)
+        print("   → **㉯ 의 승자는 «꼬리를 넓히는» 칸이지 «기대값을 올리는» 칸이 아니다.**",
+              flush=True)
     print("\n🚨 어느 쪽이든 «최고의 예측 변수는 X» 라고 쓰지 않는다. 쓸 수 있는 건 방향뿐이다.",
           flush=True)
 
