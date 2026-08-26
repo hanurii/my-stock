@@ -1562,7 +1562,81 @@ def stage5() -> int:
     return 0
 
 
+
+
+def stage6() -> int:
+    """🚨 「짝 안 지음 B」와 「짝 지음 A」가 왜 갈리나 — **내 자료로** 가른다.
+
+    두뇌 세션 77번에서 두 통계가 크게 어긋났다. 원인 후보가 셋인데
+    **내가 이미 가진 200판 벡터로 전부 가를 수 있다**(77번 코드 불필요):
+
+      ① 단위      — %p(수준 차) vs %(상대 성과). 애초에 다른 자
+      ② 중앙의 중앙 — median(A) − median(B) ≠ median(A − B)
+      ③ 스트림 10 — `dataaxis` 는 **앞 10 seed** 만 쓴다(N_STREAM). 200판과 다를 수 있다
+
+    셋을 같은 표에 놓으면 어느 것이 범인인지 «보인다».
+    """
+    import dataaxis as da
+    import slot_sim_lots as sl
+    if r41.YEARS[0] != 2017:
+        return 2
+    by2 = _paths_now()
+    HPA = dict(add_stop="avg", h_lag=True, stay_on="close")
+    tv = {"P0": _mk_trades(by2, (1.0,)),
+          "H'-avgstop": _mk_trades(by2, (0.5, 0.5), **HPA)}
+    N = 200
+    runs = {}
+    for lab, trades in tv.items():
+        rsv = (lab != "P0")
+        with r41.Cost(*COST):
+            runs[lab] = [sl.sim_lots(trades, risk=RISK, cap=CAP, seed=s, slots=5,
+                                     reserve=rsv, fill_rule="truncate",
+                                     cash_rule="per_slot")
+                         for s in range(N)]
+    A = [r["equity_pct"] for r in runs["H'-avgstop"]]
+    B = [r["equity_pct"] for r in runs["P0"]]
+
+    def rel(a, b):
+        return ((1 + a / 100.0) / (1 + b / 100.0) - 1) * 100.0
+
+    d_all = [rel(a, b) for a, b in zip(A, B)]
+    mA, mB = st.median(A), st.median(B)
+    print("=" * 92)
+    print("74v 6 - 「짝 안 지음」 vs 「짝 지음」이 갈리는 이유 (P0 vs H'-avgstop · 200판)")
+    print("=" * 92)
+    print("  자산 중앙   H'-avgstop %+9.2f%%   P0 %+9.2f%%" % (mA, mB), flush=True)
+    print()
+    print("  %-46s %12s" % ("통계", "값"))
+    print("  %-46s %+11.2f%%p" % ("B  중앙끼리 «수준» 차 (%p)", mA - mB))
+    print("  %-46s %+11.2f%%" % ("B′ 같은 것을 «상대»로 환산", rel(mA, mB)))
+    print("  %-46s %+11.2f%%" % ("A₂₀₀ 짝지은 상대차의 중앙 (200판)", st.median(d_all)))
+    print("  %-46s %+11.2f%%" % ("A₁₀  짝지은 상대차의 중앙 (앞 10판)",
+                                 st.median(d_all[:10])))
+    for b in (20, 40, 80):
+        r = da.band_paired([x["curve"] for x in runs["H'-avgstop"]],
+                           [x["curve"] for x in runs["P0"]], b)
+        print("  %-46s %+11.2f%%   95%% [%+.2f, %+.2f]"
+              % ("A  band_paired 중앙 (블록 %d · 스트림 10)" % b,
+                 r["median"], r["lo"], r["hi"]))
+    print()
+    print("  짝지은 상대차가 양수인 판 %d/%d · P5 %+.2f%% · P95 %+.2f%%"
+          % (sum(1 for x in d_all if x > 0), N,
+             sorted(d_all)[int(N * .05)], sorted(d_all)[int(N * .95)]), flush=True)
+    # 중앙을 낸 seed 가 같은가 — ②의 직접 증거
+    iA = sorted(range(N), key=lambda i: A[i])[N // 2]
+    iB = sorted(range(N), key=lambda i: B[i])[N // 2]
+    print("  중앙을 낸 seed — H'-avgstop %d · P0 %d  → %s"
+          % (iA, iB, "같다" if iA == iB else "**다르다(②가 성립할 조건)**"), flush=True)
+    print()
+    print("  ★ 읽는 법: B′ 와 A₂₀₀ 이 크게 갈리면 ②(중앙의 중앙)가 범인이고,")
+    print("             A₂₀₀ 와 A₁₀ 이 갈리면 ③(스트림 10)이 범인이다.")
+    print("             B 와 B′ 의 차이는 ①(단위)일 뿐이다.")
+    return 0
+
+
 if __name__ == "__main__":
+    if "--stage6" in sys.argv:
+        raise SystemExit(stage6())
     if "--stage5" in sys.argv:
         raise SystemExit(stage5())
     if "--stage2d" in sys.argv:
