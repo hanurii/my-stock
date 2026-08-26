@@ -131,6 +131,22 @@ def main() -> int:
                   % (b, v["median"], v["T"], v["years"], "✅" if v["excl0"] else "❌",
                      "" if v["consistent"] else "  🚨자기점검 실패"), flush=True)
     print(da.fmt(sw, "M1 − %s" % m), flush=True)
+    # 🚨 **200판 «짝지은» 상대차** — 검증 세션 지적(2026-08-26, `730a3a6e`):
+    #    `dataaxis.N_STREAM = 10` 이라 자료 축은 «앞 10 seed»만 쓴다. 자산 표는 200판이다.
+    #    검증 세션 자료에서 10판 짝비교 중앙 +11.45% vs 200판 −2.25% — **부호가 반대**였다.
+    #    → 유형 23 이 «우리 도구 안»에 있었다. 빠진 숫자를 여기서 낸다.
+    import statistics as _st
+    eqA = [x["equity_pct"] for x in r76.sim(evs["★ M1 미너비니"], BASE_CAP, n_seed)]
+    capm = float(m.split()[-1])
+    eqB = [x["equity_pct"] for x in r76.sim(evs["P0 한 번에"], capm, n_seed)]
+    pair = sorted(((1 + a / 100) / (1 + b / 100) - 1) * 100 for a, b in zip(eqA, eqB))
+    pos = 100.0 * sum(1 for x in pair if x > 0) / len(pair)
+    print(chr(10) + "🚨 **짝지은 상대차 — 200판** (자료 축은 앞 10판만 쓴다)", flush=True)
+    print("  중앙 **%+.2f%%** · 5%% 하단 %+.2f%% · 95%% 상단 %+.2f%% · **이기는 판 %.1f%%**"
+          % (pair[len(pair) // 2], pair[int(len(pair) * .05)],
+             pair[int(len(pair) * .95)], pos), flush=True)
+    print("  (참고) 짝 «안» 지은 중앙끼리 차를 상대로 환산: %+.2f%%"
+          % (((1 + M1["equity"] / 100) / (1 + big[m]["equity"] / 100) - 1) * 100), flush=True)
     dB = M1["equity"] - big[m]["equity"]
     dC = M1["equity"] - M0["equity"]
     print("  A★ 자료 축 0 배제      → **%s**"
