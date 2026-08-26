@@ -1634,7 +1634,75 @@ def stage6() -> int:
     return 0
 
 
+
+
+def stage7() -> int:
+    """🚨 두 손잡이를 «한 판에» — `N_STREAM 10 vs 200` × `이동 vs 순환`.
+
+    두뇌 세션 물음: 「N_STREAM=10 이 가장자리 편향보다 클 수 있다」.
+    내 200판 벡터(P0 vs H′-avgstop)로 네 칸을 같은 몬테카를로 예산에 놓고 잰다
+    (10×100 = 200×5 = 1,000 값). 그러면 «스트림 수»만 달라진다.
+
+    같이 찍는 것 — 이 표의 «참값»에 해당하는 것:
+      관측 짝 성과 200판 중앙 = median_s[(1+e_v)/(1+e_0) − 1]
+      → 「중앙」이 이 값에서 얼마나 떨어지나가 핵심이다.
+    """
+    import dataaxis as da
+    import slot_sim_lots as sl
+    if r41.YEARS[0] != 2017:
+        return 2
+    by2 = _paths_now()
+    HPA = dict(add_stop="avg", h_lag=True, stay_on="close")
+    tv = {"P0": _mk_trades(by2, (1.0,)),
+          "H'-avgstop": _mk_trades(by2, (0.5, 0.5), **HPA)}
+    N = 200
+    runs = {}
+    for lab, trades in tv.items():
+        rsv = (lab != "P0")
+        with r41.Cost(*COST):
+            runs[lab] = [sl.sim_lots(trades, risk=RISK, cap=CAP, seed=s, slots=5,
+                                     reserve=rsv, fill_rule="truncate",
+                                     cash_rule="per_slot")
+                         for s in range(N)]
+    cv = [x["curve"] for x in runs["H'-avgstop"]]
+    c0 = [x["curve"] for x in runs["P0"]]
+    A = [x["equity_pct"] for x in runs["H'-avgstop"]]
+    B = [x["equity_pct"] for x in runs["P0"]]
+    obs = [((1 + a / 100) / (1 + b / 100) - 1) * 100 for a, b in zip(A, B)]
+    obs.sort()
+    print("=" * 96)
+    print("74v 7 - N_STREAM 10 vs 200  x  이동 vs 순환   (P0 vs H'-avgstop)")
+    print("=" * 96)
+    print("  «관측» 짝 성과 200판 : 중앙 %+.2f%% · 5%% %+.2f%% · 95%% %+.2f%% · "
+          "이기는 판 %d/200"
+          % (st.median(obs), obs[10], obs[189], sum(1 for x in obs if x > 0)),
+          flush=True)
+    print()
+    print("  %-9s %-7s %-6s %10s %10s %10s %9s %8s"
+          % ("재표집", "스트림", "블록", "중앙", "2.5%", "97.5%", "폭", "0 배제"))
+    old = da.CYCLIC[0]
+    try:
+        for cyc in (False, True):
+            da.CYCLIC[0] = cyc
+            for ns, nr in ((10, 100), (200, 5)):
+                for b in (20, 40, 80):
+                    r = da.band_paired(cv, c0, b, n_stream=ns, n_rep=nr)
+                    print("  %-9s %-7d %-6d %+9.2f%% %+9.2f%% %+9.2f%% %8.1f %8s"
+                          % ("순환" if cyc else "이동", ns, b,
+                             r["median"], r["lo"], r["hi"], r["hi"] - r["lo"],
+                             "**배제**" if r["excl0"] else "포함"), flush=True)
+    finally:
+        da.CYCLIC[0] = old
+    print()
+    print("  ★ 읽는 법 — 「중앙」이 관측(맨 윗줄)에서 멀면 스트림 수가 원인이고,")
+    print("             「폭」이 이동↔순환에서 달라지면 가장자리가 원인이다.")
+    print("             판정에 쓰는 것은 «폭/배제»이므로 그쪽이 안 바뀌면 과거 판정은 무사하다.")
+    return 0
+
+
 if __name__ == "__main__":
+    if "--stage7" in sys.argv:
+        raise SystemExit(stage7())
     if "--stage6" in sys.argv:
         raise SystemExit(stage6())
     if "--stage5" in sys.argv:
