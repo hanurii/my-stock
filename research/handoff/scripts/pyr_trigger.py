@@ -183,7 +183,8 @@ def resolve_one(path, mask, *, ft="limit", fs="market", stop=8.0, target=20.0,
                 min_days=2, add_stop="floor_entry", h_lag=False, stay_on="low",
                 atr=None, px_round=None,
                 exit_mode="half_trail", run_trail=25.0,
-                trig_mode="rebreak", trac_days=3, trac_gain=0.0):
+                trig_mode="rebreak", trac_days=3, trac_gain=0.0,
+                trac_gain_hi=None):
     """매수 조합 하나(`mask`)에 대해 경로를 푼다. 반환 형식은 `resolve_all_masks` 참조."""
     if add_stop not in ("floor_entry", "avg"):
         raise ValueError("add_stop 은 'floor_entry' 또는 'avg' 여야 한다: %r" % (add_stop,))
@@ -242,8 +243,14 @@ def resolve_one(path, mask, *, ft="limit", fs="market", stop=8.0, target=20.0,
             #   조건: 진입 후 `trac_days` 거래일이 지났고 종가가 진입가 대비 +`trac_gain`% 이상.
             #   🚨 체결가는 «그날 종가» — 재량 매매자가 그날 보고 사는 자리다(지정가 아님).
             #   증액 사이에 `trac_days` 를 다시 세어 한 봉에 몰아 사지 않는다.
-            if i >= last_add + trac_days and c[i] is not None \
-                    and c[i] >= epx * (1 + trac_gain / 100.0):
+            # 78번 사용자 지적 — 지금은 "산 값 위이기만 하면" 산다. +1% 든 +30% 든 같다.
+            #   원문은 <연장된 주식은 안 산다>고 한다 -> trac_gain_hi 로 "위 문턱"을 건다.
+            #   기본값 None = 위 문턱 없음 = 지금까지의 동작 그대로.
+            _g = None if c[i] is None else (c[i] / epx - 1) * 100.0
+            if (i >= last_add + trac_days and _g is not None
+                    and _g >= trac_gain
+                    and (trac_gain_hi is None or _g <= trac_gain_hi)):
+
                 pend_add = (d[i], c[i])          # 다음 봉 시작에 체결
         elif k < len(shares) and _tm == "rebreak":
             if L is not None:
@@ -334,7 +341,8 @@ def resolve_all_masks(path, *, ft="limit", fs="market",
                       atr_n=14, atr_k=1.0, min_days=2,
                       add_stop="floor_entry", px_round=None, h_lag=False,
                       stay_on="low", exit_mode="half_trail", run_trail=25.0,
-                      trig_mode="rebreak", trac_days=3, trac_gain=0.0):
+                      trig_mode="rebreak", trac_days=3, trac_gain=0.0,
+                      trac_gain_hi=None):
     """경로 하나를 «가능한 모든 매수 조합»에 대해 미리 풀어 둔다.
 
     반환: {mask: resolved}
@@ -371,7 +379,8 @@ def resolve_all_masks(path, *, ft="limit", fs="market",
                                 h_lag=h_lag, stay_on=stay_on, atr=atr,
                                 px_round=px_round, exit_mode=exit_mode,
                                 run_trail=run_trail, trig_mode=trig_mode,
-                                trac_days=trac_days, trac_gain=trac_gain)
+                                trac_days=trac_days, trac_gain=trac_gain,
+                                trac_gain_hi=trac_gain_hi)
     return out
 
 
