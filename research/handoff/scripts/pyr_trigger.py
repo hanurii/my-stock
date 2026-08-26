@@ -181,7 +181,8 @@ def _phase2(p, i, a, half, trail, ft, fs, epx, lots, sched, stop, tpx):
 def resolve_one(path, mask, *, ft="limit", fs="market", stop=8.0, target=20.0,
                 half=0.5, trail=25, shares=(0.5, 0.5), atr_n=14, atr_k=1.0,
                 min_days=2, add_stop="floor_entry", h_lag=False, stay_on="low",
-                atr=None, px_round=None):
+                atr=None, px_round=None,
+                exit_mode="half_trail", run_trail=25.0):
     """매수 조합 하나(`mask`)에 대해 경로를 푼다. 반환 형식은 `resolve_all_masks` 참조."""
     if add_stop not in ("floor_entry", "avg"):
         raise ValueError("add_stop 은 'floor_entry' 또는 'avg' 여야 한다: %r" % (add_stop,))
@@ -205,6 +206,7 @@ def resolve_one(path, mask, *, ft="limit", fs="market", stop=8.0, target=20.0,
     below = 0                                # ② 문턱 아래 연속 일수
     L = None                                 # ② 잠긴 방아쇠 선
     armed_at = -1
+    peak = None                              # 「끝까지」 청산용 — «어제까지»의 고점
 
     def avg():
         s = sum(x[2] for x in lots)
@@ -253,6 +255,25 @@ def resolve_one(path, mask, *, ft="limit", fs="market", stop=8.0, target=20.0,
         #    🚨 기본값 None = 옛 동작 그대로. 74번 값은 안 바뀐다.
         if px_round is not None:
             S, T = round(S, px_round), round(T, px_round)
+
+        # ── 「끝까지」 청산 (76번) — 절반 익절 없음 · 고점 대비 고정폭 추격 ──
+        #    🚨 추격선은 «어제까지»의 고점으로 잰다(41번 `resolve_trail_only` 와 같은 규약).
+        #       기본값 exit_mode="half_trail" = 지금까지의 동작 그대로다.
+        if exit_mode == "runner":
+            lvl = S if peak is None else max(S, peak * (1 - run_trail / 100))
+            if px_round is not None:
+                lvl = round(lvl, px_round)
+            if i > 0 and l[i] is not None and l[i] <= lvl:
+                px = _sell_dn_px(p, i, lvl, fs)
+                return _mk(p, epx, lots, sched, [(d[i], 1.0, px)], d[i],
+                           ("win" if px > a else "loss"), False, stop)
+            if i == 0 and l[0] is not None and l[0] <= lvl:
+                return _mk(p, epx, lots, sched, [(d[0], 1.0, c[0])], d[0],
+                           "ambiguous", False, stop)
+            if h[i] is not None:
+                peak = h[i] if peak is None else max(peak, h[i])
+            continue
+
         hit_t = h[i] is not None and h[i] >= T
         hit_s = l[i] is not None and l[i] <= S
         if i == 0:
@@ -280,7 +301,8 @@ def resolve_all_masks(path, *, ft="limit", fs="market",
                       stop=8.0, target=20.0, half=0.5, trail=25,
                       shares=(0.5, 0.5),
                       atr_n=14, atr_k=1.0, min_days=2,
-                      add_stop="floor_entry", px_round=None, h_lag=False, stay_on="low"):
+                      add_stop="floor_entry", px_round=None, h_lag=False,
+                      stay_on="low", exit_mode="half_trail", run_trail=25.0):
     """경로 하나를 «가능한 모든 매수 조합»에 대해 미리 풀어 둔다.
 
     반환: {mask: resolved}
@@ -315,7 +337,8 @@ def resolve_all_masks(path, *, ft="limit", fs="market",
                                 half=half, trail=trail, shares=shares, atr_n=atr_n,
                                 atr_k=atr_k, min_days=min_days, add_stop=add_stop,
                                 h_lag=h_lag, stay_on=stay_on, atr=atr,
-                                px_round=px_round)
+                                px_round=px_round, exit_mode=exit_mode,
+                                run_trail=run_trail)
     return out
 
 
