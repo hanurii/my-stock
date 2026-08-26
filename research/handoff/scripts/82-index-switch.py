@@ -168,8 +168,43 @@ def _prev(cal, d):
 # ═════════════════════════════════════════════════════════════════════════
 # 3. 지수 다리를 «곡선 위에» 얹는다
 # ═════════════════════════════════════════════════════════════════════════
-def overlay_fold(curve, idx_hold, ipx, cost):
+def settled_curve(r):
+    """🚨 `sim_lots` 의 `curve` 는 «마지막 보유 정산 «전»»에서 끝난다(`slot_sim_lots.py:256`
+    vs 정산 260행). 바탕은 `equity_pct`(정산 포함)를 쓰는데 스위칭만 곡선 끝값을 쓰면
+    **불공정 비교**가 된다(2026-08-26 실사고: 현금판이 +67.16 인데 +56.17 로 찍혔다).
+    → 마지막 칸을 «정산된» 자산으로 갈아 끼운다.
+    """
+    cv = r["curve"]
+    return cv[:-1] + [(cv[-1][0], 1.0 + r["equity_pct"] / 100.0)]
+
+
+def expand_to_cal(curve, cal):
+    """🚨 `sim_lots` 의 곡선은 «일이 있었던 날»만 담는다(2,251 거래일 중 1,528일).
+
+    그대로 지수를 얹으면 **구간 안이 통째로 비어** 지수 수익이 0으로 계산된다
+    (2026-08-26 실사고: 447일 중 곡선에 9일 = 2.0%, 구간마다 첫날 하나뿐).
+    지수를 드는 동안 계좌엔 보유가 «없으므로» 평평한 게 맞다 → 앞의 값으로 채운다.
+    """
+    lo, hi = curve[0][0], curve[-1][0]
+    src = dict(curve)
+    out, last = [], curve[0][1]
+    for d in cal:
+        if d < lo or d > hi:
+            continue
+        last = src.get(d, last)
+        out.append((d, last))
+    if not out or out[-1][0] != hi:
+        # 🚨 지수 달력이 계좌 곡선보다 «하루 먼저» 끝난다(2026-08-20 vs 2026-08-21).
+        #    그냥 두면 마지막 «정산» 칸이 통째로 잘린다 — assert 가 잡았다.
+        out.append((hi, curve[-1][1]))
+    assert out[-1][1] == curve[-1][1], "🚨 마지막 자산이 바뀌었다"
+    return out
+
+
+def overlay_fold(curve, idx_hold, ipx, cost, cal=None):
     """`overlay` 의 «정산까지» 판 — 재개일 종가에 지수를 팔고 그 값을 이후에 곱한다."""
+    if cal is not None:
+        curve = expand_to_cal(curve, cal)
     out, mult, anchor, n_sw = [], 1.0, None, 0
     prev_in = False
     for d, eq in curve:
@@ -277,11 +312,17 @@ def main() -> int:
     if w1 >= 1e-9:
         return 3
 
+    w_set = max(abs(eq_of(settled_curve(r)) - r["equity_pct"]) for r in base[:20])
+    print("관문 ①′ 곡선 끝값 = equity_pct (마지막 보유 정산이 «들어갔나»)  %.3e → **%s**"
+          % (w_set, "통과" if w_set < 1e-9 else "🚨 미통과"), flush=True)
+    if w_set >= 1e-9:
+        return 3
+
     # ── 관문 ② 항상 꺼짐 ────────────────────────────────────────────────
     all_hold = {d: True for d in cal}
     ev_off, c2, b2, _g2 = cut_events(ev0, pmap, set(cal), all_hold, cal)
     flat = [(d, 1.0) for d in cal]
-    cv2, sw2 = overlay_fold(flat, all_hold, ipx, HEADLINE_COST)
+    cv2, sw2 = overlay_fold(flat, all_hold, ipx, HEADLINE_COST, cal)
     want = (ipx(cal[-1]) / ipx(cal[0])) * (1 - HEADLINE_COST) ** 2
     got = cv2[-1][1]
     print("관문 ②  깃발 «항상 꺼짐» = 지수 보유 × (1−비용)²  (진입 %d 남음)  %.3e → **%s**"
@@ -340,14 +381,26 @@ def main() -> int:
           flush=True)
 
     sw = run_sims(ev_sw, n_seed)
-    curves = [r["curve"] for r in sw]
+    curves = [settled_curve(r) for r in sw]
     # 관문 ④′ — off 구간에서 자산이 «평평»한가 (지수 얹기 «전»)
-    bad = 0
-    for d0, e0 in zip(curves[0][:-1], curves[0][1:]):
-        if idx_hold.get(d0[0]) and idx_hold.get(e0[0]) and abs(e0[1] - d0[1]) > 1e-12:
-            bad += 1
-    print("관문 ④′ off 구간에서 지수 얹기 «전» 자산이 평평한가 — 어긋난 날 %d → **%s**"
-          % (bad, "통과" if bad == 0 else "🚨 미통과"), flush=True)
+    exp0 = expand_to_cal(curves[0], cal)
+    n_hold_cal = sum(1 for d, _e in exp0 if idx_hold.get(d))
+    n_hold_raw = sum(1 for d, _e in curves[0] if idx_hold.get(d))
+    n_want = sum(1 for d in cal if idx_hold.get(d) and exp0[0][0] <= d <= exp0[-1][0])
+    idx_span = 1.0
+    for _s0 in sorted(d for d in idx_hold if not idx_hold.get(_prev(cal, d))):
+        _k = cal.index(_s0); _j = _k
+        while _j + 1 < len(cal) and idx_hold.get(cal[_j + 1]):
+            _j += 1
+        idx_span *= ipx(cal[_j]) / ipx(_s0)
+    print("관문 ④′ 지수 구간이 «곡선에 담겼는가» — 날것 %d일 → 채운 뒤 **%d/%d일** · "
+          "구간 지수 몫 **%+.2f%%** → **%s**"
+          % (n_hold_raw, n_hold_cal, n_want, (idx_span - 1) * 100,
+             "통과" if n_hold_cal >= n_want else "🚨 미통과"), flush=True)
+    bad = sum(1 for a, b in zip(curves[0][:-1], curves[0][1:])
+              if idx_hold.get(a[0]) and idx_hold.get(b[0]) and abs(b[1] - a[1]) > 1e-12)
+    print("        (지수 구간 «안»에서 자산이 움직인 날 %d — 보유가 없으니 0 이어야 한다)"
+          % bad, flush=True)
 
     print("\n" + "─" * 100, flush=True)
     print("본체 — 전환비용별 (seed %d 중앙)" % n_seed, flush=True)
@@ -356,7 +409,7 @@ def main() -> int:
     print("  " + "-" * 56, flush=True)
     RES, head_curves = {}, None
     for c in SWITCH_COSTS:
-        cvs = [overlay_fold(cv, idx_hold, ipx, c)[0] for cv in curves]
+        cvs = [overlay_fold(cv, idx_hold, ipx, c, cal)[0] for cv in curves]
         eqs = sorted(eq_of(x) for x in cvs)
         m = st.median(eqs)
         RES[c] = {"equity": m, "p5": eqs[int(n_seed * .05)],
@@ -393,7 +446,7 @@ def main() -> int:
     months = sorted(on)
     lbl = [on[m] for m in months]
     obs_small = st.median(eq_of(x) for x in
-                          [overlay_fold(cv, idx_hold, ipx, HEADLINE_COST)[0]
+                          [overlay_fold(cv, idx_hold, ipx, HEADLINE_COST, cal)[0]
                            for cv in curves[:N_RAND_SEED]])
     rnd = random.Random(20260826)
     nulls, nulls_blk = [], []
@@ -410,7 +463,7 @@ def main() -> int:
             evf, _c, _b, _g = cut_events(ev0, pmap, ne, ih, cal)
             rs = run_sims(evf, N_RAND_SEED)
             store.append(st.median(
-                eq_of(overlay_fold(r["curve"], ih, ipx, HEADLINE_COST)[0]) for r in rs))
+                eq_of(overlay_fold(settled_curve(r), ih, ipx, HEADLINE_COST, cal)[0]) for r in rs))
             if it % 50 == 0:
                 print("     %s %d/%d" % (mode, it, n_rand), flush=True)
     for nm, arr in (("섞기(등록된 것)", nulls), ("회전(자기상관 보존·추가)", nulls_blk)):
@@ -441,7 +494,7 @@ def main() -> int:
     ih50, ne50, sw50 = spans(cal, on50)
     ev50, _c, _b, _g = cut_events(ev0, pmap, ne50, ih50, cal)
     r50 = run_sims(ev50, min(40, n_seed))
-    e50 = st.median(eq_of(overlay_fold(r["curve"], ih50, ipx, HEADLINE_COST)[0]) for r in r50)
+    e50 = st.median(eq_of(overlay_fold(settled_curve(r), ih50, ipx, HEADLINE_COST, cal)[0]) for r in r50)
     print("\n부수 — 50MA 판(전환 %d회): **%+.2f%%** (seed %d) · 200MA 판 %+.2f%% (seed %d)"
           % (sw50, e50, min(40, n_seed), HEAD, n_seed), flush=True)
 
