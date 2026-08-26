@@ -182,7 +182,8 @@ def resolve_one(path, mask, *, ft="limit", fs="market", stop=8.0, target=20.0,
                 half=0.5, trail=25, shares=(0.5, 0.5), atr_n=14, atr_k=1.0,
                 min_days=2, add_stop="floor_entry", h_lag=False, stay_on="low",
                 atr=None, px_round=None,
-                exit_mode="half_trail", run_trail=25.0):
+                exit_mode="half_trail", run_trail=25.0,
+                trig_mode="rebreak", trac_days=3, trac_gain=0.0):
     """매수 조합 하나(`mask`)에 대해 경로를 푼다. 반환 형식은 `resolve_all_masks` 참조."""
     if add_stop not in ("floor_entry", "avg"):
         raise ValueError("add_stop 은 'floor_entry' 또는 'avg' 여야 한다: %r" % (add_stop,))
@@ -207,6 +208,8 @@ def resolve_one(path, mask, *, ft="limit", fs="market", stop=8.0, target=20.0,
     L = None                                 # ② 잠긴 방아쇠 선
     armed_at = -1
     peak = None                              # 「끝까지」 청산용 — «어제까지»의 고점
+    last_add = -1                            # 「견인력」 방아쇠용 — 마지막 증액 봉
+    pend_add = None                          # 「견인력」 예약 — (날짜, 체결가). 다음 봉에 체결
 
     def avg():
         s = sum(x[2] for x in lots)
@@ -214,7 +217,29 @@ def resolve_one(path, mask, *, ft="limit", fs="market", stop=8.0, target=20.0,
 
     for i in range(n):
         # ── 증액 방아쇠 ────────────────────────────────────────────────
-        if k < len(shares):
+        # 🚨 **순서 버그 수정 (2026-08-26)** — 「견인력」 증액은 «그날 종가»에 체결되는데,
+        #    같은 봉에서 바로 청산 검사를 하면 **이미 지나간 그날 저가**로 새 손절선을
+        #    검사하게 된다(= 룩어헤드). 첫 구현이 그랬고 M1 이 −76% · 승률 6.5% 로
+        #    무너져 잡혔다. **판정 전에 잡았고, 파라미터가 아니라 «순서»를 고친 것이다.**
+        #    → 봉 i 끝에 조건을 확인해 «예약»하고, 봉 i+1 «시작»에 체결한다(체결가는 c[i]).
+        if pend_add is not None:
+            _pd, _ppx = pend_add
+            sched.append((_pd, _ppx, shares[k], k - 1))
+            if mask[k - 1]:
+                lots.append((_pd, _ppx, shares[k], k - 1))
+            k += 1
+            last_add = i
+            pend_add = None
+        if k < len(shares) and trig_mode == "traction":
+            # ★ 미너비니 규약 (77번) — 「파일럿을 먼저 보내고 «견인력»이 확인되면 더 넣는다」.
+            #   «가격이 얼마 올랐나»가 아니라 «이 파일럿이 살아서 이익 중인가»를 본다.
+            #   조건: 진입 후 `trac_days` 거래일이 지났고 종가가 진입가 대비 +`trac_gain`% 이상.
+            #   🚨 체결가는 «그날 종가» — 재량 매매자가 그날 보고 사는 자리다(지정가 아님).
+            #   증액 사이에 `trac_days` 를 다시 세어 한 봉에 몰아 사지 않는다.
+            if i >= last_add + trac_days and c[i] is not None \
+                    and c[i] >= epx * (1 + trac_gain / 100.0):
+                pend_add = (d[i], c[i])          # 다음 봉 시작에 체결
+        elif k < len(shares):
             if L is not None:
                 # ③ 무장 상태 — 「그 뒤」 고가 ≥ L 인 첫날
                 if i > armed_at and h[i] is not None and h[i] >= L:
@@ -302,7 +327,8 @@ def resolve_all_masks(path, *, ft="limit", fs="market",
                       shares=(0.5, 0.5),
                       atr_n=14, atr_k=1.0, min_days=2,
                       add_stop="floor_entry", px_round=None, h_lag=False,
-                      stay_on="low", exit_mode="half_trail", run_trail=25.0):
+                      stay_on="low", exit_mode="half_trail", run_trail=25.0,
+                      trig_mode="rebreak", trac_days=3, trac_gain=0.0):
     """경로 하나를 «가능한 모든 매수 조합»에 대해 미리 풀어 둔다.
 
     반환: {mask: resolved}
@@ -338,7 +364,8 @@ def resolve_all_masks(path, *, ft="limit", fs="market",
                                 atr_k=atr_k, min_days=min_days, add_stop=add_stop,
                                 h_lag=h_lag, stay_on=stay_on, atr=atr,
                                 px_round=px_round, exit_mode=exit_mode,
-                                run_trail=run_trail)
+                                run_trail=run_trail, trig_mode=trig_mode,
+                                trac_days=trac_days, trac_gain=trac_gain)
     return out
 
 
