@@ -104,15 +104,26 @@ def main() -> int:
     # ── 관문 ①② ────────────────────────────────────────────────────────
     r41.TARGET_FILL, r41.STOP_FILL = "limit", "market"
     ev_ref, _b = r41.replay(by2, lambda p: r41.resolve_half_then_trail(p, STOP, TARGET))
-    ev_p0, _b2, _s2 = replay(by2, (1.0,), "floor_entry", FIX)
-    worst = 0.0
+    # 🚨 관문 ① 은 «기계»(sim_lots ≡ sim_frac)를 재는 것이지 «규약»을 재는 게 아니다.
+    #    그래서 반올림을 «끈» 판으로 건다. 첫 판에서 FIX(px_round=2)를 넣었다가
+    #    1.428e-01 로 깨졌는데, 그건 기계가 아니라 §3① 의 «의도한 규약 변경» 탓이었다.
+    #    (2026-08-26 자기 정정 — 규약 변경을 관문 경로에 섞어 넣은 것이 잘못이었다.)
+    NOROUND = {k: v for k, v in FIX.items() if k != "px_round"}
+    ev_p0n, _b2, _s2 = replay(by2, (1.0,), "floor_entry", NOROUND)
+    ev_p0, _b2b, _s2b = replay(by2, (1.0,), "floor_entry", FIX)
+    worst = worst_r = 0.0
     with r41.Cost(*COST):
         for s in range(min(20, n_seed)):
             a = sf.sim_frac(ev_ref, slots=SLOTS, seed=s, sizing="cash")["equity_pct"]
-            b = sl.sim_lots(ev_p0, seed=s, slots=SLOTS, risk=1.0, cap=BASE_CAP)["equity_pct"]
+            b = sl.sim_lots(ev_p0n, seed=s, slots=SLOTS, risk=1.0, cap=BASE_CAP)["equity_pct"]
+            c2 = sl.sim_lots(ev_p0, seed=s, slots=SLOTS, risk=1.0, cap=BASE_CAP)["equity_pct"]
             worst = max(worst, abs(a - b) / max(1e-12, abs(a)))
-    print("관문 ①  shares=(1.0,) = sim_frac(5칸·현금제약)  최대 상대오차 %.3e → **%s**"
+            worst_r = max(worst_r, abs(a - c2) / max(1e-12, abs(a)))
+    print("관문 ①  shares=(1.0,) = sim_frac(5칸·현금제약) · **반올림 끈 판**"
+          "  최대 상대오차 %.3e → **%s**"
           % (worst, "통과" if worst < 1e-9 else "🚨 미통과"), flush=True)
+    print("        (참고) 반올림 «켠» 판은 %.3e — 기계가 아니라 §3① 규약이 만든 차이다"
+          % worst_r, flush=True)
     print("        진입 옛 %d · 새 %d\n" % (len(ev_ref), len(ev_p0)), flush=True)
 
     # ── 관문 ③ 반올림 있음/없음 ─────────────────────────────────────────
@@ -126,8 +137,22 @@ def main() -> int:
     tot = sum(len(a["masks"]) for a in ev_nr)
     print("관문 ③  가격 2자리 반올림 있음/없음 — 결착이 갈린 해결 **%d / %d (%.4f%%)**"
           % (diff, tot, 100.0 * diff / max(1, tot)), flush=True)
-    print("        (74번에 남아 있는 「칼끝」의 크기다. 75번은 반올림 판을 쓴다.)\n",
-          flush=True)
+    print("        (74번에 남아 있는 「칼끝」의 크기다. 75번은 반올림 판을 쓴다.)", flush=True)
+    # 🚨 «건수»만으로 「작다」고 읽으면 안 된다 — 자산에 얼마나 번지는지 같이 잰다.
+    rel = []
+    with r41.Cost(*COST):
+        for s in range(min(60, n_seed)):
+            a = sl.sim_lots(ev_p0n, seed=s, slots=SLOTS, risk=1.0, cap=BASE_CAP)["equity_pct"]
+            b = sl.sim_lots(ev_p0, seed=s, slots=SLOTS, risk=1.0, cap=BASE_CAP)["equity_pct"]
+            rel.append(abs(a - b) / max(1e-12, abs(a)) * 100)
+    rel.sort()
+    m = len(rel)
+    print("관문 ③′ 그 규약이 «자산»에 번지는 크기 (P0 · %d판): 중앙 %.2f%% · P90 %.2f%% · "
+          "**최대 %.2f%%** · 1%% 넘는 판 %d/%d"
+          % (m, rel[m // 2], rel[9 * m // 10], rel[-1],
+             sum(1 for x in rel if x > 1.0), m), flush=True)
+    print("        🚨 **한 판 한 판은 최대 14%% 까지 움직인다** — 중앙은 거의 안 움직여도"
+          " «내가 겪는 한 판»은 크게 달라진다.\n", flush=True)
 
     # ── 본체 ────────────────────────────────────────────────────────────
     print("  %-16s %6s %5s %11s %11s %8s %6s %6s %6s %6s"
