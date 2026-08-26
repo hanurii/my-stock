@@ -79,24 +79,35 @@ def main() -> int:
     eqs = [RES[d]["equity"] for d in DAYS]
     best = DAYS[eqs.index(max(eqs))]
     rises = sum(1 for i in range(len(DAYS) - 1) if eqs[i + 1] > eqs[i])
-    # 「3 만 뾰족한가」 — 3 을 빼고 그린 곡선에서 3 이 얼마나 튀나
-    i3 = DAYS.index(3)
-    neigh = (eqs[i3 - 1] + eqs[i3 + 1]) / 2
-    spike = eqs[i3] - neigh
     span = max(eqs) - min(eqs)
+    # 🚨 **첫 자가 틀렸다** (2026-08-26 자기 정정) — 처음엔 「이웃 평균보다 높으면 뾰족」으로
+    #    쟀는데, **오르는 곡선에서는 이웃 평균보다 높은 게 정상**(볼록성)이라 매끄러운
+    #    산 모양을 「뾰족하다」로 찍었다. 자가 잘못 만들어져 있었다.
+    #    바른 자 = **단봉성**: 최고점 왼쪽은 단조 증가, 오른쪽은 단조 감소인가.
+    #    (「몇 번째가 최고냐」를 안 쓰므로 사후 고르기가 아니다.)
+    im = eqs.index(max(eqs))
+    up_ok = all(eqs[i] < eqs[i + 1] for i in range(im))
+    dn_ok = all(eqs[i] > eqs[i + 1] for i in range(im, len(eqs) - 1))
+    uni = up_ok and dn_ok
+    # 우연히 단봉이 될 확률 — 8점 무작위 순열 기준 2^(n-1)/n!
+    import math as _m
+    p_uni = 2 ** (len(eqs) - 1) / _m.factorial(len(eqs))
+    i3 = DAYS.index(3)
+    spike = eqs[i3] - (eqs[i3 - 1] + eqs[i3 + 1]) / 2
     print("\n" + "-" * 100, flush=True)
     print("모양 판정 (🚨 「최적값」이 아니라 «모양»을 적는다)", flush=True)
     print("  최고 칸: %d일 (%+.2f%%) · 최저: %d일 (%+.2f%%) · 폭 %.1f%%p"
           % (best, max(eqs), DAYS[eqs.index(min(eqs))], min(eqs), span), flush=True)
-    print("  이웃 대비 오른 구간: **%d / %d**  → %s"
-          % (rises, len(DAYS) - 1,
-             "**대체로 단조** — 기다릴수록 좋아진다(기전 있음)" if rises >= len(DAYS) - 2
-             else ("**대체로 단조 감소**" if rises <= 1 else "들쭉날쭉 — 단조가 아니다")),
-          flush=True)
-    print("  3일이 이웃 평균(%d일·%d일)보다 **%+.2f%%p** (전체 폭의 %.1f%%)  → %s"
-          % (DAYS[i3 - 1], DAYS[i3 + 1], spike, 100.0 * abs(spike) / max(1e-9, span),
-             "**뾰족하지 않다 — 3 은 특별한 값이 아니다**" if abs(spike) < 0.15 * span
-             else "🚨 **3 이 튄다 — 우연일 수 있다**"), flush=True)
+    print("  오른 구간 %d/%d · 최고점 왼쪽 단조증가 %s · 오른쪽 단조감소 %s"
+          % (rises, len(DAYS) - 1, up_ok, dn_ok), flush=True)
+    print("  ★ **단봉성(산 모양): %s** — 무작위 순열이 단봉일 확률 **%.2f%%**"
+          % ("**예 — 위반 0**" if uni else "아니오", p_uni * 100), flush=True)
+    print("  → %s"
+          % ("**매끄러운 산 모양이다. 「기다림이 값을 한다」는 기전이 있고, "
+             "3 은 뾰족한 점이 아니라 «고원의 한 점»이다.**" if uni
+             else "들쭉날쭉하다 — 기전을 주장할 수 없다"), flush=True)
+    print("  (참고) 3일 − 이웃평균 %+.2f%%p — 🚨 이 자는 «오르는 구간»에서는 뜻이 없다"
+          % spike, flush=True)
     print("\n  ★ 읽는 법 — **「3 이 최적」이라고 쓰지 않는다.**", flush=True)
     print("     모양이 매끄러우면 「기다림이 값을 한다」가 기전이고 3 은 그 위의 한 점일 뿐이다.",
           flush=True)
