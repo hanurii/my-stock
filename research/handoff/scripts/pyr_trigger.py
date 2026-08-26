@@ -181,7 +181,7 @@ def _phase2(p, i, a, half, trail, ft, fs, epx, lots, sched, stop, tpx):
 def resolve_one(path, mask, *, ft="limit", fs="market", stop=8.0, target=20.0,
                 half=0.5, trail=25, shares=(0.5, 0.5), atr_n=14, atr_k=1.0,
                 min_days=2, add_stop="floor_entry", h_lag=False, stay_on="low",
-                atr=None):
+                atr=None, px_round=None):
     """매수 조합 하나(`mask`)에 대해 경로를 푼다. 반환 형식은 `resolve_all_masks` 참조."""
     if add_stop not in ("floor_entry", "avg"):
         raise ValueError("add_stop 은 'floor_entry' 또는 'avg' 여야 한다: %r" % (add_stop,))
@@ -246,6 +246,13 @@ def resolve_one(path, mask, *, ft="limit", fs="market", stop=8.0, target=20.0,
         if add_stop == "floor_entry" and len(lots) > 1:
             S = max(S, epx)                  # 이긴 것을 지게 두지 않는다
         T = a * (1 + target / 100)
+        # 🚨 **부동소수 칼끝** (관문 E · 2026-08-26): 2자리 십진 가격끼리는 「정확히 닿는」
+        #    일이 자주 나고, 그때 40.43999999999999 vs 40.440000000000005 로 승패가 갈린다
+        #    (90,240 중 21건 = 0.023%). `px_round=2` 면 «가격 격자»로 반올림해 없앤다 —
+        #    새 규약이 아니라 하네스가 이미 쓰는 규약(41번이 추격 수준선을 round(...,2) 한다).
+        #    🚨 기본값 None = 옛 동작 그대로. 74번 값은 안 바뀐다.
+        if px_round is not None:
+            S, T = round(S, px_round), round(T, px_round)
         hit_t = h[i] is not None and h[i] >= T
         hit_s = l[i] is not None and l[i] <= S
         if i == 0:
@@ -273,7 +280,7 @@ def resolve_all_masks(path, *, ft="limit", fs="market",
                       stop=8.0, target=20.0, half=0.5, trail=25,
                       shares=(0.5, 0.5),
                       atr_n=14, atr_k=1.0, min_days=2,
-                      add_stop="floor_entry", h_lag=False, stay_on="low"):
+                      add_stop="floor_entry", px_round=None, h_lag=False, stay_on="low"):
     """경로 하나를 «가능한 모든 매수 조합»에 대해 미리 풀어 둔다.
 
     반환: {mask: resolved}
@@ -307,7 +314,8 @@ def resolve_all_masks(path, *, ft="limit", fs="market",
         out[mask] = resolve_one(path, mask, ft=ft, fs=fs, stop=stop, target=target,
                                 half=half, trail=trail, shares=shares, atr_n=atr_n,
                                 atr_k=atr_k, min_days=min_days, add_stop=add_stop,
-                                h_lag=h_lag, stay_on=stay_on, atr=atr)
+                                h_lag=h_lag, stay_on=stay_on, atr=atr,
+                                px_round=px_round)
     return out
 
 
