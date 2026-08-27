@@ -187,6 +187,7 @@ def build(years, d0, d1, fund):
                 v = art[k][IX["roe"]]
                 f8["roe"] = NAN if _nan(v) else v
             f8["_lag"] = lag
+            f8["_year"] = int(p["entry_date"][:4])
             rows.append((f8, 1.0 if mfe >= TARGET else 0.0,
                          1.0 if mfe >= DOUBLE else 0.0, mfe))
     return rows, miss, sum(len(v) for v in by0.values())
@@ -228,6 +229,186 @@ def sweep(rows, axis, yi, name):
             "n_nan": n_nan}
 
 
+# ═════════════════════════════════════════════════════════════════════════
+# 4. 2단계 — **판정 두 창을 «한 번만» 쓴다**
+# ═════════════════════════════════════════════════════════════════════════
+def cells_for(rowsP, axis):
+    """분위 «경계»는 고르기 창에서만 만든다 (관문 ③).
+
+    반환: (경계, 칸 수, 값→칸 함수)
+    """
+    if axis in CAT:
+        vals = sorted({r[0][axis] for r in rowsP})
+        m = {v: i for i, v in enumerate(vals)}
+        return None, len(vals), (lambda v: m.get(v, -1))
+    xs = sorted(r[0][axis] for r in rowsP if not _nan(r[0][axis]))
+    if len(xs) < NQ * 30:
+        return None, 0, None
+    cuts = [xs[int(len(xs) * i / NQ)] for i in range(1, NQ)]
+    return cuts, NQ, (lambda v: -1 if _nan(v) else bisect.bisect_right(cuts, v))
+
+
+def mde_prop(p, n1, n2):
+    """비율 차의 **최소 검출 크기**(양측 95% · 검정력 80%). 값 보기 «전»에 찍는다."""
+    import math
+    return 2.8 * math.sqrt(p * (1 - p) * (1.0 / max(n1, 1) + 1.0 / max(n2, 1))) * 100
+
+
+def stage2():
+    import numpy as np
+
+    print("실적표 적재 …", flush=True)
+    fund = json.loads(FUND.read_text(encoding="utf-8"))["by"]
+
+    packs = []
+    for lab, (d0, d1), yrs in (
+            ("고르기 1999-04~2011-12", PICK, range(1999, 2013)),
+            ("판정① 2012-01~2017-08", TEST1, range(2012, 2018)),
+            ("판정② 2017-09~2026-08", TEST2, range(2017, 2027))):
+        rows, miss, npath = build(tuple(yrs), d0, d1, fund)
+        packs.append((lab, rows))
+        print("  %-24s 경로 %7s → 진입 %6s   (좀비 제외 %s · 겹침 %s)"
+              % (lab, "{:,}".format(npath), "{:,}".format(len(rows)),
+                 "{:,}".format(miss.get("공시가 %d일 넘게 묵음(좀비)" % STALE_MAX, 0)),
+                 "{:,}".format(miss.get("같은 종목 겹침", 0))), flush=True)
+
+    rowsP = packs[0][1]
+    allrows = [r for _l, rs in packs for r in rs]
+    win = np.array([w for w, (_l, rs) in enumerate(packs) for _ in rs], dtype=np.int64)
+    yr = np.array([0] * 0 + [int(0)] * 0, dtype=np.int64)  # 아래에서 채운다
+
+    # 연도 — 귀무는 «연도 안»에서만 섞는다(관문 ⑤·85 의 규약)
+    yrs_list = []
+    for _l, rs in packs:
+        for r in rs:
+            yrs_list.append(r[0]["_year"])
+    yr = np.array(yrs_list, dtype=np.int64)
+    ugroups = [np.where(yr == u)[0] for u in np.unique(yr)]
+
+    # 축별 칸 번호 (창×칸)
+    axinfo = {}
+    for ax in AXES:
+        cuts, nc, f = cells_for(rowsP, ax)
+        if not nc:
+            axinfo[ax] = None
+            continue
+        q = np.array([f(r[0][ax]) for r in allrows], dtype=np.int64)
+        cell = np.where(q < 0, -1, win * nc + q)
+        okmask = q >= 0
+        K = 3 * nc
+        cnt = np.bincount(cell[okmask], minlength=K).astype(float)
+        wcnt = np.array([okmask[win == w].sum() for w in range(3)], dtype=float)
+        axinfo[ax] = {"nc": nc, "cell": cell, "ok": okmask, "K": K,
+                      "cnt": cnt, "wcnt": wcnt, "cuts": cuts}
+
+    for yi, nm in ((1, "㉮ MFE >= +20%"), (2, "㉯ MFE >= +100% (더블)")):
+        y = np.array([r[yi] for r in allrows], dtype=float)
+        print("\n" + "=" * 100, flush=True)
+        print("### %s" % nm, flush=True)
+        base_w = [y[win == w].mean() * 100 for w in range(3)]
+        print("   창별 기준율: 고르기 %.2f%% · 판정① %.2f%% · 판정② %.2f%%"
+              % tuple(base_w), flush=True)
+
+        def evaluate(yv):
+            """등록된 절차 그대로 — 고르기에서 최고 칸을 고르고 판정 두 창에서 잰다."""
+            out = {}
+            for ax in AXES:
+                a = axinfo[ax]
+                if a is None:
+                    continue
+                sm = np.bincount(a["cell"][a["ok"]], weights=yv[a["ok"]],
+                                 minlength=a["K"])
+                nc = a["nc"]
+                # 고르기 창(0)에서 최고 칸 — 30건 미만은 안 본다
+                best, bv = -1, -1e9
+                for q in range(nc):
+                    c = a["cnt"][q]
+                    if c < 30:
+                        continue
+                    v = sm[q] / c
+                    if v > bv:
+                        bv, best = v, q
+                if best < 0:
+                    continue
+                lifts = []
+                for w in (1, 2):
+                    i = w * nc + best
+                    if a["cnt"][i] < 30:
+                        lifts.append(-1e9)
+                        continue
+                    sel = sm[i] / a["cnt"][i]
+                    bw = sm[w * nc:(w + 1) * nc].sum() / a["wcnt"][w]
+                    lifts.append((sel - bw) * 100)
+                out[ax] = (best, lifts[0], lifts[1], min(lifts),
+                           a["cnt"][nc + best], a["cnt"][2 * nc + best])
+            return out
+
+        obs = evaluate(y)
+
+        # ── C — MDE 를 «먼저» 찍는다 ────────────────────────────────────
+        p0 = y.mean()
+        n1 = int((win == 1).sum())
+        n2 = int((win == 2).sum())
+        print("   C  MDE(단일 비교 · 판정①이 작아 그쪽이 정한다)", flush=True)
+        for ax, v in sorted(obs.items()):
+            m1 = mde_prop(p0, int(v[4]), n1)
+            m2 = mde_prop(p0, int(v[5]), n2)
+            print("      %-11s 판정① n=%5d MDE %+.2f%%p · 판정② n=%5d MDE %+.2f%%p"
+                  % (ax, v[4], m1, v[5], m2), flush=True)
+
+        # ── A★ ─────────────────────────────────────────────────────────
+        thr = 5.0 if yi == 1 else (base_w[1] * 0.5)
+        print("\n   %-11s %-8s %11s %11s %9s %s"
+              % ("축", "고른 칸", "판정①", "판정②", "**최소**", "A★"), flush=True)
+        print("   " + "-" * 76, flush=True)
+        for ax in AXES:
+            if ax not in obs:
+                print("   %-11s (못 잼)" % ax, flush=True)
+                continue
+            best, l1, l2, mn, _c1, _c2 = obs[ax]
+            lab = ("값=%s" % sorted({r[0][ax] for r in rowsP})[best]) if ax in CAT \
+                else "%d분위" % (best + 1)
+            if yi == 1:
+                ok = (l1 > 5.0) and (l2 > 5.0)
+                t = "+5%p 초과"
+            else:
+                ok = (l1 > base_w[1] * 0.5) and (l2 > base_w[2] * 0.5)
+                t = "기준율x1.5"
+            print("   %-11s %-8s %+10.2f%%p %+10.2f%%p %+8.2f%%p  %s"
+                  % (ax, lab, l1, l2, mn, "**통과**" if ok else "미통과"), flush=True)
+        print("   (A★ 문턱: %s · **두 판정창 «모두»**)" % t, flush=True)
+
+        # ── R★ 방향 일치 ───────────────────────────────────────────────
+        same = [ax for ax in obs if (obs[ax][1] > 0) == (obs[ax][2] > 0)]
+        print("\n   R★ 두 판정창의 «방향»이 같은 축: %d / %d  — %s"
+              % (len(same), len(obs), ", ".join(sorted(same)) or "없음"), flush=True)
+
+        # ── N★ 귀무 대조 ───────────────────────────────────────────────
+        obs_max = max((v[3] for v in obs.values()), default=float("nan"))
+        obs_ax = max(obs, key=lambda a: obs[a][3]) if obs else "-"
+        N_NULL = 4000
+        rng = np.random.default_rng(0)
+        nulls = np.empty(N_NULL)
+        yv = y.copy()
+        for b in range(N_NULL):
+            for g in ugroups:            # 🚨 «연도 안»에서만 섞는다
+                yv[g] = y[g][rng.permutation(g.size)]
+            r = evaluate(yv)
+            nulls[b] = max((v[3] for v in r.values()), default=-1e9)
+            if (b + 1) % 1000 == 0:
+                print("      귀무 %d/%d …" % (b + 1, N_NULL), flush=True)
+        pct = float((nulls < obs_max).mean() * 100)
+        need = 100 * (1 - 0.05 / 8)
+        print("\n   N★ 「8칸 중 최선」의 min(판정①,판정②)", flush=True)
+        print("      관측 **%+.2f%%p** (%s) · 귀무 4,000판 중앙 %+.2f%%p · 95%% %+.2f%%p · 최대 %+.2f%%p"
+              % (obs_max, obs_ax, float(np.median(nulls)),
+                 float(np.quantile(nulls, .95)), float(nulls.max())), flush=True)
+        print("      **%.2f 백분위** · 필요 %.3f (가족 보정 8) -> **%s**"
+              % (pct, need, "통과" if pct >= need else "미통과"), flush=True)
+
+    return 0
+
+
 def main() -> int:
     pilot = "--pilot" in sys.argv
     print("=" * 100, flush=True)
@@ -235,8 +416,7 @@ def main() -> int:
           % ("1단계 «고르기 창만» (문턱 없음 · 판정 없음)" if pilot else "2단계 판정"), flush=True)
     print("=" * 100, flush=True)
     if not pilot:
-        print("🚨 2단계는 판정 창을 «한 번만» 쓴다. 1단계 결과 없이 돌리지 않는다.", flush=True)
-        return 2
+        return stage2()
 
     print("실적표 적재 …", flush=True)
     fund = json.loads(FUND.read_text(encoding="utf-8"))["by"]
