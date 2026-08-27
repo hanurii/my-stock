@@ -1,12 +1,20 @@
 # -*- coding: utf-8 -*-
-"""91 — **표본 밖 18.4년**. 사전등록 `tasks/91-us-out-of-sample.md`.
+"""91 — **표본 밖 18.4년**. 사전등록 `tasks/91-us-out-of-sample.md` (**개정 1** 포함).
 
 🚨🚨 **아무것도 안 고친다.** 파라미터는 81번 정본 그대로이고, 이 창은 «한 번만» 쓴다.
 🚨 74번과 «같은 부품»을 쓴다(경로단계 필터 · `resolve_trade` · `sim_lots`).
    달라지는 것은 **연도 범위**와 **월말 패널(전체이력판)** 둘뿐이다.
 
+개정 1 (검증 세션 `35f2aaa4`) — 값 보기 «전»에 들어갔다
+------------------------------------------------------
+① **D★** = 「한 판의 순서」가 아니라 **「200판 중 0<①<② 인 비율」**. 우연 16.7% · 통과선 50%.
+② **ext 미사용이 91 의 규약**. 1999~2016 엔 ext 가 없으므로 그것만이 «대칭»이다.
+   `--ext` 를 주면 쓰는데, 그건 **관문 ②a(코드 검증)** 전용이다.
+③ **관문 ②** 에 숫자 문턱 — ②a(ext 사용·200판) 의 중앙 95% 구간이 74번 +298.44% 를 품는가.
+   ②b(ext 미사용) 와의 차 = **ext 227건의 효과**(새로 재는 값).
+
 실행:
-  PYTHONIOENCODING=utf-8 python research/handoff/scripts/91-us-out-of-sample.py [--quick]
+  PYTHONIOENCODING=utf-8 python research/handoff/scripts/91-us-out-of-sample.py [창이름…] [--quick] [--ext]
 """
 from __future__ import annotations
 
@@ -14,6 +22,7 @@ import datetime as _dt
 import importlib.util as _u
 import json
 import math
+import random
 import statistics as st
 import sys
 from pathlib import Path
@@ -46,7 +55,10 @@ STOP, TARGET = 8.0, 20.0
 LO, HI = 0.10, 0.30
 N_SEED = 200
 
-# ── 창 (사전등록 §1) ──────────────────────────────────────────────────────
+CANON_74 = 298.44          # 74번 정본 (ext 사용 · 200판)
+D_CHANCE = 100.0 / 6.0     # 사다리 세 칸의 순서가 우연히 맞을 확률
+D_PASS = 50.0              # 개정 1-① 통과선
+
 WINDOWS = (
     ("표본밖A정본", tuple(range(2002, 2018)), "2002-01-01", "2017-08-31"),
     ("표본밖B닷컴", (1999, 2000, 2001), "1999-04-01", "2001-12-31"),
@@ -67,13 +79,25 @@ def cagr(total_pct, years):
     return (base ** (1 / years) - 1) * 100
 
 
+def boot_ci(vals, b=4000, seed=0, lo=2.5, hi=97.5):
+    """중앙값의 부트스트랩 구간. 🚨 난수는 «고정»한다(재현)."""
+    rnd = random.Random(seed)
+    n = len(vals)
+    meds = []
+    for _ in range(b):
+        meds.append(st.median(vals[rnd.randrange(n)] for _ in range(n)))
+    meds.sort()
+    return meds[int(b * lo / 100)], meds[int(b * hi / 100)]
+
+
 # ═════════════════════════════════════════════════════════════════════════
 # 1. 경로 적재 + 사다리 세 칸
 # ═════════════════════════════════════════════════════════════════════════
-def load_ladder(years, d0, d1, monthly_file):
+def load_ladder(years, d0, d1, monthly_file, use_ext=False):
     """사다리 0 / ① / ② 를 **경로 단계**에서 만든다 (74 §1 과 같은 규약).
 
     🚨 진입 «뒤»에 거르면 안 산 종목이 `open_until` 을 잡아 나중 진입을 막는다.
+    🚨 `use_ext` 는 **관문 ②a 전용**이다 — 표본 밖엔 ext 파일이 없다(개정 1-②).
     """
     pack = json.loads((OUT / monthly_file).read_text(encoding="utf-8"))
     monthly, sector = pack["monthly"], pack["sector"]
@@ -82,6 +106,7 @@ def load_ladder(years, d0, d1, monthly_file):
     mret = r61b.month_returns(monthly, sector, months)
     sec_top, in_pct = r61b.make_flags(mret, sector)
 
+    ext_idx, n_ext = (pt._load_ext() if use_ext else ({}, 0))
     by0, missing = {}, []
     for y in years:
         f = SUB / ("uspath_%d.json" % y)
@@ -89,6 +114,11 @@ def load_ladder(years, d0, d1, monthly_file):
             missing.append(y)
             continue
         ps = json.loads(f.read_text(encoding="utf-8"))["trigger_paths"]
+        if ext_idx:
+            for i, p in enumerate(ps):
+                q = ext_idx.get((p["scan_date"], p["code"], p["pattern"]))
+                if q is not None:
+                    ps[i] = q
         by0[y] = [p for p in ps if d0 <= p["entry_date"] <= d1]
 
     def lvl1(p):
@@ -112,7 +142,7 @@ def load_ladder(years, d0, d1, monthly_file):
 
     by1 = {y: [p for p in ps if lvl1(p)] for y, ps in by0.items()}
     by2 = {y: [p for p in ps if lvl2(p)] for y, ps in by0.items()}
-    return (by0, by1, by2), missing
+    return (by0, by1, by2), missing, n_ext
 
 
 def replay(by):
@@ -171,117 +201,161 @@ def bench(tk, d0, d1):
 
 
 # ═════════════════════════════════════════════════════════════════════════
-# 3. 본실행
+# 3. 한 창 돌리기
+# ═════════════════════════════════════════════════════════════════════════
+def run_window(lab, years, d0, d1, n_seed, use_ext):
+    mf = "61-monthly-us.json" if "이미본" in lab else "91-monthly-us-full.json"
+    (by0, by1, by2), missing, n_ext = load_ladder(years, d0, d1, mf, use_ext)
+    if missing:
+        print("🚨 %s — 경로 파일 없음: %s  **건너뛴다**\n" % (lab, missing), flush=True)
+        return None
+    yrs = (_ord(d1) - _ord(d0)) / 365.25
+    print("-" * 106, flush=True)
+    print("### %s   %s ~ %s   (%.2f년 · 월말패널 %s · ext %s)"
+          % (lab, d0, d1, yrs, mf, ("사용 %d개" % n_ext) if use_ext else "**미사용**"),
+          flush=True)
+    rows = []
+    for name, by in (("0 선별없이", by0), ("1 +주도3업종", by1), ("2 +2·3등급", by2)):
+        ev, blk, trunc = replay(by)
+        rs = sim(ev, n_seed)
+        raw = [x["equity_pct"] for x in rs]        # 🚨 seed 순서 «그대로» (D★ 짝맞춤용)
+        eq = sorted(raw)
+        dates = [p["entry_date"] for v in by.values() for p in v]
+        med = st.median(eq)
+        rows.append({
+            "name": name, "n_path": sum(len(v) for v in by.values()),
+            "n_entry": len(ev), "blocked": blk, "trunc": trunc, "years": yrs,
+            "med": med, "cagr": cagr(med, yrs),
+            "p25": eq[int(n_seed * .25)], "p5": eq[int(n_seed * .05)],
+            "mdd": st.median(x["mdd_pct"] for x in rs),
+            "win": st.median(x["win_rate"] for x in rs),
+            "per_trade": st.median(x["filled_per_trade"] for x in rs),
+            "n_filled": st.median(x["n_filled"] for x in rs),
+            "first": min(dates) if dates else "-", "last": max(dates) if dates else "-",
+            "raw": raw, "eq": eq})
+    print("  %-13s %8s %7s %6s %12s %10s %12s %12s %8s %7s %8s"
+          % ("사다리", "경로", "진입", "체결", "자산중앙", "**연환산**",
+             "하위25%", "운나쁠때5%", "MDD", "승률", "거래당"), flush=True)
+    print("  " + "-" * 108, flush=True)
+    for r in rows:
+        print("  %-13s %8d %7d %6d %+11.2f%% %+9.2f%% %+11.2f%% %+11.2f%% %7.1f%% %6.1f%% %+7.3f%%"
+              % (r["name"], r["n_path"], r["n_entry"], r["n_filled"], r["med"],
+                 r["cagr"], r["p25"], r["p5"], r["mdd"], r["win"], r["per_trade"]),
+              flush=True)
+    print("     경로 잘림(250봉 상한): %s   ·   open_until 로 막힘: %s"
+          % (" ".join("%s%d" % (r["name"][:1], r["trunc"]) for r in rows),
+             " ".join("%s%d" % (r["name"][:1], r["blocked"]) for r in rows)), flush=True)
+    print("     진입 첫날~끝날: %s ~ %s" % (rows[0]["first"], rows[0]["last"]), flush=True)
+
+    print("\n  지수 (같은 창 · **배당 재투자** = 우리에게 «불리한» 보수적 자)", flush=True)
+    bm = {}
+    for tk in ("SPY", "QQQ"):
+        b = bench(tk, d0, d1)
+        bm[tk] = b
+        if b:
+            print("     %-4s %+11.2f%% · 연 %+7.2f%% · MDD %7.2f%% · 수익/낙폭 %5.2f  (%s~%s)"
+                  % (tk, b["total"], b["cagr"], b["mdd"],
+                     abs(b["total"] / b["mdd"]) if b["mdd"] else float("nan"),
+                     b["d0"], b["d1"]), flush=True)
+    return {"rows": rows, "bm": bm, "d0": d0, "d1": d1, "years": yrs, "n_ext": n_ext}
+
+
+def judge(res, n_seed):
+    """§3 합격선 A★ B★ C★ D★ + E. **개정 1-① 반영.**"""
+    rows, bm = res["rows"], res["bm"]
+    r0, r1, r2 = rows
+    sp = bm.get("SPY")
+    print("\n  §3 합격선 — 값 보기 «전»에 적힌 것 (개정 1 포함)", flush=True)
+    a = sp is not None and r2["cagr"] > sp["cagr"]
+    print("   A★ 조합 연환산 > SPY(총수익)      %+.2f%% vs %+.2f%%        -> **%s**"
+          % (r2["cagr"], sp["cagr"] if sp else float("nan"), "통과" if a else "미통과"),
+          flush=True)
+    bmed = r2["cagr"] - sp["cagr"] if sp else float("nan")
+    b25 = cagr(r2["p25"], r2["years"]) - sp["cagr"] if sp else float("nan")
+    okb = (bmed > 0) and (b25 > 0)
+    print("   B★ seed 축이 부호를 안 뒤집는다   중앙 %+.2f%%p · 하위25%% %+.2f%%p -> **%s**"
+          % (bmed, b25, "통과" if okb else "미통과"), flush=True)
+    mar = abs(r2["med"] / r2["mdd"]) if r2["mdd"] else float("nan")
+    marb = abs(sp["total"] / sp["mdd"]) if sp and sp["mdd"] else float("nan")
+    okc = mar > marb
+    print("   C★ 수익/낙폭 > SPY               %.2f vs %.2f                -> **%s**"
+          % (mar, marb, "통과" if okc else "미통과"), flush=True)
+    # ★ 개정 1-① — 판 «각각»에서 순서를 세고 비율을 적는다
+    hit = sum(1 for s in range(n_seed)
+              if r0["raw"][s] < r1["raw"][s] < r2["raw"][s])
+    pct = 100.0 * hit / n_seed
+    okd = pct > D_PASS
+    print("   D★ 200판 중 0<1<2 인 «비율»       **%.1f%%** (%d/%d) · 우연이면 %.1f%% · 통과선 %.0f%% -> **%s**"
+          % (pct, hit, n_seed, D_CHANCE, D_PASS, "통과" if okd else "미통과"), flush=True)
+    print("      (참고 — 중앙값끼리의 순서: %+.2f / %+.2f / %+.2f)"
+          % (r0["cagr"], r1["cagr"], r2["cagr"]), flush=True)
+    sd = st.pstdev([cagr(x, r2["years"]) for x in r2["eq"]])
+    mde = 2.8 * sd / math.sqrt(n_seed)
+    print("   E  MDE(연환산·단일비교) = 2.8·sd/√n = %.3f%%p · seed sd %.3f%%p" % (mde, sd),
+          flush=True)
+    print("      관측 초과분 %+.3f%%p -> %s"
+          % (bmed, "가릴 수 있는 크기" if abs(bmed) > mde else "🚨 못 가림"), flush=True)
+    print("      🚨 이 MDE 는 «seed 축»만이다. 자료 축(국면)은 훨씬 크다.", flush=True)
+    return {"A": a, "B": okb, "C": okc, "D": okd, "D_pct": pct,
+            "excess_med": bmed, "excess_p25": b25, "mde": mde, "mar": mar, "mar_bm": marb}
+
+
+# ═════════════════════════════════════════════════════════════════════════
+# 4. 본실행
 # ═════════════════════════════════════════════════════════════════════════
 def main() -> int:
     quick = "--quick" in sys.argv
+    use_ext = "--ext" in sys.argv
     n_seed = 12 if quick else N_SEED
     only = [a for a in sys.argv[1:] if not a.startswith("--")]
 
-    print("=" * 104, flush=True)
-    print("91 — 표본 밖 18.4년 · 사전등록 tasks/91 · **아무것도 안 고쳤다**", flush=True)
-    print("=" * 104, flush=True)
-    print("파라미터: 비용%s · %d칸 %.0f%% · 위험 %.0f%% · 손절 -%.0f%% / 익절 +%.0f%% 절반 -> 추격"
-          % (COST, SLOTS, CAP * 100, RISK * 100, STOP, TARGET), flush=True)
-    print("seed %d · 등급 [%.2f, %.2f)\n" % (n_seed, LO, HI), flush=True)
+    print("=" * 106, flush=True)
+    print("91 — 표본 밖 18.4년 · 사전등록 tasks/91(개정 1) · **아무것도 안 고쳤다**", flush=True)
+    print("=" * 106, flush=True)
+    print("비용%s · %d칸 %.0f%% · 위험 %.0f%% · 손절 -%.0f%% / 익절 +%.0f%% 절반 -> 추격 · seed %d · 등급 [%.2f,%.2f) · ext %s\n"
+          % (COST, SLOTS, CAP * 100, RISK * 100, STOP, TARGET, n_seed, LO, HI,
+             "사용" if use_ext else "미사용"), flush=True)
 
-    allres = {}
+    allres, verd = {}, {}
     for lab, years, d0, d1 in WINDOWS:
         if only and not any(o in lab for o in only):
             continue
-        mf = "61-monthly-us.json" if "이미본" in lab else "91-monthly-us-full.json"
-        (by0, by1, by2), missing = load_ladder(years, d0, d1, mf)
-        if missing:
-            print("🚨 %s — 경로 파일 없음: %s  **건너뛴다**\n" % (lab, missing), flush=True)
+        res = run_window(lab, years, d0, d1, n_seed, use_ext)
+        if res is None:
             continue
-        print("-" * 104, flush=True)
-        print("### %s   %s ~ %s   (월말패널 %s)" % (lab, d0, d1, mf), flush=True)
-        rows = []
-        for name, by in (("0 선별없이", by0), ("1 +주도3업종", by1), ("2 +2·3등급", by2)):
-            ev, blk, trunc = replay(by)
-            n_in = sum(len(v) for v in by.values())
-            rs = sim(ev, n_seed)
-            eq = sorted(x["equity_pct"] for x in rs)
-            dates = [p["entry_date"] for v in by.values() for p in v]
-            yrs = (_ord(d1) - _ord(d0)) / 365.25
-            med = st.median(eq)
-            rows.append({
-                "name": name, "n_path": n_in, "n_entry": len(ev), "blocked": blk,
-                "trunc": trunc, "years": yrs, "med": med, "cagr": cagr(med, yrs),
-                "p25": eq[int(n_seed * .25)], "p5": eq[int(n_seed * .05)],
-                "mdd": st.median(x["mdd_pct"] for x in rs),
-                "win": st.median(x["win_rate"] for x in rs),
-                "per_trade": st.median(x["filled_per_trade"] for x in rs),
-                "n_filled": st.median(x["n_filled"] for x in rs),
-                "first": min(dates) if dates else "-", "last": max(dates) if dates else "-",
-                "eq": eq})
-        print("  %-13s %8s %7s %6s %12s %10s %12s %12s %8s %7s %8s"
-              % ("사다리", "경로", "진입", "체결", "자산중앙", "**연환산**",
-                 "하위25%", "운나쁠때5%", "MDD", "승률", "거래당"), flush=True)
-        print("  " + "-" * 108, flush=True)
-        for r in rows:
-            print("  %-13s %8d %7d %6d %+11.2f%% %+9.2f%% %+11.2f%% %+11.2f%% %7.1f%% %6.1f%% %+7.3f%%"
-                  % (r["name"], r["n_path"], r["n_entry"], r["n_filled"], r["med"],
-                     r["cagr"], r["p25"], r["p5"], r["mdd"], r["win"], r["per_trade"]),
-                  flush=True)
-        print("     경로 잘림(250봉 상한): %s"
-              % " · ".join("%s %d" % (r["name"][:1], r["trunc"]) for r in rows), flush=True)
-        print("     open_until 로 막힘:    %s"
-              % " · ".join("%s %d" % (r["name"][:1], r["blocked"]) for r in rows), flush=True)
-        print("     진입 첫날~끝날:        %s ~ %s (%.2f년)"
-              % (rows[0]["first"], rows[0]["last"], rows[0]["years"]), flush=True)
-
-        print("\n  지수 (같은 창 · 배당 재투자 = **지수에 유리한 자**)", flush=True)
-        bm = {}
-        for tk in ("SPY", "QQQ"):
-            b = bench(tk, d0, d1)
-            bm[tk] = b
-            if b:
-                print("     %-4s %+11.2f%% · 연 %+7.2f%% · MDD %7.2f%% · 수익/낙폭 %5.2f  (%s~%s)"
-                      % (tk, b["total"], b["cagr"], b["mdd"],
-                         abs(b["total"] / b["mdd"]) if b["mdd"] else float("nan"),
-                         b["d0"], b["d1"]), flush=True)
-        allres[lab] = {"rows": rows, "bm": bm, "d0": d0, "d1": d1}
-
         if "대조" in lab:
-            print("", flush=True)
-            continue
-        r0, r1, r2 = rows[0], rows[1], rows[2]
-        sp = bm.get("SPY")
-        print("\n  §3 합격선 — 값 보기 «전»에 적힌 것", flush=True)
-        a = sp is not None and r2["cagr"] > sp["cagr"]
-        print("   A★ 조합 연환산 > S&P500          %+.2f%% vs %+.2f%%        -> **%s**"
-              % (r2["cagr"], sp["cagr"] if sp else float("nan"),
-                 "통과" if a else "미통과"), flush=True)
-        bmed = r2["cagr"] - sp["cagr"] if sp else float("nan")
-        b25 = cagr(r2["p25"], r2["years"]) - sp["cagr"] if sp else float("nan")
-        okb = (bmed > 0) and (b25 > 0)
-        print("   B★ seed 축이 부호를 안 뒤집는다   중앙 %+.2f%%p · 하위25%% %+.2f%%p -> **%s**"
-              % (bmed, b25, "통과" if okb else "미통과"), flush=True)
-        mar = abs(r2["med"] / r2["mdd"]) if r2["mdd"] else float("nan")
-        marb = abs(sp["total"] / sp["mdd"]) if sp and sp["mdd"] else float("nan")
-        okc = mar > marb
-        print("   C★ 수익/낙폭 > S&P500            %.2f vs %.2f                -> **%s**"
-              % (mar, marb, "통과" if okc else "미통과"), flush=True)
-        okd = r0["cagr"] < r1["cagr"] < r2["cagr"]
-        print("   D★ 사다리 «순서» 0 < 1 < 2       %+.2f < %+.2f < %+.2f       -> **%s**"
-              % (r0["cagr"], r1["cagr"], r2["cagr"], "통과" if okd else "미통과"), flush=True)
-        sd = st.pstdev([cagr(x, r2["years"]) for x in r2["eq"]])
-        mde = 2.8 * sd / math.sqrt(n_seed)
-        print("   E  MDE(연환산·단일비교) = 2.8·sd/√n = %.3f%%p" % mde, flush=True)
-        print("      seed 축 표준편차 %.3f%%p · 관측 초과분 %+.3f%%p -> %s"
-              % (sd, bmed, "가릴 수 있는 크기" if abs(bmed) > mde else "🚨 못 가림"),
-              flush=True)
-        print("      🚨 이 MDE 는 «seed 축»만이다. 자료 축(국면)은 훨씬 크다.", flush=True)
+            # ── 관문 ②(개정 1-③) ────────────────────────────────────────
+            r2 = res["rows"][2]
+            lo, hi = boot_ci(r2["raw"])
+            print("\n  관문 ② — 74번 정본 %+.2f%% 재현" % CANON_74, flush=True)
+            print("     ②%s ext %s · %d판 · 중앙 %+.2f%% · 95%% 구간 [%+.2f, %+.2f]"
+                  % ("a" if use_ext else "b", "사용" if use_ext else "미사용",
+                     n_seed, r2["med"], lo, hi), flush=True)
+            if use_ext:
+                ok = lo <= CANON_74 <= hi
+                print("     -> 구간이 %+.2f%% 를 **%s** -> **%s**"
+                      % (CANON_74, "품는다" if ok else "안 품는다",
+                         "통과" if ok else "🚨 미통과 — 표본 밖 숫자를 읽지 않는다"), flush=True)
+                verd["관문②a"] = ok
+            else:
+                print("     -> ②b 는 «문턱이 아니라 측정»이다. ②a 와의 차 = ext 227건의 효과.",
+                      flush=True)
+        else:
+            verd[lab] = judge(res, n_seed)
+        allres[lab] = res
         print("", flush=True)
 
-    (OUT / "91-out-of-sample.json").write_text(
-        json.dumps({k: {"rows": [{kk: vv for kk, vv in r.items() if kk != "eq"}
-                                 for r in v["rows"]],
-                        "bm": v["bm"], "d0": v["d0"], "d1": v["d1"]}
-                    for k, v in allres.items()}, ensure_ascii=False,
-                   separators=(",", ":")), encoding="utf-8")
-    print("저장: 91-out-of-sample.json", flush=True)
+    tag = "ext" if use_ext else "noext"
+    p = OUT / ("91-out-of-sample-%s.json" % tag)
+    p.write_text(json.dumps(
+        {"verdict": verd, "n_seed": n_seed, "use_ext": use_ext,
+         "windows": {k: {"rows": [{kk: vv for kk, vv in r.items()
+                                   if kk not in ("raw", "eq")} for r in v["rows"]],
+                         "bm": v["bm"], "d0": v["d0"], "d1": v["d1"],
+                         "years": v["years"], "n_ext": v["n_ext"]}
+                     for k, v in allres.items()}},
+        ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    print("저장: %s" % p.name, flush=True)
     return 0
 
 
