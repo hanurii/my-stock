@@ -1,7 +1,7 @@
 {
   "code": "105560",
   "name": "KB금융",
-  "last_checked": "2026-08-27T13:19:38.508+09:00",
+  "last_checked": "2026-08-27T22:47:29.661+09:00",
   "metrics": [
     {
       "id": "pbr",
@@ -33,11 +33,11 @@
     {
       "id": "foreign_net_buy_4w",
       "label": "최근 20거래일 외국인 순매수",
-      "value": -16848,
-      "display": "-2만주",
+      "value": 283116,
+      "display": "28만주",
       "threshold": "순매도 전환",
-      "hit": true,
-      "tone": "bad"
+      "hit": false,
+      "tone": "good"
     },
     {
       "id": "dividend_qoq_change",
@@ -109,12 +109,6 @@
     },
     {
       "severity": "bad",
-      "type": "foreign_net_buy_4w",
-      "title": "최근 20거래일 외국인 순매수 순매도 전환",
-      "message": "현재 -2만주 — 매도 트리거 도달"
-    },
-    {
-      "severity": "bad",
       "type": "dividend_qoq_change",
       "title": "분기배당 QoQ 변화율 동결 또는 감소",
       "message": "현재 -47.4% — 매도 트리거 도달"
@@ -140,7 +134,7 @@
     },
     {
       "label": "외국인 순매수 누적 (20일)",
-      "ref": "네이버 dealTrendInfos / history 2026-08-26"
+      "ref": "네이버 dealTrendInfos / history 2026-08-27"
     },
     {
       "label": "최근 분기 순이익 (2026-H1)",
