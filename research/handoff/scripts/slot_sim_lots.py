@@ -52,7 +52,10 @@ def _res(t, mask):
 
 def sim_lots(trades, risk=0.02, cap=0.20, seed=0, slots=5,
              reserve=False, fill_rule="truncate", cash_rule="per_slot",
-             use_cash=True, pick=None):
+             use_cash=True, pick=None, order_fn=None):
+    # `order_fn(seed, t) -> 정렬키` 를 주면 같은 날 후보를 «규칙으로» 고른다.
+    # 🚨 None 이면 기존 `order_key`(거래별 난수) 그대로 — 옛 동작이 «완전히» 보존된다.
+    #    86번 관문 ①이 그것을 < 1e-12 로 확인한다.
     """자산곡선. 크기 = min(자산×위험÷손절폭, 자산×상한).
 
     reserve   : True 면 진입 때 **목표 금액 전체**를 현금에서 뺀다(안 쓴 몫은 결착 때 복귀).
@@ -210,7 +213,8 @@ def sim_lots(trades, risk=0.02, cap=0.20, seed=0, slots=5,
             free = slots - len(held)
             share_cap = (max(0.0, cash) / free) if (cash_rule == "per_slot"
                                                     and free > 0) else None
-            for t in sorted(byday[d], key=lambda x: order_key(seed, x)):
+            _ok = order_fn if order_fn is not None else order_key
+            for t in sorted(byday[d], key=lambda x: _ok(seed, x)):
                 if len(held) >= slots:
                     break
                 sf_ = t.get("stop_frac") or 0.10
