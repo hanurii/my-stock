@@ -61,7 +61,8 @@ CAT = ("pattern", "atr_band")
 def load_pdata():
     """일별 파일 → 종목별 시계열. 종가·고가·저가·시총·거래대금."""
     fs = sorted(PD.glob("price_*.json"))
-    ser = defaultdict(lambda: {"d": [], "c": [], "h": [], "l": [], "cap": [], "trp": []})
+    ser = defaultdict(lambda: {"d": [], "c": [], "h": [], "l": [], "cap": [], "trp": [],
+                               "f": []})
     for f in fs:
         d = f.name[6:14]
         ds = "%s-%s-%s" % (d[:4], d[4:6], d[6:])
@@ -81,9 +82,34 @@ def load_pdata():
                 s["l"].append(float(r.get("lopr") or c))
                 s["cap"].append(float(r.get("mrktTotAmt") or 0))
                 s["trp"].append(float(r.get("trPrc") or 0))
+                s["f"].append(float(r.get("fltRt") or 0.0))
             except (TypeError, ValueError, KeyError):
                 continue
-    print("   pdata %d일 · 종목 %d개 적재" % (len(fs), len(ser)), flush=True)
+    # 🚨 **축 수정** — pdata 는 «비수정주가»다(액면분할이 그대로 찍힌다).
+    #    경로의 진입가는 «복원된» 값이라 둘을 섞으면 안 된다(실측 921건 9.87% 가 2%↑ 어긋남).
+    #    → 매일의 «등락률»(fltRt)로 이어 붙여 **한 축**(A)을 만든다. 이 축은 «비율»만 맞으면
+    #      되므로 시작값 1.0 으로 둔다. 고가·저가는 그날 종가 대비 비율로 A 에 얹는다.
+    n_fix = 0
+    for code, x in ser.items():
+        A, a = [], 1.0
+        for i in range(len(x["c"])):
+            if i:
+                a *= (1.0 + x["f"][i] / 100.0)
+            A.append(a if a > 0 else 1e-12)
+        x["A"] = A
+        x["Ah"] = [A[i] * (x["h"][i] / x["c"][i] if x["c"][i] > 0 else 1.0)
+                   for i in range(len(A))]
+        x["Al"] = [A[i] * (x["l"][i] / x["c"][i] if x["c"][i] > 0 else 1.0)
+                   for i in range(len(A))]
+        # 관문 — 원시 종가 비율과 A 비율이 «다른» 날이 곧 분할·병합이다
+        for i in range(1, len(A)):
+            if x["c"][i - 1] > 0:
+                raw = x["c"][i] / x["c"][i - 1] - 1.0
+                if abs(raw * 100 - x["f"][i]) > 3.0:
+                    n_fix += 1
+                    break
+    print("   pdata %d일 · 종목 %d개 적재 · **축이 어긋나는(분할·병합 흔적) 종목 %d개** "
+          "→ 등락률로 이어 붙여 한 축으로" % (len(fs), len(ser), n_fix), flush=True)
     return ser
 
 
@@ -100,12 +126,19 @@ def build_features(ev, ser, in_pct):
         if k < MIN_PRE:
             miss["과거 봉 부족"] += 1
             continue
-        cl, hh, ll = s["c"][:k], s["h"][:k], s["l"][:k]
+        # 🚨 «한 축»(A) 에서만 비율을 만든다. 원시 종가는 «금액» 특징에만 쓴다.
+        cl, hh, ll = s["A"][:k], s["Ah"][:k], s["Al"][:k]
+        raw_c = s["c"][:k]
         cap, trp = s["cap"][:k], s["trp"][:k]
-        px = e["entry_px"] if "entry_px" in e else e.get("entry_price")
-        if not px:
+        px_won = e["entry_px"] if "entry_px" in e else e.get("entry_price")
+        if not px_won:
             miss["진입가 없음"] += 1
             continue
+        # 🚨 사전등록 §3 개정 1 — 「진입가 ÷ 126일 전 종가」를 **「전날 종가 ÷ 126일 전 종가」**로
+        #    바꾼다. 진입가는 «경로 축», 과거 종가는 «pdata 축»이라 섞으면 분할 종목이 오염된다.
+        #    전날 종가는 A 축 안에 있으므로 축이 하나다. 하루 차이는 126일 비율에 무시할 만하다.
+        #    (값을 «보기 전»에 바꾼 것이 아니라, 축 오염을 발견해 «고친» 것이다. 그대로 적는다.)
+        px = cl[-1]
         w52 = max(hh[-252:]) if len(hh) >= 252 else max(hh)
         b60h, b60l = max(hh[-60:]), min(ll[-60:])
         m = min(20, len(cl) - 1)
@@ -117,14 +150,14 @@ def build_features(ev, ser, in_pct):
         rows[(e["scan_date"], e["code"], e.get("pattern", ""))] = {
             "pattern": e.get("pattern", "?"),
             "atr_band": e.get("atr_band", "?"),
-            "gap": (px / e["pivot"] - 1) if e.get("pivot") else 0.0,
+            "gap": (px_won / e["pivot"] - 1) if e.get("pivot") else 0.0,
             "prior6m": px / cl[-126] - 1,
             "hi52": px / w52,
             "base_depth": (b60h - b60l) / b60h if b60h else 0.0,
             "ma200": px / (sum(cl[-200:]) / len(cl[-200:])) - 1,
             "atr20": (sum(tr) / m) / px if m else float("nan"),
             "in_pct": in_pct.get(ym, {}).get(code, float("nan")),
-            "logpx": math.log(max(px, 1e-6)),
+            "logpx": math.log(max(raw_c[-1], 1e-6)),
             "logcap": math.log(cp[0]) if cp else float("nan"),
             "turnover": math.log(st.mean(tv)) if tv else float("nan"),
         }
