@@ -188,6 +188,7 @@ def build(years, d0, d1, fund):
                 f8["roe"] = NAN if _nan(v) else v
             f8["_lag"] = lag
             f8["_year"] = int(p["entry_date"][:4])
+            f8["_band"] = p.get("atr_band")     # 92v 겹침 측정용 (경로에 이미 있다)
             rows.append((f8, 1.0 if mfe >= TARGET else 0.0,
                          1.0 if mfe >= DOUBLE else 0.0, mfe))
     return rows, miss, sum(len(v) for v in by0.values())
