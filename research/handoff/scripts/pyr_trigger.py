@@ -163,6 +163,18 @@ def _mk(p, epx, lots, sched, ex, rd, result, at_end, stop):
             "resolve_date": rd, "result": result, "at_end": at_end}
 
 
+FLOOR_BE = True
+"""🚨 `+20%에 절반 판 뒤` 추격선의 **«본전 바닥»** 스위치 (87번 · 사전등록 `e404863c`).
+
+`True`  = 추격선이 «평균단가(=한 번에 사면 진입가)» 아래로 안 내려간다 — **지금까지의 동작**
+`False` = 「25일 최저가」만 따른다 (본전 바닥 없음)
+
+⚠️ 이건 `add_stop="floor_entry"`(**증액 «뒤»** 손절)와 **다른 것**이다.
+   그쪽은 트랜치가 둘 이상일 때만 발동(`len(lots) > 1`)하고, 이건 «한 번에 사기»에서도 발동한다.
+   74·75·77 의 −160.87%p 는 «그쪽» 값이라 여기에 옮겨 쓰면 안 된다.
+🚨 모듈 수준 스위치다. 바꾼 뒤 **반드시 되돌린다**(87번은 `try/finally` 로 감싼다)."""
+
+
 def _phase2(p, i, a, half, trail, ft, fs, epx, lots, sched, stop, tpx):
     """절반 판 뒤 — 본전(평균단가) + `trail`일 저가 추격. (47번 `_phase2` 와 같은 규약)"""
     l, c, d = p["l"], p["c"], p["d"]
@@ -170,7 +182,10 @@ def _phase2(p, i, a, half, trail, ft, fs, epx, lots, sched, stop, tpx):
     ex = [(d[i], half, tpx)]
     for j in range(i + 1, n):
         seg = [x for x in l[max(0, j - trail):j] if x is not None]
-        s2 = max(a, min(seg)) if seg else a
+        if not seg:
+            s2 = a if FLOOR_BE else 0.0
+        else:
+            s2 = max(a, min(seg)) if FLOOR_BE else min(seg)
         if l[j] is not None and l[j] <= s2:
             ex.append((d[j], 1.0 - half, _sell_dn_px(p, j, s2, fs)))
             return _mk(p, epx, lots, sched, ex, d[j], "win", False, stop)
