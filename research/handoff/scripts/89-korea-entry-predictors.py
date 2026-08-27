@@ -164,6 +164,29 @@ def build_features(ev, ser, in_pct):
     ks = sorted(kstat)
     print("   특징 만든 거래 **%d / %d** · 결측 %s" % (len(rows), len(ev), dict(miss)),
           flush=True)
+    # 🚨 관문 ①″ (검증 세션 5f974ec9) — 「축을 맞췄나」가 아니라 **「맞춘 축이 «옳은가»」**.
+    #    한국 일일 제한은 ±30% 다. `fltRt` 가 그걸 «넘는» 날은 미조정 분할이 그대로 찍힌 것이고
+    #    A 축에 «가짜 점프»가 남는다. 그런 날이 «특징 창 안»에 있는 진입이 몇 건인지 센다.
+    bad_codes, n_bad_day = set(), 0
+    for code, x in ser.items():
+        for v in x["f"]:
+            if abs(v) > 30.0 + 1e-9:
+                bad_codes.add(code)
+                n_bad_day += 1
+    hit = 0
+    for e in ev:
+        k2 = (e["scan_date"], e["code"], e.get("pattern", ""))
+        if k2 not in rows or e["code"] not in bad_codes:
+            continue
+        x = ser[e["code"]]
+        k = bisect.bisect_left(x["d"], e["entry_date"])
+        if any(abs(v) > 30.0 + 1e-9 for v in x["f"][max(0, k - 300):k]):
+            hit += 1
+    print("   관문 ①″ `fltRt` 가 ±30%%(일일 제한)를 넘는 날 **%d건 · 종목 %d개** — "
+          "그중 «특징 창(300봉) 안»에 든 진입 **%d / %d건** → **%s**"
+          % (n_bad_day, len(bad_codes), hit, len(rows),
+             "통과 — 축의 가짜 점프가 이번 판에 «안 닿는다»" if hit == 0
+             else "🚨 미통과 — %d건이 오염된 축을 쓴다" % hit), flush=True)
     if ks:
         print("   관문 ①′ 진입 전 봉 수 — **최소 %d** · P1 %d · 중앙 %d · 문턱 %d → **%s**"
               % (ks[0], ks[len(ks) // 100], ks[len(ks) // 2], MIN_PRE,
