@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import importlib.util as _u
 import json
+import math
 import random
 import statistics as st
 import sys
@@ -37,6 +38,10 @@ N_SEED = 200
 SLOTS_GRID = (3, 4, 5, 6, 8, 10, 12, 16, 20)
 START = "2026-03-16"          # 2026-03-15(일) 다음 거래일
 TIE = ("prior6m", "hi52", "logpx", "base_depth")   # (b) 와 대조군 셋
+N_PLACEBO = 200         # 🚨 «뜻 없는» 규칙의 잡음 바닥 (검증 0e95711a)
+#    🚨 60판에서 두 세션의 백분위가 70.0 vs 85.0 으로 갈렸다 — [[verification-failure-modes]]
+#    유형 25 「«문턱»에도 표준오차가 있다」 그대로다. 판수를 올리고 «구간»을 같이 찍는다.
+GRID2 = ((5, 0.20), (20, 0.05), (20, 0.20), (5, 0.05))   # 노출을 갈라 보는 2×2
 
 
 def run(ev, slots, n_seed, order_fn=None, cap=None):
@@ -110,7 +115,19 @@ def main() -> int:
           % (100.0 * sum(1 for x in eq2 if x < 0) / n_seed, s2["filled"], s2["mdd"]),
           flush=True)
     print("   🚨 보유 중앙이 20일이므로 5.4개월은 «여섯 차례» 남짓이다. n 이 작다.", flush=True)
+    # ★ 검증 지적 ④ — 「먼저 온 것을 산다」를 n=1 이 아니라 «구간»으로 닫는다
     f2 = fills_of(rs2)
+    ds = sorted({t["entry_date"] for t in ev2})
+    rank = {d: i for i, d in enumerate(ds)}
+    print("\n   ★ 「시작 직후엔 «먼저 온 것»을 산다」 — 진입 순서 구간별 체결률", flush=True)
+    for lo, hi, nm in ((0, 5, "첫 5거래일"), (5, 10, "6~10일"), (10, 20, "11~20일"),
+                       (20, 40, "21~40일"), (40, 10 ** 9, "41일~")):
+        sel = [t for t in ev2 if lo <= rank[t["entry_date"]] < hi]
+        if not sel:
+            continue
+        r_ = 100.0 * sum(f2.get(key(t), 0) for t in sel) / (n_seed * len(sel))
+        print("     %-10s n=%3d  체결률 **%5.1f%%**  %s"
+              % (nm, len(sel), r_, "█" * int(r_ / 2.5)), flush=True)
     tt = sorted(((gain[k], k) for k in f2 if f2[k] >= n_seed * 0.2), reverse=True)
     print("\n   자주 체결된 종목(200판 중 20%%↑) 상위/하위", flush=True)
     for g, k in tt[:4] + tt[-3:]:
@@ -127,6 +144,14 @@ def main() -> int:
           % ("칸", "체결", "자산중앙", "5% 하단", "95% 상단", "**폭**", "MDD", "상위30체결"),
           flush=True)
     print("   " + "-" * 84, flush=True)
+    # 🚨 검증 지적 — `lim = min(eq*risk/stop_frac, eq*cap)` 이라 위험규칙(0.02/0.08=25%)이
+    #    cap 보다 작으면 «그쪽»이 문다. 3칸(cap 33.3%)은 사양대로 안 돈다.
+    print("   🚨 «유효 상한» — 위험규칙 %.1f%% 와 1/칸 중 «작은 쪽»이 문다"
+          % (100 * RISK / 0.08), flush=True)
+    print("      %s" % " · ".join(
+        "%d칸 %.1f%%%s" % (k, 100 * min(RISK / 0.08, 1.0 / k),
+                           "🚨" if 1.0 / k > RISK / 0.08 + 1e-9 else "")
+        for k in SLOTS_GRID), flush=True)
     G = {}
     for k in SLOTS_GRID:
         rs = run(ev, k, n_seed)
@@ -151,6 +176,28 @@ def main() -> int:
           % (G[SLOTS_GRID[0]]["p5"], G[SLOTS_GRID[-1]]["p5"], G[SLOTS_GRID[0]]["top30"],
              G[SLOTS_GRID[-1]]["top30"], G[SLOTS_GRID[0]]["all"], G[SLOTS_GRID[-1]]["all"]),
           flush=True)
+
+    # ── ★ 2×2 — 「칸」과 「종목당 금액」을 갈라 노출을 맞춘다 (검증 지적 ③) ──
+    print("\n   ★★ **기전** — 「칸」과 「종목당 금액」이 «한 손잡이»인가 (검증 0e95711a)",
+          flush=True)
+    print("   %-18s %7s %11s %9s %11s" % ("판", "체결", "자산중앙", "폭", "**평균노출**"),
+          flush=True)
+    print("   " + "-" * 62, flush=True)
+    D2 = {}
+    for k, cp in GRID2:
+        rs = run(ev, k, n_seed, cap=cp)
+        sm = summ(rs, n_seed)
+        sm["expo"] = st.median(r["expo_mean"] for r in rs)
+        D2[(k, cp)] = sm
+        print("   %-18s %7d %+10.2f%% %8.1f %10.1f%%"
+              % ("%d칸 · 상한 %.0f%%" % (k, cp * 100), sm["filled"], sm["med"],
+                 sm["width"], sm["expo"]), flush=True)
+    a1, a2, a3 = D2[(5, 0.20)], D2[(20, 0.05)], D2[(20, 0.20)]
+    print("   → ①5칸20%% 와 ②20칸5%% 의 노출 차 **%+.1f%%p** = «같은 노출»인데 자산은 **%.1f배**"
+          % (a1["expo"] - a2["expo"], a1["med"] / max(a2["med"], 1e-9)), flush=True)
+    print("   → ③20칸에 상한을 열어 노출을 **%.1f%%**(①보다 %+.1f%%p)로 올려도 **%+.2f%%** — "
+          "**자본 배분 착시가 아니라 «집중»의 값이다**"
+          % (a3["expo"], a3["expo"] - a1["expo"], a3["med"]), flush=True)
 
     # ══ ㉰ 꼬리 30건은 어떻게 생겼나 (서술) ═════════════════════════════
     print("\n" + "=" * 100, flush=True)
@@ -231,6 +278,48 @@ def main() -> int:
         tag = " ★(b)" if f == "prior6m" else "  (c)"
         print("   %-22s %+10.2f%% %+10.2f%% %10.1f%% %10d"
               % (tag + " " + f + " 1분위 먼저", R[f]["med"], R[f]["pair"], pw, chg), flush=True)
+    # ══ ★★ 가짜약 — 「뜻 없는」 규칙의 잡음 바닥 (검증 0e95711a) ══════
+    # 🚨 `mk()` 가 실제로 하는 일은 «후보의 20%를 먼저 놓고 나머지는 난수»다.
+    #    그러면 «뜻 없는» 기준으로 20%를 골라도 같은 지렛대가 걸린다. 그걸 먼저 잰다.
+    print("\n   ★★ **가짜약 %d판** — «뜻 없는» 기준(종목코드 해시)으로 20%%를 먼저 놓는다"
+          % N_PLACEBO, flush=True)
+
+    def mk_placebo(salt):
+        def fn(seed, t):
+            h = random.Random("%s|%s" % (salt, t["code"])).random()
+            return (0 if h < 0.2 else 1, sl.order_key(seed, t))
+        return fn
+
+    plc = []
+    for i in range(N_PLACEBO):
+        rs = run(ev, 5, n_seed, order_fn=mk_placebo("plc%d" % i), cap=r74.CAP)
+        eq = [r["equity_pct"] for r in rs]
+        pr = sorted(((1 + x / 100) / (1 + y / 100) - 1) * 100 for x, y in zip(eq, beq))
+        plc.append((pr[len(pr) // 2],
+                    100.0 * sum(1 for x in pr if x > 0) / len(pr)))
+        if i % 20 == 0:
+            print("     가짜약 %d/%d" % (i, N_PLACEBO), flush=True)
+    pm = sorted(x[0] for x in plc)
+    pwn = sorted(x[1] for x in plc)
+    print("   가짜약 짝 중앙의 분포 — 보통 **%+.2f%%** · 5%% %+.2f%% · **95%% %+.2f%%** · "
+          "최소 %+.2f%% · 최대 %+.2f%%"
+          % (pm[len(pm) // 2], pm[int(len(pm) * .05)], pm[int(len(pm) * .95)], pm[0], pm[-1]),
+          flush=True)
+    print("   🚨 **뜻 없는 규칙들이 %.0f%%p 를 훑는다** — 동점 처리는 «엄청나게 센 지렛대»다."
+          % (pm[-1] - pm[0]), flush=True)
+    print("   가짜약 중 「이기는 판 > 50%%」인 것 **%d / %d (%.0f%%)** → "
+          "**「결정적이면 낫다」조차 안 선다**"
+          % (sum(1 for x in pwn if x > 50), N_PLACEBO,
+             100.0 * sum(1 for x in pwn if x > 50) / N_PLACEBO), flush=True)
+    print("\n   %-24s %11s %s" % ("규칙", "짝 중앙", "가짜약 백분위"), flush=True)
+    print("   " + "-" * 56, flush=True)
+    for f in sorted(TIE, key=lambda x: -R[x]["pair"]):
+        p_ = 100.0 * sum(1 for x in pm if x < R[f]["pair"]) / len(pm)
+        R[f]["plc_pct"] = p_
+        print("   %-24s %+10.2f%% %13.1f%s"
+              % (("★(b) " if f == "prior6m" else "  (c) ") + f, R[f]["pair"], p_,
+                 "  ← 등록 규칙" if f == "prior6m" else ""), flush=True)
+
     print("\n   관문 ④ 양성 대조 — 규칙이 «실제로» 순서를 바꾸는가: 바뀐 체결 %d건 → **%s**"
           % (R["prior6m"]["chg"], "통과" if R["prior6m"]["chg"] > 0 else "🚨 미통과"), flush=True)
     okP = R["prior6m"]["pair"] > 0 and R["prior6m"]["win"] > 50
@@ -241,13 +330,28 @@ def main() -> int:
           % ("통과" if okN else "미통과",
              " · ".join("%s %+.2f%%" % (f, R[f]["pair"]) for f in TIE if f != "prior6m")),
           flush=True)
+    okPLC = R["prior6m"]["plc_pct"] >= 95.0
+    _q = R["prior6m"]["plc_pct"] / 100.0
+    _se = 100.0 * math.sqrt(max(_q * (1 - _q), 1e-12) / N_PLACEBO)
+    print("   **가짜약 판정** — 등록 규칙이 «뜻 없는» 규칙 분포의 **%.1f 백분위** "
+          "[몬테카를로 95%% %.1f ~ %.1f] → **%s**"
+          % (R["prior6m"]["plc_pct"], max(0.0, R["prior6m"]["plc_pct"] - 1.96 * _se),
+             min(100.0, R["prior6m"]["plc_pct"] + 1.96 * _se),
+             "통과" if okPLC else "🚨 미통과"), flush=True)
+    print("   → **㉱ 는 「P★ 통과」가 아니라 «잴 수 없었다»로 적는다.** "
+          "잡음 바닥을 안 재고 낸 값이었다.", flush=True)
     print("\n   🚨 **prior6m 은 85번이 «같은 자료»에서 골랐다** — 표본 밖 검정이 «아니다».",
           flush=True)
 
     (OUT / "86-slots-and-tails.json").write_text(json.dumps(
         {"n_ev": len(ev), "start": START, "n_ev_start": len(ev2),
          "start_summ": s2, "grid": {str(k): v for k, v in G.items()},
-         "tie": R, "okP": okP, "okN": okN, "n_seed": n_seed},
+         "tie": R, "okP": okP, "okN": okN, "n_seed": n_seed,
+         "placebo": {"n": N_PLACEBO, "med": pm[len(pm) // 2], "p95": pm[int(len(pm) * .95)],
+                     "lo": pm[0], "hi": pm[-1],
+                     "win50": sum(1 for x in pwn if x > 50)},
+         "okPLC": okPLC,
+         "grid2": {"%d/%.2f" % k: v for k, v in D2.items()}},
         ensure_ascii=False, indent=1), encoding="utf-8")
     print("\n저장: 86-slots-and-tails.json", flush=True)
     return 0

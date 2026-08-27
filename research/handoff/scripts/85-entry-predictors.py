@@ -39,6 +39,11 @@ FEATS = ("pattern", "atr_band", "gap", "prior6m", "hi52",
 CAT = ("pattern", "atr_band")      # 범주형 — 분위 대신 «값»으로 가른다
 BONF = 2                           # 검정 둘(㉮㉯) → 본페로니 → 97.5 백분위
 NL = chr(10)
+# 🚨 옛 문턱 210 은 «구조적으로 못 타는» 관문이었다(진입 전 봉 수 최소 253).
+#    「0건」이 «검사 결과»가 아니라 «검사가 없었다»는 뜻이었다(유형 24).
+#    검증 세션 지적(0e95711a): 가짜 통과가 과제마다 쌓이므로 «지금» 고친다.
+#    300 이면 41건이 실제로 걸려 관문이 «돈다».
+MIN_PRE = 300
 KSTAT = []
 
 
@@ -82,7 +87,7 @@ def build_features(ev, pmap):
                 # 🚨 관문 ① — 진입일 «전날»까지만 본다
                 k = bisect.bisect_left(dd, t["entry_date"])
                 KSTAT.append(k)
-                if k < 210:                       # 200일선 + 여유
+                if k < MIN_PRE:                   # 200일선 + 여유
                     miss["과거 봉 부족"] += 1
                     continue
                 pre = s[:k]                       # ← 진입일 «미포함»
@@ -120,11 +125,11 @@ def build_features(ev, pmap):
               "**k<210 %d건 · k<300 %d건** → %s"
               % (ks[0], ks[len(ks) // 100], ks[len(ks) // 2],
                  sum(1 for x in ks if x < 210), sum(1 for x in ks if x < 300),
-                 "관문이 «탈 수 있는» 자리에 있다" if ks[0] < 210
-                 else ("🚨 최소 k=%d > 문턱 210 → **이 관문은 «구조적으로 못 탄다». "
+                 "관문이 «탈 수 있는» 자리에 있다" if ks[0] < MIN_PRE
+                 else ("🚨 최소 k=%d > 문턱 %d → **이 관문은 «구조적으로 못 탄다». "
                        "「0건」은 «검사 결과»가 아니라 «검사가 없었다»는 뜻이다** "
-                       "(유형 24). 다만 k<300 이 %d건 있어 문턱을 300 으로 올리면 «탄다»."
-                       % (ks[0], sum(1 for x in ks if x < 300)))),
+                       "(유형 24)."
+                       % (ks[0], MIN_PRE))),
               flush=True)
     return rows, miss
 
