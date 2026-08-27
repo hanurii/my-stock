@@ -305,6 +305,15 @@ def judge(res, n_seed):
           % (pct, hit, n_seed, D_CHANCE, D_PASS, "통과" if okd else "미통과"), flush=True)
     print("      (참고 — 중앙값끼리의 순서: %+.2f / %+.2f / %+.2f)"
           % (r0["cagr"], r1["cagr"], r2["cagr"]), flush=True)
+    # ── D★ 의 «하위 분해» — 등록된 통계를 두 칸씩 쪼갠 것이지 새로 고른 자가 «아니다» ──
+    #    D★ 가 깨졌을 때 「사다리 전체가 죽었나, 한 칸만 죽었나」를 가른다. 우연은 두 칸이면 50%.
+    pair = {}
+    for lab_, i, j in (("0<1", 0, 1), ("1<2", 1, 2), ("0<2", 0, 2)):
+        h = sum(1 for s in range(n_seed) if rows[i]["raw"][s] < rows[j]["raw"][s])
+        pair[lab_] = 100.0 * h / n_seed
+    print("      ★ 하위 분해(등록 통계의 쪼갬 · 두 칸이면 우연 50%%): "
+          "0<1 **%.1f%%** · 1<2 **%.1f%%** · 0<2 **%.1f%%**"
+          % (pair["0<1"], pair["1<2"], pair["0<2"]), flush=True)
     # 🚨 개정 2-㉠ — `sd/√n` 은 **평균**의 표준오차인데 비교 대상 `bmed` 은 **중앙값**에서 나온다.
     #    정규 근사에서 중앙값의 SE 는 1.253배 크므로 옛 식은 **20% 낙관**이었다.
     #    `boot_ci` 가 이미 있으니 그 폭에서 직접 SE 를 뽑는다 — 정규 가정도 필요 없고 자가 하나다.
@@ -321,7 +330,7 @@ def judge(res, n_seed):
     print("      관측 초과분 %+.3f%%p -> %s"
           % (bmed, "가릴 수 있는 크기" if abs(bmed) > mde else "🚨 못 가림"), flush=True)
     print("      🚨 이 MDE 는 «seed 축»만이다. 자료 축(국면)은 훨씬 크다.", flush=True)
-    return {"A": a, "B": okb, "C": okc, "D": okd, "D_pct": pct,
+    return {"A": a, "B": okb, "C": okc, "D": okd, "D_pct": pct, "pair": pair,
             "excess_med": bmed, "excess_p25": b25, "mde": mde, "mde_old": old_mde,
             "mar": mar, "mar_pairwise": mar_ps, "mar_bm": marb}
 
@@ -376,7 +385,7 @@ def main() -> int:
     p.write_text(json.dumps(
         {"verdict": verd, "n_seed": n_seed, "use_ext": use_ext,
          "windows": {k: {"rows": [{kk: vv for kk, vv in r.items()
-                                   if kk not in ("raw", "eq")} for r in v["rows"]],
+                                   if kk != "eq"} for r in v["rows"]],
                          "bm": v["bm"], "d0": v["d0"], "d1": v["d1"],
                          "years": v["years"], "n_ext": v["n_ext"]}
                      for k, v in allres.items()}},
