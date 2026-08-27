@@ -232,7 +232,9 @@ def run_window(lab, years, d0, d1, n_seed, use_ext):
             "per_trade": st.median(x["filled_per_trade"] for x in rs),
             "n_filled": st.median(x["n_filled"] for x in rs),
             "first": min(dates) if dates else "-", "last": max(dates) if dates else "-",
-            "raw": raw, "eq": eq})
+            "raw": raw, "eq": eq,
+            # 개정 2-㉡ — 판 «각각»의 수익/낙폭. 두 중앙값의 «비»는 비의 중앙값이 아니다.
+            "raw_mdd": [x["mdd_pct"] for x in rs]})
     print("  %-13s %8s %7s %6s %12s %10s %12s %12s %8s %7s %8s"
           % ("사다리", "경로", "진입", "체결", "자산중앙", "**연환산**",
              "하위25%", "운나쁠때5%", "MDD", "승률", "거래당"), flush=True)
@@ -253,10 +255,17 @@ def run_window(lab, years, d0, d1, n_seed, use_ext):
         b = bench(tk, d0, d1)
         bm[tk] = b
         if b:
-            print("     %-4s %+11.2f%% · 연 %+7.2f%% · MDD %7.2f%% · 수익/낙폭 %5.2f  (%s~%s)"
+            print("     %-4s %+11.2f%% · 연 %+7.2f%% · MDD %7.2f%% · 수익/낙폭 %5.2f  (%s~%s · %.2f년)"
                   % (tk, b["total"], b["cagr"], b["mdd"],
                      abs(b["total"] / b["mdd"]) if b["mdd"] else float("nan"),
-                     b["d0"], b["d1"]), flush=True)
+                     b["d0"], b["d1"], b["years"]), flush=True)
+            # 🚨 개정 2-㉢ — 전략은 창의 «경계»로, 벤치마크는 자료가 «있는 날»로 연수를 잰다.
+            #    지금은 며칠 차지만 덮개가 짧으면 «조용히» 어긋난다(1999 창에 계열이 2000부터면 1년).
+            #    「괜찮을 것」을 검사되게 만든다.
+            assert abs(b["years"] - yrs) < 0.05, \
+                "🚨 연수가 어긋난다 — 전략 %.4f년 vs %s %.4f년 (%s~%s)" \
+                % (yrs, tk, b["years"], b["d0"], b["d1"])
+    print("     ✅ 연수 대조: 전략 %.2f년 = 지수 덮개 (assert |Δ|<0.05)" % yrs, flush=True)
     return {"rows": rows, "bm": bm, "d0": d0, "d1": d1, "years": yrs, "n_ext": n_ext}
 
 
@@ -275,11 +284,18 @@ def judge(res, n_seed):
     okb = (bmed > 0) and (b25 > 0)
     print("   B★ seed 축이 부호를 안 뒤집는다   중앙 %+.2f%%p · 하위25%% %+.2f%%p -> **%s**"
           % (bmed, b25, "통과" if okb else "미통과"), flush=True)
+    # 🚨 개정 2-㉡ — 이 자는 «중앙자산 ÷ 중앙MDD»다. 두 중앙값의 비는 «비의 중앙값이 아니다».
+    #    등록 통계라 그대로 두되(81 의 14.42 와 이어져야 한다) **라벨을 붙이고**
+    #    판 «각각»의 비를 중앙낸 값을 옆에 참고로 찍는다. 벤치마크는 경로가 하나라 정확하다.
     mar = abs(r2["med"] / r2["mdd"]) if r2["mdd"] else float("nan")
     marb = abs(sp["total"] / sp["mdd"]) if sp and sp["mdd"] else float("nan")
     okc = mar > marb
+    mar_ps = st.median(abs(e / m) if m else float("nan")
+                       for e, m in zip(r2["raw"], r2["raw_mdd"]))
     print("   C★ 수익/낙폭 > SPY               %.2f vs %.2f                -> **%s**"
           % (mar, marb, "통과" if okc else "미통과"), flush=True)
+    print("      ⚠️ 위 값은 «중앙자산÷중앙MDD»(등록 통계). 판별 «비의 중앙값»은 %.2f — 다르면 자 탓이다."
+          % mar_ps, flush=True)
     # ★ 개정 1-① — 판 «각각»에서 순서를 세고 비율을 적는다
     hit = sum(1 for s in range(n_seed)
               if r0["raw"][s] < r1["raw"][s] < r2["raw"][s])
@@ -289,15 +305,25 @@ def judge(res, n_seed):
           % (pct, hit, n_seed, D_CHANCE, D_PASS, "통과" if okd else "미통과"), flush=True)
     print("      (참고 — 중앙값끼리의 순서: %+.2f / %+.2f / %+.2f)"
           % (r0["cagr"], r1["cagr"], r2["cagr"]), flush=True)
+    # 🚨 개정 2-㉠ — `sd/√n` 은 **평균**의 표준오차인데 비교 대상 `bmed` 은 **중앙값**에서 나온다.
+    #    정규 근사에서 중앙값의 SE 는 1.253배 크므로 옛 식은 **20% 낙관**이었다.
+    #    `boot_ci` 가 이미 있으니 그 폭에서 직접 SE 를 뽑는다 — 정규 가정도 필요 없고 자가 하나다.
+    lo_e, hi_e = boot_ci(r2["raw"])
+    se_med = (cagr(hi_e, r2["years"]) - cagr(lo_e, r2["years"])) / 3.92
+    mde = 2.8 * se_med
     sd = st.pstdev([cagr(x, r2["years"]) for x in r2["eq"]])
-    mde = 2.8 * sd / math.sqrt(n_seed)
-    print("   E  MDE(연환산·단일비교) = 2.8·sd/√n = %.3f%%p · seed sd %.3f%%p" % (mde, sd),
-          flush=True)
+    old_mde = 2.8 * sd / math.sqrt(n_seed)
+    print("   E  MDE(연환산·단일비교) = 2.8 × SE(**중앙값**) = %.3f%%p" % mde, flush=True)
+    print("      SE 는 부트스트랩 폭에서: 95%% 구간 [%+.2f, %+.2f]%% → 연환산 [%+.3f, %+.3f]%%"
+          % (lo_e, hi_e, cagr(lo_e, r2["years"]), cagr(hi_e, r2["years"])), flush=True)
+    print("      (옛 식 2.8·sd/√n 이면 %.3f%%p — **20%% 낙관**이라 안 쓴다 · seed sd %.3f%%p)"
+          % (old_mde, sd), flush=True)
     print("      관측 초과분 %+.3f%%p -> %s"
           % (bmed, "가릴 수 있는 크기" if abs(bmed) > mde else "🚨 못 가림"), flush=True)
     print("      🚨 이 MDE 는 «seed 축»만이다. 자료 축(국면)은 훨씬 크다.", flush=True)
     return {"A": a, "B": okb, "C": okc, "D": okd, "D_pct": pct,
-            "excess_med": bmed, "excess_p25": b25, "mde": mde, "mar": mar, "mar_bm": marb}
+            "excess_med": bmed, "excess_p25": b25, "mde": mde, "mde_old": old_mde,
+            "mar": mar, "mar_pairwise": mar_ps, "mar_bm": marb}
 
 
 # ═════════════════════════════════════════════════════════════════════════
