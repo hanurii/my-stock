@@ -40,15 +40,46 @@
 from __future__ import annotations
 
 import csv
+import os
 import io
 import zipfile
 from collections import defaultdict
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SHARADAR = ROOT / ".cache" / "sharadar"
+
+# ★ 2026-08-27 — **전체 이력판으로 갈아탄다** (10년치 → 1997~2026).
+#   자료가 C 드라이브에 안 들어가 D 로 옮겼다. 환경변수로 덮어쓸 수 있게 둔다.
+#   🚨 파일이 «바뀌면» 옛 결과는 재현이 안 된다. 옛 판을 다시 돌리려면
+#      SHARADAR_DIR=.cache/sharadar 로 두고 STOCKS_ZIP 을 stocks-10Y.csv.zip 로 돌린다.
+_env = os.environ.get("SHARADAR_DIR")
+if _env:
+    SHARADAR = Path(_env)
+else:
+    for _c in (Path(r"D:/stock-data/sharadar"), ROOT / ".cache" / "sharadar"):
+        if (_c / "tickers.csv.zip").exists():
+            SHARADAR = _c
+            break
+    else:
+        SHARADAR = ROOT / ".cache" / "sharadar"
+
 TICKERS_ZIP = SHARADAR / "tickers.csv.zip"
-STOCKS_ZIP = SHARADAR / "stocks-10Y.csv.zip"
+# 전체 이력판이 있으면 그것을, 없으면 옛 10년판을 쓴다.
+STOCKS_ZIP = (SHARADAR / "stocks.csv.zip" if (SHARADAR / "stocks.csv.zip").exists()
+              else SHARADAR / "stocks-10Y.csv.zip")
+
+# 이번 결제로 새로 들어온 표들 (없으면 None — 쓰는 쪽에서 확인한다)
+def _opt(name):
+    p = SHARADAR / (name + ".csv.zip")
+    return p if p.exists() else None
+
+
+FUNDAMENTALS_ZIP = _opt("fundamentals")   # 실적 (dimension=ARQ/ART 만 쓸 것)
+DAILY_ZIP = _opt("daily")                 # 일별 시총·PER·PSR
+ACTIONS_ZIP = _opt("actions")             # 분할·병합 — 주가 축 검산용
+EVENTS_ZIP = _opt("events")               # 실적 발표일
+SP500_ZIP = _opt("sp500")                 # 지수 편입 이력
+HOLDINGS_TICKER_ZIP = _opt("holdings_ticker")   # 기관 보유
 
 USD_KRW = 1300.0                 # 25번 4항 확정. 민감도 1,100·1,400 은 이 값만 바꿔 돌린다.
 CODE_KEY = "ticker"              # "ticker" | "permaticker"
