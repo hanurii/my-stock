@@ -57,7 +57,7 @@ CAP_SRC, RISK_SRC = 0.25, 0.025        # 전체 포지션 25% · 계좌 위험 �
 #   "seq"      = 현금을 «순차»로 쓴다 → 각 포지션이 cap(25%)씩, **개수는 «현금»이 정한다**
 CASH_RULE = "seq"
 RECENT_N = 20                          # 🚨 5 로는 사다리 «상태»를 복원 못 한다
-SLOTS_SRC = 20                         # 🚨 «묶으면 안 된다» — 20 × 6.25% = 125% > 100% 라
+SLOTS_SRC = int(__import__("os").environ.get("SLOTS_99", "20"))                         # 🚨 «묶으면 안 된다» — 20 × 6.25% = 125% > 100% 라
                                        #    «현금»이 먼저 문다. 12 는 사다리 팔에서 물었다.
 MULT = (0.25, 0.50, 1.00)              # ¼ · ½ · 전체
 N_SEED = 200
@@ -307,7 +307,7 @@ def main() -> int:
     print("\n🚨 **가짜가 진짜만큼 하면, 잰 건 «사다리»가 아니라 «덜 드는 것/작게 여럿 드는 것»이다.**",
           flush=True)
     print("🚨 **−10%% 판이라 74·82·86·91·94(−8%%)와 직접 비교 불가.**", flush=True)
-    (r91.OUT / "99-source-faithful.json").write_text(json.dumps(
+    (r91.OUT / ("99-source-faithful.json" if SLOTS_SRC == 20 else "99-source-faithful-s%d.json" % SLOTS_SRC)).write_text(json.dumps(
         {"kelly": kel, "verdict": verd, "n_seed": n_seed,
          "n_entry_10": len(ev10), "n_entry_08": len(ev08),
          "slots": SLOTS_SRC, "recent_n": RECENT_N, "cash_rule": CASH_RULE},
