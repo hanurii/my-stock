@@ -1,13 +1,13 @@
 {
   "code": "347850",
   "name": "디앤디파마텍",
-  "last_checked": "2026-08-28T04:41:34.965+09:00",
+  "last_checked": "2026-08-28T15:50:32.022+09:00",
   "metrics": [
     {
       "id": "pbr",
       "label": "PBR (극고평가)",
-      "value": 33.08,
-      "display": "33.08배",
+      "value": 32.67,
+      "display": "32.67배",
       "threshold": "50배 돌파",
       "hit": false,
       "tone": "good"
@@ -55,42 +55,9 @@
       "type": "capital_issuance",
       "title": "신규 자본조달 (CB/BW/EB/유증) 90일 발행 공시 1건+",
       "message": "현재 1건 — 매도 트리거 도달"
-    },
-    {
-      "severity": "warn",
-      "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 3건 (관찰 신호 1건 포함)",
-      "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
-  "news_hits": [
-    {
-      "keyword": "디앤디파마텍 DD01 임상",
-      "date": "2026-08-21",
-      "title": "디앤디파마텍 DD01, 미국 임상 2상서 위약 대비 지방간염 소실 효과 확인 - 데이터투자",
-      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE5OeVYzbTFoczhvUTZuemVYNVRJRjlFX0Y5em9DcTR2b3BYRWNreVdPcnJWSmY4dmVYMEQ5cGR3bnVMYUZRZGNfUnZBX3dWakFHUkxOcjFmeXhtX0tRZDNkdHItRWl0MkJuTVdlTS1ydmtLM1U?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "디앤디파마텍 DD01 임상",
-      "date": "2026-08-21",
-      "title": "디앤디파마텍, MASH 치료제 후보물질 ‘DD01’ 美 임상2상 CSR 수령 - 더바이오",
-      "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTFB0VS1janhrVUlUTkNKZEMxdHBMdlR5c2ZnLWRfd0pQaklweEk1ZU0xMk5iZUdyaEdVcmN2Q1JuTEFpbU43NGhxaFNPVGw1U2RzbXdPbU5pMVpxYkIzdVBkN3F3R1hLd3F0c1o3LdIBcEFVX3lxTE1GQXcxS2JsQ1JoS2NrUE9tbHRKTXlnQmdvVnFlWlRFZlF3TDZuRzVfdzYzVmF6VFJGYXRhZmc5ZnltOTNsRzUzQmJRc1l3OE9zWU0xSWNuRGxlZEliZDMyTkFFZ2lUUmFVYTh3THlfOGU?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "디앤디파마텍 DD01 임상",
-      "date": "2026-08-21",
-      "title": "디앤디파마텍 MASH 치료제 DD01, 임상 2상서 간 지방 감소율 75.8% 달성 - 바이오북미디어",
-      "url": "https://news.google.com/rss/articles/CBMiVEFVX3lxTE5nSjIyVm9UME9oM1dBdFkySEtudnBhSzlDRVJlYkR3ZmYxMFhvU040UlNxVG9saTdPVDZ1RkpLV00zYTc1Nm9kYTcwQkZpaEg0NnpqLQ?oc=5",
-      "severity": "warn",
-      "signals": [
-        "감소"
-      ]
-    }
-  ],
+  "news_hits": [],
   "sources": [
     {
       "label": "PER/PEG/PBR 스코어",
@@ -111,10 +78,6 @@
     {
       "label": "ClinicalTrials.gov 임상 5건 (30일 status 변경 0건)",
       "ref": "query.spons: D&D Pharmatech, Neuraly"
-    },
-    {
-      "label": "뉴스 RSS",
-      "ref": "news.google.com/rss (7일)"
     }
   ]
 }
