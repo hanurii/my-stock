@@ -52,11 +52,15 @@ def _res(t, mask):
 
 def sim_lots(trades, risk=0.02, cap=0.20, seed=0, slots=5,
              reserve=False, fill_rule="truncate", cash_rule="per_slot",
-             use_cash=True, pick=None, order_fn=None, size_fn=None):
-    # `size_fn(recent) -> 배수` 를 주면 **거래 크기**를 직전 청산 결과로 정한다(원전 사다리).
+             use_cash=True, pick=None, order_fn=None, size_fn=None, recent_n=5):
+    # `size_fn(recent, seed, t) -> 배수` 를 주면 **거래 크기**를 직전 청산 결과로 정한다(원전 사다리).
     #   원전: 「1/4 포지션으로 시작, 성공 거래의 연속선상에서 «두 배씩» 늘린다.
     #          손실 나는 종목은 매도해서 비중을 줄인다」 (99 사전등록 §1-1)
-    #   `recent` = 직전 청산 «최대 5건»의 승패(True=win) — 아래 `pick` 과 같은 것을 쓴다.
+    #   `recent` = 직전 청산 «최대 recent_n 건»의 승패(True=win) — 아래 `pick` 과 같은 것.
+    #   🚨 `recent_n=5` 는 `pick`(78) 의 원문 「last 4 or 5」에 맞춘 «기존» 값이다.
+    #      **사다리는 5건으로 «상태»를 복원 못 한다** — 반례 `W L W L W` 가 시작점에 따라
+    #      lvl 1 / lvl 2 로 갈린다. 항상 0 에서 시작하므로 **«참 상태 이하»로만 나온다**.
+    #      → 사다리를 쓸 때는 `recent_n` 을 크게(20+) 준다. 걸음이 [0,2] 에 갇혀 시작점을 잊는다.
     # 🚨 None 이면 배수 1.0 — **옛 동작이 «완전히» 보존된다**(order_fn 과 같은 방식).
     # `order_fn(seed, t) -> 정렬키` 를 주면 같은 날 후보를 «규칙으로» 고른다.
     # 🚨 None 이면 기존 `order_key`(거래별 난수) 그대로 — 옛 동작이 «완전히» 보존된다.
@@ -139,7 +143,7 @@ def sim_lots(trades, risk=0.02, cap=0.20, seed=0, slots=5,
         fills.append(r)
         is_w = h["result"] == "win"
         recent.append(bool(is_w))
-        del recent[:-5]
+        del recent[:-recent_n]
         w += is_w
         mw += r > 0
         streak = 0 if is_w else streak + 1
@@ -226,7 +230,7 @@ def sim_lots(trades, risk=0.02, cap=0.20, seed=0, slots=5,
                 lim = min(eq * risk / sf_, eq * cap)
                 # ★ 원전 사다리 — 직전 청산 결과가 «이번 거래의 크기»를 정한다
                 if size_fn is not None:
-                    lim *= size_fn(recent)
+                    lim *= size_fn(recent, seed, t)
                 # 🚨 예약하면 «목표 전체»가 나가고, 아니면 파일럿만 나간다
                 # ★ 조건부: 이 거래를 «전액»으로 갈지 «파일럿»으로 갈지 지금 고른다
                 spec = t
