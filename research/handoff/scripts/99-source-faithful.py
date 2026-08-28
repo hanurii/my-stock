@@ -296,11 +296,11 @@ def main() -> int:
         print("  %-18s A★ %s · B★ %s  →  **%s**"
               % (anm, "통과" if oa else "미통과", "통과" if ob else "미통과",
                  "★ 통과" if (oa and ob) else "미통과"), flush=True)
-    # ★★ F★ (개정 1) — 🚨 본판에서 «등록만 하고 구현을 빠뜨린» 주지표.
-    #    A★ 는 「대조보다 나은가」라 «노출»이 안 맞는다. 가짜는 노출이 «맞으므로»
-    #    「사다리 자체가 값을 하는가」는 **오직 이 칸에서만** 갈린다.
-    print("
-  ★★ **F★ — 진짜가 «그 팔의 가짜»를 이기는 판** (같은 seed 짝비교 · 문턱 %.0f%%)"
+    # F★ (개정 1) — 본판에서 «등록만 하고 구현을 빠뜨린» 주지표.
+    #    A★ 는 「대조보다 나은가」라 «노출»이 안 맞는다(A안 70~79% vs 대조 88~92%).
+    #    가짜는 노출이 «맞으므로» 「사다리 «자체»가 값을 하는가」는 오직 이 칸에서만 갈린다.
+    print("", flush=True)
+    print("  ★★ **F★ — 진짜가 «그 팔의 가짜»를 이기는 판** (같은 seed 짝비교 · 문턱 %.0f%%)"
           % A_PASS, flush=True)
     for real, fake in ((ARMS[0], ARMS[1]), (ARMS[2], ARMS[3])):
         cells, allok = [], True
@@ -317,7 +317,6 @@ def main() -> int:
                             verd[l][real]["F_med"], verd[l][real]["F_mde"]))
         print("     %-18s %s  →  **F★ %s**"
               % (real, " ".join(cells), "통과" if allok else "미통과"), flush=True)
-
     print("\n  ★ 짝지어 읽는다 — **진짜 vs «그 팔의» 가짜** (짝차 중앙)", flush=True)
     for real, fake in ((ARMS[0], ARMS[1]), (ARMS[2], ARMS[3])):
         print("     %-18s" % real.strip(), end="", flush=True)
