@@ -1,5 +1,5 @@
 {
- "asof": "2026-08-27",
+ "asof": "2026-08-28",
  "config_asof": "2026-08-05",
  "tags": {
   "222800": {
@@ -23,12 +23,12 @@
    "tier": "direct",
    "basis": "주요제품: …강관…"
   },
-  "241770": {
-   "name": "메카로",
+  "252990": {
+   "name": "샘씨엔에스",
    "category": "semiconductor",
    "label": "반도체",
-   "tier": "direct",
-   "basis": "업종: …반도체…"
+   "tier": "indirect",
+   "basis": "반도체 검사용 세라믹 STF(다층 세라믹 기판) — KRX Products에 반도체 키워드 부재"
   },
   "078930": {
    "name": "GS",
@@ -36,13 +36,6 @@
    "label": "석유제품",
    "tier": "indirect",
    "basis": "GS칼텍스(석유제품 수출 대형사) 지주"
-  },
-  "252990": {
-   "name": "샘씨엔에스",
-   "category": "semiconductor",
-   "label": "반도체",
-   "tier": "indirect",
-   "basis": "반도체 검사용 세라믹 STF(다층 세라믹 기판) — KRX Products에 반도체 키워드 부재"
   },
   "010950": {
    "name": "S-Oil",
@@ -58,12 +51,12 @@
    "tier": "indirect",
    "basis": "반도체·디스플레이 플라즈마 장비"
   },
-  "003650": {
-   "name": "미창석유",
-   "category": "petroleum",
-   "label": "석유제품",
+  "122640": {
+   "name": "예스티",
+   "category": "semiconductor",
+   "label": "반도체",
    "tier": "direct",
-   "basis": "업종: …석유 정제…"
+   "basis": "주요제품: …반도체…"
   },
   "101160": {
    "name": "월덱스",
@@ -72,12 +65,12 @@
    "tier": "direct",
    "basis": "주요제품: …반도체…"
   },
-  "092870": {
-   "name": "엑시콘",
-   "category": "semiconductor",
-   "label": "반도체",
+  "003650": {
+   "name": "미창석유",
+   "category": "petroleum",
+   "label": "석유제품",
    "tier": "direct",
-   "basis": "주요제품: …반도체…"
+   "basis": "업종: …석유 정제…"
   },
   "092190": {
    "name": "서울바이오시스",
@@ -85,6 +78,13 @@
    "label": "반도체",
    "tier": "direct",
    "basis": "업종: …반도체…"
+  },
+  "092870": {
+   "name": "엑시콘",
+   "category": "semiconductor",
+   "label": "반도체",
+   "tier": "direct",
+   "basis": "주요제품: …반도체…"
   },
   "092460": {
    "name": "한라IMS",
@@ -149,64 +149,8 @@
    "tier": "direct",
    "basis": "주요제품: …선박…"
   },
-  "010170": {
-   "name": "대한광통신",
-   "category": "wired_comm",
-   "label": "유선통신기기",
-   "tier": "direct",
-   "basis": "주요제품: …광케이블…"
-  },
-  "069540": {
-   "name": "빛과전자",
-   "category": "wireless_comm",
-   "label": "무선통신기기",
-   "tier": "direct",
-   "basis": "주요제품: …무선통신…"
-  },
-  "036540": {
-   "name": "SFA반도체",
-   "category": "semiconductor",
-   "label": "반도체",
-   "tier": "direct",
-   "basis": "업종: …반도체…"
-  },
   "357780": {
    "name": "솔브레인",
-   "category": "semiconductor",
-   "label": "반도체",
-   "tier": "direct",
-   "basis": "주요제품: …반도체…"
-  },
-  "094170": {
-   "name": "동운아나텍",
-   "category": "semiconductor",
-   "label": "반도체",
-   "tier": "direct",
-   "basis": "업종: …반도체…"
-  },
-  "114810": {
-   "name": "한솔아이원스",
-   "category": "semiconductor",
-   "label": "반도체",
-   "tier": "direct",
-   "basis": "주요제품: …반도체…"
-  },
-  "012210": {
-   "name": "삼미금속",
-   "category": "ships",
-   "label": "선박",
-   "tier": "direct",
-   "basis": "주요제품: …선박…"
-  },
-  "253590": {
-   "name": "네오셈",
-   "category": "semiconductor",
-   "label": "반도체",
-   "tier": "direct",
-   "basis": "주요제품: …반도체…"
-  },
-  "003160": {
-   "name": "디아이",
    "category": "semiconductor",
    "label": "반도체",
    "tier": "direct",
@@ -219,22 +163,57 @@
    "tier": "direct",
    "basis": "업종: …철강…"
   },
-  "082740": {
-   "name": "한화엔진",
+  "012210": {
+   "name": "삼미금속",
    "category": "ships",
    "label": "선박",
    "tier": "direct",
    "basis": "주요제품: …선박…"
   },
-  "078350": {
-   "name": "한양디지텍",
+  "094170": {
+   "name": "동운아나텍",
    "category": "semiconductor",
    "label": "반도체",
    "tier": "direct",
    "basis": "업종: …반도체…"
   },
-  "098460": {
-   "name": "고영",
+  "010170": {
+   "name": "대한광통신",
+   "category": "wired_comm",
+   "label": "유선통신기기",
+   "tier": "direct",
+   "basis": "주요제품: …광케이블…"
+  },
+  "036540": {
+   "name": "SFA반도체",
+   "category": "semiconductor",
+   "label": "반도체",
+   "tier": "direct",
+   "basis": "업종: …반도체…"
+  },
+  "114810": {
+   "name": "한솔아이원스",
+   "category": "semiconductor",
+   "label": "반도체",
+   "tier": "direct",
+   "basis": "주요제품: …반도체…"
+  },
+  "069540": {
+   "name": "빛과전자",
+   "category": "wireless_comm",
+   "label": "무선통신기기",
+   "tier": "direct",
+   "basis": "주요제품: …무선통신…"
+  },
+  "417840": {
+   "name": "저스템",
+   "category": "semiconductor",
+   "label": "반도체",
+   "tier": "direct",
+   "basis": "주요제품: …반도체…"
+  },
+  "253590": {
+   "name": "네오셈",
    "category": "semiconductor",
    "label": "반도체",
    "tier": "direct",
@@ -247,47 +226,33 @@
    "tier": "direct",
    "basis": "업종: …반도체…"
   },
-  "417840": {
-   "name": "저스템",
+  "082740": {
+   "name": "한화엔진",
+   "category": "ships",
+   "label": "선박",
+   "tier": "direct",
+   "basis": "주요제품: …선박…"
+  },
+  "003160": {
+   "name": "디아이",
    "category": "semiconductor",
    "label": "반도체",
    "tier": "direct",
    "basis": "주요제품: …반도체…"
   },
-  "064760": {
-   "name": "티씨케이",
+  "098460": {
+   "name": "고영",
    "category": "semiconductor",
    "label": "반도체",
    "tier": "direct",
    "basis": "주요제품: …반도체…"
   },
-  "232680": {
-   "name": "라온로보틱스",
-   "category": "semiconductor",
-   "label": "반도체",
-   "tier": "direct",
-   "basis": "주요제품: …반도체…"
-  },
-  "017900": {
-   "name": "광전자",
+  "078350": {
+   "name": "한양디지텍",
    "category": "semiconductor",
    "label": "반도체",
    "tier": "direct",
    "basis": "업종: …반도체…"
-  },
-  "046890": {
-   "name": "서울반도체",
-   "category": "semiconductor",
-   "label": "반도체",
-   "tier": "direct",
-   "basis": "업종: …반도체…"
-  },
-  "446540": {
-   "name": "메가터치",
-   "category": "semiconductor",
-   "label": "반도체",
-   "tier": "direct",
-   "basis": "주요제품: …반도체…"
   },
   "217190": {
    "name": "제너셈",
@@ -303,6 +268,41 @@
    "tier": "direct",
    "basis": "주요제품: …반도체…"
   },
+  "241770": {
+   "name": "메카로",
+   "category": "semiconductor",
+   "label": "반도체",
+   "tier": "direct",
+   "basis": "업종: …반도체…"
+  },
+  "046890": {
+   "name": "서울반도체",
+   "category": "semiconductor",
+   "label": "반도체",
+   "tier": "direct",
+   "basis": "업종: …반도체…"
+  },
+  "064760": {
+   "name": "티씨케이",
+   "category": "semiconductor",
+   "label": "반도체",
+   "tier": "direct",
+   "basis": "주요제품: …반도체…"
+  },
+  "033640": {
+   "name": "네패스",
+   "category": "semiconductor",
+   "label": "반도체",
+   "tier": "direct",
+   "basis": "업종: …반도체…"
+  },
+  "232680": {
+   "name": "라온로보틱스",
+   "category": "semiconductor",
+   "label": "반도체",
+   "tier": "direct",
+   "basis": "주요제품: …반도체…"
+  },
   "059120": {
    "name": "아진엑스텍",
    "category": "semiconductor",
@@ -310,12 +310,12 @@
    "tier": "direct",
    "basis": "업종: …반도체…"
   },
-  "077360": {
-   "name": "덕산하이메탈",
+  "110990": {
+   "name": "디아이티",
    "category": "semiconductor",
    "label": "반도체",
    "tier": "direct",
-   "basis": "업종: …반도체…"
+   "basis": "주요제품: …반도체…"
   },
   "001440": {
    "name": "대한전선",
@@ -324,15 +324,8 @@
    "tier": "direct",
    "basis": "주요제품: …통신케이블…"
   },
-  "042700": {
-   "name": "한미반도체",
-   "category": "semiconductor",
-   "label": "반도체",
-   "tier": "direct",
-   "basis": "주요제품: …반도체…"
-  },
-  "355150": {
-   "name": "코스텍시스",
+  "077360": {
+   "name": "덕산하이메탈",
    "category": "semiconductor",
    "label": "반도체",
    "tier": "direct",
@@ -345,22 +338,29 @@
    "tier": "direct",
    "basis": "업종: …철강…"
   },
-  "110990": {
-   "name": "디아이티",
+  "042700": {
+   "name": "한미반도체",
    "category": "semiconductor",
    "label": "반도체",
    "tier": "direct",
    "basis": "주요제품: …반도체…"
   },
-  "272110": {
-   "name": "케이엔제이",
+  "017900": {
+   "name": "광전자",
    "category": "semiconductor",
    "label": "반도체",
    "tier": "direct",
    "basis": "업종: …반도체…"
   },
-  "033640": {
-   "name": "네패스",
+  "446540": {
+   "name": "메가터치",
+   "category": "semiconductor",
+   "label": "반도체",
+   "tier": "direct",
+   "basis": "주요제품: …반도체…"
+  },
+  "032580": {
+   "name": "피델릭스",
    "category": "semiconductor",
    "label": "반도체",
    "tier": "direct",
@@ -379,6 +379,27 @@
    "label": "반도체",
    "tier": "direct",
    "basis": "주요제품: …반도체…"
+  },
+  "272110": {
+   "name": "케이엔제이",
+   "category": "semiconductor",
+   "label": "반도체",
+   "tier": "direct",
+   "basis": "업종: …반도체…"
+  },
+  "355150": {
+   "name": "코스텍시스",
+   "category": "semiconductor",
+   "label": "반도체",
+   "tier": "direct",
+   "basis": "업종: …반도체…"
+  },
+  "005950": {
+   "name": "이수화학",
+   "category": "petroleum",
+   "label": "석유제품",
+   "tier": "direct",
+   "basis": "주요제품: …윤활유…"
   },
   "166090": {
    "name": "하나머티리얼즈",
@@ -401,40 +422,12 @@
    "tier": "direct",
    "basis": "주요제품: …반도체…"
   },
-  "178320": {
-   "name": "서진시스템",
-   "category": "wireless_comm",
-   "label": "무선통신기기",
-   "tier": "direct",
-   "basis": "주요제품: …휴대폰…"
-  },
-  "005950": {
-   "name": "이수화학",
-   "category": "petroleum",
-   "label": "석유제품",
-   "tier": "direct",
-   "basis": "주요제품: …윤활유…"
-  },
   "219130": {
    "name": "타이거일렉",
    "category": "semiconductor",
    "label": "반도체",
    "tier": "indirect",
    "basis": "반도체 검사용 PCB(프로브카드·로드보드) — KRX Products '인쇄회로기판 제조업'에 반도체 키워드 부재"
-  },
-  "122640": {
-   "name": "예스티",
-   "category": "semiconductor",
-   "label": "반도체",
-   "tier": "direct",
-   "basis": "주요제품: …반도체…"
-  },
-  "067310": {
-   "name": "하나마이크론",
-   "category": "semiconductor",
-   "label": "반도체",
-   "tier": "direct",
-   "basis": "업종: …반도체…"
   },
   "005290": {
    "name": "동진쎄미켐",
@@ -450,15 +443,15 @@
    "tier": "direct",
    "basis": "업종: …반도체…"
   },
+  "178320": {
+   "name": "서진시스템",
+   "category": "wireless_comm",
+   "label": "무선통신기기",
+   "tier": "direct",
+   "basis": "주요제품: …휴대폰…"
+  },
   "074600": {
    "name": "원익QnC",
-   "category": "semiconductor",
-   "label": "반도체",
-   "tier": "direct",
-   "basis": "주요제품: …반도체…"
-  },
-  "147760": {
-   "name": "피엠티",
    "category": "semiconductor",
    "label": "반도체",
    "tier": "direct",
@@ -471,8 +464,22 @@
    "tier": "direct",
    "basis": "업종: …반도체…"
   },
-  "089890": {
-   "name": "코세스",
+  "482630": {
+   "name": "삼양엔씨켐",
+   "category": "semiconductor",
+   "label": "반도체",
+   "tier": "direct",
+   "basis": "주요제품: …반도체…"
+  },
+  "067310": {
+   "name": "하나마이크론",
+   "category": "semiconductor",
+   "label": "반도체",
+   "tier": "direct",
+   "basis": "업종: …반도체…"
+  },
+  "183300": {
+   "name": "코미코",
    "category": "semiconductor",
    "label": "반도체",
    "tier": "direct",
@@ -485,15 +492,8 @@
    "tier": "direct",
    "basis": "업종: …반도체…"
   },
-  "032580": {
-   "name": "피델릭스",
-   "category": "semiconductor",
-   "label": "반도체",
-   "tier": "direct",
-   "basis": "업종: …반도체…"
-  },
-  "482630": {
-   "name": "삼양엔씨켐",
+  "147760": {
+   "name": "피엠티",
    "category": "semiconductor",
    "label": "반도체",
    "tier": "direct",
@@ -506,19 +506,33 @@
    "tier": "direct",
    "basis": "주요제품: …통신케이블…"
   },
-  "183300": {
-   "name": "코미코",
-   "category": "semiconductor",
-   "label": "반도체",
-   "tier": "direct",
-   "basis": "주요제품: …반도체…"
-  },
   "080220": {
    "name": "제주반도체",
    "category": "semiconductor",
    "label": "반도체",
    "tier": "direct",
    "basis": "업종: …반도체…"
+  },
+  "200470": {
+   "name": "에이팩트",
+   "category": "semiconductor",
+   "label": "반도체",
+   "tier": "direct",
+   "basis": "업종: …반도체…"
+  },
+  "009150": {
+   "name": "삼성전기",
+   "category": "semiconductor",
+   "label": "반도체",
+   "tier": "direct",
+   "basis": "주요제품: …반도체…"
+  },
+  "089890": {
+   "name": "코세스",
+   "category": "semiconductor",
+   "label": "반도체",
+   "tier": "direct",
+   "basis": "주요제품: …반도체…"
   },
   "290550": {
    "name": "디케이티",
@@ -548,8 +562,15 @@
    "tier": "direct",
    "basis": "주요제품: …반도체…"
   },
-  "200470": {
-   "name": "에이팩트",
+  "240810": {
+   "name": "원익IPS",
+   "category": "semiconductor",
+   "label": "반도체",
+   "tier": "direct",
+   "basis": "주요제품: …반도체…"
+  },
+  "000990": {
+   "name": "DB하이텍",
    "category": "semiconductor",
    "label": "반도체",
    "tier": "direct",
@@ -562,15 +583,15 @@
    "tier": "direct",
    "basis": "주요제품: …반도체…"
   },
-  "009150": {
-   "name": "삼성전기",
+  "000660": {
+   "name": "SK하이닉스",
    "category": "semiconductor",
    "label": "반도체",
    "tier": "direct",
-   "basis": "주요제품: …반도체…"
+   "basis": "업종: …반도체…"
   },
-  "240810": {
-   "name": "원익IPS",
+  "033160": {
+   "name": "엠케이전자",
    "category": "semiconductor",
    "label": "반도체",
    "tier": "direct",
@@ -590,26 +611,12 @@
    "tier": "direct",
    "basis": "주요제품: …웨이퍼…"
   },
-  "000660": {
-   "name": "SK하이닉스",
-   "category": "semiconductor",
-   "label": "반도체",
+  "026910": {
+   "name": "광진실업",
+   "category": "steel",
+   "label": "철강제품",
    "tier": "direct",
-   "basis": "업종: …반도체…"
-  },
-  "033160": {
-   "name": "엠케이전자",
-   "category": "semiconductor",
-   "label": "반도체",
-   "tier": "direct",
-   "basis": "주요제품: …반도체…"
-  },
-  "000990": {
-   "name": "DB하이텍",
-   "category": "semiconductor",
-   "label": "반도체",
-   "tier": "direct",
-   "basis": "업종: …반도체…"
+   "basis": "업종: …철강…"
   },
   "281820": {
    "name": "케이씨텍",
@@ -624,13 +631,6 @@
    "label": "반도체",
    "tier": "direct",
    "basis": "주요제품: …반도체…"
-  },
-  "026910": {
-   "name": "광진실업",
-   "category": "steel",
-   "label": "철강제품",
-   "tier": "direct",
-   "basis": "업종: …철강…"
   },
   "025560": {
    "name": "미래산업",
