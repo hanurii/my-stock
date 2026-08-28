@@ -277,7 +277,7 @@ def main() -> int:
             okA, okB = win > A_PASS, mart > marc
             verd.setdefault(lab, {})[anm] = {
                 "win": win, "med": st.median(dif), "mar_c": marc, "mar_t": mart,
-                "A": okA, "B": okB, "mde": mde,
+                "A": okA, "B": okB, "mde": mde, "te": te,
                 "expo": st.median(z["expo_mean"] for z in x),
                 "conc": st.median(z["conc_median"] for z in x),
                 "n_filled": st.median(z["n_filled"] for z in x)}
@@ -296,6 +296,28 @@ def main() -> int:
         print("  %-18s A★ %s · B★ %s  →  **%s**"
               % (anm, "통과" if oa else "미통과", "통과" if ob else "미통과",
                  "★ 통과" if (oa and ob) else "미통과"), flush=True)
+    # ★★ F★ (개정 1) — 🚨 본판에서 «등록만 하고 구현을 빠뜨린» 주지표.
+    #    A★ 는 「대조보다 나은가」라 «노출»이 안 맞는다. 가짜는 노출이 «맞으므로»
+    #    「사다리 자체가 값을 하는가」는 **오직 이 칸에서만** 갈린다.
+    print("
+  ★★ **F★ — 진짜가 «그 팔의 가짜»를 이기는 판** (같은 seed 짝비교 · 문턱 %.0f%%)"
+          % A_PASS, flush=True)
+    for real, fake in ((ARMS[0], ARMS[1]), (ARMS[2], ARMS[3])):
+        cells, allok = [], True
+        for l in verd:
+            r_, f_ = verd[l][real]["te"], verd[l][fake]["te"]
+            d = sorted(u - v for u, v in zip(r_, f_))
+            w = 100.0 * sum(1 for v in d if v > 0) / len(d)
+            verd[l][real]["F_win"] = w
+            verd[l][real]["F_med"] = st.median(d)
+            verd[l][real]["F_mde"] = 2.8 * st.pstdev(d) / math.sqrt(len(d))
+            allok = allok and (w > A_PASS)
+            cells.append("%s %5.1f%%%s(중앙%+8.2f · MDE%5.1f)"
+                         % (l.split()[0], w, "✅" if w > A_PASS else "❌",
+                            verd[l][real]["F_med"], verd[l][real]["F_mde"]))
+        print("     %-18s %s  →  **F★ %s**"
+              % (real, " ".join(cells), "통과" if allok else "미통과"), flush=True)
+
     print("\n  ★ 짝지어 읽는다 — **진짜 vs «그 팔의» 가짜** (짝차 중앙)", flush=True)
     for real, fake in ((ARMS[0], ARMS[1]), (ARMS[2], ARMS[3])):
         print("     %-18s" % real.strip(), end="", flush=True)
@@ -307,6 +329,9 @@ def main() -> int:
     print("\n🚨 **가짜가 진짜만큼 하면, 잰 건 «사다리»가 아니라 «덜 드는 것/작게 여럿 드는 것»이다.**",
           flush=True)
     print("🚨 **−10%% 판이라 74·82·86·91·94(−8%%)와 직접 비교 불가.**", flush=True)
+    for _l in verd:
+        for _a in verd[_l]:
+            verd[_l][_a].pop("te", None)
     (r91.OUT / ("99-source-faithful.json" if SLOTS_SRC == 20 else "99-source-faithful-s%d.json" % SLOTS_SRC)).write_text(json.dumps(
         {"kelly": kel, "verdict": verd, "n_seed": n_seed,
          "n_entry_10": len(ev10), "n_entry_08": len(ev08),
