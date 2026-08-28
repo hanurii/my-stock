@@ -52,7 +52,12 @@ def _res(t, mask):
 
 def sim_lots(trades, risk=0.02, cap=0.20, seed=0, slots=5,
              reserve=False, fill_rule="truncate", cash_rule="per_slot",
-             use_cash=True, pick=None, order_fn=None):
+             use_cash=True, pick=None, order_fn=None, size_fn=None):
+    # `size_fn(recent) -> 배수` 를 주면 **거래 크기**를 직전 청산 결과로 정한다(원전 사다리).
+    #   원전: 「1/4 포지션으로 시작, 성공 거래의 연속선상에서 «두 배씩» 늘린다.
+    #          손실 나는 종목은 매도해서 비중을 줄인다」 (99 사전등록 §1-1)
+    #   `recent` = 직전 청산 «최대 5건»의 승패(True=win) — 아래 `pick` 과 같은 것을 쓴다.
+    # 🚨 None 이면 배수 1.0 — **옛 동작이 «완전히» 보존된다**(order_fn 과 같은 방식).
     # `order_fn(seed, t) -> 정렬키` 를 주면 같은 날 후보를 «규칙으로» 고른다.
     # 🚨 None 이면 기존 `order_key`(거래별 난수) 그대로 — 옛 동작이 «완전히» 보존된다.
     #    86번 관문 ①이 그것을 < 1e-12 로 확인한다.
@@ -219,6 +224,9 @@ def sim_lots(trades, risk=0.02, cap=0.20, seed=0, slots=5,
                     break
                 sf_ = t.get("stop_frac") or 0.10
                 lim = min(eq * risk / sf_, eq * cap)
+                # ★ 원전 사다리 — 직전 청산 결과가 «이번 거래의 크기»를 정한다
+                if size_fn is not None:
+                    lim *= size_fn(recent)
                 # 🚨 예약하면 «목표 전체»가 나가고, 아니면 파일럿만 나간다
                 # ★ 조건부: 이 거래를 «전액»으로 갈지 «파일럿»으로 갈지 지금 고른다
                 spec = t
