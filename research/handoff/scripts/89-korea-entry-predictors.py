@@ -48,6 +48,7 @@ SPLIT = "2024-01-01"          # 🚨 88번과 «같은» 경계
 N_NULL = 4000
 NQ = 5
 BONF = 2
+LIMIT_UP = 31.0               # 관문 ①″ 문턱 (일일 제한 30% + 반올림 여유 1%p)
 MIN_PRE = 300                 # 진입 전 봉 수 하한
 # 🚨 처음 130 으로 뒀더니 관문 ①′ 가 «구조적으로 못 타는» 자리라고 잡았다(최소 253).
 #    85번에서 같은 일이 있었다(유형 24) — 「0건」이 «검사 결과»가 아니라 «검사가 없었다»는 뜻.
@@ -167,10 +168,14 @@ def build_features(ev, ser, in_pct):
     # 🚨 관문 ①″ (검증 세션 5f974ec9) — 「축을 맞췄나」가 아니라 **「맞춘 축이 «옳은가»」**.
     #    한국 일일 제한은 ±30% 다. `fltRt` 가 그걸 «넘는» 날은 미조정 분할이 그대로 찍힌 것이고
     #    A 축에 «가짜 점프»가 남는다. 그런 날이 «특징 창 안»에 있는 진입이 몇 건인지 센다.
+    # 🚨 문턱은 **31.0** 이다(30.0 이 아니다). 30.0~31.0 사이 **13건**은 분할이 아니라
+    #    **«상한가 날의 반올림 흔적»**(30.23·30.40·30.51…)이다(검증 세션 04722bb5).
+    #    30.0 으로 두면 상한가마다 «헛울고», 헛우는 관문은 다음 사람이 «끈다».
+    #    ★ 유형 24 의 «반대편» — 아무것도 안 하는 관문 못지않게 **너무 잘 우는 관문**도 나쁘다.
     bad_codes, n_bad_day = set(), 0
     for code, x in ser.items():
         for v in x["f"]:
-            if abs(v) > 30.0 + 1e-9:
+            if abs(v) > LIMIT_UP:
                 bad_codes.add(code)
                 n_bad_day += 1
     hit = 0
@@ -180,11 +185,11 @@ def build_features(ev, ser, in_pct):
             continue
         x = ser[e["code"]]
         k = bisect.bisect_left(x["d"], e["entry_date"])
-        if any(abs(v) > 30.0 + 1e-9 for v in x["f"][max(0, k - 300):k]):
+        if any(abs(v) > LIMIT_UP for v in x["f"][max(0, k - 300):k]):
             hit += 1
-    print("   관문 ①″ `fltRt` 가 ±30%%(일일 제한)를 넘는 날 **%d건 · 종목 %d개** — "
-          "그중 «특징 창(300봉) 안»에 든 진입 **%d / %d건** → **%s**"
-          % (n_bad_day, len(bad_codes), hit, len(rows),
+    print("   관문 ①″ `fltRt` 가 ±%.0f%%(일일 제한 30%% + 반올림 여유)를 넘는 날 "
+          "**%d건 · 종목 %d개** — 그중 «특징 창(300봉) 안»에 든 진입 **%d / %d건** → **%s**"
+          % (LIMIT_UP, n_bad_day, len(bad_codes), hit, len(rows),
              "통과 — 축의 가짜 점프가 이번 판에 «안 닿는다»" if hit == 0
              else "🚨 미통과 — %d건이 오염된 축을 쓴다" % hit), flush=True)
     if ks:
