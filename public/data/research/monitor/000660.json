@@ -1,7 +1,7 @@
 {
   "code": "000660",
   "name": "SK하이닉스",
-  "last_checked": "2026-08-28T15:47:05.540+09:00",
+  "last_checked": "2026-08-28T23:52:59.119+09:00",
   "metrics": [
     {
       "id": "pbr",
@@ -24,20 +24,20 @@
     {
       "id": "affiliate_ratio",
       "label": "계열사 거래 매출 비율 (1년)",
-      "value": 2.376,
-      "display": "2.376%",
+      "value": null,
+      "display": "—",
       "threshold": "매출의 7% 초과",
       "hit": false,
-      "tone": "good"
+      "tone": "neutral"
     },
     {
       "id": "affiliate_yoy_pp",
       "label": "계열사 거래 비율 YoY 변화",
-      "value": -0.875,
-      "display": "-0.88%p",
+      "value": null,
+      "display": "—",
       "threshold": "+2%p 이상 급증",
       "hit": false,
-      "tone": "good"
+      "tone": "neutral"
     },
     {
       "id": "sk_square_disposal",
@@ -75,6 +75,18 @@
       "message": "현재 10.11배 — 매도 트리거 도달"
     },
     {
+      "severity": "warn",
+      "type": "affiliate_ratio_missing",
+      "title": "계열사 거래 매출 비율 (1년) 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
+    },
+    {
+      "severity": "warn",
+      "type": "affiliate_yoy_pp_missing",
+      "title": "계열사 거래 비율 YoY 변화 데이터 미수집",
+      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
+    },
+    {
       "severity": "info",
       "type": "news_keyword_hit",
       "title": "리스크 키워드 매칭 뉴스 1건 (관찰 신호 0건 — 키워드 단순 매칭만)",
@@ -99,10 +111,6 @@
     {
       "label": "분기 영업이익률 (2026)",
       "ref": "DART 20260814003509"
-    },
-    {
-      "label": "계열사 거래 비율 (365일 누적, 9건)",
-      "ref": "DART 특수관계인내부거래·출자계열사거래 20260727000169, 20260727000166, 20260727000162 외"
     },
     {
       "label": "SK스퀘어(주) 보유 비율 (2026)",
