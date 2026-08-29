@@ -296,13 +296,88 @@ VCP · 3C    → 실적 조건 **적용**       ← 이것도 원전 주장이�
 
 # ㉥ 그 밖
 
-### 21. 공매도 — ⚠️ **저장소 메모리와 어긋납니다**
-① 인용 — [1차-본인]
-> "I am still **short the $SPY** from 12/9. My stop is at all-time highs on both the ETF and the cash index… Personally, I have no longs." (X id **1874139838313574883**)
-② 🚨 저장소 메모리 [[short-interest-feasibility]]는 **「미너비니 미사용(99.99% 롱)」**이라 적고 있습니다.
-**어느 쪽이 틀렸다고 안 적겠습니다** — 「개별주 공매도를 안 한다」와 「지수 ETF를 숏으로 헤지한다」는 **다른 말일 수 있습니다.** 갈라야 할 항목으로 남깁니다.
-③ 구현 가능? — 가능하나 **우리 하네스는 롱 전용**입니다.
-④ **미측정.**
+### 21. 공매도 — ★ **갈렸습니다. 그런데 «갈라진 방식»이 예상과 다릅니다**
+
+#### ⑤ 먼저 — 「99.99% 롱」의 출처를 **찾았습니다. 본인 말이었습니다.**
+> "I rarely talk about my short positions, mainly because **I short individual stock so infrequently** so there are very few, and **99.99% of my wealth from stock trading came from the long side.** **But I did short $RTX today.** Looks very heavy under the 200-day line. Chart broke down and…"
+> — X id **2061860791091872092** · **2026-06-02** [1차-본인, 검색요약]
+
+> ### 🚨 **그런데 저장소 메모리가 이 말을 «잘못 읽었습니다».**
+> ```
+> 원문    "99.99% of my **wealth** … came from the long side"   = 부(富)가 어디서 «나왔나»
+>         "I short individual stock so **infrequently**"        = **드물게 «한다»**
+>         "But I did short $RTX **today**"                      = 같은 트윗에서 «지금 하고 있다»
+>
+> 메모리  「미너비니 **미사용** — 99.99% 롱」                    = **안 «한다»**
+> ```
+> **「부의 99.99%가 롱에서 나왔다」 ≠ 「공매도를 안 한다」.** 메모리는 «수익 배분»을 «사용 여부»로 옮겨 적은 것입니다.
+> → **[[short-interest-feasibility]] 의 「미사용」을 고쳐야 합니다.** (제가 메모리를 안 고쳤습니다 — 두뇌 세션·사용자 몫)
+
+#### ① 개별주 공매도와 지수 ETF 숏을 «갈라» 말했는가 — **갈라 말했고, 답은 「둘 다 한다」입니다**
+```
+개별주   위 트윗이 «명시»합니다 — "I short **individual stock** so infrequently" + 그날 $RTX 숏
+지수 ETF $SPY 숏을 여러 차례 공개 (아래 ②)
+→ 🚨 **「개별주는 안 하고 지수만 한다」가 아닙니다.** 우리가 세웠던 그 가설은 **기각됩니다.**
+   갈리는 축은 «대상»이 아니라 «빈도»입니다 — 개별주는 «드물게», 지수는 «국면에서».
+```
+
+#### ② 숏을 «언제» 잡는가
+```
+개별주 ($RTX, 2026-06-02) [1차-본인, 검색요약]
+   "Looks very heavy **under the 200-day line**. **Chart broke down** and [반등을 못 한다] …
+    [주가가] looks like it wants lower"
+   → 🚨 이건 **«그 한 건»의 이유 서술**입니다. 「항상 이 조건에서 숏친다」는 말은 «없습니다».
+
+지수 ($SPY) [1차-본인]
+   "I am still short the $SPY **from 12/9**"  (X id 1874139838313574883)
+   "my original $SPY short position **from 10/29**" (X id 1997033212564869385)
+   → **날짜만 있고 «규칙»이 없습니다.**  ← 두뇌 세션이 물으신 그대로입니다
+   [3차-해석] 요약으로만: 「피벗 실패가 급증하고 지수에 뚜렷한 분산이 나타나 현금을 크게 올리고
+                          SPY 를 숏쳤다」
+```
+**⚠️ 진입 «규칙»은 본인 말로 확인 불가입니다.**
+
+#### ③ 숏의 손절 — **두 개가 나왔고 성격이 다릅니다**
+```
+지수  "My stop is at **all-time highs on both the ETF and the cash index**
+       (**both must hit an all-time high** to trigger the stop)"     (id 1874139838313574883)
+      → 「둘 «다» 사상최고가를 쳐야 발동」이라는 **구조**가 있어 규칙처럼 읽히나,
+        **「나는 늘 이렇게 한다」는 말은 없습니다.** → **「그때 그 자리」로 분류합니다.**
+
+개별주 "would not give the trade more than about **8%** room on the upside" ($RTX)  [검색요약]
+      → **숫자가 있는 유일한 숏 손절**입니다. 롱의 「최대 10%」와 대응되는 자리로 보이나
+        **그렇게 말한 문장은 없습니다.**
+```
+
+#### ④ 크기 · 롱과 «동시에» 드는가 — **두 경우가 «다» 있습니다**
+```
+비우고 간 때  "Personally, **I have no longs**."            (id 1874139838313574883 · 2024-12말~2025-01초)
+동시에 든 때  "**I've recently added some longs** which has diluted the net short exposure and
+               now, by the default, **it's a hedge with near zero risk**."
+                                                             (id 1997033212564869385 · 2025 후반)
+→ 🚨 **「롱을 다 비우고 숏으로 간다」는 규칙이 «아닙니다».** 그때그때 다릅니다.
+   두 번째 트윗은 숏을 **«헤지»로 남기고 롱을 얹는** 운용을 보여 줍니다.
+
+크기(계좌의 몇 %)  ⚠️ **확인 불가.** 어떤 트윗에도 숏 비중 숫자가 없습니다.
+
+숏을 닫는 때       [3차-해석] 「$SPY 가 신고가로 돌파하면 숏 헤지를 손절로 정리하고 롱을 더 얹겠다」
+                   → ③의 손절과 같은 말입니다. 별도 «익절» 규칙은 못 찾았습니다.
+```
+
+#### 덤 — **「$SPY 전략 모델」이라는 별개 기계적 모델이 있습니다**
+> "Our **$SPY strategy model** has been doing its job precisely as designed. That is, to **match the S&P 500 on the upside, while avoiding the big downside of bear markets and large corrections**…" (X id **1846266751341985986**)
+> "Our **long term mechanical model** has not yet triggered a sell signal…" (X id 1874139838313574883)
+
+🚨 **내용은 비공개입니다(그의 유료 서비스로 보입니다). 재현 불가.** 20번과 같은 항목입니다.
+
+#### ③ 구현 가능? · ④ 이미 쟀나?
+```
+구현   ⚠️ **부분만.** 「200일선 아래 + 차트 붕괴」는 잴 수 있고 8% 손절도 걸 수 있습니다.
+       🚨 그러나 **진입 «규칙»이 본인 말로 없고, 크기도 없습니다** — 그 둘은 우리가 정해야 하고
+          그러면 «원전 기반»이 아니라 «우리가 만든 숏 전략»입니다. 결과에 그렇게 적어야 합니다.
+       🚨 우리 하네스는 롱 전용이고, 숏은 차입비용·소각·업틱룰이 붙습니다(안 쟀습니다).
+이미   **미측정.**
+```
 
 ### 22. 분산투자
 ① 인용 — [3차, 본인 취지 요약] 「업종·산업 분산은 시장 전체가 내릴 때 «거의 보호가 안 된다»」 · 「50개 잔포지션이 자산곡선을 희석하는 걸 원치 않는다」
@@ -327,7 +402,7 @@ VCP · 3C    → 실적 조건 **적용**       ← 이것도 원전 주장이�
 7. **「setups proliferate」에 숫자가 붙는가** — 붙으면 우리 ⑥의 문턱이 원전에서 나오고, 안 붙으면 ⑥은 «우리가 만든 것»으로 남습니다.
 8. **손절 「평균 5~6%」가 규칙인가 그의 실적 통계인가** — 백테스트에서 전혀 다릅니다.
 9. **비중을 먼저 정하고 개수가 따라오는가** — [3차] 한 곳이 「비중은 위험예산의 «결과»」라고 «명시»합니다. 책이 같은 말을 하는지.
-10. **공매도** — 개별주는 안 하고 지수 ETF만 숏인가.
+10. ~~**공매도** — 개별주는 안 하고 지수 ETF만 숏인가.~~ → ✅ **웹에서 닫혔습니다(21번)**: **둘 다 합니다.** 남는 물음은 **「숏의 진입 «규칙»과 «크기»」**이고, 그건 **본인 말에 없습니다** — 책에 있는지 확인 부탁드립니다.
 
 ---
 
@@ -342,6 +417,9 @@ VCP · 3C    → 실적 조건 **적용**       ← 이것도 원전 주장이�
 - [1874139838313574883 — SPY 숏, mechanical model](https://x.com/markminervini/status/1874139838313574883)
 - [1884707172040241617 — Select Portfolio 7종목](https://x.com/markminervini/status/1884707172040241617)
 - [1826989022041850163 — Timing / Turnover / Aggressive sizing / Cash](https://x.com/markminervini/status/1826989022041850163)
+- [**2061860791091872092** — 「99.99%는 롱에서」 + 개별주 $RTX 숏 (2026-06-02)](https://x.com/markminervini/status/2061860791091872092) ★ 21번의 핵심
+- [1997033212564869385 — SPY 숏에 롱을 얹어 «헤지»로 (2025 후반)](https://x.com/markminervini/status/1997033212564869385)
+- [1846266751341985986 — $SPY strategy model (비공개 기계적 모델)](https://x.com/markminervini/status/1846266751341985986)
 
 [1차-전사 · 사용자가 옮겨 준 책 원문]
 - `results/78-source-quotes.md` · `results/99-source-faithful.md`
