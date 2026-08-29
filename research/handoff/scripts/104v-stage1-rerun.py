@@ -36,7 +36,13 @@ JOBS = {"75": "75-livermore.py", "75a": "75a-mde.py",
         # ── 2단계 B급 — 코드는 «찍기»만 하나 결과 문서가 그 수를 «인용»한다
         "76": "76-exit-x-pyramid.py", "78": "78-source-quotes.py",
         "79": "79-stop-and-band.py", "79b": "79b-lower-band.py",
-        "80b": "80b-longer-exits.py"}
+        "80b": "80b-longer-exits.py",
+        # ── 3단계 — 🚨 내가 74v 때 «순환만» 돌린 여섯. 스트림은 기본값 10 이었다.
+        #    순환×10 → ×200 은 폭을 23% «좁히고»(0 배제가 쉬워짐) 중앙을 참값 쪽으로
+        #    «되돌린다» — 둘이 반대로 작용하므로 방향을 모른다. 그래서 다시 돈다.
+        "43": "43-round2-size.py", "47": "47-round3-pyramid.py",
+        "48": "48-round4-regime.py", "59": "59-regime-9y.py",
+        "60": "60-regime-faithful.py", "61": "61-selection-leaders.py"}
 INPUTS = ("26-eqw-us9y.json", "26-eqw-us.json", "38-indices.json",
           "61-monthly-us.json", "74-pyramid-rebuilt.json", "75-livermore.json")
 
