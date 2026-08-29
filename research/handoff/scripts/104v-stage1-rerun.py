@@ -32,7 +32,11 @@ import dataaxis as da                                    # noqa: E402
 
 REAL_OUT = ROOT / ".cache" / "bt5y" / "out"
 JOBS = {"75": "75-livermore.py", "75a": "75a-mde.py",
-        "77": "77-minervini.py", "74": "74-pyramid-rebuilt.py"}
+        "77": "77-minervini.py", "74": "74-pyramid-rebuilt.py",
+        # ── 2단계 B급 — 코드는 «찍기»만 하나 결과 문서가 그 수를 «인용»한다
+        "76": "76-exit-x-pyramid.py", "78": "78-source-quotes.py",
+        "79": "79-stop-and-band.py", "79b": "79b-lower-band.py",
+        "80b": "80b-longer-exits.py"}
 INPUTS = ("26-eqw-us9y.json", "26-eqw-us.json", "38-indices.json",
           "61-monthly-us.json", "74-pyramid-rebuilt.json", "75-livermore.json")
 
