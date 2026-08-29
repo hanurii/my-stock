@@ -185,6 +185,7 @@ def run(tk, n_split, d0, d1, principal=1.0, t_on_limit_sell="quarter"):
             "n_full_exit": n_full, "first_rev": first_rev,
             "n_limit_only": n_limit_only,
             "expo_mean": 100.0 * sum(expo) / len(expo),
+            "expo_series": expo,        # 104(투입한 돈 기준)가 «날마다» 쓴다
             "end_cash_pct": cash / principal * 100, "eq": eq, "dates": ds}
 
 
@@ -237,7 +238,8 @@ def main() -> int:
               flush=True)
 
     (OUT / "101-infinite-buying.json").write_text(
-        json.dumps({k: {a: b for a, b in v.items() if a not in ("eq", "dates")}
+        json.dumps({k: {a: b for a, b in v.items()
+                            if a not in ("eq", "dates", "expo_series")}
                     for k, v in rows.items()}, ensure_ascii=False, separators=(",", ":")),
         encoding="utf-8")
     print("\n저장: 101-infinite-buying.json", flush=True)
