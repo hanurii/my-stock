@@ -88,6 +88,76 @@
 ③ 구현 가능? — **이미 구현돼 있습니다** (`find-vcp`).
 ④ 이미 쟀나? — **쟀습니다. 16번**: 검출기(VCP·3C·PP)의 몫은 **−0.44%p, 구간 −0.95~+0.03 = 판정불가**.
 
+### 5b. 파워플레이 (Power Play / High Tight Flag) — ★ **사용자 가설이 «맞았습니다»**
+
+**사용자 가설(2026-08-29)**: 「파워플레이 만족 시 펀더멘털을 보지 않는다고 미너비니가 한 걸로 기억한다」
+
+#### ① 인용 — **1인칭 문장이 있습니다** [『Trade Like a Stock Market Wizard』]
+> "**This is the only situation I will enter with a dearth of fundamentals.** With the power play, the stock is exhibiting so much strength that it's telling you that something is going on **regardless of what the current earnings and sales are showing you**."
+>
+> (파워플레이는 **내가 펀더멘털이 빈약한 채로 들어가는 «유일한» 경우**다. 파워플레이에서는 주가가 워낙 강해서, **지금 실적과 매출이 무엇을 보여 주든 상관없이** 무언가 일어나고 있다고 말해 주는 것이다.)
+
+#### ② 출처 · 등급
+```
+등급   [1차-본인] — «1인칭»이고 책에서 옮긴 문장입니다.
+       🚨 다만 저는 **책을 직접 못 읽었습니다.** 아래 두 곳이 «따로» 이 대목을 싣습니다.
+독립   2곳 — 서로 다른 사람의 «독서 노트»이고 2014년 / 2019년으로 5년 떨어져 있습니다
+       · whatheheckaboom.wordpress.com (2014-05-04) — **위 문장을 통째로** 인용
+       · tradershall.wordpress.com (2019-07-15) — 요약형 "the only situation he enters
+         with a dearth of fundamentals" (3인칭으로 바꿔 적음)
+확인   ⛔ 『Trade Like a Stock Market Wizard』 PDF 링크가 검색에 나왔으나 **열지 않았습니다**
+       → **몇 쪽인지는 확인 불가.** 사용자가 원문을 보실 때 쪽수를 달아 주시면 [1차-전사]로 굳습니다
+```
+
+#### ③ 파워플레이의 «정의» — 실적 조건이 **안 들어 있습니다**
+```
+상승     **100% 이상을 8주 «미만»**에, 대개 «잠잠하던 기간» 뒤에
+횡보     **3~6주** 동안 좁은 범위. 조정폭 **최대 20~25%**
+         (더 좋은 것은 **10% 이내**로 «아주» 조밀한 것, 또는 VCP 성격을 보이는 것)
+거래량   돌파 «며칠 전»에 거래량이 크게 마른다
+별칭     high tight flag (고가 밀집 깃대)
+실적     **정의에 없습니다** — 위 인용이 그것을 «명시»합니다
+```
+독립 출처 3곳 이상이 100% / 8주 / 3~6주 / 20~25% 를 같은 값으로 냅니다.
+
+**우리 검출기와 대조** — 우리는 「깃대 + 조밀한 횡보」로 보고 있습니다.
+```
+✅ 깃대            = 「100% / 8주 미만」에 대응
+✅ 조밀한 횡보      = 「3~6주 · 최대 20~25%」에 대응
+⚠️ **「대개 잠잠하던 기간 뒤에」가 우리 정의에 있는지 확인 필요** — 원전에 붙어 있는 조건입니다
+⚠️ **「돌파 며칠 전 거래량이 마른다」**도 마찬가지
+🚨 우리 검출기의 «숫자»(몇 주·몇 %)가 원전 값과 같은지는 **제가 코드를 안 봤습니다. 미확인.**
+```
+
+#### ④ 반대 방향 근거 — **본인 말로는 못 찾았습니다**
+```
+찾은 것은 [3차-해석]의 «단서»뿐입니다:
+  「실적을 면제해도 Stage 2 자격·VCP 수준의 가격/거래량·시장 국면·위험관리는 그대로 필요하다」
+  「실적이 나빠지는 회사의 VCP 는 기관 수급이 안 붙는다」
+🚨 둘 다 «파워플레이»가 아니라 «VCP 일반»에 대한 글쓴이 서술이고, 미너비니 인용이 안 붙어 있습니다.
+→ **「파워플레이도 실적을 본다」는 본인 문장은 «없습니다».**
+```
+
+#### 🚨🚨 그런데 — **103 의 결과와 이 인용은 «같은 것이 아닙니다»**
+```
+원전이 말한 것    "a dearth of fundamentals"        = 실적이 **빈약하다** (자료는 «있고» 나쁘다)
+                  "regardless of current earnings and sales"  ← 실적을 «보고» 무시한다는 말
+
+103 이 가른 것    실적 자료가 **없는** 회사를 버리느냐 마느냐  (자료 자체가 «없다»)
+```
+> ### **「나쁜 실적을 무시한다」와 「자료가 없는 회사를 산다」는 다른 말입니다.**
+> ### 원전 인용은 **앞을 뒷받침하고 뒤는 «직접» 뒷받침하지 않습니다.**
+
+두 가지가 겹치는 정도(자료 없는 회사 중 파워플레이 비중)는 **두뇌 세션이 지금 재고 있는 분포**로만 갈립니다. **제가 여기서 「우리 결과가 원전과 맞다」고 적지 않겠습니다.**
+
+#### 이 인용이 «따로» 만들어 내는 검정거리 하나
+원문이 **"the only situation"** 이라고 못 박았으므로, 뒤집으면 이렇게 됩니다:
+```
+파워플레이  → 실적 조건 **면제**
+VCP · 3C    → 실적 조건 **적용**       ← 이것도 원전 주장이고, 아직 «안 쟀습니다»
+```
+④ 이미 쟀나? — **미측정.** 패턴별로 실적 조건을 갈라 건 판은 없습니다(103은 전체에 걸었습니다).
+
 ### 6. 피벗 · 돌파일 거래량
 ① 인용 — 피벗 = 「마지막 수축의 고점 = 저항선」. 돌파는 「강한 거래량」에.
 ② 출처 — [3차-해석]. 🚨 **「몇 배」인지 본인 말로는 못 찾았습니다.** 우리 정본의 1.5배는 우리가 정한 값입니다.
@@ -285,6 +355,12 @@
 - [paperswithbacktest — Mark Minervini](https://paperswithbacktest.com/wiki/mark-minervini) [읽음]
 - [sobrief — Momentum Masters 요약](https://sobrief.com/books/momentum-masters) [검색요약 · 403]
 - [X — Ameet Rai, Position Sizing Rules 정리](https://x.com/AmeetRai/status/1864744561668423792) [검색요약]
+
+[파워플레이 — 책 인용을 싣는 «독서 노트» 두 곳, 5년 떨어져 있음]
+- [whatheheckaboom — Book Review of Trade Like A Stock Market Wizard (2014-05-04)](https://whatheheckaboom.wordpress.com/2014/05/04/book-review-of-trade-like-a-stock-market-wizard-by-mark-minervini/) [읽음 — **1인칭 원문을 통째로** 인용]
+- [tradershall — Trade Like A Stock Market Wizard Book Review and Notes (2019-07-15)](https://tradershall.wordpress.com/2019/07/15/mark-minervinis-trade-like-a-stock-market-wizard-book-review-and-notes/) [읽음 — 3인칭 요약형]
+- [BrkoutGeek — Power Play Setup](https://brkoutgeek.substack.com/p/mark-minervinis-power-play-setup) [읽음 — 숫자 없음·실적 언급 없음]
+- [Trading Engineered — The Powerplay Setup](https://tradingengineered.substack.com/p/the-powerplay-setup) [읽음 — 100%/2개월/2~3주·실적 언급 없음]
 
 # 못 읽은 곳 (차단)
 ```
