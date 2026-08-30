@@ -176,14 +176,18 @@ def main() -> int:
     on = r108.short_days(ds, c, ma, hi)
     spy_ret = {ds[i]: c[i] / c[i - 1] - 1.0 for i in range(1, len(ds))}
 
-    rows, gate = [], []
+    rows, gate, feeg = [], [], []
     for nm, by, omap, sz in (("① 우리 규칙 (①+③)", by_f, on, SHORT_SIZE),
                              ("② 바탕 (91 정본)", by2, {}, 0.0)):
         _n, ev = r118.fills_of(by)
         rs = r91.sim(ev, n_seed)
         pre, ap, ex, tx = [], [], [], []
         for x in rs:
-            fdates = [f[0] for f in x.get("fill_log", [])]
+            # [경보] fill_log 항목은 (종목, 종류, k, **날짜**, ...) 다.
+            #        처음에 f[0](종목)을 날짜로 읽어 수수료가 «한 푼도» 안 붙었다.
+            #        121 의 -49.1% 와 안 맞은 «크기»가 그걸 잡았다.
+            fdates = [f[3] for f in x.get("fill_log", []) if f[1] == "pilot"]
+            feeg.append(abs(len(fdates) - int(x["n_filled"])))
             cv0, _o0, _l0 = build(x["curve"], x["equity_pct"], spy_ret, omap, sz,
                                   BORROW if sz else 0.0, [])
             cv1, oth, lsc = build(x["curve"], x["equity_pct"], spy_ret, omap, sz,
@@ -199,6 +203,11 @@ def main() -> int:
     g = max(gate)
     print("**S★ 관문** — 「해마다 실현손익 합」 vs 무세 총수익 · 최대 어긋남 **%.3f%%** · **%s**\n"
           % (g * 100, "통과" if g < 0.01 else "🚨 미통과"), flush=True)
+    # [경보] 새 관문 - 수수료를 «물린 횟수»가 실제 매수 수와 같은가.
+    print("**S2★ 관문** - 수수료 물린 횟수 = 매수 수 · 최대 어긋남 **%d건** · **%s**"
+          % (max(feeg), "통과" if max(feeg) == 0 else "미통과 - 무효"), flush=True)
+    if max(feeg) != 0:
+        return 4
 
     dsS, cS = r109.load("SPY")
     dsQ, cQ = r109.load("QQQ")
