@@ -121,6 +121,7 @@ def sim_lots(trades, risk=0.02, cap=0.20, seed=0, slots=5,
     #    항목: (키, 종류, 트랜치번호 k, 날짜, 체결가, 실제비중, 목표크기)
     #    종류: "pilot" | "add" | "blocked"(방아쇠는 났으나 현금이 없어 못 삼)
     fill_log = []
+    exit_log = []          # 🚨 121b 용 — (청산일, 계좌 기준 실현손익 배수). 기존 동작 불변
 
     def credit(items):
         nonlocal eq
@@ -148,6 +149,11 @@ def sim_lots(trades, risk=0.02, cap=0.20, seed=0, slots=5,
         mw += r > 0
         streak = 0 if is_w else streak + 1
         best = max(best, streak)
+        # 🚨 세금을 «정확히» 재려면 «언제 얼마를 실현했나»가 필요하다.
+        #    r 은 «그 자리»의 수익률(%)이고, 실제로 계좌에 든 돈은 tot 이다.
+        #    → 계좌 기준 실현손익 = tot × r/100.  청산일은 마지막 exit 날짜.
+        _last = max((e[0] for e in h["all_exits"]), default=h["t"]["entry_date"])
+        exit_log.append((_last, tot * r / 100.0))
         if h["resv"] > 1e-12:
             idle_end.append(h["resv"] / max(1e-12, h["target"]))
 
@@ -285,6 +291,7 @@ def sim_lots(trades, risk=0.02, cap=0.20, seed=0, slots=5,
     cc = sorted(conc)
     m = len(cc)
     return {"curve": curve, "fill_log": fill_log,
+            "exit_log": exit_log,
             "equity_pct": (eq - 1) * 100, "n_filled": n,
             "arith_pct": arith[0] * 100,
             "filled_per_trade": (st.mean(fills) if fills else 0.0),
