@@ -180,6 +180,10 @@ def _phase2(p, i, a, half, trail, ft, fs, epx, lots, sched, stop, tpx):
     l, c, d = p["l"], p["c"], p["d"]
     n = len(c)
     ex = [(d[i], half, tpx)]
+    # [131] half=1.0 (**목표에서 전량 매도**) 이면 «그날» 끝난다.
+    #       이 줄이 없으면 남은 0주를 계속 추격해 **자리가 안 비는** 잘못이 생긴다.
+    if half >= 1.0 - 1e-9:
+        return _mk(p, epx, lots, sched, ex, d[i], "win", False, stop)
     for j in range(i + 1, n):
         seg = [x for x in l[max(0, j - trail):j] if x is not None]
         if not seg:

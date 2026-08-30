@@ -70,6 +70,11 @@ RISK, CAP, SLOTS = 0.02, 0.20, 5
 # 🚨 남은 어긋남: **「평생 굴리며 중간에 «일부»만 뺀다」는 경로는 «둘 중 어느 자도 아니다».**
 #    총액 기준(=한 번도 안 뺀다)과 창 기준(=다 빼서 쓴다) «사이»다. 아직 «안 쟀다».
 STOP, TARGET = 10.0, 20.0
+# [131] **청산 방식**: 목표에 닿았을 때 «몇 %를 파는가».
+#   0.5 = 지금까지 쓴 값(절반 팔고 나머지는 본전 바닥 + 25일 저가 추격)
+#   1.0 = **목표에서 전량 매도**
+#   🚨 지금까지의 «모든» 미국 숫자는 0.5 위에서 나온 값이다.
+HALF = 0.5
 if "--stop8" in sys.argv:
     STOP = 8.0
 LO, HI = 0.10, 0.30
@@ -177,7 +182,8 @@ def replay(by):
                 blocked += 1
                 continue
             t = pt.resolve_trade(p, ft="limit", fs="market", stop=STOP,
-                                 target=TARGET, shares=(1.0,), add_stop="floor_entry")
+                                 target=TARGET, half=HALF, shares=(1.0,),
+                                 add_stop="floor_entry")
             m = t["masks"][allT]
             if m.get("truncated"):
                 trunc += 1
