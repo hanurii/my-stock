@@ -174,17 +174,21 @@ def main() -> int:
     rows = []
     for nm, by, omap, sz in (("① 우리 규칙 (①+③)", by_f, on, SHORT_SIZE),
                              ("② 바탕 (91 정본)", by2, {}, 0.0)):
-        n_fill, ev = r118.fills_of(by)
+        n_cand, ev = r118.fills_of(by)
         rs = r91.sim(ev, n_seed)
-        pre, post = [], []
+        pre, post, nf = [], [], []
         for x in rs:
+            # 🚨 수수료는 «후보 수»가 아니라 **계좌가 «실제로 체결한» 수**로 매긴다.
+            #    앞 판은 후보 9,172 를 썼고 그래서 수수료가 367% 로 튀었다(−97% 자산).
+            k = int(x["n_filled"])
+            nf.append(k)
             cv0 = overlay_curve(x["curve"], x["equity_pct"], spy_ret, omap, sz,
                                 BORROW if sz else 0.0, 0)          # 수수료 «없이» = 세전
             cv1 = overlay_curve(x["curve"], x["equity_pct"], spy_ret, omap, sz,
-                                BORROW if sz else 0.0, n_fill)     # 수수료 «있이»
+                                BORROW if sz else 0.0, k)          # 수수료 «있이»
             pre.append(cv0[-1][1] * START)
             post.append(tax_yearly(cv1)[0])
-        rows.append((nm, st.median(pre), st.median(post), n_fill))
+        rows.append((nm, st.median(pre), st.median(post), int(st.median(nf))))
 
     dsS, cS = r109.load("SPY")
     dsQ, cQ = r109.load("QQQ")
@@ -197,7 +201,7 @@ def main() -> int:
         rows.append((nm, r0["final"] * START, a * ((1.0 - FEE) ** n_sell), n_sell))
 
     print("  %-22s %12s %13s %10s %10s %8s"
-          % ("", "세금·수수료 전", "**후**", "깎인 비율", "연평균(후)", "매도수"), flush=True)
+          % ("", "세금·수수료 전", "**후**", "깎인 비율", "연평균(후)", "실제체결"), flush=True)
     print("  " + "-" * 84, flush=True)
     for nm, a0, a1, nf in rows:
         cg = ((a1 / START) ** (1 / YRS) - 1) * 100
