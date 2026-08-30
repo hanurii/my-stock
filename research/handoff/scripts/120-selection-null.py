@@ -221,6 +221,10 @@ def main() -> int:
         print("        → 진짜가 **백분위 %.1f%%**  ·  **%s**\n"
               % (rank, "통과" if okL else "미통과"), flush=True)
 
+    (r91.OUT / "120-selection-null.json").write_text(
+        json.dumps(out, ensure_ascii=False, separators=(",", ":")),
+        encoding="utf-8")   # 🚨 M★ «전»에 먼저 저장 — 찍기 버그로 자료를 잃지 않게
+
     print("  **M★** 12칸 중 «몇 칸»이 각자의 동전을 이기는가 (동전 %d세트 «중앙» 기준)" % n_set,
           flush=True)
     for lab, _a, _b, _y in WIN:
@@ -230,7 +234,7 @@ def main() -> int:
             if real[c["nm"]][lab] > fv:
                 w.append(c["nm"])
         out["M"][lab] = {"n_win": len(w), "cells": w, "ok": len(w) > len(cells) / 2}
-        print("        %-10s **%d / 12칸**  %s" % (lab, len(w), len(cells),
+        print("        %-10s **%d / %d칸**  %s" % (lab, len(w), len(cells),
                                                    "✅" if len(w) > len(cells) / 2 else "❌"), flush=True)
 
     L = all(out["L"][l]["ok"] for l in out["L"])
