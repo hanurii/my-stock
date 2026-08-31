@@ -1,13 +1,13 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-08-29T05:46:25.652+09:00",
+  "last_checked": "2026-08-31T10:08:48.145+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 5.24,
-      "display": "5.24배",
+      "value": 5.15,
+      "display": "5.15배",
       "threshold": "10배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "dividend_yield",
       "label": "배당수익률",
-      "value": 2.32,
-      "display": "2.32%",
+      "value": 2.36,
+      "display": "2.36%",
       "threshold": "3.5% 이하",
       "hit": true,
       "tone": "bad"
@@ -24,8 +24,8 @@
     {
       "id": "price_high",
       "label": "주가",
-      "value": 123200,
-      "display": "123,200원",
+      "value": 129200,
+      "display": "129,200원",
       "threshold": "85,000원+ 돌파",
       "hit": true,
       "tone": "bad"
@@ -60,8 +60,8 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 90.67,
-      "display": "90.67$",
+      "value": 90.18,
+      "display": "90.18$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
@@ -72,13 +72,13 @@
       "severity": "bad",
       "type": "dividend_yield",
       "title": "배당수익률 3.5% 이하",
-      "message": "현재 2.32% — 매도 트리거 도달"
+      "message": "현재 2.36% — 매도 트리거 도달"
     },
     {
       "severity": "bad",
       "type": "price_high",
       "title": "주가 85,000원+ 돌파",
-      "message": "현재 123,200원 — 매도 트리거 도달"
+      "message": "현재 129,200원 — 매도 트리거 도달"
     },
     {
       "severity": "warn",
@@ -95,7 +95,7 @@
     {
       "severity": "warn",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 11건 (관찰 신호 2건 포함)",
+      "title": "리스크 키워드 매칭 뉴스 10건 (관찰 신호 2건 포함)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
@@ -115,14 +115,6 @@
       "date": "2026-08-25",
       "title": "러 통신사 \"미국-이란 휴전 합의…공식 발표는 며칠 내\"(상보) - 뉴스1",
       "url": "https://news.google.com/rss/articles/CBMiWEFVX3lxTE10SGIyV1BGdXg2ZzlFQ09XRGhCejI1QlFNVFlGcVdoSXFLano5b2hNT3J6cXd4b0dDNnNwMHVNUUx1c2lFcm5KNU1laGZCVWZZdU9aVkYyNFHSAV5BVV95cUxNZjJwNWl6aVY0RUwwbkNxMGRVcEswcDNUd05hcTlyQlhrYVZpeTRhOUxRMzZZUndKZVQyUWlFYmtIOVR3dERmVTFnd1hCM1BGTk5paXpnT3h2QndYMmp3?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "이란 미국 합의",
-      "date": "2026-08-25",
-      "title": "러 통신사 ‘미국·이란 휴전합의’ 보도…“며칠 내 발표” - 채널A",
-      "url": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE45SjhiSWx4Vi16LW9xcG9yNlhrNFZ5Zm9jeGVoVTNtUUdfbEhSUC1Sa1dxZlFkODhuYTZmeGY2NHR1MWU1bTFOb2gxa05pb1ExX0lTeV9odGRoaVBwTlHSAWNBVV95cUxNclFmcllRTnVBYTFtZ3dZeHhvZUtkMjU5ci1GUm0xTjNaOUZDcDg1clZSZ0NTdFJxN0thQ3Q3eHNnQmNndnNibFFRVjNsenZUR21mZzAteHdkUW1nNDVGQmpmZFE?oc=5",
       "severity": "info",
       "signals": []
     },
@@ -170,17 +162,9 @@
     },
     {
       "keyword": "중동 긴장 완화",
-      "date": "2026-08-25",
-      "title": "\"미, 중동 대사관에 외교관 복귀 준비\"…긴장 완화 신호? - 연합뉴스TV",
-      "url": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTFBQSC1CSjZ4TVpJT2oxYTVLa3JKYXpqTldjc3gxRWNaOXB1VUlBZ3J3THd3SVZBQlZUNVN6ZzItSkhhaTJuOGRDSExFNDhOQmdCUjVnbkJxaTZ0NF9sWm94Nm5ZTjhnX0k?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-08-25",
-      "title": "중동 긴장 완화에 뉴욕증시 상승 - MBC 뉴스",
-      "url": "https://news.google.com/rss/articles/CBMiekFVX3lxTE9NNUR1Nl9ZTmZOcHotR0lXQ0FGM1ZEdExPZHZ5cllsQjZndEM0NTA4ODhyc2lWbFFPRTg4eG9WU1M2bm0zcndoX2s4NzJhalotMnhja29Ya1FFLWF5aGhqdnJ0MXdpR1dEaFF4N0hKVmdlWFJqT29MWFdR0gF6QVVfeXFMUE1SUEZia3VQN29rVEN6OUdfU0JVcHBCeXVLS0I4MFhpVXhaMzdkMEFOQ2thUTdTTnRNMHRGUkx5dktURlo4RDY0Z094eGxyX3E5M0E1b2o5QlAzOUllRzBaVlJmMFhLUWlWLWtpMV9HeGV5LUpZdVpiNUE?oc=5",
+      "date": "2026-08-27",
+      "title": "백악관 “미·이란 협상 없어”…카타르, 중동 긴장 완화 노력 - VOA 한국어 홈페이지",
+      "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE44bWhjMHhYZ0xyLUU4VGFZQ2k5NGpPUVpkMExZUExvY3BhaWF6U1ZEdGJEaGtmcUJaaGtoSm9yN09xQXZhZl81aFRmVGhndWNJR0RycURySEJtcm5GODVMa1pndkR0Z3Z2WTA3VtIBb0FVX3lxTE50b3dTdk5sQXRuYmo5Z3dmVF8tdGhfVldTV0UxaHlrQVJvY0VFMVkwc2FQRnNnSWdJaEZuZFZ1R0VUMjhaUHY2cGxrOHNzZWgtR091VXBjN1RacnRBUlpjbHdPb3NHNlVVMFhQUXAwOA?oc=5",
       "severity": "info",
       "signals": []
     },
@@ -191,6 +175,14 @@
       "url": "https://news.google.com/rss/articles/CBMiZEFVX3lxTFBxdVJJTzhDU1ZtZ2RQUG84SFZQUVhDakowa0JRZG0xSHpqRTU0OUE4eGl3eU51bEFsLURjX01SeFZ6SWlNOTRMVWlFTFR1dDNvcjhIU3VtUXVIRVJTU0x0aUZnMWw?oc=5",
       "severity": "info",
       "signals": []
+    },
+    {
+      "keyword": "중동 긴장 완화",
+      "date": "2026-08-25",
+      "title": "\"미, 중동 대사관에 외교관 복귀 준비\"…긴장 완화 신호? - 연합뉴스TV",
+      "url": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTFBQSC1CSjZ4TVpJT2oxYTVLa3JKYXpqTldjc3gxRWNaOXB1VUlBZ3J3THd3SVZBQlZUNVN6ZzItSkhhaTJuOGRDSExFNDhOQmdCUjVnbkJxaTZ0NF9sWm94Nm5ZTjhnX0k?oc=5",
+      "severity": "info",
+      "signals": []
     }
   ],
   "sources": [
@@ -199,7 +191,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 88.25 USD (2026-08-28, 7일 평균 90.67)",
+      "label": "Brent 원유 종가 89.3 USD (2026-08-31, 7일 평균 90.18)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
