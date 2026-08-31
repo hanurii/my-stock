@@ -244,7 +244,10 @@ GATE_NEAR_ALLOW: set = set()
 #    `open_until` 에 막힌 것까지 **방아쇠가 당겨진 전수**를 남겨야 오프라인이 하네스를 재현한다.
 EMIT_PATHS = None              # 경로 파일 경로(None 이면 안 낸다)
 EMIT_WARMUP = False            # 진입 «전» 창(pre_*)과 거래량(v)을 덧붙일까 — 기본 «끔»
-WARMUP_DAYS = 250              # 진입 «전» 몇 봉을 붙일까 (200일선·52주고가·VCP 전부 섬)
+WARMUP_DAYS = 400              # 진입 «전» 몇 «거래일»을 붙일까.
+                               # 🚨 250 이 아니다 — 200일선이 «4~5개월 상승 중»(294봉)과
+                               #    원전 베이스 최대 «65주»(325봉)를 담으려면 >=325 여야 한다.
+WARM_DAYS = None               # 시계열을 진입 «전» 며칠부터 실을까(달력일). None = 옛 규칙
 PATH_DAYS = 250                # 최대 보유 기간(옛 방법충실 백테스트와 같게)
 ARM = "pattern"                # "pattern" | "gate"
 GATE_PAT = "GATE"
@@ -292,7 +295,7 @@ def run(start: str, end: str, step: int) -> dict:
     #    만들 수 없어** 창 앞부분이 통째로 죽는다 — 실측: 미국 전체 실행에서
     #    **평가 0인 날 103일 · 후보 0인 날 125일(첫 후보 2021-07-30)**.
     #    한국은 `--series pdata` 라 430을 받아 첫날부터 정상이었다. **두 시장 비대칭.**
-    warm_days = 430 if (SERIES_SOURCE == "pdata" or MARKET == "us") else 140
+    warm_days = WARM_DAYS or (430 if (SERIES_SOURCE == "pdata" or MARKET == "us") else 140)
     warm = (datetime.strptime(start, "%Y-%m-%d") - timedelta(days=warm_days)).strftime("%Y-%m-%d")
     if MARKET == "us":
         global _US_CACHE
@@ -433,6 +436,9 @@ def run(start: str, end: str, step: int) -> dict:
                                          for x in s["closes"][_ps:ni]]
                         _rec["pre_v"] = [None if x is None else round(x, 2)
                                          for x in _vol[_ps:ni]]
+                        # 실제로 «몇 봉» 붙었나 — 요구(WARMUP_DAYS)보다 짧을 수 있다.
+                        # 🚨 짧다고 후보를 «빼지 않는다»(두뇌 세션 확정). 세기만 한다.
+                        _rec["pre_n"] = len(_rec["pre_d"])
                         # 진입 «후» 거래량 — **청산 규칙 전용**이다.
                         # 🚨 진입 특징에는 «안 넘긴다»(다음 판 사전등록 첫 줄).
                         #    장 시작 «전» 예약 지정가라 돌파일 거래량은 주문 시점에 없는 값이다.
@@ -513,7 +519,9 @@ def run(start: str, end: str, step: int) -> dict:
             # 🚨 이 문구가 미국 실행에도 «한국 것»으로 박혀 있었다 — 오늘 세 번째
             #    「라벨은 맞는데 내용이 다른」 사고와 같은 종류다. 시장별로 갈라 적는다.
             "market": MARKET,
-            "warm_days": (430 if (SERIES_SOURCE == "pdata" or MARKET == "us") else 140),
+            "warm_days": (WARM_DAYS
+                          or (430 if (SERIES_SOURCE == "pdata" or MARKET == "us") else 140)),
+            **({"warmup_bars": WARMUP_DAYS} if EMIT_WARMUP else {}),
             "gate_tie": GATE_TIE,
             "universe": ("pdata point-in-time (상장폐지 포함)" if MARKET == "kr"
                          else "Sharadar SEP point-in-time (상장폐지 포함 · 기본판)"),
@@ -565,6 +573,8 @@ def main():
                     help="관문만 팔의 동점 규칙. strict=동점 진입 없음(16번 β1 짝 · 헤드라인) "
                          "· ge=동점에도 진입(패턴 팔과 규칙 일치 · 항상 보고하는 민감도). "
                          "🚨 둘 다 무조건 돌린다 — 결과를 보고 고르지 않는다.")
+    ap.add_argument("--warm-days", type=int, default=0,
+                    help="시계열을 시작일 «전» 며칠부터 실을까(달력일). 0 = 옛 규칙(us/pdata 430)")
     ap.add_argument("--emit-warmup", action="store_true",
                     help="진입 «전» 창 pre_d/o/h/l/c/v 와 진입 «후» 거래량 v 를 «덧붙인다». "
                          "기본 끔 — 켜도 기존 d/o/h/l/c 는 한 글자도 안 바뀐다")
@@ -578,12 +588,14 @@ def main():
     SERIES_SOURCE = a.series
     TARGET_PCT, STOP_PCT = a.target, a.stop
     global MARKET, US_VARIANT, US_USD_KRW, US_LIMIT, ARM, GATE_TIE, EMIT_PATHS, EMIT_WARMUP
+    global WARM_DAYS
     ARM, GATE_TIE = a.arm, a.gate_tie
     # 🚨 **경로 파일 «경로»를 담는다.** 예전엔 `True`(불리언)였는데 스트리밍 싱크가
     #    이 값으로 사이드카 이름을 만들면서 저장소 루트에 `True.paths.jsonl` 을
     #    쓰는 사고가 났다(2026-08-24). 변수 이름이 「PATHS」인데 값이 불리언이었다.
     EMIT_PATHS = a.out if a.emit_paths else None
     EMIT_WARMUP = bool(a.emit_warmup)
+    WARM_DAYS = a.warm_days or None
     MARKET, US_VARIANT = a.market, a.us_variant
     US_USD_KRW, US_LIMIT = a.usd_krw, (a.us_limit or None)
     GATE_NEAR_ALLOW = {"off": set(), "ma": {"1", "5"}, "ma+high": {"1", "5", "7"}}[a.gate_near]
