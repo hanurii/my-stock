@@ -178,7 +178,7 @@ def main() -> int:
     # ── ★ 핵심 판정 — 139 가 적은 「−71.4%」가 «분포의 어디»인가
     if base_all:
         base = st.median(base_all)
-        print("\n  ★ **139 의 「현행 대비」를 «분포»로 다시 적으면** (기준 = 100% 칸 중앙 %.0f만)"
+        print("\n  ★ **139 의 「현행 대비」를 «분포»로 다시 적으면** (기준 = 100%% 칸 중앙 %.0f만)"
               % base, flush=True)
         for k in ("50%", "25%", "10%", "5%"):
             v = sorted(rows.get(k) or [])
