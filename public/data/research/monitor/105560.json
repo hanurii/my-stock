@@ -1,13 +1,13 @@
 {
   "code": "105560",
   "name": "KB금융",
-  "last_checked": "2026-08-31T20:58:20.484+09:00",
+  "last_checked": "2026-09-01T01:50:12.769+09:00",
   "metrics": [
     {
       "id": "pbr",
       "label": "PBR",
-      "value": 1.08,
-      "display": "1.08배",
+      "value": 1.09,
+      "display": "1.09배",
       "threshold": "1.1배 돌파",
       "hit": false,
       "tone": "warn"
@@ -15,8 +15,8 @@
     {
       "id": "pbr_premium_pp",
       "label": "4대 지주 평균 대비 PBR 프리미엄",
-      "value": 0.29,
-      "display": "0.290pp",
+      "value": 0.3,
+      "display": "0.300pp",
       "threshold": "+0.20pp 이상",
       "hit": true,
       "tone": "bad"
@@ -99,13 +99,13 @@
       "severity": "warn",
       "type": "pbr",
       "title": "PBR 임계 근접",
-      "message": "현재 1.08배 (임계 1.1배 돌파)"
+      "message": "현재 1.09배 (임계 1.1배 돌파)"
     },
     {
       "severity": "bad",
       "type": "pbr_premium_pp",
       "title": "4대 지주 평균 대비 PBR 프리미엄 +0.20pp 이상",
-      "message": "현재 0.290pp — 매도 트리거 도달"
+      "message": "현재 0.300pp — 매도 트리거 도달"
     },
     {
       "severity": "bad",
