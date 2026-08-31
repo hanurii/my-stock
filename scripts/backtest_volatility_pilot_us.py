@@ -243,6 +243,8 @@ GATE_NEAR_ALLOW: set = set()
 #    (실측: 손절 −10% 3,776건 vs −5% 5,074건.) 그래서 **실현 진입만 뽑으면 부족하다** —
 #    `open_until` 에 막힌 것까지 **방아쇠가 당겨진 전수**를 남겨야 오프라인이 하네스를 재현한다.
 EMIT_PATHS = None              # 경로 파일 경로(None 이면 안 낸다)
+EMIT_WARMUP = False            # 진입 «전» 창(pre_*)과 거래량(v)을 덧붙일까 — 기본 «끔»
+WARMUP_DAYS = 250              # 진입 «전» 몇 봉을 붙일까 (200일선·52주고가·VCP 전부 섬)
 PATH_DAYS = 250                # 최대 보유 기간(옛 방법충실 백테스트와 같게)
 ARM = "pattern"                # "pattern" | "gate"
 GATE_PAT = "GATE"
@@ -393,7 +395,8 @@ def run(start: str, end: str, step: int) -> dict:
                     _epx = entry_price(pivot, _o)
                     _e = min(ni + PATH_DAYS, len(s["dates"]))
                     n_trig += 1
-                    trig_paths.append({
+                    _vol = s.get("volumes") or [None] * len(s["dates"])
+                    _rec = {
                         "code": c, "pattern": pname, "scan_date": D,
                         "entry_date": s["dates"][ni],
                         "pivot": round(pivot, 4), "entry_price": round(_epx, 4),
@@ -411,7 +414,31 @@ def run(start: str, end: str, step: int) -> dict:
                               for x in s["lows"][ni:_e]],
                         "c": [None if x is None else round(x, 4)
                               for x in s["closes"][ni:_e]],
-                    })
+                    }
+                    if EMIT_WARMUP:
+                        # 🚨 **덧붙이기만 한다.** 위 `d/o/h/l/c` 는 한 글자도 안 건드린다
+                        #    (`d[0] == entry_date` 를 저장소 «전부»가 전제한다).
+                        # 🚨 `pre_*` 는 **진입 «전»** 창이다. 마지막 봉이 `scan_date` 여야 한다
+                        #    — 신호는 D 에 나고 진입은 D 의 «다음» 거래일(ni)이기 때문이다.
+                        _ps = max(0, ni - WARMUP_DAYS)
+                        _rec["pre_d"] = s["dates"][_ps:ni]
+                        _rec["pre_o"] = [None if x is None else round(x, 4)
+                                         for x in (s.get("opens")
+                                                   or [None] * len(s["dates"]))[_ps:ni]]
+                        _rec["pre_h"] = [None if x is None else round(x, 4)
+                                         for x in s["highs"][_ps:ni]]
+                        _rec["pre_l"] = [None if x is None else round(x, 4)
+                                         for x in s["lows"][_ps:ni]]
+                        _rec["pre_c"] = [None if x is None else round(x, 4)
+                                         for x in s["closes"][_ps:ni]]
+                        _rec["pre_v"] = [None if x is None else round(x, 2)
+                                         for x in _vol[_ps:ni]]
+                        # 진입 «후» 거래량 — **청산 규칙 전용**이다.
+                        # 🚨 진입 특징에는 «안 넘긴다»(다음 판 사전등록 첫 줄).
+                        #    장 시작 «전» 예약 지정가라 돌파일 거래량은 주문 시점에 없는 값이다.
+                        _rec["v"] = [None if x is None else round(x, 2)
+                                     for x in _vol[ni:_e]]
+                    trig_paths.append(_rec)
                 if ARM == "gate" and hi == pivot:
                     n_tie += 1     # 규칙과 무관하게 «동점이 몇 건인지»는 항상 센다
                 if ARM == "gate" and GATE_TIE == "strict" and hi <= pivot:
@@ -538,6 +565,9 @@ def main():
                     help="관문만 팔의 동점 규칙. strict=동점 진입 없음(16번 β1 짝 · 헤드라인) "
                          "· ge=동점에도 진입(패턴 팔과 규칙 일치 · 항상 보고하는 민감도). "
                          "🚨 둘 다 무조건 돌린다 — 결과를 보고 고르지 않는다.")
+    ap.add_argument("--emit-warmup", action="store_true",
+                    help="진입 «전» 창 pre_d/o/h/l/c/v 와 진입 «후» 거래량 v 를 «덧붙인다». "
+                         "기본 끔 — 켜도 기존 d/o/h/l/c 는 한 글자도 안 바뀐다")
     ap.add_argument("--emit-paths", action="store_true",
                     help="방아쇠가 당겨진 «전수»의 일별 경로를 산출물에 함께 넣는다"
                          "(38번 오프라인 청산 변형용). `open_until` 에 막힌 것도 포함.")
@@ -547,12 +577,13 @@ def main():
     global GATE_NEAR_ALLOW, ENTRY_STATUSES, SERIES_SOURCE, TARGET_PCT, STOP_PCT
     SERIES_SOURCE = a.series
     TARGET_PCT, STOP_PCT = a.target, a.stop
-    global MARKET, US_VARIANT, US_USD_KRW, US_LIMIT, ARM, GATE_TIE, EMIT_PATHS
+    global MARKET, US_VARIANT, US_USD_KRW, US_LIMIT, ARM, GATE_TIE, EMIT_PATHS, EMIT_WARMUP
     ARM, GATE_TIE = a.arm, a.gate_tie
     # 🚨 **경로 파일 «경로»를 담는다.** 예전엔 `True`(불리언)였는데 스트리밍 싱크가
     #    이 값으로 사이드카 이름을 만들면서 저장소 루트에 `True.paths.jsonl` 을
     #    쓰는 사고가 났다(2026-08-24). 변수 이름이 「PATHS」인데 값이 불리언이었다.
     EMIT_PATHS = a.out if a.emit_paths else None
+    EMIT_WARMUP = bool(a.emit_warmup)
     MARKET, US_VARIANT = a.market, a.us_variant
     US_USD_KRW, US_LIMIT = a.usd_krw, (a.us_limit or None)
     GATE_NEAR_ALLOW = {"off": set(), "ma": {"1", "5"}, "ma+high": {"1", "5", "7"}}[a.gate_near]
