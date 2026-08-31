@@ -142,7 +142,7 @@ def main() -> int:
         per[tg], cut1[tg], cut5[tg] = tot, c1, c5
         desc[tg] = {"share1": st.median(sh1), "wr": st.median(wr),
                     "aw": st.median(aw), "n": st.median(ns)}
-        print("  목표 +%-5.1f  총수익 배수 중앙 %6.2f · 상위1% 제거 %6.2f · 상위5% 제거 %6.2f"
+        print("  목표 +%-5.1f  총수익 배수 중앙 %6.2f · 상위1%% 제거 %6.2f · 상위5%% 제거 %6.2f"
               % (tg, st.median(tot), st.median(c1), st.median(c5)), flush=True)
 
     print("\n" + "=" * 104, flush=True)
@@ -168,6 +168,16 @@ def main() -> int:
         d = st.median(box[DIP]) < st.median(box[LEFT])
         print("   → [%s] +22.5 < +20 인가: **%s**" % (lab, "그렇다" if d else "**아니다**"),
               flush=True)
+
+    # [BG] +30 의 우위도 «같은 꼬리» 위에 서 있는가
+    print("", flush=True)
+    print("### BG - **+30 의 우위가 꼬리를 빼도 남는가** (짝비교)", flush=True)
+    for lab, box in (("그대로", per), ("상위1% 제거", cut1), ("상위5% 제거", cut5)):
+        w = sum(1 for i2 in range(n_seed) if box[30.0][i2] > box[20.0][i2])
+        dd = st.median(box[30.0][i2] - box[20.0][i2] for i2 in range(n_seed))
+        print("   [%s] +30 이 +20 을 이긴 판 **%5.1f%%** (%2d/%d) · 중앙 차이 %+.2f배"
+              % (lab, 100.0 * w / n_seed, w, n_seed, dd), flush=True)
+        res["30>20|" + lab] = 100.0 * w / n_seed
 
     print("\n### BF — **상위 1% 가 이익에서 차지하는 몫**", flush=True)
     for tg in TARGETS:
