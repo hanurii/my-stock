@@ -120,7 +120,12 @@ def main() -> int:
 
     print("=" * 104, flush=True)
     print("140bv — 139 의 ② 열에 «구간»을 붙인다 (부분집합 씨앗 %d판 · %s)"
-          % (reps, "quick 6슬롯" if quick else "20슬롯"), flush=True)
+          % (reps, "슬롯 씨앗 6개(--quick)" if quick else "슬롯 씨앗 20개"), flush=True)
+    print("   🚨 `--quick` 은 `139:88` 의 `n_seed` 를 20 → **6** 으로 낮춘다. 각 칸의 값이"
+          " «슬롯 6판의 중앙»이라 **139 가 보고한 «20판 중앙»과 직접 비교할 수 없다.**",
+          flush=True)
+    print("   → 아래 ㉠ 은 «139 재현»이 아니라 **「패치를 끄면 두 판이 같은가」(결정성)** 관문이다.",
+          flush=True)
     print("   🚨 139 는 `random.Random(9090)` 로 부분집합을 «한 번»만 뽑는다 → 그 축에서 n=1", flush=True)
     print("   임시 OUT %s  (입력 %d장 하드링크 · 쓰는 파일 %s 는 «링크 안 함»)"
           % (tmp, nlink, GUARD[0]), flush=True)
