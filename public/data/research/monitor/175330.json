@@ -1,7 +1,7 @@
 {
   "code": "175330",
   "name": "JB금융지주",
-  "last_checked": "2026-08-31T18:22:13.640+09:00",
+  "last_checked": "2026-08-31T20:58:58.346+09:00",
   "metrics": [
     {
       "id": "pbr",
@@ -33,11 +33,11 @@
     {
       "id": "foreign_net_buy_4w",
       "label": "최근 20거래일 외국인 순매수",
-      "value": 170140,
-      "display": "17만주",
+      "value": -24792,
+      "display": "-2만주",
       "threshold": "순매도 전환",
-      "hit": false,
-      "tone": "good"
+      "hit": true,
+      "tone": "bad"
     },
     {
       "id": "dividend_qoq_change",
@@ -112,12 +112,35 @@
     },
     {
       "severity": "bad",
+      "type": "foreign_net_buy_4w",
+      "title": "최근 20거래일 외국인 순매수 순매도 전환",
+      "message": "현재 -2만주 — 매도 트리거 도달"
+    },
+    {
+      "severity": "bad",
       "type": "dividend_qoq_change",
       "title": "분기배당 QoQ 변화율 동결 또는 감소",
       "message": "현재 -45.2% — 매도 트리거 도달"
+    },
+    {
+      "severity": "warn",
+      "type": "news_keyword_hit",
+      "title": "리스크 키워드 매칭 뉴스 1건 (관찰 신호 1건 포함)",
+      "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
-  "news_hits": [],
+  "news_hits": [
+    {
+      "keyword": "지방은행 부실",
+      "date": "2026-08-31",
+      "title": "늘어난 부실 못 따라가는 충당금…지방은행 손실흡수력 1년 새 일제히 하락 - 녹색경제신문",
+      "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTFBfbjdsU1JPWHM0eVA5X1BCWDl2RXM3SjlQbW1nSmFpZEFyb0ZkNm9SVlJpM0F5WUY4Tnk3ZFFLcERqbU5oM2NLUlB1a0lVeXFHZTAwY3ZxRlRXbWxlYUdpeDdoX0tvTFVl?oc=5",
+      "severity": "warn",
+      "signals": [
+        "하락"
+      ]
+    }
+  ],
   "sources": [
     {
       "label": "PER/PEG/PBR 스코어",
@@ -133,7 +156,7 @@
     },
     {
       "label": "외국인 순매수 누적 (20일)",
-      "ref": "네이버 dealTrendInfos / history 2026-08-28"
+      "ref": "네이버 dealTrendInfos / history 2026-08-31"
     },
     {
       "label": "최근 분기 순이익 (2026-H1)",
@@ -150,6 +173,10 @@
     {
       "label": "분기 ROE 연환산 (2026-H1 · 7.18%)",
       "ref": "DART 20260814002218 (fnlttSinglAcntAll: 자본총계+분기순이익)"
+    },
+    {
+      "label": "뉴스 RSS",
+      "ref": "news.google.com/rss (7일)"
     }
   ]
 }
