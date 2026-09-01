@@ -1,13 +1,13 @@
 {
   "code": "105560",
   "name": "KB금융",
-  "last_checked": "2026-09-01T19:37:33.136+09:00",
+  "last_checked": "2026-09-01T23:02:07.534+09:00",
   "metrics": [
     {
       "id": "pbr",
       "label": "PBR",
-      "value": 1.09,
-      "display": "1.09배",
+      "value": 1.07,
+      "display": "1.07배",
       "threshold": "1.1배 돌파",
       "hit": false,
       "tone": "warn"
@@ -15,8 +15,8 @@
     {
       "id": "pbr_premium_pp",
       "label": "4대 지주 평균 대비 PBR 프리미엄",
-      "value": 0.3,
-      "display": "0.300pp",
+      "value": 0.27,
+      "display": "0.270pp",
       "threshold": "+0.20pp 이상",
       "hit": true,
       "tone": "bad"
@@ -24,8 +24,8 @@
     {
       "id": "foreign_ratio",
       "label": "외국인 지분율",
-      "value": 79.26,
-      "display": "79.26%",
+      "value": 79.25,
+      "display": "79.25%",
       "threshold": "70% 이하",
       "hit": false,
       "tone": "good"
@@ -99,13 +99,13 @@
       "severity": "warn",
       "type": "pbr",
       "title": "PBR 임계 근접",
-      "message": "현재 1.09배 (임계 1.1배 돌파)"
+      "message": "현재 1.07배 (임계 1.1배 돌파)"
     },
     {
       "severity": "bad",
       "type": "pbr_premium_pp",
       "title": "4대 지주 평균 대비 PBR 프리미엄 +0.20pp 이상",
-      "message": "현재 0.300pp — 매도 트리거 도달"
+      "message": "현재 0.270pp — 매도 트리거 도달"
     },
     {
       "severity": "bad",
@@ -132,7 +132,7 @@
     },
     {
       "label": "4대 지주 평균 PBR 비교 (3종목)",
-      "ref": "peers: 086790, 316140, 055550 / avg 0.79"
+      "ref": "peers: 086790, 316140, 055550 / avg 0.8"
     },
     {
       "label": "분기 배당 결정 (반기보고서 (2026.06))",
