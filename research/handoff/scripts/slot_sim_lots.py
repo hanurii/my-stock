@@ -52,7 +52,8 @@ def _res(t, mask):
 
 def sim_lots(trades, risk=0.02, cap=0.20, seed=0, slots=5,
              reserve=False, fill_rule="truncate", cash_rule="per_slot",
-             use_cash=True, pick=None, order_fn=None, size_fn=None, recent_n=5):
+             use_cash=True, pick=None, order_fn=None, size_fn=None, recent_n=5,
+             ev_fn=None):
     # `size_fn(recent, seed, t) -> 배수` 를 주면 **거래 크기**를 직전 청산 결과로 정한다(원전 사다리).
     #   원전: 「1/4 포지션으로 시작, 성공 거래의 연속선상에서 «두 배씩» 늘린다.
     #          손실 나는 종목은 매도해서 비중을 줄인다」 (99 사전등록 §1-1)
@@ -231,8 +232,13 @@ def sim_lots(trades, risk=0.02, cap=0.20, seed=0, slots=5,
             share_cap = (max(0.0, cash) / free) if (cash_rule == "per_slot"
                                                     and free > 0) else None
             _ok = order_fn if order_fn is not None else order_key
-            for t in sorted(byday[d], key=lambda x: _ok(seed, x)):
+            # 🚨 146 — «못 산 사건»을 적는 훅. ev_fn 이 None 이면 옛 동작 «그대로»
+            _cands = sorted(byday[d], key=lambda x: _ok(seed, x))
+            for _ci, t in enumerate(_cands):
                 if len(held) >= slots:
+                    if ev_fn is not None:
+                        # ㉠ — 자리가 차서 «남은 후보 전부»가 매수 반복문에 «닿지도» 못한다
+                        ev_fn("A", d, _cands[_ci:], free, held)
                     break
                 sf_ = t.get("stop_frac") or 0.10
                 lim = min(eq * risk / sf_, eq * cap)
@@ -251,15 +257,24 @@ def sim_lots(trades, risk=0.02, cap=0.20, seed=0, slots=5,
                 need = lim if reserve else lim * sh0
                 avail = cash if not use_cash else (
                     cash if share_cap is None else min(cash, share_cap))
+                _tr = False
                 if use_cash and need > avail + 1e-12:
                     if fill_rule == "block":
                         n_blocked_cash += 1
+                        if ev_fn is not None:
+                            ev_fn("B", d, [t], free, held)
                         continue
                     need = avail                     # 살 수 있는 만큼만
                     n_trunc += 1
+                    _tr = True
                 if need <= 1e-12:
                     n_blocked_cash += 1
+                    if ev_fn is not None:
+                        ev_fn("B", d, [t], free, held)   # ㉡ — 현금이 사실상 0
                     continue
+                if ev_fn is not None:
+                    # ㉢ = 잘려서 «조금 샀다»(매수다) · BUY = 온전히 샀다
+                    ev_fn("C" if _tr else "BUY", d, [t], free, held)
                 target = need if reserve else need / sh0
                 nomw[id(t)] = target / eq if eq > 0 else 0.0
                 mask = [True] * (len(spec["shares"]) - 1)
@@ -276,6 +291,8 @@ def sim_lots(trades, risk=0.02, cap=0.20, seed=0, slots=5,
                      "resolve_date": r0["resolve_date"], "result": r0["result"]}
                 held[id(t)] = h
                 cash -= (target if reserve else target * sh0)
+        if ev_fn is not None:
+            ev_fn("DAY", d, [], slots - len(held), held)   # 자리-일 회계
         conc.append(len(held))
         curve.append((d, eq))
         peak = max(peak, eq)
