@@ -9,6 +9,7 @@
 from __future__ import annotations
 import importlib.util as _u
 import json
+import math
 import statistics as st
 import sys
 from collections import Counter
@@ -193,9 +194,34 @@ def main():
           % (win_pre, n_seed, 100.0 * win_pre / n_seed, d_pre))
     print("**세후**              %d / %d = **%.1f%%**  ·  중앙 차이 **%+.0f만**"
           % (win_post, n_seed, 100.0 * win_post / n_seed, d_post))
-    print("                      →  세금이 «더한» 몫 **%+.1f%%p**"
-          % (100.0 * (win_post - win_pre) / n_seed))
     print("```")
+    print("")
+    print("### ⛔ **「+%.1f%%p 를 세금이 더했다」로 적지 «않는다»** — 짝이라 McNemar 다"
+          % (100.0 * (win_post - win_pre) / n_seed))
+    print("")
+    b = sum(1 for i in range(n_seed)
+            if pre[30.0][i] > pre[20.0][i] and not post[30.0][i] > post[20.0][i])
+    cN = sum(1 for i in range(n_seed)
+             if not pre[30.0][i] > pre[20.0][i] and post[30.0][i] > post[20.0][i])
+    nd = b + cN
+    pmc = (min(1.0, 2.0 * sum(math.comb(nd, k) for k in range(0, min(b, cN) + 1)) / 2 ** nd)
+           if nd else 1.0)
+    print("```")
+    print("**같은 씨앗 60개**라 두 수는 «짝»이다 — 비율의 차가 아니라 **«뒤집힌 씨앗»**을 센다")
+    print("   세전 이김 → 세후 짐  **%d판**   ·   세전 짐 → 세후 이김  **%d판**   (불일치 %d판)"
+          % (b, cN, nd))
+    print("   **McNemar 양측 p = %.3f**   →   %s" % (pmc, "🚨 **못 가린다**" if pmc >= 0.05 else "✅ 가림"))
+    print("   ★ 불일치가 어떤 조합이어도 상한이 있다 — (3,0) **0.250** · (4,1) 0.375 · (5,2) 0.453 …")
+    print("     **0.05 «근처»에도 못 간다.** 자료를 «한 줄도 더 안 보고» 알 수 있었다(149 와 같은 수법)")
+    print("```")
+    print("")
+    print("> ### ✅ **적을 말: 「세후가 세전보다 «%d판» 더 이겼다 — «판 수가 적어» 가릴 수 없다」**"
+          % (win_post - win_pre,))
+    print("")
+    pbin = sum(math.comb(n_seed, k) for k in range(win_pre, n_seed + 1)) / 2.0 ** n_seed
+    print("> ### ✅ **서는 것: 「«세금 전»에도 +30 이 +20 을 이긴다 — %d/%d, 귀무 p = %.2g」**"
+          % (win_pre, n_seed, pbin))
+    print("> ### **⇒ 이게 154 의 «발견»이다. 세금을 빼도 남는다.**")
     print("")
     print("=" * 104)
     print("## 2. 🚨 **«스위치 하나»가 아니었다 — 갈래가 «셋»이다**(검증 세션)")
@@ -222,6 +248,20 @@ def main():
     print("★★ 「이건 내 가설에 «불리»하니 보수적이다」로 넘긴 자리가 실은 «유리»했다")
     print("★ 검사 — **편향의 «방향»을 적을 때 «부호»를 한 번 더 뒤집어 본다.**")
     print("   **「나에게 «불리»하다」가 제일 검산을 «안» 받는다**(유형 35 의 사촌)")
+    print("```")
+    print("")
+    # ── 🚨 관문 V★ — 파생지표마다 «있을 수 있는 범위»를 코드에 박는다(검증 세션 처방) ──
+    bad = [(tg, st.median(unreal[tg])) for tg in TARGETS
+           if not (0.0 <= st.median(unreal[tg]) <= 100.0)]
+    print("### 🚨 관문 V★ — **파생지표의 «범위»를 코드에 박았다**")
+    print("")
+    print("```")
+    print("「창 끝 미실현 비중」은 **[0, 100]%** 여야 한다 (실현 합은 총 이익을 «못 넘는다»)")
+    for tg in TARGETS:
+        v = st.median(unreal[tg])
+        print("   +%-3.0f  **%.1f%%**   %s" % (tg, v, "✅" if 0.0 <= v <= 100.0 else "🚨 **범위 밖**"))
+    print("⇒ %s" % ("✅ 통과" if not bad else
+                    "🚨 **미통과 — 아래에서 «철회»한다. 맞추지 말고 «왜»부터**"))
     print("```")
     print("")
     print("### 🚨🚨 **§2 의 «파생 지표»를 «철회»한다 — 내가 단위를 «또» 틀렸다**")
@@ -256,6 +296,20 @@ def main():
     print("⚠️ **하네스 가정(잰 것 아님)** — ⓐ 공제 %.0f만원이 27년 «내내» 같은 «명목»값" % r111.DEDUCT)
     print("   ⓑ `111:49` **손실 «이월 없음»** — 손실 해는 세금에 «아무 영향도» 없다")
     print("      ⇒ 위 «손실 해» 칸은 **«버려진 손실»의 개수**다")
+    print("```")
+    print("")
+    print("### 🚨 «시사» — **이미 가진 두 수에서 채널 ②의 흔적이 보인다**(검증 세션)")
+    print("")
+    print("```")
+    rr = 100.0 * (1.0 - d_post / d_pre) if d_pre else 0.0
+    print("중앙 차이  세금 전 **%.0f만** → 세후 **%.0f만**  =  **−%.1f%%**" % (d_pre, d_post, rr))
+    print("그런데 세율 RATE = **%.0f%%** 다. 「비례」면 %.0f만이 남아야 하는데 **%.0f만이 «더» 줄었다**"
+          % (r111.RATE * 100, d_pre * (1 - r111.RATE), d_pre * (1 - r111.RATE) - d_post))
+    print("⇒ 세금이 «금액»에서 **+30 을 «더» 때렸다** — 후보 설명이 **채널 ②(공제가 «해마다»)**:")
+    print("   «자주 파는» +20 이 공제를 더 쓴다")
+    print("")
+    print("🚨 **«시사»이지 «측정»이 아니다** — 「중앙의 차」 ≠ 「차의 중앙」이라 비선형 몫이 섞인다.")
+    print("   **«방향»만 말할 수 있다.** 갈라 재려면 `121b.tax_exact`(lsc 포함)로 가야 한다")
     print("```")
     print("")
     print("> ### ✅ **§1 은 «안» 걸린다** — 세금 전(ccv[-1])·세후(taxed_window) 는 «금액 배율»을 안 거치고,")
