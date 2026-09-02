@@ -143,16 +143,23 @@ def main():
 
     fund, ixf = f92a.load()
     ix = {f: i for i, f in enumerate(ixf)}
-    keep = {}
+    keep, grade, jn = {}, {}, {True: 0, False: 0, None: 0}
+    n_all, n_g3 = 0, 0
     for y in sorted(by2):
         keep[y] = []
         for p in by2[y]:
+            n_all += 1
             arq = (fund.get(p["code"]) or {}).get("ARQ") or []
             a = f92a.asof(arq, p["entry_date"]) if arq else None
-            v = (None if (a is None or r102._ord(p["entry_date"]) - r102._ord(a[0]) > r102.STALE_MAX)
-                 else r103.judge(arq, arq.index(a), ix, 1, 2))
+            ok_ = (a is not None
+                   and r102._ord(p["entry_date"]) - r102._ord(a[0]) <= r102.STALE_MAX)
+            v = r103.judge(arq, arq.index(a), ix, 1, 2) if ok_ else None
+            v3 = r103.judge(arq, arq.index(a), ix, 1, 3) if ok_ else None
+            jn[v] = jn[v] + 1
             if v is not False:
                 keep[y].append(p)
+                grade[id(p)] = (v, v3)
+                n_g3 += 1 if v3 is True else 0
 
     def build(mode, al, drop=None):
         """mode: base | A(α 체결) | E(α 도달만 · 피벗 가격) | D(무작위 배제)"""
@@ -377,20 +384,29 @@ def main():
     P("```")
     # ── 부산물 ① — 「브레이크아웃의 «반»은 풀백하거나 그 «아래»」 ────────────
     WINS = (5, 10, 20, None)
-    cnt = {(w, k): 0 for w in WINS for k in ("c", "l")}
-    tot_, plen = 0, []
+    TIERS = (("전부", lambda g: True),
+             ("가속(2항목)", lambda g: g[0] is True),
+             ("가속(3항목·순마진)", lambda g: g[1] is True))
+    cnt = {(tn, w, k): 0 for tn, _f in TIERS for w in WINS for k in ("c", "l")}
+    tot = {tn: 0 for tn, _f in TIERS}
+    plen = []
     for y in sorted(keep):
         for q in keep[y]:
             pv = q.get("pivot")
             if pv is None or len(q["c"]) < 2:
                 continue
-            tot_ += 1
+            g = grade.get(id(q), (None, None))
             plen.append(len(q["c"]) - 1)
-            for w in WINS:
-                c_ = q["c"][1:] if w is None else q["c"][1:w + 1]
-                l_ = q["l"][1:] if w is None else q["l"][1:w + 1]
-                cnt[(w, "c")] += 1 if any(v is not None and v < pv for v in c_) else 0
-                cnt[(w, "l")] += 1 if any(v is not None and v < pv for v in l_) else 0
+            for tn, fn in TIERS:
+                if not fn(g):
+                    continue
+                tot[tn] += 1
+                for w in WINS:
+                    c_ = q["c"][1:] if w is None else q["c"][1:w + 1]
+                    l_ = q["l"][1:] if w is None else q["l"][1:w + 1]
+                    cnt[(tn, w, "c")] += 1 if any(v is not None and v < pv for v in c_) else 0
+                    cnt[(tn, w, "l")] += 1 if any(v is not None and v < pv for v in l_) else 0
+    tot_ = tot["전부"]
     P("")
     P("## 3. 부산물 ① — 원전의 «사실 주장»: **「돌파의 «반»은 풀백하거나 그 «아래»」**")
     P("")
