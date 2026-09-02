@@ -85,9 +85,10 @@ def hold_days(ev):
         if a and b and b > a:
             ds.append((r102._ord(b) - r102._ord(a)))
     if not ds:
-        return (float("nan"),) * 3
+        return (float("nan"),) * 4
     ds.sort()
-    return (st.median(ds), ds[int(len(ds) * 0.75)], ds[int(len(ds) * 0.90)])
+    return (st.median(ds), ds[int(len(ds) * 0.75)], ds[int(len(ds) * 0.90)],
+            ds[int(len(ds) * 0.95)])
 
 
 def classify(cap, q):
@@ -184,7 +185,7 @@ def main():
     for k in ("S", "M", "L"):
         vs = [capv[kk] for kk in lab if lab[kk] == k]
         P("   %s  중앙 **%s M$**  ·  5~95%% %s ~ %s M$"
-          % ({"S": "소형", "M": "중형", "L": "대형"}[k],
+          % ({"S": "하위 1/3", "M": "중간 1/3", "L": "**상위 1/3**"}[k],
              format(int(st.median(vs)), ","),
              format(int(sorted(vs)[int(len(vs) * 0.05)]), ","),
              format(int(sorted(vs)[int(len(vs) * 0.95)]), ",")))
@@ -203,9 +204,11 @@ def main():
     P("   손대는 후보 **%s = %.1f%%**  ·  그중 **대형이 %.1f%%**"
       % (format(nT, ","), 100.0 * nT / len(lab), 100.0 * nL / nT))
     P("")
-    P("★★ ⇒ **② 는 사실상 «「대형주를 «일찍» 판다」 규칙»이다.** 「소형 +40」은 %.1f%% 뿐이라 «거의 안 보인다»"
+    P("★★ ⇒ **② 는 사실상 «「«상위 1/3» 을 «일찍» 판다」 규칙»이다.** 「소형 +40」은 %.1f%% 뿐이라 «거의 안 보인다»"
       % (100.0 * nS / len(lab)))
-    P("★★ ⇒ ③ 도 마찬가지로 사실상 **「대형주를 «늦게» 판다」**이다")
+    P("★★ ⇒ ③ 도 마찬가지로 사실상 **「«상위 1/3» 을 «늦게» 판다」**이다")
+    P("🚨 **「대형」이라는 «말»을 안 쓴다** — 이 칸의 아래 5%가 **655 M$** 다.")
+    P("   **«전체 상장사 기준 상위 1/3»** 이 맞는 이름이다")
     P("")
     P("🚨 **그러므로 «어느 결과가 나와도» 이 문장이 «먼저» 나간다:**")
     P("   「②−⑤ 의 변동은 «구성상» **%.1f%% 가 대형 칸**에서 온다." % (100.0 * nL / nT))
@@ -293,13 +296,15 @@ def main():
     P("```")
     P("")
 
-    out, pre, hd = {}, {}, {}
+    out, pre, hd, win = {}, {}, {}, {}
     for nm, mp in ARMS.items():
         ev = build_ev(lambda p, k, _m=mp: _m[lab[k]])
         rs = run(ev, range(n_seed))
         out[nm] = [acc.account(x) for x in rs]
         pre[nm] = [pretax(x) for x in rs]
         hd[nm] = hold_days(ev)
+        w = [t["masks"][()]["result"] for t in ev]
+        win[nm] = "%.1f%%" % (100.0 * sum(1 for r in w if r == "win") / max(len(w), 1))
         P("  %s — 매수 중앙 %.0f · 보유 중앙 %.0f일"
           % (nm, st.median([a[3] for a in out[nm]]), hd[nm][0]), flush=True)
 
@@ -320,12 +325,12 @@ def main():
             hd5.append(hold_days(ev))
         five.append(tuple(st.mean([r[i] for r in acc5]) for i in range(4)))
         five_pre.append(st.mean(pre5))
-        five_hd.append(tuple(st.mean([h[i] for h in hd5]) for i in range(3)))
+        five_hd.append(tuple(st.mean([h[i] for h in hd5]) for i in range(4)))
         if sd_ % 10 == 0:
             P("    ⑤ 씨앗 %d/%d …" % (sd_, n_seed), flush=True)
     out["⑤흩뜨림"] = five
     pre["⑤흩뜨림"] = five_pre
-    hd["⑤흩뜨림"] = tuple(st.mean([h[i] for h in five_hd]) for i in range(3))
+    hd["⑤흩뜨림"] = tuple(st.mean([h[i] for h in five_hd]) for i in range(4))
     P("  ⑤흩뜨림(배정 %d개 평균) — 매수 중앙 %.0f · 보유 중앙 %.0f일"
       % (NASSIGN, st.median([a[3] for a in five]), hd["⑤흩뜨림"][0]), flush=True)
 
@@ -349,9 +354,9 @@ def main():
                 h5.append(hold_days(ev))
             pv.append(tuple(st.mean([r[i] for r in a5]) for i in range(4)))
             pp.append(st.mean(p5))
-            ph.append(tuple(st.mean([h[i] for h in h5]) for i in range(3)))
+            ph.append(tuple(st.mean([h[i] for h in h5]) for i in range(4)))
         out[pname], pre[pname] = pv, pp
-        hd[pname] = tuple(st.mean([h[i] for h in ph]) for i in range(3))
+        hd[pname] = tuple(st.mean([h[i] for h in ph]) for i in range(4))
         P("  %s(배정 %d개 평균) — 매수 중앙 %.0f" % (pname, NASSIGN,
                                                     st.median([a[3] for a in pv])), flush=True)
 
@@ -360,8 +365,8 @@ def main():
     P("## 1. 다섯 팔 — **세후 총액 중앙**")
     P("=" * 104)
     P("")
-    P("| 팔 | 목표 배정 | **세후**(중앙) | 연 환산 | **세전**(중앙) | 낙폭 | 매수 | **보유일 중앙/P75/P90** |")
-    P("|---|---|---:|---:|---:|---:|---:|---:|")
+    P("| 팔 | 목표 배정 | **세후**(중앙) | 연 환산 | **세전**(중앙) | 낙폭 | 매수 | **보유일 50/75/90/95** | `result`=win |")
+    P("|---|---|---:|---:|---:|---:|---:|---:|---:|")
     desc = {"①현행": "전부 +30", "②원전식": "소 +40 / 중 +30 / 대 +20",
             "③반대": "소 +20 / 중 +30 / 대 +40",
             "⑤흩뜨림": "🚨 균등 1/3 — 주변분포 «다름»",
@@ -371,10 +376,10 @@ def main():
         v = out[nm]
         m = st.median([a[0] for a in v])
         pm = st.median(pre[nm])
-        P("| **%s** | %s | %.0f만 | **%+.2f%%** | %.0f만 | %+.1f%% | %.0f | **%.0f일** |"
+        P("| **%s** | %s | %.0f만 | **%+.2f%%** | %.0f만 | %+.1f%% | %.0f | **%s** | %s |"
           % (nm, desc[nm], m, acc.cagr(m, YRS), pm, st.median([a[1] for a in v]),
              st.median([a[3] for a in v]),
-             "%.0f / %.0f / %.0f" % hd[nm]))
+             "%.0f/%.0f/%.0f/%.0f" % hd[nm], win.get(nm, "—")))
     P("")
     P("🚨 **낙폭은 «세전» 곡선에서, 총액은 «세후»다 — «나누지 마라»**(155 에서 지적받은 자리)")
     P("🚨 **보유일은 «후보» 기준**(체결 여부 «무관»)이라 «묘사»다")
@@ -457,6 +462,40 @@ def main():
     P("⇒ ⛔ 「60판 «전부»에서 ②가 이겼다」를 **«강한 증거»로 못 쓴다**(155 에서 이걸로 셋을 잃었다)")
     P("```")
 
+    P("")
+    P("=" * 104)
+    P("## 3. 🚨🚨 **지수를 «이 판 «안»»에서 다시 잰다** — 세대를 넘는 인용을 «없앤다»")
+    P("=" * 104)
+    P("")
+    r109 = _load("r109", "109-index-stop.py")
+    P("```")
+    P("창 %s ~ %s · 세후(`r124.taxed_window`) · 그냥 보유(1회 매도) · 🏷️ **세대 B**" % (D0, D1))
+    for tk in ("SPY", "QQQ"):
+        d_, c_ = r109.load(tk)
+        cv = [v / c_[0] for v in c_]
+        a0 = acc.r124.taxed_window(d_, cv, {}, 0, len(cv) - 1)
+        P("%-4s 그냥 보유  세후 **%.0f만**  →  연 **%+.2f%%**" % (tk, a0, acc.cagr(a0, YRS)))
+    m1 = st.median([a[0] for a in out["①현행"]])
+    d_, c_ = r109.load("QQQ")
+    cvq = [v / c_[0] for v in c_]
+    q0 = acc.r124.taxed_window(d_, cvq, {}, 0, len(cvq) - 1)
+    P("")
+    P("**①현행(+30) %+.2f%%  −  QQQ %+.2f%%  =  %+.2f%%p**"
+      % (acc.cagr(m1, YRS), acc.cagr(q0, YRS), acc.cagr(m1, YRS) - acc.cagr(q0, YRS)))
+    P("")
+    P("🚨 **왜 «이 판 안»에서 다시 재나** — 세대 A(117~154)와 세대 B(156~)의 차이가 «크다»:")
+    P("   150(세대 A · 스캔최선 +30/−10 · 씨앗 20 · 숏 얹힘)  연 **+9.78%**")
+    P("   156(세대 B · ① 전부 +30 · 씨앗 60 · 숏 «없음»)      연 **%+.2f%%**" % acc.cagr(m1, YRS))
+    P("   155 는 「숏을 빼면 **+0.176%p** 오른다」고 했다 ⇒ 숏만 바뀌었다면 **+9.96%** 여야 한다")
+    P("   ⇒ **세대 차이가 «최소» %.2f%%p** — 헤드라인 격차 1.23%%p 와 **«같은 자릿수»**다"
+      % (9.78 + 0.176 - acc.cagr(m1, YRS)))
+    P("")
+    P("⛔ **그러므로 세대를 넘는 뺄셈은 «못 한다»** — 「−0.68%p」도 「격차가 절반 줄었다」도 «못 쓴다»")
+    P("✅ **대신 QQQ 를 «같은 판 안»에서 재면 그 물음 «자체»가 사라진다**(손잡이를 «없는 자리»로)")
+    P("🚨 **세대 차이 %.2f%%p 는 앞으로 «세대를 넘는 모든 인용»의 «비용»이다 — 적어 둔다**"
+      % (9.78 + 0.176 - acc.cagr(m1, YRS)))
+    P("```")
+    P("")
     json.dump({k: [list(a) for a in v] for k, v in out.items()},
               open(str(r91.OUT / "156-cap-split.json"), "w", encoding="utf-8"),
               ensure_ascii=False, indent=1)
