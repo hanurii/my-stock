@@ -28,11 +28,24 @@ for node in ast.walk(tree):
 #   %% 를 쓰면 그대로 새어 나간다. 위 검사는 %-BinOp 만 보므로 여기를 못 본다.
 fmt_nodes = {id(n.left) for n in ast.walk(tree)
              if isinstance(n, ast.BinOp) and isinstance(n.op, ast.Mod)}
+# 🚨 오탐 둘 — 26-09-02 실측으로 나왔다:
+#   ① 문자열 «자체»가 "%%" 인 것 = «검색어»이지 «출력»이 아니다 (이 파일 스스로가 걸렸다)
+#   ② `.replace("%%", "%")` 로 «이미 우회»한 것 — 출력은 옳다 (147:285 가 그랬다)
+#   ⇒ 둘을 빼지 않으면 «고칠 필요 없는 곳»을 고치게 된다
+repl_args = set()
+for n in ast.walk(tree):
+    if (isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)
+            and n.func.attr == "replace"):
+        for a in n.args:
+            repl_args.add(id(a))
+        if isinstance(n.func.value, ast.Constant):
+            repl_args.add(id(n.func.value))
 leak = 0
 for node in ast.walk(tree):
     if not isinstance(node, ast.Constant) or not isinstance(node.value, str):
         continue
-    if id(node) in fmt_nodes or "%%" not in node.value:
+    if (id(node) in fmt_nodes or id(node) in repl_args
+            or node.value.strip() == "%%" or "%%" not in node.value):
         continue
     leak += 1
     print("  🚨 line %-4d 서식 «안» 걸린 문자열에 %%%% — 그대로 새어 나간다"
