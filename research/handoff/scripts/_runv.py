@@ -15,7 +15,8 @@
 
 ⚠️ 이 감싸개의 «한계»를 먼저 적는다(유형 44·60):
   · ③은 **모듈 수준만** 본다. 함수 «안»의 정의 전 사용은 못 본다
-  · ③은 **분기·반복을 안 본다** — `if` 안에서만 묶이는 이름을 «묶였다»고 본다(위음성 쪽)
+  · ③은 **겹문장(for/if/while/with/try) «안»의 순서를 안 본다** — 그 안의 모든 묶기를
+    «먼저» 인정한다. 오탐 0 을 얻는 대신 「반복문 «안»의 정의 전 사용」은 «못» 잡는다(위음성 쪽)
   · «논리»는 아무것도 안 본다. 통과는 「이 셋으로는 안 틀렸다」일 뿐이다
 """
 from __future__ import annotations
@@ -30,30 +31,72 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 
 
-def undefined_at_module_level(src: str, path: str):
-    """모듈 수준에서 «묶이기 전»에 읽히는 이름들."""
-    tree = ast.parse(src, filename=path)
-    bound: set[str] = set(dir(builtins)) | {"__name__", "__file__", "__doc__"}
-    bad: list[tuple[int, str]] = []
+def _stores(node):
+    """이 노드가 «묶는» 이름들."""
+    out = set()
+    for t in ast.walk(node):
+        if isinstance(t, ast.Name) and isinstance(t.ctx, (ast.Store, ast.Del)):
+            out.add(t.id)
+        elif isinstance(t, ast.alias):
+            out.add((t.asname or t.name).split(".")[0])
+        elif isinstance(t, ast.ExceptHandler) and t.name:
+            out.add(t.name)
+    return out
 
-    def bind(node):
-        for t in ast.walk(node):
-            if isinstance(t, ast.Name) and isinstance(t.ctx, (ast.Store, ast.Del)):
-                bound.add(t.id)
-            elif isinstance(t, (ast.alias,)):
-                bound.add((t.asname or t.name).split(".")[0])
+
+def _prebound(stmt):
+    """«읽기»를 보기 «전»에 묶어야 하는 것 —
+    for 목표 · with as · 내포 표현식 변수 · except as. (안 하면 «오탐»이 난다)"""
+    out = set()
+    for n in ast.walk(stmt):
+        if isinstance(n, (ast.For, ast.AsyncFor)):
+            out |= _stores(n.target)
+        elif isinstance(n, ast.withitem) and n.optional_vars is not None:
+            out |= _stores(n.optional_vars)
+        elif isinstance(n, (ast.ListComp, ast.SetComp, ast.DictComp, ast.GeneratorExp)):
+            for g in n.generators:
+                out |= _stores(g.target)
+        elif isinstance(n, ast.ExceptHandler) and n.name:
+            out.add(n.name)
+        elif isinstance(n, ast.Lambda):
+            out |= {a.arg for a in n.args.args + n.args.posonlyargs + n.args.kwonlyargs}
+            if n.args.vararg:
+                out.add(n.args.vararg.arg)
+            if n.args.kwarg:
+                out.add(n.args.kwarg.arg)
+    return out
+
+
+def undefined_at_module_level(src: str, path: str):
+    """모듈 수준에서 «묶이기 전»에 읽히는 이름들.
+
+    ⚠️ 오탐을 막으려고 for 목표 · with as · 내포 변수 · except as · lambda 인자를
+       «먼저» 묶는다. 그래도 «분기 안에서만» 묶이는 이름은 «묶였다»고 본다(위음성 쪽).
+    """
+    tree = ast.parse(src, filename=path)
+    bound = set(dir(builtins)) | {"__name__", "__file__", "__doc__", "__spec__", "__package__"}
+    bad = []
+    seen = set()
 
     for stmt in tree.body:
-        # 먼저 «읽기»를 본다 — 같은 문장 안의 묶기는 오른쪽이 먼저이므로
-        if not isinstance(stmt, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
-            for n in ast.walk(stmt):
-                if isinstance(n, ast.Name) and isinstance(n.ctx, ast.Load) and n.id not in bound:
-                    bad.append((n.lineno, n.id))
-        # 그 다음 이 문장이 «묶는» 것을 등록
         if isinstance(stmt, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
             bound.add(stmt.name)
-        else:
-            bind(stmt)
+            continue
+        # 🚨 «겹문장»(for/while/if/with/try)은 «안»의 순서를 이 검사가 못 따라간다.
+        #    그래서 그 안의 «모든» 묶기를 «먼저» 인정한다 — 오탐을 없애는 대신
+        #    「반복문 «안»의 정의 전 사용」은 «못» 잡는다(위음성 쪽. 한계에 적었다).
+        COMPOUND = (ast.For, ast.AsyncFor, ast.While, ast.If, ast.With,
+                    ast.AsyncWith, ast.Try, ast.Match) if hasattr(ast, "Match") else (
+                    ast.For, ast.AsyncFor, ast.While, ast.If, ast.With, ast.AsyncWith, ast.Try)
+        local = bound | _prebound(stmt)
+        if isinstance(stmt, COMPOUND):
+            local |= _stores(stmt)
+        for n in ast.walk(stmt):
+            if isinstance(n, ast.Name) and isinstance(n.ctx, ast.Load) and n.id not in local:
+                if (n.lineno, n.id) not in seen:
+                    seen.add((n.lineno, n.id))
+                    bad.append((n.lineno, n.id))
+        bound |= _stores(stmt)
     return bad
 
 
