@@ -313,6 +313,12 @@ def main():
              "🚨 **못 가린다**" if lo <= 0 <= hi else
              ("✅ **«무작위보다 «낫다»»**" if mu > 0 else "⛔ **무작위보다 «나쁘다»**")))
     P("")
+    P("🚨 **점유율 — «재구성» 값이다. 라벨을 단다**")
+    P("   ⛔ 146 의 **94.6%**(직접 회계 · `daylog` 에서 «세었고» 항등식으로 닫힘)와 **맞대면 안 된다**:")
+    P("     ① 분모의 «날 종류» — 146 은 **«거래일»**, 여기는 **«달력일»**")
+    P("     ② 🚨 여기는 `fill_log` 를 **키로 «되찾아»** 셌다 — **키가 «안 맞으면» 그 날이 «조용히» 빠진다**")
+    P("   ✅ 그래도 **«팔 사이» 비교엔 쓸모 있다** — 같은 방식이라 **«편향이 공통»**이다")
+    P("")
     P("🚨 **점유율이 «대안»을 거른다:** ① **%.1f%%** · Ⓐ-30 **%.1f%%** · Ⓓ **%.1f%%**"
       % (occ["①현행(문턱 없음)"], occ["Ⓐ-30 (고정 $30)"], occ[dnm]))
     P("   ⇒ 셋이 «비슷»하다. **「자리가 «비어서»」로는 −4%p 를 «설명 못 한다»**")
@@ -387,6 +393,85 @@ def main():
         for ln in gates.p_informative(mu, sd, n=n_seed)[1]:
             P("   " + ln)
         P("```")
+    # ── 마지막 검사 — 「대체로 «들어온» 거래」가 «더 나빴나» ────────────────
+    P("")
+    P("=" * 104)
+    P("## 3. 🚨 **「대체로 «들어온» 거래」가 «더 나빴나»** (검증 세션이 「제일 값어치 있다」한 검사)")
+    P("=" * 104)
+    P("")
+    ND = min(n_seed, 20)
+    P("```")
+    P("Ⓓ 는 매수 **%.0f** 로 ① 의 **%.0f** 와 «거의 같은데»도 «제일 나쁘다»"
+      % (st.median([a[3] for a in out[dnm]]), st.median([a[3] for a in base])))
+    P("⇒ **«대체해 들어온 것»이 «더 나빴다»는 뜻인가?  «재서» 답한다**")
+    P("")
+    P("🚨 라벨 — **씨앗 %d 판 · Ⓓ 배정 «0번» 하나**만 쓴다(«묘사»다. 판정 아님)" % ND)
+
+    def tret(t):
+        m = t["masks"][()]
+        return sum(fr * (px / t["entry_px"] - 1.0) for _d, fr, px in (m.get("exits") or []))
+
+    byy = {}
+    for y, p, t, u in cands:
+        byy.setdefault(y, []).append((p, t, u))
+    ncut = {y: sum(1 for p, _t, u in v
+                   if not ARMS["Ⓐ-30 (고정 $30)"](u, p["entry_date"])) for y, v in byy.items()}
+    ev1 = build_ev(ARMS["①현행(문턱 없음)"])
+    tmap = {(t["scan_date"], t["code"], t["pattern"]): t for t in ev1}
+    lost_r, repl_r = [], []
+    with r91.r41.Cost(*r91.COST):
+        for sd_ in range(ND):
+            rng = random.Random(3_000_000 + sd_ * 1000 + 0)
+            drop = set()
+            for y, v in byy.items():
+                idx = list(range(len(v)))
+                rng.shuffle(idx)
+                for i in idx[:ncut[y]]:
+                    drop.add(id(v[i][0]))
+            evd, cur, ou = [], None, {}
+            for y, p, t, u in cands:
+                if y != cur:
+                    cur, ou = y, {}
+                if id(p) in drop:
+                    continue
+                c = p["code"]
+                if c in ou and p["entry_date"] <= ou[c]:
+                    continue
+                ou[c] = t["masks"][()]["resolve_date"] or p["entry_date"]
+                evd.append(t)
+            x1 = r91.sl.sim_lots(ev1, seed=sd_, slots=r91.SLOTS, risk=r91.RISK, cap=r91.CAP,
+                                 reserve=False, fill_rule="truncate", cash_rule="per_slot")
+            xd = r91.sl.sim_lots(evd, seed=sd_, slots=r91.SLOTS, risk=r91.RISK, cap=r91.CAP,
+                                 reserve=False, fill_rule="truncate", cash_rule="per_slot")
+            k1 = {f[0] for f in x1["fill_log"] if f[1] == "pilot"}
+            kd = {f[0] for f in xd["fill_log"] if f[1] == "pilot"}
+            lost_r += [tret(tmap[k]) for k in (k1 - kd) if k in tmap]
+            repl_r += [tret(tmap[k]) for k in (kd - k1) if k in tmap]
+    if lost_r and repl_r:
+        P("")
+        P("① 에만 있던(«잃은») 거래   **%s** 건 · 평균 **%+.2f%%** · 중앙 %+.2f%%"
+          % (format(len(lost_r), ","), 100 * st.mean(lost_r), 100 * st.median(lost_r)))
+        P("Ⓓ 에만 있던(«대체») 거래   **%s** 건 · 평균 **%+.2f%%** · 중앙 %+.2f%%"
+          % (format(len(repl_r), ","), 100 * st.mean(repl_r), 100 * st.median(repl_r)))
+        P("차(대체 − 잃음)  **%+.2f%%p/거래**" % (100 * (st.mean(repl_r) - st.mean(lost_r))))
+        P("")
+        if st.mean(repl_r) < st.mean(lost_r):
+            P("⇒ ✅ **«대체»가 «더 나빴다»** — 「우리 «순위»에 «정보»가 있다」의 «직접» 증거")
+        else:
+            P("⇒ 🚨 **«대체»가 «안» 나빴다** — 그러면 −3.86%p 는 «다른 데서» 온다. «왜»부터")
+        P("")
+        P("★★ **이 검사가 재는 것은 「후보 풀이 크면 좋다」가 «아니다»** —")
+        P("   순위가 «무작위»였다면 절반을 빼고 나머지로 채워도 **«기대 품질이 같아야»** 한다.")
+        P("   **나빠졌다는 것은 «순위에 «정보»가 있다»는 뜻이다**")
+        P("")
+        P("★ 그리고 이건 **「고르기 일곱 번 실패」와 «모순이 아니라 «짝»»이다:**")
+        P("   140 「선별 우위의 **92%**가 «상승 추세 종목을 고른다»」")
+        P("   146 「자리를 막는 것의 **70.3%**가 «결국 이긴» 종목」")
+        P("   159 Ⓓ **«순위를 흐트러뜨리면 나빠진다»**  ← «반대 방향»에서 «같은 것»")
+        P("   ⇒ **「기존 순위에 «정보가 있다»」 ≠ 「«새 체»를 얹으면 «더» 좋아진다」**")
+        P("     **일곱 번 실패한 건 «후자»이고, Ⓓ 가 보인 건 «전자»다**")
+    P("```")
+
     P("")
     P("```")
     for ln in gates.shared_axis_note(
