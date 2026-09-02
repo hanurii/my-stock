@@ -213,16 +213,17 @@ def main():
             P("  %s — 중앙 %.0f만 · 줄인 거래 %d"
               % (nm, st.median([a[0] for a in out[nm]]), meta[nm]["cut"]), flush=True)
         else:
-            acc_, cuts = [], []
+            acc_, cuts, exs = [], [], []
             for ai in range(n_as):
                 s_ = rand_like(mt, ai)
                 v, m = run(s_, "v1|%s|a%d|n%d" % (nm, ai, n_seed))
                 acc_.append(v)
                 cuts.append(m["cut"])
+                exs.append(m["expo"])
             # 🚨 배정 축을 «평균» — 씨앗마다 배정 10개를 평균해 «한 판»으로 만든다
             out[nm] = [tuple(st.mean(acc_[ai][i][j] for ai in range(n_as)) for j in range(4))
                        for i in range(n_seed)]
-            meta[nm] = {"expo": None, "cut": st.mean(cuts)}
+            meta[nm] = {"expo": None, "cut": st.mean(cuts), "expo_d": exs}
             P("  %s — 중앙 %.0f만 · 줄인 거래 %.0f (배정 %d개 «평균»)"
               % (nm, st.median([a[0] for a in out[nm]]), meta[nm]["cut"], n_as), flush=True)
 
@@ -308,8 +309,28 @@ def main():
         if meta[nm]["expo"] is not None:
             P("   %-32s 노출 **%.1f%%** (① 대비 %+.1f%%p)"
               % (nm, meta[nm]["expo"], meta[nm]["expo"] - meta["①현행"]["expo"]))
-    P("   🚨 Ⓓ·Ⓓ′ 는 «배정 평균»이라 노출을 **«안» 찍었다** — 그 자리는 **«비운다»**")
-    P("   ⇒ ✅ **「이 값으로 «못 정한다」가 «정직»하다**")
+    P("")
+    P("   ✅ **Ⓓ·Ⓓ′ 는 「평균」이 아니라 «배정별 «분포»»로 낸다 — 빈칸을 «채운다»**")
+    P("     (「못 낸다」가 아니라 **「«다른 모양»으로 낼 수 있다」**였다.")
+    P("      🚨 이 둘은 **«주 판정의 «기준»»**이라, 노출을 «모르면» 「노출이 «맞았나」를")
+    P("      «모르는 채» 판정하게 된다)")
+    for nm, _s, _m in ARMS:
+        e = meta[nm].get("expo_d")
+        if e:
+            P("   %-28s 노출 **%.1f ~ %.1f%%** (중앙 **%.1f%%** · ① 대비 %+.1f%%p)"
+              % (nm, min(e), max(e), st.median(e), st.median(e) - meta["①현행"]["expo"]))
+    P("")
+    P("   ⇒ **Ⓐ %.1f%% vs Ⓓ 중앙 %.1f%% (%+.1f%%p)  ·  Ⓒ %.1f%% vs Ⓓ′ 중앙 %.1f%% (%+.1f%%p)**"
+      % (meta["Ⓐ 변동성 «큰» 칸 ×0.5"]["expo"],
+         st.median(meta["Ⓓ 무작위(Ⓐ 와 수 맞춤)"]["expo_d"]),
+         meta["Ⓐ 변동성 «큰» 칸 ×0.5"]["expo"]
+         - st.median(meta["Ⓓ 무작위(Ⓐ 와 수 맞춤)"]["expo_d"]),
+         meta["Ⓒ 거래대금 «하위» ×0.5"]["expo"],
+         st.median(meta["Ⓓ′ 무작위(Ⓒ 와 수 맞춤)"]["expo_d"]),
+         meta["Ⓒ 거래대금 «하위» ×0.5"]["expo"]
+         - st.median(meta["Ⓓ′ 무작위(Ⓒ 와 수 맞춤)"]["expo_d"])))
+    P("   🚨 **문턱은 «여전히» 안 만든다** — 「노출 Δ%p ↔ 성적 Δ%p」 환산이 «안 되기» 때문이다")
+    P("   ✅ **«수»를 적고 「이 값으로 «못 정한다」**로 둔다 — «빈칸»이 아니라 «측정된 미결»이다")
     P("```")
     P("")
     P("```")
