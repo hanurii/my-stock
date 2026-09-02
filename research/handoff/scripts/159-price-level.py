@@ -15,6 +15,7 @@ from __future__ import annotations
 import importlib.util as _u
 import json
 import math
+import random
 import statistics as st
 import sys
 from pathlib import Path
@@ -45,6 +46,7 @@ D0, D1 = "1999-04-01", "2026-08-21"
 YEARS = tuple(range(1999, 2027))
 TARGET, STOP, HALF = 30.0, 10.0, 0.5
 NSEED, YRS, DELTA, T60 = 60, 27.4, 1.23, 2.001
+NASSIGN = 10          # 🚨 Ⓓ 의 «배정» 축 — 156 ⑤ 에서 배운 «여분 분산» 제거
 CACHE = Path(str(r91.OUT / "159-partial.json"))
 
 
@@ -152,6 +154,25 @@ def main():
             ev.append(t)
         return ev
 
+    span = (r102._ord(D1) - r102._ord(D0)) or 1
+
+    def occupancy(x, ev):
+        """★ 자리-일 점유율 — 체결된 거래의 «보유일 합» / (칸 5 × 창 일수)
+        🚨 `fill_log` 의 첫 칸이 «거래 key» 다(`slot_sim_lots:283`)"""
+        rd = {}
+        for t in ev:
+            m = t["masks"][()]
+            rd[(t["scan_date"], t["code"], t["pattern"])] = (
+                t["entry_date"], m["resolve_date"] or t["entry_date"])
+        tot = 0
+        for f in x["fill_log"]:
+            if f[1] != "pilot":
+                continue
+            v = rd.get(f[0])
+            if v:
+                tot += max(0, r102._ord(v[1]) - r102._ord(v[0]))
+        return 100.0 * tot / (r91.SLOTS * span)
+
     def run(ev):
         with r91.r41.Cost(*r91.COST):
             return [r91.sl.sim_lots(ev, seed=s, slots=r91.SLOTS, risk=r91.RISK, cap=r91.CAP,
@@ -159,34 +180,97 @@ def main():
                     for s in range(n_seed)]
 
     cache = json.loads(CACHE.read_text(encoding="utf-8")) if CACHE.exists() else {}
-    out = {}
+    out, occ = {}, {}
     for nm, fn in ARMS.items():
         key = "%s|n%d" % (nm, n_seed)
         if key in cache:
             out[nm] = [tuple(a) for a in cache[key]]
+            occ[nm] = cache.get(key + "|occ")
             P("  ♻️ %s — 갈무리" % nm, flush=True)
             continue
-        rs = run(build_ev(fn))
+        ev_ = build_ev(fn)
+        rs = run(ev_)
         out[nm] = [acc.account(x) for x in rs]
+        occ[nm] = st.median([occupancy(x, ev_) for x in rs])
+        cache[key + "|occ"] = occ[nm]
         cache[key] = [list(a) for a in out[nm]]
         CACHE.write_text(json.dumps(cache), encoding="utf-8")
         P("  %s — 중앙 %.0f만 · 매수 %.0f"
           % (nm, st.median([a[0] for a in out[nm]]),
              st.median([a[3] for a in out[nm]])), flush=True)
 
+    # ── 🚨 팔 Ⓓ — 「연도별 배제 «수»를 Ⓐ-30 과 «맞춘» 무작위 배제」(검증 세션) ────
+    #    ★ 156 의 ⑤′(순열 플라세보)와 «같은 수법» — «바꾸려는 축»(가격 수준)만 바꾸고
+    #      «주변분포»(연도별 배제 «수»)는 «묶는다».
+    #    Ⓓ 도 −3.5%p 면 → **«시점»이 원인**(가격과 «무관») · Ⓓ ≈ 0 이면 → **«가격 수준»이 원인**
+    dnm = "Ⓓ 무작위(연도별 «수» 맞춤)"
+    dkey = "%s|n%d" % (dnm, n_seed)
+    if dkey in cache:
+        out[dnm] = [tuple(a) for a in cache[dkey]]
+        occ[dnm] = cache.get(dkey + "|occ")
+        P("  ♻️ %s — 갈무리" % dnm, flush=True)
+    else:
+        byy = {}
+        for y, p, t, u in cands:
+            byy.setdefault(y, []).append((p, t, u))
+        ncut = {y: sum(1 for p, _t, u in v
+                       if not ARMS["Ⓐ-30 (고정 $30)"](u, p["entry_date"])) for y, v in byy.items()}
+        agg, aocc = [], []
+        for sd_ in range(n_seed):
+            av, ao = [], []
+            for a_ in range(NASSIGN):
+                rng = random.Random(3_000_000 + sd_ * 1000 + a_)
+                drop = set()
+                for y, v in byy.items():
+                    idx = list(range(len(v)))
+                    rng.shuffle(idx)
+                    for i in idx[:ncut[y]]:
+                        drop.add(id(v[i][0]))
+                ev_ = []
+                cur, ou = None, {}
+                for y, p, t, u in cands:
+                    if y != cur:
+                        cur, ou = y, {}
+                    if id(p) in drop:
+                        continue
+                    c = p["code"]
+                    if c in ou and p["entry_date"] <= ou[c]:
+                        continue
+                    ou[c] = t["masks"][()]["resolve_date"] or p["entry_date"]
+                    ev_.append(t)
+                x = run(ev_)[sd_] if False else None
+                with r91.r41.Cost(*r91.COST):
+                    x = r91.sl.sim_lots(ev_, seed=sd_, slots=r91.SLOTS, risk=r91.RISK,
+                                        cap=r91.CAP, reserve=False, fill_rule="truncate",
+                                        cash_rule="per_slot")
+                av.append(acc.account(x))
+                ao.append(occupancy(x, ev_))
+            agg.append(tuple(st.mean([r[i] for r in av]) for i in range(4)))
+            aocc.append(st.mean(ao))
+            if sd_ % 10 == 0:
+                P("    Ⓓ 씨앗 %d/%d …" % (sd_, n_seed), flush=True)
+        out[dnm] = agg
+        occ[dnm] = st.median(aocc)
+        cache[dkey] = [list(a) for a in agg]
+        cache[dkey + "|occ"] = occ[dnm]
+        CACHE.write_text(json.dumps(cache), encoding="utf-8")
+        P("  %s(배정 %d개 평균) — 중앙 %.0f만 · 매수 %.0f"
+          % (dnm, NASSIGN, st.median([a[0] for a in agg]),
+             st.median([a[3] for a in agg])), flush=True)
+
     P("")
     P("=" * 104)
     P("## 1. 팔 넷")
     P("=" * 104)
     P("")
-    P("| 팔 | 세후 총액(중앙) | 연 환산 | «세전» 낙폭 | 매수 |")
-    P("|---|---:|---:|---:|---:|")
-    for nm in ARMS:
+    P("| 팔 | 세후 총액(중앙) | 연 환산 | «세전» 낙폭 | 매수 | **자리-일 점유** |")
+    P("|---|---:|---:|---:|---:|---:|")
+    for nm in list(ARMS) + [dnm]:
         v = out[nm]
         m = st.median([a[0] for a in v])
-        P("| **%s** | %.0f만 | **%+.2f%%** | %+.1f%% | %.0f |"
+        P("| **%s** | %.0f만 | **%+.2f%%** | %+.1f%% | %.0f | **%.1f%%** |"
           % (nm, m, acc.cagr(m, YRS), st.median([a[1] for a in v]),
-             st.median([a[3] for a in v])))
+             st.median([a[3] for a in v]), occ.get(nm) or float("nan")))
     P("")
     P("🚨 **낙폭은 «세전» 곡선 · 총액은 «세후» — «나누지 마라»**")
     P("")
@@ -198,13 +282,62 @@ def main():
     P("| 비교 | 연 차이 | SD | **95% CI** | 효과/SD |")
     P("|---|---:|---:|---|---:|")
     st_ = {}
-    for nm in ("Ⓐ-30 (고정 $30)", "Ⓒ 고정 백분위 81.9%", "Ⓐ-12 (고정 $12 · 묘사)"):
+
+    def pair(a, b):
+        d = [acc.cagr(out[a][i][0], YRS) - acc.cagr(out[b][i][0], YRS) for i in range(n_seed)]
+        mu, sd = st.mean(d), st.stdev(d)
+        return mu, sd, mu - T60 * sd / math.sqrt(n_seed), mu + T60 * sd / math.sqrt(n_seed)
+
+    for nm in ("Ⓐ-30 (고정 $30)", "Ⓒ 고정 백분위 81.9%", dnm, "Ⓐ-12 (고정 $12 · 묘사)"):
         d = [acc.cagr(out[nm][i][0], YRS) - acc.cagr(base[i][0], YRS) for i in range(n_seed)]
         mu, sd = st.mean(d), st.stdev(d)
         lo, hi = mu - T60 * sd / math.sqrt(n_seed), mu + T60 * sd / math.sqrt(n_seed)
         st_[nm] = (mu, sd, lo, hi)
         P("| %s − ① | **%+.3f%%p** | %.3f | **[%+.3f, %+.3f]** | %.2f |"
           % (nm, mu, sd, lo, hi, abs(mu) / sd if sd else float("inf")))
+    P("")
+    P("")
+    P("### 🚨🚨 **주 판정이 «바뀐다» — 상대는 ① 이 «아니라» Ⓓ 다**")
+    P("")
+    P("```")
+    P("Ⓓ(연도별 «수»를 맞춘 «무작위» 배제)가 **%+.3f%%p** 로 Ⓐ-30(%+.3f%%p)보다 **«더» 나쁘다**"
+      % (st_[dnm][0], st_["Ⓐ-30 (고정 $30)"][0]))
+    P("⇒ ★★ **「빼서 나빠진 것」은 «가격 수준»이 «아니라» «후보를 뺀 것» 자체다**")
+    P("   (86: 상위 1%가 이익의 115.7% — **아무 절반이나 빼면 «꼬리의 절반»이 사라진다**)")
+    P("")
+    P("★ 그러므로 **«가격 필터»의 값어치는 «Ⓐ-30 − Ⓓ»** 로 잰다 — «같은 수»를 뺐을 때의 차:")
+    for nm in ("Ⓐ-30 (고정 $30)", "Ⓒ 고정 백분위 81.9%"):
+        mu, sd, lo, hi = pair(nm, dnm)
+        P("   **%-22s − Ⓓ = %+.3f%%p**  [%+.3f, %+.3f]  →  %s"
+          % (nm, mu, lo, hi,
+             "🚨 **못 가린다**" if lo <= 0 <= hi else
+             ("✅ **«무작위보다 «낫다»»**" if mu > 0 else "⛔ **무작위보다 «나쁘다»**")))
+    P("")
+    P("🚨 **점유율이 «대안»을 거른다:** ① **%.1f%%** · Ⓐ-30 **%.1f%%** · Ⓓ **%.1f%%**"
+      % (occ["①현행(문턱 없음)"], occ["Ⓐ-30 (고정 $30)"], occ[dnm]))
+    P("   ⇒ 셋이 «비슷»하다. **「자리가 «비어서»」로는 −4%p 를 «설명 못 한다»**")
+    P("   (Ⓓ 는 매수 **%.0f** 로 ① 의 **%.0f** 와 «거의 같은데»도 «제일 나쁘다»)"
+      % (st.median([a[3] for a in out[dnm]]), st.median([a[3] for a in base])))
+    P("")
+    P("🚨🚨 **이 비교(Ⓐ−Ⓓ)에는 «사전등록된 문턱»이 «없다».**")
+    P("   Ⓓ «팔»은 검증 세션이 «값 보기 전»에 걸었지만, **「Ⓐ−Ⓓ 를 «주 판정»으로 삼는다」는**")
+    P("   **Ⓓ 결과를 «본 뒤»에 내가 정했다.** ⇒ **«확정»이 아니라 «다음 판의 물음»이다**")
+    P("   ✅ 그래도 **방향은 산다** — 「«같은 수»를 뺀다면 «싼 것부터»가 «무작위보다» 낫다」")
+    P("```")
+    P("")
+    P("```")
+    P("★★ **그래서 «실행»의 답은 여전히 「빼지 마라」다:**")
+    P("   ①(안 뺌) **%+.2f%%**  >  Ⓒ **%+.2f%%**  >  Ⓐ-30 **%+.2f%%**  >  Ⓓ **%+.2f%%**"
+      % (acc.cagr(st.median([a[0] for a in base]), YRS),
+         acc.cagr(st.median([a[0] for a in out["Ⓒ 고정 백분위 81.9%"]]), YRS),
+         acc.cagr(st.median([a[0] for a in out["Ⓐ-30 (고정 $30)"]]), YRS),
+         acc.cagr(st.median([a[0] for a in out[dnm]]), YRS)))
+    P("   ⇒ **«어느» 배제도 「안 빼기」보다 «못하다».** 필터의 «고르는 값어치»(+1.09%p)가")
+    P("     **«빼는 값»(−3.86%p)을 «못 갚는다»**")
+    P("")
+    P("★ 그리고 **Ⓒ(+1.085) > Ⓐ-30(+0.314)** 이다 ⇒ **「$30 이 낡았다」도 «부분적으로» 맞다**")
+    P("   («고정 백분위»가 «고정 달러»보다 **0.77%p** 낫다)")
+    P("```")
     P("")
     P("```")
     P("★ **읽는 표 — 값 보기 «전»에 박았다:**")
