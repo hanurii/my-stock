@@ -97,7 +97,7 @@ def main() -> int:
     allf = [v for x in ser.values() for v in x["f"]]
     over = [v for v in allf if abs(v) > 31.0]
     rawover = sum(1 for _c, _d, raw, _f in rows if abs(raw) > 31.0)
-    print("\n  ★ **더 엄한 자** — `fltRt` 가 일일 제한 ±30%% 를 넘는 날:", flush=True)
+    print("\n  ★ **더 엄한 자** — `fltRt` 가 일일 제한 ±30% 를 넘는 날:", flush=True)
     print("     전체 %d 값 중 **%d건 (%.4f%%)**  ·  같은 의심일의 «원시» 비율은 %d건이 넘는다"
           % (len(allf), len(over), 100.0 * len(over) / max(1, len(allf)), rawover),
           flush=True)
@@ -154,7 +154,7 @@ def main() -> int:
         for code, dt, a, b, r in sorted(bad, key=lambda x: -x[4])[:8]:
             print("    %-9s %-12s A축 %.4f · 경로 %.4f · 차 **%.1f%%** (배수 %.2f)"
                   % (code, dt, a, b, r, a / b), flush=True)
-    print("\n  ★ 89 첫 판(오염)에서는 **9.87%%** 가 2%% 넘게 어긋났다.", flush=True)
+    print("\n  ★ 89 첫 판(오염)에서는 **9.87%** 가 2% 넘게 어긋났다.", flush=True)
     print("    지금 %.2f%% 면 축 수정이 «먹었다».  여전히 크면 안 먹은 것이다."
           % (100.0 * len(bad) / n_cmp), flush=True)
     return 0

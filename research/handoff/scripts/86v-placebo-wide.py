@@ -90,7 +90,7 @@ def main() -> int:
     lo, hi = wilson(k, n)
     print("   「이기는 판 > 50%%」인 가짜약 **%d/%d** = %.0f%% [%.0f, %.0f]"
           % (k, n, 100.0 * k / n, 100 * lo, 100 * hi), flush=True)
-    print("   → 「결정적이면 낫다」가 성립하면 이 값이 «크게» 50%%를 넘어야 한다.", flush=True)
+    print("   → 「결정적이면 낫다」가 성립하면 이 값이 «크게» 50%를 넘어야 한다.", flush=True)
 
     print("\n★ 각 규칙이 가짜약 분포의 어디인가", flush=True)
     print("   %-26s %9s %11s %s" % ("규칙", "짝 중앙", "백분위", "95% 구간"), flush=True)

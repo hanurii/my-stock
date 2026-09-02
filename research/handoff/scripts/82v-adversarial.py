@@ -271,7 +271,7 @@ def stage_e(base, idx_hold, cal, base_sw_curve):
               flush=True)
         print("     %d/%d 구간에서 청산대금이 «플러스»라 자산이 실제보다 **낮게** 그려진다."
               % (up, len(rows)), flush=True)
-        print("     → 가짜 낙폭이 생긴다 = 헤드라인 MDD −38.9%% 는 실제보다 **깊게** 찍혀 있다.",
+        print("     → 가짜 낙폭이 생긴다 = 헤드라인 MDD −38.9% 는 실제보다 **깊게** 찍혀 있다.",
               flush=True)
         print("     ★ 즉 이것은 두뇌가 찾은 셋과 **같은 방향**의 «네 번째» 결함이다", flush=True)
         print("       (스위칭을 나쁘게 그린다). 다만 **자산에는 안 걸리고 MDD 에만 걸린다.**",

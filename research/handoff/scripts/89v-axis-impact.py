@@ -58,7 +58,7 @@ def main() -> int:
             e["atr_band"] = p.get("atr_band", "?")
     ser = r89.load_pdata()
 
-    hr("㉠ 오염된 종목 — `fltRt` 가 ±30%% 를 넘는 날이 있는 종목")
+    hr("㉠ 오염된 종목 — `fltRt` 가 ±30% 를 넘는 날이 있는 종목")
     bad_days = {}
     for code, x in ser.items():
         idx = [i for i, v in enumerate(x["f"]) if abs(v) > LIMIT]
