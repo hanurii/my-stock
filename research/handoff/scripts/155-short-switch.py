@@ -201,6 +201,11 @@ def main():
     yr = 27.4
     ca = 100.0 * ((st.median(A["tot"]) / START) ** (1.0 / yr) - 1.0)
     cb = 100.0 * ((st.median(B["tot"]) / START) ** (1.0 / yr) - 1.0)
+    dif = [100.0 * ((B["tot"][i] / START) ** (1.0 / yr) - 1.0)
+           - 100.0 * ((A["tot"][i] / START) ** (1.0 / yr) - 1.0) for i in range(n_seed)]
+    md, sdd = st.mean(dif), st.stdev(dif)
+    lo, hi2 = md - T60 * sdd / math.sqrt(n_seed), md + T60 * sdd / math.sqrt(n_seed)
+
     print("```")
     print("연 환산  숏 %.0f%% **%+.2f%%**  →  숏 0%% **%+.2f%%**   =   **%+.2f%%p**"
           % (SHORT_ON * 100, ca, cb, cb - ca))
@@ -215,6 +220,12 @@ def main():
     frac0 = sum(1 for d in ds if on.get(d)) / len(ds)
     bcost0 = BORROW * SHORT_ON * frac0
     print("숏 빼서 이김 **%d / %d**   ·   중앙 차이 **%+.0f만**" % (w, n_seed, d_tot))
+    print("🚨 **단 %d판은 «같은 덧씌우기»(200일선 · 크기 %.0f%% · 차입 %.0f%%)를 쓴다 —**"
+          % (n_seed, SHORT_ON * 100, BORROW))
+    print("   **«독립 시행 %d개»가 «아니다». «덧씌우기 축»에서는 «유효 n = 1» 이다.**" % n_seed)
+    print("   씨앗이 흔드는 건 «어느 종목이 자리를 잡나»뿐 — **숏의 켜짐/꺼짐은 «씨앗과 무관»**하다")
+    print("   ⇒ 60/60 은 「놀라운 일관성」이 아니라 **「효과 ÷ 씨앗 SD = %.1f배」의 «다른 표현»**이다"
+          % (md / sdd if sdd else float("inf")))
     print("")
     print("🚨🚨 **여기에 p 를 «적지 않는다» — 이건 «통계»가 아니라 «회계»다**")
     print("   차입료 = 차입 %.0f%% × 크기 %.0f%% × 숏 든 날 %.1f%%  =  **%.4f%%p/년**"
@@ -228,10 +239,6 @@ def main():
     print("")
     print("### ★★ **동등성 검정** — 「같다」를 «구간»으로 묻는다 (Δ = %.2f%%p, 유도됨)" % DELTA)
     print("")
-    dif = [100.0 * ((B["tot"][i] / START) ** (1.0 / yr) - 1.0)
-           - 100.0 * ((A["tot"][i] / START) ** (1.0 / yr) - 1.0) for i in range(n_seed)]
-    md, sdd = st.mean(dif), st.stdev(dif)
-    lo, hi2 = md - T60 * sdd / math.sqrt(n_seed), md + T60 * sdd / math.sqrt(n_seed)
     print("```")
     print("연 환산 차이(뺌 − 현행)  평균 **%+.4f%%p** · SD %.4f · **95%% CI [%+.4f, %+.4f]**"
           % (md, sdd, lo, hi2))
@@ -252,8 +259,11 @@ def main():
     mlo, mhi = mm - T60 * sm / math.sqrt(n_seed), mm + T60 * sm / math.sqrt(n_seed)
     print("")
     print("★ **낙폭 차이에도 «같은 자»를 댄다** — 한쪽(유리)에만 CI 를 내면 «엄격함이 비대칭»이다")
-    print("   낙폭 차(뺌 − 현행)  평균 **%+.3f%%p** · **95%% CI [%+.3f, %+.3f]**  →  **%s**"
-          % (mm, mlo, mhi, "0 «배제»" if (mlo > 0 or mhi < 0) else "🚨 **0 «포함» — 「나빠졌다」로 못 적는다**"))
+    print("   낙폭 차(뺌 − 현행)  **%+.2f%%p [%+.2f, %+.2f]**   →   **%s**"
+          % (mm, mlo, mhi, "0 «배제»" if (mlo > 0 or mhi < 0)
+             else "🚨 **0 «포함» — 「나빠졌다」로 못 적는다**"))
+    print("   ★ **이 세 수는 «한 토큰»이다 — «점추정만 있는 줄»을 만들지 «않는다».**")
+    print("     («틀린 수»는 지우고, «맞지만 «덜 말한» 수»는 «나머지를 붙인다» — 유형 54 의 경계)")
     print("   ⚠️ 그리고 «헤지를 뗐으니 낙폭이 나빠진다」는 **정상 방향**이다.")
     print("      ⛔ 「108 과 «어긋난다»」로 «못» 적는다 — 108 의 그 줄은 **«다른 창»**(2018~2026)이다")
     print("🚨 그리고 이 CI 도 **«씨앗 축»**이다 — 시장 축이면 훨씬 넓다")
