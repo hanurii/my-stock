@@ -163,11 +163,40 @@ def main():
     P("★ **−10% 에서 두 벌이 «만난다»** — Ⓟ 20% = Ⓡ min(20%, 20%) ⇒ **JD★ 의 자리**")
     P("```", flush=True)
 
+    from collections import Counter
+
+    def curve_of(x):
+        """🚨 `account_lib:73-82` 의 **복제본**. 아래 «동일성 검사»가 «판마다» 확인한다"""
+        fd = Counter(f[3] for f in x["fill_log"] if f[1] == "pilot")
+        vv = ([(d, v) for d, v in x["curve"]]
+              + [(x["curve"][-1][0], 1.0 + x["equity_pct"] / 100.0)])
+        cds, ccv, V = [vv[0][0]], [1.0], 1.0
+        for i in range(1, len(vv)):
+            if vv[i - 1][1] <= 0:
+                break
+            V *= (1.0 + vv[i][1] / vv[i - 1][1] - 1.0
+                  - acc.FEE * 0.20 * fd.get(vv[i][0], 0))
+            cds.append(vv[i][0])
+            ccv.append(max(V, 1e-9))
+        return cds, ccv
+
+    def censored(cv):
+        """회복 최장 구간이 **«끝에서 안 끝난» 구간**인가 = «우측 절단»"""
+        peak, pi, longest, term = cv[0], 0, 0, False
+        for i, v in enumerate(cv):
+            if v >= peak:
+                if i - pi > longest:
+                    longest, term = i - pi, False
+                peak, pi = v, i
+        if len(cv) - 1 - pi > longest:      # 🚨 «>» 라 동점이면 «절단 아님» — «적게» 센다
+            longest, term = len(cv) - 1 - pi, True
+        return term, longest
+
     cache = json.loads(CACHE.read_text(encoding="utf-8")) if CACHE.exists() else {}
     out, meta = {}, {}
     for vin in ("P", "R"):
         for s_ in STOPS:
-            key = "v2|%s|s%.0f|n%d" % (vin, s_, n_seed)   # 🚨 v2 = JD★ 고침 뒤
+            key = "v3|%s|s%.0f|n%d" % (vin, s_, n_seed)   # 🚨 v2 = JD★ 고침 뒤
             if key in cache:
                 out[(vin, s_)] = [tuple(a) for a in cache[key]]
                 meta[(vin, s_)] = cache[key + "|m"]
@@ -181,10 +210,19 @@ def main():
                                       reserve=False, fill_rule="truncate",
                                       cash_rule="per_slot") for sd in range(n_seed)]
             out[(vin, s_)] = [acc.account(x) for x in rs]
+            # ── 우측 절단 세기 + **동일성 검사**(복제 곡선이 account 의 수를 재현하는가) ──
+            n_cen, n_bad = 0, 0
+            for x, ac in zip(rs, out[(vin, s_)]):
+                cds_, ccv_ = curve_of(x)
+                m_, r_ = r91.r129.shape(cds_, ccv_) if hasattr(r91, "r129") else acc.r129.shape(cds_, ccv_)
+                if abs(m_ - ac[1]) > 1e-9 or r_ != ac[2]:
+                    n_bad += 1
+                term, _ = censored(ccv_)
+                n_cen += 1 if term else 0
             meta[(vin, s_)] = {
                 "nomw": st.median([x["nom_w_mean"] for x in rs]) * 100.0,
                 "expo": st.median([x["expo_mean"] for x in rs]),
-                "n_ev": len(ev)}
+                "n_ev": len(ev), "cen": n_cen, "bad": n_bad}
             cache[key] = [list(a) for a in out[(vin, s_)]]
             cache[key + "|m"] = meta[(vin, s_)]
             CACHE.write_text(json.dumps(cache), encoding="utf-8")
@@ -265,6 +303,28 @@ def main():
     P("      세대가 바뀌면 수가 «달라지고», 그때는 「일치」가 아니라 **「«설명 가능한» 차이」**다")
     P("   ★★ 이건 **규약 ⑦(「같은 것을 가리키는 수가 둘이면 멈춘다」)의 «능동» 판**이다 —")
     P("     **«우연히» 걸리길 기다리는 게 아니라 «찾아보러» 간다**")
+    P("")
+    P("**🧮 우측 절단 — 「회복이 «창에 눌린» 판이 «몇 / %d»인가」**(팔마다)" % n_seed)
+    P("🚨 **동일성 검사** — 복제 곡선이 `account` 의 (낙폭, 회복)을 «판마다» 재현하는가:")
+    nb = sum(meta[(v_, s2)]["bad"] for v_ in ("P", "R") for s2 in STOPS)
+    P("   어긋난 판 **%d / %d**  →  %s"
+      % (nb, 2 * len(STOPS) * n_seed,
+         "✅ **복제가 «검증»됐다**" if nb == 0 else "🚨 **멈춘다**"))
+    P("")
+    P("| 손절 | Ⓟ 절단 | Ⓟ 회복(중앙) | Ⓡ 절단 | Ⓡ 회복(중앙) |")
+    P("|---|---:|---:|---:|---:|")
+    for s2 in STOPS:
+        P("| **−%.0f%%** | **%d / %d** | %.1f년 | **%d / %d** | %.1f년 |"
+          % (s2, meta[("P", s2)]["cen"], n_seed,
+             st.median([a[2] for a in out[("P", s2)]]) / 252.0,
+             meta[("R", s2)]["cen"], n_seed,
+             st.median([a[2] for a in out[("R", s2)]]) / 252.0))
+    P("")
+    cen_main = sum(meta[(v_, s2)]["cen"] for v_ in ("P", "R") for s2 in (8.0, BASE))
+    P("⇒ **주 판정을 «지는» 네 칸(Ⓟ/Ⓡ −8%%·−10%%) 절단 합계 — %d / %d**" % (cen_main, 4 * n_seed))
+    P("   %s" % ("✅ **라벨을 «뗀다».** 그 칸들의 회복은 «창에 안 눌렸다»" if cen_main == 0
+                 else "🚨 **라벨을 «유지»한다** — 주 판정 칸에도 절단이 있다"))
+    P("★ 동점이면 «절단 아님»으로 셌다(`>` 비교) ⇒ **«적게» 세는 쪽**이다")
     P("```", flush=True)
 
     for vin, nm in (("P", "Ⓟ «포지션 20% 고정» 벌 — 손절이 넓어지면 **거래당 위험이 «커진다»**"),
@@ -275,8 +335,8 @@ def main():
         P("=" * 104)
         P("")
         P("**판정 자 = ① 낙폭 «중앙» · ② 📏폭(P95÷P05)** · 회복은 «서술»")
-        P("🚨 **회복 열에 «우측 절단» 라벨** — 낙폭이 «20년째»에 시작하면 회복이 **7.4년을 «못 넘는다»**")
-        P("   **(창이 27.4년) ⇒ 「13.5년」 같은 큰 값은 **«하한»**일 수 있다. «창에 눌린» 값이다**")
+        P("🚨 **회복 열의 «우측 절단»을 «라벨»이 아니라 «수»로 쟀다**(유형 69 — 라벨은 «면죄부»가 된다)")
+        P("   **「절단」 = 최장 미회복 구간이 «창 끝에서 «안 끝난»» 구간 ⇒ 그 판의 회복은 **«하한»**이다**")
         P("🚨 **「최악 씨앗」 열은 «서술»이다 — «최솟값 통계»라 «판 수»에 걸린다.**")
         P("   **씨앗을 늘리면 «반드시» 더 나빠진다 ⇒ 60판 «안에서만» 읽고 «판정»에 «안» 쓴다**")
         P("")
