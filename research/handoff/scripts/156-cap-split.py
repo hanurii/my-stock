@@ -313,8 +313,29 @@ def main():
     P("```")
     P("")
 
+    # 🚨 배경 판에 «시간 한도»가 있어 1,980 시뮬이 한 번에 «안 끝난다».
+    #   씨앗이 «결정적»이므로 단계별로 «갈무리»하고 다음 호출에서 «건너뛴다». 결과는 «똑같다».
+    # 🚨 씨앗 수·모드를 «파일 이름»에 박는다 — 안 그러면 «6판 갈무리»를 «60판 판»이 이어받는다.
+    #    (그 사고를 «내기 전»에 잡았다 — 캐시는 «조용히 틀린 답»을 내는 종류다)
+    CACHE = Path(str(r91.OUT / ("156-partial-n%d-%s.json"
+                                % (n_seed, "drop" if DROP else "keep"))))
+    cache = json.loads(CACHE.read_text(encoding="utf-8")) if CACHE.exists() else {}
+    if cache:
+        P("  ♻️ 갈무리 %d 팔 이어받음: %s" % (len(cache), ", ".join(sorted(cache))), flush=True)
+
+    def save(nm, v, pv, h, w=None):
+        cache[nm] = {"out": [list(a) for a in v], "pre": list(pv),
+                     "hd": list(h), "win": w}
+        CACHE.write_text(json.dumps(cache, ensure_ascii=False), encoding="utf-8")
+
     out, pre, hd, win = {}, {}, {}, {}
     for nm, mp in ARMS.items():
+        if nm in cache:
+            c = cache[nm]
+            out[nm] = [tuple(a) for a in c["out"]]
+            pre[nm], hd[nm], win[nm] = c["pre"], tuple(c["hd"]), c["win"]
+            P("  ♻️ %s — 갈무리" % nm, flush=True)
+            continue
         ev = build_ev(lambda p, k, _m=mp: _m[lab[k]])
         rs = run(ev, range(n_seed))
         out[nm] = [acc.account(x) for x in rs]
@@ -324,13 +345,19 @@ def main():
         win[nm] = "%.1f%%" % (100.0 * sum(1 for r in w if r == "win") / max(len(w), 1))
         P("  %s — 매수 중앙 %.0f · 보유 중앙 %.0f일"
           % (nm, st.median([a[3] for a in out[nm]]), hd[nm][0]), flush=True)
+        save(nm, out[nm], pre[nm], hd[nm], win[nm])
 
     # ⑤ 흩뜨림만 — 🚨 «씨앗 × 배정» 격자로 «배정 축을 평균» (두뇌 세션 ㉡′)
     #   ⑤ 에만 「배정」이라는 «여분의 잡음»이 있다 — ②는 배정이 «고정»인데 ⑤만 흔들린다.
     #   ⇒ 배정 NASSIGN 개를 평균해 그 잡음을 ~1/sqrt(NASSIGN) 로 줄인다.
     #   🚨 배정 스트림은 슬롯 씨앗에서 «파생»시키되 «다른 값»이어야 한다(같으면 「같은 패」가 깨진다)
     five, five_pre, five_hd = [], [], []
-    for sd_ in range(n_seed):
+    if "⑤흩뜨림" in cache:
+        c = cache["⑤흩뜨림"]
+        five = [tuple(a) for a in c["out"]]
+        five_pre, five_hd = c["pre"], [tuple(c["hd"])]
+        P("  ♻️ ⑤흩뜨림 — 갈무리", flush=True)
+    for sd_ in ([] if five else range(n_seed)):
         acc5, pre5, hd5 = [], [], []
         for a_ in range(NASSIGN):
             rng = random.Random(1_000_000 + sd_ * 1000 + a_)
@@ -348,6 +375,8 @@ def main():
     out["⑤흩뜨림"] = five
     pre["⑤흩뜨림"] = five_pre
     hd["⑤흩뜨림"] = tuple(st.mean([h[i] for h in five_hd]) for i in range(4))
+    if "⑤흩뜨림" not in cache:
+        save("⑤흩뜨림", five, five_pre, hd["⑤흩뜨림"])
     P("  ⑤흩뜨림(배정 %d개 평균) — 매수 중앙 %.0f · 보유 중앙 %.0f일"
       % (NASSIGN, st.median([a[3] for a in five]), hd["⑤흩뜨림"][0]), flush=True)
 
@@ -355,6 +384,12 @@ def main():
     keys = sorted(k for k in lab if lab[k] != "U")
     ukeys = [k for k in lab if lab[k] == "U"]
     for base, pname in (("②원전식", "⑤′순열(②)"), ("③반대", "⑤″순열(③)")):
+        if pname in cache:
+            c = cache[pname]
+            out[pname] = [tuple(a) for a in c["out"]]
+            pre[pname], hd[pname] = c["pre"], tuple(c["hd"])
+            P("  ♻️ %s — 갈무리" % pname, flush=True)
+            continue
         mp = ARMS[base]
         fixed = [mp[lab[k]] for k in keys]
         pv, pp, ph = [], [], []
@@ -378,6 +413,7 @@ def main():
         hd[pname] = tuple(st.mean([h[i] for h in ph]) for i in range(4))
         P("  %s(배정 %d개 평균) — 매수 중앙 %.0f" % (pname, NASSIGN,
                                                     st.median([a[3] for a in pv])), flush=True)
+        save(pname, pv, pp, hd[pname])
 
     P("")
     P("=" * 104)
