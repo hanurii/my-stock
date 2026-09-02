@@ -54,9 +54,9 @@ DELTA = 1.23                      # 유도: 150 의 우리−QQQ 격차 (결론�
 T60 = 2.001                       # 양측 95% t (df=59)
 TARGETS = (20.0, 30.0, 40.0)
 ARMS = {
-    "①현행": {"S": 30.0, "M": 30.0, "L": 30.0},
-    "②원전식": {"S": 40.0, "M": 30.0, "L": 20.0},
-    "③반대": {"S": 20.0, "M": 30.0, "L": 40.0},
+    "①현행": {"S": 30.0, "M": 30.0, "L": 30.0, "U": 30.0},
+    "②원전식": {"S": 40.0, "M": 30.0, "L": 20.0, "U": 30.0},   # ✅ U = 크기 규칙에 «안 닿음»
+    "③반대": {"S": 20.0, "M": 30.0, "L": 40.0, "U": 30.0},
 }
 
 
@@ -99,9 +99,11 @@ def classify(cap, q):
 
 def main():
     n_seed = 6 if "--quick" in sys.argv else NSEED
+    DROP = "--drop" in sys.argv      # 🚨 «고침 전» 재현 모드 — 라벨 없는 후보를 «뺀다»
     P = print
     P("=" * 104)
-    P("156 — **크기별로 «어떻게 팔까»를 나눈다** · 🏷️ **세대 B**(지수 숏 «없음») · 씨앗 %d판" % n_seed)
+    P("156 — **크기별로 «어떻게 팔까»를 나눈다** · 🏷️ **세대 B** · 씨앗 %d판 · **%s**"
+      % (n_seed, "🚨 «고침 전»(라벨 없음 «제외»)" if DROP else "✅ «고침 후»(라벨 없음 → 모든 팔 +30)"))
     P("=" * 104)
     P("")
     P("> 조사 세션 · 2026-09-02 · `scripts/156-cap-split.py` · **문서는 이 출력 그 자체**(유형 48)")
@@ -153,17 +155,20 @@ def main():
                 hi = m - 1
         return ter[qdays[i]] if qdays and qdays[i] <= d else None
 
-    lab, capv, miss_cap, miss_q = {}, {}, 0, 0
+    lab, capv, unyear, miss_cap, miss_q = {}, {}, {}, 0, 0
     for y in sorted(by_f):
         for p in by_f[y]:
             key = (p["scan_date"], p["code"], p["pattern"])
             b = asof_cap(p["code"], p["entry_date"])
-            if b is None:
-                miss_cap += 1
-                continue
-            q = q_at(b[0])
-            if q is None:
-                miss_q += 1
+            q = q_at(b[0]) if b is not None else None
+            if b is None or q is None:
+                if b is None:
+                    miss_cap += 1
+                else:
+                    miss_q += 1
+                if not DROP:
+                    lab[key] = "U"          # ✅ 고침 — «빼지 않고» 모든 팔에서 +30
+                unyear[p["entry_date"][:4]] = unyear.get(p["entry_date"][:4], 0) + 1
                 continue
             lab[key] = classify(b[1], q)
             capv[key] = b[1]
@@ -173,13 +178,25 @@ def main():
     P("```")
     P("후보 **%d** 개  ·  라벨 붙음 **%d** (%.1f%%)  ·  시총 없음 %d  ·  경계 없음 %d"
       % (tot, len(lab), 100.0 * len(lab) / tot, miss_cap, miss_q))
-    cnt = {k: sum(1 for v in lab.values() if v == k) for k in ("S", "M", "L")}
+    cnt = {k: sum(1 for v in lab.values() if v == k) for k in ("S", "M", "L", "U")}
     P("소형 **%d** (%.1f%%) · 중형 **%d** (%.1f%%) · 대형 **%d** (%.1f%%)"
       % (cnt["S"], 100.0 * cnt["S"] / max(len(lab), 1), cnt["M"],
          100.0 * cnt["M"] / max(len(lab), 1), cnt["L"], 100.0 * cnt["L"] / max(len(lab), 1)))
     P("🚨 **우리 후보는 «시장 전체»가 아니다** — 삼분위 경계는 «상장 전부»로 세웠으므로")
     P("   1/3 씩 나오지 «않는» 것이 정상이다. 그 «치우침» 자체가 이 판의 배경이다")
-    P("⛔ 라벨 못 붙인 후보는 **모든 팔에서 «똑같이» 빠진다**(팔 사이 비교는 유지된다)")
+    P("라벨 «못» 붙인 %d 건의 **«해» 분포** — 🚨 「1999~2000 에 몰렸다」가 «인상»이었다. 세어 본다:"
+      % sum(unyear.values()))
+    P("   " + " · ".join("%s **%d**" % (y, unyear[y]) for y in sorted(unyear)))
+    e0 = sum(v for y, v in unyear.items() if y <= "2001")
+    P("   ⇒ 1999~2001 **%d / %d = %.0f%%**" % (e0, sum(unyear.values()),
+                                               100.0 * e0 / max(sum(unyear.values()), 1)))
+    if DROP:
+        P("🚨 **이 판은 «고침 전»** — 그 %d 건을 **뺀다**. «수준»이 154·150 과 «다른 후보 집합» 위에 선다"
+          % sum(unyear.values()))
+    else:
+        P("✅ **고침** — 그 %d 건을 «빼지 않고» **모든 팔에서 +30**(크기 규칙에 «안 닿음»)."
+          % sum(unyear.values()))
+        P("   ⇒ 후보 집합이 154·150 과 «같아지고», «팔 사이 차»는 «상쇄»된다(⟵ 이 논거의 검사는 §4)")
     P("")
     P("칸별 **중앙 시총(백만 달러)** — 🚨 「대형」이라는 «말»과 실제 칸이 «맞는지» 수로 본다:")
     for k in ("S", "M", "L"):
@@ -317,7 +334,7 @@ def main():
         acc5, pre5, hd5 = [], [], []
         for a_ in range(NASSIGN):
             rng = random.Random(1_000_000 + sd_ * 1000 + a_)
-            asg = {k: rng.choice(TARGETS) for k in lab}
+            asg = {k: (30.0 if lab[k] == "U" else rng.choice(TARGETS)) for k in lab}
             ev = build_ev(lambda p, k, _a=asg: _a[k])
             x = run(ev, [sd_])[0]
             acc5.append(acc.account(x))
@@ -335,7 +352,8 @@ def main():
       % (NASSIGN, st.median([a[3] for a in five]), hd["⑤흩뜨림"][0]), flush=True)
 
     # ── ⑤′ / ⑤″ — **순열** 플라세보: 팔의 라벨을 «섞기»만 한다 (주변분포 «보존») ──────
-    keys = sorted(lab)
+    keys = sorted(k for k in lab if lab[k] != "U")
+    ukeys = [k for k in lab if lab[k] == "U"]
     for base, pname in (("②원전식", "⑤′순열(②)"), ("③반대", "⑤″순열(③)")):
         mp = ARMS[base]
         fixed = [mp[lab[k]] for k in keys]
@@ -347,6 +365,7 @@ def main():
                 shuf = fixed[:]
                 rng.shuffle(shuf)
                 asg = dict(zip(keys, shuf))
+                asg.update({k: 30.0 for k in ukeys})
                 ev = build_ev(lambda p, k, _a=asg: _a[k])
                 x = run(ev, [sd_])[0]
                 a5.append(acc.account(x))
