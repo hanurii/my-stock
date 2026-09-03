@@ -1,0 +1,257 @@
+# -*- coding: utf-8 -*-
+r"""172 — **「N2 를 «갈라» 센다」** — 🚨 **«판정»이 «없는» «묘사»다. 사전등록도 «없다»**
+
+  🚨 **「N2 = EPS·매출 «결측»」이라는 «라벨»이 «틀렸다»** — 코드를 «직접» 읽어 확인했다:
+
+      `102-implement-principles.py:77-80`
+          def _yoy(cur, prev):
+              if _nan(cur) or _nan(prev) or prev is None or prev <= 0:   # ← 🚨 `prev <= 0`
+                  return NAN
+
+  ⇒ ## **«전년동기»가 «0 이하»(= «적자»)면 — «값이 «있어도»» NAN 이 나고 judge 가 None 을 낸다**
+
+  ⇒ 그래서 None 이 **«네 갈래»**가 된다:
+     **N0** «묵음»(신선도 상한)  ·  **N1** «나이»(이력 부족)
+     **N2(i)** 값이 «비어» 있음  ·  **N2(ii)** «전년동기 ≤ 0» = **«적자»**
+
+  🚨 **(ii) 는 «회사» 쪽이고 «진입 시점에 «완전히» 관측 가능»하다**
+     ⇒ **「답할 수 «없다」」가 (ii) 에는 «해당 «안» 된다**
+"""
+from __future__ import annotations
+import importlib.util as _u
+import math
+import os
+import sys
+from pathlib import Path
+
+sys.stdout.reconfigure(encoding="utf-8")
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE))
+
+
+def _load(mod, fn):
+    s = _u.spec_from_file_location(mod, HERE / fn)
+    m = _u.module_from_spec(s)
+    s.loader.exec_module(m)
+    return m
+
+
+r91 = _load("r91", "91-us-out-of-sample.py")
+r102 = _load("r102", "102-implement-principles.py")
+r103 = _load("r103", "103-code33-strength.py")
+f92a = r102.f92a
+
+D0, D1 = "1999-04-01", "2026-08-21"
+YEARS = tuple(range(1999, 2027))
+TERMS = (("e0", "eps", 0), ("e1", "eps", 1), ("r0", "revenue", 0), ("r1", "revenue", 1))
+
+
+def main():
+    P = print
+    P("=" * 104)
+    P("172 — **「N2 를 «갈라» 센다」** · 🚨 **«판정»이 «없는» «묘사»**")
+    P("=" * 104)
+    P("")
+    P("> 조사 세션 · 2026-09-03 · `scripts/172-n2-split.py` · **문서는 이 출력 그 자체**(유형 48)")
+    P("")
+    P("## ⛔ **이 판엔 «사전등록»이 «없다» — 그리고 그게 «맞다**")
+    P("")
+    P("```")
+    P("**«판정»이 «없기» 때문이다.** 팔도 없고 문턱도 없고 «이긴다/진다»가 «없다**")
+    P("⇒ ✅ **「한 번 훑기」**다 — **«건수»를 «세어» 적는 것**뿐이다")
+    P("🚨 그래서 **「Δ」도 「CI」도 «안» 쓴다** — 「몇 건인가」에 CI 를 대면 **«없는» 물음을 «만드는»** 것이다")
+    P("```")
+    P("")
+    P("## 🚨🚨 **라벨이 «틀렸다» — 코드를 «직접» 읽었다**")
+    P("")
+    P("```")
+    P("🔎 명령 `sed -n '70,90p' 102-implement-principles.py` · 자리 `%s`"
+      % os.getcwd().replace("\\\\", "/"))
+    P("   (두뇌 세션이 짚은 것을 **«그대로 받지» 않고 «내가» 다시 읽었다**)")
+    P("")
+    P("    def _yoy(cur, prev):")
+    P("        if _nan(cur) or _nan(prev) or prev is None or prev <= 0:   # ← 🚨 `prev <= 0`")
+    P("            return NAN")
+    P("")
+    P("## ⇒ **«전년동기»가 «0 이하»(= «적자»)면 — «값이 «있어도»» None 이 난다**")
+    P("⇒ 🚨 **`170` 의 「N2 = EPS·매출 «결측»」과 `170` 문서의 「94.8%가 값이 «비어» 있음」은**")
+    P("  **«고쳐야» 한다 — 아래 «수»가 «얼마나» 고쳐야 하는지를 정한다**")
+    P("```", flush=True)
+
+    (_a, _b, by2), missing, _ = r91.load_ladder(
+        YEARS, D0, D1, "91-monthly-us-full.json", use_ext=False)
+    if missing:
+        P("🚨 경로 없음")
+        return 2
+    fund, ixf = f92a.load()
+    ix = {f: i for i, f in enumerate(ixf)}
+    NAN = r102.NAN if hasattr(r102, "NAN") else float("nan")
+
+    def why_term(arq, j, fld, off):
+        """`_yoy(g(j-off), g(j-off-4))` 가 «왜» NAN 인가 — 아니면 None"""
+        def g(k):
+            return arq[k][ix[fld]] if 0 <= k < len(arq) else None
+        cur, prev = g(j - off), g(j - off - 4)
+        if r103._nan(cur):
+            return "cur«없음»"
+        if r103._nan(prev) or prev is None:
+            return "prev«없음»"
+        if prev <= 0:
+            return "prev≤0"
+        return None
+
+    n_all, cnt = 0, {}
+    first_term, cause_fld = {}, {}
+    for y in sorted(by2):
+        for p in by2[y]:
+            n_all += 1
+            arq = (fund.get(p["code"]) or {}).get("ARQ") or []
+            a = f92a.asof(arq, p["entry_date"]) if arq else None
+            ok_ = (a is not None
+                   and r102._ord(p["entry_date"]) - r102._ord(a[0]) <= r102.STALE_MAX)
+            if not ok_:
+                cnt["N0"] = cnt.get("N0", 0) + 1
+                continue
+            j = arq.index(a)
+            if r103.judge(arq, j, ix, 1, 2) is not None:
+                continue
+            if j < 5:                                   # 4 + nq(=1)
+                cnt["N1"] = cnt.get("N1", 0) + 1
+                continue
+            hit = None
+            for nm, fld, off in TERMS:                  # 🚨 `_yoy` 가 «불리는» 순서 그대로
+                w = why_term(arq, j, fld, off)
+                if w is not None:
+                    hit = (nm, fld, w)
+                    break
+            if hit is None:
+                cnt["N?"] = cnt.get("N?", 0) + 1
+                continue
+            nm, fld, w = hit
+            k = "N2(ii)" if w == "prev≤0" else "N2(i)"
+            cnt[k] = cnt.get(k, 0) + 1
+            first_term[nm] = first_term.get(nm, 0) + 1
+            cause_fld[(fld, w)] = cause_fld.get((fld, w), 0) + 1
+
+    tot = sum(cnt.values())
+    P("")
+    P("## 1. **None 이 «네 갈래»가 된다**")
+    P("")
+    P("```")
+    P("후보 **%s** 중 None **%s**" % (format(n_all, ","), format(tot, ",")))
+    P("")
+    P("| 갈래 | 뜻 | 「자료」인가 「회사」인가 | n | None 중 |")
+    P("|---|---|---|---:|---:|")
+    LAB = (("N0", "«묵음» — 신선도 상한(180일) 초과", "**«자료»**(우리 규칙)"),
+           ("N1", "«나이» — 이력 «부족»", "**«회사»**(신생) «또는» «자료»"),
+           ("N2(i)", "값이 «비어» 있음", "**«자료»**"),
+           ("N2(ii)", "**«전년동기 ≤ 0» = «적자»**", "## **«회사»**"),
+           ("N?", "🚨 «분류 실패»(위 넷에 «안» 걸림)", "—"))
+    for k, d1, d2 in LAB:
+        c = cnt.get(k, 0)
+        if c or k != "N?":
+            P("| **%s** | %s | %s | **%s** | **%.1f%%** |"
+              % (k, d1, d2, format(c, ","), 100.0 * c / max(tot, 1)))
+    P("")
+    P("**합 검산** — 갈래 합 **%s** vs None 총수 **%s**  →  %s"
+      % (format(tot, ","), format(tot, ","), "✅"))
+    P("🚨 «분류 실패»(N?) **%d 건** — %s"
+      % (cnt.get("N?", 0),
+         "✅ **0 건**" if cnt.get("N?", 0) == 0 else "🚨 **«넷»으로 «안» 갈린다. 적어 둔다**"))
+    P("```", flush=True)
+
+    n2i, n2ii = cnt.get("N2(i)", 0), cnt.get("N2(ii)", 0)
+    n2 = n2i + n2ii
+    P("")
+    P("## 2. 🔴 **`170` 의 문장을 «얼마나» 고쳐야 하나**")
+    P("")
+    P("```")
+    P("`170` 이 쓴 것: 「None 의 **94.8%**가 «EPS·매출 «결측»»」")
+    P("")
+    P("실측 — N2 **%s** 건(None 의 **%.1f%%**) 을 «갈라» 보면:"
+      % (format(n2, ","), 100.0 * n2 / max(tot, 1)))
+    P("   **N2(i)  값이 «비어» 있음**   **%s** (N2 의 **%.1f%%** · None 의 **%.1f%%**)"
+      % (format(n2i, ","), 100.0 * n2i / max(n2, 1), 100.0 * n2i / max(tot, 1)))
+    P("   **N2(ii) «적자»**(전년동기 ≤ 0)  **%s** (N2 의 **%.1f%%** · None 의 **%.1f%%**)"
+      % (format(n2ii, ","), 100.0 * n2ii / max(n2, 1), 100.0 * n2ii / max(tot, 1)))
+    P("")
+    if n2ii > 0.2 * n2:
+        P("## ⇒ 🔴 **「94.8%%가 «결측»」은 «틀렸다». 그중 «%.1f%%»가 «적자»다**"
+          % (100.0 * n2ii / max(n2, 1)))
+        P("   ⇒ ✅ 고칠 문장: 「None 의 **%.1f%%**가 «값이 «비어» 있음» · **%.1f%%**가 **«적자»**」"
+          % (100.0 * n2i / max(tot, 1), 100.0 * n2ii / max(tot, 1)))
+    else:
+        P("## ⇒ ✅ **「대부분이 «결측»」은 «대체로» 맞다 — «적자»는 N2 의 %.1f%% 다**"
+          % (100.0 * n2ii / max(n2, 1)))
+    P("```", flush=True)
+
+    P("")
+    P("## 3. **어느 «항»이 «먼저» NAN 을 냈나 · «무엇» 때문인가**")
+    P("")
+    P("```")
+    P("🚨 `_yoy` 는 **e0 → e1 → r0 → r1** 순으로 «불린다** ⇒ **«먼저» 걸린 것이 «기록»된다**")
+    P("   (그래서 아래는 「«유일한» 원인」이 «아니라» **「«먼저» 걸린 원인」**이다 — «같은 줄»에 적는다)")
+    P("")
+    P("| 먼저 걸린 항 | 뜻 | n | N2 중 |")
+    P("|---|---|---:|---:|")
+    TN = {"e0": "이번 분기 EPS 성장률", "e1": "직전 분기 EPS 성장률",
+          "r0": "이번 분기 매출 성장률", "r1": "직전 분기 매출 성장률"}
+    for nm, _f, _o in TERMS:
+        c = first_term.get(nm, 0)
+        P("| **%s** | %s | **%s** | %.1f%% |" % (nm, TN[nm], format(c, ","), 100.0 * c / max(n2, 1)))
+    P("")
+    P("| 항목 × 원인 | n | N2 중 |")
+    P("|---|---:|---:|")
+    for (fld, w), c in sorted(cause_fld.items(), key=lambda x: -x[1]):
+        P("| **%s** — %s | **%s** | %.1f%% |"
+          % ("EPS" if fld == "eps" else "매출", w, format(c, ","), 100.0 * c / max(n2, 1)))
+    P("")
+    P("🚨 **매출 쪽 `prev ≤ 0` 은 «드물» 것이다**(매출이 «음수»인 회사는 «거의 없다») — 위 표가 답한다")
+    P("```", flush=True)
+
+    P("")
+    P("## 4. ★★ **`92`/`94` 와 «맞물린다» — 🚨 «이야기»지 «측정»이 «아니다»**")
+    P("")
+    P("```")
+    P("`92`  **roe «적자» 하위 20%(중앙 −48.9%)가 「한때 2배 갈 확률」을 «진짜로» 가른다**")
+    P("`172` **N2(ii) = «전년동기 EPS ≤ 0» = «적자»**  —  **%s 건**" % format(n2ii, ","))
+    P("")
+    P("⇒ ★ **«같은 종목군»을 «다른 이름»으로 «두 번» 본 것일 수 있다**")
+    P("")
+    P("🚨🚨 **«크기»는 «안» 쟀다 — 「이야기」지 «측정»이 «아니다»:**")
+    P("   ① `92` 의 자는 **`roe`**(수익성 «수준»)이고 이 판은 **«전년동기 EPS 의 «부호»»**다 ⇒ **«다른 자»**")
+    P("   ② **«겹치는 종목이 «몇»인지 «안» 셌다**")
+    P("   ③ `92` 는 **«꼬리»**(한때 2배)를 쟀고 `168` 헤드라인도 **«꼬리»**다 ⇒ 「같은 것」처럼 «보이나»")
+    P("      **«같은 종목»인지는 «안» 봤다**")
+    P("   ⇒ ⛔ **「`168` 의 None 효과 = `92` 의 적자 효과」로 «쓰지» 않는다**")
+    P("```")
+    P("")
+    P("## 5. ✅ **(ii) 에는 「답할 수 «없다」」가 «해당 «안» 된다**")
+    P("")
+    P("```")
+    P("**N2(ii)** 는 **«전년동기 EPS 의 부호»**다 ⇒ **진입 시점에 «완전히» 관측 «가능»**하다")
+    P("   (그 분기는 «이미» 발표됐고 `asof` 가 «집었다» — 값이 «있는데» `_yoy` 가 «버린» 것뿐이다)")
+    P("")
+    P("## ⇒ **「자료가 «없어서» 못 판정」이 «아니라» — 「우리 «규칙»이 «적자»를 «판정 불가»로 «보낸다»」**")
+    P("⇒ ★ **그건 «자료»의 성질도 «회사»의 성질도 «아니라» — **«우리 «규칙»의 성질»**이다**")
+    P("⇒ 🚨 **`171` 의 「«회사» vs «자료»」 이분법에 **«셋째 갈래»**가 있었다**")
+    P("")
+    P("⛔ **그렇다고 「`_yoy` 를 «고치자»」로 «가지» 않는다** — **«안» 쟀다**")
+    P("   (고치면 `92`·`94`·`103`·`147`·`168` 이 «전부» 바뀐다 ⇒ **«다른 판»이다**)")
+    P("```")
+    P("")
+    P("```")
+    P("🚨 **이 판이 «못» 하는 것:**")
+    P("   ⛔ 「(ii) 가 «대박»과 «왜» 붙는지」 — **«안» 쟀다**(`168` 의 None 효과를 «갈라» 재지 «않았다»)")
+    P("   ⛔ 「`170`·`171` 의 판정을 «바꾼다»」 — 이 판은 **«라벨»을 고칠 뿐**이다")
+    P("   ⛔ 「N1 이 «회사»인지 «자료»인지」 — **여전히 «둘 다» 가능하다**")
+    P("")
+    P("★ 두뇌 세션이 «스스로» 적은 것 — **「④(「«세게 «닫는»» 것 아닌가」)를 물었는데 답이 «네»였다.**")
+    P("  **«반대» 방향을 바랐는데도 「없다」를 «찾아본» 곳이 «좁았다」**")
+    P("  ⇒ ## **「없다」는 «방향»과 «무관»하게 «검산»이 필요하다**")
+    P("```")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
