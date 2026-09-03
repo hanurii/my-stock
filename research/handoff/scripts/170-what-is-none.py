@@ -130,7 +130,7 @@ def main():
     P("🔴 버린 근거: 「앞 열은 «고르기», 이번은 «되찾기»라 «다르다»」")
     P("   반론: **`168` Ⓘ 가 «이미» 「«전부» 되찾기」였고 **−4.334%p** 로 «졌다»** ⇒ **«이미 «한 번» 진» 말**")
     P("")
-    P("✅ **바꾼 근거: 「`168` 은 «양 끝»만 쟀다 — ①(0%% 되찾음) · Ⓘ(100%% 되찾음). «중간»은 «안» 쟀다」**")
+    P("✅ **바꾼 근거: 「`168` 은 «양 끝»만 쟀다 — ①(0% 되찾음) · Ⓘ(100% 되찾음). «중간»은 «안» 쟀다」**")
     P("   ⇒ 「이번엔 «다르다»」가 «아니라» **「`168` 이 «못 잰» 자리」**다")
     P("")
     P("🚨 **«같은 줄»에: 「«양 끝»이 «둘 다» 나쁘면 «중간»이 좋을 가능성은 «작다»」**")
@@ -368,6 +368,202 @@ def main():
         P("")
         P("🚨 **--dry — ㉡ 시뮬레이션은 «안» 돌렸다**")
         return 0
+
+    # ── ㉡ False 를 «모멘텀 상위 X%»로 «되찾는다» ────────────────────────────
+    byyear = {}
+    for r in rows:
+        if r["v"] is False:
+            byyear.setdefault(r["p"]["entry_date"][:4], []).append(r)
+    n_F = sum(len(v) for v in byyear.values())
+    n_Fm = sum(1 for v in byyear.values() for r in v if r["mom"] is not None)
+
+    def pick_top(x):
+        got = set()
+        for y, v in byyear.items():
+            ok = sorted([r for r in v if r["mom"] is not None], key=lambda r: -r["mom"])
+            got |= {id(r["p"]) for r in ok[:round(len(ok) * x)]}
+        return got
+
+    def pick_rand(x, ai):
+        rg = random.Random(ai + 1_000_000 + int(x * 1e4))
+        got = set()
+        for y, v in byyear.items():
+            ok = [r for r in v if r["mom"] is not None]
+            got |= {id(r["p"]) for r in rg.sample(ok, min(round(len(ok) * x), len(ok)))}
+        return got
+
+    def build(extra=None):
+        out_ = []
+        for y in sorted(by2):
+            open_until = {}
+            for p in by2[y]:
+                if id(p) not in kept and not (extra and id(p) in extra):
+                    continue
+                t = pt.resolve_trade(p, ft="limit", fs="market", stop=STOP, target=TARGET,
+                                     half=HALF, shares=(1.0,), add_stop="floor_entry")
+                c = p["code"]
+                if c in open_until and p["entry_date"] <= open_until[c]:
+                    continue
+                open_until[c] = t["masks"][()]["resolve_date"] or p["entry_date"]
+                t["stop_frac"] = STOP / 100.0
+                out_.append(t)
+        return out_
+
+    cache = json.loads(CACHE.read_text(encoding="utf-8")) if CACHE.exists() else {}
+
+    def sim(ev, key):
+        if key in cache:
+            return [tuple(a) for a in cache[key]], cache[key + "|m"]
+        with r91.r41.Cost(*r91.COST):
+            rs = [r91.sl.sim_lots(ev, seed=sd, slots=SLOTS, risk=0.02, cap=0.20,
+                                  reserve=False, fill_rule="truncate",
+                                  cash_rule="per_slot") for sd in range(n_seed)]
+        v = [acc.account(x) for x in rs]
+        m = {"expo": st.median([x["expo_mean"] for x in rs]), "n": len(ev)}
+        cache[key] = [list(a) for a in v]
+        cache[key + "|m"] = m
+        CACHE.write_text(json.dumps(cache), encoding="utf-8")
+        return v, m
+
+    out, meta, nget = {}, {}, {}
+    out["1"], meta["1"] = sim(build(), "v1|cur|n%d" % n_seed)
+    P("")
+    P("  (1) %.0f만(%d)" % (st.median([a[0] for a in out["1"]]), meta["1"]["n"]), flush=True)
+    for x in XS:
+        g = pick_top(x)
+        nget[x] = len(g)
+        k = "J%.2f" % x
+        out[k], meta[k] = sim(build(g), "v1|%s|n%d" % (k, n_seed))
+        accs, exs, ns = [], [], []
+        for ai in range(n_as):
+            v, m = sim(build(pick_rand(x, ai)), "v1|D%.2f|a%d|n%d" % (x, ai, n_seed))
+            accs.append(v)
+            exs.append(m["expo"])
+            ns.append(m["n"])
+        dk = "D%.2f" % x
+        out[dk] = [tuple(st.mean(accs[ai][i][j] for ai in range(n_as)) for j in range(4))
+                   for i in range(n_seed)]
+        meta[dk] = {"expo": None, "expo_d": exs, "n": st.mean(ns)}
+        P("  X=%.0f%% — J %.0f만(%d · 되찾음 %s) · D %.0f만(%.0f)"
+          % (100 * x, st.median([a[0] for a in out[k]]), meta[k]["n"], format(len(g), ","),
+             st.median([a[0] for a in out[dk]]), meta[dk]["n"]), flush=True)
+
+    def spread(v):
+        w = sorted(a[0] for a in v)
+        return w[int(len(w) * .95)] / max(w[int(len(w) * .05)], 1)
+
+    def dif(a_, b_):
+        d = [acc.cagr(out[a_][i][0], YRS) - acc.cagr(out[b_][i][0], YRS) for i in range(n_seed)]
+        mu, sd = st.mean(d), st.stdev(d)
+        return mu, mu - T60 * sd / math.sqrt(n_seed), mu + T60 * sd / math.sqrt(n_seed)
+
+    P("")
+    P("## 4. 관문 — 수")
+    P("")
+    P("```")
+    m1 = st.median([a[0] for a in out["1"]])
+    P("**MA★ 앵커** — 1현행 **%.0f만** vs %s만  →  %s   («열 번째»)"
+      % (m1, format(MA_REF, ","), "✅ **일치**" if abs(m1 - MA_REF) < 1.0 else "🚨 **멈춘다**"))
+    P("")
+    P("**QB★ 되찾을 수 «있었던» 수 «와» «걸린» 수**(`143` 규칙 — **«둘 다»**)")
+    P("   False 총 **%s** · 그중 **모멘텀 «순위 가능»** **%s**(%.1f%%)"
+      % (format(n_F, ","), format(n_Fm, ","), 100.0 * n_Fm / max(n_F, 1)))
+    for x in XS:
+        P("   X=%.0f%%  →  «되찾음» **%s** 건 (False 의 **%.1f%%**)"
+          % (100 * x, format(nget[x], ","), 100.0 * nget[x] / max(n_F, 1)))
+    P("   🚨 «되찾은» 수가 «너무 작으면» 그건 「되찾기」가 «아니라» **«거의 안 함»**이다")
+    P("")
+    P("**QE★ 노출 — «팔마다»** · ⛔ **«보정»은 «안» 한다**(유형 73 — 노출은 팔의 «결과»다)")
+    P("   1현행 **%.1f%%**" % meta["1"]["expo"])
+    for x in XS:
+        e = meta["D%.2f" % x]["expo_d"]
+        P("   X=%.0f%%  J **%.1f%%** · D **%.1f ~ %.1f%%**(중앙 **%.1f%%**)"
+          % (100 * x, meta["J%.2f" % x]["expo"], min(e), max(e), st.median(e)))
+    P("```")
+
+    P("")
+    P("## 5. 팔")
+    P("")
+    P("| 팔 | 거래 | 세후 총액(중앙) | 연 환산 | 📏폭 | 낙폭 중앙 | 회복 |")
+    P("|---|---:|---:|---:|---:|---:|---:|")
+    for nm in ["1"] + [n for x in XS for n in ("J%.2f" % x, "D%.2f" % x)]:
+        v = out[nm]
+        mm = st.median([a[0] for a in v])
+        lab = ("**1현행**" if nm == "1" else
+               ("**Ⓙ X=%.0f%%**" % (100 * float(nm[1:])) if nm[0] == "J"
+                else "Ⓓ X=%.0f%%" % (100 * float(nm[1:]))))
+        P("| %s | %.0f | %.0f만 | **%+.2f%%** | %.2f | %+.1f%% | %.1f년 |"
+          % (lab, meta[nm]["n"], mm, acc.cagr(mm, YRS), spread(v),
+             st.median([a[1] for a in v]), st.median([a[2] for a in v]) / 252.0))
+
+    P("")
+    P("## 6. 판정 — ⛔ **「셋 «다» ≥ +Δ」여야 「일한다」**")
+    P("")
+    P("```")
+    P("🚨 근거: `23` 래칫 **귀무 95% +87.47%p** — 「셋 중 «하나»가 넘었다」는 **«아무 말»**이 아니다")
+    P("✅ max-T 는 **«불필요»** — 「셋 다 ≥ +Δ」가 max-T **«보다» 보수적**이다(max-T 는 «하나»만 넘으면 됨)")
+    P("🚨 다만 「셋 다」는 **«단조»를 «가정»**한다 ⇒ **그래서 「엇갈림」 칸이 «있다»**")
+    P("```")
+    P("")
+    P("| X | **Ⓙ−Ⓓ** | **95% CI** | Ⓙ−1현행 «따로» | 판정 |")
+    P("|---|---:|---|---:|:--|")
+    res, npass, nneg = {}, 0, 0
+    for x in XS:
+        mu, lo, hi = dif("J%.2f" % x, "D%.2f" % x)
+        res[x] = mu
+        if mu >= DELTA and lo > 0:
+            npass += 1
+        if hi < 0:
+            nneg += 1
+        j1 = dif("J%.2f" % x, "1")[0]
+        vd = ("✅ **≥ +Δ**" if (mu >= DELTA and lo > 0) else
+              ("**4b** 🚨 «양수»·CI 가 Δ 를 «걸침»" if (lo > 0 and hi > DELTA) else
+               ("**4a** «확실히» «양수»·Δ 미만" if lo > 0 else
+                ("**칸3** ⚠️ «확실히» «음수»·Δ 미만" if (hi < 0 and mu > -DELTA) else
+                 ("🚨 **Δ «보다» 강하게 «음수»**" if hi < 0 else "🚨 **못 가린다**")))))
+        P("| **%.0f%%** | **%+.3f%%p** | [%+.3f, %+.3f] | %+.3f%%p | %s |"
+          % (100 * x, mu, lo, hi, j1, vd))
+    P("")
+    P("```")
+    P("## ⇒ **셋 중 «%d» 이 ≥ +Δ  →  %s**"
+      % (npass, "✅ **「일한다」**" if npass == len(XS) else "🔴 **「일한다」로 «못» 쓴다**"))
+    P("")
+    P("★ **X 셋의 «순서» — 셋 다 Δ 를 «못» 넘어도 «순서»는 «정보»다:**")
+    order = sorted(XS, key=lambda z: -res[z])
+    P("   %s" % "  >  ".join("**X=%.0f%%**(%+.3f)" % (100 * z, res[z]) for z in order))
+    if order[0] == min(XS):
+        P("   ⇒ ★ **「조금만 되찾기」가 «제일 낫다»** — 「되찾을수록 나빠진다」와 «같은 방향»")
+    elif order[0] == max(XS):
+        P("   ⇒ 🚨 **「많이 되찾기」가 «제일 낫다»** — `168` Ⓘ(전부 되찾기 −4.334)와 **«어긋난다»**")
+    else:
+        P("   ⇒ 🚨 **«가운데»가 제일 낫다 — «단조»가 «아니다». 「셋 다」 규칙의 «가정»이 깨진다**")
+    P("")
+    P("## ⇒ **「원전 vs `85`」 — 어느 쪽인가**")
+    if npass == len(XS):
+        P("   ✅ **원전 쪽** — 「«매우 높은» 모멘텀」을 되찾으면 «일한다»")
+    elif nneg == len(XS):
+        P("   🔴 **`85` 쪽** — 「«많이» 오른 것」을 되찾으면 «나빠진다»(셋 «다» 음수)")
+    else:
+        P("   🚨 **«못 가린다»** — 「원전」도 「`85`」도 «못» 말한다")
+    P("```")
+    P("")
+    P("```")
+    P("⛔ **못 쓸 말:**")
+    P("   ⛔ 「원전 ②가 맞다/틀리다」 — 「모멘텀」·「큰 일」의 «자»가 **«우리» 것**   ← «정의». 손글씨")
+    P("   ⛔ 「생명기술주가 대박을 «낸다»」 — 「비중」과 「대박률」이 **«다른 말»**  ← «범위». 손글씨")
+    P("   ⛔ 「None 은 «신규 상장»이다」 — 🔢 **N1 은 %.1f%%뿐**이고 **N2 가 %.1f%%**다"
+      % (100.0 * cnt.get("N1", 0) / max(len(nones), 1),
+         100.0 * cnt.get("N2", 0) / max(len(nones), 1)))
+    P("   ⛔ 셋 중 «최선» «고르기» — `23` 귀무 95% **+87.47%p**")
+    P("   ⛔ 「노출 «보정»」 — **유형 73**(노출은 팔의 «결과»지 «설명 변수»가 아니다)")
+    P("```")
+    P("")
+    P("```")
+    for ln in gates.shared_axis_note(
+            n_seed, ["같은 시장 역사 한 벌", "같은 후보 목록", "같은 손절 −10 · 목표 +30",
+                     "같은 칸 5", "**같은 검출기**"]):
+        P(ln)
+    return 0
     P("")
     P("🚨 ㉡ 은 «검증 1차» 뒤에 돌린다 — 여기서 «멈춘다**")
     return 0
