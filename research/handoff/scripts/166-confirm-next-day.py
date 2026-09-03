@@ -389,14 +389,17 @@ def main():
             ("Ⓕ−① «따로»", "Ⓕ", "①"))
     for lab, x, y in rows:
         mu, lo, hi = dif(x, y)
-        if lo > DELTA:
-            vd = "✅ **Δ «보다» 강하게 남긴다**"
+        if lo >= DELTA:
+            vd = "✅ **판정칸 1** — CI «하한» ≥ +Δ"
         elif lo > 0 and hi > DELTA:
             vd = "**4b** 🚨 **CI 가 Δ 를 «걸침»**"
         elif lo > 0:
             vd = "**4a** 진짜인데 **«확실히» Δ 미만**"
+        elif hi <= -DELTA:
+            vd = "🚨 **판정칸 2** — CI «상한» ≤ −Δ · «거꾸로»다"
         elif hi < 0 and mu <= -DELTA:
-            vd = "🚨 **«거꾸로»다 — 확인이 «해롭다»**"
+            vd = ("**4b** 🚨 **«확실히» «음수»인데 «크기»를 «못» 가린다**"
+                  "(점추정은 −Δ 를 넘으나 CI 상한이 «걸침»)")
         elif hi < 0:
             vd = "⚠️ 음수이나 **Δ 미만**"
         else:
