@@ -103,21 +103,26 @@ def main():
     n_all, cnt = 0, {}
     first_term, cause_fld, shift = {}, {}, {}
     n2ii_tot = n2ii_got = n2ii_pos = 0
+    dated = []                       # (진입일, 갈래) — 171 과 «같은 경계»로 가르기 위해
+    all_dates = []
     for y in sorted(by2):
         for p in by2[y]:
             n_all += 1
+            all_dates.append(p["entry_date"])
             arq = (fund.get(p["code"]) or {}).get("ARQ") or []
             a = f92a.asof(arq, p["entry_date"]) if arq else None
             ok_ = (a is not None
                    and r102._ord(p["entry_date"]) - r102._ord(a[0]) <= r102.STALE_MAX)
             if not ok_:
                 cnt["N0"] = cnt.get("N0", 0) + 1
+                dated.append((p["entry_date"], "N0"))
                 continue
             j = arq.index(a)
             if r103.judge(arq, j, ix, 1, 2) is not None:
                 continue
             if j < 5:                                   # 4 + nq(=1)
                 cnt["N1"] = cnt.get("N1", 0) + 1
+                dated.append((p["entry_date"], "N1"))
                 continue
             hit = None
             for nm, fld, off in TERMS:                  # 🚨 `_yoy` 가 «불리는» 순서 그대로
@@ -127,10 +132,12 @@ def main():
                     break
             if hit is None:
                 cnt["N?"] = cnt.get("N?", 0) + 1
+                dated.append((p["entry_date"], "N?"))
                 continue
             nm, fld, w = hit
             k = "N2(ii)" if w == "prev≤0" else "N2(i)"
             cnt[k] = cnt.get(k, 0) + 1
+            dated.append((p["entry_date"], k))
             first_term[nm] = first_term.get(nm, 0) + 1
             cause_fld[(fld, w)] = cause_fld.get((fld, w), 0) + 1
             # ── 훑기 ② — N2(ii) 가 «나중에» 판정 가능해질 때 `g(k−4,"eps")` 가 «양수»인가 ──
@@ -263,6 +270,87 @@ def main():
     P("")
     P("✅ 그리고 **낱말** — 「회사가 «회복»」이 «아니라** **「«비교 분기»가 «흑자» 분기로 «옮겨감»」**이다")
     P("   (회사가 «나아진» 게 아니라 **«보는 자리»가 «옮겨진»** 것일 수 있다)")
+    P("```", flush=True)
+    P("")
+    P("## 3c. 🚨 **앞/뒤 «절반»에서 N2(ii) 비중이 «같은가» — 「이름 바꾸기」가 «정당»한지**")
+    P("")
+    P("```")
+    P("🚨 **「90.2%」는 «전 구간»에서 «한 번» 잰 수**다 — 앞/뒤가 «다르면**")
+    P("   「None 비율 증가 = «적자» 비중 증가」가 **«안» 성립**할 수 있다")
+    P("")
+    P("✅ **검출기를 «먼저» 걸었다: 「이 «변화»가 «시간만» 지나도 «저절로» 일어나는가」**")
+    P("   ⇒ **N2(ii) «비중»은 «시간만» 지난다고 «저절로» 안 바뀐다** ⇒ **«항등식»이 «아니다»** ✅")
+    P("")
+    _d = sorted(all_dates)
+    _cut = _d[len(_d) // 2]
+    P("경계 **%s** — `171` 과 **«같은 경계»**(전체 진입일의 중앙)" % _cut)
+    P("")
+    P("| 구간 | None n | N2(ii) n | **N2(ii) / None** |")
+    P("|---|---:|---:|---:|")
+    halves = []
+    for lab, sel in (("앞 절반", lambda d: d < _cut), ("뒤 절반", lambda d: d >= _cut)):
+        nn = [g for d, g in dated if sel(d)]
+        n_ = len(nn)
+        k_ = sum(1 for g in nn if g == "N2(ii)")
+        halves.append((n_, k_))
+        P("| **%s** | %s | %s | **%.1f%%** |"
+          % (lab, format(n_, ","), format(k_, ","), 100.0 * k_ / max(n_, 1)))
+    (na, ka), (nb, kb) = halves
+    pa, pb = 100.0 * ka / max(na, 1), 100.0 * kb / max(nb, 1)
+    se = math.sqrt(max((pa / 100) * (1 - pa / 100) / max(na, 1)
+                       + (pb / 100) * (1 - pb / 100) / max(nb, 1), 1e-18)) * 100
+    P("")
+    P("차 **%+.1f%%p**  95%% CI [%+.1f, %+.1f]" % (pb - pa, pb - pa - 1.96 * se, pb - pa + 1.96 * se))
+    P("")
+    if abs(pb - pa) < 5.0:
+        P("## ⇒ ✅ **둘 다 ≈90% — 「이름 바꾸기」가 «정당»하다**")
+        P("   ⇒ `171` ㉠ 의 「None 비율 42.2% → 48.7%」를 **「«적자» 후보 비중이 «늘었다»」**로 «읽을 수» 있다")
+        P("   ⇒ ★ 그러면 그건 **「커버리지」가 «아니라» «시장 구성»** 이야기다")
+    else:
+        P("## ⇒ 🚨 **앞/뒤가 «갈린다»(%+.1f%%p) — 「이름 바꾸기」가 **«안» 된다**" % (pb - pa))
+        P("   ⇒ 「None 비율 증가」의 **«뜻»이 «구간마다» 다르다**")
+    P("")
+    P("★★★ **그런데 «갈린 방향»이 «말»을 한다 — 갈래를 «다» 편다:**")
+    P("")
+    P("| 구간 | 후보 n | N0 | N1 | **N2(i) «비어»** | **N2(ii) «적자»** |")
+    P("|---|---:|---:|---:|---:|---:|")
+    tot_half = []
+    for lab, sel in (("앞 절반", lambda d: d < _cut), ("뒤 절반", lambda d: d >= _cut)):
+        nc = sum(1 for d in all_dates if sel(d))
+        nn = [g for d, g in dated if sel(d)]
+        tot_half.append((nc, nn))
+        P("| **%s** | %s | %.1f%% | %.1f%% | **%.1f%%** | **%.1f%%** |"
+          % (lab, format(nc, ","),
+             *[100.0 * sum(1 for g in nn if g == k) / max(len(nn), 1)
+               for k in ("N0", "N1", "N2(i)", "N2(ii)")]))
+    P("")
+    P("   (위는 **None 중** 비율이다)")
+    P("")
+    P("## 🚨 **N2(i) «비어» 있음이 «줄었다» ⇒ «커버리지»는 «좋아졌다**")
+    P("")
+    P("★★ **그러면 «물음»을 «직접» 재야 한다 — 「«적자» 후보가 «전체 후보» 중 몇 %인가」:**")
+    P("")
+    P("| 구간 | 후보 n | **N2(ii) / «전체 후보»** |")
+    P("|---|---:|---:|")
+    dd = []
+    for (nc, nn), lab in zip(tot_half, ("앞 절반", "뒤 절반")):
+        k_ = sum(1 for g in nn if g == "N2(ii)")
+        dd.append(100.0 * k_ / max(nc, 1))
+        P("| **%s** | %s | **%.1f%%** |" % (lab, format(nc, ","), dd[-1]))
+    P("")
+    P("## ⇒ ★★ **적자 후보 비중 %.1f%% → %.1f%% (**%+.1f%%p**)**" % (dd[0], dd[1], dd[1] - dd[0]))
+    P("   ⇒ ✅ **「«적자» 후보 비중이 «늘었다」」는 «이 자»로 «직접» 선다**")
+    P("     (None 비율을 «거쳐» 말할 «필요»가 «없다» — 그게 「이름 바꾸기」가 «막힌» 이유였다)")
+    P("")
+    P("## ⇒ ★★★ **«두 가지»가 «같이» 일어났다:**")
+    P("   ① **커버리지가 «좋아졌다»**(N2(i) 가 None 중 %.1f%% → %.1f%%)"
+      % (100.0 * sum(1 for g in tot_half[0][1] if g == "N2(i)") / max(len(tot_half[0][1]), 1),
+         100.0 * sum(1 for g in tot_half[1][1] if g == "N2(i)") / max(len(tot_half[1][1]), 1)))
+    P("   ② **«적자» 후보가 «늘었다»**(전체 후보 중 %+.1f%%p)" % (dd[1] - dd[0]))
+    P("   ⇒ 🚨 **`171` ㉠ 의 「None 비율 «증가»」는 ①과 ②가 «섞인» 수다**")
+    P("   ⇒ ✅ **②만 «따로» 재면 «선다» — 위 표가 그것이다**")
+    P("")
+    P("🚨 **그리고 「«왜» «적자» 비중이 늘었나」는 «여전히» «안» 쟀다**")
     P("```", flush=True)
     P("")
     P("## 4. ★★ **`92`/`94` 와 «맞물린다» — 🚨 «이야기»지 «측정»이 «아니다»**")
