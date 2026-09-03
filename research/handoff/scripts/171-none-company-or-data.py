@@ -92,6 +92,30 @@ def main():
     P("자리 `%s`" % os.getcwd().replace("\\\\", "/"))
     P("```")
     P("")
+    P("## 🚨🚨 **«값 보기 «전»»에 박는 것 «셋»**")
+    P("")
+    P("```")
+    P("### ① **«판정»은 «+100% 자» «하나»로 한다** — 나머지 셋은 **«묘사»**다")
+    P("   ★ 이유: **`168` 헤드라인이 «+100% 자»에서 났다** ⇒ **그 자로 «되묻는» 것이 맞다**")
+    P("   ⇒ 그래서 **「몇 개가 A1 인가」를 «세지» 않는다**")
+    P("   🚨 네 자는 **«독립»이 «아니다»** — **상위1% ⊂ 상위5%** · **+100% ⊂ +30%**")
+    P("   ⇒ ✅ 묘사 셋이 «다르게» 나오면 **「A2 «냄새»로 «읽되» — «판정»은 «안» 바꾼다」**")
+    P("     (자를 **«미리»** 박았으므로)")
+    P("")
+    P("### ② **A 가 나오면 «무엇을» 말할 수 있나 — «미리» 한 문장으로:**")
+    P("   ## **「효과가 «구간에 «안» 흔들린다»(«강건성»).**")
+    P("   ## **  그러나 그것이 «회사» 때문인지는 «이 판으로 «못» 답한다」**")
+    P("   🚨 이유: **「바라는 답」과 「«못 재는» 답」이 «같은 칸»**이다 —")
+    P("     A 는 「커버리지가 «안» 좋아졌다」·「남은 None 이 «같은 성질»」·「두 효과 «상쇄»」가")
+    P("     **«전부»** 낸다. **A 는 «하나»를 «가리키지» 않는다**")
+    P("")
+    P("### ③ ⛔ **이 판의 결과로 «매매 규칙»은 «안» 바꾼다**")
+    P("   「«자료»」면  ⇒ `168` 헤드라인을 **«내린다»**")
+    P("   「«회사»」면  ⇒ **「None 을 «고르는» 것」은 `168` 이 «안» 쟀다**")
+    P("   ## ⇒ **«어느 쪽이든» 매매는 «안» 바뀌고 — 바뀌는 건 «우리가 «믿는» 것»이다**")
+    P("   🚨 **안 박으면** 「회사」가 나왔을 때 **「None 을 «사자」」로 «흘러간다»**")
+    P("```")
+    P("")
     P("## 📋 **판정칸 — 🚨 «안 바라는» 칸을 «먼저», A 안에서도 A2 를 «먼저»**")
     P("")
     P("```")
@@ -112,6 +136,9 @@ def main():
         return 2
     fund, ixf = f92a.load()
     ix = {f: i for i, f in enumerate(ixf)}
+    # 🚨 ㉡ 의 «우측 절단» — 「진입일 + %d 분기」가 «자료 끝» 안에 드는 거래만 «센다**
+    ARQ_END = max((r102._ord(v["ARQ"][-1][0]) for v in fund.values()
+                   if v.get("ARQ")), default=0)
 
     rows = []
     for y in sorted(by2):
@@ -130,19 +157,23 @@ def main():
             hs = [x for x in p["h"] if x is not None]
             run = (max(hs) / ep - 1.0) if (hs and ep and ep > 0) else None
             # ㉡ — 「«나중에» 판정 가능해지는가」 (**«묘사»** · 규칙에 «안» 씀)
-            fwd = None
+            fwd, inwin = None, None
             if v is None and j is not None:
+                inwin = (r102._ord(p["entry_date"]) + 365 * FWD_MAX // 4) <= ARQ_END
+            if v is None and j is not None and inwin:
                 for k in range(j + 1, min(j + 1 + FWD_MAX, len(arq))):
                     if r103.judge(arq, k, ix, 1, 2) is not None:
                         fwd = r102._ord(arq[k][0]) - r102._ord(p["entry_date"])
                         break
             rows.append({"y": int(p["entry_date"][:4]), "d": p["entry_date"],
                          "v": v, "why": why, "run": run, "fwd": fwd,
-                         "hasj": j is not None})
+                         "inwin": inwin, "hasj": j is not None})
 
     n_all = len(rows)
     nones = [r for r in rows if r["v"] is None]
-    good = sorted([r for r in rows if r["run"] is not None], key=lambda r: -r["run"])
+    # 🚨 규약 ③ — ㉢ 의 «입력»에서 `fwd`(룩어헤드)를 **«떼어낸다»**. 「안 쓴다」를 «구조»로
+    ROWS3 = [{k: v for k, v in r.items() if k != "fwd"} for r in rows]
+    good = sorted([r for r in ROWS3 if r["run"] is not None], key=lambda r: -r["run"])
     n_g = len(good)
     THS = (good[max(1, n_g // 100) - 1]["run"], good[max(1, n_g // 20) - 1]["run"], 1.0, 0.30)
     TH_NM = ("상위1%", "상위5%", "+100%", "+30%")
@@ -198,12 +229,31 @@ def main():
     P("## 3. ㉡ **「«나중에» 판정 «가능»해지는가」 — 🚨 «묘사»다**")
     P("")
     P("```")
-    P("🚨 **RC★ — 이건 «룩어헤드»가 «아니다**:")
-    P("   ① **«규칙»에 «안» 쓴다** — 팔도 없고 시뮬도 «없다». **«묘사»**뿐이다")
-    P("   ② 우리 «규칙»의 `asof` 는 **「진입일 «전»」만** 본다(`92a-fundamentals-index.py:93`)")
-    P("   ⇒ ⛔ **「그러니 «기다렸다» 사라」로 «가지» 않는다** — **«안» 쟀다**")
+    P("🚨🚨 **RC★ — 이건 «룩어헤드»가 «맞다». 그래서 «가둔다**:")
+    P("   ✅ **「이것은 «룩어헤드»다. 그래서 «묘사»에만 쓰고 «매매 규칙»에는 «못» 들어간다」**")
+    P("   🚨 그리고 그걸 **«글»이 아니라 «구조»로** 건다(규약 ③):")
+    P("     ㉢ 의 «입력»은 **`fwd` 열을 «떼어낸» 표**다 ⇒ **㉡ 의 출력이 ㉢ 에 «닿을 수가 «없다»»**")
+    P("     검사 — ㉢ 입력에 `fwd` 열이 «있나»: **%s**  →  %s"
+      % ("있다" if any("fwd" in r for r in ROWS3) else "**없다**",
+         "🚨 **멈춘다**" if any("fwd" in r for r in ROWS3) else "✅"))
+    P("   ⇒ ⛔ **「그러니 «기다렸다» 사라」로 «가지» 않는다**")
     P("")
-    nj = [r for r in nones if r["hasj"]]
+    P("🚨 **«우측 절단»을 «세었다»**(`167` 과 «같은 꼴» — «라벨»이 아니라 «수»):")
+    nw = [r for r in nones if r["hasj"]]
+    n_in = sum(1 for r in nw if r["inwin"])
+    P("   「진입일 + %d 분기(≈%d년)」가 **«자료 끝» 안**에 드는 것만 «센다»"
+      % (FWD_MAX, FWD_MAX // 4))
+    P("   **%s / %s (%.1f%%)** 만 «셀 수 있다** — **«뺀» 것 %s 건**"
+      % (format(n_in, ","), format(len(nw), ","), 100.0 * n_in / max(len(nw), 1),
+         format(len(nw) - n_in, ",")))
+    P("")
+    P("   ## 🚨 **치우침의 «방향» — «고쳐도» «0» 이 되진 «않는다»:**")
+    P("   우측 절단은 「«안» 바뀐 것」을 «늘려» ⇒ **「«자료»다」 쪽을 «약하게»** 만든다")
+    P("   🚨 그런데 **「자료다」는 판정칸 B 쪽**이고 — **두뇌 세션이 «바라는» 건 A**(`168` 이 살아남기)다")
+    P("   ⇒ ★ **치우침이 «바라는» 쪽으로 간다** ⇒ **그런데도 「자료다」가 나오면 «판정 «강화»»다**")
+    P("     (`166` 과 **«같은 구조»** — 「유리한 쪽으로 치우쳤는데도 «졌다»」)")
+    P("")
+    nj = [r for r in nones if r["hasj"] and r["inwin"]]
     got = [r for r in nj if r["fwd"] is not None]
     P("None 중 «앞으로 볼 수 있는» 것 **%s** (`arq` 가 «있는» 것) — %d 분기까지 본다"
       % (format(len(nj), ","), FWD_MAX))
@@ -227,13 +277,14 @@ def main():
     P("## 4. ㉢ **«시간 분할» — 「None − True」 대박률 차가 «구간»에 흔들리나**")
     P("")
     P("```")
-    ds = sorted(r["d"] for r in rows)
+    ds = sorted(r["d"] for r in ROWS3)
     cut = ds[len(ds) // 2]
-    A = [r for r in rows if r["d"] < cut]
-    B = [r for r in rows if r["d"] >= cut]
+    A = [r for r in ROWS3 if r["d"] < cut]
+    B = [r for r in ROWS3 if r["d"] >= cut]
     P("경계 **%s** — 앞 **%s** 건 · 뒤 **%s** 건" % (cut, format(len(A), ","), format(len(B), ",")))
     P("")
-    P("**RB★ — 앞·뒤 «사건 수»를 «둘 다» 적는다**(유형 33 — 작은 쪽이 문턱을 «독차지»하지 않게)")
+    P("**RB★ — 앞·뒤 «사건 «건수»»를 «둘 다» 적는다**(유형 33 — **«비율»이 아니라 «건수»가 자다**)")
+    P("   («대박 건수» / «분모» 로 적는다 — 앞의 수가 «사건 수»다)")
     P("")
     P("| 자 | 앞 None n | 앞 True n | 뒤 None n | 뒤 True n |")
     P("|---|---:|---:|---:|---:|")
@@ -270,20 +321,35 @@ def main():
     P("")
     P("**RD★ — 대박률 «네 자» «전부» 적었다** ✅ (`170` PD★ 이어감)")
     P("")
+    HEAD = 2                                   # 🚨 «판정»은 **+100% 자** 하나(값 보기 «전» 박음)
+    P("")
+    P("## ⇒ 🚨 **«판정»은 «+100%% 자» «하나»다 — %s**" % cells[HEAD])
+    P("   (나머지 셋은 **«묘사»**다. 「몇 개가 A1 인가」를 **«안» 센다**)")
+    P("")
+    P("★ **묘사 셋 — «참고»로만:**")
+    for i2, nm2 in enumerate(TH_NM):
+        if i2 != HEAD:
+            P("   %-8s %s" % (nm2, cells[i2]))
+    if len({c.split(" ")[1] if " " in c else c for c in cells}) > 1:
+        P("   ⇒ 🚨 **묘사가 «갈린다» — 「A2 «냄새»」로 «읽되» «판정»은 «안» 바꾼다**")
+    P("")
     nA1 = sum(1 for c in cells if "A1" in c)
     nA2 = sum(1 for c in cells if "A2" in c)
     nB = sum(1 for c in cells if "**B**" in c)
     nC = sum(1 for c in cells if "**C**" in c)
     nD = sum(1 for c in cells if "**D**" in c)
-    P("## ⇒ **네 자 — A1 %d · A2 %d · B %d · C %d · D %d**" % (nA1, nA2, nB, nC, nD))
-    if nB:
-        P("   🔴 **B 가 %d 개 — 「«구간»에 달렸다」 ⇒ `168` 헤드라인을 «그대로» 못 쓴다**" % nB)
-    elif nA1 == len(TH_NM):
-        P("   ✅ **네 자 «전부» A1 — 「구간에 «안» 흔들린다」**")
-    elif nA2:
-        P("   🚨 **A2 가 %d 개 — 부호는 같은데 «세기»가 «변한다». «자료»가 섞였을 수 있다**" % nA2)
-    else:
-        P("   🚨 **엇갈린다 — 「«어느 자»에서 서고 «어느 자»에서 안 서는지」를 «그대로» 적는다**")
+    P("🚨 **아래 «개수»는 «참고»다 — 네 자가 «독립»이 «아니라»(⊂ 관계) «세면» «안» 된다**")
+    P("   네 자 — A1 %d · A2 %d · B %d · C %d · D %d" % (nA1, nA2, nB, nC, nD))
+    if "A1" in cells[HEAD]:
+        P("")
+        P("   ## ⇒ ✅ **「효과가 «구간에 «안» 흔들린다»(«강건성»).**")
+        P("   ## **     그러나 그것이 «회사» 때문인지는 «이 판으로 «못» 답한다」**")
+        P("   🚨 **A 는 «하나»를 «가리키지» 않는다** — 「커버리지가 «안» 좋아졌다」·")
+        P("     「남은 None 이 «같은 성질»」·「두 효과 «상쇄»」가 **«전부»** 이 칸을 낸다")
+    elif "**B**" in cells[HEAD]:
+        P("   🔴 **「«구간»에 달렸다」 ⇒ `168` 헤드라인을 «그대로» «못» 쓴다**")
+    elif "A2" in cells[HEAD]:
+        P("   🚨 **부호는 같은데 «세기»가 «변한다» — «자료»가 섞였을 수 있다**")
     P("```")
     P("")
     P("```")
