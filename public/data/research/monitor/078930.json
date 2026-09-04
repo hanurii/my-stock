@@ -1,7 +1,7 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-09-04T16:52:30.463+09:00",
+  "last_checked": "2026-09-04T19:12:07.728+09:00",
   "metrics": [
     {
       "id": "per",
@@ -60,8 +60,8 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 91.86,
-      "display": "91.86$",
+      "value": 92.96,
+      "display": "92.96$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
@@ -95,7 +95,7 @@
     {
       "severity": "warn",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 7건 (관찰 신호 2건 포함)",
+      "title": "리스크 키워드 매칭 뉴스 6건 (관찰 신호 1건 포함)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
@@ -105,14 +105,6 @@
       "date": "2026-09-01",
       "title": "이란 대통령 \"미국, 합의 이행하면 즉각 상응조치\"…외교 재개 시사 - v.daum.net",
       "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE44d0hVY1o4M2JaS0pMNFJNQTVfX0ZodlRQMEFLNDAxSXlGVVNfNWRBMGdKeFN0RzJ4S0tuMXdSQTZ1TVpDMXcwaXoyd0paUGs?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "이란 미국 합의",
-      "date": "2026-09-01",
-      "title": "이란 \"미국이 종전 합의 이행하면 우리도 상응 조치\" - 노컷뉴스",
-      "url": "https://news.google.com/rss/articles/CBMiUkFVX3lxTFAzM3YtSXZNWHdWWmFWaTBhYkV1Yk5lSGpfWDJ5VUY4NklHbkNkUFVoZmM0S1B3R01FY2FoXzJTd2RXQTFFdXYzSUs4SDQ2dWlIYlE?oc=5",
       "severity": "info",
       "signals": []
     },
@@ -135,6 +127,14 @@
     {
       "keyword": "이란 미국 합의",
       "date": "2026-09-01",
+      "title": "이란 \"미국이 종전 합의 이행하면 우리도 상응 조치\" - v.daum.net",
+      "url": "https://news.google.com/rss/articles/CBMiRkFVX3lxTFBzd21DZ1pLeFRieTBLY3ozazRySDVaVXQ1ZHV1dVNWUjV3Smw3LXQ0d0V1T0EwanZLeldLOEE0TlFpYjFKR3c?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "이란 미국 합의",
+      "date": "2026-09-01",
       "title": "이란 대통령 “미국, 합의 이행하면 즉각 상응조치”…외교재개 시사 - v.daum.net",
       "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE1fc1duQ2EtZHNVdk5pQ3RfLXhmcHBCMDdaY1h0d3VKZjhEQnVSM0czQmRIYklYNHVLVldNZjVZTUFzZzg3UTctcmR3Rm45TEE?oc=5",
       "severity": "info",
@@ -149,16 +149,6 @@
       "signals": [
         "혼조"
       ]
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-09-03",
-      "title": "중동 지역의 긴장이 완화되면서 원유 가격이 소폭 하락했다. - Vietnam.vn",
-      "url": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxOR0g0V1FrM3pGTThrUEY1Y2tzMG9zclVXXzZ3azZvUXh3S3JFXzFwcWRVWjdhRk5sNXZ4cDlnODFXNVNsTlhXUmtkWnNiSGRWX08zbGlYcER6emVIR0o4cWtRUDBlX1pGM19IV0kwbDh6MVROc0VDV1d0aEU4QkJ3eUZtaTJJSjNQ?oc=5",
-      "severity": "warn",
-      "signals": [
-        "하락"
-      ]
     }
   ],
   "sources": [
@@ -167,7 +157,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 95.39 USD (2026-09-04, 7일 평균 91.86)",
+      "label": "Brent 원유 종가 95.4 USD (2026-09-04, 7일 평균 92.96)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
