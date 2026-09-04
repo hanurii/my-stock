@@ -45,7 +45,8 @@ D0, D1 = "1999-04-01", "2026-08-21"
 YEARS = tuple(range(1999, 2027))
 TARGET, STOP, HALF, SLOTS = 30.0, 10.0, 0.5, 5
 NSEED, NASSIGN, YRS, DELTA, T60 = 60, 10, 27.4, 1.23, 2.001
-CACHE = Path(str(r91.OUT / "166-partial.json"))
+VCPONLY = "--vcp" in sys.argv          # 🆕 179 ③ — 「VCP «만»으로 돌리면 «같은 판정»인가」
+CACHE = Path(str(r91.OUT / ("166%s-partial.json" % ("v" if VCPONLY else ""))))
 MA_REF = 12377
 
 
@@ -54,6 +55,17 @@ def main():
     n_as = 3 if "--quick" in sys.argv else NASSIGN
     P = print
     P("=" * 104)
+    if VCPONLY:
+        P("")
+        P("## 🆕🚨 **`--vcp` — 후보를 **VCP «만»**으로 «좁혀» 돌린 판이다**(179 ③)")
+        P("")
+        P("```")
+        P("⛔ **판정을 «새로» 내지 «않는다»** — 「«바뀌나 / 안 바뀌나»」 «하나»만 본다")
+        P("🚨 **MA★ 이 12,377만과 «다른» 것이 «정상»이다** — «유니버스»가 «다르다»")
+        P("🚨 **N 이 «줄어» CI 가 «넓어진다»** ⇒ 「판정칸이 바뀐 것」 ≠ 「효과가 바뀐 것」")
+        P("   ⇒ ✅ **«점추정»이 «얼마나» 움직였나를 «같이»** 읽는다")
+        P("```")
+        P("")
     P("166 — **「돌파일 «종가»로 «확인»하고 «다음 날» 산다」** · 씨앗 %d × 배정 %d" % (n_seed, n_as))
     P("=" * 104)
     P("")
@@ -100,6 +112,8 @@ def main():
     for y in sorted(by2):
         keep[y] = []
         for p in by2[y]:
+            if VCPONLY and p.get("pattern") != "VCP":   # 🆕 «한 갈래»만
+                continue
             arq = (fund.get(p["code"]) or {}).get("ARQ") or []
             a = f92a.asof(arq, p["entry_date"]) if arq else None
             v = (None if (a is None or r102._ord(p["entry_date"]) - r102._ord(a[0]) > r102.STALE_MAX)

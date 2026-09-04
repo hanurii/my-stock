@@ -46,7 +46,8 @@ TARGET, STOP, HALF, SLOTS = 30.0, 10.0, 0.5, 5
 NSEED, NASSIGN, YRS, DELTA, T60 = 60, 10, 27.4, 1.23, 2.001
 ALPHAS = (0.005, 0.0065, 0.010, 0.020)     # 🚨 0.65% = **원전 20센트의 «환산값 자체»**(유형 38)
 CENTS = 0.20
-CACHE = Path(str(r91.OUT / "165-partial.json"))
+VCPONLY = "--vcp" in sys.argv          # 🆕 179 ③ — 「VCP «만»으로 돌리면 «같은 판정»인가」
+CACHE = Path(str(r91.OUT / ("165%s-partial.json" % ("v" if VCPONLY else ""))))
 PXF = Path("D:/stock-data/derived/159-entry-price.json")
 LA_REF = 12377
 
@@ -56,6 +57,17 @@ def main():
     n_as = 3 if "--quick" in sys.argv else NASSIGN
     P = print
     P("=" * 104)
+    if VCPONLY:
+        P("")
+        P("## 🆕🚨 **`--vcp` — 후보를 **VCP «만»**으로 «좁혀» 돌린 판이다**(179 ③)")
+        P("")
+        P("```")
+        P("⛔ **판정을 «새로» 내지 «않는다»** — 「«바뀌나 / 안 바뀌나»」 «하나»만 본다")
+        P("🚨 **MA★ 이 12,377만과 «다른» 것이 «정상»이다** — «유니버스»가 «다르다»")
+        P("🚨 **N 이 «줄어» CI 가 «넓어진다»** ⇒ 「판정칸이 바뀐 것」 ≠ 「효과가 바뀐 것」")
+        P("   ⇒ ✅ **«점추정»이 «얼마나» 움직였나를 «같이»** 읽는다")
+        P("```")
+        P("")
     P("165 — **「피벗보다 «조금 위»에서 기다린다」** · 🏷️ 세대 B · 씨앗 %d × 배정 %d" % (n_seed, n_as))
     P("=" * 104)
     P("")
@@ -148,6 +160,8 @@ def main():
     for y in sorted(by2):
         keep[y] = []
         for p in by2[y]:
+            if VCPONLY and p.get("pattern") != "VCP":   # 🆕 «한 갈래»만
+                continue
             n_all += 1
             arq = (fund.get(p["code"]) or {}).get("ARQ") or []
             a = f92a.asof(arq, p["entry_date"]) if arq else None
