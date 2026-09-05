@@ -45,8 +45,12 @@ D0, D1 = "1999-04-01", "2026-08-21"
 YEARS = tuple(range(1999, 2027))
 TARGET, STOP, HALF, SLOTS = 30.0, 10.0, 0.5, 5
 NSEED, NASSIGN, YRS, DELTA, T60 = 60, 10, 27.4, 1.23, 2.001
-VCPONLY = "--vcp" in sys.argv          # 🆕 179 ③ — 「VCP «만»으로 돌리면 «같은 판정»인가」
-CACHE = Path(str(r91.OUT / ("166%s-partial.json" % ("v" if VCPONLY else ""))))
+DET = next((a.split("=", 1)[1].upper() for a in sys.argv if a.startswith("--det=")), None)
+if "--vcp" in sys.argv:                 # 옛 이름 — 같은 것
+    DET = "VCP"
+if DET not in (None, "VCP", "3C", "PP"):
+    raise SystemExit("--det= 는 VCP · 3C · PP 중 하나여야 한다: %r" % DET)
+CACHE = Path(str(r91.OUT / ("166%s-partial.json" % ("_" + DET.replace("3C", "c").replace("PP", "p").replace("VCP", "v") if DET else ""))))
 MA_REF = 12377
 
 
@@ -55,19 +59,19 @@ def main():
     n_as = 3 if "--quick" in sys.argv else NASSIGN
     P = print
     P("=" * 104)
-    if VCPONLY:
+    P("166 — **「돌파일 «종가»로 «확인»하고 «다음 날» 산다」** · 씨앗 %d × 배정 %d" % (n_seed, n_as))
+    P("=" * 104)
+    if DET:
         P("")
-        P("## 🆕🚨 **`--vcp` — 후보를 **VCP «만»**으로 «좁혀» 돌린 판이다**(179 ③)")
+        P("## 🆕🚨 **`--det=%s` — 후보를 **%s «만»**으로 «좁혀» 돌린 판이다**(179 ③ · «강건성 검사»)" % (DET, DET))
         P("")
         P("```")
         P("⛔ **판정을 «새로» 내지 «않는다»** — 「«바뀌나 / 안 바뀌나»」 «하나»만 본다")
-        P("🚨 **MA★ 이 12,377만과 «다른» 것이 «정상»이다** — «유니버스»가 «다르다»")
-        P("🚨 **N 이 «줄어» CI 가 «넓어진다»** ⇒ 「판정칸이 바뀐 것」 ≠ 「효과가 바뀐 것」")
-        P("   ⇒ ✅ **«점추정»이 «얼마나» 움직였나를 «같이»** 읽는다")
+        P("🚨 **MA★ 이 12,377만과 «다른» 것이 «정상»이다** — «유니버스»가 «다르다**")
+        P("🚨 **N 이 «줄어» CI 가 «넓어질» 수 있다** ⇒ 「판정칸이 바뀐 것」 ≠ 「효과가 바뀐 것」")
+        P("   ⇒ ✅ **«점추정 이동»과 «CI 폭»을 «같이»** 읽는다")
         P("```")
         P("")
-    P("166 — **「돌파일 «종가»로 «확인»하고 «다음 날» 산다」** · 씨앗 %d × 배정 %d" % (n_seed, n_as))
-    P("=" * 104)
     P("")
     P("> 조사 세션 · 2026-09-03 · `scripts/166-confirm-next-day.py` · **문서는 이 출력 그 자체**(유형 48)")
     P("")
@@ -112,7 +116,7 @@ def main():
     for y in sorted(by2):
         keep[y] = []
         for p in by2[y]:
-            if VCPONLY and p.get("pattern") != "VCP":   # 🆕 «한 갈래»만
+            if DET and p.get("pattern") != DET:   # 🆕 «한 갈래»만(179 ③)
                 continue
             arq = (fund.get(p["code"]) or {}).get("ARQ") or []
             a = f92a.asof(arq, p["entry_date"]) if arq else None

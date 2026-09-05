@@ -49,7 +49,12 @@ LOWVOL, HEAVY = 1.0, 1.5        # ㉡ 「저거래량 돌파」 · 「매도 물
 MA_REF = 12377
 NA_TOL = 0.01
 FULL = Path("D:/stock-data/uspath-warm/full")
-CACHE = Path(str(r91.OUT / "176-partial.json"))
+DET = next((a.split("=", 1)[1].upper() for a in sys.argv if a.startswith("--det=")), None)
+if "--vcp" in sys.argv:                 # 옛 이름 — 같은 것
+    DET = "VCP"
+if DET not in (None, "VCP", "3C", "PP"):
+    raise SystemExit("--det= 는 VCP · 3C · PP 중 하나여야 한다: %r" % DET)
+CACHE = Path(str(r91.OUT / ("176%s-partial.json" % ("_" + DET.replace("3C", "c").replace("PP", "p").replace("VCP", "v") if DET else ""))))
 
 
 def main():
@@ -61,6 +66,17 @@ def main():
     P("176 - **원전의 «청산» «두» 구절** · 씨앗 %d판%s"
       % (n_seed, "  🚨 **--dry(«구조»만)**" if dry else ""))
     P("=" * 104)
+    if DET:
+        P("")
+        P("## 🆕🚨 **`--det=%s` — 후보를 **%s «만»**으로 «좁혀» 돌린 판이다**(179 ③ · «강건성 검사»)" % (DET, DET))
+        P("")
+        P("```")
+        P("⛔ **판정을 «새로» 내지 «않는다»** — 「«바뀌나 / 안 바뀌나»」 «하나»만 본다")
+        P("🚨 **MA★ 이 12,377만과 «다른» 것이 «정상»이다** — «유니버스»가 «다르다**")
+        P("🚨 **N 이 «줄어» CI 가 «넓어질» 수 있다** ⇒ 「판정칸이 바뀐 것」 ≠ 「효과가 바뀐 것」")
+        P("   ⇒ ✅ **«점추정 이동»과 «CI 폭»을 «같이»** 읽는다")
+        P("```")
+        P("")
     P("")
     P("> 조사 세션 · 2026-09-04 · `scripts/176-exit-two-rules.py` · **문서는 이 출력 그 자체**(유형 48)")
     P("")
@@ -115,6 +131,8 @@ def main():
     for y in sorted(by2):
         keep[y] = []
         for p in by2[y]:
+            if DET and p.get("pattern") != DET:   # 🆕 «한 갈래»만(179 ③)
+                continue
             arq = (fund.get(p["code"]) or {}).get("ARQ") or []
             a = f92a.asof(arq, p["entry_date"]) if arq else None
             v = (None if (a is None or r102._ord(p["entry_date"]) - r102._ord(a[0]) > r102.STALE_MAX)
