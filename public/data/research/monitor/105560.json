@@ -1,7 +1,7 @@
 {
   "code": "105560",
   "name": "KB금융",
-  "last_checked": "2026-09-07T09:44:23.805+09:00",
+  "last_checked": "2026-09-07T16:56:41.981+09:00",
   "metrics": [
     {
       "id": "pbr",
@@ -118,9 +118,24 @@
       "type": "dividend_qoq_change",
       "title": "분기배당 QoQ 변화율 동결 또는 감소",
       "message": "현재 -47.4% — 매도 트리거 도달"
+    },
+    {
+      "severity": "info",
+      "type": "news_keyword_hit",
+      "title": "리스크 키워드 매칭 뉴스 1건 (관찰 신호 0건 — 키워드 단순 매칭만)",
+      "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
-  "news_hits": [],
+  "news_hits": [
+    {
+      "keyword": "KB증권 부실",
+      "date": "2026-09-05",
+      "title": "증권사 내부 통제 부실 구조적 문제 -&gt; 미성년자 주식 외상거래 급증 =&gt; KB증권의 압도적 쏠림 현상과 사후 해명 뒤에 감춰진 무책임한 책임 회피 &gt;&gt; 증권가 전반에 퍼진 무분별한 외상거래 허용과 허술한 대출 심사 실태 - 데일리머니",
+      "url": "https://news.google.com/rss/articles/CBMickFVX3lxTE95TE9RWFFEMmp0Wm1XZE9Tdl9CMll2VDBEdGdIV2cyQTduNXc0RkpSLU81aHFidjlyekh0QnozV1BMTFFXNVR3WDI0Y3BLdGQybzI4Ql9nOXpkOEUwdDhTRDB1S2JXUkZOVk9LX3hLR1JEZw?oc=5",
+      "severity": "info",
+      "signals": []
+    }
+  ],
   "sources": [
     {
       "label": "PER/PEG/PBR 스코어",
@@ -157,6 +172,10 @@
     {
       "label": "분기 ROE 연환산 (2026-H1 · 6.41%)",
       "ref": "DART 20260814004200 (fnlttSinglAcntAll: 자본총계+분기순이익)"
+    },
+    {
+      "label": "뉴스 RSS",
+      "ref": "news.google.com/rss (7일)"
     }
   ]
 }
