@@ -1,16 +1,16 @@
 {
   "code": "105560",
   "name": "KB금융",
-  "last_checked": "2026-09-08T19:09:45.769+09:00",
+  "last_checked": "2026-09-08T22:25:00.015+09:00",
   "metrics": [
     {
       "id": "pbr",
       "label": "PBR",
-      "value": 1.1,
-      "display": "1.10배",
+      "value": 1.09,
+      "display": "1.09배",
       "threshold": "1.1배 돌파",
-      "hit": true,
-      "tone": "bad"
+      "hit": false,
+      "tone": "warn"
     },
     {
       "id": "pbr_premium_pp",
@@ -96,10 +96,10 @@
   ],
   "alerts": [
     {
-      "severity": "bad",
+      "severity": "warn",
       "type": "pbr",
-      "title": "PBR 1.1배 돌파",
-      "message": "현재 1.10배 — 매도 트리거 도달"
+      "title": "PBR 임계 근접",
+      "message": "현재 1.09배 (임계 1.1배 돌파)"
     },
     {
       "severity": "bad",
@@ -147,7 +147,7 @@
     },
     {
       "label": "4대 지주 평균 PBR 비교 (3종목)",
-      "ref": "peers: 086790, 316140, 055550 / avg 0.81"
+      "ref": "peers: 086790, 316140, 055550 / avg 0.8"
     },
     {
       "label": "분기 배당 결정 (반기보고서 (2026.06))",
