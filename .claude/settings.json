@@ -1,0 +1,30 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python .claude/hooks/guard_canon.py",
+            "timeout": 15,
+            "statusMessage": "정본 파일 확인 중"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python .claude/hooks/fmtcheck_on_save.py",
+            "timeout": 30,
+            "statusMessage": "서식·컴파일 검사 중"
+          }
+        ]
+      }
+    ]
+  }
+}
