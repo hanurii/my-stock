@@ -14,7 +14,8 @@ MIN_TREND_DAYS = 5          # 하락일·나쁜 마감 우세 판정 최소 경�
 BREAKOUT_LOOKBACK = 20      # 매수일에서 돌파일을 찾는 최대 소급 거래일
 SQUAT_GRACE_DAYS = 10       # 돌파 후 반전 회복 유예(약 2주)
 ACCUM_WINDOW = 15           # 매집 신호·MVP 관찰 창(거래일)
-UP_STREAK_IDEAL = 7         # 연속 상승 이상적 기준(미너비니)
+UP_STREAK_IDEAL = 7         # 연속 상승 이상적 기준(미너비니 — ⚠️ research/handoff/canon/
+                            # minervini-principles.md 에서 «못» 찾음. 출처 «미확인»)
 TIGHT_DAY_PCT = 0.01        # 일중 변동폭 <1% = tight day(나쁜 마감 제외)
 MVP_M_MIN = 12              # M: 15일 중 상승 마감 최소일
 MVP_V_MULT = 1.25           # V: 창 평균 거래량 / 직전 15일 평균 최소배
@@ -492,7 +493,18 @@ def evaluate_holding(series, buy_date, buy_price, stop_loss_pct, pivot_price=Non
     if current <= stop_price:
         signal = "stop_loss"
     elif violation_count >= 1:
-        signal = "early_sell"
+        # ★ 26-09-10 사용자 결정: 「매도 신호」에서 「점검 신호」로 내린다(early_sell → needs_review).
+        # 근거(미국 27.4해 Sharadar · 253·254·255):
+        #   ① 이 문턱(위반 «하나»면 즉시 매도)을 27.4해에 대면 계좌가 «무너진다» — 해당 −17.955%p
+        #      (칸 2 · 네 칸 «전부»). 규칙 없음 +10.160%p/해 → 규칙 켬 −7.795%p/해.
+        #   ② 그 몫은 「«어디»서 자르느냐」가 «아니라» 「«자르는» 것 «자체»」였다(−15.821 vs −2.133·못 가림).
+        #   ③ 문턱을 «다섯»(전부 위반)까지 올려도 +6.712 로 규칙 없음(+10.160)을 «못» 넘었다(255).
+        #   ④ 경로: 거래의 93.2%가 잘리고 보유 중앙 28일 → 3일.
+        # ⛔ 「매도 규칙이 «쓸모없다»」가 «아니다» — 문턱 하나·집행 통째를 잰 것이고,
+        #    「어느 규칙이 나쁜 종목을 짚는가」는 «못» 가렸다(칸 5). 그래서 «지우지» 않고 «내린다».
+        # ★ 규칙①(저거래량 돌파)을 뺄 때 쓴 것과 «같은» 처방:
+        #    「사실은 «그대로» 기록하되 «판정»에서는 뺀다」.
+        signal = "needs_review"
     else:
         signal = "hold"
     accumulation = evaluate_accumulation(series, si)

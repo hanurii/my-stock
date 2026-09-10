@@ -30,7 +30,7 @@ KST = timezone(timedelta(hours=9))
 IN_PATH = ROOT / "public" / "data" / "sepa-holdings.json"
 OUT_PATH = ROOT / "public" / "data" / "sepa-holdings-feedback.json"
 EXCLUDED_PATH = ROOT / "public" / "data" / "sepa-minervini-excluded.json"
-SIGNAL_LABEL = {"stop_loss": "🔴 손절", "early_sell": "🟠 조기매도",
+SIGNAL_LABEL = {"stop_loss": "🔴 손절", "needs_review": "🟡 점검",
                 "hold": "🟢 정상보유", "no_data": "⚫ 데이터없음"}
 
 
@@ -247,7 +247,7 @@ def run(out_path: Path) -> None:
     print(f"💾 저장: {out_path.relative_to(ROOT)} (기준일 {asof})\n")
     for x in out_holdings:
         label = SIGNAL_LABEL.get(x["signal"], x["signal"])
-        extra = f" 위반 {x['violation_count']}건" if x["signal"] == "early_sell" else ""
+        extra = f" 위반 {x['violation_count']}건" if x["signal"] == "needs_review" else ""
         excl = " ⛔필터제외" if x.get("filter_excluded") else ""
         print(f"  [{label}{extra}{excl}] {x['code']} {x['name']} "
               f"매수 {x['buy_price']:,} → 현재 {x.get('current_price') or '?'} "

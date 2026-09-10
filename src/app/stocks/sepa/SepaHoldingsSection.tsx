@@ -25,7 +25,7 @@ export interface HoldingFeedback {
   quantity?: number; stop_loss_pct: number; pivot_price?: number | null; pivot_source?: string | null;
   current_price?: number; profit_pct?: number; stop_price?: number; pct_to_stop?: number;
   breakout_date?: string; breakout_date_estimated?: boolean;
-  signal: "stop_loss" | "early_sell" | "hold" | "no_data"; violation_count: number; rules: HoldingRule[];
+  signal: "stop_loss" | "needs_review" | "hold" | "no_data"; violation_count: number; rules: HoldingRule[];
   extension_pct?: number | null; accumulation?: Accumulation; mvp?: Mvp; strength?: Strength;
   superperf?: SuperperfFactors | null;   // 매수 시점 초수익 잠재력 점수
   filter_excluded?: FilterExclusion[] | null;  // '미너비니가 사지 않는 주식' 필터 사유 — 매도규칙과 별개 축
@@ -51,7 +51,7 @@ const RULE_LABELS: Record<string, string> = {
 
 const SIGNAL_META: Record<HoldingFeedback["signal"], { label: string; bg: string; fg: string }> = {
   stop_loss: { label: "🔴 손절", bg: "rgba(255,180,171,0.18)", fg: "#ffb4ab" },
-  early_sell: { label: "🟠 조기 매도 신호", bg: "rgba(251,146,60,0.18)", fg: "#fb923c" },
+  needs_review: { label: "🟡 점검 필요", bg: "rgba(250,204,21,0.16)", fg: "#facc15" },
   hold: { label: "🟢 정상 보유", bg: "rgba(16,185,129,0.18)", fg: "#34d399" },
   no_data: { label: "⚫ 데이터 없음", bg: "rgba(148,163,184,0.18)", fg: "#94a3b8" },
 };
@@ -96,10 +96,12 @@ function fmtWon(v?: number | null): string {
   return v == null ? "-" : Math.round(v).toLocaleString();
 }
 
-// 매도 신호 강도(내림차순 정렬용): 손절 > 조기매도(위반 많을수록) > 강세 과열 익절 > 정상보유 > 데이터없음
+// 정렬(내림차순): 손절 > 점검 필요(위반 많을수록) > 강세 과열 익절 > 정상보유 > 데이터없음
+// ⚠️ 「점검 필요」는 «매도» 신호가 «아니다» — 26-09-10 사용자 결정으로 early_sell 에서 내렸다.
+//    까닭은 sell_rules.py 의 needs_review 주석 참조(미국 27.4해 −17.955%p/해).
 function sellStrength(h: HoldingFeedback): number {
   if (h.signal === "stop_loss") return 1000;
-  if (h.signal === "early_sell") return 500 + (h.violation_count ?? 0);
+  if (h.signal === "needs_review") return 500 + (h.violation_count ?? 0);
   if (h.strength?.signal === "sell_into_strength") return 300 + (h.strength.count ?? 0);
   if (h.signal === "hold") return 100 + (h.filter_excluded?.length ? 10 : 0);
   return 0;
@@ -141,7 +143,7 @@ export function SepaHoldingsSection({ data }: { data: HoldingsFeedbackFile | nul
         {holdings.map((h) => {
           const meta = SIGNAL_META[h.signal] ?? SIGNAL_META.no_data;
           const badgeLabel =
-            h.signal === "early_sell" ? `${meta.label} · 위반 ${h.violation_count}건` : meta.label;
+            h.signal === "needs_review" ? `${meta.label} · 위반 ${h.violation_count}건` : meta.label;
           const sellStrong = h.strength?.signal === "sell_into_strength";
           const acc = accumTally(h.accumulation, h.mvp);
           const rt = ruleTally(h.rules);
