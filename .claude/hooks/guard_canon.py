@@ -19,6 +19,17 @@ import sys
 sys.stdin.reconfigure(encoding="utf-8")
 sys.stdout.reconfigure(encoding="utf-8")
 
+# 관문에서 «빼는» 것 — 여러 세션이 «함께» 쓰기로 «정한» 파일.
+# ★ RULES 보다 «먼저» 본다(아래 RULES 의 넓은 규칙에 걸리는 것을 되돌리는 자리라 순서가 뜻이다).
+# (경로 조각, 이유)
+EXEMPT = [
+    ("research/handoff/verdicts/_no-cite.md",
+     "인용 금지 «등재부» — 조사·검증·두뇌가 «함께» 쓴다(사용자 결정 2026-09-10).\n"
+     "verdicts/ 관문의 «뜻»은 「검증 세션의 «판정문»을 남이 «덮지» 않게」이고,\n"
+     "이 파일은 «판정문»이 아니라 «공용 등재부»라 그 뜻에 «안» 걸린다.\n"
+     "판마다 늘어나므로 «매번» 묻는 것이 «일»만 늘렸다."),
+]
+
 # (경로 조각, 접두사인가, 판정, 이유)
 RULES = [
     ("public/data/scorecard-fills.json", False, "deny",
@@ -47,6 +58,17 @@ def main():
     if not path:
         return 0
     norm = path.replace("\\", "/").lower()
+
+    for frag, reason in EXEMPT:
+        if norm.endswith(frag):
+            print(json.dumps({
+                "hookSpecificOutput": {
+                    "hookEventName": "PreToolUse",
+                    "permissionDecision": "allow",
+                    "permissionDecisionReason": "✅ 관문 «면제» — %s\n\n%s" % (frag, reason),
+                }
+            }, ensure_ascii=False))
+            return 0
 
     for frag, is_prefix, decision, reason in RULES:
         f = frag.lower()

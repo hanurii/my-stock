@@ -1,5 +1,17 @@
 {
   "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python .claude/hooks/sharadar_deadline.py",
+            "timeout": 10,
+            "statusMessage": "Sharadar 마감 확인"
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "Edit|Write|NotebookEdit",
@@ -9,6 +21,17 @@
             "command": "python .claude/hooks/guard_canon.py",
             "timeout": 15,
             "statusMessage": "정본 파일 확인 중"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python .claude/hooks/guard_destructive_git.py",
+            "timeout": 10,
+            "statusMessage": "작업 트리를 지우는 명령인지 확인"
           }
         ]
       }
