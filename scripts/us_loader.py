@@ -82,6 +82,11 @@ SP500_ZIP = _opt("sp500")                 # 지수 편입 이력
 HOLDINGS_TICKER_ZIP = _opt("holdings_ticker")   # 기관 보유
 
 USD_KRW = 1300.0                 # 25번 4항 확정. 민감도 1,100·1,400 은 이 값만 바꿔 돌린다.
+# 🔴 이것은 «오늘 환율»이 아니라 «얼린 모형 상수»다(2026-09-11 명시).
+#   27.4년 백테스트가 이 값으로 돌았다. 오늘 시세로 갈아 끼우면 유동성 관문의
+#   문턱이 달라져 그 27.4년과 «비교 불가»가 된다 — 조용히, 아무 예외 없이.
+#   실전 스크리너도 같은 값을 쓴다(`screen_trend_template_us.py` 의 억원 환산).
+#   ⇒ 바꾸려면 백테스트를 «같이» 다시 돌려야 한다. `verify_frozen_params.py` 가 얼려 둔다.
 CODE_KEY = "ticker"              # "ticker" | "permaticker"
 
 EXCHANGES = {"NASDAQ", "NYSE", "NYSEMKT"}

@@ -12,6 +12,17 @@ strategy_params.py 는 사용자가 바로 다음 날 41db459d(2026-09-02, 「�
 재면 사용자의 그 결정 «자체»를 결함으로 찍는다. 그래서 대상마다 자기 기준
 커밋을 따로 붙인다(각 표의 ref 칸).
 
+그리고 기준이 «커밋»뿐인 것도 아니다. 미국 실전 파일 셋
+(screen_trend_template_us.py · canslim_lib/us_matrix.py · us_seam.py)은
+e8cd65ae 에 «존재하지 않았다» — 없는 커밋과는 견줄 수가 없다.
+(셋 중 앞의 둘이 ⑤ 교차 검산의 대상이고, us_seam.py 는 얼릴 값이 없어
+ 제외한다 — 사유는 EXCLUDED_FILES 에 코드 확인과 함께 적혀 있다.) 그래서 그 파일들에는
+물음을 바꾼다: 「커밋 X 이후 안 바뀌었나」가 아니라 **「27.4년 하네스가
+«쓴 값»과 «같은가»」**다(⑤ 교차 검산). 하네스 쪽 값은 글자로 베껴 적지 않고
+git show 로 «읽어» 견준다 — 베껴 적으면 같은 것을 가리키는 자가 둘이 되고
+규약상 멈춰야 한다. 화면에도 「기준 커밋 없음 — 하네스 일치로 얼림」으로
+따로 찍는다(조용히 섞으면 읽는 사람이 「커밋과 견줬다」로 오해한다).
+
 ■ 이 관문이 «실제로» 보는 범위 — 아래가 곧 코드의 표다.
   (넓게도 좁게도 안 쓰려고, 사람이 세는 대신 «표에서 나온 수»를 화면에 찍는다.)
 
@@ -23,25 +34,40 @@ strategy_params.py 는 사용자가 바로 다음 날 41db459d(2026-09-02, 「�
      liveness.py · ohlcv_matrix.py(넷 다 기준 e8cd65ae).
   ③④ SCALAR_TARGETS — trend_template.py 일곱 + screen_trend_template.py 둘을
      이름별로 대조. 기준 e8cd65ae.
-  ⑤ 상수 분류 검산 — ①②③④ 표에 «한 번이라도» 나온 파일 전부에 대해
+  ⑤ 교차 검산 — 기준 커밋이 «없는» 새 미국 실전 파일의 값. 두 갈래다.
+     · CROSS_TARGETS  — 하네스에 «짝이 있는» 이름을 그 짝과 견준다
+       (screen_trend_template_us.RS_MIN ↔ 하네스 RS_MIN 등). 기준 쪽 값은
+       git show 로 «읽는다».
+     · DERIVED_TARGETS — 짝이 이름으로는 없지만 기준 커밋의 관문 상수에서
+       «계산»되는 값(us_matrix.TRIM_BARS 는 trend_template 의 창+되돌아보기에서
+       나오고, us_matrix.KEYS 는 us_loader 가 만드는 계열의 키다). 계산식이
+       내는 수를 이 글에 적지 않는다 — 화면에 찍히는 수가 정본이다.
+  ⑥ 상수 분류 검산 — ①②③④⑤ 표에 «한 번이라도» 나온 파일 전부에 대해
      「모듈최상위 대문자 상수가 빠짐없이 덮음 아니면 제외로 설명되는가」를
      검산한다. 미분류가 하나라도 남으면 그 파일에서 관문이 실패한다.
-     대상 파일 목록을 손으로 적지 않는다 — _covered_file_refs() 가 ①②③④
-     표에서 끌어낸다. ⑤ 자신은 기준 커밋을 «안 읽는다» — 「지금 판에
+     대상 파일 목록을 손으로 적지 않는다 — _covered_file_basis() 가 ①②③④⑤
+     표에서 끌어낸다. ⑥ 자신은 기준 커밋을 «안 읽는다» — 「지금 판에
      설명 안 된 상수가 있나」를 묻는 검산이라 그게 맞다. 화면에 찍히는 기준
-     커밋은 ①②③④ 가 «값»을 견준 기준이라는 표시다.
+     은 ①②③④⑤ 가 «값»을 견준 기준이라는 표시이고, 커밋 기준인지 「커밋
+     없음 — 하네스 일치」인지를 파일마다 구분해 찍는다.
      검출기 넷은 지금 DEFAULT_PARAMS 하나뿐이라 미분류 0 이
      나오지만 목록에서 빠지지 않는다(표에 있으니 자동으로 들어온다).
-  ⑥ 파일 분류 검산 — 27.4년 하네스(backtest_volatility_pilot_us.py)의
-     «전이 import 폐포»를 코드로 떠서, 그 안의 파일 «전부»가 덮음 아니면
+  ⑦ 파일 분류 검산 — «뿌리 여럿»(ROOTS)의 전이 import 폐포를 각각 코드로
+     떠서 합친 것이 모집단이다. 그 안의 파일 «전부»가 덮음 아니면
      제외(사유 필수)로 설명되는가를 검산한다. 미분류 파일이 하나라도 남으면
      관문이 실패한다. 폐포의 «수»를 이 글에 적지 않는다 — 적으면 그 수가
      코드와 갈라진다. 화면에 찍히는 수가 정본이다.
+     왜 뿌리가 «여럿»인가: 폐포 «하나»(하네스)로 모집단을 만들면, 하네스가
+     import 하지 «않는» 새 실전 파일은 모집단에 아예 안 들어와 관문에
+     «보이지» 않는다. 실측으로 screen_trend_template_us.py 의 RS_MIN 을
+     80에서 70으로 바꿔도 종료 0 이 났다(고치기 «전»). 관문이 지켜야 할 것은
+     「하네스가 읽는 것」이 아니라 「27.4년의 수로 도는 실전 경로 전부」다.
 
 ■ 「열거하는 범위가 주장보다 좁다」를 막는 장치 다섯
-  (이 파일이 다섯 번 고쳐졌고 다섯 번 다 같은 병이었다 —
+  (이 파일이 여섯 번 고쳐졌고 여섯 번 다 같은 병이었다 —
    검출기만 봄 → 관문 상수 셋만 → 분류가 한 파일만 → 수집기가 비리터럴을
-   조용히 버림 → 파일 «목록» 자체가 손 목록이고 잔여를 안 셈):
+   조용히 버림 → 파일 «목록» 자체가 손 목록이고 잔여를 안 셈 →
+   «뿌리»가 하나라 그 뿌리가 import 안 하는 실전 파일이 모집단 밖):
 
   (가) 수집은 «빠뜨리지» 않고, 따로 «모양을 센다». 두 걸음이다.
       첫째, _harvest_constants() 는 모듈 스코프에서 대문자 이름에 묶이는
@@ -73,8 +99,10 @@ strategy_params.py 는 사용자가 바로 다음 날 41db459d(2026-09-02, 「�
       DICT_TARGETS·CONST_TARGETS·SCALAR_TARGETS 라는 «실제 비교 표»에서
       덮음 집합을 끌어낸다. 표에 없는 이름은 자동으로 제외 아니면 미분류다.
 
-  (라) «파일 목록»도 손으로 적지 않는다. _import_closure() 가 하네스부터
-      import 를 따라가며 저장소 내부 파일을 모은다. from 패키지 import 모듈
+  (라) «파일 목록»도 손으로 적지 않는다. _import_closure() 가 뿌리(ROOTS)
+      마다 import 를 따라가며 저장소 내부 파일을 모으고, 그 폐포들을 합친다.
+      손으로 적는 것은 «뿌리»뿐이다 — 「어디서부터 따라갈 것인가」이지
+      「어느 파일이 들어 있나」가 아니다. from 패키지 import 모듈
       (ImportFrom 의 module 이 패키지이고 names 가 모듈인 꼴)과 상대 import
       (from .management import ...), 함수 «안»의 import(하네스 305행의
       import us_loader) 셋을 다 푼다 — 앞의 두 꼴을 못 풀면 폐포가 조용히
@@ -84,7 +112,7 @@ strategy_params.py 는 사용자가 바로 다음 날 41db459d(2026-09-02, 「�
       세 칸을 한 집합의 «분할»로 만들면 셋의 합은 항등식이 되어 「셈 안 맞음」
       관문이 «질 수가 없다». 그래서 제외 칸은 덮음 여부를 «빼지 않고» 센다 —
       한 이름(또는 한 파일)이 덮음과 제외에 «둘 다» 올라 있으면 합이 전체보다
-      커져서 관문이 실패한다. 상수 층(⑤)과 파일 층(⑥) 둘 다 같은 방식이다.
+      커져서 관문이 실패한다. 상수 층(⑥)과 파일 층(⑦) 둘 다 같은 방식이다.
 
 ■ 「제외」의 기준 넷과 «순서» — 기준을 한 번만 적고, 항목마다 꼬리표를 단다.
   (사유가 넷에 섞여 얹혀 있으면, 다음 상수가 왔을 때 어느 것을 대는지
@@ -221,11 +249,69 @@ SCALAR_TARGETS = [
      "조용히 버렸다."),
 ]
 
-# ── ⑥ 파일 층 — 「어느 파일을 볼 것인가」도 손으로 적지 않는다. ──────────
-# 이 관문이 지켜야 할 파일의 «모집단»은 「27.4년 하네스가 읽을 수 있는 것 전부」,
-# 곧 그 파일의 «전이 import 폐포»다. 폐포는 _import_closure() 가 코드로 뜬다.
+# ── ⑦ 파일 층 — 「어느 파일을 볼 것인가」도 손으로 적지 않는다. ──────────
+# 이 관문이 지켜야 할 파일의 «모집단»은 「27.4년의 수로 도는 경로가 읽을 수
+# 있는 것 전부」다. 뿌리 «하나»(하네스)의 폐포로는 그것을 못 덮는다 —
+# 하네스가 import 하지 «않는» 실전 파일은 폐포 밖이라 관문에 «보이지» 않는다.
+# 그래서 뿌리를 여럿 두고 각 뿌리의 전이 import 폐포를 «따로» 떠서 합친다.
+# 폐포는 _import_closure() 가 코드로 뜬다. 손으로 적는 것은 «뿌리»뿐이고,
+# 뿌리는 「어디서부터 따라갈 것인가」이지 「어느 파일이 들어 있나」가 아니다.
 # 폐포의 «수»를 여기 적지 않는다 — 적는 순간 코드와 갈라진다.
-FROZEN_HARNESS = "scripts/backtest_volatility_pilot_us.py"
+ROOTS: list[tuple[str, str]] = [
+    ("scripts/backtest_volatility_pilot_us.py",
+     "27.4년 하네스 — 얼린 값이 «나온» 자리"),
+    ("scripts/screen_trend_template_us.py",
+     "미국 실전 1단계 — 얼린 값을 «쓰는» 자리(e8cd65ae 에 «없던» 파일)"),
+    ("scripts/us_seam.py",
+     "미국 실전 이음매 — 1단계가 읽는 뼈대·꼬리를 만드는 자리(e8cd65ae 에 «없던» 파일)"),
+]
+
+# 교차 검산(⑤)의 «기준 쪽». 27.4년이 돈 그 값이 정본이다.
+FROZEN_HARNESS = ROOTS[0][0]
+HARNESS_REF = "e8cd65ae"
+
+# ── ⑤ 교차 검산 — 기준 커밋이 «없는» 파일의 값을 무엇과 견주나 ──────────
+# 이 파일들은 e8cd65ae 에 존재하지 «않았다». 「그 커밋과 같은가」는 물을 수
+# 없으므로 물음을 바꾼다 — 「27.4년 하네스가 «쓴 값»과 «같은가」.
+# 기준 쪽 값을 여기에 «글자로 베껴 적지 않는다». 베껴 적으면 같은 것을
+#    가리키는 자가 둘이 되고 규약상 멈춰야 한다. git show 로 «읽어» 견준다.
+#
+# (live_path, live_name, ref_path, ref_name, ref, 사유)
+CROSS_TARGETS: list[tuple[str, str, str, str, str, str]] = [
+    ("scripts/screen_trend_template_us.py", "RS_MIN",
+     FROZEN_HARNESS, "RS_MIN", HARNESS_REF,
+     "RS 합격선. 하네스가 evaluate_trend_template(..., rs_min=RS_MIN) 로 «자기 "
+     "값을 명시로» 넘기므로(backtest_volatility_pilot_us.py:377) 27.4년은 이 "
+     "수로 돌았다. 1단계가 다른 수를 쓰면 후보 집합 «자체»가 달라진다 — "
+     "한국판 기본값 TT_RS_MIN_DEFAULT(70)로 흘러내리는 길이 실제로 있다."),
+    ("scripts/screen_trend_template_us.py", "US_VARIANT",
+     FROZEN_HARNESS, "US_VARIANT", HARNESS_REF,
+     "유니버스 «판»(us_loader.load_tickers 의 variant). 27.4년이 «어느 종목 "
+     "집합» 위의 결과인지를 정한다 — 바뀌면 같은 규칙이라도 다른 시장을 "
+     "재는 것이 된다."),
+]
+
+# 짝이 «이름»으로는 없지만 기준 커밋의 관문 상수에서 «계산»되는 값.
+# 계산기는 _REF_CALCS 에 등록한다(함수가 아래에 정의되므로 이름으로 가리킨다).
+# 관계는 "==" 또는 ">=" 다 — 어느 쪽인지 화면에 찍는다.
+# (live_path, live_name, ref, 관계, 계산기 이름, 사유)
+DERIVED_TARGETS: list[tuple[str, str, str, str, str, str]] = [
+    ("scripts/canslim_lib/us_matrix.py", "TRIM_BARS", HARNESS_REF, ">=",
+     "needed_bars",
+     "뼈대를 몇 봉으로 다듬나. 이 수가 모자라면 관문이 «조용히» 달라진다 — "
+     "trend_template.py 의 _sma 는 needed = window + end_offset 보다 짧으면 "
+     "None 을 돌려주고, 52주 수익률은 closes[-WINDOW_52W - 1] 을 읽으며, "
+     "RS 는 win = min(n - 1, WINDOW_52W) 로 «단축 기준»이 된다"
+     "(screen_trend_template.py:191). 값을 베껴 적지 않고 기준 커밋의 관문 "
+     "상수에서 «계산»해 견준다. 관계가 «>=» 인 까닭: 봉이 더 많아도 모든 창이 "
+     "끝에서 세므로 판정이 안 바뀐다(모자라면 바뀐다) — 비대칭이다."),
+    ("scripts/canslim_lib/us_matrix.py", "KEYS", HARNESS_REF, "==",
+     "series_keys",
+     "뼈대가 실어 나르는 계열 «필드 이름»이다. trim_series 가 이 키만 남기므로 "
+     "하나가 빠지면 그 자료가 조용히 사라진다 — volumes 가 빠지면 거래정지 "
+     "판정(liveness)과 유동성 관문이 둘 다 달라진다. 기준은 e8cd65ae 판 "
+     "us_loader 가 «만드는» 계열 dict 의 키다(코드로 뽑는다)."),
+]
 
 # 폐포 안의 모듈 이름을 저장소 파일로 풀 때 뒤지는 자리(하네스가 sys.path 에
 # 넣는 자리와 같다 — backtest_volatility_pilot_us.py:38).
@@ -309,6 +395,16 @@ EXCLUDED_FILES: dict[str, tuple[str, str]] = {
         "하네스 497행의 결과 칸 하나와 544행 by_price 요약 둘뿐이고, 진입·"
         "청산 판정식에는 «안» 들어간다(코드 확인). 라벨이 바뀌어도 거래는 "
         "한 건도 안 달라진다."),
+    "scripts/us_seam.py": (
+        "성격",
+        "모듈최상위 대문자 상수가 ROOT «하나»뿐이고 그것은 "
+        "Path(__file__).resolve().parents[1] — 파일 위치에서 «파생되는» 값이다. "
+        "게다가 이 파일 안에서 «쓰이는 곳이 0곳»이다(24행 정의뿐, grep 확인). "
+        "얼릴 「고른 수」가 없다. 이 파일이 쓰는 TAIL_PATH·KEYS·to_timestamp 는 "
+        "22행에서 canslim_lib.us_matrix 로부터 «가져다» 쓰는 것이고 정본은 "
+        "us_matrix.py 이며 ⑤ 에서 얼린다. "
+        "(보조: 그래도 ROOTS 에 «뿌리»로는 넣었다 — 이 파일이 새 모듈을 "
+        "import 하면 그 모듈이 모집단에 들어와야 하기 때문이다.)"),
     "scripts/canslim_lib/pykrx_universe.py": (
         "성격",
         "한국 우선주·리츠·스팩 이름 정규식(EXCLUDE_PATTERN)과 pykrx 시장 ID "
@@ -348,6 +444,51 @@ EXCLUDED_SCALARS: dict[str, dict[str, tuple[str, str]]] = {
         "GATE_MARGIN_LABEL": (
             "성격",
             "compute_gate_margin() 이 찍는 «라벨 글자»다 — 위와 같은 이유."),
+    },
+    "scripts/screen_trend_template_us.py": {
+        "ROOT": (
+            "성격",
+            "Path(__file__).resolve().parents[1] — 이 파일 위치에서 «파생되는» "
+            "저장소 뿌리다(사람이 고르는 수가 아니다). 쓰이는 곳 셋을 다 봤다 — "
+            "53행 sys.path.insert, 82행 OUTPUT_PATH 조립, 397행 relative_to "
+            "«표시»(grep 확인). 관문 판정식에 안 들어간다."),
+        "OUTPUT_PATH": (
+            "성격",
+            "결과 저장 «목적지»다. 쓰이는 곳 넷을 다 봤다 — 392행 mkdir, 393행 "
+            "임시파일 이름, 396행 replace, 397행 이름 출력. 이 파일에는 "
+            "read_text 도 json.load 도 open( 도 «한 곳도 없어»(grep 확인) 쓴 것을 "
+            "되읽어 판정에 쓰는 경로가 아예 없다."),
+        "UTC": (
+            "성격",
+            "timezone.utc — 시간대다. 쓰이는 곳이 351행 generated_at 도장 "
+            "«하나»뿐이다(grep 확인). 한국판 screen_trend_template.py 의 KST 와 "
+            "같은 종류이고 같은 사유로 제외한다."),
+    },
+    "scripts/canslim_lib/us_matrix.py": {
+        "ROOT": (
+            "성격",
+            "Path(__file__).resolve().parents[2] — 파일 위치에서 «파생되는» "
+            "저장소 뿌리다. 쓰이는 곳은 15·20행의 캐시 경로 조립과 104행 "
+            "sys.path.insert 뿐이다(grep 확인)."),
+        "BASE_PATH": (
+            "성격",
+            "뼈대 캐시 파일의 «자리»다(.cache/us/base.json). 쓰이는 곳 셋을 다 "
+            "봤다 — 53행 load_base 의 기본 경로, 71행 load_latest 의 «없을 때» "
+            "갈래, 110행 build_base 의 기본 저장 자리. 어느 «파일»을 읽고 쓰나를 "
+            "정할 뿐 판정 문턱이 아니다. "
+            "(보조: 하네스에 이름이 «같은» 상수가 없다 — 견줄 짝이 없다. "
+            "하네스는 _US_CACHE 를 실행 중에 채워 쓴다.)"),
+        "TAIL_PATH": (
+            "성격",
+            "꼬리를 붙인 합본 캐시 파일의 «자리»다(.cache/us/tail.json). 쓰이는 "
+            "곳은 71행 load_latest 의 존재 검사와 갈래뿐이다(grep 확인). 위와 "
+            "같은 종류다. «어느 것을 읽을지 고르는 일»은 71행의 코드가 하지 이 "
+            "상수가 하지 않는다."),
+        "_BASE": (
+            "성격",
+            "런 중에 채워지는 «모듈 안 상태»다(38행 선언, 52~55행 load_base 가 "
+            "채운다). 설정이 아니라 캐시 변수다 — fetch.py 의 _LAST_REQUEST_AT 를 "
+            "같은 사유로 제외한 것과 같은 종류다."),
     },
     "scripts/screen_trend_template.py": {
         "NAVER_DAYS_BACK": (
@@ -628,7 +769,9 @@ def _module_names_in(path: str) -> set[str]:
 def _import_closure(entry: str) -> set[str]:
     """`entry` 부터 import 를 따라가며 «저장소 안» 파일을 전부 모은다.
 
-    이게 이 관문의 «모집단»이다 — 「27.4년 하네스가 읽을 수 있는 것 전부」.
+    뿌리 «하나»의 폐포다. 관문의 모집단은 이것이 아니라 ROOTS 의 모든
+    뿌리에 대한 폐포를 «합친» 것이다(_classify_files 참고) — 폐포 하나로
+    모집단을 삼으면 그 뿌리가 import 하지 «않는» 파일이 관문에 안 보인다.
     수를 손으로 적지 않는 까닭: 적는 순간 코드와 갈라지고, 갈라진 쪽이
     바로 「범위가 주장보다 좁다」의 발원지였다.
     """
@@ -643,40 +786,213 @@ def _import_closure(entry: str) -> set[str]:
     return seen
 
 
-def _covered_file_refs() -> dict[str, str]:
-    """①②③④ «실제 비교 표»에서 「덮는 파일 → 기준 커밋」을 끌어낸다.
+BASIS_COMMIT = "커밋"       # ①②③④ — 「그 커밋 이후 안 바뀌었나」
+BASIS_HARNESS = "하네스일치"  # ⑤ — 그 커밋에 파일이 «없어서» 물을 수가 없다
+BASIS_CONFLICT = "!충돌"
 
-    파일 목록을 손으로 또 적지 않는다. 한 파일에 기준 커밋이 «둘» 붙으면
-    그건 표가 어긋난 것이므로 그대로 두지 않고 «!충돌» 로 표시해 관문이
-    실패하게 만든다(같은 것을 가리키는 수가 둘이면 멈춘다).
+
+def _covered_file_basis() -> dict[str, tuple[str, str]]:
+    """①②③④⑤ «실제 비교 표»에서 「덮는 파일 → (기준 종류, 기준 커밋)」을 끌어낸다.
+
+    파일 목록을 손으로 또 적지 않는다. 기준 «종류»가 둘이라는 것이 요점이다 —
+    새 실전 파일은 기준 커밋이 «없어서» 하네스와의 일치로 얼렸고, 그 사실이
+    화면에 보여야 읽는 사람이 「커밋과 견줬다」로 오해하지 않는다.
+    한 파일에 기준이 «둘» 붙으면 표가 어긋난 것이므로 그대로 두지 않고
+    «!충돌» 로 표시해 관문이 실패하게 만든다(같은 것을 가리키는 수가 둘이면
+    멈춘다).
     """
-    refs: dict[str, set[str]] = {}
+    seen: dict[str, set[tuple[str, str]]] = {}
     for path, _name, ref, _reason in DICT_TARGETS:
-        refs.setdefault(path, set()).add(ref)
+        seen.setdefault(path, set()).add((BASIS_COMMIT, ref))
     for path, ref, _reason in CONST_TARGETS:
-        refs.setdefault(path, set()).add(ref)
+        seen.setdefault(path, set()).add((BASIS_COMMIT, ref))
     for path, _name, ref, _reason in SCALAR_TARGETS:
-        refs.setdefault(path, set()).add(ref)
-    return {p: (sorted(s)[0] if len(s) == 1 else "!충돌:" + ",".join(sorted(s)))
-            for p, s in refs.items()}
+        seen.setdefault(path, set()).add((BASIS_COMMIT, ref))
+    for path, _name, _rp, _rn, ref, _reason in CROSS_TARGETS:
+        seen.setdefault(path, set()).add((BASIS_HARNESS, ref))
+    for path, _name, ref, _rel, _calc, _reason in DERIVED_TARGETS:
+        seen.setdefault(path, set()).add((BASIS_HARNESS, ref))
+    out: dict[str, tuple[str, str]] = {}
+    for p, got in seen.items():
+        if len(got) == 1:
+            out[p] = sorted(got)[0]
+        else:
+            out[p] = (BASIS_CONFLICT,
+                      ",".join(f"{k}:{r}" for k, r in sorted(got)))
+    return out
 
 
-def _classify_files() -> tuple[set[str], list[str], list[str], list[str], list[str]]:
-    """폐포 ∪ 덮음파일 을 (모집단, 덮음, 제외, 미분류) 로 가른다.
+def _basis_text(basis: tuple[str, str]) -> str:
+    """기준을 사람이 읽는 한 줄로. «커밋»과 «커밋 없음»을 섞어 찍지 않는다."""
+    kind, ref = basis
+    if kind == BASIS_COMMIT:
+        return f"①②③④ 값 대조 기준 «커밋» {ref}"
+    if kind == BASIS_HARNESS:
+        return (f"⑤ 교차 검산 · 기준 «커밋 없음» — 이 파일은 {ref} 에 존재하지 "
+                f"않았다. 27.4년 하네스와의 «일치»로 얼렸다")
+    return f"기준이 둘 이상이다 — 관문 «자신»의 결함: {ref}"
+
+
+def _resolve_int(name: str, consts: dict) -> int | None:
+    """수집한 상수 하나를 정수로 푼다. «다른 상수를 가리키는» 꼴이면 한 겹 따라간다.
+
+    (screen_trend_template.py 의 MIN_CLOSES_FOR_TT = SMA_WINDOW_200 이 그 꼴이다.
+     따라가지 않고 손으로 200 을 적으면 같은 것을 가리키는 자가 둘이 된다.)
+    """
+    entry = consts.get(name)
+    if entry is None:
+        return None
+    kind, val = entry
+    if kind == READ_VALUE and isinstance(val, int) and not isinstance(val, bool):
+        return val
+    if kind == READ_SOURCE and isinstance(val, str):
+        other = consts.get(val.strip())
+        if (other and other[0] == READ_VALUE and isinstance(other[1], int)
+                and not isinstance(other[1], bool)):
+            return other[1]
+    return None
+
+
+def _ref_needed_bars(ref: str) -> tuple[object, str, str | None]:
+    """기준 커밋의 «관문 상수»에서 「몇 봉이 있어야 판정이 그대로인가」를 «계산»한다.
+
+    돌려주는 것은 (필요한 최소 봉 수, 어떻게 나왔는지, 읽기 실패 사유).
+    수를 베껴 적지 않는다 — ref 판 trend_template.py 와
+    screen_trend_template.py 를 읽어 항을 «더하고 고른다».
+
+    항의 출처(코드 확인):
+      - trend_template.py 의 _sma: needed = window + end_offset
+        -> SMA_WINDOW_200 + TT_SMA200_RISING_PREFERRED_DAYS (sma200_5m_ago)
+        -> SMA_WINDOW_200 + TT_SMA200_RISING_LOOKBACK_DAYS  (sma200_1m_ago)
+        -> SMA_WINDOW_150 · SMA_WINDOW_50
+      - trend_template.py 의 52주 수익률: closes[-WINDOW_52W - 1] -> WINDOW_52W + 1
+      - screen_trend_template.py 의 평가 최소 종가 수: MIN_CLOSES_FOR_TT
+    """
+    tt_src, err1 = _git_show(ref, "scripts/canslim_lib/trend_template.py")
+    st_src, err2 = _git_show(ref, "scripts/screen_trend_template.py")
+    err = err1 or err2
+    try:
+        consts = {**_harvest_constants(tt_src), **_harvest_constants(st_src)}
+    except SyntaxError:
+        return None, "기준 커밋의 관문 파일을 파싱 못 함", err or "파싱 실패"
+    terms: dict[str, tuple] = {
+        "sma200_5m_ago": ("SMA_WINDOW_200", "TT_SMA200_RISING_PREFERRED_DAYS"),
+        "sma200_1m_ago": ("SMA_WINDOW_200", "TT_SMA200_RISING_LOOKBACK_DAYS"),
+        "sma150": ("SMA_WINDOW_150",),
+        "sma50": ("SMA_WINDOW_50",),
+        "52주수익률": ("WINDOW_52W", 1),
+        "평가최소종가수": ("MIN_CLOSES_FOR_TT",),
+    }
+    got: dict[str, int] = {}
+    for label, parts in terms.items():
+        acc = 0
+        for part in parts:
+            v = part if isinstance(part, int) else _resolve_int(part, consts)
+            if v is None:
+                return (None, f"{label}: 항 «{part}» 를 못 읽음",
+                        err or f"{part} 를 못 읽음")
+            acc += v
+        got[label] = acc
+    need = max(got.values())
+    detail = " · ".join(f"{k}={v}" for k, v in
+                        sorted(got.items(), key=lambda kv: -kv[1]))
+    return need, f"max({detail}) = {need}", err
+
+
+def _ref_series_keys(ref: str) -> tuple[object, str, str | None]:
+    """기준 커밋의 us_loader 가 «만드는» 시세 계열의 키를 코드로 뽑는다.
+
+    문자열만으로 된 dict 리터럴 중 "dates" 를 키로 가진 것을 찾는다.
+    그런 것이 «한 가지»가 아니면(0가지이거나 두 가지 이상이면) 기준을 하나로
+    못 좁힌 것이므로 실패로 돌려준다 — 무엇과 견줬는지가 흐려지면 조용한
+    통과가 난다.
+    """
+    src, err = _git_show(ref, "scripts/us_loader.py")
+    try:
+        tree = ast.parse(src)
+    except SyntaxError:
+        return None, "기준 커밋의 us_loader.py 를 파싱 못 함", err or "파싱 실패"
+    hits = []
+    for node in ast.walk(tree):
+        if (isinstance(node, ast.Dict) and node.keys
+                and all(isinstance(k, ast.Constant) and isinstance(k.value, str)
+                        for k in node.keys)):
+            keys = tuple(k.value for k in node.keys)
+            if "dates" in keys:
+                hits.append(keys)
+    uniq = sorted(set(hits))
+    if len(uniq) != 1:
+        return (None,
+                f"「dates」를 가진 문자열 키 dict 리터럴이 {len(uniq)}가지 — "
+                "기준을 하나로 못 좁혔다",
+                err or "기준을 하나로 못 좁힘")
+    return uniq[0], f"us_loader.py 의 계열 초기화 dict 키 {len(uniq[0])}개", err
+
+
+# DERIVED_TARGETS 의 「계산기 이름」을 실제 함수로 푼다. 표에 없는 이름이
+# 적히면 main() 이 «관문 자신의 결함»으로 세고 실패시킨다.
+_REF_CALCS = {
+    "needed_bars": _ref_needed_bars,
+    "series_keys": _ref_series_keys,
+}
+
+
+def _harness_twin_names(ref: str) -> tuple[list[tuple[str, str, str, str]], str | None]:
+    """새 실전 파일의 상수 중 «하네스에 이름이 같은 짝»이 있는 것을 코드로 찾는다.
+
+    「짝이 있는지」를 손으로 훑지 않는다 — 훑으면 다음 상수에서 또 빠뜨린다.
+    돌려주는 것은 [(path, name, 분류, 견줌 글)] 과 읽기 실패 사유.
+    분류는 「교차덮음」·「제외(기준)」·「미분류」 셋이다. 미분류는 ⑥ 이 이미
+    관문을 실패시키므로 여기서는 세지 않고 «알리기»만 한다 —
+    같은 것을 두 곳에서 세면 수가 둘이 된다.
+    """
+    src, err = _git_show(ref, FROZEN_HARNESS)
+    try:
+        harness = _harvest_constants(src)
+    except SyntaxError:
+        return [], err or "하네스 파싱 실패"
+    cross = {(p, n) for (p, n, _rp, _rn, _r, _x) in CROSS_TARGETS}
+    derived = {(p, n) for (p, n, _r, _rel, _c, _x) in DERIVED_TARGETS}
+    out: list[tuple[str, str, str, str]] = []
+    for path, basis in sorted(_covered_file_basis().items()):
+        if basis[0] != BASIS_HARNESS:
+            continue
+        now = _harvest_constants(open(path, encoding="utf-8").read())
+        for name in sorted(set(now) & set(harness)):
+            if (path, name) in cross or (path, name) in derived:
+                tag = "교차덮음"
+            elif name in EXCLUDED_SCALARS.get(path, {}):
+                tag = "제외(" + EXCLUDED_SCALARS[path][name][0] + ")"
+            else:
+                tag = "미분류"
+            out.append((path, name, tag,
+                        f"지금={_show(now[name])}  하네스={_show(harness[name])}"))
+    return out, err
+
+
+def _classify_files():
+    """«뿌리 여럿»의 폐포 합집합 ∪ 덮음파일 을 덮음/제외/미분류로 가른다.
+
+    돌려주는 것은 (뿌리별 폐포, 폐포 합집합, 모집단, 덮음, 제외, 미분류).
+    뿌리별 폐포를 «따로» 돌려주는 까닭: 합집합만 찍으면 「어느 뿌리가 무엇을
+    끌고 왔나」가 안 보이고, 뿌리가 조용히 빠져도 수가 그럴듯하게 남는다.
 
     제외 칸을 셀 때 «덮음 여부를 빼지 않는다» — 빼면 세 칸이 모집단의
     «분할»이 되어 「셈 안 맞음」 관문이 질 수가 없는 항등식이 된다.
     한 파일이 덮음과 제외에 둘 다 올라 있으면 합이 모집단보다 «커져서» 걸린다.
     """
-    closure = _import_closure(FROZEN_HARNESS)
-    covered = _covered_file_refs()
+    closures = {root: _import_closure(root) for root, _why in ROOTS}
+    closure: set[str] = set()
+    for one in closures.values():
+        closure |= one
+    covered = _covered_file_basis()
     # 덮음 표에 있는데 폐포 «밖»인 파일도 모집단에 넣는다 —
     # strategy_params.py 가 그렇다(하네스가 import 하지 않지만 스킬의 정본).
     universe = sorted(closure | set(covered))
     cov = [p for p in universe if p in covered]
     exc = [p for p in universe if p in EXCLUDED_FILES]
     unc = [p for p in universe if p not in covered and p not in EXCLUDED_FILES]
-    return closure, universe, cov, exc, unc
+    return closures, closure, universe, cov, exc, unc
 
 
 def _scalar_at(src: str, name: str):
@@ -706,9 +1022,13 @@ def _covered_names(path: str, all_names: list[str]) -> set[str]:
       · DICT_TARGETS  — 그 파일의 dict 이름(키 단위로 대조된다)
       · CONST_TARGETS — 그 파일은 «전부» 자동 수집해 대조하므로 전체가 덮음
       · SCALAR_TARGETS — 그 파일의 이름별 대조 항목
+      · CROSS_TARGETS / DERIVED_TARGETS — ⑤ 교차 검산이 «하네스와» 견주는 항목.
+        기준이 커밋이 아니라 하네스 일치일 뿐, 덮은 것은 덮은 것이다.
     """
     covered = {name for (p, name, _ref, _reason) in SCALAR_TARGETS if p == path}
     covered |= {name for (p, name, _ref, _reason) in DICT_TARGETS if p == path}
+    covered |= {name for (p, name, _rp, _rn, _r, _x) in CROSS_TARGETS if p == path}
+    covered |= {name for (p, name, _r, _rel, _c, _x) in DERIVED_TARGETS if p == path}
     if any(p == path for (p, _ref, _reason) in CONST_TARGETS):
         covered |= set(all_names)
     return covered
@@ -773,7 +1093,7 @@ def main() -> int:
     by_source = []    # 「글자로 견준」 이름들 — 끝에 한 번 더 알린다
     reach_only = []   # «도달성»만으로 제외한 항목 — 실패는 아니고 재검토 알림
 
-    covered_files = _covered_file_refs()  # ⑤ 가 돌 파일 목록(표에서 끌어냄)
+    covered_files = _covered_file_basis()  # ⑥ 가 돌 파일 목록(표에서 끌어냄)
 
     print("== ① 검출기 DEFAULT_PARAMS (기준: e8cd65ae, 27.4년 백테스트 원 커밋) ==")
     for path, name, ref, reason in DICT_TARGETS:
@@ -853,17 +1173,92 @@ def main() -> int:
         if now != old:
             bad += 1
 
-    print("\n== ⑤ 상수 분류 검산 (①②③④ 표에 나온 파일마다 덮음/제외/미분류) ==")
+    print("\n== ⑤ 교차 검산 — 기준 커밋이 «없는» 새 미국 실전 파일 ==")
+    print(f"   이 파일들은 {HARNESS_REF} 에 «존재하지 않았다». 그래서 「그 커밋 이후")
+    print("   안 바뀌었나」를 물을 수 «없다». 물음을 바꾼다 — 「27.4년 하네스가")
+    print("   «쓴 값»과 «같은가」. 기준 쪽 값은 글자로 베껴 적지 않고 git show 로")
+    print("   «읽어» 견준다(베껴 적으면 같은 것을 가리키는 자가 둘이 된다).")
+    for live_path, live_name, ref_path, ref_name, ref, reason in CROSS_TARGETS:
+        now = _scalar_at(open(live_path, encoding="utf-8").read(), live_name)
+        old_src, err = _git_show(ref, ref_path)
+        old = _scalar_at(old_src, ref_name)
+        fail_tag = f"  [git show 실패: {err}]" if err else ""
+
+        if now is _MISSING or old is _MISSING:
+            print(f"{live_path}  {live_name}  [읽기 실패 — 지금={_show(now)} "
+                  f"하네스={_show(old)}]{fail_tag}")
+            read_fail += 1
+            continue
+
+        for e in (now, old):
+            if e[0] == READ_SOURCE:
+                by_source.append(f"{live_path}:{live_name}")
+                break
+        mark = "같음" if now == old else "다름"
+        print(f"{live_path}  {live_name}  지금={_show(now)}  "
+              f"기준 {ref_path}:{ref_name}@{ref}={_show(old)}  {mark}{fail_tag}")
+        print(f"    (기준 «커밋 없음» — 하네스와의 일치로 얼렸다. 이유: {reason})")
+        if now != old:
+            bad += 1
+
+    for live_path, live_name, ref, rel, calc_key, reason in DERIVED_TARGETS:
+        calc = _REF_CALCS.get(calc_key)
+        if calc is None or rel not in ("==", ">="):
+            print(f"{live_path}  {live_name}  계산기 «{calc_key}» 또는 관계 "
+                  f"«{rel}» 가 등록돼 있지 않다 — 관문 «자신»의 결함")
+            broken += 1
+            continue
+        now = _scalar_at(open(live_path, encoding="utf-8").read(), live_name)
+        ref_val, detail, err = calc(ref)
+        fail_tag = f"  [git show 실패: {err}]" if err else ""
+
+        if now is _MISSING or now[0] != READ_VALUE or ref_val is None:
+            print(f"{live_path}  {live_name}  [읽기 실패 — 지금={_show(now)} "
+                  f"기준={ref_val!r} ({detail})]{fail_tag}")
+            read_fail += 1
+            continue
+
+        now_val = now[1]
+        try:
+            ok = (now_val == ref_val) if rel == "==" else (now_val >= ref_val)
+        except TypeError:
+            ok = False
+            detail += " [견줄 수 없는 종류]"
+        mark = "만족" if ok else "어긋남"
+        print(f"{live_path}  {live_name}  지금={now_val!r}  "
+              f"기준({ref} 에서 «계산»)={ref_val!r}  관계 «{rel}»  {mark}{fail_tag}")
+        print(f"    (기준 «커밋 없음» — 하네스가 쓴 관문 상수에서 계산: {detail})")
+        print(f"    (이유: {reason})")
+        if not ok:
+            bad += 1
+
+    twins, twin_err = _harness_twin_names(HARNESS_REF)
+    if twin_err:
+        print(f"   [git show 실패: {twin_err}] — 짝 찾기가 «못» 돌았다")
+        read_fail += 1
+    print(f"   하네스와 이름이 «같은» 상수 {len(twins)}개 — 손으로 훑지 않고 "
+          "코드로 찾는다(짝이 있는데 안 덮은 것이 드러나라고):")
+    for path, name, tag, cmp_txt in twins:
+        print(f"      {path}:{name}  [{tag}]  {cmp_txt}")
+    if not twins:
+        print("      (없음 — 새 실전 파일의 상수 중 하네스와 이름이 겹치는 것이 0개)")
+    print("   («미분류»가 있으면 아래 ⑥ 이 그 파일에서 관문을 실패시킨다. "
+          "여기서는 세지 않는다 — 같은 것을 두 곳에서 세면 수가 둘이 된다.)")
+
+    print("\n== ⑥ 상수 분류 검산 (①②③④⑤ 표에 나온 파일마다 덮음/제외/미분류) ==")
     print("   대상 파일 목록은 손으로 적지 않는다 — 비교 표에서 끌어낸다.")
     for path in sorted(covered_files):
-        ref = covered_files[path]
-        # ⑤ 는 기준 커밋을 «안 읽는다» — 「지금 판에 설명 안 된 상수가
+        basis = covered_files[path]
+        # ⑥ 은 기준 커밋을 «안 읽는다» — 「지금 판에 설명 안 된 상수가
         # 있나」를 묻는 검산이라 그게 맞다. 그런데 예전 판은 「(기준 e8cd65ae)」만
         # 찍어서 «기준 커밋과 견줬다»로 읽혔다. 찍는 것을 지우는 대신
-        # «무엇의 기준인지»를 같은 줄에 적는다.
-        print(f"  -- {path} (①②③④ 값 대조 기준 {ref} · ⑤ 자신은 지금 판만 읽는다) --")
-        if ref.startswith("!충돌"):
-            print(f"   기준 커밋이 둘 이상이다 — 관문 «자신»의 결함: {ref}")
+        # «무엇의 기준인지»를 같은 줄에 적는다. 그리고 기준 «종류»가 둘이므로
+        # (커밋 / 커밋 없음-하네스 일치) 어느 쪽인지를 파일마다 구분해 찍는다 —
+        # 조용히 섞으면 읽는 사람이 「커밋과 견줬다」로 오해한다.
+        print(f"  -- {path}")
+        print(f"     ({_basis_text(basis)} · ⑥ 자신은 지금 판만 읽는다) --")
+        if basis[0] == BASIS_CONFLICT:
+            print(f"   기준이 둘 이상이다 — 관문 «자신»의 결함: {basis[1]}")
             broken += 1
         now_src = open(path, encoding="utf-8").read()
         all_names, covered, excluded_here, unclassified_names = _classify_scalars(path, now_src)
@@ -881,7 +1276,7 @@ def main() -> int:
 
         print(f"   자동 수집한 모듈최상위 대문자 상수 {len(all_names)}개"
               f"(그중 글자로 읽은 것 {n_src}개): {all_names}")
-        print(f"   덮음(①②③④ 비교 표에서 끌어냄) {len(covered)}개: {covered}")
+        print(f"   덮음(①②③④⑤ 비교 표에서 끌어냄) {len(covered)}개: {covered}")
         print(f"   제외(EXCLUDED_SCALARS[path]) {len(excluded_here)}개:")
         for n in excluded_here:
             tag = EXCLUDED_SCALARS.get(path, {}).get(n)
@@ -902,13 +1297,15 @@ def main() -> int:
         elif total == len(all_names):
             print(f"   미분류 0개 — 덮음+제외+미분류 = {total} = 자동 수집 수")
 
-    print("\n== ⑥ 파일 분류 검산 (27.4년 하네스의 전이 import 폐포) ==")
-    print(f"   시작점: {FROZEN_HARNESS}")
-    closure, universe, cov_f, exc_f, unc_f = _classify_files()
+    print("\n== ⑦ 파일 분류 검산 (뿌리 여럿의 전이 import 폐포 합집합) ==")
+    closures, closure, universe, cov_f, exc_f, unc_f = _classify_files()
+    print(f"   뿌리 {len(ROOTS)}개 — 각 뿌리의 폐포를 «따로» 떠서 합친다:")
+    for root, why in ROOTS:
+        print(f"      {root}  폐포 {len(closures[root])}개  — {why}")
     outside = sorted(set(universe) - closure)
-    print(f"   폐포(저장소 안 파일) {len(closure)}개 · "
+    print(f"   폐포 합집합(저장소 안 파일) {len(closure)}개 · "
           f"덮음 표에만 있는 폐포 밖 파일 {len(outside)}개: {outside}")
-    print(f"   모집단 = 폐포 ∪ 덮음파일 = {len(universe)}개")
+    print(f"   모집단 = 폐포 합집합 ∪ 덮음파일 = {len(universe)}개")
     print(f"   덮음 {len(cov_f)}개: {cov_f}")
     print(f"   제외 {len(exc_f)}개:")
     for f_ in exc_f:
@@ -923,8 +1320,9 @@ def main() -> int:
         broken += 1
     if unc_f:
         print(f"   미분류 파일 {len(unc_f)}개 — 관문 실패: {unc_f}")
-        print("   (하네스 경로에 새 파일이 붙었다. 판정에 드는 수가 있으면 "
-              "CONST_TARGETS/SCALAR_TARGETS 에 넣어 얼리고, 아니면 "
+        print("   (뿌리 중 어딘가에 새 파일이 붙었다. 판정에 드는 수가 있으면 "
+              "CONST_TARGETS/SCALAR_TARGETS 에 넣어 얼리거나(기준 커밋이 있을 때) "
+              "CROSS_TARGETS/DERIVED_TARGETS 에 넣어 하네스와 견주고, 아니면 "
               "EXCLUDED_FILES 에 기준 꼬리표와 «코드로 확인한» 사유를 적어라. "
               "도달성만으로는 제외하지 않는다 — 성격으로 제외한다.)")
         unclassified_files += len(unc_f)
@@ -942,16 +1340,33 @@ def main() -> int:
         print(f"미분류 상수 {unclassified}개 — 덮음 파일 어딘가에 새 상수가 "
               "관문 밖에서 조용히 추가됐다는 뜻")
     if unclassified_files:
-        print(f"미분류 파일 {unclassified_files}개 — 하네스 폐포에 새 파일이 "
-              "관문 밖에서 조용히 붙었다는 뜻")
+        print(f"미분류 파일 {unclassified_files}개 — 뿌리(ROOTS) 어딘가의 "
+              "폐포에 새 파일이 관문 밖에서 조용히 붙었다는 뜻")
     if broken:
         print(f"관문 «자신»의 결함 {broken}건 — 셈이 안 맞거나, 수집기가 못 담는 "
               "모양이 생겼거나, 기준 커밋이 둘이다. 관문을 고쳐야 한다")
     if reach_only:
+        # 「미국 SEPA 스킬이 생기면 그 가정이 깨진다」는 예언이었다. 예언은
+        # 아무도 다시 안 본다 — 관문이 초록이면 «까닭»까지 아직 맞다고 읽힌다.
+        # 그래서 예언을 «출력값»으로 바꾼다: 하네스 «말고» 다른 뿌리에서도
+        # 그 파일에 닿는지를 폐포로 «계산»해 항목마다 찍는다.
+        live_reach: set[str] = set()
+        for root, _why in ROOTS[1:]:
+            live_reach |= closures.get(root, set())
+        broken_assumption = [x for x in sorted(reach_only)
+                             if x.split(":")[0] in live_reach]
         print(f"\n[알림] «도달성»만으로 제외한 항목 {len(reach_only)}개 — 관문을 "
               "실패시키지는 않지만 순서 규칙상 «재검토 대상»이다. 도달성 사유는 "
-              "「소비자가 하네스 하나뿐」이라는 가정에 기대는데, 미국 SEPA 스킬이 "
-              f"생기면 그 가정이 깨진다:\n   {sorted(reach_only)}")
+              "「소비자가 하네스 하나뿐」이라는 가정에 기댄다. 그 가정이 «지금» "
+              "성립하는지를 뿌리별 폐포로 계산해 항목마다 찍는다:")
+        for x in sorted(reach_only):
+            hit = "실전 뿌리에서도 닿음 — 가정이 «이미» 깨졌다" if x.split(":")[0] in live_reach \
+                else "실전 뿌리에서는 안 닿음 — 가정이 아직 선다"
+            print(f"   {x}  [{hit}]")
+        if broken_assumption:
+            print(f"   → {len(broken_assumption)}개는 「하네스만 소비자」가 «더 이상 "
+                  "사실이 아니다». 값이 같아서 통과한 것이지 사유가 맞아서가 "
+                  "아니다 — 다음 판에서 덮음으로 올릴지 정해야 한다.")
 
     return 1 if (bad or read_fail or unclassified or unclassified_files
                  or broken) else 0
