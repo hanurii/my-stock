@@ -1,7 +1,7 @@
 {
   "code": "175330",
   "name": "JB금융지주",
-  "last_checked": "2026-09-11T09:54:17.033+09:00",
+  "last_checked": "2026-09-11T16:48:53.958+09:00",
   "metrics": [
     {
       "id": "pbr",
@@ -121,9 +121,24 @@
       "type": "dividend_qoq_change",
       "title": "분기배당 QoQ 변화율 동결 또는 감소",
       "message": "현재 -45.2% — 매도 트리거 도달"
+    },
+    {
+      "severity": "info",
+      "type": "news_keyword_hit",
+      "title": "리스크 키워드 매칭 뉴스 1건 (관찰 신호 0건 — 키워드 단순 매칭만)",
+      "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
-  "news_hits": [],
+  "news_hits": [
+    {
+      "keyword": "지방은행 부실",
+      "date": "2026-09-11",
+      "title": "광주은행, 부실채권 40%가 '사실상 떼인 돈' 추정손실...지방은행권 '최고' - 녹색경제신문",
+      "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTFBWeHJ5QWlDdG9VUnBDM0VHVE9HaDRIeDk3d3Z1ZnJHZzJMSmtlYm95bTNtSk9GX2NnNF9TYkF3cmVIRVBRY1F3VWRPei0yV280a05TR05RWFpSbzJTTjFRcDBhamptMnZM?oc=5",
+      "severity": "info",
+      "signals": []
+    }
+  ],
   "sources": [
     {
       "label": "PER/PEG/PBR 스코어",
@@ -156,6 +171,10 @@
     {
       "label": "분기 ROE 연환산 (2026-H1 · 7.18%)",
       "ref": "DART 20260814002218 (fnlttSinglAcntAll: 자본총계+분기순이익)"
+    },
+    {
+      "label": "뉴스 RSS",
+      "ref": "news.google.com/rss (7일)"
     }
   ]
 }
