@@ -1,13 +1,13 @@
 {
   "code": "347850",
   "name": "디앤디파마텍",
-  "last_checked": "2026-09-11T22:24:19.487+09:00",
+  "last_checked": "2026-09-14T09:48:52.989+09:00",
   "metrics": [
     {
       "id": "pbr",
       "label": "PBR (극고평가)",
-      "value": 16.18,
-      "display": "16.18배",
+      "value": 15.48,
+      "display": "15.48배",
       "threshold": "50배 돌파",
       "hit": false,
       "tone": "good"
@@ -24,11 +24,11 @@
     {
       "id": "capital_issuance",
       "label": "신규 자본조달 (CB/BW/EB/유증) 90일",
-      "value": 1,
-      "display": "1건",
+      "value": 0,
+      "display": "0건",
       "threshold": "발행 공시 1건+",
-      "hit": true,
-      "tone": "bad"
+      "hit": false,
+      "tone": "good"
     },
     {
       "id": "op_margin",
@@ -51,10 +51,10 @@
   ],
   "alerts": [
     {
-      "severity": "bad",
-      "type": "capital_issuance",
-      "title": "신규 자본조달 (CB/BW/EB/유증) 90일 발행 공시 1건+",
-      "message": "현재 1건 — 매도 트리거 도달"
+      "severity": "info",
+      "type": "all_clear",
+      "title": "모든 매도 트리거 범위 내",
+      "message": "현재 지표·공시·뉴스 기준 즉각 매도 사유 없음. 보유 유지."
     }
   ],
   "news_hits": [],
@@ -70,10 +70,6 @@
     {
       "label": "이슬기 보유 비율 (2026)",
       "ref": "DART 20260814002436 (hyslrSttus)"
-    },
-    {
-      "label": "자본조달 공시 1건 (최근: 2026-06-15 주요사항보고서(자기전환사채만기전취득결정))",
-      "ref": "DART 20260615000170"
     },
     {
       "label": "ClinicalTrials.gov 임상 5건 (30일 status 변경 0건)",
