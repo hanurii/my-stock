@@ -1,13 +1,13 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-09-14T17:36:12.556+09:00",
+  "last_checked": "2026-09-14T20:05:23.627+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 4.68,
-      "display": "4.68배",
+      "value": 4.64,
+      "display": "4.64배",
       "threshold": "10배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "dividend_yield",
       "label": "배당수익률",
-      "value": 2.6,
-      "display": "2.60%",
+      "value": 2.62,
+      "display": "2.62%",
       "threshold": "3.5% 이하",
       "hit": true,
       "tone": "bad"
@@ -60,8 +60,8 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 101.65,
-      "display": "101.65$",
+      "value": 101.51,
+      "display": "101.51$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
@@ -72,7 +72,7 @@
       "severity": "bad",
       "type": "dividend_yield",
       "title": "배당수익률 3.5% 이하",
-      "message": "현재 2.60% — 매도 트리거 도달"
+      "message": "현재 2.62% — 매도 트리거 도달"
     },
     {
       "severity": "bad",
@@ -95,7 +95,7 @@
     {
       "severity": "warn",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 9건 (관찰 신호 2건 포함)",
+      "title": "리스크 키워드 매칭 뉴스 8건 (관찰 신호 2건 포함)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
@@ -125,14 +125,6 @@
       "date": "2026-09-13",
       "title": "이란·오만 호르무즈해협 항로 합의…\"미국이 조건 수용해야 개방\" - 한국일보",
       "url": "https://news.google.com/rss/articles/CBMibkFVX3lxTE5saWgzWGJITjg2R0thZkdvWW5KTWNKWW1xODRUYnU1Zm94Qmtrcm9fSEplT3ZnanpHRF9ZRTV3b1Q5MEJJVTlPYTNYVDg3YmpyTTMxREdmOGx0TnVPUzluWDNYWGdLM3lteGM0dVZR0gFzQVVfeXFMT0wwWEV0UTlKV1FEOC14M0RPRzljZmhZcG5aQVZ2ZFpLVlJWWXRwREtYM0dFT28zOWVWcnlMM050c3dNUFNIRW9yMF94bGFOc0hqcnhYSzZfTGVJa0ZjVjI3My1hbUVjYk9mWFVZZXRNVWVNSQ?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "이란 미국 합의",
-      "date": "2026-09-13",
-      "title": "호르무즈 새 항로 합의한 이란…'맞불 봉쇄' 성과 과시한 미국 - shinailbo.co.kr",
-      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTFB5VV9KWHBQWVJLSjQ4Q0IyS2RudGc3UnhQdWlLNXh5a3RvOUZRMTJMOUN2Q201bW85OXlJbEttWHV0bV80aFlLSm9zZlBHelMxQnhyanQ2MDlKUG96b3dHVmxQQjJKMFIzYWVDc1R5akM?oc=5",
       "severity": "info",
       "signals": []
     },
@@ -183,7 +175,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 108.41 USD (2026-09-14, 7일 평균 101.65)",
+      "label": "Brent 원유 종가 107.39 USD (2026-09-14, 7일 평균 101.51)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
