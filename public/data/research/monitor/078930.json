@@ -1,13 +1,13 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-09-15T10:15:16.999+09:00",
+  "last_checked": "2026-09-15T17:25:53.622+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 4.68,
-      "display": "4.68배",
+      "value": 4.64,
+      "display": "4.64배",
       "threshold": "10배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "dividend_yield",
       "label": "배당수익률",
-      "value": 2.6,
-      "display": "2.60%",
+      "value": 2.62,
+      "display": "2.62%",
       "threshold": "3.5% 이하",
       "hit": true,
       "tone": "bad"
@@ -60,8 +60,8 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 101.42,
-      "display": "101.42$",
+      "value": 102.29,
+      "display": "102.29$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
@@ -72,7 +72,7 @@
       "severity": "bad",
       "type": "dividend_yield",
       "title": "배당수익률 3.5% 이하",
-      "message": "현재 2.60% — 매도 트리거 도달"
+      "message": "현재 2.62% — 매도 트리거 도달"
     },
     {
       "severity": "bad",
@@ -103,7 +103,17 @@
     {
       "keyword": "두바이유 하락",
       "date": "2026-09-13",
-      "title": "주유소 기름값 17주째 하락...두바이유 반등 압력 커지나 - 뉴스투데이",
+      "title": "두바이유 일주일 새 21% 급등…정제마진 7.2달러 하락-하나證 - v.daum.net",
+      "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE5zRVFJRGtxWU12dXhNZlhzQ1BYWXFmSjNpMDhkRE9ST2Jsck1ONmNsWk1SNjVNM3YzLVBEeWlQdjJQSnVZZVhWbVBnZGlWblE?oc=5",
+      "severity": "warn",
+      "signals": [
+        "하락"
+      ]
+    },
+    {
+      "keyword": "두바이유 하락",
+      "date": "2026-09-13",
+      "title": "주유소 기름값 17주째 하락...두바이유 반등 압력 커지나 - news2day.co.kr",
       "url": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE1teHU2RkhacDJjRnY4TnlyWC1ZMXR2NXI3THhFdjhSRjhXTk5vTDdxSGdQOG5hUmI2VjFHZkNMT1NfMENmenJWZXEwcHAwZ2FNNVZjOWlnVk5xWVpYQmc?oc=5",
       "severity": "warn",
       "signals": [
@@ -115,16 +125,6 @@
       "date": "2026-09-13",
       "title": "두바이유 일주일 새 21% 급등…정제마진 7.2달러 하락-하나證 - 부산파이낸셜뉴스",
       "url": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE9sU0psSjlVR3M1Wl9PemJ0VHh1X2JxM01NTUxqMzlMa3NKMlc4U0NCYUVhS0FIeFA3TW9kRERKNWE2eFRPZkRDWnFYZkVHUElfNF8zYmdRWnNYLUM0?oc=5",
-      "severity": "warn",
-      "signals": [
-        "하락"
-      ]
-    },
-    {
-      "keyword": "두바이유 하락",
-      "date": "2026-09-13",
-      "title": "두바이유 일주일 새 21% 급등…정제마진 7.2달러 하락-하나證 - fnnews.com",
-      "url": "https://news.google.com/rss/articles/CBMiWkFVX3lxTFBfOEJiWVdxbHRNOHdFNDFvNDN4UERRRFkxNkpubXVkYlBlRkdHUFM0Znc3bDRBUG1vRklhdHN1VG9rZWdGWWg1WjJsRUpTa0Z0RkUzN3BwbW92Zw?oc=5",
       "severity": "warn",
       "signals": [
         "하락"
@@ -165,7 +165,7 @@
     {
       "keyword": "중동 긴장 완화",
       "date": "2026-09-12",
-      "title": "전쟁으로 갈라진 이란·UAE, 브릭스서 중동 긴장 완화 촉구 - news.nate.com",
+      "title": "전쟁으로 갈라진 이란·UAE, 브릭스서 중동 긴장 완화 촉구 - 네이트",
       "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE4yMXJnTmF6TktqR1BfQnlhM01QMm5sTHhhb1NTaVA4S0hNQ3NpQ2pWZTQtOXVPNU9zNGNhNDJZOTZ0RjRoWGZmcVhJWUlxcHhlSlRYeUZLQ2hQOEJaUzFmTA?oc=5",
       "severity": "info",
       "signals": []
@@ -177,7 +177,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 106.75 USD (2026-09-15, 7일 평균 101.42)",
+      "label": "Brent 원유 종가 102.67 USD (2026-09-15, 7일 평균 102.29)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
