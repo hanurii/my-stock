@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-08-31 20:08",
-  "asof": "2026-08-31",
+  "generated_at": "2026-09-15 14:41",
+  "asof": "2026-09-15",
   "stop_loss_pct_default": -10,
   "holdings": [
     {
@@ -15,14 +15,14 @@
       "pivot_source": "manual",
       "filter_excluded": null,
       "lots": null,
-      "current_price": 21500.0,
-      "profit_pct": -1.6,
+      "current_price": 21800.0,
+      "profit_pct": -0.23,
       "stop_price": 19665.0,
-      "pct_to_stop": -8.53,
+      "pct_to_stop": -9.79,
       "breakout_date": "2026-08-12",
       "breakout_date_estimated": false,
       "signal": "needs_review",
-      "violation_count": 2,
+      "violation_count": 3,
       "weak_entry": false,
       "rules": [
         {
@@ -40,19 +40,19 @@
         {
           "id": "consecutive_lower_lows",
           "status": "watch",
-          "detail": "🟡경고: 저점경신 3회(거래량 낮음)",
+          "detail": "🟡경고: 저점경신 4회(거래량 낮음)",
           "kind": "exit"
         },
         {
           "id": "close_below_ma",
-          "status": "pass",
-          "detail": "20일선 위 유지",
+          "status": "violation",
+          "detail": "2026-09-14 20일선 아래 마감 (돌파 21거래일째)",
           "kind": "exit"
         },
         {
           "id": "weak_days_dominant",
           "status": "violation",
-          "detail": "하락 7·상승 4 / 나쁜마감 6·좋은마감 5",
+          "detail": "하락 14·상승 8 / 나쁜마감 9·좋은마감 13",
           "kind": "exit"
         },
         {
@@ -62,47 +62,47 @@
           "kind": "exit"
         }
       ],
-      "extension_pct": -1.6,
+      "extension_pct": -0.2,
       "accumulation": {
-        "window": "D+11/15",
-        "elapsed": 11,
+        "window": "15일 완료",
+        "elapsed": 22,
         "signals": [
           {
             "id": "up_days_dominant",
             "status": "unmet",
-            "detail": "상승 4 · 하락 7"
+            "detail": "상승 7 · 하락 8"
           },
           {
             "id": "quality_closes",
-            "status": "unmet",
-            "detail": "좋은 5 · 나쁜 6"
+            "status": "met",
+            "detail": "좋은 9 · 나쁜 6"
           },
           {
             "id": "up_streak_7",
             "status": "unmet",
-            "detail": "최고 2일"
+            "detail": "최고 3일"
           }
         ]
       },
       "mvp": {
-        "status": "pending",
+        "status": "no",
         "m": {
-          "ok": null,
-          "detail": "11/15일 (판정 전)"
+          "ok": false,
+          "detail": "7/15일 상승"
         },
         "v": {
-          "ok": null,
-          "detail": "판정 전"
+          "ok": false,
+          "detail": "직전 대비 1.1배"
         },
         "p": {
-          "ok": null,
-          "detail": "+2%"
+          "ok": false,
+          "detail": "+11%"
         }
       },
       "strength": {
         "signal": "not_extended",
         "extended": false,
-        "gate_detail": "확장 -1.6% < 5%",
+        "gate_detail": "확장 -0.2% < 5%",
         "count": 0,
         "signals": []
       },
@@ -127,14 +127,14 @@
       "pivot_source": "manual",
       "filter_excluded": null,
       "lots": null,
-      "current_price": 66600.0,
-      "profit_pct": -5.53,
+      "current_price": 58200.0,
+      "profit_pct": -17.45,
       "stop_price": 63450.0,
-      "pct_to_stop": -4.73,
+      "pct_to_stop": 9.02,
       "breakout_date": "2026-08-05",
       "breakout_date_estimated": false,
-      "signal": "needs_review",
-      "violation_count": 2,
+      "signal": "stop_loss",
+      "violation_count": 3,
       "weak_entry": false,
       "rules": [
         {
@@ -152,42 +152,42 @@
         {
           "id": "consecutive_lower_lows",
           "status": "watch",
-          "detail": "🟡경고: 저점경신 3회(거래량 낮음)",
+          "detail": "🟡경고: 저점경신 5회(거래량 낮음)",
           "kind": "exit"
         },
         {
           "id": "close_below_ma",
           "status": "violation",
-          "detail": "2026-08-18 20일선 아래 마감 (돌파 2거래일째)",
+          "detail": "심각: 2026-08-31 50일선 아래 + 대량 거래 마감",
           "kind": "exit"
         },
         {
           "id": "weak_days_dominant",
-          "status": "pass",
-          "detail": "하락 5·상승 6 / 나쁜마감 4·좋은마감 7",
+          "status": "violation",
+          "detail": "하락 12·상승 8 / 나쁜마감 8·좋은마감 13",
           "kind": "exit"
         },
         {
           "id": "breakout_failure",
           "status": "violation",
-          "detail": "거래량 동반 돌파 실패 — 2026-08-31 거래량 1.2배(돌파일 대비)",
+          "detail": "거래량 동반 돌파 실패 — 2026-09-10 거래량 1.3배(돌파일 대비)",
           "kind": "exit"
         }
       ],
-      "extension_pct": -5.5,
+      "extension_pct": -17.5,
       "accumulation": {
-        "window": "D+11/15",
-        "elapsed": 11,
+        "window": "15일 완료",
+        "elapsed": 22,
         "signals": [
           {
             "id": "up_days_dominant",
             "status": "met",
-            "detail": "상승 6 · 하락 5"
+            "detail": "상승 8 · 하락 7"
           },
           {
             "id": "quality_closes",
             "status": "met",
-            "detail": "좋은 7 · 나쁜 4"
+            "detail": "좋은 10 · 나쁜 5"
           },
           {
             "id": "up_streak_7",
@@ -197,24 +197,24 @@
         ]
       },
       "mvp": {
-        "status": "pending",
+        "status": "no",
         "m": {
-          "ok": null,
-          "detail": "11/15일 (판정 전)"
+          "ok": false,
+          "detail": "8/15일 상승"
         },
         "v": {
-          "ok": null,
-          "detail": "판정 전"
+          "ok": false,
+          "detail": "직전 대비 0.7배"
         },
         "p": {
-          "ok": null,
+          "ok": false,
           "detail": "+0%"
         }
       },
       "strength": {
         "signal": "not_extended",
         "extended": false,
-        "gate_detail": "확장 -5.5% < 5%",
+        "gate_detail": "확장 -17.5% < 5%",
         "count": 0,
         "signals": []
       },
@@ -230,7 +230,7 @@
     {
       "code": "009420",
       "name": "한올바이오파마",
-      "market": "KOSPI",
+      "market": null,
       "buy_date": "2026-08-14",
       "buy_price": 59700,
       "quantity": 167,
@@ -239,14 +239,14 @@
       "pivot_source": "manual",
       "filter_excluded": null,
       "lots": null,
-      "current_price": 59700.0,
-      "profit_pct": 0.0,
+      "current_price": 48700.0,
+      "profit_pct": -18.43,
       "stop_price": 53730.0,
-      "pct_to_stop": -10.0,
+      "pct_to_stop": 10.33,
       "breakout_date": "2026-08-13",
       "breakout_date_estimated": false,
-      "signal": "hold",
-      "violation_count": 0,
+      "signal": "stop_loss",
+      "violation_count": 3,
       "weak_entry": false,
       "rules": [
         {
@@ -263,43 +263,43 @@
         },
         {
           "id": "consecutive_lower_lows",
-          "status": "pass",
-          "detail": "연속 저저점 없음",
+          "status": "watch",
+          "detail": "🟡경고: 저점경신 4회(거래량 낮음)",
           "kind": "exit"
         },
         {
           "id": "close_below_ma",
-          "status": "pass",
-          "detail": "20일선 위 유지",
+          "status": "violation",
+          "detail": "2026-09-01 20일선 아래 마감 (돌파 11거래일째)",
           "kind": "exit"
         },
         {
           "id": "weak_days_dominant",
-          "status": "pass",
-          "detail": "하락 3·상승 7 / 나쁜마감 4·좋은마감 6",
+          "status": "violation",
+          "detail": "하락 12·상승 9 / 나쁜마감 12·좋은마감 9",
           "kind": "exit"
         },
         {
           "id": "breakout_failure",
-          "status": "watch",
-          "detail": "🟡 반전 회복 관찰중 (D+10/10)",
+          "status": "violation",
+          "detail": "유예 초과 — 피벗 회복 실패 (D+21)",
           "kind": "exit"
         }
       ],
-      "extension_pct": -0.0,
+      "extension_pct": -18.4,
       "accumulation": {
-        "window": "D+10/15",
-        "elapsed": 10,
+        "window": "15일 완료",
+        "elapsed": 21,
         "signals": [
           {
             "id": "up_days_dominant",
             "status": "met",
-            "detail": "상승 7 · 하락 3"
+            "detail": "상승 9 · 하락 6"
           },
           {
             "id": "quality_closes",
             "status": "met",
-            "detail": "좋은 6 · 나쁜 4"
+            "detail": "좋은 8 · 나쁜 7"
           },
           {
             "id": "up_streak_7",
@@ -309,24 +309,24 @@
         ]
       },
       "mvp": {
-        "status": "pending",
+        "status": "no",
         "m": {
-          "ok": null,
-          "detail": "10/15일 (판정 전)"
+          "ok": false,
+          "detail": "9/15일 상승"
         },
         "v": {
-          "ok": null,
-          "detail": "판정 전"
+          "ok": false,
+          "detail": "직전 대비 1.0배"
         },
         "p": {
-          "ok": null,
+          "ok": false,
           "detail": "+8%"
         }
       },
       "strength": {
         "signal": "not_extended",
         "extended": false,
-        "gate_detail": "확장 -0.0% < 5%",
+        "gate_detail": "확장 -18.4% < 5%",
         "count": 0,
         "signals": []
       },
@@ -351,14 +351,14 @@
       "pivot_source": "manual",
       "filter_excluded": null,
       "lots": null,
-      "current_price": 150100.0,
-      "profit_pct": 6.0,
+      "current_price": 149100.0,
+      "profit_pct": 5.3,
       "stop_price": 127440.0,
-      "pct_to_stop": -15.1,
+      "pct_to_stop": -14.53,
       "breakout_date": "2026-08-11",
       "breakout_date_estimated": false,
       "signal": "needs_review",
-      "violation_count": 3,
+      "violation_count": 4,
       "weak_entry": false,
       "rules": [
         {
@@ -369,8 +369,8 @@
         },
         {
           "id": "heavy_volume_pullback",
-          "status": "pass",
-          "detail": "대량 거래 하락일 없음",
+          "status": "violation",
+          "detail": "2026-09-10 하락 마감 + 거래량 2.4배",
           "kind": "exit"
         },
         {
@@ -388,7 +388,7 @@
         {
           "id": "weak_days_dominant",
           "status": "violation",
-          "detail": "하락 5·상승 5 / 나쁜마감 6·좋은마감 4",
+          "detail": "하락 10·상승 11 / 나쁜마감 13·좋은마감 8",
           "kind": "exit"
         },
         {
@@ -398,47 +398,47 @@
           "kind": "exit"
         }
       ],
-      "extension_pct": 6.0,
+      "extension_pct": 5.3,
       "accumulation": {
-        "window": "D+10/15",
-        "elapsed": 10,
+        "window": "15일 완료",
+        "elapsed": 21,
         "signals": [
           {
             "id": "up_days_dominant",
-            "status": "unmet",
-            "detail": "상승 5 · 하락 5"
+            "status": "met",
+            "detail": "상승 8 · 하락 7"
           },
           {
             "id": "quality_closes",
             "status": "unmet",
-            "detail": "좋은 4 · 나쁜 6"
+            "detail": "좋은 5 · 나쁜 10"
           },
           {
             "id": "up_streak_7",
             "status": "unmet",
-            "detail": "최고 2일"
+            "detail": "최고 3일"
           }
         ]
       },
       "mvp": {
-        "status": "pending",
+        "status": "no",
         "m": {
-          "ok": null,
-          "detail": "10/15일 (판정 전)"
+          "ok": false,
+          "detail": "8/15일 상승"
         },
         "v": {
-          "ok": null,
-          "detail": "판정 전"
+          "ok": false,
+          "detail": "직전 대비 1.0배"
         },
         "p": {
-          "ok": null,
-          "detail": "+4%"
+          "ok": false,
+          "detail": "+7%"
         }
       },
       "strength": {
         "signal": "sell_into_strength",
         "extended": true,
-        "gate_detail": "확장 +6.0% ≥ 5%",
+        "gate_detail": "확장 +5.3% ≥ 5%",
         "count": 1,
         "signals": [
           {
@@ -448,8 +448,8 @@
           },
           {
             "id": "blowoff_day",
-            "status": "fired",
-            "detail": "구간 최대 상승일 +9%이 어제 출현"
+            "status": "clear",
+            "detail": "막판 최대 상승/변동 아님"
           },
           {
             "id": "exhaustion_gap",
@@ -458,8 +458,8 @@
           },
           {
             "id": "distribution",
-            "status": "clear",
-            "detail": "반전·처닝·최대량 하락 없음"
+            "status": "fired",
+            "detail": "2026-09-10 최대 거래량으로 하락"
           }
         ]
       },
@@ -484,14 +484,14 @@
       "pivot_source": "manual",
       "filter_excluded": null,
       "lots": null,
-      "current_price": 119400.0,
-      "profit_pct": 4.92,
+      "current_price": 115300.0,
+      "profit_pct": 1.32,
       "stop_price": 102420.0,
-      "pct_to_stop": -14.22,
+      "pct_to_stop": -11.17,
       "breakout_date": "2026-08-14",
       "breakout_date_estimated": false,
-      "signal": "hold",
-      "violation_count": 0,
+      "signal": "needs_review",
+      "violation_count": 1,
       "weak_entry": false,
       "rules": [
         {
@@ -508,20 +508,20 @@
         },
         {
           "id": "consecutive_lower_lows",
-          "status": "pass",
-          "detail": "연속 저저점 없음",
+          "status": "watch",
+          "detail": "🟡경고: 저점경신 5회(거래량 낮음)",
           "kind": "exit"
         },
         {
           "id": "close_below_ma",
-          "status": "pass",
-          "detail": "20일선 위 유지",
+          "status": "violation",
+          "detail": "2026-09-11 20일선 아래 마감 (돌파 18거래일째)",
           "kind": "exit"
         },
         {
           "id": "weak_days_dominant",
           "status": "pass",
-          "detail": "하락 3·상승 6 / 나쁜마감 3·좋은마감 6",
+          "detail": "하락 9·상승 11 / 나쁜마감 9·좋은마감 11",
           "kind": "exit"
         },
         {
@@ -531,70 +531,49 @@
           "kind": "exit"
         }
       ],
-      "extension_pct": 5.0,
+      "extension_pct": 1.4,
       "accumulation": {
-        "window": "D+9/15",
-        "elapsed": 9,
+        "window": "15일 완료",
+        "elapsed": 20,
         "signals": [
           {
             "id": "up_days_dominant",
             "status": "met",
-            "detail": "상승 6 · 하락 3"
+            "detail": "상승 9 · 하락 6"
           },
           {
             "id": "quality_closes",
             "status": "met",
-            "detail": "좋은 6 · 나쁜 3"
+            "detail": "좋은 9 · 나쁜 6"
           },
           {
             "id": "up_streak_7",
             "status": "unmet",
-            "detail": "최고 4일"
+            "detail": "최고 5일"
           }
         ]
       },
       "mvp": {
-        "status": "pending",
+        "status": "no",
         "m": {
-          "ok": null,
-          "detail": "9/15일 (판정 전)"
+          "ok": false,
+          "detail": "9/15일 상승"
         },
         "v": {
-          "ok": null,
-          "detail": "판정 전"
+          "ok": false,
+          "detail": "직전 대비 1.0배"
         },
         "p": {
-          "ok": null,
-          "detail": "+6%"
+          "ok": false,
+          "detail": "+10%"
         }
       },
       "strength": {
-        "signal": "sell_into_strength",
-        "extended": true,
-        "gate_detail": "확장 +5.0% ≥ 5%",
-        "count": 1,
-        "signals": [
-          {
-            "id": "climax_run",
-            "status": "clear",
-            "detail": "절정 분출 없음"
-          },
-          {
-            "id": "blowoff_day",
-            "status": "fired",
-            "detail": "구간 최대 변동폭 6%가 오늘 출현"
-          },
-          {
-            "id": "exhaustion_gap",
-            "status": "clear",
-            "detail": "최근 상승 갭 없음"
-          },
-          {
-            "id": "distribution",
-            "status": "clear",
-            "detail": "반전·처닝·최대량 하락 없음"
-          }
-        ]
+        "signal": "not_extended",
+        "extended": false,
+        "gate_detail": "확장 +1.4% < 5%",
+        "count": 0,
+        "signals": []
       },
       "superperf": {
         "score": 1,
@@ -617,14 +596,14 @@
       "pivot_source": "manual",
       "filter_excluded": null,
       "lots": null,
-      "current_price": 8030.0,
-      "profit_pct": 11.53,
+      "current_price": 7760.0,
+      "profit_pct": 7.78,
       "stop_price": 6480.0,
-      "pct_to_stop": -19.3,
+      "pct_to_stop": -16.49,
       "breakout_date": "2026-08-19",
       "breakout_date_estimated": false,
       "signal": "needs_review",
-      "violation_count": 1,
+      "violation_count": 2,
       "weak_entry": false,
       "rules": [
         {
@@ -641,43 +620,43 @@
         },
         {
           "id": "consecutive_lower_lows",
-          "status": "pass",
-          "detail": "연속 저저점 없음",
+          "status": "watch",
+          "detail": "🟡경고: 저점경신 3회(거래량 낮음)",
           "kind": "exit"
         },
         {
           "id": "close_below_ma",
-          "status": "pass",
-          "detail": "20일선 위 유지",
+          "status": "violation",
+          "detail": "2026-09-04 20일선 아래 마감 (돌파 12거래일째)",
           "kind": "exit"
         },
         {
           "id": "weak_days_dominant",
           "status": "violation",
-          "detail": "하락 5·상승 3 / 나쁜마감 3·좋은마감 5",
+          "detail": "하락 12·상승 7 / 나쁜마감 9·좋은마감 10",
           "kind": "exit"
         },
         {
           "id": "breakout_failure",
           "status": "pass",
-          "detail": "피벗 위 유지",
+          "detail": "스쿼트 후 반전 회복(피벗 위 복귀)",
           "kind": "exit"
         }
       ],
-      "extension_pct": 11.5,
+      "extension_pct": 7.8,
       "accumulation": {
-        "window": "D+8/15",
-        "elapsed": 8,
+        "window": "15일 완료",
+        "elapsed": 19,
         "signals": [
           {
             "id": "up_days_dominant",
             "status": "unmet",
-            "detail": "상승 3 · 하락 5"
+            "detail": "상승 6 · 하락 9"
           },
           {
             "id": "quality_closes",
             "status": "met",
-            "detail": "좋은 5 · 나쁜 3"
+            "detail": "좋은 8 · 나쁜 7"
           },
           {
             "id": "up_streak_7",
@@ -687,25 +666,25 @@
         ]
       },
       "mvp": {
-        "status": "pending",
+        "status": "no",
         "m": {
-          "ok": null,
-          "detail": "8/15일 (판정 전)"
+          "ok": false,
+          "detail": "6/15일 상승"
         },
         "v": {
-          "ok": null,
-          "detail": "판정 전"
+          "ok": false,
+          "detail": "직전 대비 0.3배"
         },
         "p": {
-          "ok": null,
+          "ok": false,
           "detail": "+3%"
         }
       },
       "strength": {
-        "signal": "sell_into_strength",
+        "signal": "none",
         "extended": true,
-        "gate_detail": "확장 +11.5% ≥ 5%",
-        "count": 1,
+        "gate_detail": "확장 +7.8% ≥ 5%",
+        "count": 0,
         "signals": [
           {
             "id": "climax_run",
@@ -714,8 +693,8 @@
           },
           {
             "id": "blowoff_day",
-            "status": "fired",
-            "detail": "구간 최대 상승일 +9%이 어제 출현"
+            "status": "clear",
+            "detail": "막판 최대 상승/변동 아님"
           },
           {
             "id": "exhaustion_gap",
@@ -750,14 +729,14 @@
       "pivot_source": "manual",
       "filter_excluded": null,
       "lots": null,
-      "current_price": 9920.0,
-      "profit_pct": 8.3,
+      "current_price": 13030.0,
+      "profit_pct": 42.25,
       "stop_price": 8244.0,
-      "pct_to_stop": -16.9,
+      "pct_to_stop": -36.73,
       "breakout_date": "2026-08-20",
       "breakout_date_estimated": false,
       "signal": "needs_review",
-      "violation_count": 2,
+      "violation_count": 3,
       "weak_entry": true,
       "rules": [
         {
@@ -775,7 +754,7 @@
         {
           "id": "consecutive_lower_lows",
           "status": "watch",
-          "detail": "🟡경고: 저점경신 3회(거래량 낮음)",
+          "detail": "🟡경고: 저점경신 4회(거래량 낮음)",
           "kind": "exit"
         },
         {
@@ -786,31 +765,31 @@
         },
         {
           "id": "weak_days_dominant",
-          "status": "pass",
-          "detail": "하락 3·상승 4 / 나쁜마감 2·좋은마감 5",
+          "status": "violation",
+          "detail": "하락 8·상승 10 / 나쁜마감 9·좋은마감 8",
           "kind": "exit"
         },
         {
           "id": "breakout_failure",
           "status": "violation",
-          "detail": "거래량 동반 돌파 실패 — 2026-08-21 거래량 1.4배(돌파일 대비)",
+          "detail": "거래량 동반 돌파 실패 — 2026-09-07 거래량 1.6배(돌파일 대비)",
           "kind": "exit"
         }
       ],
-      "extension_pct": 3.1,
+      "extension_pct": 35.4,
       "accumulation": {
-        "window": "D+7/15",
-        "elapsed": 7,
+        "window": "15일 완료",
+        "elapsed": 18,
         "signals": [
           {
             "id": "up_days_dominant",
             "status": "met",
-            "detail": "상승 4 · 하락 3"
+            "detail": "상승 8 · 하락 7"
           },
           {
             "id": "quality_closes",
-            "status": "met",
-            "detail": "좋은 5 · 나쁜 2"
+            "status": "unmet",
+            "detail": "좋은 7 · 나쁜 8"
           },
           {
             "id": "up_streak_7",
@@ -820,26 +799,47 @@
         ]
       },
       "mvp": {
-        "status": "pending",
+        "status": "no",
         "m": {
-          "ok": null,
-          "detail": "7/15일 (판정 전)"
+          "ok": false,
+          "detail": "8/15일 상승"
         },
         "v": {
-          "ok": null,
-          "detail": "판정 전"
+          "ok": false,
+          "detail": "직전 대비 0.3배"
         },
         "p": {
-          "ok": null,
+          "ok": false,
           "detail": "+4%"
         }
       },
       "strength": {
-        "signal": "not_extended",
-        "extended": false,
-        "gate_detail": "확장 +3.1% < 5%",
-        "count": 0,
-        "signals": []
+        "signal": "sell_into_strength",
+        "extended": true,
+        "gate_detail": "확장 +35.4% ≥ 5%",
+        "count": 3,
+        "signals": [
+          {
+            "id": "climax_run",
+            "status": "fired",
+            "detail": "최근 5거래일 +50% — 절정 구간(25%+)"
+          },
+          {
+            "id": "blowoff_day",
+            "status": "fired",
+            "detail": "구간 최대 상승일 +30%이 어제 출현"
+          },
+          {
+            "id": "exhaustion_gap",
+            "status": "fired",
+            "detail": "어제 상승 갭(전일 고가 위 출발)"
+          },
+          {
+            "id": "distribution",
+            "status": "clear",
+            "detail": "반전·처닝·최대량 하락 없음"
+          }
+        ]
       },
       "superperf": {
         "score": 3,
@@ -862,14 +862,14 @@
       "pivot_source": "manual",
       "filter_excluded": null,
       "lots": null,
-      "current_price": 1307.0,
-      "profit_pct": -16.54,
+      "current_price": 1290.0,
+      "profit_pct": -17.62,
       "stop_price": 1409.4,
-      "pct_to_stop": 7.83,
+      "pct_to_stop": 9.26,
       "breakout_date": "2026-08-19",
       "breakout_date_estimated": false,
       "signal": "stop_loss",
-      "violation_count": 2,
+      "violation_count": 3,
       "weak_entry": false,
       "rules": [
         {
@@ -887,7 +887,7 @@
         {
           "id": "consecutive_lower_lows",
           "status": "watch",
-          "detail": "🟡경고: 저점경신 7회(거래량 낮음)",
+          "detail": "🟡경고: 저점경신 8회(거래량 낮음)",
           "kind": "exit"
         },
         {
@@ -899,30 +899,30 @@
         {
           "id": "weak_days_dominant",
           "status": "violation",
-          "detail": "하락 5·상승 2 / 나쁜마감 5·좋은마감 2",
+          "detail": "하락 12·상승 5 / 나쁜마감 11·좋은마감 7",
           "kind": "exit"
         },
         {
           "id": "breakout_failure",
-          "status": "watch",
-          "detail": "🟡 반전 회복 관찰중 (D+7/10)",
+          "status": "violation",
+          "detail": "유예 초과 — 피벗 회복 실패 (D+18)",
           "kind": "exit"
         }
       ],
-      "extension_pct": -16.5,
+      "extension_pct": -17.6,
       "accumulation": {
-        "window": "D+7/15",
-        "elapsed": 7,
+        "window": "15일 완료",
+        "elapsed": 18,
         "signals": [
           {
             "id": "up_days_dominant",
             "status": "unmet",
-            "detail": "상승 2 · 하락 5"
+            "detail": "상승 4 · 하락 10"
           },
           {
             "id": "quality_closes",
             "status": "unmet",
-            "detail": "좋은 2 · 나쁜 5"
+            "detail": "좋은 5 · 나쁜 10"
           },
           {
             "id": "up_streak_7",
@@ -932,24 +932,24 @@
         ]
       },
       "mvp": {
-        "status": "pending",
+        "status": "no",
         "m": {
-          "ok": null,
-          "detail": "7/15일 (판정 전)"
+          "ok": false,
+          "detail": "4/15일 상승"
         },
         "v": {
-          "ok": null,
-          "detail": "판정 전"
+          "ok": false,
+          "detail": "직전 대비 0.3배"
         },
         "p": {
-          "ok": null,
+          "ok": false,
           "detail": "+0%"
         }
       },
       "strength": {
         "signal": "not_extended",
         "extended": false,
-        "gate_detail": "확장 -16.5% < 5%",
+        "gate_detail": "확장 -17.6% < 5%",
         "count": 0,
         "signals": []
       },
@@ -965,23 +965,29 @@
     {
       "code": "094840",
       "name": "슈프리마에이치큐",
-      "market": "KOSDAQ",
+      "market": null,
       "buy_date": "2026-08-20",
       "buy_price": 13108,
       "quantity": 762,
       "stop_loss_pct": -10,
       "pivot_price": 13019.98,
       "pivot_source": "manual",
-      "filter_excluded": null,
+      "filter_excluded": [
+        {
+          "rule": "low_liquidity",
+          "detail": "50일 평균 거래대금 4.8억 < 5억 — 기관이 못 들어오는 유동성(손절 시장가가 가격을 무너뜨림)",
+          "avg_turnover_eok": 4.8
+        }
+      ],
       "lots": null,
-      "current_price": 13310.0,
-      "profit_pct": 1.54,
+      "current_price": 12210.0,
+      "profit_pct": -6.85,
       "stop_price": 11797.2,
-      "pct_to_stop": -11.37,
+      "pct_to_stop": -3.38,
       "breakout_date": "2026-08-19",
       "breakout_date_estimated": false,
       "signal": "needs_review",
-      "violation_count": 1,
+      "violation_count": 4,
       "weak_entry": false,
       "rules": [
         {
@@ -992,49 +998,49 @@
         },
         {
           "id": "heavy_volume_pullback",
-          "status": "pass",
-          "detail": "대량 거래 하락일 없음",
+          "status": "violation",
+          "detail": "2026-09-04 하락 마감 + 거래량 2.0배",
           "kind": "exit"
         },
         {
           "id": "consecutive_lower_lows",
-          "status": "pass",
-          "detail": "연속 저저점 없음",
+          "status": "watch",
+          "detail": "🟡경고: 저점경신 3회(거래량 낮음)",
           "kind": "exit"
         },
         {
           "id": "close_below_ma",
           "status": "violation",
-          "detail": "2026-08-21 20일선 아래 마감 (돌파 1거래일째)",
+          "detail": "심각: 2026-09-04 50일선 아래 + 대량 거래 마감",
           "kind": "exit"
         },
         {
           "id": "weak_days_dominant",
-          "status": "pass",
-          "detail": "하락 2·상승 4 / 나쁜마감 3·좋은마감 4",
+          "status": "violation",
+          "detail": "하락 10·상승 7 / 나쁜마감 8·좋은마감 10",
           "kind": "exit"
         },
         {
           "id": "breakout_failure",
-          "status": "pass",
-          "detail": "스쿼트 후 반전 회복(피벗 위 복귀)",
+          "status": "violation",
+          "detail": "거래량 동반 돌파 실패 — 2026-09-04 거래량 3.0배(돌파일 대비)",
           "kind": "exit"
         }
       ],
-      "extension_pct": 2.2,
+      "extension_pct": -6.2,
       "accumulation": {
-        "window": "D+7/15",
-        "elapsed": 7,
+        "window": "15일 완료",
+        "elapsed": 18,
         "signals": [
           {
             "id": "up_days_dominant",
-            "status": "met",
-            "detail": "상승 4 · 하락 2"
+            "status": "unmet",
+            "detail": "상승 5 · 하락 9"
           },
           {
             "id": "quality_closes",
             "status": "met",
-            "detail": "좋은 4 · 나쁜 3"
+            "detail": "좋은 8 · 나쁜 7"
           },
           {
             "id": "up_streak_7",
@@ -1044,24 +1050,24 @@
         ]
       },
       "mvp": {
-        "status": "pending",
+        "status": "no",
         "m": {
-          "ok": null,
-          "detail": "7/15일 (판정 전)"
+          "ok": false,
+          "detail": "5/15일 상승"
         },
         "v": {
-          "ok": null,
-          "detail": "판정 전"
+          "ok": false,
+          "detail": "직전 대비 0.3배"
         },
         "p": {
-          "ok": null,
+          "ok": false,
           "detail": "+1%"
         }
       },
       "strength": {
         "signal": "not_extended",
         "extended": false,
-        "gate_detail": "확장 +2.2% < 5%",
+        "gate_detail": "확장 -6.2% < 5%",
         "count": 0,
         "signals": []
       },
@@ -1086,14 +1092,14 @@
       "pivot_source": "manual",
       "filter_excluded": null,
       "lots": null,
-      "current_price": 545000.0,
-      "profit_pct": -7.63,
+      "current_price": 547000.0,
+      "profit_pct": -7.29,
       "stop_price": 531000.0,
-      "pct_to_stop": -2.57,
+      "pct_to_stop": -2.93,
       "breakout_date": "2026-08-20",
       "breakout_date_estimated": false,
       "signal": "needs_review",
-      "violation_count": 2,
+      "violation_count": 3,
       "weak_entry": false,
       "rules": [
         {
@@ -1110,8 +1116,8 @@
         },
         {
           "id": "consecutive_lower_lows",
-          "status": "pass",
-          "detail": "연속 저저점 없음",
+          "status": "watch",
+          "detail": "🟡경고: 저점경신 5회(거래량 낮음)",
           "kind": "exit"
         },
         {
@@ -1122,8 +1128,8 @@
         },
         {
           "id": "weak_days_dominant",
-          "status": "pass",
-          "detail": "하락 3·상승 3 / 나쁜마감 2·좋은마감 4",
+          "status": "violation",
+          "detail": "하락 9·상승 7 / 나쁜마감 6·좋은마감 11",
           "kind": "exit"
         },
         {
@@ -1133,47 +1139,47 @@
           "kind": "exit"
         }
       ],
-      "extension_pct": -3.0,
+      "extension_pct": -2.7,
       "accumulation": {
-        "window": "D+6/15",
-        "elapsed": 6,
+        "window": "15일 완료",
+        "elapsed": 17,
         "signals": [
           {
             "id": "up_days_dominant",
             "status": "unmet",
-            "detail": "상승 3 · 하락 3"
+            "detail": "상승 7 · 하락 7"
           },
           {
             "id": "quality_closes",
             "status": "met",
-            "detail": "좋은 4 · 나쁜 2"
+            "detail": "좋은 11 · 나쁜 4"
           },
           {
             "id": "up_streak_7",
             "status": "unmet",
-            "detail": "최고 1일"
+            "detail": "최고 2일"
           }
         ]
       },
       "mvp": {
-        "status": "pending",
+        "status": "no",
         "m": {
-          "ok": null,
-          "detail": "6/15일 (판정 전)"
+          "ok": false,
+          "detail": "7/15일 상승"
         },
         "v": {
-          "ok": null,
-          "detail": "판정 전"
+          "ok": false,
+          "detail": "직전 대비 0.7배"
         },
         "p": {
-          "ok": null,
-          "detail": "-5%"
+          "ok": false,
+          "detail": "+4%"
         }
       },
       "strength": {
         "signal": "not_extended",
         "extended": false,
-        "gate_detail": "확장 -3.0% < 5%",
+        "gate_detail": "확장 -2.7% < 5%",
         "count": 0,
         "signals": []
       },
@@ -1189,7 +1195,7 @@
     {
       "code": "053260",
       "name": "금강철강",
-      "market": null,
+      "market": "KOSDAQ",
       "buy_date": "2026-08-21",
       "buy_price": 5790,
       "quantity": 1727,
@@ -1198,14 +1204,14 @@
       "pivot_source": "manual",
       "filter_excluded": null,
       "lots": null,
-      "current_price": 5330.0,
-      "profit_pct": -7.94,
+      "current_price": 7720.0,
+      "profit_pct": 33.33,
       "stop_price": 5211.0,
-      "pct_to_stop": -2.23,
+      "pct_to_stop": -32.5,
       "breakout_date": "2026-08-20",
       "breakout_date_estimated": false,
       "signal": "needs_review",
-      "violation_count": 2,
+      "violation_count": 3,
       "weak_entry": false,
       "rules": [
         {
@@ -1216,8 +1222,8 @@
         },
         {
           "id": "heavy_volume_pullback",
-          "status": "pass",
-          "detail": "대량 거래 하락일 없음",
+          "status": "violation",
+          "detail": "2026-09-10 하락 마감 + 거래량 6.1배",
           "kind": "exit"
         },
         {
@@ -1235,59 +1241,80 @@
         {
           "id": "weak_days_dominant",
           "status": "violation",
-          "detail": "하락 4·상승 1 / 나쁜마감 5·좋은마감 1",
+          "detail": "하락 7·상승 8 / 나쁜마감 13·좋은마감 4",
           "kind": "exit"
         },
         {
           "id": "breakout_failure",
-          "status": "watch",
-          "detail": "🟡 반전 회복 관찰중 (D+6/10)",
+          "status": "pass",
+          "detail": "스쿼트 후 반전 회복(피벗 위 복귀)",
           "kind": "exit"
         }
       ],
-      "extension_pct": -7.9,
+      "extension_pct": 33.3,
       "accumulation": {
-        "window": "D+6/15",
-        "elapsed": 6,
+        "window": "15일 완료",
+        "elapsed": 17,
         "signals": [
           {
             "id": "up_days_dominant",
-            "status": "unmet",
-            "detail": "상승 1 · 하락 4"
+            "status": "met",
+            "detail": "상승 7 · 하락 6"
           },
           {
             "id": "quality_closes",
             "status": "unmet",
-            "detail": "좋은 1 · 나쁜 5"
+            "detail": "좋은 4 · 나쁜 11"
           },
           {
             "id": "up_streak_7",
             "status": "unmet",
-            "detail": "최고 1일"
+            "detail": "최고 3일"
           }
         ]
       },
       "mvp": {
-        "status": "pending",
+        "status": "no",
         "m": {
-          "ok": null,
-          "detail": "6/15일 (판정 전)"
+          "ok": false,
+          "detail": "7/15일 상승"
         },
         "v": {
-          "ok": null,
-          "detail": "판정 전"
+          "ok": true,
+          "detail": "직전 대비 3.2배"
         },
         "p": {
-          "ok": null,
-          "detail": "+1%"
+          "ok": true,
+          "detail": "+49%"
         }
       },
       "strength": {
-        "signal": "not_extended",
-        "extended": false,
-        "gate_detail": "확장 -7.9% < 5%",
-        "count": 0,
-        "signals": []
+        "signal": "sell_into_strength",
+        "extended": true,
+        "gate_detail": "확장 +33.3% ≥ 5%",
+        "count": 2,
+        "signals": [
+          {
+            "id": "climax_run",
+            "status": "fired",
+            "detail": "최근 15거래일 +47% — 절정 구간(25%+)"
+          },
+          {
+            "id": "blowoff_day",
+            "status": "clear",
+            "detail": "막판 최대 상승/변동 아님"
+          },
+          {
+            "id": "exhaustion_gap",
+            "status": "clear",
+            "detail": "최근 상승 갭 없음"
+          },
+          {
+            "id": "distribution",
+            "status": "fired",
+            "detail": "2026-09-10 대량 거래 반전(장중 고점→하락 마감)"
+          }
+        ]
       },
       "superperf": {
         "score": 3,
