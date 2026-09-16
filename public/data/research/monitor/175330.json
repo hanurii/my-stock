@@ -1,22 +1,22 @@
 {
   "code": "175330",
   "name": "JB금융지주",
-  "last_checked": "2026-09-16T19:22:48.213+09:00",
+  "last_checked": "2026-09-16T23:06:11.542+09:00",
   "metrics": [
     {
       "id": "pbr",
       "label": "PBR",
-      "value": 0.99,
-      "display": "0.99배",
+      "value": 1.01,
+      "display": "1.01배",
       "threshold": "1.1배 돌파",
       "hit": false,
-      "tone": "good"
+      "tone": "warn"
     },
     {
       "id": "pbr_premium_pp",
       "label": "지방지주 평균 대비 PBR 프리미엄",
-      "value": 0.55,
-      "display": "0.550pp",
+      "value": 0.56,
+      "display": "0.560pp",
       "threshold": "+0.50pp 이상",
       "hit": true,
       "tone": "bad"
@@ -33,8 +33,8 @@
     {
       "id": "foreign_net_buy_4w",
       "label": "최근 20거래일 외국인 순매수",
-      "value": -1629975,
-      "display": "-163만주",
+      "value": -1663878,
+      "display": "-166만주",
       "threshold": "순매도 전환",
       "hit": true,
       "tone": "bad"
@@ -105,16 +105,22 @@
   ],
   "alerts": [
     {
+      "severity": "warn",
+      "type": "pbr",
+      "title": "PBR 임계 근접",
+      "message": "현재 1.01배 (임계 1.1배 돌파)"
+    },
+    {
       "severity": "bad",
       "type": "pbr_premium_pp",
       "title": "지방지주 평균 대비 PBR 프리미엄 +0.50pp 이상",
-      "message": "현재 0.550pp — 매도 트리거 도달"
+      "message": "현재 0.560pp — 매도 트리거 도달"
     },
     {
       "severity": "bad",
       "type": "foreign_net_buy_4w",
       "title": "최근 20거래일 외국인 순매수 순매도 전환",
-      "message": "현재 -163만주 — 매도 트리거 도달"
+      "message": "현재 -166만주 — 매도 트리거 도달"
     },
     {
       "severity": "bad",
@@ -157,8 +163,8 @@
     {
       "keyword": "지방은행 부실",
       "date": "2026-09-16",
-      "title": "제주은행 기업여신 부실비율 1.58%…지방은행 두 번째 - jemin.com",
-      "url": "https://news.google.com/rss/articles/CBMiZkFVX3lxTE9oMjB1Qzg5czRJaGZzaHNweFhOVklZcVZvNnRxRG1yb0dqNTVFaFhQMnExMnFHSkd4TnJpNW1sSEY0OWVoQjNIVkFEbDlpdTVmZy1EQXlkVmU5VVkyUEtuYTRaYUl2Zw?oc=5",
+      "title": "제주은행 기업여신 부실비율 1.58%…지방은행 두 번째 - 제민일보",
+      "url": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTFAxeXhma2Q1WWxZVzlNVy1UVHB3ZnhQd0daRXpHT0pDVUF3X3RIalFzUzl3dWxWODNUUEt4azVELTN0cmtuNUpJdHhkZjNTdUwtT1VHeXp6RXRZLV92Wkx4aFltQzRTYmc?oc=5",
       "severity": "info",
       "signals": []
     }
@@ -170,7 +176,7 @@
     },
     {
       "label": "4대 지주 평균 PBR 비교 (1종목)",
-      "ref": "peers: 138930 / avg 0.44"
+      "ref": "peers: 138930 / avg 0.45"
     },
     {
       "label": "분기 배당 결정 (반기보고서 (2026.06))",
@@ -178,7 +184,7 @@
     },
     {
       "label": "외국인 순매수 누적 (20일)",
-      "ref": "네이버 dealTrendInfos / history 2026-09-15"
+      "ref": "네이버 dealTrendInfos / history 2026-09-16"
     },
     {
       "label": "최근 분기 순이익 (2026-H1)",
