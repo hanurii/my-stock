@@ -358,7 +358,8 @@ def analyze_org_flow(rows: list[dict]) -> dict:
             trend_qoq = "deteriorating"
 
     is_outflow = cum_60 < 0
-    # 두 분기 연속 음수면 꾸준한 이탈 (악화 조건 제거 — 책 기준: 한 분기 매도여도 경계)
+    # 두 분기 연속 음수면 꾸준한 이탈 (악화 조건 제거 — 「한 분기 매도여도 경계」는
+    #   「책 기준」이라 적혀 있으나 «어느» 책인지 «없고» «확인»된 원전에서 «못» 찾았다)
     is_consistently_declining = cum_60 < 0 and cum_prev < 0
     # 큰 하락: 직전 분기가 음수이고, 그 전 분기 대비 절댓값 50% 이상 더 하락
     is_sharp_drop = (

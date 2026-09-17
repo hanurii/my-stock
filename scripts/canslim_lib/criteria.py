@@ -243,7 +243,8 @@ def evaluate_c_detailed(
         out["eps_yoy_history"] = eps_hist
         out["eps_accel_3q"] = _is_accel(eps_hist)
 
-    # EPS 가속 폭발도 단계 — O'Neil 원전 #3 (가장 중요한 원칙) 정량화.
+    # EPS 가속 폭발도 단계 — O'Neil 「원전 #3」으로 «전해지는» 원칙의 정량화.
+    #   ⚠️ 오닐 원전은 «확인»된 다섯(canon 은 «미너비니» 문서)에 «없어» «검산 불가».
     # YoY 자체가 절댓값 분모 공식이라 적자→흑자 턴어라운드도 큰 Δ 로
     # 자연 변환됨 → 별도 'recovery' 분기 없이 delta 만으로 단순 분류.
     # (한국 기업의 1년 폭발 흑자전환 케이스를 explosive 로 흡수, 2026-05-20)

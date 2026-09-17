@@ -45,6 +45,7 @@ from canslim_lib.power_play import evaluate_power_play  # noqa: E402
 from canslim_lib.pivot_backtest import (  # noqa: E402
     simulate_pivot_trade, price_bucket, truncate_series, tally, group_win_rate, rel_volume)
 from canslim_lib import liveness  # noqa: E402
+from canslim_lib.pdata_series import build_series as build_pdata_series  # noqa: E402
 from screen_trend_template import _compute_rs_for_all  # noqa: E402
 
 KST = timezone(timedelta(hours=9))
@@ -66,6 +67,34 @@ EXCLUDE_PATTERN = re.compile(
 
 
 # ── pdata: 시점 유니버스 + 원본 거래대금 ────────────────────────────────────
+
+SERIES_SOURCE = "cache"          # "cache" | "pdata"
+RESOLVE_TAIL_DAYS = 300          # 진입 후 결착(+20/-10)까지 볼 여유 (최장 보유 79거래일)
+
+
+def series_load_end(end: str) -> str:
+    """pdata 시계열을 어디까지 읽을지 — 스캔 종료일 + 결착 여유.
+
+    end 에서 끊으면 마지막 매수분이 전부 '미결'로 빠져 승률이 왜곡된다.
+    무한정 늘리면 메모리·시간이 커지므로 1년 이내로 묶는다.
+    """
+    d = datetime.strptime(end, "%Y-%m-%d") + timedelta(days=RESOLVE_TAIL_DAYS)
+    return d.strftime("%Y-%m-%d")
+
+
+def _iter_pdata(start: str, end: str):
+    """[start, end] pdata 파일을 날짜순으로 하나씩 열어 (날짜, 레코드)를 낸다."""
+    s, e = start.replace("-", ""), end.replace("-", "")
+    for p in sorted(PDATA.glob("price_*.json")):
+        d = p.stem[6:]
+        if not (s <= d <= e):
+            continue
+        try:
+            recs = json.loads(p.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        yield f"{d[:4]}-{d[4:6]}-{d[6:]}", recs
+
 
 def load_pdata_range(start: str, end: str) -> tuple[dict, dict]:
     """[start, end] 의 pdata 일자 파일을 읽어 (날짜별 유니버스, 종목별 거래대금 시계열).
@@ -222,24 +251,36 @@ def detect_entry_ready(st: dict, pname: str):
 
 
 def run(start: str, end: str, step: int) -> dict:
-    warm = (datetime.strptime(start, "%Y-%m-%d") - timedelta(days=140)).strftime("%Y-%m-%d")
+    # 관문이 200일선·52주 신고가(253거래일)를 요구한다. 캐시 모드는 캐시가 이미
+    # 400일을 들고 있어 140일이면 됐지만, pdata 모드는 시계열을 여기서 만드므로
+    # 253거래일(≈370일) + 여유를 직접 확보해야 한다. 모자라면 조용히 후보 0이 된다.
+    warm_days = 430 if SERIES_SOURCE == "pdata" else 140
+    warm = (datetime.strptime(start, "%Y-%m-%d") - timedelta(days=warm_days)).strftime("%Y-%m-%d")
     print(f"pdata 적재 {warm}~{end} …", flush=True)
     universe_by_date, turnover = load_pdata_range(warm, end)
     print(f"  일자 {len(universe_by_date)}일 · 거래대금 시계열 {len(turnover)}종목", flush=True)
 
     full: dict[str, dict] = {}
     all_codes = {c for day in universe_by_date.values() for c in day}
-    for c in all_codes:
-        s = ohlcv_matrix.get_series(c)
-        if s and s.get("closes"):
-            full[c] = s
+    if SERIES_SOURCE == "pdata":
+        # 400일 롤링 캐시로는 2024-12 이전을 못 본다 → pdata 원본에서 직접 만든다.
+        # 하루씩 흘려보내 1,600일치를 통째로 메모리에 안 올린다.
+        print(f"  pdata 시계열 생성 {warm}~{series_load_end(end)} (결착 여유 포함) …", flush=True)
+        full = build_pdata_series(_iter_pdata(warm, series_load_end(end)))
+    else:
+        for c in all_codes:
+            s = ohlcv_matrix.get_series(c)
+            if s and s.get("closes"):
+                full[c] = s
     print(f"  유니버스 등장 {len(all_codes)}종목 · 시계열 보유 {len(full)}종목", flush=True)
 
-    cal = ohlcv_matrix.get_series(REF)["dates"]
+    cal = (full.get(REF) or ohlcv_matrix.get_series(REF))["dates"]
     scan_dates = [d for d in cal if start <= d <= end][::step]
     print(f"스캔일 {len(scan_dates)}개 ({scan_dates[0]}~{scan_dates[-1]}, step {step})", flush=True)
 
     events, per_date = [], []
+    candidates: list[dict] = []          # ★ (ii)용 — 막힌 후보 포함 전수
+    gate_log: list[dict] = []            # ★ 16번용 — 날짜별 (유동성통과 전체, 관문통과)
     open_until: dict[str, str] = {}
     n_skip_overlap = n_skip_halt = n_skip_liq = 0
 
@@ -269,12 +310,15 @@ def run(start: str, end: str, step: int) -> dict:
         rs = _compute_rs_for_all([{"code": c, "closes": t["closes"], "ok": True}
                                   for c, t in stD.items()])
         n_cand = n_ent = 0
+        # ★ 16번(선별력)용 — 그날 **유동성·정지 필터를 통과한 전체**와 **관문 통과분**을 기록만 한다.
+        gate_log.append({"scan_date": D, "eligible": sorted(stD.keys()), "passed": []})
         for c, t in stD.items():
             rsv = (rs.get(c) or {}).get("rs")
             tt = evaluate_trend_template(t["closes"], rs=rsv, rs_min=RS_MIN)
             near = bool(GATE_NEAR_ALLOW) and is_gate_near(tt, t["closes"][-1], GATE_NEAR_ALLOW)
             if not tt["pass"] and not near:
                 continue
+            gate_log[-1]["passed"].append(c)
             for pname in ("VCP", "3C", "PP"):
                 pivot = detect_entry_ready(t, pname)
                 if pivot is None:
@@ -290,10 +334,22 @@ def run(start: str, end: str, step: int) -> dict:
                 if hi is None or hi < pivot:
                     continue                      # 익일 미돌파 → 진입 없음
                 edate = s["dates"][ni]
-                if c in open_until and edate <= open_until[c]:
+                # ★ (ii) 자체 진입 판용 — 겹침으로 막힌 후보까지 **기록만** 한다.
+                #   차단 동작은 그대로 두고, epx 계산만 앞으로 당긴다(순수 함수라 흐름 불변).
+                epx = entry_price(pivot, (s.get("opens") or [None] * len(s["dates"]))[ni])
+                blocked = bool(c in open_until and edate <= open_until[c])
+                candidates.append({
+                    "code": c, "name": day_univ[c]["name"], "market": day_univ[c]["market"],
+                    "pattern": pname, "gate_near": near, "scan_date": D,
+                    "entry_date": edate, "pivot": round(pivot, 2),
+                    "entry_price": round(epx, 2),
+                    "gap_up_pct": round((epx / pivot - 1) * 100, 2), "rs": rsv,
+                    "turnover_eok": round(avg_turnover_asof(turnover.get(c), D) or 0, 2),
+                    "blocked_overlap": blocked,
+                })
+                if blocked:
                     n_skip_overlap += 1
                     continue
-                epx = entry_price(pivot, (s.get("opens") or [None] * len(s["dates"]))[ni])
                 sim = simulate_pivot_trade(s, ni, epx, TARGET_PCT, STOP_PCT)
                 open_until[c] = sim.get("resolve_date") or edate
                 n_ent += 1
@@ -320,6 +376,8 @@ def run(start: str, end: str, step: int) -> dict:
 
     return {
         "generated_at": datetime.now(KST).strftime("%Y-%m-%d %H:%M"),
+        "candidates": candidates,
+        "gate_log": gate_log,
         "params": {
             "method": "volatility_pilot_nextday_entry",
             "entry_fill": "max(피벗, 익일 시가) — 갭업 보정",
@@ -350,12 +408,20 @@ def main():
     ap.add_argument("--end", default="2026-08-21")
     ap.add_argument("--step", type=int, default=1)
     ap.add_argument("--out", default="public/data/backtest-volatility-pilot.json")
+    ap.add_argument("--target", type=float, default=20.0,
+                    help="익절 목표(%%) — 청산 규칙 비교용")
+    ap.add_argument("--stop", type=float, default=10.0,
+                    help="손절폭(%%) — 청산 규칙 비교용")
+    ap.add_argument("--series", choices=["cache", "pdata"], default="cache",
+                    help="시세 출처: cache=400일 롤링(최근만) · pdata=원본 2020~(과거 가능)")
     ap.add_argument("--gate-near", choices=["off", "ma", "ma+high"], default="off",
                     help="관문임박 포함 범위: off=8조건 필수 · ma=①⑤ 완화 · ma+high=①⑤⑦ 완화")
     ap.add_argument("--include-forming", action="store_true",
                     help="예의주시(forming) 단계 종목도 피벗 도달 시 매수 대상에 포함")
     a = ap.parse_args()
-    global GATE_NEAR_ALLOW, ENTRY_STATUSES
+    global GATE_NEAR_ALLOW, ENTRY_STATUSES, SERIES_SOURCE, TARGET_PCT, STOP_PCT
+    SERIES_SOURCE = a.series
+    TARGET_PCT, STOP_PCT = a.target, a.stop
     GATE_NEAR_ALLOW = {"off": set(), "ma": {"1", "5"}, "ma+high": {"1", "5", "7"}}[a.gate_near]
     if a.include_forming:
         ENTRY_STATUSES = {"actionable", "forming"}
@@ -363,6 +429,7 @@ def main():
     res = run(a.start, a.end, a.step)
     res["params"]["gate_near"] = a.gate_near
     res["params"]["entry_statuses"] = sorted(ENTRY_STATUSES)
+    res["params"]["series_source"] = SERIES_SOURCE
     Path(a.out).write_text(json.dumps(res, ensure_ascii=False, indent=1), encoding="utf-8")
     s = res["summary"]
     print(f"\n💾 저장: {a.out}")

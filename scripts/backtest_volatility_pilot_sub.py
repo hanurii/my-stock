@@ -45,6 +45,7 @@ from canslim_lib.power_play import evaluate_power_play  # noqa: E402
 from canslim_lib.pivot_backtest import (  # noqa: E402
     simulate_pivot_trade, price_bucket, truncate_series, tally, group_win_rate, rel_volume)
 from canslim_lib import liveness  # noqa: E402
+from canslim_lib.pdata_series import build_series as build_pdata_series  # noqa: E402
 from screen_trend_template import _compute_rs_for_all  # noqa: E402
 
 KST = timezone(timedelta(hours=9))
@@ -66,6 +67,41 @@ EXCLUDE_PATTERN = re.compile(
 
 
 # ── pdata: 시점 유니버스 + 원본 거래대금 ────────────────────────────────────
+
+SERIES_SOURCE = "cache"          # "cache" | "pdata"
+
+# ── 24번 축소 유니버스 실험 전용 (기본 0 = 끔 → 원본과 동일) ──
+#   전역 코드 목록에서 고정 난수로 N개를 뽑아 그날 유니버스를 그 부분집합으로 제한한다.
+#   목록은 연도와 무관하게 같아야 하므로 미리 만든 파일에서 읽는다.
+SAMPLE_N = 0
+SAMPLE_SEED = 0
+SAMPLE_CODES: set | None = None
+RESOLVE_TAIL_DAYS = 300          # 진입 후 결착(+20/-10)까지 볼 여유 (최장 보유 79거래일)
+
+
+def series_load_end(end: str) -> str:
+    """pdata 시계열을 어디까지 읽을지 — 스캔 종료일 + 결착 여유.
+
+    end 에서 끊으면 마지막 매수분이 전부 '미결'로 빠져 승률이 왜곡된다.
+    무한정 늘리면 메모리·시간이 커지므로 1년 이내로 묶는다.
+    """
+    d = datetime.strptime(end, "%Y-%m-%d") + timedelta(days=RESOLVE_TAIL_DAYS)
+    return d.strftime("%Y-%m-%d")
+
+
+def _iter_pdata(start: str, end: str):
+    """[start, end] pdata 파일을 날짜순으로 하나씩 열어 (날짜, 레코드)를 낸다."""
+    s, e = start.replace("-", ""), end.replace("-", "")
+    for p in sorted(PDATA.glob("price_*.json")):
+        d = p.stem[6:]
+        if not (s <= d <= e):
+            continue
+        try:
+            recs = json.loads(p.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        yield f"{d[:4]}-{d[4:6]}-{d[6:]}", recs
+
 
 def load_pdata_range(start: str, end: str) -> tuple[dict, dict]:
     """[start, end] 의 pdata 일자 파일을 읽어 (날짜별 유니버스, 종목별 거래대금 시계열).
@@ -97,6 +133,10 @@ def load_pdata_range(start: str, end: str) -> tuple[dict, dict]:
                 continue
             day[code] = {"name": name, "market": mkt, "cap_eok": r.get("market_cap_eok")}
         universe[date] = day
+    if SAMPLE_CODES is not None:
+        universe = {d: {c: v for c, v in day.items() if c in SAMPLE_CODES}
+                    for d, day in universe.items()}
+        turnover = {c: h for c, h in turnover.items() if c in SAMPLE_CODES}
     packed = {c: ([d for d, _ in h], [t for _, t in h]) for c, h in turnover.items()}
     return universe, packed
 
@@ -222,20 +262,30 @@ def detect_entry_ready(st: dict, pname: str):
 
 
 def run(start: str, end: str, step: int) -> dict:
-    warm = (datetime.strptime(start, "%Y-%m-%d") - timedelta(days=140)).strftime("%Y-%m-%d")
+    # 관문이 200일선·52주 신고가(253거래일)를 요구한다. 캐시 모드는 캐시가 이미
+    # 400일을 들고 있어 140일이면 됐지만, pdata 모드는 시계열을 여기서 만드므로
+    # 253거래일(≈370일) + 여유를 직접 확보해야 한다. 모자라면 조용히 후보 0이 된다.
+    warm_days = 430 if SERIES_SOURCE == "pdata" else 140
+    warm = (datetime.strptime(start, "%Y-%m-%d") - timedelta(days=warm_days)).strftime("%Y-%m-%d")
     print(f"pdata 적재 {warm}~{end} …", flush=True)
     universe_by_date, turnover = load_pdata_range(warm, end)
     print(f"  일자 {len(universe_by_date)}일 · 거래대금 시계열 {len(turnover)}종목", flush=True)
 
     full: dict[str, dict] = {}
     all_codes = {c for day in universe_by_date.values() for c in day}
-    for c in all_codes:
-        s = ohlcv_matrix.get_series(c)
-        if s and s.get("closes"):
-            full[c] = s
+    if SERIES_SOURCE == "pdata":
+        # 400일 롤링 캐시로는 2024-12 이전을 못 본다 → pdata 원본에서 직접 만든다.
+        # 하루씩 흘려보내 1,600일치를 통째로 메모리에 안 올린다.
+        print(f"  pdata 시계열 생성 {warm}~{series_load_end(end)} (결착 여유 포함) …", flush=True)
+        full = build_pdata_series(_iter_pdata(warm, series_load_end(end)))
+    else:
+        for c in all_codes:
+            s = ohlcv_matrix.get_series(c)
+            if s and s.get("closes"):
+                full[c] = s
     print(f"  유니버스 등장 {len(all_codes)}종목 · 시계열 보유 {len(full)}종목", flush=True)
 
-    cal = ohlcv_matrix.get_series(REF)["dates"]
+    cal = (full.get(REF) or ohlcv_matrix.get_series(REF))["dates"]
     scan_dates = [d for d in cal if start <= d <= end][::step]
     print(f"스캔일 {len(scan_dates)}개 ({scan_dates[0]}~{scan_dates[-1]}, step {step})", flush=True)
 
@@ -350,12 +400,35 @@ def main():
     ap.add_argument("--end", default="2026-08-21")
     ap.add_argument("--step", type=int, default=1)
     ap.add_argument("--out", default="public/data/backtest-volatility-pilot.json")
+    ap.add_argument("--target", type=float, default=20.0,
+                    help="익절 목표(%%) — 청산 규칙 비교용")
+    ap.add_argument("--stop", type=float, default=10.0,
+                    help="손절폭(%%) — 청산 규칙 비교용")
+    ap.add_argument("--series", choices=["cache", "pdata"], default="cache",
+                    help="시세 출처: cache=400일 롤링(최근만) · pdata=원본 2020~(과거 가능)")
     ap.add_argument("--gate-near", choices=["off", "ma", "ma+high"], default="off",
                     help="관문임박 포함 범위: off=8조건 필수 · ma=①⑤ 완화 · ma+high=①⑤⑦ 완화")
+    ap.add_argument("--sample", type=int, default=0,
+                    help="축소 유니버스: 전역 코드 목록에서 N개만 사용 (0=끔)")
+    ap.add_argument("--sample-seed", type=int, default=0)
+    ap.add_argument("--sample-pool", default=".cache/bt5y/out/24-universe-union.json",
+                    help="전역 코드 목록 파일(연도 간 표본을 같게 유지)")
     ap.add_argument("--include-forming", action="store_true",
                     help="예의주시(forming) 단계 종목도 피벗 도달 시 매수 대상에 포함")
     a = ap.parse_args()
-    global GATE_NEAR_ALLOW, ENTRY_STATUSES
+    global GATE_NEAR_ALLOW, ENTRY_STATUSES, SERIES_SOURCE, TARGET_PCT, STOP_PCT
+    SERIES_SOURCE = a.series
+    TARGET_PCT, STOP_PCT = a.target, a.stop
+    global SAMPLE_N, SAMPLE_SEED, SAMPLE_CODES
+    SAMPLE_N, SAMPLE_SEED = a.sample, a.sample_seed
+    if SAMPLE_N:
+        import random as _rnd
+        pool = sorted(json.loads(Path(a.sample_pool).read_text(encoding='utf-8'))['codes'])
+        if SAMPLE_N > len(pool):
+            raise SystemExit('표본 %d > 전역 목록 %d' % (SAMPLE_N, len(pool)))
+        SAMPLE_CODES = set(_rnd.Random('%d|%d' % (SAMPLE_SEED, SAMPLE_N)).sample(pool, SAMPLE_N))
+        print('축소 유니버스: 전역 %d개 중 %d개 (seed %d)'
+              % (len(pool), len(SAMPLE_CODES), SAMPLE_SEED), flush=True)
     GATE_NEAR_ALLOW = {"off": set(), "ma": {"1", "5"}, "ma+high": {"1", "5", "7"}}[a.gate_near]
     if a.include_forming:
         ENTRY_STATUSES = {"actionable", "forming"}
@@ -363,6 +436,7 @@ def main():
     res = run(a.start, a.end, a.step)
     res["params"]["gate_near"] = a.gate_near
     res["params"]["entry_statuses"] = sorted(ENTRY_STATUSES)
+    res["params"]["series_source"] = SERIES_SOURCE
     Path(a.out).write_text(json.dumps(res, ensure_ascii=False, indent=1), encoding="utf-8")
     s = res["summary"]
     print(f"\n💾 저장: {a.out}")
