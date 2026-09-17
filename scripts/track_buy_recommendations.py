@@ -20,7 +20,10 @@ from canslim_lib import ohlcv_matrix
 DATA = ROOT / "public" / "data"
 KST = timezone(timedelta(hours=9))
 LEDGER = DATA / "sepa-buy-rec-ledger.json"
-TARGET_PCT, STOP_PCT = 20.0, 10.0   # 핵심 처방(strategy_params 손익비)와 동일
+# 한국 손익비. strategy_params 와 «같아야» 한다 — 2026-09-02~09-17 사이에는
+# strategy_params 가 +30(미국 판)이고 여기가 +20 이라 두 값이 갈라져 있었다.
+# 2026-09-17 사용자 결정으로 한국이 +20 으로 돌아오며 다시 맞았다.
+TARGET_PCT, STOP_PCT = 20.0, 10.0
 
 
 def resolve(code: str, rec_date: str, rec_price: float | None) -> dict | None:
