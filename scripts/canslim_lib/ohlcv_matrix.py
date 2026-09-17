@@ -110,12 +110,41 @@ def _apply_adjustment(s: dict) -> None:
         closes[i] = round(adj[i], 2)
 
 
+# ── pdata 종가를 믿을 수 있는 구간 ────────────────────────────
+
+# KRX 애프터마켓 개장일(16:00~20:00 실시간 접속매매). 이날부터 공공데이터(pdata)의
+# `clpr` 은 정규장 종가가 아니다. 공식 종가는 여전히 정규장(15:30) 종가이고,
+# FDR·네이버가 그 값을 준다 — 2026-09-16 3출처 대조로 확인했다.
+#   · 09-11 까지: pdata = FDR = 네이버 (소수점까지 일치)
+#   · 09-14 부터: pdata 만 다름 (09-14 에 2,872종목 중 1,942종목이 0.2% 초과)
+# 그래서 이 날짜 이후의 pdata 봉은 시계열에 넣지 않고 fill_recent_via_fdr 이 채운다.
+# pdata 파일 자체는 고치지 않는다 — 공급자 원본은 남겨 둔다.
+PDATA_CLOSE_UNRELIABLE_FROM = "20260914"
+
+
+def is_pdata_close_reliable(bas_dt: str) -> bool:
+    """이 영업일(basDt, YYYYMMDD)의 pdata 종가를 정규장 종가로 믿어도 되나."""
+    return bas_dt < PDATA_CLOSE_UNRELIABLE_FROM
+
+
 # ── 기준가 변경(액면분할·주식병합·감자) 환산 ────────────────
 
 # 이 폭을 넘는 캐시↔FDR 종가 차이는 기업행위로 본다(반올림 잡음 배제).
 REBASE_MIN_DEVIATION = 0.02
 # 이 밖의 비율은 데이터 오류로 보고 환산하지 않는다(과거를 망치지 않기 위해).
 REBASE_RATIO_BOUNDS = (0.05, 20.0)
+# 한 회차에 이 비율을 넘는 종목이 걸리면 환산을 «통째로» 건너뛴다.
+# 기업행위는 하루에 몇 종목이다. 수백 종목에 한꺼번에 발동하는 교정기는
+# 수백 개의 사건이 아니라 «기준이 틀렸다»고 말하는 것이다(26-09-15 329종목,
+# 26-09-16 271종목 — 둘 다 출처가 다른 값을 주기 시작한 것이었다).
+REBASE_MAX_SHARE = 0.01
+
+
+def rebase_exceeds_gate(n_rebase: int, n_universe: int) -> bool:
+    """환산 대상이 너무 많아 「기준이 틀렸다」로 봐야 하는가."""
+    if n_universe <= 0 or n_rebase <= 0:
+        return False
+    return n_rebase / n_universe > REBASE_MAX_SHARE
 
 
 def detect_rebase_ratio(cache_close: float | None,
@@ -236,7 +265,13 @@ def update_to_latest(window: int = DEFAULT_TRADING_DAYS, verbose: bool = True) -
 
     # 종목별 시계열 누적: code → {dates, closes, opens, highs, lows, volumes, timestamps}
     series: dict[str, dict] = {}
+    skipped: list[str] = []
     for bd in day_list:
+        if not is_pdata_close_reliable(bd):
+            # 애프터마켓 이후 — pdata 종가는 정규장 종가가 아니다.
+            # 이 구간은 fill_recent_via_fdr 이 FDR(정규장 종가)로 채운다.
+            skipped.append(bd)
+            continue
         rows = pdata.fetch_pdata_price_info(bd)  # 캐시 hit
         iso = f"{bd[:4]}-{bd[4:6]}-{bd[6:8]}"
         try:
@@ -277,7 +312,11 @@ def update_to_latest(window: int = DEFAULT_TRADING_DAYS, verbose: bool = True) -
     sec = time.time() - t0
     if verbose:
         print(f"✅ ohlcv_matrix: {written}종목 시계열 저장 ({sec:.1f}초)")
-    return {"days": len(day_list), "codes": written, "sec": round(sec, 1)}
+        if skipped:
+            print(f"⏭️  pdata 종가 미사용 {len(skipped)}일({skipped[0]}~{skipped[-1]}) "
+                  f"— 애프터마켓 이후. FDR 보충이 채운다")
+    return {"days": len(day_list) - len(skipped), "codes": written,
+            "sec": round(sec, 1), "skipped_days": skipped}
 
 
 # ── 최근일 FDR 보충 (pdata 업로드 지연 메우기) ───────────────
@@ -355,38 +394,65 @@ def fill_recent_via_fdr(through: str | None = None, max_workers: int = 12,
             })
         return code, bars, overlap_close
 
+    # 1차 — FDR 을 한 번만 긁고(비싼 부분), 환산 «후보»만 먼저 센다.
+    #   관문이 「전체 몇 %가 걸렸나」를 봐야 하므로 한 종목씩 바로 쓰면 안 된다.
+    with _cf.ThreadPoolExecutor(max_workers=max_workers) as ex:
+        fetched = list(ex.map(_one, codes))
+
+    ratios: dict[str, float] = {}
+    for code, bars, overlap_close in fetched:
+        if not bars:
+            continue
+        try:
+            s0 = json.loads((SERIES_DIR / f"{code}.json").read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        cache_last = s0["closes"][-1] if s0.get("closes") else None
+        r = detect_rebase_ratio(cache_last, overlap_close)
+        if r:
+            ratios[code] = r
+
+    blocked = rebase_exceeds_gate(len(ratios), len(codes))
+    if blocked:
+        if verbose:
+            share = len(ratios) / len(codes) * 100
+            print(f"🛑 기준가 변경 환산 «건너뜀» — {len(ratios)}/{len(codes)}종목({share:.1f}%)이 걸렸다. "
+                  f"상한 {REBASE_MAX_SHARE * 100:.0f}%")
+            print("   기업행위는 하루에 몇 종목이다. 이 규모는 «겹치는 날의 기준값»이 "
+                  "틀렸다는 뜻이라 과거를 건드리지 않는다.")
+            print("   → 겹치는 날 두 출처가 언제부터 어긋났는지 먼저 본다(CLAUDE.md §1.5).")
+        ratios = {}
+
     updated = 0
     rebased: list[tuple[str, float]] = []
     days_seen: set[str] = set()
-    with _cf.ThreadPoolExecutor(max_workers=max_workers) as ex:
-        for code, bars, overlap_close in ex.map(_one, codes):
-            if not bars:
+    for code, bars, overlap_close in fetched:
+        if not bars:
+            continue
+        p = SERIES_DIR / f"{code}.json"
+        try:
+            s = json.loads(p.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        # 기준가가 바뀐 종목(액면분할·주식병합·감자)은 과거를 새 기준으로 환산한
+        # 뒤에 붙인다. 안 그러면 "옛 기준 과거 + 새 기준 하루"가 되어 가짜 급등이
+        # 생기고 200일선·52주 신고가·RS 가 통째로 틀어진다.
+        ratio = ratios.get(code)
+        if ratio:
+            rebase_history(s, ratio)
+            rebased.append((code, ratio))
+        changed = False
+        for b in bars:
+            if s["dates"] and b["date"] <= s["dates"][-1]:
                 continue
-            p = SERIES_DIR / f"{code}.json"
-            try:
-                s = json.loads(p.read_text(encoding="utf-8"))
-            except (OSError, json.JSONDecodeError):
-                continue
-            # 기준가가 바뀐 종목(액면분할·주식병합·감자)은 과거를 새 기준으로 환산한
-            # 뒤에 붙인다. 안 그러면 "옛 기준 과거 + 새 기준 하루"가 되어 가짜 급등이
-            # 생기고 200일선·52주 신고가·RS 가 통째로 틀어진다.
-            cache_last = s["closes"][-1] if s.get("closes") else None
-            ratio = detect_rebase_ratio(cache_last, overlap_close)
-            if ratio:
-                rebase_history(s, ratio)
-                rebased.append((code, ratio))
-            changed = False
-            for b in bars:
-                if s["dates"] and b["date"] <= s["dates"][-1]:
-                    continue
-                s["dates"].append(b["date"]); s["timestamps"].append(b["ts"])
-                s["closes"].append(round(b["close"], 2)); s["opens"].append(round(b["open"], 2))
-                s["highs"].append(round(b["high"], 2)); s["lows"].append(round(b["low"], 2))
-                s["volumes"].append(b["volume"])
-                days_seen.add(b["date"]); changed = True
-            if changed or ratio:
-                p.write_text(json.dumps(s, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
-                updated += 1
+            s["dates"].append(b["date"]); s["timestamps"].append(b["ts"])
+            s["closes"].append(round(b["close"], 2)); s["opens"].append(round(b["open"], 2))
+            s["highs"].append(round(b["high"], 2)); s["lows"].append(round(b["low"], 2))
+            s["volumes"].append(b["volume"])
+            days_seen.add(b["date"]); changed = True
+        if changed or ratio:
+            p.write_text(json.dumps(s, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+            updated += 1
 
     _series_mem.clear()  # 디스크 갱신 → 메모리 캐시 무효화
     sec = time.time() - t0
@@ -399,6 +465,7 @@ def fill_recent_via_fdr(through: str | None = None, max_workers: int = 12,
             print(f"🔧 기준가 변경 환산 {len(rebased)}종목: {detail}")
     return {"appended_days": len(days_seen), "updated_codes": updated,
             "through": new_through, "sec": round(sec, 1),
+            "rebase_blocked": blocked,
             "rebased": [{"code": c, "ratio": round(r, 6)} for c, r in sorted(rebased)]}
 
 

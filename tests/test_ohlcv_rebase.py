@@ -90,6 +90,49 @@ def test_rebase_history_upto_leaves_newest_bar_alone():
     assert s["closes"] == [4470.0, 4470.0, 4115.0]
 
 
+def test_pdata_close_reliable_before_after_market():
+    """애프터마켓 개장(2026-09-14) 전까지 pdata 종가는 정규장 종가와 같다.
+
+    2026-09-16 3출처 대조: pdata·FDR·네이버가 09-11 까지 소수점까지 일치.
+    """
+    assert ohlcv_matrix.is_pdata_close_reliable("20260911")
+    assert ohlcv_matrix.is_pdata_close_reliable("20250102")
+
+
+def test_pdata_close_unreliable_from_after_market_open():
+    """개장일부터 pdata 종가 필드는 정규장 종가가 아니다 → 쓰지 않는다.
+
+    실측(26-09-16): 09-14 에 2,872종목 중 1,942종목이 0.2% 넘게 어긋났고
+    FDR·네이버가 서로 일치하며 정규장 종가 쪽이었다.
+    """
+    assert not ohlcv_matrix.is_pdata_close_reliable("20260914")
+    assert not ohlcv_matrix.is_pdata_close_reliable("20260915")
+    assert not ohlcv_matrix.is_pdata_close_reliable("20261231")
+
+
+def test_rebase_gate_allows_normal_corporate_action_day():
+    """기업행위는 하루에 몇 종목이다 — 그 규모는 그대로 환산한다."""
+    assert not ohlcv_matrix.rebase_exceeds_gate(0, 2871)
+    assert not ohlcv_matrix.rebase_exceeds_gate(3, 2871)
+    assert not ohlcv_matrix.rebase_exceeds_gate(28, 2871)     # 0.98% — 경계 아래
+
+
+def test_rebase_gate_blocks_mass_rescale():
+    """수백 종목에 한꺼번에 발동하는 교정기는 기준이 틀렸다고 말하는 것이다.
+
+    실제로 두 번 났다: 26-09-15 에 329종목, 26-09-16 에 271종목.
+    둘 다 기업행위가 아니라 출처가 다른 값을 주기 시작한 것이었다.
+    """
+    assert ohlcv_matrix.rebase_exceeds_gate(29, 2871)         # 1.01% — 경계 위
+    assert ohlcv_matrix.rebase_exceeds_gate(271, 2871)
+    assert ohlcv_matrix.rebase_exceeds_gate(329, 2872)
+
+
+def test_rebase_gate_handles_empty_universe():
+    assert not ohlcv_matrix.rebase_exceeds_gate(0, 0)
+    assert not ohlcv_matrix.rebase_exceeds_gate(5, 0)
+
+
 def test_merge_gap_disappears_after_rebase():
     """실사고 재현: 옛 기준 과거에 새 기준 하루를 붙이면 +400% 가짜 점프.
 
