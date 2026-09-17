@@ -38,7 +38,8 @@ from screen_buy_recommendations import (  # noqa: E402  (형제 스크립트 로
 DATA = ROOT / "public" / "data"
 KST = timezone(timedelta(hours=9))
 
-BUY_RANGE_PCT = 5.0     # 미너비니 매수 유효 범위: 피벗 ~ 피벗+5% (넘으면 추격 금지)
+BUY_RANGE_PCT = 5.0     # 매수 유효 범위: 피벗 ~ 피벗+5% (넘으면 추격 금지).
+                        # 「+5%」는 «확인»된 원전에서 «못» 찾았다 — «우리»가 «정한» 값.
 NEAR_PIVOT_PCT = 5.0    # forming 중 피벗까지 이내면 감시주문 예약 대상
 ADV_CAP_RATIO = 0.05    # 안전 매수 한도 = 하루평균 거래대금 × 5% (매수한도 컬럼과 동일)
 STOP_HINT_PCT = -5.0    # 손절 예정가 표시용 — 수동 매매 기본(sepa-holdings.json stop_loss_pct_default), 체결가 기준 재계산·시장가 집행

@@ -55,7 +55,9 @@ PDATA = MAIN / ".cache" / "pdata"
 RS_MIN = 80
 TARGET_PCT = 20.0
 STOP_PCT = 10.0
-MIN_TURNOVER_EOK = 5.0        # 미너비니 저유동성 컷(50일 평균 거래대금)
+MIN_TURNOVER_EOK = 5.0        # 저유동성 컷(50일 평균 거래대금) — «우리»가 «정한» 문턱.
+                              # 확인된 원전(canon/minervini-principles.md:75-78)은
+                              # 「문턱 «숫자»가 «없다»」고 «말한다».
 TURNOVER_WINDOW = 50
 ATR_WINDOW = 20
 MIN_CLOSES = 200              # 200일선 요구
@@ -246,7 +248,8 @@ EMIT_PATHS = None              # 경로 파일 경로(None 이면 안 낸다)
 EMIT_WARMUP = False            # 진입 «전» 창(pre_*)과 거래량(v)을 덧붙일까 — 기본 «끔»
 WARMUP_DAYS = 400              # 진입 «전» 몇 «거래일»을 붙일까.
                                # 🚨 250 이 아니다 — 200일선이 «4~5개월 상승 중»(294봉)과
-                               #    원전 베이스 최대 «65주»(325봉)를 담으려면 >=325 여야 한다.
+                               #    「베이스 최대 «65주»(325봉)」는 «확인»된 원전에서 «못» 찾았다.
+                               #    그 폭을 담으려면 >=325 여야 한다.
 WARM_DAYS = None               # 시계열을 진입 «전» 며칠부터 실을까(달력일). None = 옛 규칙
 PATH_DAYS = 250                # 최대 보유 기간(옛 방법충실 백테스트와 같게)
 ARM = "pattern"                # "pattern" | "gate"

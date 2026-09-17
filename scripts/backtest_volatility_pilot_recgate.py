@@ -53,7 +53,9 @@ PDATA = MAIN / ".cache" / "pdata"
 RS_MIN = 80
 TARGET_PCT = 20.0
 STOP_PCT = 10.0
-MIN_TURNOVER_EOK = 5.0        # 미너비니 저유동성 컷(50일 평균 거래대금)
+MIN_TURNOVER_EOK = 5.0        # 저유동성 컷(50일 평균 거래대금) — «우리»가 «정한» 문턱.
+                              # 확인된 원전(canon/minervini-principles.md:75-78)은
+                              # 「문턱 «숫자»가 «없다»」고 «말한다».
 TURNOVER_WINDOW = 50
 ATR_WINDOW = 20
 MIN_CLOSES = 200              # 200일선 요구
