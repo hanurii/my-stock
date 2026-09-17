@@ -1,22 +1,22 @@
 {
   "code": "175330",
   "name": "JB금융지주",
-  "last_checked": "2026-09-17T19:33:46.883+09:00",
+  "last_checked": "2026-09-17T23:12:56.772+09:00",
   "metrics": [
     {
       "id": "pbr",
       "label": "PBR",
-      "value": 1.01,
-      "display": "1.01배",
+      "value": 0.98,
+      "display": "0.98배",
       "threshold": "1.1배 돌파",
       "hit": false,
-      "tone": "warn"
+      "tone": "good"
     },
     {
       "id": "pbr_premium_pp",
       "label": "지방지주 평균 대비 PBR 프리미엄",
-      "value": 0.56,
-      "display": "0.560pp",
+      "value": 0.54,
+      "display": "0.540pp",
       "threshold": "+0.50pp 이상",
       "hit": true,
       "tone": "bad"
@@ -24,8 +24,8 @@
     {
       "id": "foreign_ratio",
       "label": "외국인 지분율",
-      "value": 33.87,
-      "display": "33.87%",
+      "value": 33.85,
+      "display": "33.85%",
       "threshold": "25% 이하",
       "hit": false,
       "tone": "good"
@@ -33,8 +33,8 @@
     {
       "id": "foreign_net_buy_4w",
       "label": "최근 20거래일 외국인 순매수",
-      "value": -1663878,
-      "display": "-166만주",
+      "value": -1754901,
+      "display": "-175만주",
       "threshold": "순매도 전환",
       "hit": true,
       "tone": "bad"
@@ -105,22 +105,16 @@
   ],
   "alerts": [
     {
-      "severity": "warn",
-      "type": "pbr",
-      "title": "PBR 임계 근접",
-      "message": "현재 1.01배 (임계 1.1배 돌파)"
-    },
-    {
       "severity": "bad",
       "type": "pbr_premium_pp",
       "title": "지방지주 평균 대비 PBR 프리미엄 +0.50pp 이상",
-      "message": "현재 0.560pp — 매도 트리거 도달"
+      "message": "현재 0.540pp — 매도 트리거 도달"
     },
     {
       "severity": "bad",
       "type": "foreign_net_buy_4w",
       "title": "최근 20거래일 외국인 순매수 순매도 전환",
-      "message": "현재 -166만주 — 매도 트리거 도달"
+      "message": "현재 -175만주 — 매도 트리거 도달"
     },
     {
       "severity": "bad",
@@ -141,14 +135,6 @@
       "date": "2026-09-14",
       "title": "지역경제 한파, 은행 덮쳐… 지방은행 부실채권 2조 육박 - 조선일보",
       "url": "https://news.google.com/rss/articles/CBMijgFBVV95cUxPa2J5bExvWi1wdmJ2TFNvQmJ3Rmpxd0xRcHBMUUpiX2E4R2tpc01CXzhwbjZ4LVNDcHlILVkyYnZ6Q0xFM1BvY3VYMjNudjBZWkZtYm9hUDJTVmM4TzYyUnBqcDYzREVpd0tLS0FWRDVOeXJ5THl3WWhmaFN5Tkg5YW5Kd0JMV0JPUm5PLVZB?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "지방은행 부실",
-      "date": "2026-09-15",
-      "title": "5대 지방은행 부실채권 2조원 육박…기업대출에서 급증 - 시사저널",
-      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE1wVW9RTUtQbHRUNUhsbHZXSWg1MGN5ZFpMX05ielFVeEZpUllEVk5UTjVNc1dYWjE0UDk3aGxlUGtqbUx3aF9JRW9jZDNMSzJRdDRNeW5oRlFwWm5VRWhWMmJiVUI5elV6b1dSOU04V2NKak3SAXNBVV95cUxNcFVvUU1LUGx0VDVIbGx2V0loNTBjeWRaTF9OYnpRVXhGaVJZRFZOVE41TXNXWFoxNFA5N2hsZVBram1Md2hfSUVvY2QzTEsyUXQ0TXluaEZRcFpuVUVoVjJiYlVCOXpVem9XUjlNOFdjSmpN?oc=5",
       "severity": "info",
       "signals": []
     },
@@ -183,6 +169,14 @@
       "url": "https://news.google.com/rss/articles/CBMib0FVX3lxTE1ZcEhqd1RTVzFfMDJta09xZ1lnSFkzaktOQ2hlQ0VsVUhxc1lUa0gwdkpjUm85N05vd0JfdUJlUGUyclRsUkJNcm5xUnZORjJqM25KSVdreFMyalBIX3hWQlAyS216TVRvSG42aENGUQ?oc=5",
       "severity": "info",
       "signals": []
+    },
+    {
+      "keyword": "지방은행 부실",
+      "date": "2026-09-15",
+      "title": "‘K반도체·조선’ 호황에도 지방기업은 휘청…지방은행 부실채권 2조 육박 - 더퍼블릭",
+      "url": "https://news.google.com/rss/articles/CBMia0FVX3lxTE5EVFJldjZoOHdETENaWjJBaXQzdTRUYXV2LUYwd3NUYzR6WmZKS2VPSHEtYklOMjRReDNETkxCbkRvN2U1SGYtd3ZQMVRLNGtkRWlfeFlzekkzRGUwV0JaR3V2ckhFc0NWSkZJ0gFvQVVfeXFMT2lOTzBCNFR2bTlweEdONUNNaDRlTl9QSzByTlBlREZzREVrMm50cXBVX1BEX2dHN1dKdjZpY251T0dWcU13ZXczbXRYS3pMZGllS2k5X2xubG94cS1ieVAyUWFyLXNlSE1YZ29IeGlN?oc=5",
+      "severity": "info",
+      "signals": []
     }
   ],
   "sources": [
@@ -192,7 +186,7 @@
     },
     {
       "label": "4대 지주 평균 PBR 비교 (1종목)",
-      "ref": "peers: 138930 / avg 0.45"
+      "ref": "peers: 138930 / avg 0.44"
     },
     {
       "label": "분기 배당 결정 (반기보고서 (2026.06))",
@@ -200,7 +194,7 @@
     },
     {
       "label": "외국인 순매수 누적 (20일)",
-      "ref": "네이버 dealTrendInfos / history 2026-09-16"
+      "ref": "네이버 dealTrendInfos / history 2026-09-17"
     },
     {
       "label": "최근 분기 순이익 (2026-H1)",
