@@ -11,6 +11,7 @@ const navItems = [
   { href: "/stocks", label: "저평가 우량주", icon: "stars" },
   { href: "/stocks/canslim", label: "CAN SLIM 발굴", icon: "auto_graph" },
   { href: "/stocks/trend-template", label: "트렌드 템플레이트", icon: "trending_up" },
+  { href: "/stocks/sepa-us", label: "미국 SEPA", icon: "candlestick_chart" },
   { href: "/stocks/hero-profile", label: "Hero Profile", icon: "military_tech" },
   { href: "/research", label: "종목 심층 분석", icon: "lab_research" },
   { href: "/bio", label: "바이오주 모니터링", icon: "biotech" },
