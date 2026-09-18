@@ -30,6 +30,15 @@ def test_gap_is_positive_above_pivot():
     assert g > 0
 
 
+def test_default_band_matches_the_user_decision():
+    """아래 −3% · 위 +30% (26-09-18 −2 에서 −3 으로 넓힘).
+
+    계기: 케이씨가 −2.80% 로 0.8%p 모자라 안 떴다. −2% 가 실제로 써 보니 좁았다.
+    """
+    assert pivot_alert.DEFAULT_BELOW_PCT == 3.0
+    assert pivot_alert.DEFAULT_ABOVE_PCT == 30.0
+
+
 def test_select_band_is_asymmetric():
     """사용자 확정(26-09-17): 아래는 −2%, 넘은 쪽은 +30%.
 
@@ -229,6 +238,74 @@ def test_structure_ok_3c_needs_only_a_pivot():
     assert pivot_alert.classify(_raw(pivot_price=None), "3c") is None
 
 
+# ── 폴링 간격 (사용자 결정 26-09-18) ──────────────────────────
+
+def test_regular_session_polls_fast():
+    """정규장 09:00~15:30 내내 빠른 주기 (사용자 결정 26-09-18, 09:30 에서 넓힘)."""
+    for h, m in ((9, 0), (9, 30), (12, 0), (15, 29), (15, 30)):
+        assert pivot_alert.poll_interval(_at(h, m), base=60, fast=15) == 15
+
+
+def test_outside_regular_session_uses_base_interval():
+    """장 전(NXT)·장후·애프터마켓은 기본 주기 — 거래가 얇아 15초가 아깝다."""
+    assert pivot_alert.poll_interval(_at(8, 59), base=60, fast=15) == 60
+    assert pivot_alert.poll_interval(_at(15, 31), base=60, fast=15) == 60
+    assert pivot_alert.poll_interval(_at(19, 0), base=60, fast=15) == 60
+
+
+def test_fast_interval_never_exceeds_base():
+    """빠른 간격이 기본보다 크면 뜻이 없다 — 작은 쪽을 쓴다."""
+    assert pivot_alert.poll_interval(_at(9, 10), base=10, fast=15) == 10
+
+
+def test_sleep_subtracts_the_time_the_poll_took():
+    """간격은 «주기»다. 조회가 7초 걸렸으면 15초 주기는 8초를 쉬어야 한다."""
+    assert pivot_alert.sleep_seconds(interval=15, elapsed=7.0) == 8.0
+    assert pivot_alert.sleep_seconds(interval=15, elapsed=0.0) == 15.0
+
+
+def test_sleep_is_never_negative():
+    """조회가 간격보다 오래 걸리면 쉬지 않고 바로 다음 바퀴로."""
+    assert pivot_alert.sleep_seconds(interval=15, elapsed=22.0) == 0.0
+
+
+# ── 시세 계열 고르기 (사용자 결정 26-09-18) ───────────────────
+
+def _at(h, m):
+    from datetime import datetime
+    return datetime(2026, 9, 18, h, m, tzinfo=pivot_alert.KST)
+
+
+def test_regular_session_uses_krx_quote():
+    """정규장에는 피벗과 «같은 계열»인 KRX(J)로 잰다 — 피벗이 정규장 일봉에서 나왔다."""
+    assert pivot_alert.quote_market_div(_at(9, 0)) == "J"
+    assert pivot_alert.quote_market_div(_at(12, 0)) == "J"
+    assert pivot_alert.quote_market_div(_at(15, 30)) == "J"
+
+
+def test_outside_regular_session_uses_integrated_quote():
+    """정규장 밖에서는 J 가 «굳은 값»이라 현재가가 아니다 — 통합(UN)을 쓴다.
+
+    26-09-18 실측 둘:
+      08:1x 장 전 — 삼성전자 J 252,500(=전일 종가) vs UN 259,500
+      16:10 애프터마켓 — 케이씨 J 41,300(=당일 정규장 종가) vs UN 41,000(MTS 와 일치)
+    둘 다 J 가 15:30(또는 전일)에 멈춰 있었다. 애프터마켓 체결은 NXT 로 가고
+    그건 UN 으로만 보인다.
+    """
+    assert pivot_alert.quote_market_div(_at(8, 0)) == "UN"
+    assert pivot_alert.quote_market_div(_at(8, 59)) == "UN"
+    assert pivot_alert.quote_market_div(_at(15, 31)) == "UN"
+    assert pivot_alert.quote_market_div(_at(16, 10)) == "UN"
+    assert pivot_alert.quote_market_div(_at(19, 55)) == "UN"
+
+
+def test_message_names_the_quote_series():
+    """어느 계열로 잰 값인지 문구에 남긴다 — 두 계열이 갈릴 때 구분이 안 되면 위험하다."""
+    rows = [_row("A", "가", 100.0, 99.0)]
+    head = pivot_alert.format_message(rows, now="x", session="장 전(NXT 통합)").splitlines()[0]
+    assert "NXT 통합" in head
+
+
 # ── 감시 대상 제한 (사용자 결정 26-09-17) ─────────────────────
 
 def test_monitor_tiers_cover_every_source_file():
@@ -246,10 +323,19 @@ def test_monitor_3c_takes_only_actionable():
     assert allow == {"actionable"}
 
 
-def test_monitor_powerplay_trend_takes_all_but_all_universe_is_dropped():
+def test_monitor_powerplay_trend_takes_all_tiers():
     assert pivot_alert.MONITOR_TIERS["sepa-power-play-candidates.json"] == {
         "breakout", "actionable", "watch"}
-    assert pivot_alert.MONITOR_TIERS["sepa-power-play-all-candidates.json"] == set()
+
+
+def test_monitor_powerplay_all_universe_takes_only_actionable():
+    """전수는 트렌드 관문을 못 넘은 종목이라 예의주시까지 받으면 100여 종목이 밀려든다.
+
+    피벗에 바짝 붙은 «진입임박»만 받는다(사용자 결정 26-09-18 — 3C 와 같은 기준).
+    계기: 디아이(003160)가 추천 리스트에는 진입임박으로 올랐는데 전수 파일이
+    통째로 빠져 있어 알림에 «안» 떴다.
+    """
+    assert pivot_alert.MONITOR_TIERS["sepa-power-play-all-candidates.json"] == {"actionable"}
 
 
 def test_monitored_is_page_classification_plus_the_tier_filter():

@@ -14,8 +14,8 @@
   한 종목이 두 패턴에 잡히면 피벗이 둘이므로 «먼저 닿는» 쪽만 남긴다.
 
 언제 우나:
-  피벗 대비 −2% ~ +30% 밴드(사용자 결정 26-09-17). 비대칭인 까닭은 예약을 걸
-  자리는 좁고, 이미 넘어 달리는 종목은 놓치기 싫어서다.
+  피벗 대비 −3% ~ +30% 밴드(26-09-17 결정 · 26-09-18 아래를 2→3 으로 넓힘).
+  비대칭인 까닭은 예약을 걸 자리는 좁고, 이미 넘어 달리는 종목은 놓치기 싫어서다.
   해당 종목이 없으면 «아무것도 보내지 않는다» — 빈 알림이 1분마다 오면 안 본다.
 
 시세:
@@ -72,12 +72,15 @@ WATCH_PCT = 12.0
 #   의미를 잃는다.
 #   빈 집합 = 그 파일 전부 제외.
 #   까닭: 3C 는 «검출 없이» 피벗만 있으면 예의주시가 되어 헐겁다(26-09-17 실측
-#   예의주시 27 중 24가 미검출). 파워플레이 전수는 모집단이 RS80 전 종목이라
-#   120종목이 통째로 올라온다.
+#   예의주시 27 중 24가 미검출). 파워플레이 «전수»는 모집단이 RS80 전 종목이라
+#   예의주시가 100여 종목씩 올라온다 — 그래서 둘 다 «진입임박»만 받는다.
+#   전수를 통째로 뺐다가 되살린 계기(26-09-18): 디아이(003160)가 매수 추천
+#   리스트에는 진입임박으로 올랐는데 알림에는 «안» 떴다. 노이즈는 예의주시에
+#   몰려 있지 피벗에 바짝 붙은 종목에 있는 게 아니다.
 MONITOR_TIERS = {
     "sepa-vcp-candidates.json": {"breakout", "actionable", "watch"},
     "sepa-power-play-candidates.json": {"breakout", "actionable", "watch"},
-    "sepa-power-play-all-candidates.json": set(),
+    "sepa-power-play-all-candidates.json": {"actionable"},
     "sepa-3c-candidates.json": {"actionable"},
 }
 
@@ -89,8 +92,18 @@ STATUS_KO = {
     "failed": "붕괴",
 }
 
-# 밴드는 비대칭 — 아래 2% · 위 30% (사용자 결정 26-09-17)
-DEFAULT_BELOW_PCT = 2.0
+# KRX 정규장 시간 (분 단위, KST). 두 가지가 «이 하나»에서 갈린다 —
+#   ① 폴링 주기(정규장은 빠르게) ② 시세 계열(정규장은 J, 밖은 UN).
+#   두 곳에 따로 적으면 한쪽만 고쳐져 어긋난다.
+REGULAR_START = 9 * 60              # 09:00
+REGULAR_END = 15 * 60 + 30          # 15:30 (포함)
+DEFAULT_FAST_INTERVAL = 15          # 59종목 조회가 7초라 10초는 빠듯하다
+
+# 밴드는 비대칭 — 아래 3% · 위 30%.
+#   26-09-17 아래 2%로 시작, 26-09-18 «3%로 넓힘» — 케이씨가 −2.80% 로
+#   0.8%p 모자라 안 떴다. 아래가 좁은 건 예약을 걸 자리가 좁아서고,
+#   위가 넓은 건 이미 넘어 달리는 종목을 놓치지 않으려는 것이다.
+DEFAULT_BELOW_PCT = 3.0
 DEFAULT_ABOVE_PCT = 30.0
 
 
@@ -165,7 +178,7 @@ def select_near_pivot(rows: list[dict],
                       above_pct: float = DEFAULT_ABOVE_PCT) -> list[dict]:
     """밴드 안에 든 종목, 피벗에 가까운 순서로.
 
-    밴드는 «비대칭»이다(사용자 결정 26-09-17): 아래 −2% · 위 +30%.
+    밴드는 «비대칭»이다: 아래 −3% · 위 +30%(26-09-18).
       아래가 좁은 건 예약을 걸 자리가 좁아서고,
       위가 넓은 건 이미 넘어 달리는 종목을 놓치지 않으려는 것이다.
     """
@@ -196,7 +209,7 @@ def format_message(rows: list[dict], now: str, session: str) -> str:
     """알림 한 통. 해당 종목이 없으면 빈 문자열(= 안 보냄).
 
     두 칸으로 나눈다(사용자 결정 26-09-17).
-      [피벗 근접] −2% ~ +0% — 아직 예약을 걸 수 있는 자리
+      [피벗 근접] −3% ~ +0% — 아직 예약을 걸 수 있는 자리
       [피벗 돌파] 0% 초과 전부 — 이미 지나간 자리
     두 칸 모두 피벗에 가까운 순서로.
     """
@@ -215,16 +228,62 @@ def format_message(rows: list[dict], now: str, session: str) -> str:
     return "\n".join(lines)
 
 
-def session_label(now: datetime) -> str:
-    """지금이 어느 장인가 — 문구에 붙여 현재가의 뜻을 분명히 한다."""
+def poll_interval(now: datetime, base: int, fast: int) -> int:
+    """지금 몇 초 주기로 볼 것인가 (사용자 결정 2026-09-18).
+
+    정규장(09:00~15:30)은 빠르게 본다. 그 밖은 base.
+    빠른 쪽이 base 보다 크면 뜻이 없으므로 작은 쪽을 쓴다.
+    """
     hm = now.hour * 60 + now.minute
-    if hm < 9 * 60:
-        return "장 전"          # 현재가 = 전일 종가
-    if hm <= 15 * 60 + 30:
-        return "정규장"
-    if hm < 16 * 60:
-        return "장후 종가매매"
-    return "애프터마켓"
+    rush = REGULAR_START <= hm <= REGULAR_END
+    return min(base, fast) if rush else base
+
+
+def sleep_seconds(interval: int, elapsed: float) -> float:
+    """다음 바퀴까지 쉴 시간.
+
+    interval 은 «주기»지 «쉬는 시간»이 아니다. 조회에 걸린 만큼 빼야
+    15초 주기가 실제로 15초가 된다(안 빼면 7+15=22초가 된다).
+    조회가 주기보다 오래 걸리면 쉬지 않는다.
+    """
+    return max(0.0, interval - elapsed)
+
+
+def quote_market_div(now: datetime) -> str:
+    """지금 어느 계열로 현재가를 잴 것인가 (사용자 결정 2026-09-18).
+
+    정규장(09:00~15:30) → "J"(KRX). 피벗이 «정규장» 일봉에서 나온 값이라
+      같은 계열로 재야 「돌파」 판정이 피벗과 앞뒤가 맞는다.
+    그 밖(장 전·장후·애프터마켓) → "UN"(통합, KRX+NXT). 정규장이 닫히면 J 는
+      «굳은 값»이라 현재가가 아니다. 실측 둘:
+        08:1x 장 전   — 삼성전자 J 252,500(=전일 종가) vs UN 259,500
+        16:10 애프터  — 케이씨 J 41,300(=당일 정규장 종가) vs UN 41,000(MTS 와 같음)
+      애프터마켓 체결이 NXT 로 가면 J 에는 «안» 잡힌다.
+      🚨 그 시간대 UN 가격은 공식 종가도 다음 날 기준가도 «아니다»(26-09-17 조사).
+         그래도 지금 실제로 거래되는 값이라 이걸로 돌파를 판정한다(사용자 결정).
+    """
+    hm = now.hour * 60 + now.minute
+    return "J" if REGULAR_START <= hm <= REGULAR_END else "UN"
+
+
+def session_label(now: datetime) -> str:
+    """지금이 어느 장인가 — 문구에 붙여 현재가의 뜻을 분명히 한다.
+
+    어느 «계열»로 잰 값인지도 같이 적는다. 두 계열이 갈릴 때 구분이 안 되면
+    「NXT 에서는 넘었는데 KRX 기준으로는 아직」을 못 읽는다.
+    """
+    hm = now.hour * 60 + now.minute
+    div = quote_market_div(now)
+    series = "KRX" if div == "J" else "NXT 통합"
+    if hm < REGULAR_START:
+        name = "장 전"
+    elif hm <= REGULAR_END:
+        name = "정규장"
+    elif hm < 16 * 60:
+        name = "장후 종가매매"
+    else:
+        name = "애프터마켓"
+    return f"{name}({series})"
 
 
 # ── 자료 읽기 ────────────────────────────────────────────────
@@ -287,10 +346,14 @@ def attach_live_prices(rows: list[dict], verbose: bool = False,
     import concurrent.futures as _cf
     from canslim_lib import kis_api
     token = kis_api.get_access_token()
+    div = quote_market_div(datetime.now(KST))
 
     def _one(r):
         try:
-            q = kis_api.fetch_quote_with_volume(r["code"], token=token)
+            if div == "UN":
+                q = kis_api.fetch_integrated_price(r["code"], token=token, market_div="UN")
+            else:
+                q = kis_api.fetch_quote_with_volume(r["code"], token=token)
         except Exception:
             return
         if q and q.get("current"):
@@ -382,7 +445,9 @@ def main() -> None:
     ap.add_argument("--above", type=float, default=DEFAULT_ABOVE_PCT,
                     help="피벗을 «넘은» 쪽 몇 퍼센트까지 (기본 30)")
     ap.add_argument("--once", action="store_true", help="한 번만 재고 끝낸다(문구 검토용)")
-    ap.add_argument("--interval", type=int, default=60, help="반복 간격(초, 기본 60)")
+    ap.add_argument("--interval", type=int, default=60, help="기본 주기(초, 기본 60)")
+    ap.add_argument("--fast-interval", type=int, default=DEFAULT_FAST_INTERVAL,
+                    help="09:00~09:30 주기(초, 기본 15)")
     ap.add_argument("--until", default="20:00", help="이 시각까지 돈다 (HH:MM)")
     ap.add_argument("--telegram", action="store_true", help="콘솔 대신 텔레그램으로 보낸다")
     ap.add_argument("--chat-id", action="store_true", help="텔레그램 chat_id 를 조회하고 끝낸다")
@@ -406,21 +471,28 @@ def main() -> None:
     end_h, end_m = (int(x) for x in a.until.split(":"))
     print("=" * 52)
     print(f"  피벗 근접 알림 — 아래 −{a.below:g}% ~ 위 +{a.above:g}% 안에 들면 알린다")
-    print(f"  {a.interval}초 간격 · {a.until} 까지 · "
+    print(f"  {a.interval}초 주기 · {a.until} 까지 · "
           f"{'텔레그램' if a.telegram else '콘솔'}로 보냄")
+    print(f"  09:00~15:30 정규장은 {min(a.interval, a.fast_interval)}초 주기")
     print("  매수는 하지 않는다. 예약을 걸 시점만 알린다.")
     print("  멈추기: Ctrl+C")
     print("=" * 52)
+    prev_iv = None
     while True:
         now = datetime.now(KST)
         if (now.hour, now.minute) >= (end_h, end_m):
             print(f"[{now:%H:%M}] {a.until} 도달 — 종료")
             return
+        iv = poll_interval(now, a.interval, a.fast_interval)
+        if iv != prev_iv:
+            print(f"[{now:%H:%M}] 주기 {iv}초")
+            prev_iv = iv
+        t0 = time.time()
         try:
             poll_once(a.below, a.above, sink, verbose=a.verbose)
         except Exception as e:                      # 한 번 실패로 하루가 멈추면 안 된다
             print(f"[{now:%H:%M}] 조회 실패 — {type(e).__name__}: {e}")
-        time.sleep(a.interval)
+        time.sleep(sleep_seconds(iv, time.time() - t0))
 
 
 if __name__ == "__main__":
