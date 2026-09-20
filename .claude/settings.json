@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"C:/Users/hanul/playground/my-stock/.claude/hooks/sharadar_deadline.py\"",
+            "command": "python \".claude/hooks/sharadar_deadline.py\"",
             "timeout": 10,
             "statusMessage": "Sharadar 마감 확인"
           }
@@ -18,7 +18,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"C:/Users/hanul/playground/my-stock/.claude/hooks/guard_canon.py\"",
+            "command": "python \".claude/hooks/guard_canon.py\"",
             "timeout": 15,
             "statusMessage": "정본 파일 확인 중"
           }
@@ -29,7 +29,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"C:/Users/hanul/playground/my-stock/.claude/hooks/guard_destructive_git.py\"",
+            "command": "python \".claude/hooks/guard_destructive_git.py\"",
             "timeout": 10,
             "statusMessage": "작업 트리를 지우는 명령인지 확인"
           }
@@ -42,7 +42,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"C:/Users/hanul/playground/my-stock/.claude/hooks/fmtcheck_on_save.py\"",
+            "command": "python \".claude/hooks/fmtcheck_on_save.py\"",
             "timeout": 30,
             "statusMessage": "서식·컴파일 검사 중"
           }
