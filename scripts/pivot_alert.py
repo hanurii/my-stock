@@ -98,6 +98,7 @@ STATUS_KO = {
 REGULAR_START = 9 * 60              # 09:00
 REGULAR_END = 15 * 60 + 30          # 15:30 (포함)
 DEFAULT_FAST_INTERVAL = 15          # 59종목 조회가 7초라 10초는 빠듯하다
+DEFAULT_VOL_WINDOW = 20             # 거래량 배수의 분모 — 최근 N거래일 평균
 
 # 밴드는 비대칭 — 아래 3% · 위 30%.
 #   26-09-17 아래 2%로 시작, 26-09-18 «3%로 넓힘» — 케이씨가 −2.80% 로
@@ -201,7 +202,9 @@ def _gap_of(r: dict) -> float:
 
 def _line(r: dict) -> str:
     status = STATUS_KO.get(r.get("status"), r.get("status") or "")
-    return (f"{_gap_of(r):+.2f}%  {r['name']}  {r['price']:,.0f}  "
+    vm = r.get("vol_mult")
+    vol = f"거래량 {vm:.1f}배  " if vm else ""
+    return (f"{_gap_of(r):+.2f}%  {r['name']}  {r['price']:,.0f}  {vol}"
             f"{r.get('pattern', '')}·{status}  ({r['pivot_price']:,.0f})")
 
 
@@ -226,6 +229,47 @@ def format_message(rows: list[dict], now: str, session: str) -> str:
         lines.append(label)
         lines += [_line(r) for r in group]
     return "\n".join(lines)
+
+
+def should_measure_volume(now: datetime) -> bool:
+    """지금 장중 거래량을 잴 것인가 (사용자 결정 2026-09-20).
+
+    정규장(09:00~15:30)에만 잰다.
+      · 09:00 전 — 통합(UN) 조회가 거래량을 «안 준다». 잴 수가 없다.
+      · 15:30 후 — 분자(KIS 누적 거래량)에 애프터마켓이 섞이는데 분모(일봉
+        거래량)는 정규장 기준이라 기준이 갈린다. 26-09-20 실측: 삼성전자
+        acml_vol 이 캐시 09-18 거래량의 1.163배였고 다른 다섯은 1.000 이었다
+        — 종목에 따라 섞이기도 하고 안 섞이기도 해서 보정이 안 선다.
+    """
+    hm = now.hour * 60 + now.minute
+    return REGULAR_START <= hm <= REGULAR_END
+
+
+def avg_recent_volume(series: dict, window: int, today: str) -> float | None:
+    """최근 window 거래일 평균 거래량. «오늘은 뺀다».
+
+    오늘을 넣으면 오늘의 폭발이 분모를 키워 배수를 스스로 눌러 버린다.
+    """
+    dates, vols = series.get("dates") or [], series.get("volumes") or []
+    past = [v for d, v in zip(dates, vols) if d < today and v]
+    if len(past) < window:
+        return None
+    tail = past[-window:]
+    return sum(tail) / len(tail)
+
+
+def volume_multiple(acml_vol: float | None, day_frac: float,
+                    avg_vol: float | None) -> float | None:
+    """지금 페이스가 평소 하루의 몇 배인가.
+
+    누적 거래량을 «그 시각까지 평소 나오는 비율»로 나눠 하루로 환산한 뒤
+    최근 평균과 견준다. 환산을 안 하면 09:10 에는 모든 종목이 「거래량 없음」이
+    된다(그 시각엔 원래 하루치의 일부만 나온다).
+    비율 정본: public/data/intraday-vol-curve.json — 09:30 20.8% · 10:00 32.1%.
+    """
+    if not acml_vol or not avg_vol or not day_frac:
+        return None
+    return (acml_vol / day_frac) / avg_vol
 
 
 def poll_interval(now: datetime, base: int, fast: int) -> int:
@@ -332,7 +376,27 @@ def load_watch_universe() -> list[dict]:
                 "status": r.get("status"), "tier": tier, "pattern": pattern,
                 "price": None,
             })
-    return dedup_by_code(rows)
+    rows = dedup_by_code(rows)
+    attach_avg_volume(rows)
+    return rows
+
+
+def attach_avg_volume(rows: list[dict], window: int = DEFAULT_VOL_WINDOW) -> None:
+    """거래량 배수의 «분모» — 최근 window 거래일 평균 거래량을 붙인다.
+
+    시계열 캐시(.cache/ohlcv/series)에서 읽는다. 그 캐시의 거래량은 정규장
+    기준이고(26-09-20 3출처 대조: 캐시=FDR=네이버), 분자인 KIS acml_vol 도
+    정규장 중에는 같은 기준이다(실측 비율 1.000). 그래서 정규장에만 잰다.
+    """
+    from canslim_lib import ohlcv_matrix
+    today = f"{datetime.now(KST):%Y-%m-%d}"
+    for r in rows:
+        p = ohlcv_matrix.SERIES_DIR / f"{r['code']}.json"
+        try:
+            s = json.loads(p.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        r["avg_vol"] = avg_recent_volume(s, window, today)
 
 
 def attach_live_prices(rows: list[dict], verbose: bool = False,
@@ -346,7 +410,13 @@ def attach_live_prices(rows: list[dict], verbose: bool = False,
     import concurrent.futures as _cf
     from canslim_lib import kis_api
     token = kis_api.get_access_token()
-    div = quote_market_div(datetime.now(KST))
+    now = datetime.now(KST)
+    div = quote_market_div(now)
+    with_vol = should_measure_volume(now)
+    day_frac = 0.0
+    if with_vol:
+        from autobuy import vol_curve
+        day_frac = vol_curve.expected_vol_frac(f"{now:%H%M%S}", base=ROOT)
 
     def _one(r):
         try:
@@ -358,6 +428,8 @@ def attach_live_prices(rows: list[dict], verbose: bool = False,
             return
         if q and q.get("current"):
             r["price"] = float(q["current"])
+        if with_vol and q and q.get("acml_vol"):
+            r["vol_mult"] = volume_multiple(q["acml_vol"], day_frac, r.get("avg_vol"))
 
     t0 = time.time()
     with _cf.ThreadPoolExecutor(max_workers=max_workers) as ex:
@@ -450,6 +522,8 @@ def main() -> None:
                     help="09:00~09:30 주기(초, 기본 15)")
     ap.add_argument("--until", default="20:00", help="이 시각까지 돈다 (HH:MM)")
     ap.add_argument("--telegram", action="store_true", help="콘솔 대신 텔레그램으로 보낸다")
+    ap.add_argument("--vol-window", type=int, default=DEFAULT_VOL_WINDOW,
+                    help="거래량 배수의 분모 — 최근 N거래일 평균 (기본 20)")
     ap.add_argument("--chat-id", action="store_true", help="텔레그램 chat_id 를 조회하고 끝낸다")
     ap.add_argument("--test-send", action="store_true", help="텔레그램으로 시험 한 통 보내고 끝낸다")
     ap.add_argument("-v", "--verbose", action="store_true")
