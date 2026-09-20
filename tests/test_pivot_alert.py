@@ -238,6 +238,64 @@ def test_structure_ok_3c_needs_only_a_pivot():
     assert pivot_alert.classify(_raw(pivot_price=None), "3c") is None
 
 
+# ── 장중 거래량 폭발 (사용자 결정 26-09-20) ───────────────────
+
+def test_volume_measured_only_during_regular_session():
+    """09:00 전에는 안 재도 된다 — 통합(UN) 조회가 거래량을 안 준다.
+
+    정규장에는 «꼭» 재야 한다(사용자 결정). 정규장 밖에서 재면 분자에
+    애프터마켓이 섞여 분모(정규장 일봉)와 기준이 갈린다 — 26-09-20 실측:
+    삼성전자 KIS acml_vol 이 캐시 09-18 거래량의 1.163배(다른 다섯은 1.000).
+    """
+    assert pivot_alert.should_measure_volume(_at(9, 0))
+    assert pivot_alert.should_measure_volume(_at(13, 0))
+    assert pivot_alert.should_measure_volume(_at(15, 30))
+    assert not pivot_alert.should_measure_volume(_at(8, 59))
+    assert not pivot_alert.should_measure_volume(_at(15, 31))
+    assert not pivot_alert.should_measure_volume(_at(18, 0))
+
+
+def test_volume_multiple_projects_to_a_full_day():
+    """09:30 에 하루치의 20.8%가 나온다 — 누적을 그 비율로 나눠 하루로 환산한다.
+
+    환산을 안 하면 이른 시각에는 모든 종목이 「거래량 없음」으로 보인다.
+    """
+    m = pivot_alert.volume_multiple(acml_vol=2080, day_frac=0.208, avg_vol=10000)
+    assert abs(m - 1.0) < 1e-9          # 2080/0.208 = 10,000 = 평균과 같다
+    m2 = pivot_alert.volume_multiple(acml_vol=8320, day_frac=0.208, avg_vol=10000)
+    assert abs(m2 - 4.0) < 1e-9
+
+
+def test_volume_multiple_is_none_when_inputs_missing():
+    assert pivot_alert.volume_multiple(None, 0.2, 10000) is None
+    assert pivot_alert.volume_multiple(1000, 0.2, 0) is None
+    assert pivot_alert.volume_multiple(1000, 0, 10000) is None
+
+
+def test_average_volume_excludes_today():
+    """분모는 «지난» N일이다. 오늘을 넣으면 오늘 폭발이 분모를 키워 배수를 눌러 버린다."""
+    series = {"dates": ["d1", "d2", "d3", "d4"], "volumes": [100, 200, 300, 9999]}
+    assert pivot_alert.avg_recent_volume(series, window=3, today="d4") == 200.0
+
+
+def test_average_volume_needs_enough_days():
+    series = {"dates": ["d1", "d2"], "volumes": [100, 200]}
+    assert pivot_alert.avg_recent_volume(series, window=20, today="d2") is None
+
+
+def test_line_shows_volume_multiple_when_measured():
+    r = _row("A", "가", 100.0, 99.0)
+    r["vol_mult"] = 4.2
+    line = pivot_alert.format_message([r], now="x", session="정규장(KRX)").splitlines()[2]
+    assert "거래량 4.2배" in line
+
+
+def test_line_omits_volume_when_not_measured():
+    line = pivot_alert.format_message([_row("A", "가", 100.0, 99.0)],
+                                      now="x", session="장 전(NXT 통합)").splitlines()[2]
+    assert "거래량" not in line
+
+
 # ── 폴링 간격 (사용자 결정 26-09-18) ──────────────────────────
 
 def test_regular_session_polls_fast():
