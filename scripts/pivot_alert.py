@@ -204,7 +204,9 @@ def _line(r: dict) -> str:
     status = STATUS_KO.get(r.get("status"), r.get("status") or "")
     vm = r.get("vol_mult")
     vol = f"거래량 {vm:.1f}배  " if vm else ""
-    return (f"{_gap_of(r):+.2f}%  {r['name']}  {r['price']:,.0f}  {vol}"
+    # (전) = NXT 에서 아직 체결이 없다 → 보이는 값은 «전일 종가»지 실시간이 아니다
+    mark = "(전) " if r.get("no_trade") else ""
+    return (f"{mark}{_gap_of(r):+.2f}%  {r['name']}  {r['price']:,.0f}  {vol}"
             f"{r.get('pattern', '')}·{status}  ({r['pivot_price']:,.0f})")
 
 
@@ -258,6 +260,30 @@ def avg_recent_volume(series: dict, window: int, today: str) -> float | None:
     return sum(tail) / len(tail)
 
 
+def premarket_baseline(hist: dict, hhmm: str) -> float | None:
+    """프리마켓 분모 — 과거 날짜들의 «같은 시각까지» 누적 거래량의 중앙값.
+
+    정규장 일봉 평균을 쓰면 안 된다. 프리마켓 거래량은 정규장 하루의 1~10%
+    수준이라 늘 0.0X 배가 나온다(26-09-21 실측). 같은 시간대끼리 견뎌야 한다.
+
+    누적이라 단조 증가하므로, 그 시각 정각 봉이 없으면 «그 이전 마지막» 값을 쓴다.
+    거래가 없던 날(빈 칸)은 세지 않는다 — 세면 분모가 눌린다.
+    자료: .cache/premarket/premarket-vol-history.json (scripts/build_premarket_vol.py 가 쌓는다)
+    """
+    vals = []
+    for mins in (hist or {}).values():
+        if not mins:
+            continue
+        ks = sorted(k for k in mins if k <= hhmm)
+        if ks:
+            vals.append(float(mins[ks[-1]]))
+    if not vals:
+        return None
+    vals.sort()
+    n = len(vals)
+    return vals[n // 2] if n % 2 else (vals[n // 2 - 1] + vals[n // 2]) / 2
+
+
 def volume_multiple(acml_vol: float | None, day_frac: float,
                     avg_vol: float | None) -> float | None:
     """지금 페이스가 평소 하루의 몇 배인가.
@@ -307,7 +333,11 @@ def quote_market_div(now: datetime) -> str:
          그래도 지금 실제로 거래되는 값이라 이걸로 돌파를 판정한다(사용자 결정).
     """
     hm = now.hour * 60 + now.minute
-    return "J" if REGULAR_START <= hm <= REGULAR_END else "UN"
+    if REGULAR_START <= hm <= REGULAR_END:
+        return "J"
+    if hm < REGULAR_START:
+        return "NX"          # 프리마켓 — 체결 유무를 가르려면 NXT 단독으로 받아야 한다
+    return "UN"
 
 
 def session_label(now: datetime) -> str:
@@ -318,7 +348,7 @@ def session_label(now: datetime) -> str:
     """
     hm = now.hour * 60 + now.minute
     div = quote_market_div(now)
-    series = "KRX" if div == "J" else "NXT 통합"
+    series = {"J": "KRX", "NX": "NXT", "UN": "NXT 통합"}.get(div, div)
     if hm < REGULAR_START:
         name = "장 전"
     elif hm <= REGULAR_END:
@@ -336,6 +366,17 @@ def is_monitored(raw: dict, fname: str, kind: str) -> bool:
     """페이지엔 뜨더라도 «감시»할 것인가 — 분류 위에 얹는 한 겹."""
     tier = classify(raw, kind)
     return tier is not None and tier in MONITOR_TIERS.get(fname, set())
+
+
+def load_premarket_history() -> dict:
+    """프리마켓 거래량 이력 {종목: {날짜: {HHMM: 누적}}}. 없으면 빈 dict."""
+    p = ROOT / ".cache" / "premarket" / "premarket-vol-history.json"
+    if not p.exists():
+        return {}
+    try:
+        return json.loads(p.read_text(encoding="utf-8")).get("codes") or {}
+    except (OSError, json.JSONDecodeError):
+        return {}
 
 
 def load_exclusions() -> set[str]:
@@ -417,10 +458,25 @@ def attach_live_prices(rows: list[dict], verbose: bool = False,
     if with_vol:
         from autobuy import vol_curve
         day_frac = vol_curve.expected_vol_frac(f"{now:%H%M%S}", base=ROOT)
+    # 프리마켓은 «같은 시각까지의 프리마켓 누적»과 견준다(정규장 평균은 못 쓴다)
+    pre_hist, pre_hhmm = ({}, f"{now:%H%M}")
+    if div == "NX":
+        pre_hist = load_premarket_history()
 
     def _one(r):
         try:
-            if div == "UN":
+            if div == "NX":
+                # 프리마켓 — NXT 단독으로 받는다. 체결이 없으면 현재가가 0 으로 와서
+                # 「안 움직인 것」과 「거래가 없는 것」이 갈린다(UN 은 전일 종가로 덮는다).
+                q = kis_api.fetch_nxt_quote(r["code"], token=token)
+                if q and q.get("current") and q.get("acml_vol"):
+                    base = premarket_baseline(pre_hist.get(r["code"]) or {}, pre_hhmm)
+                    if base:
+                        r["vol_mult"] = q["acml_vol"] / base
+                if q and not q.get("current"):
+                    r["no_trade"] = True
+                    q = kis_api.fetch_integrated_price(r["code"], token=token, market_div="UN")
+            elif div == "UN":
                 q = kis_api.fetch_integrated_price(r["code"], token=token, market_div="UN")
             else:
                 q = kis_api.fetch_quote_with_volume(r["code"], token=token)

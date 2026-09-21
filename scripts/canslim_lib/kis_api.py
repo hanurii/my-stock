@@ -114,6 +114,49 @@ def get_access_token() -> str | None:
     return _issue_token()
 
 
+def fetch_nxt_quote(code: str, token: str | None = None) -> dict[str, Any] | None:
+    """NXT(넥스트레이드) «단독» 현재가 + 누적 거래량 — FID_COND_MRKT_DIV_CODE=NX.
+
+    UN(통합)과 다른 점: NXT 에서 아직 체결이 없으면 현재가가 0 으로 온다.
+    UN 은 그 경우 «전일 종가»로 덮어 주므로 「안 움직인 것」과 「거래가 없는 것」을
+    가를 수 없다(26-09-21 실측: 감시 57종목 중 31종목이 프리마켓 체결 없음).
+
+    Returns: {"current": float|None, "acml_vol": float, "pct": float} | None
+    """
+    if token is None:
+        token = get_access_token()
+    if not token:
+        return None
+    qs = _urlparse.urlencode({"FID_COND_MRKT_DIV_CODE": "NX", "FID_INPUT_ISCD": code})
+    url = f"{_base_url()}/uapi/domestic-stock/v1/quotations/inquire-price?{qs}"
+    headers = {
+        "content-type": "application/json",
+        "authorization": f"Bearer {token}",
+        "appkey": os.environ.get("KIS_APP_KEY", ""),
+        "appsecret": os.environ.get("KIS_APP_SECRET", ""),
+        "tr_id": "FHKST01010100",
+        "custtype": "P",
+    }
+    for attempt in range(3):
+        _throttle()
+        try:
+            with _urlreq.urlopen(_urlreq.Request(url, headers=headers), timeout=8) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+            break
+        except Exception:
+            if attempt == 2:
+                return None
+            time.sleep(0.3 * (attempt + 1))
+    o = data.get("output") or {}
+    try:
+        px = float(o.get("stck_prpr") or 0)
+        return {"current": px or None,
+                "acml_vol": float(o.get("acml_vol") or 0),
+                "pct": float(o.get("prdy_ctrt") or 0)}
+    except (TypeError, ValueError):
+        return None
+
+
 def fetch_integrated_price(code: str, token: str | None = None,
                            market_div: str = "UN") -> dict[str, Any] | None:
     """주식 현재가 시세 — `inquire-price`, FID_COND_MRKT_DIV_CODE=UN(통합) 기본.
