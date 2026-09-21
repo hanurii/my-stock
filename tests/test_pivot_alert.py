@@ -290,6 +290,51 @@ def test_line_shows_volume_multiple_when_measured():
     assert "거래량 4.2배" in line
 
 
+def test_premarket_denominator_uses_same_time_of_day():
+    """프리마켓은 «같은 시각까지의» 프리마켓 누적과 견준다.
+
+    정규장 20일 평균을 분모로 쓰면 늘 0.0X 배가 나온다 — 프리마켓 거래량이
+    정규장 하루의 1~10% 수준이기 때문이다(26-09-21 실측).
+    """
+    hist = {"20260916": {"0810": 100, "0830": 300, "0840": 400},
+            "20260917": {"0810": 200, "0830": 500, "0840": 600},
+            "20260918": {"0810": 300, "0830": 700, "0840": 800}}
+    assert pivot_alert.premarket_baseline(hist, "0830") == 500.0     # 중앙 300/500/700
+    assert pivot_alert.premarket_baseline(hist, "0810") == 200.0
+
+
+def test_premarket_denominator_uses_last_bar_at_or_before_now():
+    """그 시각 정각 봉이 없으면 «그 이전 마지막» 누적을 쓴다(누적이라 단조)."""
+    hist = {"20260918": {"0810": 300, "0830": 700}}
+    assert pivot_alert.premarket_baseline(hist, "0829") == 300.0
+    assert pivot_alert.premarket_baseline(hist, "0805") is None      # 그 전엔 자료 없음
+
+
+def test_premarket_denominator_skips_days_with_no_trading():
+    """휴일은 빈 칸으로 기록된다 — 세면 분모가 눌린다."""
+    hist = {"20260918": {"0830": 700}, "20260919": {}, "20260920": {}}
+    assert pivot_alert.premarket_baseline(hist, "0830") == 700.0
+
+
+def test_line_marks_stocks_with_no_nxt_trade():
+    """NXT 에서 체결이 없으면 «전일 종가»가 실시간 값처럼 보인다 — 맨 앞에 (전).
+
+    26-09-21 08:2x 실측: 감시 57종목 중 31종목이 프리마켓 체결 없음.
+    절반 이상이 전일 종가였는데 그게 드러나지 않았다.
+    """
+    r = _row("A", "가", 100.0, 99.0)
+    r["no_trade"] = True
+    line = pivot_alert.format_message([r], now="x", session="장 전(NXT 통합)").splitlines()[2]
+    assert line.startswith("(전) ")
+
+
+def test_line_has_no_marker_when_the_stock_traded():
+    r = _row("A", "가", 100.0, 99.0)
+    r["no_trade"] = False
+    line = pivot_alert.format_message([r], now="x", session="장 전(NXT 통합)").splitlines()[2]
+    assert not line.startswith("(전)")
+
+
 def test_line_omits_volume_when_not_measured():
     line = pivot_alert.format_message([_row("A", "가", 100.0, 99.0)],
                                       now="x", session="장 전(NXT 통합)").splitlines()[2]
@@ -341,17 +386,21 @@ def test_regular_session_uses_krx_quote():
     assert pivot_alert.quote_market_div(_at(15, 30)) == "J"
 
 
-def test_outside_regular_session_uses_integrated_quote():
-    """정규장 밖에서는 J 가 «굳은 값»이라 현재가가 아니다 — 통합(UN)을 쓴다.
+def test_premarket_uses_nxt_only_quote():
+    """프리마켓은 NXT «단독»(NX)으로 받는다 — 체결 유무를 갈라야 하기 때문이다.
 
-    26-09-18 실측 둘:
-      08:1x 장 전 — 삼성전자 J 252,500(=전일 종가) vs UN 259,500
-      16:10 애프터마켓 — 케이씨 J 41,300(=당일 정규장 종가) vs UN 41,000(MTS 와 일치)
-    둘 다 J 가 15:30(또는 전일)에 멈춰 있었다. 애프터마켓 체결은 NXT 로 가고
-    그건 UN 으로만 보인다.
+    UN 은 체결이 없으면 «전일 종가»로 덮어 주므로 「안 움직인 것」과
+    「거래가 없는 것」이 구분되지 않는다(26-09-21 실측: 감시 57 중 31종목 무체결).
     """
-    assert pivot_alert.quote_market_div(_at(8, 0)) == "UN"
-    assert pivot_alert.quote_market_div(_at(8, 59)) == "UN"
+    assert pivot_alert.quote_market_div(_at(8, 0)) == "NX"
+    assert pivot_alert.quote_market_div(_at(8, 59)) == "NX"
+
+
+def test_after_hours_uses_integrated_quote():
+    """장 마감 뒤에는 J 가 15:30 에 멈춘다 — 통합(UN)을 쓴다.
+
+    26-09-18 16:10 실측: 케이씨 J 41,300(=당일 정규장 종가) vs UN 41,000(MTS 와 일치).
+    """
     assert pivot_alert.quote_market_div(_at(15, 31)) == "UN"
     assert pivot_alert.quote_market_div(_at(16, 10)) == "UN"
     assert pivot_alert.quote_market_div(_at(19, 55)) == "UN"
