@@ -1,0 +1,11686 @@
+{
+ "asof": "2026-09-21",
+ "note": "전 종목 섹터 분류. 축이 «둘»이다 — 이 파일은 «업종»(빠짐없이), leading-sectors-config.json 은 «테마»(날카롭게). 섞어 읽지 않는다.",
+ "source": ".cache/krx_desc.json (KRX)",
+ "buckets": {
+  "semiconductor": {
+   "label": "반도체",
+   "proxy": [
+    "SOXX",
+    "MU",
+    "NVDA",
+    "AMAT",
+    "LRCX"
+   ]
+  },
+  "it_hardware": {
+   "label": "IT하드웨어·전자부품",
+   "proxy": [
+    "XLK",
+    "AAPL",
+    "DELL"
+   ]
+  },
+  "software_internet": {
+   "label": "소프트웨어·인터넷",
+   "proxy": [
+    "IGV",
+    "MSFT",
+    "GOOGL"
+   ]
+  },
+  "battery": {
+   "label": "이차전지",
+   "proxy": [
+    "LIT",
+    "ALB"
+   ]
+  },
+  "electrical": {
+   "label": "전기장비·전력",
+   "proxy": [
+    "GRID",
+    "GEV",
+    "VRT",
+    "ETN",
+    "PWR",
+    "TAN"
+   ]
+  },
+  "holding": {
+   "label": "순수지주회사",
+   "proxy": []
+  },
+  "machinery": {
+   "label": "기계·산업재",
+   "proxy": [
+    "XLI",
+    "CAT",
+    "DE"
+   ]
+  },
+  "aerospace_defense": {
+   "label": "항공우주·방산",
+   "proxy": [
+    "ITA",
+    "LMT",
+    "RTX",
+    "NOC"
+   ]
+  },
+  "shipbuilding": {
+   "label": "조선",
+   "proxy": []
+  },
+  "materials": {
+   "label": "소재·화학·철강",
+   "proxy": [
+    "XLB",
+    "DOW",
+    "NUE"
+   ]
+  },
+  "energy": {
+   "label": "에너지·정유",
+   "proxy": [
+    "XLE",
+    "XOM",
+    "CVX"
+   ]
+  },
+  "healthcare": {
+   "label": "헬스케어·제약·바이오",
+   "proxy": [
+    "XLV",
+    "XBI",
+    "LLY"
+   ]
+  },
+  "consumer_disc": {
+   "label": "경기소비재",
+   "proxy": [
+    "XLY",
+    "AMZN",
+    "NKE"
+   ]
+  },
+  "consumer_staples": {
+   "label": "필수소비재",
+   "proxy": [
+    "XLP",
+    "PG",
+    "KO"
+   ]
+  },
+  "cosmetics": {
+   "label": "화장품",
+   "proxy": [
+    "EL",
+    "ULTA",
+    "COTY"
+   ]
+  },
+  "financials": {
+   "label": "금융",
+   "proxy": [
+    "XLF",
+    "JPM",
+    "BAC"
+   ]
+  },
+  "communication": {
+   "label": "커뮤니케이션·미디어",
+   "proxy": [
+    "XLC",
+    "NFLX",
+    "DIS"
+   ]
+  },
+  "utilities": {
+   "label": "유틸리티",
+   "proxy": [
+    "XLU",
+    "NEE"
+   ]
+  },
+  "construction": {
+   "label": "건설·부동산",
+   "proxy": [
+    "XLRE",
+    "PAVE"
+   ]
+  },
+  "transport": {
+   "label": "운송",
+   "proxy": [
+    "IYT",
+    "UNP",
+    "FDX"
+   ]
+  },
+  "auto": {
+   "label": "자동차·부품",
+   "proxy": [
+    "CARZ",
+    "GM",
+    "F",
+    "APTV"
+   ]
+  }
+ },
+ "coverage": {
+  "total": 2871,
+  "classified": 2871,
+  "unclassified": 0,
+  "rate": 100.0,
+  "by_bucket": {
+   "semiconductor": 196,
+   "machinery": 245,
+   "holding": 49,
+   "financials": 231,
+   "electrical": 79,
+   "it_hardware": 260,
+   "consumer_disc": 134,
+   "materials": 400,
+   "healthcare": 364,
+   "communication": 100,
+   "transport": 32,
+   "consumer_staples": 113,
+   "construction": 109,
+   "cosmetics": 63,
+   "software_internet": 257,
+   "auto": 114,
+   "battery": 65,
+   "shipbuilding": 17,
+   "aerospace_defense": 22,
+   "energy": 18,
+   "utilities": 3
+  }
+ },
+ "assignments": {
+  "060310": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "095570": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "006840": {
+   "bucket": "holding",
+   "why": "순수지주(사업 안 보임)"
+  },
+  "054620": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "079810": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "265520": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "211270": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "027410": {
+   "bucket": "holding",
+   "why": "순수지주(사업 안 보임)"
+  },
+  "282330": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "126600": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "138930": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "001460": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "001465": {
+   "bucket": "consumer_disc",
+   "why": "우선주 상속(001460)"
+  },
+  "083790": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "001040": {
+   "bucket": "holding",
+   "why": "순수지주(사업 안 보임)"
+  },
+  "079160": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "035760": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "311690": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "00104K": {
+   "bucket": "holding",
+   "why": "우선주 상속(001040)"
+  },
+  "000120": {
+   "bucket": "transport",
+   "why": "업종"
+  },
+  "011150": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "011155": {
+   "bucket": "consumer_staples",
+   "why": "우선주 상속(011150)"
+  },
+  "001045": {
+   "bucket": "holding",
+   "why": "우선주 상속(001040)"
+  },
+  "097950": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "097955": {
+   "bucket": "consumer_staples",
+   "why": "우선주 상속(097950)"
+  },
+  "051500": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "058820": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "056730": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "000480": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "065770": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "083660": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "000590": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "012030": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "477760": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "005830": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "016610": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "000990": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "099520": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "000300": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "290120": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "025440": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "001530": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "015590": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "000210": {
+   "bucket": "holding",
+   "why": "순수지주(사업 안 보임)"
+  },
+  "000215": {
+   "bucket": "holding",
+   "why": "우선주 상속(000210)"
+  },
+  "375500": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "37550L": {
+   "bucket": "construction",
+   "why": "우선주 상속(375500)"
+  },
+  "37550K": {
+   "bucket": "construction",
+   "why": "우선주 상속(375500)"
+  },
+  "068790": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "007340": {
+   "bucket": "battery",
+   "why": "업종"
+  },
+  "004840": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "241520": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "155660": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "069730": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "017860": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "180400": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "092780": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "017940": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "418620": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "245620": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "037370": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "278990": {
+   "bucket": "electrical",
+   "why": "제품:electrical"
+  },
+  "365550": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "050120": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "383220": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "007700": {
+   "bucket": "holding",
+   "why": "순수지주(사업 안 보임)"
+  },
+  "214270": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "032620": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "130500": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "114090": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "019570": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "900290": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "078930": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "083450": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "006360": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "001250": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "007070": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "078935": {
+   "bucket": "financials",
+   "why": "우선주 상속(078930)"
+  },
+  "499790": {
+   "bucket": "holding",
+   "why": "순수지주(사업 안 보임)"
+  },
+  "297890": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "440290": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "078150": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "225530": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "060560": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "012630": {
+   "bucket": "holding",
+   "why": "순수지주(사업 안 보임)"
+  },
+  "039570": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "089470": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "267270": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "009540": {
+   "bucket": "shipbuilding",
+   "why": "제품:shipbuilding"
+  },
+  "267250": {
+   "bucket": "holding",
+   "why": "순수지주(사업 안 보임)"
+  },
+  "443060": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "071970": {
+   "bucket": "shipbuilding",
+   "why": "제품:shipbuilding"
+  },
+  "322000": {
+   "bucket": "electrical",
+   "why": "제품:electrical"
+  },
+  "267260": {
+   "bucket": "electrical",
+   "why": "제품:electrical"
+  },
+  "329180": {
+   "bucket": "shipbuilding",
+   "why": "제품:shipbuilding"
+  },
+  "376270": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "097230": {
+   "bucket": "shipbuilding",
+   "why": "제품:shipbuilding"
+  },
+  "195940": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "014790": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "028300": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "003580": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "278650": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "067630": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "024850": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "187420": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "047920": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "115450": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "046210": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "196300": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "204320": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "060980": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "011200": {
+   "bucket": "shipbuilding",
+   "why": "제품:shipbuilding"
+  },
+  "403870": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "036640": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "035000": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "002460": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "487570": {
+   "bucket": "holding",
+   "why": "순수지주(사업 안 보임)"
+  },
+  "298050": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "396300": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "469480": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "0099X0": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "015360": {
+   "bucket": "holding",
+   "why": "순수지주(사업 안 보임)"
+  },
+  "294870": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "095340": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "175330": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "950170": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "234080": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "067290": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "001060": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "001067": {
+   "bucket": "healthcare",
+   "why": "우선주 상속(001060)"
+  },
+  "001065": {
+   "bucket": "healthcare",
+   "why": "우선주 상속(001060)"
+  },
+  "096760": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "035900": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "318000": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "008970": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "024840": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "105560": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "415640": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "432320": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "024120": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "478390": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "486630": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "492220": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "0037T0": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "0072Z0": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "002380": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "021320": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "344820": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "009070": {
+   "bucket": "transport",
+   "why": "업종"
+  },
+  "009440": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "112190": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "119650": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "044180": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "092220": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "003620": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "016380": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "151860": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "035600": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "001390": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "046440": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "060720": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "001940": {
+   "bucket": "holding",
+   "why": "순수지주(사업 안 보임)"
+  },
+  "058400": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "025000": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "092230": {
+   "bucket": "holding",
+   "why": "순수지주(사업 안 보임)"
+  },
+  "000040": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "044450": {
+   "bucket": "transport",
+   "why": "업종"
+  },
+  "101000": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "030200": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "033780": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "058850": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "058860": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "089600": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "418470": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "043610": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "122450": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "052900": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "036560": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "061970": {
+   "bucket": "semiconductor",
+   "why": "업종"
+  },
+  "309960": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "093050": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "003550": {
+   "bucket": "holding",
+   "why": "순수지주(사업 안 보임)"
+  },
+  "034220": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "051900": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "051905": {
+   "bucket": "cosmetics",
+   "why": "우선주 상속(051900)"
+  },
+  "064400": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "373220": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "003555": {
+   "bucket": "holding",
+   "why": "우선주 상속(003550)"
+  },
+  "032640": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "011070": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "066570": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "066575": {
+   "bucket": "it_hardware",
+   "why": "우선주 상속(066570)"
+  },
+  "037560": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "051910": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "051915": {
+   "bucket": "battery",
+   "why": "우선주 상속(051910)"
+  },
+  "079550": {
+   "bucket": "aerospace_defense",
+   "why": "업종"
+  },
+  "073490": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "225190": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "006260": {
+   "bucket": "electrical",
+   "why": "제품:electrical"
+  },
+  "010120": {
+   "bucket": "electrical",
+   "why": "제품:electrical"
+  },
+  "091970": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "000680": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "060370": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "417200": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "229640": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "078020": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "322180": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "108320": {
+   "bucket": "semiconductor",
+   "why": "업종"
+  },
+  "001120": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "108670": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "108675": {
+   "bucket": "materials",
+   "why": "우선주 상속(108670)"
+  },
+  "383800": {
+   "bucket": "holding",
+   "why": "순수지주(사업 안 보임)"
+  },
+  "38380K": {
+   "bucket": "holding",
+   "why": "우선주 상속(383800)"
+  },
+  "476080": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "009810": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "086960": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "023150": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "123010": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "035420": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "036570": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "160550": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "053290": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "181710": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "060250": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "104200": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "054050": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "400760": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "005940": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "005945": {
+   "bucket": "financials",
+   "why": "우선주 상속(005940)"
+  },
+  "338100": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "034310": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "063570": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "030190": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "008260": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "004250": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "004255": {
+   "bucket": "materials",
+   "why": "우선주 상속(004250)"
+  },
+  "456040": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "010060": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "178920": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "001340": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "024940": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "005490": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "332570": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "218410": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "327260": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "474610": {
+   "bucket": "aerospace_defense",
+   "why": "제품:aerospace_defense"
+  },
+  "091340": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "010950": {
+   "bucket": "energy",
+   "why": "업종"
+  },
+  "010955": {
+   "bucket": "energy",
+   "why": "우선주 상속(010950)"
+  },
+  "419530": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "019550": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "034120": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "003080": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "246960": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "099220": {
+   "bucket": "electrical",
+   "why": "제품:electrical"
+  },
+  "056190": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "222080": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "036540": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "255220": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "040610": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "184230": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "016250": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "005090": {
+   "bucket": "utilities",
+   "why": "업종"
+  },
+  "001380": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "004060": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "001770": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "002360": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "009160": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "033530": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "123700": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "025530": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "034730": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "357880": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "011790": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "018670": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "001740": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "006120": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "006125": {
+   "bucket": "financials",
+   "why": "우선주 상속(006120)"
+  },
+  "210980": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "395400": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "302440": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "326030": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "402340": {
+   "bucket": "holding",
+   "why": "순수지주(사업 안 보임)"
+  },
+  "260870": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "361610": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "100090": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "03473K": {
+   "bucket": "financials",
+   "why": "우선주 상속(034730)"
+  },
+  "096770": {
+   "bucket": "energy",
+   "why": "업종"
+  },
+  "096775": {
+   "bucket": "energy",
+   "why": "우선주 상속(096770)"
+  },
+  "475150": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "001510": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "001515": {
+   "bucket": "financials",
+   "why": "우선주 상속(001510)"
+  },
+  "285130": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "28513K": {
+   "bucket": "healthcare",
+   "why": "우선주 상속(285130)"
+  },
+  "017670": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "000660": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "048550": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "063440": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "003570": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "064960": {
+   "bucket": "aerospace_defense",
+   "why": "제품:aerospace_defense"
+  },
+  "100840": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "036530": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "067160": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "000390": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "011810": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "465770": {
+   "bucket": "transport",
+   "why": "업종"
+  },
+  "077970": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "002820": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "289080": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "002170": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "041930": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "084870": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "002710": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "089230": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "032540": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "069260": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "007980": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "048770": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "246690": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "317240": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "002900": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "024070": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "057030": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "037270": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "040300": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "051390": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "052220": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "139130": {
+   "bucket": "holding",
+   "why": "순수지주(사업 안 보임)"
+  },
+  "079940": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "078890": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "000500": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "399720": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "296520": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "036620": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "000860": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "198440": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "217730": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "035250": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "114190": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "094480": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "011420": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "039240": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "053950": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "002100": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "009450": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "267290": {
+   "bucket": "energy",
+   "why": "업종"
+  },
+  "012320": {
+   "bucket": "holding",
+   "why": "순수지주(사업 안 보임)"
+  },
+  "011040": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "000050": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "214390": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "012610": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "009140": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "024910": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "013580": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "012200": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "012205": {
+   "bucket": "machinery",
+   "why": "우선주 상속(012200)"
+  },
+  "002140": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "049720": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "010130": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "002240": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "014570": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "348150": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "950190": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "098460": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "035290": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "215000": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "121440": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "009290": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "086220": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "017040": {
+   "bucket": "electrical",
+   "why": "제품:electrical"
+  },
+  "029480": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "017900": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "037710": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "026910": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "482520": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "489210": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "0041B0": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "0098T0": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "0132G0": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "030610": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "339770": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "053270": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "007690": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "066620": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "043650": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "006050": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "060480": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "078130": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "307750": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "002720": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "035080": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "318060": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "453450": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "204020": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "0015G0": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "402490": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "114450": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "083420": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "186230": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "014530": {
+   "bucket": "energy",
+   "why": "업종"
+  },
+  "900070": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "204620": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "019660": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "014280": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "014285": {
+   "bucket": "materials",
+   "why": "우선주 상속(014280)"
+  },
+  "053260": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "008870": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "001570": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "282720": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "002990": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "002995": {
+   "bucket": "construction",
+   "why": "우선주 상속(002990)"
+  },
+  "011780": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "011785": {
+   "bucket": "materials",
+   "why": "우선주 상속(011780)"
+  },
+  "214330": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "001210": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "073240": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "036190": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "049080": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "420770": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "282620": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "035460": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "092440": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "000270": {
+   "bucket": "aerospace_defense",
+   "why": "제품:aerospace_defense"
+  },
+  "024110": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "013700": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "004540": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "004545": {
+   "bucket": "materials",
+   "why": "우선주 상속(004540)"
+  },
+  "407400": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "187790": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "238540": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "121600": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "286750": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "247660": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "039860": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "417010": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "244880": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "405920": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "478340": {
+   "bucket": "aerospace_defense",
+   "why": "업종"
+  },
+  "051490": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "137080": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "242040": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "190510": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "293580": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "459510": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "138610": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "130580": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "036800": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "366030": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "267320": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "001260": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "008350": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "008355": {
+   "bucket": "materials",
+   "why": "우선주 상속(008350)"
+  },
+  "004270": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "003920": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "003925": {
+   "bucket": "consumer_staples",
+   "why": "우선주 상속(003920)"
+  },
+  "025860": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "111710": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "091590": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "168330": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "094860": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "0218L0": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "253590": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "212560": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "095660": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "042420": {
+   "bucket": "holding",
+   "why": "순수지주(사업 안 보임)"
+  },
+  "950220": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "311390": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "085910": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "092730": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "153460": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "007390": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "033640": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "330860": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "351320": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "005720": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "005725": {
+   "bucket": "materials",
+   "why": "우선주 상속(005720)"
+  },
+  "002350": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "002355": {
+   "bucket": "materials",
+   "why": "우선주 상속(002350)"
+  },
+  "089140": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "389650": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "137940": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "396270": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "348210": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "092790": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "225570": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "205500": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "217270": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "251270": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "317860": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "104620": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "090350": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "090355": {
+   "bucket": "materials",
+   "why": "우선주 상속(090350)"
+  },
+  "000320": {
+   "bucket": "holding",
+   "why": "순수지주(사업 안 보임)"
+  },
+  "000325": {
+   "bucket": "holding",
+   "why": "우선주 상속(000320)"
+  },
+  "473980": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "194700": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "285490": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "145170": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "229500": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "376930": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "486990": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "006280": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "142280": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "234690": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "005250": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "005257": {
+   "bucket": "healthcare",
+   "why": "우선주 상속(005250)"
+  },
+  "004370": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "072710": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "069140": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "040160": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "332290": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "348340": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "380550": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "060260": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "463020": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "123840": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "012340": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "462310": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "270870": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "144960": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "085670": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "417030": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "064260": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "340360": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "039560": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "208860": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "154040": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "058730": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "030210": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "023590": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "032190": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "323350": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "068240": {
+   "bucket": "electrical",
+   "why": "제품:electrical"
+  },
+  "145210": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "290660": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "483650": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "464580": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "019680": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "019685": {
+   "bucket": "consumer_disc",
+   "why": "우선주 상속(019680)"
+  },
+  "006370": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "008060": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "00806K": {
+   "bucket": "semiconductor",
+   "why": "우선주 상속(008060)"
+  },
+  "353200": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "35320K": {
+   "bucket": "it_hardware",
+   "why": "우선주 상속(353200)"
+  },
+  "000490": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "178600": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "020400": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "008830": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "048470": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "004780": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "005750": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "017650": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "006570": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "389260": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "317850": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "290670": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "078140": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "065150": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "001680": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "001685": {
+   "bucket": "consumer_staples",
+   "why": "우선주 상속(001680)"
+  },
+  "084690": {
+   "bucket": "holding",
+   "why": "순수지주(사업 안 보임)"
+  },
+  "084695": {
+   "bucket": "holding",
+   "why": "우선주 상속(084690)"
+  },
+  "036480": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "128820": {
+   "bucket": "energy",
+   "why": "업종"
+  },
+  "117580": {
+   "bucket": "energy",
+   "why": "업종"
+  },
+  "027830": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "129920": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "016710": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "482690": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "0134X0": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "0030R0": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "020180": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "003540": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "003547": {
+   "bucket": "financials",
+   "why": "우선주 상속(003540)"
+  },
+  "003545": {
+   "bucket": "financials",
+   "why": "우선주 상속(003540)"
+  },
+  "045390": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "009190": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "108380": {
+   "bucket": "electrical",
+   "why": "제품:electrical"
+  },
+  "014160": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "047040": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "003090": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "069620": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "007680": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "000430": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "048910": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "005710": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "006340": {
+   "bucket": "electrical",
+   "why": "제품:electrical"
+  },
+  "006345": {
+   "bucket": "electrical",
+   "why": "우선주 상속(006340)"
+  },
+  "003220": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "024890": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "120240": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "003310": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "114920": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "078600": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "393970": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "012800": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "015230": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "096350": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "140520": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "131220": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "010170": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "054670": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "001070": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "023910": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "006650": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "001440": {
+   "bucket": "electrical",
+   "why": "제품:electrical"
+  },
+  "084010": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "001790": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "001795": {
+   "bucket": "consumer_staples",
+   "why": "우선주 상속(001790)"
+  },
+  "001130": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "439260": {
+   "bucket": "shipbuilding",
+   "why": "업종"
+  },
+  "003490": {
+   "bucket": "transport",
+   "why": "업종"
+  },
+  "003495": {
+   "bucket": "transport",
+   "why": "우선주 상속(003490)"
+  },
+  "005880": {
+   "bucket": "transport",
+   "why": "업종"
+  },
+  "003830": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "016090": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "069460": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "021040": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "021045": {
+   "bucket": "materials",
+   "why": "우선주 상속(021040)"
+  },
+  "067080": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "298540": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "032860": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "475560": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "192080": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "393890": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "299170": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "462860": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "224060": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "302920": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "403850": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "213420": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "317330": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "077360": {
+   "bucket": "semiconductor",
+   "why": "업종"
+  },
+  "004830": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "004835": {
+   "bucket": "materials",
+   "why": "우선주 상속(004830)"
+  },
+  "090410": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "0001A0": {
+   "bucket": "energy",
+   "why": "업종"
+  },
+  "263600": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "194480": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "373160": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "263800": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "199150": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "206560": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "261200": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "145720": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "227420": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "484120": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "067990": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "002150": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "006620": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "100130": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "005160": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "303810": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "460850": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "075970": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "460860": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "086450": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "001230": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "023450": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "004140": {
+   "bucket": "transport",
+   "why": "업종"
+  },
+  "240550": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "099410": {
+   "bucket": "shipbuilding",
+   "why": "제품:shipbuilding"
+  },
+  "007590": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "005960": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "005965": {
+   "bucket": "construction",
+   "why": "우선주 상속(005960)"
+  },
+  "026960": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "002210": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "102260": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "033500": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "025950": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "000640": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "170900": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "088130": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "028100": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "001520": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "001527": {
+   "bucket": "materials",
+   "why": "우선주 상속(001520)"
+  },
+  "084670": {
+   "bucket": "transport",
+   "why": "업종"
+  },
+  "060380": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "001525": {
+   "bucket": "materials",
+   "why": "우선주 상속(001520)"
+  },
+  "079960": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "228340": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "088910": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "094170": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "013120": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "018500": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "006040": {
+   "bucket": "holding",
+   "why": "순수지주(사업 안 보임)"
+  },
+  "030720": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "014820": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "014825": {
+   "bucket": "materials",
+   "why": "우선주 상속(014820)"
+  },
+  "111380": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "163560": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "109860": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "032960": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "004890": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "023790": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "002690": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "005290": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "025900": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "000020": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "000150": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "000157": {
+   "bucket": "it_hardware",
+   "why": "우선주 상속(000150)"
+  },
+  "454910": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "241560": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "034020": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "000155": {
+   "bucket": "it_hardware",
+   "why": "우선주 상속(000150)"
+  },
+  "131970": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "336260": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "33626K": {
+   "bucket": "electrical",
+   "why": "우선주 상속(336260)"
+  },
+  "33626L": {
+   "bucket": "electrical",
+   "why": "우선주 상속(336260)"
+  },
+  "016740": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "073190": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "176750": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "030350": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "203650": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "223250": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "060570": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "362990": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "192650": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "016670": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "187870": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "489730": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "0004Y0": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "024090": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "003160": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "092200": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "110990": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "263690": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "214680": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "347850": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "377190": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "263720": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "376300": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "104040": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "109740": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "031860": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "196490": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "066900": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "092070": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "039840": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "013570": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "024900": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "219550": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "310870": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "002880": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "210540": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "104460": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "113810": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "043360": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "197140": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "068930": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "033130": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "105740": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "263020": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "290550": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "066670": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "187220": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "383930": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "131180": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "483350": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "315640": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "900110": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "317120": {
+   "bucket": "semiconductor",
+   "why": "업종"
+  },
+  "462510": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "232680": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "042510": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "418420": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "300120": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "171120": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "388790": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "214260": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "403360": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "171010": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "084650": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "217500": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "092590": {
+   "bucket": "semiconductor",
+   "why": "업종"
+  },
+  "266170": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "038390": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "387690": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "294140": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "365660": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "443250": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "228670": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "228850": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "412350": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "199550": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "281740": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "277810": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "215100": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "090360": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "108490": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "900260": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "033290": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "223220": {
+   "bucket": "transport",
+   "why": "업종"
+  },
+  "067730": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "071280": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "376900": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "214610": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "032350": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "089860": {
+   "bucket": "transport",
+   "why": "업종"
+  },
+  "330590": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "000400": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "023530": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "020150": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "280360": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "286940": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "004000": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "004990": {
+   "bucket": "holding",
+   "why": "순수지주(사업 안 보임)"
+  },
+  "00499K": {
+   "bucket": "holding",
+   "why": "우선주 상속(004990)"
+  },
+  "005300": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "005305": {
+   "bucket": "consumer_staples",
+   "why": "우선주 상속(005300)"
+  },
+  "011170": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "071840": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "328130": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "038060": {
+   "bucket": "semiconductor",
+   "why": "업종"
+  },
+  "474170": {
+   "bucket": "aerospace_defense",
+   "why": "업종"
+  },
+  "162120": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "195990": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "253610": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "141080": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "058470": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "016100": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "012700": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "302550": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "491000": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "394420": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "073570": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "377450": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "277070": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "042500": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "193250": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "474650": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "219420": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "439090": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "027740": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "195500": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "357430": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "377480": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "305090": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "448780": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "098120": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "424980": {
+   "bucket": "semiconductor",
+   "why": "업종"
+  },
+  "038290": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "477850": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "001080": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "0039P0": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "267980": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "005990": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "093520": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "088980": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "094800": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "179720": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "100590": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "067280": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "072870": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "215200": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "133750": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "446540": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "235980": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "200580": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "041920": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "233250": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "014100": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "236340": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "054180": {
+   "bucket": "shipbuilding",
+   "why": "업종"
+  },
+  "086900": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "078160": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "138040": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "0088D0": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "0165X0": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "408920": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "021880": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "0088M0": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "140410": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "241770": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "090370": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "059210": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "118000": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "058110": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "072770": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "017180": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "009900": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "317450": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "012690": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "005360": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "070960": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "434480": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "080420": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "417970": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "080160": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "087260": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "101330": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "012860": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "363260": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "348030": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "250060": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "288980": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "142760": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "033200": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "009680": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "118990": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "463480": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "006920": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "009580": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "001810": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "009200": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "322970": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "033920": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "008420": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "279600": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "095500": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "254490": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "025560": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "218150": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "007120": {
+   "bucket": "aerospace_defense",
+   "why": "제품:aerospace_defense"
+  },
+  "396690": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "357250": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "100790": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "0097F0": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "0099W0": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "477380": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "477470": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "478440": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "482680": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "0093G0": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "0096D0": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "085620": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "006800": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "00680K": {
+   "bucket": "financials",
+   "why": "우선주 상속(006800)"
+  },
+  "006805": {
+   "bucket": "financials",
+   "why": "우선주 상속(006800)"
+  },
+  "208890": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "049950": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "207760": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "081660": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "002840": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "268280": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "107590": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "134380": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "351020": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "003650": {
+   "bucket": "energy",
+   "why": "업종"
+  },
+  "059090": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "201490": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "475460": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "452200": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "206640": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "035620": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "354390": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "053030": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "301300": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "377740": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "064550": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "314930": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "489460": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "086820": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "038460": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "251120": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "199730": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "266470": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "289170": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "086040": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "188040": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "199290": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "099430": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "308080": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "043150": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "323990": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "003610": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "267790": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "046310": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "035150": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "331520": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "199480": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "438700": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "066410": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "002410": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "382900": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "206400": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "019010": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "177350": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "457600": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "424760": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "007210": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "250000": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "002760": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "003850": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "310210": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "006910": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "0010F0": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "000890": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "226340": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "496320": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "206950": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "003000": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "001270": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "001275": {
+   "bucket": "financials",
+   "why": "우선주 상속(001270)"
+  },
+  "026940": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "014470": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "011390": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "005030": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "008470": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "338220": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "100120": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "406820": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "099390": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "064480": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "365900": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "089970": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "251630": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "018290": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "478560": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "006740": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "439580": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "033560": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "191600": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "369370": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "126340": {
+   "bucket": "battery",
+   "why": "업종"
+  },
+  "121800": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "082800": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "318410": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "002070": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "100220": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "419540": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "146320": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "200780": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "413640": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "141000": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "090460": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "083650": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "0068Y0": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "065170": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "086670": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "488900": {
+   "bucket": "aerospace_defense",
+   "why": "업종"
+  },
+  "082920": {
+   "bucket": "battery",
+   "why": "업종"
+  },
+  "054220": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "042370": {
+   "bucket": "electrical",
+   "why": "제품:electrical"
+  },
+  "050090": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "148780": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "307870": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "377030": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "032850": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "049470": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "238200": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "093190": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "065450": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "044480": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "005180": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "069540": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "072950": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "451250": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "143240": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "466410": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "003960": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "008040": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "007160": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "014710": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "006090": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "223310": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "452430": {
+   "bucket": "semiconductor",
+   "why": "업종"
+  },
+  "419120": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "062040": {
+   "bucket": "electrical",
+   "why": "제품:electrical"
+  },
+  "122350": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "419050": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "014970": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "005610": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "018310": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "012210": {
+   "bucket": "aerospace_defense",
+   "why": "제품:aerospace_defense"
+  },
+  "053700": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "009620": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "023600": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "001470": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "028050": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "448730": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "006400": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "006405": {
+   "bucket": "battery",
+   "why": "우선주 상속(006400)"
+  },
+  "006660": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "028260": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "02826K": {
+   "bucket": "materials",
+   "why": "우선주 상속(028260)"
+  },
+  "207940": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "032830": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "0044K0": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "0071M0": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "0096B0": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "0115H0": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "018260": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "0126Z0": {
+   "bucket": "holding",
+   "why": "순수지주(사업 안 보임)"
+  },
+  "009150": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "009155": {
+   "bucket": "semiconductor",
+   "why": "우선주 상속(009150)"
+  },
+  "005930": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "005935": {
+   "bucket": "semiconductor",
+   "why": "우선주 상속(005930)"
+  },
+  "001360": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "010140": {
+   "bucket": "shipbuilding",
+   "why": "업종"
+  },
+  "016360": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "068290": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "029780": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "000810": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "000815": {
+   "bucket": "financials",
+   "why": "우선주 상속(000810)"
+  },
+  "006110": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "009300": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "0120G0": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "145990": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "145995": {
+   "bucket": "consumer_staples",
+   "why": "우선주 상속(145990)"
+  },
+  "003230": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "482630": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "484590": {
+   "bucket": "aerospace_defense",
+   "why": "업종"
+  },
+  "036670": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "272550": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "000070": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "003720": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "002810": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "361670": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "054540": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "065570": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "005680": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "023000": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "004380": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "002450": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "014950": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "032280": {
+   "bucket": "transport",
+   "why": "업종"
+  },
+  "002290": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "004440": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "000520": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "009770": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "037460": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "032750": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "0013V0": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "054090": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "005500": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "000250": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "004690": {
+   "bucket": "energy",
+   "why": "업종"
+  },
+  "024950": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "038500": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "437730": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "017480": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "010960": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "046390": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "004450": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "009470": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "011230": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "001820": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "027580": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "038540": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "001290": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "041650": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "091580": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "263810": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "089980": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "042940": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "042600": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "075180": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "107600": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "411080": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "252990": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "007540": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "248170": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "378800": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "294630": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "038070": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "006730": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "079650": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "100660": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "007860": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "200880": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "019770": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "017390": {
+   "bucket": "energy",
+   "why": "업종"
+  },
+  "092190": {
+   "bucket": "semiconductor",
+   "why": "업종"
+  },
+  "046890": {
+   "bucket": "semiconductor",
+   "why": "업종"
+  },
+  "031210": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "004410": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "004415": {
+   "bucket": "consumer_staples",
+   "why": "우선주 상속(004410)"
+  },
+  "063170": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "027040": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "018680": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "036120": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "021050": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "093920": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "189860": {
+   "bucket": "electrical",
+   "why": "제품:electrical"
+  },
+  "178320": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "122690": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "140070": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "011370": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "065710": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "008490": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "035890": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "357550": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "003100": {
+   "bucket": "transport",
+   "why": "업종"
+  },
+  "007610": {
+   "bucket": "electrical",
+   "why": "제품:electrical"
+  },
+  "067370": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "171090": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "136490": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "086710": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "014620": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "037350": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "014910": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "014915": {
+   "bucket": "semiconductor",
+   "why": "우선주 상속(014910)"
+  },
+  "004980": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "004985": {
+   "bucket": "materials",
+   "why": "우선주 상속(004980)"
+  },
+  "458650": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "081580": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "045300": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "015750": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "340930": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "365340": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "000180": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "080470": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "043260": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "148150": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "061090": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "188260": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "053060": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "340440": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "017510": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "0017J0": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "490470": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "004360": {
+   "bucket": "transport",
+   "why": "업종"
+  },
+  "004365": {
+   "bucket": "transport",
+   "why": "우선주 상속(004360)"
+  },
+  "004490": {
+   "bucket": "battery",
+   "why": "업종"
+  },
+  "011560": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "267080": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "001430": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "306200": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "003030": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "058650": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "013000": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "100700": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "024830": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "021820": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "067830": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "258830": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "036630": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "039310": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "075580": {
+   "bucket": "shipbuilding",
+   "why": "제품:shipbuilding"
+  },
+  "067770": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "053450": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "252500": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "321370": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "347000": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "331920": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "352770": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "471820": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "049180": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "299660": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "108860": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "208370": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "318160": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "308430": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "068270": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "068760": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "068940": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "007720": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "950200": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "032680": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "032685": {
+   "bucket": "software_internet",
+   "why": "우선주 상속(032680)"
+  },
+  "258790": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "066910": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "215090": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "238500": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "336370": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "33637K": {
+   "bucket": "it_hardware",
+   "why": "우선주 상속(336370)"
+  },
+  "33637L": {
+   "bucket": "it_hardware",
+   "why": "우선주 상속(336370)"
+  },
+  "248070": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "035610": {
+   "bucket": "holding",
+   "why": "순수지주(사업 안 보임)"
+  },
+  "357780": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "036830": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "304100": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "328380": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "0203K0": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "004430": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "086980": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "017550": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "050960": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "126720": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "084180": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "253840": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "185190": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "298830": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "236200": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "094840": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "192440": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "424960": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "099440": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "066590": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "053210": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "386380": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "276040": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "115570": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "330730": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "352090": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "253450": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "408900": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "415380": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "475040": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "026890": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "013810": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "347700": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "049830": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "020710": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "033170": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "048870": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "025320": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "134790": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "340810": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "056090": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "429270": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "418250": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "131090": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "462870": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "016590": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "290520": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "029530": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "004970": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "001000": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "025870": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "215600": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "065350": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "416180": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "011930": {
+   "bucket": "electrical",
+   "why": "제품:electrical"
+  },
+  "004170": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "035510": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "031430": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "006880": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "162300": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "002800": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "0091W0": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "005800": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "001720": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "009270": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "017000": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "002700": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "012790": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "138070": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "226330": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "002870": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "019170": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "019175": {
+   "bucket": "healthcare",
+   "why": "우선주 상속(019170)"
+  },
+  "481850": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "404990": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "293940": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "474660": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "474930": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "487360": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "487830": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "496070": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "0130D0": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "0129K0": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "055550": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "056700": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "187270": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "095190": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "004080": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "243840": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "257720": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "222800": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "036710": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "444530": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "234030": {
+   "bucket": "semiconductor",
+   "why": "업종"
+  },
+  "160980": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "356890": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "217330": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "004770": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "217320": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "208640": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "222420": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "037760": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "081180": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "099320": {
+   "bucket": "aerospace_defense",
+   "why": "업종"
+  },
+  "049960": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "088280": {
+   "bucket": "semiconductor",
+   "why": "업종"
+  },
+  "403550": {
+   "bucket": "transport",
+   "why": "업종"
+  },
+  "050890": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "394800": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "177900": {
+   "bucket": "semiconductor",
+   "why": "업종"
+  },
+  "475400": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "109670": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "066790": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "004920": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "236030": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "103660": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "352480": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "245450": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "264660": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "352700": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "458870": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "297090": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "112610": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "900120": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "359090": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "115530": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "388210": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "115480": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "376290": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "189330": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "096530": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "480370": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "101240": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "060590": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "308170": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "260930": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "413630": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "013990": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "175140": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "123860": {
+   "bucket": "semiconductor",
+   "why": "업종"
+  },
+  "025980": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "008700": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "0015N0": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "261780": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "290690": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "125210": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "090430": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "090435": {
+   "bucket": "cosmetics",
+   "why": "우선주 상속(090430)"
+  },
+  "002790": {
+   "bucket": "holding",
+   "why": "순수지주(사업 안 보임)"
+  },
+  "00279K": {
+   "bucket": "holding",
+   "why": "우선주 상속(002790)"
+  },
+  "002795": {
+   "bucket": "holding",
+   "why": "우선주 상속(002790)"
+  },
+  "357580": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "052710": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "074430": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "092040": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "083930": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "149950": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "036010": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "002030": {
+   "bucket": "holding",
+   "why": "순수지주(사업 안 보임)"
+  },
+  "183190": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "002310": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "050860": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "012170": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "136410": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "246720": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "450950": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "067390": {
+   "bucket": "aerospace_defense",
+   "why": "업종"
+  },
+  "159010": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "127710": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "267850": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "020560": {
+   "bucket": "transport",
+   "why": "업종"
+  },
+  "154030": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "227610": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "331740": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "143160": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "054800": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "332370": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "066430": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "122900": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "339950": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "469750": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "460470": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "099190": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "461300": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "289010": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "214430": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "040910": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "368600": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "456010": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "052860": {
+   "bucket": "semiconductor",
+   "why": "업종"
+  },
+  "464500": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "010780": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "212710": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "038880": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "307180": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "403810": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "493280": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "461030": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "456570": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "451220": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "447690": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "078860": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "090150": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "031310": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "462980": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "185490": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "059100": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "149010": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "262840": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "175250": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "052460": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "119830": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "052770": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "124500": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "031820": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "010280": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "243870": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "232830": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "372800": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "084850": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "309710": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "114840": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "027360": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "139990": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "032080": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "013310": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "059120": {
+   "bucket": "semiconductor",
+   "why": "업종"
+  },
+  "009320": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "0007C0": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "158430": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "297570": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "200350": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "321820": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "102950": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "001540": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "053800": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "251280": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "065660": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "001780": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "260660": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "354320": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "361570": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "131370": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "140670": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "061040": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "148250": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "476830": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "347860": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "196170": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "123750": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "459550": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "085810": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "043100": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "117670": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "314140": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "293780": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "018250": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "161000": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "390110": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "310200": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "179530": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "397810": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "0011A0": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "052790": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "290740": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "238090": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "138360": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "092600": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "129890": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "174900": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "109960": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "270520": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "255440": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "030960": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "102120": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "238120": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "224810": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "019990": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "011090": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "435570": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "270660": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "038680": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "137310": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "217480": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "121890": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "304360": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "389500": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "042110": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "065420": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "270210": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "103230": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "260970": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "101490": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "095910": {
+   "bucket": "electrical",
+   "why": "제품:electrical"
+  },
+  "275630": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "031330": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "060540": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "0008Z0": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "005850": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "246250": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "041510": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "010580": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "460870": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "464080": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "109610": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "365330": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "012750": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "306040": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "217910": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "398120": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "472230": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "473000": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "473950": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "475660": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "096630": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "0070X0": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "069510": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "488280": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "234300": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "039440": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "098660": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "052020": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "237690": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "458350": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "050760": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "288620": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "443670": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "317830": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "058610": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "043340": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "023960": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "163280": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "298690": {
+   "bucket": "transport",
+   "why": "업종"
+  },
+  "200710": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "475580": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "096690": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "078520": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "298380": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "203400": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "003800": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "088800": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "241840": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "364950": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "453860": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "312610": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "015260": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "172670": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "234070": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "481070": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "060900": {
+   "bucket": "electrical",
+   "why": "제품:electrical"
+  },
+  "445090": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "295310": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "072990": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "044990": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "239610": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "0156T0": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "036170": {
+   "bucket": "semiconductor",
+   "why": "업종"
+  },
+  "477340": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "148930": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "044780": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "357230": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "355690": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "071670": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "045660": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "224110": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "021080": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "200470": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "207490": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "262260": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "007460": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "003060": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "397030": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "244920": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "278470": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "0009K0": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "230240": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "159910": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "097780": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "038870": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "448280": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "101360": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "128540": {
+   "bucket": "electrical",
+   "why": "제품:electrical"
+  },
+  "086520": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "450080": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "247540": {
+   "bucket": "battery",
+   "why": "업종"
+  },
+  "383310": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "038110": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "073540": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "064850": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "036810": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "173940": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "083500": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "446440": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "317530": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "054940": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "950130": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "373110": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "205100": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "356680": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "317770": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "373200": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "069920": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "092870": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "019490": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "059180": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "317870": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "067570": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "0004V0": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "236810": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "140610": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "333620": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "101400": {
+   "bucket": "semiconductor",
+   "why": "업종"
+  },
+  "475230": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "224760": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "481890": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "0054V0": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "0130H0": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "0197V0": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "265740": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "354200": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "455900": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "419080": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "093510": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "183490": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "085310": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "182400": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "348370": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "069410": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "227950": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "048830": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "096870": {
+   "bucket": "semiconductor",
+   "why": "업종"
+  },
+  "276240": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "900140": {
+   "bucket": "holding",
+   "why": "순수지주(사업 안 보임)"
+  },
+  "290650": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "066970": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "156100": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "0041J0": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "311060": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "073110": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "083310": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "037950": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "489500": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "170920": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "058630": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "226590": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "058970": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "169330": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "097520": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "373170": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "179290": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "484870": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "009780": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "123040": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "432980": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "007820": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "347890": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "413390": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "032790": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "033160": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "033310": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "259630": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "105550": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "060850": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "014440": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "143540": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "111770": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "009970": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "003520": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "000670": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "012280": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "265560": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "012160": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "036000": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "250930": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "053280": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "122640": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "476040": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "900300": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "212310": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "045060": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "192410": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "080520": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "007310": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "039830": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "322310": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "046120": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "475830": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "014940": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "002630": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "065500": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "271560": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "001800": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "010470": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "417860": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "352910": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "053980": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "036220": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "052420": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "332190": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "052300": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "039200": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "226400": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "031510": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "342870": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "368970": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "138080": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "080580": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "067170": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "353590": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "173130": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "440320": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "049480": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "394280": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "476060": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "382150": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "005320": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "244460": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "226950": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "057540": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "131030": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "082210": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "109080": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "380540": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "153710": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "432430": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "338840": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "122990": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "232140": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "112290": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "065530": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "067900": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "007530": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "155650": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "273640": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "251370": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "209640": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "096250": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "273060": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "019210": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "122870": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "011690": {
+   "bucket": "semiconductor",
+   "why": "업종"
+  },
+  "079000": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "403490": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "316140": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "032820": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "041190": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "115440": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "046970": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "082850": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "215360": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "072470": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "073560": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "037400": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "153490": {
+   "bucket": "semiconductor",
+   "why": "업종"
+  },
+  "101170": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "006980": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "011300": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "017370": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "103840": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "101970": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "002420": {
+   "bucket": "energy",
+   "why": "업종"
+  },
+  "046940": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "065680": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "105840": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "018620": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "010400": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "457550": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "049800": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "016880": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "095720": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "396470": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "005820": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "307280": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "032940": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "240810": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "074600": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "104830": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "014190": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "217820": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "030530": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "012620": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "136150": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "382840": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "336570": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "376980": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "122830": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "008370": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "008290": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "101160": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "336060": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "095270": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "289930": {
+   "bucket": "semiconductor",
+   "why": "업종"
+  },
+  "065950": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "076080": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "043590": {
+   "bucket": "semiconductor",
+   "why": "업종"
+  },
+  "196700": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "069080": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "053580": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "479960": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "044340": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "330350": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "348350": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "112040": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "101730": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "123420": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "065370": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "140660": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "038620": {
+   "bucket": "energy",
+   "why": "업종"
+  },
+  "036090": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "459100": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "136540": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "097800": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "192390": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "008600": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "335870": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "900340": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "033270": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "014830": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "446070": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "036200": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "018000": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "000910": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "047400": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "203450": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "011330": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "077500": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "011320": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "086390": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "241690": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "142210": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "121060": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "389680": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "088340": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "048430": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "206650": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "089850": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "495810": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "084440": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "264450": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "078070": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "002920": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "024800": {
+   "bucket": "transport",
+   "why": "업종"
+  },
+  "000700": {
+   "bucket": "holding",
+   "why": "순수지주(사업 안 보임)"
+  },
+  "054930": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "069330": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "049520": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "473050": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "474490": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "493790": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "003470": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "003475": {
+   "bucket": "financials",
+   "why": "우선주 상속(003470)"
+  },
+  "263770": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "337840": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "072130": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "000220": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "000225": {
+   "bucket": "healthcare",
+   "why": "우선주 상속(000220)"
+  },
+  "000227": {
+   "bucket": "healthcare",
+   "why": "우선주 상속(000220)"
+  },
+  "388720": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "023410": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "056080": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "468760": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "488060": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "0105P0": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "084370": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "240600": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "001200": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "179900": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "263050": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "000100": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "000105": {
+   "bucket": "healthcare",
+   "why": "우선주 상속(000100)"
+  },
+  "003460": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "003465": {
+   "bucket": "financials",
+   "why": "우선주 상속(003460)"
+  },
+  "191410": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "372170": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "146060": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "008730": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "008250": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "039020": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "025820": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "067920": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "044960": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "303530": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "302430": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "279060": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "214320": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "462350": {
+   "bucket": "aerospace_defense",
+   "why": "업종"
+  },
+  "274400": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "296640": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "215790": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "344860": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "333050": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "469610": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "088390": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "272290": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "053350": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "452400": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "264850": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "054210": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "009730": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "065440": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "088260": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "139480": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "424870": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "115610": {
+   "bucket": "semiconductor",
+   "why": "업종"
+  },
+  "478110": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "131400": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "208850": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "351330": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "080010": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "379390": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "457190": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "086890": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "007660": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "005950": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "015020": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "047560": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "239340": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "067010": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "456070": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "102710": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "074610": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "041520": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "063760": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "123570": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "083470": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "091120": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "232530": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "102460": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "039030": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "294090": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "088290": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "084680": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "353810": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "261520": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "350520": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "334890": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "099750": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "377330": {
+   "bucket": "electrical",
+   "why": "제품:electrical"
+  },
+  "035810": {
+   "bucket": "holding",
+   "why": "순수지주(사업 안 보임)"
+  },
+  "092130": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "134060": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "001840": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "000760": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "014990": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "041830": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "352940": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "101140": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "216400": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "079950": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "0007J0": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "389470": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "277410": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "060150": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "033230": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "450520": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "465480": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "950260": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "037330": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "100030": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "023800": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "034590": {
+   "bucket": "energy",
+   "why": "업종"
+  },
+  "211050": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "083640": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "064090": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "216050": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "049070": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "311960": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "119610": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "017250": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "129260": {
+   "bucket": "transport",
+   "why": "업종"
+  },
+  "051370": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "064290": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "189300": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "287840": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "048530": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "070590": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "023810": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "115310": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "039290": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "071200": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "101930": {
+   "bucket": "shipbuilding",
+   "why": "업종"
+  },
+  "249420": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "000230": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "013360": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "003120": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "333430": {
+   "bucket": "shipbuilding",
+   "why": "업종"
+  },
+  "068330": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "003200": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "007110": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "007570": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "007575": {
+   "bucket": "healthcare",
+   "why": "우선주 상속(007570)"
+  },
+  "178780": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "019540": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "081000": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "020760": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "103590": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "094820": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "271940": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "015860": {
+   "bucket": "electrical",
+   "why": "제품:electrical"
+  },
+  "226320": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "950140": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "049550": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "389020": {
+   "bucket": "semiconductor",
+   "why": "업종"
+  },
+  "254120": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "043910": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "234920": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "289220": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "317400": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "033240": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "049630": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "417840": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "000950": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "079900": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "110020": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "208140": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "040420": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "045510": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "217190": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "095700": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "122310": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "361390": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "066830": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "225220": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "123330": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "381620": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "159580": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "147830": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "033100": {
+   "bucket": "electrical",
+   "why": "제품:electrical"
+  },
+  "079370": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "054950": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "090470": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "023440": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "137950": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "033320": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "417500": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "348950": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "204270": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "127120": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "194370": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "026040": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "452160": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "126880": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "322510": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "254160": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "033050": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "094970": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "418550": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "060230": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "420570": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "089790": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "0010V0": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "030000": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "271980": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "412540": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "001560": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "199820": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "038010": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "002620": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "080220": {
+   "bucket": "semiconductor",
+   "why": "업종"
+  },
+  "006220": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "089590": {
+   "bucket": "transport",
+   "why": "업종"
+  },
+  "216080": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "337930": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "229000": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "082270": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "153890": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "004910": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "004700": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "001550": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "462520": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "120030": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "034940": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "067000": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "309930": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "018470": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "002600": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "018700": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "185750": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "063160": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "001630": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "033340": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "036930": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "109070": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "044380": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "072020": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "000440": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "051980": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "221800": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "228760": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "314130": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "013890": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "389030": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "263860": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "303030": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "208350": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "446840": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "144510": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "340450": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "306620": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "358570": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "382480": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "382800": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "299480": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "051160": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "053050": {
+   "bucket": "energy",
+   "why": "업종"
+  },
+  "076340": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "388610": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "493330": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "119850": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "065060": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "204840": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "013870": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "071320": {
+   "bucket": "utilities",
+   "why": "업종"
+  },
+  "311320": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "456160": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "388050": {
+   "bucket": "electrical",
+   "why": "제품:electrical"
+  },
+  "088790": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "018120": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "109820": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "086060": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "036890": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "363250": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "003780": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "007370": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "010640": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "100250": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "051630": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "272450": {
+   "bucket": "transport",
+   "why": "업종"
+  },
+  "285800": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "011000": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "250030": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "002780": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "002787": {
+   "bucket": "construction",
+   "why": "우선주 상속(002780)"
+  },
+  "002785": {
+   "bucket": "construction",
+   "why": "우선주 상속(002780)"
+  },
+  "233990": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "025620": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "085660": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "351870": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "009310": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "094850": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "004650": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "0011T0": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "278280": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "000650": {
+   "bucket": "transport",
+   "why": "업종"
+  },
+  "362320": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "013720": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "066360": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "033250": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "047820": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "291650": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "094360": {
+   "bucket": "semiconductor",
+   "why": "업종"
+  },
+  "0082N0": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "016920": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "284620": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "035720": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "293490": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "323410": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "377300": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "140430": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "042000": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "006380": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "313760": {
+   "bucket": "electrical",
+   "why": "제품:electrical"
+  },
+  "071850": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "198080": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "210120": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "050110": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "452300": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "451760": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "900310": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "078340": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "291230": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "063080": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "307930": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "079190": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "263700": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "214370": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "221980": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "038530": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "279570": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "001620": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "192250": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "431190": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "029460": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "115500": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "281820": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "089150": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "025880": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "093320": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "093640": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "487400": {
+   "bucket": "aerospace_defense",
+   "why": "제품:aerospace_defense"
+  },
+  "073010": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "105330": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "053080": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "199430": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "432470": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "272110": {
+   "bucket": "semiconductor",
+   "why": "업종"
+  },
+  "039420": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "083550": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "032500": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "225430": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "102370": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "068100": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "106080": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "455180": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "381970": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "145270": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "036030": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "064820": {
+   "bucket": "shipbuilding",
+   "why": "업종"
+  },
+  "024880": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "042040": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "054410": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "288180": {
+   "bucket": "aerospace_defense",
+   "why": "제품:aerospace_defense"
+  },
+  "258610": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "274090": {
+   "bucket": "aerospace_defense",
+   "why": "업종"
+  },
+  "402420": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "089010": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "220260": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "176590": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "052400": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "402030": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "391710": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "046070": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "047770": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "080530": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "417310": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "357120": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "104540": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "027050": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "007815": {
+   "bucket": "it_hardware",
+   "why": "우선주 상속(007810)"
+  },
+  "007810": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "00781K": {
+   "bucket": "it_hardware",
+   "why": "우선주 상속(007810)"
+  },
+  "190650": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "123410": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "003690": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "036690": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "049430": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "183300": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "041960": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "089890": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "360350": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "189350": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "082660": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "043710": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "192820": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "044820": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "222040": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "241710": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "439960": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "005070": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "005420": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "355150": {
+   "bucket": "semiconductor",
+   "why": "업종"
+  },
+  "169670": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "071950": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "166480": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "045970": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "196450": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "384470": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "002020": {
+   "bucket": "holding",
+   "why": "순수지주(사업 안 보임)"
+  },
+  "003070": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "003075": {
+   "bucket": "construction",
+   "why": "우선주 상속(003070)"
+  },
+  "102940": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "002025": {
+   "bucket": "holding",
+   "why": "우선주 상속(002020)"
+  },
+  "120110": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "120115": {
+   "bucket": "materials",
+   "why": "우선주 상속(120110)"
+  },
+  "950160": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "021240": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "056360": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "282880": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "448710": {
+   "bucket": "aerospace_defense",
+   "why": "제품:aerospace_defense"
+  },
+  "126730": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "015710": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "052330": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "322780": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "036420": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "215380": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "200130": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "024720": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "294570": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "192400": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "284740": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "464490": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "317690": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "070300": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "432720": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "456190": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "365270": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "348080": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "060280": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "372320": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "051780": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "115180": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "494120": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "445680": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "182360": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "405100": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "066310": {
+   "bucket": "semiconductor",
+   "why": "업종"
+  },
+  "377460": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "136660": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "016600": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "355390": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "264900": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "26490K": {
+   "bucket": "consumer_staples",
+   "why": "우선주 상속(264900)"
+  },
+  "005740": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "005745": {
+   "bucket": "semiconductor",
+   "why": "우선주 상속(005740)"
+  },
+  "259960": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "096240": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "040350": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "215570": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "110790": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "900250": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "045520": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "214150": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "466100": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "237880": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "139670": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "020120": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "475430": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "487720": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "489480": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "039490": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "466690": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "0131D0": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "054780": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "256940": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "336040": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "219130": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "346010": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "318660": {
+   "bucket": "aerospace_defense",
+   "why": "제품:aerospace_defense"
+  },
+  "476710": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "434190": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "336680": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "360070": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "180060": {
+   "bucket": "electrical",
+   "why": "제품:electrical"
+  },
+  "065130": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "134580": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "014580": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "015890": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "006890": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "023160": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "003240": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "011280": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "323280": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "053620": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "052960": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "004100": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "004105": {
+   "bucket": "auto",
+   "why": "우선주 상속(004100)"
+  },
+  "116100": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "009410": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "009415": {
+   "bucket": "construction",
+   "why": "우선주 상속(009410)"
+  },
+  "044490": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "124560": {
+   "bucket": "transport",
+   "why": "업종"
+  },
+  "001420": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "191420": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "950250": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "073640": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "066700": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "095610": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "055490": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "064520": {
+   "bucket": "semiconductor",
+   "why": "업종"
+  },
+  "089030": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "258050": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "054450": {
+   "bucket": "semiconductor",
+   "why": "업종"
+  },
+  "078000": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "200230": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "214420": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "393210": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "475960": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "215480": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "051360": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "045340": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "108230": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "079970": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "199800": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "417790": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "091810": {
+   "bucket": "transport",
+   "why": "업종"
+  },
+  "290090": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "026150": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "464280": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "117730": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "033830": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "057680": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "204610": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "125020": {
+   "bucket": "electrical",
+   "why": "제품:electrical"
+  },
+  "064760": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "246710": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "340570": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "043220": {
+   "bucket": "electrical",
+   "why": "제품:electrical"
+  },
+  "277880": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "131290": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "019180": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "425420": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "484810": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "131100": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "356860": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "413300": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "217590": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "363280": {
+   "bucket": "holding",
+   "why": "순수지주(사업 안 보임)"
+  },
+  "36328K": {
+   "bucket": "holding",
+   "why": "우선주 상속(363280)"
+  },
+  "321550": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "004870": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "425040": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "241790": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "022220": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "104480": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "081150": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "130740": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "217880": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "084730": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "440110": {
+   "bucket": "semiconductor",
+   "why": "업종"
+  },
+  "034230": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "290560": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "288330": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "033540": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "388870": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "043200": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "214450": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "217950": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "005690": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "177830": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "037070": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "150900": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "037030": {
+   "bucket": "electrical",
+   "why": "제품:electrical"
+  },
+  "047310": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "368770": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "170790": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "900100": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "049120": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "038950": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "387570": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "441270": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "106240": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "131760": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "065690": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "140860": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "091700": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "202960": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "032800": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "318010": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "036580": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "027710": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "004720": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "266350": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "225590": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "054300": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "068050": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "028670": {
+   "bucket": "transport",
+   "why": "업종"
+  },
+  "222110": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "271830": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "010820": {
+   "bucket": "aerospace_defense",
+   "why": "업종"
+  },
+  "016800": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "263750": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "251970": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "187660": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "0015S0": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "001020": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "168360": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "087010": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "090080": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "010770": {
+   "bucket": "holding",
+   "why": "순수지주(사업 안 보임)"
+  },
+  "064800": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "119500": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "389140": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "105760": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "022100": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "058430": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "009520": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "047050": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "003670": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "189690": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "318020": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "256630": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "331380": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "208710": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "472850": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "039980": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "041910": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "220180": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "234100": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "041020": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "114630": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "487580": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "290720": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "005670": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "094940": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "007330": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "017810": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "093380": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "023900": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "103140": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "005810": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "371950": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "298060": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "370090": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "445180": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "341170": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "220100": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "035200": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "334970": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "950210": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "321260": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "296160": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "053610": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "468530": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "303360": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "377220": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "335810": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "053160": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "006490": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "405000": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "041590": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "367000": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "075130": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "222670": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "237820": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "023770": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "300080": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "033790": {
+   "bucket": "battery",
+   "why": "업종"
+  },
+  "032580": {
+   "bucket": "semiconductor",
+   "why": "업종"
+  },
+  "0117P0": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "051380": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "241820": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "452450": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "237750": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "460940": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "319660": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "031980": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "002230": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "043370": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "239890": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "347740": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "137400": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "257370": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "147760": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "128660": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "006140": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "376180": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "304840": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "087600": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "291810": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "378340": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "161580": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "347770": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "163730": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "417180": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "469900": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "475240": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "475250": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "484130": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "0041L0": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "0101C0": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "086790": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "299030": {
+   "bucket": "battery",
+   "why": "제품:battery"
+  },
+  "067310": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "166090": {
+   "bucket": "semiconductor",
+   "why": "업종"
+  },
+  "293480": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "039130": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "136480": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "003380": {
+   "bucket": "holding",
+   "why": "순수지주(사업 안 보임)"
+  },
+  "450330": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "101670": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "365590": {
+   "bucket": "semiconductor",
+   "why": "업종"
+  },
+  "149980": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "013030": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "352820": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "126700": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "071090": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "160190": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "221840": {
+   "bucket": "aerospace_defense",
+   "why": "업종"
+  },
+  "106190": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "000080": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "000087": {
+   "bucket": "consumer_staples",
+   "why": "우선주 상속(000080)"
+  },
+  "000140": {
+   "bucket": "holding",
+   "why": "순수지주(사업 안 보임)"
+  },
+  "000145": {
+   "bucket": "holding",
+   "why": "우선주 상속(000140)"
+  },
+  "065650": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "066130": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "004590": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "036460": {
+   "bucket": "energy",
+   "why": "업종"
+  },
+  "039340": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "005430": {
+   "bucket": "transport",
+   "why": "업종"
+  },
+  "071050": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "071055": {
+   "bucket": "financials",
+   "why": "우선주 상속(071050)"
+  },
+  "034950": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "010040": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "025540": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "222980": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "010100": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "331660": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "256840": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "219750": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "004090": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "025550": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "002200": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "002960": {
+   "bucket": "energy",
+   "why": "업종"
+  },
+  "017890": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "000240": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "080720": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "123890": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "015760": {
+   "bucket": "utilities",
+   "why": "업종"
+  },
+  "041460": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "006200": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "101680": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "039740": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "053300": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "025770": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "479880": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "0164H0": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "027970": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "023350": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "025890": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "000970": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "104700": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "062970": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "017960": {
+   "bucket": "shipbuilding",
+   "why": "제품:shipbuilding"
+  },
+  "023760": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "054040": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "161890": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "021650": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "161390": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "034830": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "007280": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "032300": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "037230": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "448900": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "047810": {
+   "bucket": "aerospace_defense",
+   "why": "제품:aerospace_defense"
+  },
+  "123690": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "003350": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "052600": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "011500": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "002390": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "256150": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "092460": {
+   "bucket": "shipbuilding",
+   "why": "업종"
+  },
+  "125490": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "053690": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "042700": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "008930": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "128940": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "452190": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "047080": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "009240": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "452280": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "020000": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "003680": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "066980": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "105630": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "069640": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "016450": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "009180": {
+   "bucket": "transport",
+   "why": "업종"
+  },
+  "114810": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "213500": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "014680": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "004710": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "004150": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "025750": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "042520": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "004960": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "011700": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "430690": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "078350": {
+   "bucket": "semiconductor",
+   "why": "업종"
+  },
+  "045100": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "001750": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "001755": {
+   "bucket": "financials",
+   "why": "우선주 상속(001750)"
+  },
+  "018880": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "009420": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "320000": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "091440": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "276730": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "014130": {
+   "bucket": "transport",
+   "why": "업종"
+  },
+  "024740": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "005860": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "300720": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "002220": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "003300": {
+   "bucket": "holding",
+   "why": "순수지주(사업 안 보임)"
+  },
+  "007770": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "051600": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "052690": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "130660": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "198940": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "058450": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "107640": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "002320": {
+   "bucket": "transport",
+   "why": "업종"
+  },
+  "003480": {
+   "bucket": "holding",
+   "why": "순수지주(사업 안 보임)"
+  },
+  "180640": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "18064K": {
+   "bucket": "financials",
+   "why": "우선주 상속(180640)"
+  },
+  "005110": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "079170": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "009460": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "030520": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "372910": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "054920": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "457370": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "002680": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "098070": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "408470": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "000880": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "00088K": {
+   "bucket": "materials",
+   "why": "우선주 상속(000880)"
+  },
+  "452260": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "45226K": {
+   "bucket": "consumer_disc",
+   "why": "우선주 상속(452260)"
+  },
+  "451800": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "0220W0": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "0220WL": {
+   "bucket": "financials",
+   "why": "우선주 상속(0220W0)"
+  },
+  "489790": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "088350": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "000370": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "009830": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "009835": {
+   "bucket": "materials",
+   "why": "우선주 상속(009830)"
+  },
+  "272210": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "012450": {
+   "bucket": "aerospace_defense",
+   "why": "제품:aerospace_defense"
+  },
+  "082740": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "042660": {
+   "bucket": "shipbuilding",
+   "why": "업종"
+  },
+  "003530": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "003535": {
+   "bucket": "financials",
+   "why": "우선주 상속(003530)"
+  },
+  "498390": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "195870": {
+   "bucket": "semiconductor",
+   "why": "제품:semiconductor"
+  },
+  "034810": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "03481K": {
+   "bucket": "financials",
+   "why": "우선주 상속(034810)"
+  },
+  "059270": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "076610": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "0155E0": {
+   "bucket": "semiconductor",
+   "why": "업종"
+  },
+  "101530": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "143210": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "900270": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "214180": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "234340": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "084990": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "000720": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "000725": {
+   "bucket": "construction",
+   "why": "우선주 상속(000720)"
+  },
+  "170030": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "453340": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "086280": {
+   "bucket": "transport",
+   "why": "업종"
+  },
+  "064350": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "079430": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "012330": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "319400": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "048410": {
+   "bucket": "cosmetics",
+   "why": "제품:cosmetics"
+  },
+  "052260": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "069960": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "004560": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "016790": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "004310": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "041440": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "039010": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "017800": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "307950": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "011210": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "090850": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "004020": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "005440": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "005380": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "005387": {
+   "bucket": "auto",
+   "why": "우선주 상속(005380)"
+  },
+  "005389": {
+   "bucket": "auto",
+   "why": "우선주 상속(005380)"
+  },
+  "005385": {
+   "bucket": "auto",
+   "why": "우선주 상속(005380)"
+  },
+  "001500": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "011760": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "227840": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "126560": {
+   "bucket": "communication",
+   "why": "업종"
+  },
+  "001450": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "460930": {
+   "bucket": "shipbuilding",
+   "why": "제품:shipbuilding"
+  },
+  "092300": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "011080": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "308100": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "093240": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "003010": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "111110": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "008770": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "008775": {
+   "bucket": "consumer_disc",
+   "why": "우선주 상속(008770)"
+  },
+  "064240": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "039610": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "378850": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "241590": {
+   "bucket": "consumer_disc",
+   "why": "업종"
+  },
+  "006060": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "013520": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "010690": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "126640": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "133820": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "127980": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "061250": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "010660": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "000850": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "016580": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "032560": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "004800": {
+   "bucket": "electrical",
+   "why": "제품:electrical"
+  },
+  "094280": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "097870": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "298040": {
+   "bucket": "electrical",
+   "why": "업종"
+  },
+  "298020": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "298000": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "093370": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "290270": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "005870": {
+   "bucket": "it_hardware",
+   "why": "업종"
+  },
+  "353190": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "090710": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "078590": {
+   "bucket": "auto",
+   "why": "업종"
+  },
+  "205470": {
+   "bucket": "healthcare",
+   "why": "제품:healthcare"
+  },
+  "115160": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "028080": {
+   "bucket": "software_internet",
+   "why": "업종"
+  },
+  "200670": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "079980": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "065510": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "005010": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "263920": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "243070": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "084110": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "145020": {
+   "bucket": "healthcare",
+   "why": "업종"
+  },
+  "024060": {
+   "bucket": "materials",
+   "why": "업종"
+  },
+  "010240": {
+   "bucket": "machinery",
+   "why": "업종"
+  },
+  "189980": {
+   "bucket": "consumer_staples",
+   "why": "업종"
+  },
+  "000540": {
+   "bucket": "financials",
+   "why": "업종"
+  },
+  "000545": {
+   "bucket": "financials",
+   "why": "우선주 상속(000540)"
+  },
+  "003280": {
+   "bucket": "transport",
+   "why": "업종"
+  },
+  "037440": {
+   "bucket": "construction",
+   "why": "업종"
+  },
+  "238490": {
+   "bucket": "machinery",
+   "why": "업종"
+  }
+ }
+}
