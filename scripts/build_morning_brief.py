@@ -264,9 +264,23 @@ def render(b: dict) -> str:
     return "\n".join(L)
 
 
+def should_write(out_exists: bool, force: bool) -> bool:
+    """같은 날 파일이 이미 있으면 «덮지 않는다».
+
+    까닭: 이 파일은 채점 기록이다. 채점이 묻는 것은 「그날 «아침»에 무엇을 봤나」인데,
+    장중이나 장 마감 뒤에 다시 돌려 덮어쓰면 그 답이 사라진다. 게다가 내용이 같아도
+    generated_at 만 바뀌어 작업 트리가 더러워진다(26-09-21 실사고: 군더더기 커밋 둘).
+
+    「덮어쓰지 않는다」는 결정이지 「덮어쓸 수 없다」가 아니다 — --force 로 연다.
+    """
+    return force or not out_exists
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="장전 브리핑 — 밤사이 미국 마감을 우리 섹터로 옮긴다")
     ap.add_argument("--save", action="store_true", help="public/data 에 날짜별 파일로 저장")
+    ap.add_argument("--force", action="store_true",
+                    help="같은 날 파일이 있어도 덮어쓴다 (기본은 안 덮는다)")
     ap.add_argument("--quiet", action="store_true", help="콘솔 출력 생략")
     a = ap.parse_args()
 
@@ -279,6 +293,15 @@ def main() -> None:
 
     if a.save:
         out = DATA / f"morning-brief-{now:%Y%m%d}.json"
+        if not should_write(out.exists(), a.force):
+            try:
+                prev = json.loads(out.read_text(encoding="utf-8")).get("generated_at", "?")
+            except (OSError, json.JSONDecodeError):
+                prev = "?"
+            print(f"\n이미 있다 {out.name} (생성 {prev}) — 덮어쓰지 않았다.")
+            print("  채점이 묻는 것은 「그날 아침에 무엇을 봤나」다. 나중 시각으로 덮으면")
+            print("  그 답이 사라진다. 정말 덮으려면 --force 를 준다.")
+            return
         tmp = out.with_suffix(".json.tmp")
         tmp.write_text(json.dumps(b, ensure_ascii=False, indent=1), encoding="utf-8")
         json.loads(tmp.read_text(encoding="utf-8"))   # 읽히는지 확인하고 옮긴다

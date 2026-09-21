@@ -13,8 +13,29 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
 from build_morning_brief import (  # noqa: E402
-    basket_return, excess, pct, rank_to_key, sector_rows, theme_overlay, watch_by_bucket,
+    basket_return, excess, pct, rank_to_key, sector_rows, should_write, theme_overlay,
+    watch_by_bucket,
 )
+
+
+# ── should_write (아침 기록을 덮어쓰지 않는다) ────────────────
+
+def test_파일이_없으면_쓴다():
+    assert should_write(out_exists=False, force=False) is True
+
+
+def test_같은_날_파일이_있으면_안_덮는다():
+    """채점이 묻는 것은 「그날 아침에 무엇을 봤나」다. 장 끝나고 덮으면 답이 사라진다."""
+    assert should_write(out_exists=True, force=False) is False
+
+
+def test_force면_덮는다():
+    """「안 덮는다」는 «결정»이지 «못 한다»가 아니다."""
+    assert should_write(out_exists=True, force=True) is True
+
+
+def test_force는_파일이_없을_때도_쓴다():
+    assert should_write(out_exists=False, force=True) is True
 
 
 # ── pct ──────────────────────────────────────────────────────
