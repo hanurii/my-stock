@@ -1,13 +1,13 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-09-18T22:31:52.199+09:00",
+  "last_checked": "2026-09-21T10:03:07.777+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 4.62,
-      "display": "4.62배",
+      "value": 4.6,
+      "display": "4.60배",
       "threshold": "10배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "dividend_yield",
       "label": "배당수익률",
-      "value": 2.63,
-      "display": "2.63%",
+      "value": 2.64,
+      "display": "2.64%",
       "threshold": "3.5% 이하",
       "hit": true,
       "tone": "bad"
@@ -24,8 +24,8 @@
     {
       "id": "price_high",
       "label": "주가",
-      "value": 114000,
-      "display": "114,000원",
+      "value": 113900,
+      "display": "113,900원",
       "threshold": "85,000원+ 돌파",
       "hit": true,
       "tone": "bad"
@@ -60,8 +60,8 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 105.26,
-      "display": "105.26$",
+      "value": 104.53,
+      "display": "104.53$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
@@ -72,13 +72,13 @@
       "severity": "bad",
       "type": "dividend_yield",
       "title": "배당수익률 3.5% 이하",
-      "message": "현재 2.63% — 매도 트리거 도달"
+      "message": "현재 2.64% — 매도 트리거 도달"
     },
     {
       "severity": "bad",
       "type": "price_high",
       "title": "주가 85,000원+ 돌파",
-      "message": "현재 114,000원 — 매도 트리거 도달"
+      "message": "현재 113,900원 — 매도 트리거 도달"
     },
     {
       "severity": "warn",
@@ -95,46 +95,26 @@
     {
       "severity": "warn",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 6건 (관찰 신호 3건 포함)",
+      "title": "리스크 키워드 매칭 뉴스 4건 (관찰 신호 1건 포함)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
   "news_hits": [
     {
       "keyword": "두바이유 하락",
-      "date": "2026-09-13",
-      "title": "두바이유 일주일 새 21% 급등…정제마진 7.2달러 하락-하나證 - v.daum.net",
-      "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE5zRVFJRGtxWU12dXhNZlhzQ1BYWXFmSjNpMDhkRE9ST2Jsck1ONmNsWk1SNjVNM3YzLVBEeWlQdjJQSnVZZVhWbVBnZGlWblE?oc=5",
+      "date": "2026-09-18",
+      "title": "두바이유 126달러 급등에도 기름값 18주 연속 하락 - 티제이비",
+      "url": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE5Yd19yM0p6Q09tekIwUWRfbmpMckRNWHcyS1J4T090RjU5aG1ING5hZ1Q3cjcweGxNQnZfQi1LLUx3aktXVkZHRi1zbmdhYjRBbEZrTTlxOVlmSnZL?oc=5",
       "severity": "warn",
       "signals": [
         "하락"
       ]
     },
     {
-      "keyword": "두바이유 하락",
-      "date": "2026-09-13",
-      "title": "주유소 기름값 17주째 하락...두바이유 반등 압력 커지나 - 뉴스투데이",
-      "url": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE12T0w1eDVtbUlPOHlyWDJleDA3c2NONFhkNzVBVTJCcTJfdmVhaXI4cVBDRWd3ckk0SHJZTEhqekJITzA0N25tcmdpbDBDaHNjYkNYVk9rNlBseFU?oc=5",
-      "severity": "warn",
-      "signals": [
-        "하락"
-      ]
-    },
-    {
-      "keyword": "정제마진 하락",
-      "date": "2026-09-13",
-      "title": "두바이유 일주일 새 21% 급등…정제마진 7.2달러 하락-하나證 - 부산파이낸셜뉴스",
-      "url": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE9sU0psSjlVR3M1Wl9PemJ0VHh1X2JxM01NTUxqMzlMa3NKMlc4U0NCYUVhS0FIeFA3TW9kRERKNWE2eFRPZkRDWnFYZkVHUElfNF8zYmdRWnNYLUM0?oc=5",
-      "severity": "warn",
-      "signals": [
-        "하락"
-      ]
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-09-13",
-      "title": "브릭스서 손잡은 시진핑·푸틴·모디… “중동 긴장 완화·타국 간섭 배제를” - v.daum.net",
-      "url": "https://news.google.com/rss/articles/CBMiVEFVX3lxTE91bGFPQzlZc010WGFXNk9PQ0hraTY2Z2c2alU1dDdKS2JBNWRoamtYdEQzMGIwMVgxdFBSbnlINXBMYXVjU3M0aV9VU2tPRXpsTGt6Sg?oc=5",
+      "keyword": "이란 미국 합의",
+      "date": "2026-09-20",
+      "title": "카타르 “미국, 이란과 합의 원해”…협상 재개 추진 - 토큰포스트",
+      "url": "https://news.google.com/rss/articles/CBMiWEFVX3lxTE1jYTVNdzFKeVg5TDVUb1l3bzdqOW9mWnlkVGY1Y2dYbnFwN3E1SnNBUkF5cV9GbFl0YWtKcTJMcUNodF91MFQzNkpaUFpLTFNxVWpoaHZnbjE?oc=5",
       "severity": "info",
       "signals": []
     },
@@ -148,9 +128,9 @@
     },
     {
       "keyword": "중동 긴장 완화",
-      "date": "2026-09-13",
-      "title": "브릭스 ‘뉴델리 선언’…중동 긴장 완화·美 관세 견제 - edaily.co.kr",
-      "url": "https://news.google.com/rss/articles/CBMigAFBVV95cUxOT0t6SFV6Z19GZ1hrQldYamY5WTk3SThKX3BwRkJRMjZlWEp3SDJtcE9Fb0ExclZad2dhejhKRjJGeTlkM2hCbGxlSmdMMndCcm85X3NRQVFkM1BWSEFpMzVRWDZTdVpNSVFFQTh1QXJJbV9mcUFyYlNkcFdZZlFDTg?oc=5",
+      "date": "2026-09-17",
+      "title": "유엔은 중동 지역의 긴장 완화와 서안 지구의 \"점진적 합병\" 중단을 촉구했습니다. - Vietnam.vn",
+      "url": "https://news.google.com/rss/articles/CBMiugFBVV95cUxPaEd5Z1hidTJvQWJUcVAzTkN0QzJ3UjM5MVhYZjc4dXd5NzBPRWY3ZGVXSmpBTC1wWVFDT04tMXEtNnFTS0RlZ2RhcHFJakRCNnZCeFZFb2tRQ1k5M3ZfOXJDWGlrTFpiaEQ0cDhUaFZ2NTF4UndGUERjX2xKU2wyS19HV01VSGRZN3hCS2hyTVRralZ1eW9BeUdvRzh5TFd6TWVvcGZtdWxGMEp1VmxuNm5peGpfM1poOXc?oc=5",
       "severity": "info",
       "signals": []
     }
@@ -161,7 +141,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 99.52 USD (2026-09-18, 7일 평균 105.26)",
+      "label": "Brent 원유 종가 98.17 USD (2026-09-21, 7일 평균 104.53)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
