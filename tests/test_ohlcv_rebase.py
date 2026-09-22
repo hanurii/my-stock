@@ -90,24 +90,25 @@ def test_rebase_history_upto_leaves_newest_bar_alone():
     assert s["closes"] == [4470.0, 4470.0, 4115.0]
 
 
-def test_pdata_close_reliable_before_after_market():
-    """애프터마켓 개장(2026-09-14) 전까지 pdata 종가는 정규장 종가와 같다.
+def test_aftermarket_open_date_is_recorded_as_a_market_fact():
+    """애프터마켓 개장일은 «시장» 사실이다 — 출처마다 따로 적지 않는다.
 
-    2026-09-16 3출처 대조: pdata·FDR·네이버가 09-11 까지 소수점까지 일치.
+    26-09-16 에는 이걸 「pdata 를 믿을 수 있는 구간」이라는 «출처» 술어로 적었다.
+    그 이름이 범위를 정해 버려서, 같은 재정의를 싣고 있던 FDR 은 검사도 안 받고
+    대체 출처로 쓰였다. 날짜는 하나만 두고 출처별 실측을 곁에 적는다.
     """
-    assert ohlcv_matrix.is_pdata_close_reliable("20260911")
-    assert ohlcv_matrix.is_pdata_close_reliable("20250102")
+    assert ohlcv_matrix.AFTERMARKET_OPEN == "20260914"
 
 
-def test_pdata_close_unreliable_from_after_market_open():
-    """개장일부터 pdata 종가 필드는 정규장 종가가 아니다 → 쓰지 않는다.
+def test_pdata_close_guard_is_gone():
+    """pdata 종가를 날짜로 버리던 관문은 «거꾸로» 였다 — 되돌렸다(26-09-22).
 
-    실측(26-09-16): 09-14 에 2,872종목 중 1,942종목이 0.2% 넘게 어긋났고
-    FDR·네이버가 서로 일치하며 정규장 종가 쪽이었다.
+    실측: pdata 종가는 09-14~09-18 갈린 날을 포함해 KIS(J) 정규장 종가와
+    285쌍 전부 일치했다. 통합 종가를 주던 쪽은 FDR 이었다.
+    이 시험은 그 관문이 «되살아나면» 깨지라고 있다.
     """
-    assert not ohlcv_matrix.is_pdata_close_reliable("20260914")
-    assert not ohlcv_matrix.is_pdata_close_reliable("20260915")
-    assert not ohlcv_matrix.is_pdata_close_reliable("20261231")
+    assert not hasattr(ohlcv_matrix, "is_pdata_close_reliable")
+    assert not hasattr(ohlcv_matrix, "PDATA_CLOSE_UNRELIABLE_FROM")
 
 
 def test_rebase_gate_allows_normal_corporate_action_day():
