@@ -1,7 +1,7 @@
 {
   "code": "099410",
   "name": "동방선기",
-  "last_checked": "2026-09-22T00:47:25.658+09:00",
+  "last_checked": "2026-09-22T10:29:39.247+09:00",
   "metrics": [
     {
       "id": "no_capital_issuance",
@@ -33,8 +33,8 @@
     {
       "id": "per_value_zone",
       "label": "✅ PER 저평가",
-      "value": 5.63,
-      "display": "5.63배",
+      "value": 5.54,
+      "display": "5.54배",
       "threshold": "8.0배 이하 (현 9.67배)",
       "hit": true,
       "tone": "good"
@@ -69,16 +69,37 @@
       "severity": "info",
       "type": "per_value_zone",
       "title": "✅ PER 저평가 8.0배 이하 (현 9.67배)",
-      "message": "현재 5.63배 — 매수 시그널 (분할 진입 검토 권장)"
+      "message": "현재 5.54배 — 매수 시그널 (분할 진입 검토 권장)"
     },
     {
-      "severity": "info",
+      "severity": "warn",
       "type": "news_keyword_hit",
-      "title": "매수 시그널 키워드 매칭 뉴스 2건 (관찰 신호 0건 — 키워드 단순 매칭만)",
+      "title": "매수 시그널 키워드 매칭 뉴스 4건 (관찰 신호 2건 포함)",
       "message": "매수 시그널 모니터링 키워드 기준 최근 7일 매칭. 호재 명시 phrase로 등록되어 있으나 본문 직접 확인 권장."
     }
   ],
   "news_hits": [
+    {
+      "keyword": "조선 슈퍼사이클",
+      "date": "2026-09-21",
+      "title": "'슈퍼사이클' 조선업계, 노사 갈등에 몸살…파업 장기화 우려 - 연합뉴스",
+      "url": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE1vWHF1TnoyWVZLdlI1VXJoZUxwd2NuS0hfbUhnY3VxTXJfV1l2SDZETWxTQU16bXhwVk5acVhoamZkR1R6VFEyZGlZNjdYMmFFV3pYZ2V4Ri1tSDDSAWBBVV95cUxNR0JKX0w0clFIQ2RIdHhQX1U0UDJ2Q05HY2NwMDA1Z18yQXlucDNfSG9ua3dQci1ybzRPYzJ1dFBxQ2lzbU52cG42SVQzZFN6LUJiZ3VkMmhScE4zRTUtV1Y?oc=5",
+      "severity": "warn",
+      "signals": [
+        "우려"
+      ]
+    },
+    {
+      "keyword": "조선 슈퍼사이클",
+      "date": "2026-09-21",
+      "title": "‘슈퍼사이클’ 탄 조선업계, 추석 앞두고 노사 갈등 격화…납기 차질 우려 - 세계비즈",
+      "url": "https://news.google.com/rss/articles/CBMiV0FVX3lxTE4wNDN0MF9SWDNrcmtVTVRPS3M1akRnd0pWLTRYS0YtWDh4WDFNSUpMeXZmZWV4a1JrV1d1Mm9JY21xTW1HOVhJS1JwN29FVEZIbFJ4V3Jqbw?oc=5",
+      "severity": "warn",
+      "signals": [
+        "우려",
+        "차질"
+      ]
+    },
     {
       "keyword": "조선 슈퍼사이클",
       "date": "2026-09-16",
