@@ -110,21 +110,30 @@ def _apply_adjustment(s: dict) -> None:
         closes[i] = round(adj[i], 2)
 
 
-# ── pdata 종가를 믿을 수 있는 구간 ────────────────────────────
+# ── 애프터마켓 개장 이후 「종가」가 둘이다 ────────────────────
 
-# KRX 애프터마켓 개장일(16:00~20:00 실시간 접속매매). 이날부터 공공데이터(pdata)의
-# `clpr` 은 정규장 종가가 아니다. 공식 종가는 여전히 정규장(15:30) 종가이고,
-# FDR·네이버가 그 값을 준다 — 2026-09-16 3출처 대조로 확인했다.
-#   · 09-11 까지: pdata = FDR = 네이버 (소수점까지 일치)
-#   · 09-14 부터: pdata 만 다름 (09-14 에 2,872종목 중 1,942종목이 0.2% 초과)
-# 그래서 이 날짜 이후의 pdata 봉은 시계열에 넣지 않고 fill_recent_via_fdr 이 채운다.
-# pdata 파일 자체는 고치지 않는다 — 공급자 원본은 남겨 둔다.
-PDATA_CLOSE_UNRELIABLE_FROM = "20260914"
-
-
-def is_pdata_close_reliable(bas_dt: str) -> bool:
-    """이 영업일(basDt, YYYYMMDD)의 pdata 종가를 정규장 종가로 믿어도 되나."""
-    return bas_dt < PDATA_CLOSE_UNRELIABLE_FROM
+# 2026-09-14 KRX 애프터마켓(16:00~20:00 실시간 접속매매) 개장. 이날부터 한 종목에
+# 종가가 «둘» 생겼다.
+#   · 정규장 종가 — 15:30 가격. «공식» 종가이고 다음날 상·하한가의 기준가다.
+#   · 통합 종가   — 애프터마켓까지 끝난 20:00 가격. 공식 종가가 «아니다».
+# 우리는 정규장 종가만 쓴다(헌법 §2.3).
+#
+# 이건 «출처의 성질»이 아니라 그 출처가 «어느 장(場)을 싣느냐»의 문제다. 그래서
+# 날짜를 시장 사실로 한 번만 적고, 출처마다 어느 쪽을 주는지는 실측해서 아래에
+# 적는다. 새 출처를 붙이면 그때 다시 잰다.
+#   pdata(공공데이터) 정규장 — 26-09-22 실측 57종목×9일 285쌍 «전부» KIS(J) 와 일치
+#                              (09-14~09-18 갈린 날 포함. 대조군 09-08~09-11 도 0%)
+#   KIS 일봉 J        정규장 — 종가(D-1)==기준가(D) 연쇄 570쌍 중 어긋남 0
+#   FDR               «갈린다» — 그날 저녁엔 정규장, 밤사이 통합으로 정산된다
+#                              (26-09-22 실측: 09-21 어긋남 84.2%, 당일 09-22 는 0.0%)
+#   낸 각본: scripts/check_close_source.py · scripts/verify_close_gate.py
+#
+# 🚨 26-09-16 에 이 표를 «거꾸로» 적었다 — pdata 가 통합이고 FDR 이 정규장이라고 봤다.
+# 그 믿음으로 09-14 이후 pdata 봉을 버리고 FDR 로 채우는 관문을 넣었고(`ac028e84`),
+# 그 결과 캐시 종가가 09-14~09-21 매 영업일 2,870종목 중 60~66% 어긋났다
+# (중앙 0.7~0.9%). 26-09-22 에 되돌렸다.
+# 가른 것은 벤더 머릿수가 «아니라» 거래소가 스스로 내는 수다 — 기준가 연쇄.
+AFTERMARKET_OPEN = "20260914"
 
 
 # ── 기준가 변경(액면분할·주식병합·감자) 환산 ────────────────
@@ -265,13 +274,7 @@ def update_to_latest(window: int = DEFAULT_TRADING_DAYS, verbose: bool = True) -
 
     # 종목별 시계열 누적: code → {dates, closes, opens, highs, lows, volumes, timestamps}
     series: dict[str, dict] = {}
-    skipped: list[str] = []
     for bd in day_list:
-        if not is_pdata_close_reliable(bd):
-            # 애프터마켓 이후 — pdata 종가는 정규장 종가가 아니다.
-            # 이 구간은 fill_recent_via_fdr 이 FDR(정규장 종가)로 채운다.
-            skipped.append(bd)
-            continue
         rows = pdata.fetch_pdata_price_info(bd)  # 캐시 hit
         iso = f"{bd[:4]}-{bd[4:6]}-{bd[6:8]}"
         try:
@@ -312,11 +315,7 @@ def update_to_latest(window: int = DEFAULT_TRADING_DAYS, verbose: bool = True) -
     sec = time.time() - t0
     if verbose:
         print(f"✅ ohlcv_matrix: {written}종목 시계열 저장 ({sec:.1f}초)")
-        if skipped:
-            print(f"⏭️  pdata 종가 미사용 {len(skipped)}일({skipped[0]}~{skipped[-1]}) "
-                  f"— 애프터마켓 이후. FDR 보충이 채운다")
-    return {"days": len(day_list) - len(skipped), "codes": written,
-            "sec": round(sec, 1), "skipped_days": skipped}
+    return {"days": len(day_list), "codes": written, "sec": round(sec, 1)}
 
 
 # ── 최근일 FDR 보충 (pdata 업로드 지연 메우기) ───────────────
@@ -332,7 +331,12 @@ def fill_recent_via_fdr(through: str | None = None, max_workers: int = 12,
     """pdata 가 아직 안 준 최근 영업일을 FDR(FinanceDataReader)로 채워 매트릭스에 추가.
 
     pdata(공공데이터포털)는 T-1~T-2 지연이라 "어제 종가"가 늦게 들어옴. FDR 은 KRX
-    기반이라 당일/전일까지 보유. FDR 수정주가 close 는 pdata 복원 close 와 일치 검증됨.
+    기반이라 당일/전일까지 보유.
+
+    🚨 FDR 종가는 «그날 저녁까지만» 정규장 종가다. 밤사이 통합 종가(애프터마켓 포함)로
+    정산된다 — 26-09-22 실측: 09-21 어긋남 84.2%, 당일 09-22 는 0.0%. 그러므로 이 보충은
+    «당일분 메우기»로만 쓴다. pdata 가 그 날을 주기 시작하면 update_to_latest 가 정규장
+    종가로 덮어쓴다(시계열을 매번 다시 만든다). 그 사이를 `verify_close_gate.py` 가 잰다.
     종목별 호출이라 병렬(기본 12). through=None 이면 FDR 가용 최신일까지.
 
     Returns: {"appended_days": N, "updated_codes": M, "through": date, "sec": s}
