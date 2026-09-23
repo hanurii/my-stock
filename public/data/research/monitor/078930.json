@@ -1,13 +1,13 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-09-22T22:58:08.379+09:00",
+  "last_checked": "2026-09-23T10:18:12.658+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 4.44,
-      "display": "4.44배",
+      "value": 4.45,
+      "display": "4.45배",
       "threshold": "10배 돌파",
       "hit": false,
       "tone": "good"
@@ -24,8 +24,8 @@
     {
       "id": "price_high",
       "label": "주가",
-      "value": 113300,
-      "display": "113,300원",
+      "value": 110600,
+      "display": "110,600원",
       "threshold": "85,000원+ 돌파",
       "hit": true,
       "tone": "bad"
@@ -60,8 +60,8 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 104.04,
-      "display": "104.04$",
+      "value": 104.08,
+      "display": "104.08$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
@@ -78,7 +78,7 @@
       "severity": "bad",
       "type": "price_high",
       "title": "주가 85,000원+ 돌파",
-      "message": "현재 113,300원 — 매도 트리거 도달"
+      "message": "현재 110,600원 — 매도 트리거 도달"
     },
     {
       "severity": "warn",
@@ -89,7 +89,7 @@
     {
       "severity": "bad",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 6건 (부정 시그널 1건 포함)",
+      "title": "리스크 키워드 매칭 뉴스 12건 (부정 시그널 1건 포함)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
@@ -107,7 +107,7 @@
     {
       "keyword": "정제마진 하락",
       "date": "2026-09-21",
-      "title": "마라톤 페트롤리엄 주가 급락, 정제마진 하락 우려 확산 : 기업주식정보 - news.jkn.co.kr",
+      "title": "마라톤 페트롤리엄 주가 급락, 정제마진 하락 우려 확산 : 기업주식정보 - 재경일보",
       "url": "https://news.google.com/rss/articles/CBMiSkFVX3lxTE9wU2RaazBCNnlaWVlncjZhYmJaUXRaX1BzMVI1YWhDZXNYZUZ4M042SFhoOWdMZGdfaDFrQjN1c1J0dVRnUDU4eDd3?oc=5",
       "severity": "bad",
       "signals": [
@@ -116,11 +116,77 @@
     },
     {
       "keyword": "이란 미국 합의",
-      "date": "2026-09-17",
-      "title": "미국, 이란과의 합의 협상 가능성 여전히 열어둬 - vovworld.vn",
-      "url": "https://news.google.com/rss/articles/CBMirwFBVV95cUxOOGRweHFsOGJMeENpaDJvWFhqamxmaHlJdk8zeWxuVmxLdGRWZHVGSTJweklQblZCRGZVSC1NM1VuVnkwVkRZVTdHdFRqWW43MTlSNVlWXzNZUk9wQW95QTZMc19lX2NJdVF0ZTBDTUp2LXRfcTA3X1V1TElNckcwclFaSVZHWUdJcVI3TkswUXJrSlh1anJYc0xRY05sNzhTc0JFc0dqdHNsTGlCTWVV?oc=5",
+      "date": "2026-09-22",
+      "title": "미국·이란 대표단, 3시간 유엔회담‥트럼프 \"합의가 이란에 유리\" - MBC 뉴스",
+      "url": "https://news.google.com/rss/articles/CBMidEFVX3lxTE5QaVNnaVV2NENJS194Ql85X2tFWFk0R2czUGZIek5qM2JsYkVGMG53b1VXZFhRVWhsY3dsbDNVT2hiNXRFS1d0TmoxSzZDZ0EtNXJVNV9GOExzTjBzMmhNeTN0d0RRSFZWZlVmbXVENkItZjQw0gF0QVVfeXFMUGM4aVRVQVlYbmhKSU40WV9IZmpFclVhV2JFN09ycGptY0xodk15WWhBNmFldEo2clpMWG9BLTZHdVczdElFUGhKbk9QVlI4bVRHcmliQUdBSU0tcFRVakppU21XQ1FCTGFkLWQ3NUluZ1kzT0I?oc=5",
       "severity": "info",
       "signals": []
+    },
+    {
+      "keyword": "이란 미국 합의",
+      "date": "2026-09-22",
+      "title": "미국-이란 대표단, 유엔본부서 회동…트럼프 “합의가 이란에 유리” - KBS 뉴스",
+      "url": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE9BSS12SUd0Z2dQMFdkMXktc1ZsZlA0YlVSZFdaT2c1T2ljSGktcm1mbzdRTUo3N2ZZUXB0SWd3eXZzMDdEdENaYVd0TzdLeXZKZHhVOHhXWDVndUE?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "이란 미국 합의",
+      "date": "2026-09-22",
+      "title": "트럼프, UN 연설에서 중간선거 후 미국과 이란이 합의할 것이라고 밝혀 - Investing.com 한국어",
+      "url": "https://news.google.com/rss/articles/CBMia0FVX3lxTFBsd3FNZy1ZMkE2SWZoYUxRRUh2R0s4VDA3d013OWpDdTEzMWdvU1dXeHZYY21Kd3NjNXlDVFRyVi1aX2JYeDFKbmt3TzVuRkNWNFA1LTJscEVUb1N5RDMySFUxcWNndE5HTUNz?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "이란 미국 합의",
+      "date": "2026-09-22",
+      "title": "미국-이란 대표단, 3시간 유엔 회담…트럼프 \"합의가 이란에 유리\" - v.daum.net",
+      "url": "https://news.google.com/rss/articles/CBMiVEFVX3lxTFB5UkdsSWhsS0QtWm9ENTFGY2phVVgzQWpONXZMbGhYVUdjb3VwU3Q3c09QeU9pY2o0bG1iaEptYURHZ254a0ZLLVBudVEtcGVsaHRFQg?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "중동 긴장 완화",
+      "date": "2026-09-23",
+      "title": "S&amp;P500 선물, 중동 긴장 완화 기대 속 약보합 - KB Think",
+      "url": "https://news.google.com/rss/articles/CBMickFVX3lxTFBqaUZLMjZ6ZHpiYW5LUEdZWlFnN3lINEtaUnJyQWFtMVV3RWpvdHVlNmtZZC1FenRZR3JEZ05OdnRLaGRaeUFxRzFTQV80S3k4aVZHd3VaRFJaem9jYU92U1JRNWlMQTBKUXZfVVNZS25wZw?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "중동 긴장 완화",
+      "date": "2026-09-23",
+      "title": "코스피, 7100선 출발⋯중동 긴장 완화·美 기술주 강세 '훈풍' - 아이뉴스24",
+      "url": "https://news.google.com/rss/articles/CBMiS0FVX3lxTE1ocnJsOHZBdGpLMUZkV3dZMXdTdDFrbDdlVmRyMUVPQ0hwUzJ3eWF3elBnamlZdjBRVzVsWWpPZGJuS0c1LVVDVmZ0TQ?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "중동 긴장 완화",
+      "date": "2026-09-22",
+      "title": "TSX, 중동 긴장 완화로 위험 선호 심리 개선되며 상승 - Investing.com 한국어",
+      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE5IRzY5dWQ1WDlPTmh4eTIwZ3UybHZpMGdPdVFpREdMN0NQNGlOWUU5Z282bTd6aWZyV0I2SVIyaWltSVVEUjNWNVRHNkJKX25fTlFKaE1CZVZ4eDFNNU5CSjB6N0Z4bUswY3lyUmxUTGI?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "중동 긴장 완화",
+      "date": "2026-09-23",
+      "title": "코스피, 美 반도체주 강세·중동 긴장 완화 기대에 7100선 돌파 - 블루밍비트",
+      "url": "https://news.google.com/rss/articles/CBMiUEFVX3lxTE80V2xwSElnUmVJbklOcnlYazJ2Q0U0RzkxWFpJd3lSNGIwZGVhRk5ILW96Vm93bGxiX3lJUEpQN05rQkUtb01yV0FJZER6RzRl?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "중동 긴장 완화",
+      "date": "2026-09-23",
+      "title": "환율, 1350원대로 다시 내려와…중동 긴장 완화·유가 하락 영향 - 뉴스투데이",
+      "url": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE9tQmVGdVFrUGNnMkFoUVF1Q3c4VVlqdXczVUlBWXpnRHBwWGQ3RGhMNDBYOHR5TXNfTWFYdS1IUWc5a3NDQ1Q2dWcwbE5mTjB6SmNQeDlFZTJvV1FZWWc?oc=5",
+      "severity": "warn",
+      "signals": [
+        "하락"
+      ]
     },
     {
       "keyword": "중동 긴장 완화",
@@ -131,24 +197,6 @@
       "signals": [
         "하락"
       ]
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-09-21",
-      "title": "핌코 CEO \"중동 긴장 완화되면 금리 하락할 것\" - supple.kr",
-      "url": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE9JTmZJSFdwRkhMRjVhXy0ydGNNRHpsWURELVJuQVF4NXRrWGJOdm5tRHRWb0tNc2R2SUdZd0VlblgwMTRudEtLU2JpeWxOdFRReVBBMlgyVTNUakZD?oc=5",
-      "severity": "warn",
-      "signals": [
-        "하락"
-      ]
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-09-21",
-      "title": "중동 긴장 완화 기대에 뉴욕증시 '급등'…나스닥 사상 최고 경신 &gt; 뉴스 - 지데일리",
-      "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE5aME5jcFNUVlpjdlhkc19NbkZKM1NzWnBwVmxtb1lseHN0NnNLaTdWVWVtdzBwZ1hkWGNjWU13eUJJUjZaOG9YZDhKNEhvNjRkM0E3RWhUQ1lvSDFjWmFGVDE2bWhhUlFtT0tvbA?oc=5",
-      "severity": "info",
-      "signals": []
     }
   ],
   "sources": [
@@ -157,7 +205,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 99.01 USD (2026-09-22, 7일 평균 104.04)",
+      "label": "Brent 원유 종가 99.27 USD (2026-09-23, 7일 평균 104.08)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
