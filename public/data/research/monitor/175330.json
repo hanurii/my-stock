@@ -1,13 +1,13 @@
 {
   "code": "175330",
   "name": "JB금융지주",
-  "last_checked": "2026-09-23T19:21:30.648+09:00",
+  "last_checked": "2026-09-23T23:10:30.406+09:00",
   "metrics": [
     {
       "id": "pbr",
       "label": "PBR",
-      "value": 0.95,
-      "display": "0.95배",
+      "value": 0.93,
+      "display": "0.93배",
       "threshold": "1.1배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,11 +15,11 @@
     {
       "id": "pbr_premium_pp",
       "label": "지방지주 평균 대비 PBR 프리미엄",
-      "value": 0.52,
-      "display": "0.520pp",
+      "value": 0.49,
+      "display": "0.490pp",
       "threshold": "+0.50pp 이상",
-      "hit": true,
-      "tone": "bad"
+      "hit": false,
+      "tone": "warn"
     },
     {
       "id": "foreign_ratio",
@@ -33,8 +33,8 @@
     {
       "id": "foreign_net_buy_4w",
       "label": "최근 20거래일 외국인 순매수",
-      "value": -1862384,
-      "display": "-186만주",
+      "value": -1926995,
+      "display": "-193만주",
       "threshold": "순매도 전환",
       "hit": true,
       "tone": "bad"
@@ -105,16 +105,16 @@
   ],
   "alerts": [
     {
-      "severity": "bad",
+      "severity": "warn",
       "type": "pbr_premium_pp",
-      "title": "지방지주 평균 대비 PBR 프리미엄 +0.50pp 이상",
-      "message": "현재 0.520pp — 매도 트리거 도달"
+      "title": "지방지주 평균 대비 PBR 프리미엄 임계 근접",
+      "message": "현재 0.490pp (임계 +0.50pp 이상)"
     },
     {
       "severity": "bad",
       "type": "foreign_net_buy_4w",
       "title": "최근 20거래일 외국인 순매수 순매도 전환",
-      "message": "현재 -186만주 — 매도 트리거 도달"
+      "message": "현재 -193만주 — 매도 트리거 도달"
     },
     {
       "severity": "bad",
@@ -133,7 +133,7 @@
     {
       "keyword": "JB우리캐피탈 부실",
       "date": "2026-09-18",
-      "title": "정상호 롯데카드·김기덕 JB우리캐피탈 대표, ‘렌탈채권 부실’ 논란에 국감장 오른다 - 디지털데일리",
+      "title": "정상호 롯데카드·김기덕 JB우리캐피탈 대표, ‘렌탈채권 부실’ 논란에 국감장 오른다 - ddaily.co.kr",
       "url": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE1EV3M3M3V6b1Q3ZWw3Vm0wRzhaSENDNjBxdHlKMEs3MFpvNnpMenByek81MjExUENVSUpub3l4aUxrcFNLQTZZakJhVDBUQ21YSEdUb05RVU9SNmtEbGtINTlreEc?oc=5",
       "severity": "info",
       "signals": []
@@ -146,7 +146,7 @@
     },
     {
       "label": "4대 지주 평균 PBR 비교 (1종목)",
-      "ref": "peers: 138930 / avg 0.43"
+      "ref": "peers: 138930 / avg 0.44"
     },
     {
       "label": "분기 배당 결정 (반기보고서 (2026.06))",
@@ -154,7 +154,7 @@
     },
     {
       "label": "외국인 순매수 누적 (20일)",
-      "ref": "네이버 dealTrendInfos / history 2026-09-22"
+      "ref": "네이버 dealTrendInfos / history 2026-09-23"
     },
     {
       "label": "최근 분기 순이익 (2026-H1)",
