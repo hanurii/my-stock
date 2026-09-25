@@ -1,7 +1,7 @@
 {
   "code": "105560",
   "name": "KB금융",
-  "last_checked": "2026-09-25T10:12:33.767+09:00",
+  "last_checked": "2026-09-25T17:32:30.467+09:00",
   "metrics": [
     {
       "id": "pbr",
@@ -118,36 +118,9 @@
       "type": "dividend_qoq_change",
       "title": "분기배당 QoQ 변화율 동결 또는 감소",
       "message": "현재 -47.4% — 매도 트리거 도달"
-    },
-    {
-      "severity": "warn",
-      "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 2건 (관찰 신호 2건 포함)",
-      "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
-  "news_hits": [
-    {
-      "keyword": "금융당국 자본규제 강화",
-      "date": "2026-09-18",
-      "title": "금융당국, 고위험 주담대 자본규제 강화…은행 부담 커진다 - v.daum.net",
-      "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE42T2p3U1NfeVJnaGNmc3k3THNvemZpNXFLeEtmZ3hJWTN2YWNRZlBiZWVhV2FsQ09aN040Nzd4aHk1TG1zQlU4cERYQXpFZFU?oc=5",
-      "severity": "warn",
-      "signals": [
-        "규제"
-      ]
-    },
-    {
-      "keyword": "금융당국 자본규제 강화",
-      "date": "2026-09-18",
-      "title": "금융당국, 고위험 주담대 자본규제 강화…은행 부담 커진다 - 아주경제",
-      "url": "https://news.google.com/rss/articles/CBMiWkFVX3lxTFBSclYwNVA1NlR5d2ZWNm5xS3JXejF6NUVFbjN0VDg3X210bHlwem9uSXJMcjgzeUw1M1dNSDNUSWhoM0FKMHphM1dQTWtKbFRJLUQtTUFDQW1fZ9IBWEFVX3lxTFBSakpPZE5ySHpwTnBzakdIcXFCUlJPNVJscVNBTDZkTVJ6bVg0QWRNcFpGTDRsYkZQNVIxOGxsRjFjaGhHSFZ6NS1zRDVpWV91VnF6NkR0bVo?oc=5",
-      "severity": "warn",
-      "signals": [
-        "규제"
-      ]
-    }
-  ],
+  "news_hits": [],
   "sources": [
     {
       "label": "PER/PEG/PBR 스코어",
@@ -184,10 +157,6 @@
     {
       "label": "분기 ROE 연환산 (2026-H1 · 6.41%)",
       "ref": "DART 20260814004200 (fnlttSinglAcntAll: 자본총계+분기순이익)"
-    },
-    {
-      "label": "뉴스 RSS",
-      "ref": "news.google.com/rss (7일)"
     }
   ]
 }
