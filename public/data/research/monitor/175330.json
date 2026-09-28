@@ -1,13 +1,13 @@
 {
   "code": "175330",
   "name": "JB금융지주",
-  "last_checked": "2026-09-28T21:08:27.111+09:00",
+  "last_checked": "2026-09-29T02:27:12.429+09:00",
   "metrics": [
     {
       "id": "pbr",
       "label": "PBR",
-      "value": 0.93,
-      "display": "0.93배",
+      "value": 0.96,
+      "display": "0.96배",
       "threshold": "1.1배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,11 +15,11 @@
     {
       "id": "pbr_premium_pp",
       "label": "지방지주 평균 대비 PBR 프리미엄",
-      "value": 0.49,
-      "display": "0.490pp",
+      "value": 0.51,
+      "display": "0.510pp",
       "threshold": "+0.50pp 이상",
-      "hit": false,
-      "tone": "warn"
+      "hit": true,
+      "tone": "bad"
     },
     {
       "id": "foreign_ratio",
@@ -105,10 +105,10 @@
   ],
   "alerts": [
     {
-      "severity": "warn",
+      "severity": "bad",
       "type": "pbr_premium_pp",
-      "title": "지방지주 평균 대비 PBR 프리미엄 임계 근접",
-      "message": "현재 0.490pp (임계 +0.50pp 이상)"
+      "title": "지방지주 평균 대비 PBR 프리미엄 +0.50pp 이상",
+      "message": "현재 0.510pp — 매도 트리거 도달"
     },
     {
       "severity": "bad",
@@ -131,7 +131,7 @@
     },
     {
       "label": "4대 지주 평균 PBR 비교 (1종목)",
-      "ref": "peers: 138930 / avg 0.44"
+      "ref": "peers: 138930 / avg 0.45"
     },
     {
       "label": "분기 배당 결정 (반기보고서 (2026.06))",
