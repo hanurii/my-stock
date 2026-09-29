@@ -1,13 +1,13 @@
 {
   "code": "005387",
   "name": "현대차2우B",
-  "last_checked": "2026-09-29T02:27:24.635+09:00",
+  "last_checked": "2026-09-29T11:33:23.841+09:00",
   "metrics": [
     {
       "id": "price",
       "label": "우선주 종가",
-      "value": 180100,
-      "display": "180,100원",
+      "value": 179100,
+      "display": "179,100원",
       "threshold": "320,000원 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "per",
       "label": "PER",
-      "value": 4.76,
-      "display": "4.76배",
+      "value": 4.73,
+      "display": "4.73배",
       "threshold": "9배 돌파",
       "hit": false,
       "tone": "good"
@@ -24,8 +24,8 @@
     {
       "id": "pref_discount",
       "label": "보통주 대비 디스카운트",
-      "value": 49.84,
-      "display": "49.8%",
+      "value": 49.17,
+      "display": "49.2%",
       "threshold": "30% 이하로 축소",
       "hit": false,
       "tone": "good"
@@ -33,8 +33,8 @@
     {
       "id": "buyback_gap",
       "label": "자사주 소각 공시 공백",
-      "value": 33,
-      "display": "33일",
+      "value": 34,
+      "display": "34일",
       "threshold": "365일 경과",
       "hit": false,
       "tone": "good"
@@ -57,9 +57,9 @@
       "message": "현재 5.8% (임계 4% 미만)"
     },
     {
-      "severity": "info",
+      "severity": "warn",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 2건 (관찰 신호 0건 — 키워드 단순 매칭만)",
+      "title": "리스크 키워드 매칭 뉴스 3건 (관찰 신호 1건 포함)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
@@ -79,6 +79,16 @@
       "url": "https://news.google.com/rss/articles/CBMiRkFVX3lxTFBfYW42Nmh4YjV1V2N4QVYyTEo4R3ZCODgtaTBhQ1ZDNFJkV0R2ejZDTEJyT1JaMWQ0bVIwbEg4U2VQMXN5SWc?oc=5",
       "severity": "info",
       "signals": []
+    },
+    {
+      "keyword": "현대차 미국 판매 감소",
+      "date": "2026-09-28",
+      "title": "현대차·기아, 4월 미국시장 판매 소폭 감소 - chosundaily.com",
+      "url": "https://news.google.com/rss/articles/CBMisgFBVV95cUxPUWdnU2J1cm5iU01zanNUbXJNdVBMUzkzTFlFbXZ0TUw5M09BOElwY0lWbTYxejU0YXdlT0NVM0Q5N256RDlRdVg3dW9Ca2w4S1g4bXF4U1BjMUxpMkdCRzNBenBVRzFYYmQ0TUFST2ZTamdnd25nSXRmZkVuM3MzeHNkRHNaZjFiM1NDLUwzTTdXNjJMVXpvMGctY0xTNDZ1ZHNYTW5NVEpwQ2ViTlhBcHNB?oc=5",
+      "severity": "warn",
+      "signals": [
+        "감소"
+      ]
     }
   ],
   "sources": [
@@ -96,7 +106,7 @@
     },
     {
       "label": "보통주-우선주 디스카운트 (2026-09-28)",
-      "ref": "네이버 lastClose 005380/005387: 353,500원/177,300원"
+      "ref": "네이버 lastClose 005380/005387: 354,500원/180,200원"
     },
     {
       "label": "뉴스 RSS",
