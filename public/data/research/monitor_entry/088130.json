@@ -1,7 +1,7 @@
 {
   "code": "088130",
   "name": "동아엘텍",
-  "last_checked": "2026-09-29T20:42:50.187+09:00",
+  "last_checked": "2026-09-30T10:55:52.979+09:00",
   "metrics": [
     {
       "id": "no_capital_issuance",
@@ -33,8 +33,8 @@
     {
       "id": "per_value_zone",
       "label": "✅ PER 본격 저평가",
-      "value": 1.97,
-      "display": "1.97배",
+      "value": 2.01,
+      "display": "2.01배",
       "threshold": "3.5배 이하",
       "hit": true,
       "tone": "good"
@@ -75,14 +75,33 @@
       "severity": "info",
       "type": "per_value_zone",
       "title": "✅ PER 본격 저평가 3.5배 이하",
-      "message": "현재 1.97배 — 매수 시그널 (분할 진입 검토 권장)"
+      "message": "현재 2.01배 — 매수 시그널 (분할 진입 검토 권장)"
+    },
+    {
+      "severity": "info",
+      "type": "news_keyword_hit",
+      "title": "매수 시그널 키워드 매칭 뉴스 1건 (관찰 신호 0건 — 키워드 단순 매칭만)",
+      "message": "매수 시그널 모니터링 키워드 기준 최근 7일 매칭. 호재 명시 phrase로 등록되어 있으나 본문 직접 확인 권장."
     }
   ],
-  "news_hits": [],
+  "news_hits": [
+    {
+      "keyword": "선익시스템 OLED 수주",
+      "date": "2026-09-30",
+      "title": "선익시스템, 중국 레이비전으로부터 OLEDoS 증착장비 수주 - KIPOST",
+      "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE1XdjdtWG4zQU5XZTdtRHhnTlE1eGZTYk1lQzlzUVdRcnhhdHBqNGwyLWpBRGl1U00tTS1NZFgyRHRYTUdvMzBZU0h1THhjbUg4dzdfclkwQi1vdGlhTTZVX2lESS14VGhm?oc=5",
+      "severity": "info",
+      "signals": []
+    }
+  ],
   "sources": [
     {
       "label": "PER/PEG/PBR 스코어",
       "ref": "public/data/growth-watchlist.json"
+    },
+    {
+      "label": "뉴스 RSS",
+      "ref": "news.google.com/rss (7일)"
     }
   ]
 }
