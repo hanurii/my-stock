@@ -1,7 +1,7 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-10-05T10:42:39.354+09:00",
+  "last_checked": "2026-10-05T19:03:57.392+09:00",
   "metrics": [
     {
       "id": "per",
@@ -60,8 +60,8 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 103.14,
-      "display": "103.14$",
+      "value": 103.25,
+      "display": "103.25$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
@@ -89,7 +89,7 @@
     {
       "severity": "warn",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 3건 (관찰 신호 2건 포함)",
+      "title": "리스크 키워드 매칭 뉴스 2건 (관찰 신호 2건 포함)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
@@ -114,14 +114,6 @@
       "signals": [
         "하락"
       ]
-    },
-    {
-      "keyword": "이란 미국 합의",
-      "date": "2026-09-30",
-      "title": "미국과 이란, 회담 재개: 합의 이행의 난관에 직면. - Vietnam.vn",
-      "url": "https://news.google.com/rss/articles/CBMimAFBVV95cUxNb196ZHRQZWtpU0VUaFJFNGtRSVZIY2E4NGFESGVVRTNpdnRKMXNpanJCWjRiaXNEX2FoZFZMcDRIXzRlb0h5Umg4RHF0WHRGYmpiUHlab0lXSmxsQ3l3VzJ6TVR3a3k4TGZFTXpkMWhvOVc4ekJtT3JTMWNYWTBMR2YzZXhRT1RhMVJ6aDByTGppcVZXRm10Sg?oc=5",
-      "severity": "info",
-      "signals": []
     }
   ],
   "sources": [
@@ -130,7 +122,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 101.67 USD (2026-10-05, 7일 평균 103.14)",
+      "label": "Brent 원유 종가 102.46 USD (2026-10-05, 7일 평균 103.25)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
