@@ -1,13 +1,13 @@
 {
   "code": "175330",
   "name": "JB금융지주",
-  "last_checked": "2026-10-06T03:03:14.888+09:00",
+  "last_checked": "2026-10-06T11:46:20.133+09:00",
   "metrics": [
     {
       "id": "pbr",
       "label": "PBR",
-      "value": 0.89,
-      "display": "0.89배",
+      "value": 0.87,
+      "display": "0.87배",
       "threshold": "1.1배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,11 +15,11 @@
     {
       "id": "pbr_premium_pp",
       "label": "지방지주 평균 대비 PBR 프리미엄",
-      "value": 0.45,
-      "display": "0.450pp",
+      "value": 0.43,
+      "display": "0.430pp",
       "threshold": "+0.50pp 이상",
       "hit": false,
-      "tone": "warn"
+      "tone": "good"
     },
     {
       "id": "foreign_ratio",
@@ -51,8 +51,8 @@
     {
       "id": "buyback_program_status",
       "label": "자사주 프로그램 (마지막 소각결정 · 후속 대기)",
-      "value": 74,
-      "display": "74일",
+      "value": 75,
+      "display": "75일",
       "threshold": "180일+ (1,550억 트랜치 미집행)",
       "hit": false,
       "tone": "good"
@@ -105,12 +105,6 @@
   ],
   "alerts": [
     {
-      "severity": "warn",
-      "type": "pbr_premium_pp",
-      "title": "지방지주 평균 대비 PBR 프리미엄 임계 근접",
-      "message": "현재 0.450pp (임계 +0.50pp 이상)"
-    },
-    {
       "severity": "bad",
       "type": "foreign_net_buy_4w",
       "title": "최근 20거래일 외국인 순매수 순매도 전환",
@@ -132,9 +126,9 @@
   "news_hits": [
     {
       "keyword": "지방은행 부실",
-      "date": "2026-09-28",
-      "title": "\"건전성 나빠져도 돈 못 빼요\"…돌아온 건 '부실' 낙인 [지방은행의 비명①",
-      "url": "https://news.google.com/rss/articles/CBMimAJBVV95cUxQM1k2ZUZrSlF4Yms0ZUpXeXIwV1hSVVBYTjJQajNtcHlibk5wblJvRUFUYWN2czcyM1lrQ3p6cUYyaTMtdTFwQ1dFNzVlaHBjMGFuNXFjUGlOUkhrU05pd1pnM2VjMGx4QXgzeFcyaENwUDhBdFpoUE81eFdVTURjMTkzRkV1SzRkS1dYYjZFUmF4WWxqMWR5SjZfZHZPSU5HTlB6Q3V3VkdLQ3lMX0dWZU5Zc01vd3ZqY2VYa1R3T0gxOUlxYzJVVW1iYjJ3THZYV3YwVzFNSlpLN2RmclZMSUxHWlAtaGFvT1ZJX1BicFBoNVRaNmg1SDl0bHh3NmlWUF9oaWpVeG5NLUg2TWpILXZVRHJuOTZo?oc=5",
+      "date": "2026-10-05",
+      "title": "中 지방은행 1년간 670곳 통폐합… 부실채권 2.8% 속 구조조정 가속 - 블록체인투데이",
+      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE5wcU1IOC1McmxOSVdMX3c1NlZJM2lsS1FKalpCT2lROC01Q0lyT1lpd3hVZWJVTmNPVnRTcFNUYVBXMENicEFaN3hkemlHYjVvb3B1bnVYcUpLYTBHa1RUdUNMeWZ4aHVhbkp4dFZfX1U?oc=5",
       "severity": "info",
       "signals": []
     }

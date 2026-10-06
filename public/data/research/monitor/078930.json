@@ -1,13 +1,13 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-10-06T03:03:36.238+09:00",
+  "last_checked": "2026-10-06T11:46:42.705+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 4.26,
-      "display": "4.26배",
+      "value": 4.21,
+      "display": "4.21배",
       "threshold": "10배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "dividend_yield",
       "label": "배당수익률",
-      "value": 2.85,
-      "display": "2.85%",
+      "value": 2.89,
+      "display": "2.89%",
       "threshold": "3.5% 이하",
       "hit": true,
       "tone": "bad"
@@ -24,8 +24,8 @@
     {
       "id": "price_high",
       "label": "주가",
-      "value": 102200,
-      "display": "102,200원",
+      "value": 106400,
+      "display": "106,400원",
       "threshold": "85,000원+ 돌파",
       "hit": true,
       "tone": "bad"
@@ -60,8 +60,8 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 103.01,
-      "display": "103.01$",
+      "value": 102.44,
+      "display": "102.44$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
@@ -72,13 +72,13 @@
       "severity": "bad",
       "type": "dividend_yield",
       "title": "배당수익률 3.5% 이하",
-      "message": "현재 2.85% — 매도 트리거 도달"
+      "message": "현재 2.89% — 매도 트리거 도달"
     },
     {
       "severity": "bad",
       "type": "price_high",
       "title": "주가 85,000원+ 돌파",
-      "message": "현재 102,200원 — 매도 트리거 도달"
+      "message": "현재 106,400원 — 매도 트리거 도달"
     },
     {
       "severity": "warn",
@@ -89,7 +89,7 @@
     {
       "severity": "warn",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 2건 (관찰 신호 2건 포함)",
+      "title": "리스크 키워드 매칭 뉴스 3건 (관찰 신호 2건 포함)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
@@ -114,6 +114,14 @@
       "signals": [
         "하락"
       ]
+    },
+    {
+      "keyword": "이란 미국 합의",
+      "date": "2026-10-06",
+      "title": "이란은 미국이 이슬라마바드 합의를 준수하지 않았다고 비난하고 있다. - Vietnam.vn",
+      "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxPcG02V3YybEhNdV9lV2NvUzctOUoySzRURmhRUjg1N3k2Q0daMUFDdFhhTGJCZWZLZFJZRE4yVFpBMUdNQXZGQVkxb255WEtpbTBVTlVDMWgzQlZHcVBlal9sZ2lIT2tEY3J3RFFzV2dyNVpKU1FnYzlvMjlpaEt5cG9GNlo?oc=5",
+      "severity": "info",
+      "signals": []
     }
   ],
   "sources": [
@@ -122,7 +130,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 100.76 USD (2026-10-05, 7일 평균 103.01)",
+      "label": "Brent 원유 종가 100.82 USD (2026-10-06, 7일 평균 102.44)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
