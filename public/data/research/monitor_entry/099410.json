@@ -1,7 +1,7 @@
 {
   "code": "099410",
   "name": "동방선기",
-  "last_checked": "2026-10-06T11:47:14.033+09:00",
+  "last_checked": "2026-10-06T18:48:00.728+09:00",
   "metrics": [
     {
       "id": "no_capital_issuance",
@@ -70,9 +70,24 @@
       "type": "per_value_zone",
       "title": "✅ PER 저평가 8.0배 이하 (현 9.67배)",
       "message": "현재 5.37배 — 매수 시그널 (분할 진입 검토 권장)"
+    },
+    {
+      "severity": "info",
+      "type": "news_keyword_hit",
+      "title": "매수 시그널 키워드 매칭 뉴스 1건 (관찰 신호 0건 — 키워드 단순 매칭만)",
+      "message": "매수 시그널 모니터링 키워드 기준 최근 7일 매칭. 호재 명시 phrase로 등록되어 있으나 본문 직접 확인 권장."
     }
   ],
-  "news_hits": [],
+  "news_hits": [
+    {
+      "keyword": "조선 슈퍼사이클",
+      "date": "2026-10-06",
+      "title": "조선업계 ‘추투 전선’ 재고조… 슈퍼사이클 발목 잡나 - 문화일보",
+      "url": "https://news.google.com/rss/articles/CBMiUEFVX3lxTE12c2N4Wi1IZ3pkN0lCNnV3SnpTbUFOY0ItY2diVWxGdVBEa0xRWWF3ZDU0VDdYWTVzZWxxeVVKZkNoUHp3eUZtel9DT2dEQTJp?oc=5",
+      "severity": "info",
+      "signals": []
+    }
+  ],
   "sources": [
     {
       "label": "PER/PEG/PBR 스코어",
@@ -81,6 +96,10 @@
     {
       "label": "분기 영업이익률 (2026)",
       "ref": "DART 20260814000007"
+    },
+    {
+      "label": "뉴스 RSS",
+      "ref": "news.google.com/rss (7일)"
     }
   ]
 }

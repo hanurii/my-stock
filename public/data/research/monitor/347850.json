@@ -1,13 +1,13 @@
 {
   "code": "347850",
   "name": "디앤디파마텍",
-  "last_checked": "2026-10-06T11:46:50.845+09:00",
+  "last_checked": "2026-10-06T18:47:46.501+09:00",
   "metrics": [
     {
       "id": "pbr",
       "label": "PBR (극고평가)",
-      "value": 15.12,
-      "display": "15.12배",
+      "value": 16.25,
+      "display": "16.25배",
       "threshold": "50배 돌파",
       "hit": false,
       "tone": "good"
@@ -52,21 +52,12 @@
   "alerts": [
     {
       "severity": "info",
-      "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 1건 (관찰 신호 0건 — 키워드 단순 매칭만)",
-      "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
+      "type": "all_clear",
+      "title": "모든 매도 트리거 범위 내",
+      "message": "현재 지표·공시·뉴스 기준 즉각 매도 사유 없음. 보유 유지."
     }
   ],
-  "news_hits": [
-    {
-      "keyword": "디앤디파마텍 DD01 임상",
-      "date": "2026-09-29",
-      "title": "디앤디파마텍 3.94% 내린 4만1500원…DD01 임상 데이터 다음 단계는 - 잡포스트",
-      "url": "https://news.google.com/rss/articles/CBMibkFVX3lxTE9HNk9xWS1hWUN4LUJXZXZaRHBqbGFmV01scFBRaDBRMzV4dEJFLVNCdENsZ1VKUEdxV1RUU0JtYlJJc3k1MEZYTGg5bF94b01ja3ZtTFAyZ04zcnJsUDZCNmhxd3dUVHphQm9vdFhR0gFyQVVfeXFMTmZOWTVKdDJQWGlNdDhDTWw4bkNHTjFCN2xNeHVvMlV4MkNJQ1J4M0Q1a3ZHM2kwbV9jdDlZZmtMWjVHT2U2dHN0STFMclUyOWlyS2g4djQxaDBLUkNxLVFlSGxLV0NRZXhjdnFLYWxzQ3hn?oc=5",
-      "severity": "info",
-      "signals": []
-    }
-  ],
+  "news_hits": [],
   "sources": [
     {
       "label": "PER/PEG/PBR 스코어",
@@ -83,10 +74,6 @@
     {
       "label": "ClinicalTrials.gov 임상 5건 (30일 status 변경 0건)",
       "ref": "query.spons: D&D Pharmatech, Neuraly"
-    },
-    {
-      "label": "뉴스 RSS",
-      "ref": "news.google.com/rss (7일)"
     }
   ]
 }
