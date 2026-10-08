@@ -1,13 +1,13 @@
 {
   "code": "005387",
   "name": "현대차2우B",
-  "last_checked": "2026-10-08T01:10:51.006+09:00",
+  "last_checked": "2026-10-08T11:35:49.059+09:00",
   "metrics": [
     {
       "id": "price",
       "label": "우선주 종가",
-      "value": 174900,
-      "display": "174,900원",
+      "value": 170500,
+      "display": "170,500원",
       "threshold": "320,000원 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "per",
       "label": "PER",
-      "value": 4.62,
-      "display": "4.62배",
+      "value": 4.5,
+      "display": "4.50배",
       "threshold": "9배 돌파",
       "hit": false,
       "tone": "good"
@@ -24,8 +24,8 @@
     {
       "id": "pref_discount",
       "label": "보통주 대비 디스카운트",
-      "value": 48.39,
-      "display": "48.4%",
+      "value": 48.21,
+      "display": "48.2%",
       "threshold": "30% 이하로 축소",
       "hit": false,
       "tone": "good"
@@ -33,8 +33,8 @@
     {
       "id": "buyback_gap",
       "label": "자사주 소각 공시 공백",
-      "value": 42,
-      "display": "42일",
+      "value": 43,
+      "display": "43일",
       "threshold": "365일 경과",
       "hit": false,
       "tone": "good"
@@ -57,13 +57,21 @@
       "message": "현재 5.8% (임계 4% 미만)"
     },
     {
-      "severity": "info",
+      "severity": "warn",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 7건 (관찰 신호 0건 — 키워드 단순 매칭만)",
+      "title": "리스크 키워드 매칭 뉴스 9건 (관찰 신호 1건 포함)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
   "news_hits": [
+    {
+      "keyword": "트럼프 자동차 관세",
+      "date": "2026-10-07",
+      "title": "트럼프 대통령 \"관세 덕분에 미국 자동차 산업 부흥… 한국·일본·독일 떠나 미국으로\" - VOA 한국어 홈페이지",
+      "url": "https://news.google.com/rss/articles/CBMiU0FVX3lxTFBsTkJyMVZrWGVIRjNDZlV6MVFFQ01ta2kxUFNOTTg5aFdFODdxWkRFNGpPMVEzdm1RN2Y2UWo4dTJVTDhtWndER0xjd0hJMDYyTWdF0gFTQVVfeXFMUGxOQnIxVmtYZUhGM0NmVXoxUUVDTW1raTFQU05NODloV0U4N3FaREU0ak8xUTN2bVE3ZjZRajh1MlVMOG1ad0RHTGN3SEkwNjJNZ0U?oc=5",
+      "severity": "info",
+      "signals": []
+    },
     {
       "keyword": "트럼프 자동차 관세",
       "date": "2026-10-02",
@@ -75,8 +83,8 @@
     {
       "keyword": "트럼프 자동차 관세",
       "date": "2026-10-05",
-      "title": "트럼프 대통령의 관세: 미국 자동차 산업에 이점일까, 아니면 도전일까? - Vietnam.vn",
-      "url": "https://news.google.com/rss/articles/CBMingFBVV95cUxNZjRxZVFpLUxUUTFEYWNNenpDTEdXd3Mwb3FsbnVTQWNCWVA5RV9oYkRLNkZ4WmFzdzY3amhlNktEZUQycWtQUHY0SmVDSjBuUmdpbFZQSl9LUXRBOVVuT09uTjlqR0xocHVQWGRTUzFyVG1vRTY0UHdHX1pQbHVvOFloVFp6SlRtZ2lJVFJkSDJ6NWxTY3FZeXk0V0U1Zw?oc=5",
+      "title": "트럼프 대통령의 관세: 미국 자동차 산업에 유리한 요인. - Vietnam.vn",
+      "url": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxPckc4RW9kRHlSRTJiMUpuVXFydDBlSU5Jb3R1VGdmTTJjdXlDWV9yWGFCcXFra1FQY0dodDROWVp3bTd3RXJlU1NoSTlDcTZRUng5UXd3TkZCZWw5cG4xQkh0SmNCckJGSmRyRzFrTG8tWEY3cEFfd2RXLXdCcWJHQWhLOVVxTG9Q?oc=5",
       "severity": "info",
       "signals": []
     },
@@ -89,10 +97,28 @@
       "signals": []
     },
     {
+      "keyword": "현대차 미국 판매 감소",
+      "date": "2026-10-07",
+      "title": "현대차·기아, 4월 미국시장 판매 소폭 감소 - 미주조선일보",
+      "url": "https://news.google.com/rss/articles/CBMitwFBVV95cUxPQXMyc20ycHlmNUloUVdVaVU4aWZXSGR1Q3hsWVVSUXAzSDBQTFQ1MTBwNUJlMzZDWTFiZDdTZ3VUc2lHVF9vaUd1TmhWWC13NS1KSm8yZmFkbnBwdnlhSFcxSHRuXzFZTjM4S2J0RW9uWjVmU25iQmVnRnhiU2d6bDc4TE5tNDY2SmxCZ3QxUmFKMWpBN19ObWNXNVhEaWVPeUhYTkZQOVRNSGxLdDRFZGZQTDd3UVk?oc=5",
+      "severity": "warn",
+      "signals": [
+        "감소"
+      ]
+    },
+    {
       "keyword": "현대차 멕시코 적자",
       "date": "2026-10-06",
       "title": "성우하이텍, 멕시코 적자에 1000억 수혈…GM·현대차 공급 인프라 확대 박차 - 리버티코리아포스트",
       "url": "https://news.google.com/rss/articles/CBMiY0FVX3lxTE41dnprWTRsbDJsVklCMFcxLVdaSndqRHBKWHBpb3k2bFRpYjhObEMtWWdfOXROZktiVW43TzdUa0psak5zNDVHQklvVDdPak56UVhyVUJCYlVOQ1R3Tkt6RGNSUdIBZ0FVX3lxTE0yaXdHZV95THF0bzFhUnd4S3cxNzZtVDItMTE3TWM5bW9yRDdKY0J6cV83UkxBa1ZhRVNDLU9kWWV0UHcybXM5T3Rjb19lcXhLOHZCQnJKNXoxRTNRSW9UZ1dCbXRUZEE?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "현대모비스 분할",
+      "date": "2026-10-07",
+      "title": "현대모비스, 램프 사업부 분할 매각으로 포트폴리오 재편 - 알파경제",
+      "url": "https://news.google.com/rss/articles/CBMibkFVX3lxTE1XbmxWTklyNUJXTjNIVENUQ2NaVzYzcFBYMDU5TmxRQ0p4OWVsOUJpaEUzM3ZNS2dNczA4N1pETEw3bDdWUXl4eGp5aGJRZ0JCdVJMRnJ4c0djeFVLTkV3MTJlZ2wzZDJEd0FnY2dR?oc=5",
       "severity": "info",
       "signals": []
     },
@@ -109,14 +135,6 @@
       "date": "2026-10-04",
       "title": "현대모비스, 램프사업 분할·매각…“사업 효율화에 투자여력 확보” - 핀포인트뉴스",
       "url": "https://news.google.com/rss/articles/CBMid0FVX3lxTE00T2ZnUkdpSFlFSk5Pc2NrVmJFM2h5NnFJTzNTMm5VWFNDYUg5SnFETWFuUTVWdUdLZkIyOWFOM2JlQ1Y5QkM2RUYtbjZ2bmFlbjgzRC10WndaZ2xpRTA3eXJ3X0M5RlVuQzAxSy1IV1psRVZoWi1r0gF3QVVfeXFMTTRPZmdSR2lIWUVKTk9zY2tWYkUzaHk2cUlPM1MyblVYU0NhSDlKcURNYW5RNVZ1R0tmQjI5YU4zYmVDVjlCQzZFRi1uNnZuYWVuODNELXRad1pnbGlFMDd5cndfQzlGVW5DMDFLLUhXWmxFVmhaLWs?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "현대모비스 분할",
-      "date": "2026-10-01",
-      "title": "램프 사업 물적분할하는 현대모비스에…한투證 “의도치 않은 주주환원 효과” - 조선비즈 - Chosunbiz",
-      "url": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxQZ3gyLUFPaWZ1OTI3eUlfLUZEM3Q2Z1hPTnFYMndmeTlWd2NIamdMUXZ3NkxvSzQ2REZBRGdjWl9SUlJkMm5tNFM4ZUJNVm4xT3Bqdk5tMG9WT1E2QXg2RW9LMWJZZW16VGU3d24waGgweE1YTlJiWlFZdHFfVlFJT1Bhd05NSkNM0gGcAUFVX3lxTE44ZFdFODhfQzlESnZoZ3AwdW5KcjU2SG9nalBHeThWTklUMzlqd1ZGelJsemZFMDVaS1FWUzIwRnRGUUFZSVdNMDVKazUzdm9oaDVJSU5wTk1wSXJpLThMUXdPUDViUFFTM1V2NGZ0ZnFHZUROaHFpMUJmd0M1NFNvUDZ3T2dOMHVRQkFfR001aEVJWmVuNHJLYTUwUQ?oc=5",
       "severity": "info",
       "signals": []
     }
@@ -136,7 +154,7 @@
     },
     {
       "label": "보통주-우선주 디스카운트 (2026-10-07)",
-      "ref": "네이버 lastClose 005380/005387: 348,000원/179,600원"
+      "ref": "네이버 lastClose 005380/005387: 336,000원/174,000원"
     },
     {
       "label": "뉴스 RSS",

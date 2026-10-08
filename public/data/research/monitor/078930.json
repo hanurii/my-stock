@@ -1,13 +1,13 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-10-08T01:11:01.288+09:00",
+  "last_checked": "2026-10-08T11:35:59.279+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 4.45,
-      "display": "4.45배",
+      "value": 4.27,
+      "display": "4.27배",
       "threshold": "10배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "dividend_yield",
       "label": "배당수익률",
-      "value": 2.73,
-      "display": "2.73%",
+      "value": 2.84,
+      "display": "2.84%",
       "threshold": "3.5% 이하",
       "hit": true,
       "tone": "bad"
@@ -24,8 +24,8 @@
     {
       "id": "price_high",
       "label": "주가",
-      "value": 105800,
-      "display": "105,800원",
+      "value": 109900,
+      "display": "109,900원",
       "threshold": "85,000원+ 돌파",
       "hit": true,
       "tone": "bad"
@@ -60,8 +60,8 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 101.77,
-      "display": "101.77$",
+      "value": 101.6,
+      "display": "101.60$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
@@ -72,13 +72,13 @@
       "severity": "bad",
       "type": "dividend_yield",
       "title": "배당수익률 3.5% 이하",
-      "message": "현재 2.73% — 매도 트리거 도달"
+      "message": "현재 2.84% — 매도 트리거 도달"
     },
     {
       "severity": "bad",
       "type": "price_high",
       "title": "주가 85,000원+ 돌파",
-      "message": "현재 105,800원 — 매도 트리거 도달"
+      "message": "현재 109,900원 — 매도 트리거 도달"
     },
     {
       "severity": "warn",
@@ -89,11 +89,21 @@
     {
       "severity": "warn",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 3건 (관찰 신호 2건 포함)",
+      "title": "리스크 키워드 매칭 뉴스 5건 (관찰 신호 4건 포함)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
   "news_hits": [
+    {
+      "keyword": "두바이유 하락",
+      "date": "2026-10-08",
+      "title": "IEA 비축유 조기 방출에 국제 유가 하락… 두바이유는 5.73달러↑ - 파이낸셜포스트",
+      "url": "https://news.google.com/rss/articles/CBMidEFVX3lxTE1YRVJkNnIxY1ZqdjZEaDYxXzhFNGpsWmFCQWNZNzV5cERXeFNSWS1icnpqVXFBTGVQNHI3RGtXdXZfSlBWYk1BeXl4RHVyVkNhZ2VpWXY1Y2Jfa3pYUTFKY3F6TnR2WmxtU1N2UlQyWjJYZHhW?oc=5",
+      "severity": "warn",
+      "signals": [
+        "하락"
+      ]
+    },
     {
       "keyword": "두바이유 하락",
       "date": "2026-10-03",
@@ -103,6 +113,16 @@
       "signals": [
         "하락",
         "혼조"
+      ]
+    },
+    {
+      "keyword": "두바이유 하락",
+      "date": "2026-10-07",
+      "title": "사우디 송유관 피격 前 수준 회복...두바이유값 하락 - 이투뉴스",
+      "url": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE1kYVhscWNJamdKdTVjSUxtUDhQaTZJVkJ0X3R0OTMyVXhXZkVJNllzdHJBZkJqZXBTTlJqOU1ZZjZId3FQYTh4RnJST2JQbGEwWWpHWWpiOHg5a0oxN19CVi1abEhTdDDSAWtBVV95cUxNUndJUS03OEdBOXo1VjZWWHkwVWVtanlsVEpWRk1iZWE0NHEtbTc5MXluVXJJM3V3b0R5ZThLMV9vdms5bmxNYWswUWZwRmNIWGFxaHhuR0k2NUVONXRNYXk5UHZOUDdrYjJNYw?oc=5",
+      "severity": "warn",
+      "signals": [
+        "하락"
       ]
     },
     {
@@ -130,7 +150,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 100.84 USD (2026-10-07, 7일 평균 101.77)",
+      "label": "Brent 원유 종가 102 USD (2026-10-08, 7일 평균 101.6)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
