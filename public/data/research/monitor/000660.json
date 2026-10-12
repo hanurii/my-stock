@@ -1,13 +1,13 @@
 {
   "code": "000660",
   "name": "SK하이닉스",
-  "last_checked": "2026-10-10T00:52:22.718+09:00",
+  "last_checked": "2026-10-12T11:05:42.940+09:00",
   "metrics": [
     {
       "id": "pbr",
       "label": "PBR",
-      "value": 10.51,
-      "display": "10.51배",
+      "value": 9.86,
+      "display": "9.86배",
       "threshold": "8배 돌파",
       "hit": true,
       "tone": "bad"
@@ -24,20 +24,20 @@
     {
       "id": "affiliate_ratio",
       "label": "계열사 거래 매출 비율 (1년)",
-      "value": null,
-      "display": "—",
+      "value": 7.265,
+      "display": "7.265%",
       "threshold": "매출의 7% 초과",
-      "hit": false,
-      "tone": "neutral"
+      "hit": true,
+      "tone": "bad"
     },
     {
       "id": "affiliate_yoy_pp",
       "label": "계열사 거래 비율 YoY 변화",
-      "value": null,
-      "display": "—",
+      "value": 0.727,
+      "display": "0.73%p",
       "threshold": "+2%p 이상 급증",
       "hit": false,
-      "tone": "neutral"
+      "tone": "good"
     },
     {
       "id": "sk_square_disposal",
@@ -72,19 +72,13 @@
       "severity": "bad",
       "type": "pbr",
       "title": "PBR 8배 돌파",
-      "message": "현재 10.51배 — 매도 트리거 도달"
+      "message": "현재 9.86배 — 매도 트리거 도달"
     },
     {
-      "severity": "warn",
-      "type": "affiliate_ratio_missing",
-      "title": "계열사 거래 매출 비율 (1년) 데이터 미수집",
-      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
-    },
-    {
-      "severity": "warn",
-      "type": "affiliate_yoy_pp_missing",
-      "title": "계열사 거래 비율 YoY 변화 데이터 미수집",
-      "message": "DART/시세 조회 실패 — 다음 실행에서 재시도"
+      "severity": "bad",
+      "type": "affiliate_ratio",
+      "title": "계열사 거래 매출 비율 (1년) 매출의 7% 초과",
+      "message": "현재 7.265% — 매도 트리거 도달"
     }
   ],
   "news_hits": [],
@@ -96,6 +90,10 @@
     {
       "label": "분기 영업이익률 (2026)",
       "ref": "DART 20260814003509"
+    },
+    {
+      "label": "계열사 거래 비율 (365일 누적, 10건)",
+      "ref": "DART 특수관계인내부거래·출자계열사거래 20261006000253, 20260727000169, 20260727000166 외"
     },
     {
       "label": "SK스퀘어(주) 보유 비율 (2026)",
