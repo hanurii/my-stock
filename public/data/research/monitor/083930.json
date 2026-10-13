@@ -1,7 +1,7 @@
 {
   "code": "083930",
   "name": "아바코",
-  "last_checked": "2026-10-13T12:22:09.288+09:00",
+  "last_checked": "2026-10-13T19:05:14.551+09:00",
   "metrics": [
     {
       "id": "per",
@@ -24,11 +24,11 @@
     {
       "id": "supply_gap",
       "label": "수주 공백",
-      "value": 180,
-      "display": "180일",
+      "value": 0,
+      "display": "0일",
       "threshold": "90일 경과",
-      "hit": true,
-      "tone": "bad"
+      "hit": false,
+      "tone": "good"
     },
     {
       "id": "related_party",
@@ -42,12 +42,6 @@
   ],
   "alerts": [
     {
-      "severity": "bad",
-      "type": "supply_gap",
-      "title": "수주 공백 90일 경과",
-      "message": "현재 180일 — 매도 트리거 도달"
-    },
-    {
       "severity": "warn",
       "type": "related_party_missing",
       "title": "대명ENG 매입 비율 데이터 미수집",
@@ -59,6 +53,10 @@
     {
       "label": "PER/PEG/PBR 스코어",
       "ref": "public/data/growth-watchlist.json"
+    },
+    {
+      "label": "최근 공급계약 공시",
+      "ref": "DART 20261013900472"
     }
   ]
 }
