@@ -1,13 +1,13 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-10-15T10:15:42.628+09:00",
+  "last_checked": "2026-10-15T17:02:39.854+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 3.84,
-      "display": "3.84배",
+      "value": 3.81,
+      "display": "3.81배",
       "threshold": "10배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "dividend_yield",
       "label": "배당수익률",
-      "value": 3.17,
-      "display": "3.17%",
+      "value": 3.19,
+      "display": "3.19%",
       "threshold": "3.5% 이하",
       "hit": true,
       "tone": "bad"
@@ -60,8 +60,8 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 103.87,
-      "display": "103.87$",
+      "value": 104.52,
+      "display": "104.52$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
@@ -72,7 +72,7 @@
       "severity": "bad",
       "type": "dividend_yield",
       "title": "배당수익률 3.5% 이하",
-      "message": "현재 3.17% — 매도 트리거 도달"
+      "message": "현재 3.19% — 매도 트리거 도달"
     },
     {
       "severity": "bad",
@@ -89,7 +89,7 @@
     {
       "severity": "warn",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 9건 (관찰 신호 4건 포함)",
+      "title": "리스크 키워드 매칭 뉴스 8건 (관찰 신호 3건 포함)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
@@ -99,16 +99,6 @@
       "date": "2026-10-14",
       "title": "OPEC 수요전망 하향에 브렌트·두바이유 가격하락 - 이투뉴스",
       "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTFAzbURndWZZTENGTlhCTHR0Mm1kZFk4bEdHZy0zYTJjNmllS25nbEV4dFZsaTNWR2RxXzFNektYVDNrSVliangxZ3U5MEotTFVqWElKOVFlRzhndDJSSjVNdndVRFQybTFs0gFrQVVfeXFMTm5mNkJaMWdZWldHdWdLbDNZZkVKQnRTODBKYmRGMFNwZmFIdC1ua1l5V25YT0lMbEZ1T0JkdDhMQlhqVmE3NFI2RVl3U0RabXJpRkJ0SHkxUzJNSW5XZHRHRTRHRHJQYWdpak0?oc=5",
-      "severity": "warn",
-      "signals": [
-        "하락"
-      ]
-    },
-    {
-      "keyword": "두바이유 하락",
-      "date": "2026-10-08",
-      "title": "IEA 비축유 조기 방출에 국제 유가 하락… 두바이유는 5.73달러↑ - 파이낸셜포스트",
-      "url": "https://news.google.com/rss/articles/CBMidEFVX3lxTE1YRVJkNnIxY1ZqdjZEaDYxXzhFNGpsWmFCQWNZNzV5cERXeFNSWS1icnpqVXFBTGVQNHI3RGtXdXZfSlBWYk1BeXl4RHVyVkNhZ2VpWXY1Y2Jfa3pYUTFKY3F6TnR2WmxtU1N2UlQyWjJYZHhW?oc=5",
       "severity": "warn",
       "signals": [
         "하락"
@@ -181,7 +171,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 104.95 USD (2026-10-15, 7일 평균 103.87)",
+      "label": "Brent 원유 종가 104.03 USD (2026-10-15, 7일 평균 104.52)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
