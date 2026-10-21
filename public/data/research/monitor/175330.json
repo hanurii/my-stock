@@ -1,13 +1,13 @@
 {
   "code": "175330",
   "name": "JB금융지주",
-  "last_checked": "2026-10-20T23:10:56.922+09:00",
+  "last_checked": "2026-10-21T10:22:47.606+09:00",
   "metrics": [
     {
       "id": "pbr",
       "label": "PBR",
-      "value": 0.83,
-      "display": "0.83배",
+      "value": 0.82,
+      "display": "0.82배",
       "threshold": "1.1배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "pbr_premium_pp",
       "label": "지방지주 평균 대비 PBR 프리미엄",
-      "value": 0.43,
-      "display": "0.430pp",
+      "value": 0.42,
+      "display": "0.420pp",
       "threshold": "+0.50pp 이상",
       "hit": false,
       "tone": "good"
@@ -24,8 +24,8 @@
     {
       "id": "foreign_ratio",
       "label": "외국인 지분율",
-      "value": 32.98,
-      "display": "32.98%",
+      "value": 32.99,
+      "display": "32.99%",
       "threshold": "25% 이하",
       "hit": false,
       "tone": "good"
@@ -51,11 +51,11 @@
     {
       "id": "buyback_program_status",
       "label": "자사주 프로그램 (마지막 소각결정 · 후속 대기)",
-      "value": 89,
-      "display": "89일",
+      "value": 90,
+      "display": "90일",
       "threshold": "180일+ (1,550억 트랜치 미집행)",
       "hit": false,
-      "tone": "good"
+      "tone": "warn"
     },
     {
       "id": "quarterly_net_income",
@@ -115,6 +115,12 @@
       "type": "dividend_qoq_change",
       "title": "분기배당 QoQ 변화율 동결 또는 감소",
       "message": "현재 -45.2% — 매도 트리거 도달"
+    },
+    {
+      "severity": "warn",
+      "type": "buyback_program_status",
+      "title": "자사주 프로그램 (마지막 소각결정 · 후속 대기) 임계 근접",
+      "message": "현재 90일 (임계 180일+ (1,550억 트랜치 미집행))"
     },
     {
       "severity": "info",
