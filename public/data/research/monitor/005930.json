@@ -1,16 +1,16 @@
 {
   "code": "005930",
   "name": "삼성전자",
-  "last_checked": "2026-10-21T19:41:31.244+09:00",
+  "last_checked": "2026-10-21T23:23:40.982+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 32.93,
-      "display": "32.93배",
+      "value": 33.84,
+      "display": "33.84배",
       "threshold": "35배 돌파",
       "hit": false,
-      "tone": "good"
+      "tone": "warn"
     },
     {
       "id": "buyback_gap",
@@ -69,6 +69,12 @@
   ],
   "alerts": [
     {
+      "severity": "warn",
+      "type": "per",
+      "title": "PER 임계 근접",
+      "message": "현재 33.84배 (임계 35배 돌파)"
+    },
+    {
       "severity": "bad",
       "type": "buyback_gap",
       "title": "자사주 소각 공시 공백 180일 경과",
@@ -86,7 +92,7 @@
       "keyword": "삼성생명 삼성전자 처분",
       "date": "2026-10-21",
       "title": "(단독)금감원 \"삼성생명, 삼성전자 지분 처분 가능성 반영해야\" - 뉴스토마토",
-      "url": "https://news.google.com/rss/articles/CBMiX0FVX3lxTFA0NjFseUwxckxCb2lOVWJIb3VtLUVCdEg5dEhoWWhRZmpHTEh6U3ZRLVEyMUFDOFZDWl95b0x6aWxVM21RTVlJUVJWS0pHcWdwT2duWW9iNWlyTi1MYWRF?oc=5",
+      "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE4xWkNYOEFxUHd6anJtWGZhSnlnWlM5TTJGQ25faWpzbml4aGY2Xy12U1Bjc2xGeXVFX1hfM25sWTdrbVFlRV9zYnU3RW51OGpCeG9OV19iVnRvU3c0VVJFeQ?oc=5",
       "severity": "info",
       "signals": []
     },
