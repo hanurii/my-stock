@@ -1,13 +1,13 @@
 {
   "code": "005387",
   "name": "현대차2우B",
-  "last_checked": "2026-10-23T19:38:40.035+09:00",
+  "last_checked": "2026-10-23T23:21:45.416+09:00",
   "metrics": [
     {
       "id": "price",
       "label": "우선주 종가",
-      "value": 157800,
-      "display": "157,800원",
+      "value": 158400,
+      "display": "158,400원",
       "threshold": "320,000원 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "per",
       "label": "PER",
-      "value": 4.17,
-      "display": "4.17배",
+      "value": 4.18,
+      "display": "4.18배",
       "threshold": "9배 돌파",
       "hit": false,
       "tone": "good"
@@ -55,24 +55,9 @@
       "type": "op_margin",
       "title": "분기 영업이익률 (2026) 임계 근접",
       "message": "현재 5.8% (임계 4% 미만)"
-    },
-    {
-      "severity": "info",
-      "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 1건 (관찰 신호 0건 — 키워드 단순 매칭만)",
-      "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
-  "news_hits": [
-    {
-      "keyword": "현대차 관세 부담",
-      "date": "2026-10-22",
-      "title": "현대차, 美현지생산 확대·전동화 ‘투트랙’… 수요·관세부담 대응 - 아시아투데이",
-      "url": "https://news.google.com/rss/articles/CBMibkFVX3lxTE5NQ2toT0hTQjllZWttOTJaYm95bW5ZdXJWcVVGZmo0SkxIZ0duSG8zeE5waUNYNWtsWHBNalF4clM1aVNkWlVDQmZCbjFHMURPTGVRRXdaSzY4bnNXVjZKQjUtOVh3ZEwyTmdGSzBB?oc=5",
-      "severity": "info",
-      "signals": []
-    }
-  ],
+  "news_hits": [],
   "sources": [
     {
       "label": "PER/PEG/PBR 스코어",
@@ -87,12 +72,8 @@
       "ref": "DART 20260826800261"
     },
     {
-      "label": "보통주-우선주 디스카운트 (2026-10-22)",
+      "label": "보통주-우선주 디스카운트 (2026-10-23)",
       "ref": "네이버 lastClose 005380/005387: 301,500원/161,700원"
-    },
-    {
-      "label": "뉴스 RSS",
-      "ref": "news.google.com/rss (7일)"
     }
   ]
 }

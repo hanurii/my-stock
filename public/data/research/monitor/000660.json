@@ -1,16 +1,16 @@
 {
   "code": "000660",
   "name": "SK하이닉스",
-  "last_checked": "2026-10-23T19:35:17.365+09:00",
+  "last_checked": "2026-10-23T23:08:11.817+09:00",
   "metrics": [
     {
       "id": "pbr",
       "label": "PBR",
-      "value": 7.17,
-      "display": "7.17배",
+      "value": 7.62,
+      "display": "7.62배",
       "threshold": "8배 돌파",
       "hit": false,
-      "tone": "good"
+      "tone": "warn"
     },
     {
       "id": "op_margin",
@@ -68,6 +68,12 @@
     }
   ],
   "alerts": [
+    {
+      "severity": "warn",
+      "type": "pbr",
+      "title": "PBR 임계 근접",
+      "message": "현재 7.62배 (임계 8배 돌파)"
+    },
     {
       "severity": "bad",
       "type": "affiliate_ratio",
