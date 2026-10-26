@@ -1,13 +1,13 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-10-26T10:01:44.114+09:00",
+  "last_checked": "2026-10-26T17:33:36.235+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 3.29,
-      "display": "3.29배",
+      "value": 3.21,
+      "display": "3.21배",
       "threshold": "10배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,11 +15,11 @@
     {
       "id": "dividend_yield",
       "label": "배당수익률",
-      "value": 3.69,
-      "display": "3.69%",
+      "value": 3.79,
+      "display": "3.79%",
       "threshold": "3.5% 이하",
       "hit": false,
-      "tone": "warn"
+      "tone": "good"
     },
     {
       "id": "price_high",
@@ -60,20 +60,14 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 111.07,
-      "display": "111.07$",
+      "value": 110.98,
+      "display": "110.98$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
     }
   ],
   "alerts": [
-    {
-      "severity": "warn",
-      "type": "dividend_yield",
-      "title": "배당수익률 임계 근접",
-      "message": "현재 3.69% (임계 3.5% 이하)"
-    },
     {
       "severity": "bad",
       "type": "price_high",
@@ -114,17 +108,17 @@
     },
     {
       "keyword": "이란 미국 합의",
-      "date": "2026-10-20",
-      "title": "이란·미국 협상 지속…\"합의 임박 보도는 사실 아냐\" - 블루밍비트",
-      "url": "https://news.google.com/rss/articles/CBMiUEFVX3lxTFA5TzROVF84VlZiNUZXbkdUR1dkUDVQcEFHN0JTNjJOT1B2cHpNMkVOak01UlgzQkVmdk54OVhXRktCMFRPUEVySGVybF93U2Uy?oc=5",
+      "date": "2026-10-26",
+      "title": "트럼프, 이란과 합의·공습 양자택일 임박…이란 미국과 외교적 소통 - 스페셜경제",
+      "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE14NjVlaGkxcl85MkJTNWZ0OWZlTjItMmhxUlRlVnAxcTB5dW9hSURuU0Roa2tCMU9pdUV5WldaR05CS2JvbjhEVDk3SGdKcENmNDFJazJ6Y2tYQzhpY0JUd1RfTG5EeTNUbE9KVQ?oc=5",
       "severity": "info",
       "signals": []
     },
     {
       "keyword": "이란 미국 합의",
-      "date": "2026-10-25",
-      "title": "트럼프: 미국은 이란을 \"내일\" 공격할 수도 있고, 합의에 도달할 수도 있다. - Vietnam.vn",
-      "url": "https://news.google.com/rss/articles/CBMingFBVV95cUxOLTFxTFNTdzc4Rmg0MFZhUEpHV0ZoM0k0VHRHTE9NbFg5VFhsZEtaNUM4dG53UVFvdE9pRElYXzRFcjdORlpZbF9LQ2tJYUVuUksyb0JTbG4xZHRfdjB3aXVvSFVGT004VWJ3d2NFejhZbC1uN3p5TXJOeDRIeDkyclg2OWVTZ2R5Wm94UWNvQ2FEQXdncUpfZ1RhZnBQQQ?oc=5",
+      "date": "2026-10-20",
+      "title": "이란·미국 협상 지속…\"합의 임박 보도는 사실 아냐\" - 블루밍비트",
+      "url": "https://news.google.com/rss/articles/CBMiUEFVX3lxTFA5TzROVF84VlZiNUZXbkdUR1dkUDVQcEFHN0JTNjJOT1B2cHpNMkVOak01UlgzQkVmdk54OVhXRktCMFRPUEVySGVybF93U2Uy?oc=5",
       "severity": "info",
       "signals": []
     },
@@ -169,7 +163,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 110.57 USD (2026-10-26, 7일 평균 111.07)",
+      "label": "Brent 원유 종가 109.96 USD (2026-10-26, 7일 평균 110.98)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
