@@ -1,7 +1,7 @@
 {
   "code": "100840",
   "name": "SNT에너지",
-  "last_checked": "2026-10-23T23:11:53.844+09:00",
+  "last_checked": "2026-10-26T10:00:30.616+09:00",
   "metrics": [
     {
       "id": "op_margin",
@@ -15,8 +15,8 @@
     {
       "id": "supply_gap",
       "label": "수주 공백",
-      "value": 11,
-      "display": "11일",
+      "value": 14,
+      "display": "14일",
       "threshold": "180일 경과",
       "hit": false,
       "tone": "good"
@@ -46,9 +46,52 @@
       "type": "snt_holdings_ratio",
       "title": "SNT홀딩스 지분 비율 50% 이하로 감소",
       "message": "현재 47.97% — 매도 트리거 도달"
+    },
+    {
+      "severity": "warn",
+      "type": "news_keyword_hit",
+      "title": "리스크 키워드 매칭 뉴스 4건 (관찰 신호 2건 포함)",
+      "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
-  "news_hits": [],
+  "news_hits": [
+    {
+      "keyword": "SNT홀딩스 처분",
+      "date": "2026-10-19",
+      "title": "SNT홀딩스, 스맥 주식 593만8500주 248억원 규모 처분 결정 - 디지털투데이",
+      "url": "https://news.google.com/rss/articles/CBMie0FVX3lxTFBsalAyMnZKN0w3WkhOSTdURlpMZk93OERmaFJDRS0waU9WbDlYaDFFUFlTVDBJaG5pRS1HUVFVRGNzclVheXNUWTNsMDRoRWZVZU5UdVRUZnUxWVVtSFlZdGJsSHRkZ0kzUlFyeGFFQ0h0c2MyR0FqcVpBRQ?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "SNT홀딩스 처분",
+      "date": "2026-10-19",
+      "title": "SNT홀딩스, 스맥 주식 593만8500주 248억원에 처분 결정 - 데이터투자",
+      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE5HcEZDSHVhNkE2bXA0dmMxSzdFT0NGMjJ2S1JMYUpEakQ3bVoxQzRzd2xUeXVyNVJ1UzRjRWxieUlsTXBwMHVfdFZxT0tTcExvVWJMeE1iOTNxN2J1aEE0RlNJZjYxNGZCbDE3cmtRSDJRVU0?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "중동 수주 둔화",
+      "date": "2026-10-26",
+      "title": "태광, 중동 수주 공백에 실적 둔화 전망…한투증권 \"목표가 16%↓\" - 뉴스웍스",
+      "url": "https://news.google.com/rss/articles/CBMib0FVX3lxTE5nZmJsbkc0UjVzODRwdE5JMDRfQUlPeHJCMXlyZ2lKOXJReDdOZENDbjZJTTN0SWhpcGNZQjNZdmNfMnlBTXd4NVlscVZJSWZMVG1odHBSSDY1eGZkSDFNTjBkUUJrOG55TzNMNzdtZ9IBc0FVX3lxTE5pQWlYV3BjNS1HazJ6WGtncVFxS0JwQmlGQ0pYR1pYWEt1RHl3RC1OMXZxTl9JN1kxLWN2SmRZTF9pUHZ0V3JGUnQ1NlpidmpUaHlqeVdncGZ0bXFTbm1Za2hIT0dGWV8tSnEtbkxHVC1qQzg?oc=5",
+      "severity": "warn",
+      "signals": [
+        "둔화"
+      ]
+    },
+    {
+      "keyword": "원전 발주 지연",
+      "date": "2026-10-25",
+      "title": "‘원전 공론화’ 변수… 신규발주 지연되나 - 대한경제",
+      "url": "https://news.google.com/rss/articles/CBMidEFVX3lxTE91cm9DSHNiODRJRzdoUkFJYnZmdTl4dDJibzdVZnFjb19PVWJuMFczNmU1VTM3a3hha0x1MXYxTXpMcWhlVkFkd00tZkI0T2VORUpiejRMVW55RmliUDhLOFNJc2hMU3VhckYzS3dLeFNoVG5r?oc=5",
+      "severity": "warn",
+      "signals": [
+        "지연"
+      ]
+    }
+  ],
   "sources": [
     {
       "label": "최근 공급계약 공시",
@@ -61,6 +104,10 @@
     {
       "label": "(주)SNT홀딩스 보유 비율 (2026)",
       "ref": "DART 20260812000070 (hyslrSttus)"
+    },
+    {
+      "label": "뉴스 RSS",
+      "ref": "news.google.com/rss (7일)"
     }
   ]
 }
