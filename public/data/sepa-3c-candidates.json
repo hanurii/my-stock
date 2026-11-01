@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-10-29 20:10",
-  "asof": "2026-10-29",
+  "generated_at": "2026-11-01 23:22",
+  "asof": "2026-10-30",
   "source": "sepa-trend-candidates.json",
   "params": {
     "lookback_days": 250,
@@ -17,584 +17,66 @@
     "breakout_vol_mult": 1.4,
     "near_pivot_pct": 5.0
   },
-  "pattern_count": 1,
+  "pattern_count": 0,
   "entry_ready_count": 0,
   "status_distribution": {
-    "breakout": 1,
-    "actionable": 7,
+    "breakout": 0,
+    "actionable": 3,
     "forming": 26,
     "failed": 10
   },
   "candidates": [
     {
-      "code": "000810",
-      "name": "삼성화재",
-      "market": "KOSPI",
-      "current_price": 653000.0,
-      "rs": 92,
-      "gate_near": false,
-      "gate_near_reasons": [],
-      "gate_margin": {
-        "score": 26.1,
-        "tightest": "6",
-        "tightest_label": "⑥ 52주저가 대비",
-        "tightest_detail": "52주저가 대비 +48% (기준 +30%)",
-        "per_condition": {
-          "1": {
-            "margin": 10.04,
-            "pct": 100.0,
-            "ref": 10.0
-          },
-          "2": {
-            "margin": 3.87,
-            "pct": 77.3,
-            "ref": 5.0
-          },
-          "3": {
-            "margin": 2.27,
-            "pct": 45.3,
-            "ref": 5.0
-          },
-          "4": {
-            "margin": 7.63,
-            "pct": 76.3,
-            "ref": 10.0
-          },
-          "5": {
-            "margin": 2.24,
-            "pct": 44.8,
-            "ref": 5.0
-          },
-          "6": {
-            "margin": 18.29,
-            "pct": 26.1,
-            "ref": 70.0
-          },
-          "7": {
-            "margin": 14.48,
-            "pct": 72.4,
-            "ref": 20.0
-          },
-          "8": {
-            "margin": 12.0,
-            "pct": 100.0,
-            "ref": 10.0
-          }
-        }
-      },
-      "pattern_detected": false,
-      "entry_ready": false,
-      "cup_depth_pct": 24.94,
-      "cup_base_days": 99,
-      "shelf_position_pct": 41.3,
-      "shelf_depth_pct": 6.19,
-      "shelf_length_days": 1,
-      "pivot_price": 646000.0,
-      "pct_to_pivot": -1.08,
-      "volume_dryup_ratio": 1.114,
-      "rally_vol_ratio": 0.692,
-      "tightness_pct": 4.65,
-      "status": "breakout",
-      "reason": "shelf_too_short",
-      "left_rim_date": "2026-06-04",
-      "cup_low_date": "2026-10-15",
-      "shelf_high_date": "2026-10-28"
-    },
-    {
-      "code": "071200",
-      "name": "인피니트헬스케어",
-      "market": "KOSDAQ",
-      "current_price": 11120.0,
-      "rs": 95,
-      "gate_near": false,
-      "gate_near_reasons": [],
-      "gate_margin": {
-        "score": 39.9,
-        "tightest": "7",
-        "tightest_label": "⑦ 52주고가",
-        "tightest_detail": "52주고가 대비 -17.0% (기준 -25%까지 8.0%p)",
-        "per_condition": {
-          "1": {
-            "margin": 31.0,
-            "pct": 100.0,
-            "ref": 10.0
-          },
-          "2": {
-            "margin": 6.35,
-            "pct": 100.0,
-            "ref": 5.0
-          },
-          "3": {
-            "margin": 7.58,
-            "pct": 100.0,
-            "ref": 5.0
-          },
-          "4": {
-            "margin": 24.79,
-            "pct": 100.0,
-            "ref": 10.0
-          },
-          "5": {
-            "margin": 4.98,
-            "pct": 99.5,
-            "ref": 5.0
-          },
-          "6": {
-            "margin": 68.48,
-            "pct": 97.8,
-            "ref": 70.0
-          },
-          "7": {
-            "margin": 7.99,
-            "pct": 39.9,
-            "ref": 20.0
-          },
-          "8": {
-            "margin": 15.0,
-            "pct": 100.0,
-            "ref": 10.0
-          }
-        }
-      },
-      "pattern_detected": false,
-      "entry_ready": false,
-      "cup_depth_pct": 28.98,
-      "cup_base_days": 28,
-      "shelf_position_pct": 27.71,
-      "shelf_depth_pct": 6.92,
-      "shelf_length_days": 1,
-      "pivot_price": 11130.0,
-      "pct_to_pivot": 0.09,
-      "volume_dryup_ratio": 0.979,
-      "rally_vol_ratio": 0.174,
-      "tightness_pct": 4.95,
-      "status": "actionable",
-      "reason": "shelf_too_short",
-      "left_rim_date": "2026-09-15",
-      "cup_low_date": "2026-10-15",
-      "shelf_high_date": "2026-10-28"
-    },
-    {
-      "code": "033780",
-      "name": "KT&G",
-      "market": "KOSPI",
-      "current_price": 193200.0,
-      "rs": 90,
-      "gate_near": false,
-      "gate_near_reasons": [],
-      "gate_margin": {
-        "score": 13.2,
-        "tightest": "4",
-        "tightest_label": "④ 50일선 정렬",
-        "tightest_detail": "50일선이 150·200일선 위로 +1.3%",
-        "per_condition": {
-          "1": {
-            "margin": 9.81,
-            "pct": 98.1,
-            "ref": 10.0
-          },
-          "2": {
-            "margin": 3.0,
-            "pct": 60.1,
-            "ref": 5.0
-          },
-          "3": {
-            "margin": 2.7,
-            "pct": 54.0,
-            "ref": 5.0
-          },
-          "4": {
-            "margin": 1.32,
-            "pct": 13.2,
-            "ref": 10.0
-          },
-          "5": {
-            "margin": 8.37,
-            "pct": 100.0,
-            "ref": 5.0
-          },
-          "6": {
-            "margin": 14.57,
-            "pct": 20.8,
-            "ref": 70.0
-          },
-          "7": {
-            "margin": 24.6,
-            "pct": 100.0,
-            "ref": 20.0
-          },
-          "8": {
-            "margin": 10.0,
-            "pct": 100.0,
-            "ref": 10.0
-          }
-        }
-      },
-      "pattern_detected": false,
-      "entry_ready": false,
-      "cup_depth_pct": 5.49,
-      "cup_base_days": 6,
-      "shelf_position_pct": 73.31,
-      "shelf_depth_pct": 2.53,
-      "shelf_length_days": 0,
-      "pivot_price": 193500.0,
-      "pct_to_pivot": 0.16,
-      "volume_dryup_ratio": 0.977,
-      "rally_vol_ratio": 1.065,
-      "tightness_pct": 2.58,
-      "status": "actionable",
-      "reason": "cup_too_shallow",
-      "left_rim_date": "2026-10-21",
-      "cup_low_date": "2026-10-27",
-      "shelf_high_date": "2026-10-29"
-    },
-    {
-      "code": "077500",
-      "name": "유니퀘스트",
-      "market": "KOSPI",
-      "current_price": 12140.0,
-      "rs": 95,
-      "gate_near": false,
-      "gate_near_reasons": [],
-      "gate_margin": {
-        "score": 59.5,
-        "tightest": "2",
-        "tightest_label": "② 150>200일선",
-        "tightest_detail": "150일선이 200일선 위로 +3.0%",
-        "per_condition": {
-          "1": {
-            "margin": 67.19,
-            "pct": 100.0,
-            "ref": 10.0
-          },
-          "2": {
-            "margin": 2.97,
-            "pct": 59.5,
-            "ref": 5.0
-          },
-          "3": {
-            "margin": 6.83,
-            "pct": 100.0,
-            "ref": 5.0
-          },
-          "4": {
-            "margin": 20.62,
-            "pct": 100.0,
-            "ref": 10.0
-          },
-          "5": {
-            "margin": 38.61,
-            "pct": 100.0,
-            "ref": 5.0
-          },
-          "6": {
-            "margin": 153.9,
-            "pct": 100.0,
-            "ref": 70.0
-          },
-          "7": {
-            "margin": 25.0,
-            "pct": 100.0,
-            "ref": 20.0
-          },
-          "8": {
-            "margin": 15.0,
-            "pct": 100.0,
-            "ref": 10.0
-          }
-        }
-      },
-      "pattern_detected": false,
-      "entry_ready": false,
-      "cup_depth_pct": 18.91,
-      "cup_base_days": 5,
-      "shelf_position_pct": 78.72,
-      "shelf_depth_pct": 10.43,
-      "shelf_length_days": 1,
-      "pivot_price": 12180.0,
-      "pct_to_pivot": 0.33,
-      "volume_dryup_ratio": 0.703,
-      "rally_vol_ratio": 0.421,
-      "tightness_pct": 10.45,
-      "status": "actionable",
-      "reason": "cup_too_short",
-      "left_rim_date": "2026-10-22",
-      "cup_low_date": "2026-10-22",
-      "shelf_high_date": "2026-10-28"
-    },
-    {
-      "code": "031980",
-      "name": "피에스케이홀딩스",
-      "market": "KOSDAQ",
-      "current_price": 192900.0,
-      "rs": 99,
-      "gate_near": false,
-      "gate_near_reasons": [],
-      "gate_margin": {
-        "score": 71.6,
-        "tightest": "7",
-        "tightest_label": "⑦ 52주고가",
-        "tightest_detail": "52주고가 대비 -10.7% (기준 -25%까지 14.3%p)",
-        "per_condition": {
-          "1": {
-            "margin": 45.92,
-            "pct": 100.0,
-            "ref": 10.0
-          },
-          "2": {
-            "margin": 11.43,
-            "pct": 100.0,
-            "ref": 5.0
-          },
-          "3": {
-            "margin": 15.37,
-            "pct": 100.0,
-            "ref": 5.0
-          },
-          "4": {
-            "margin": 21.29,
-            "pct": 100.0,
-            "ref": 10.0
-          },
-          "5": {
-            "margin": 20.3,
-            "pct": 100.0,
-            "ref": 5.0
-          },
-          "6": {
-            "margin": 342.76,
-            "pct": 100.0,
-            "ref": 70.0
-          },
-          "7": {
-            "margin": 14.32,
-            "pct": 71.6,
-            "ref": 20.0
-          },
-          "8": {
-            "margin": 19.0,
-            "pct": 100.0,
-            "ref": 10.0
-          }
-        }
-      },
-      "pattern_detected": false,
-      "entry_ready": false,
-      "cup_depth_pct": 28.76,
-      "cup_base_days": 12,
-      "shelf_position_pct": 59.87,
-      "shelf_depth_pct": 8.11,
-      "shelf_length_days": 1,
-      "pivot_price": 193700.0,
-      "pct_to_pivot": 0.41,
-      "volume_dryup_ratio": 0.992,
-      "rally_vol_ratio": 0.779,
-      "tightness_pct": 8.45,
-      "status": "actionable",
-      "reason": "cup_too_short",
-      "left_rim_date": "2026-10-13",
-      "cup_low_date": "2026-10-23",
-      "shelf_high_date": "2026-10-28"
-    },
-    {
-      "code": "453340",
-      "name": "현대그린푸드",
-      "market": "KOSPI",
-      "current_price": 19540.0,
-      "rs": 88,
-      "gate_near": false,
-      "gate_near_reasons": [],
-      "gate_margin": {
-        "score": 2.4,
-        "tightest": "6",
-        "tightest_label": "⑥ 52주저가 대비",
-        "tightest_detail": "52주저가 대비 +32% (기준 +30%)",
-        "per_condition": {
-          "1": {
-            "margin": 9.81,
-            "pct": 98.1,
-            "ref": 10.0
-          },
-          "2": {
-            "margin": 3.21,
-            "pct": 64.1,
-            "ref": 5.0
-          },
-          "3": {
-            "margin": 2.15,
-            "pct": 43.0,
-            "ref": 5.0
-          },
-          "4": {
-            "margin": 6.31,
-            "pct": 63.1,
-            "ref": 10.0
-          },
-          "5": {
-            "margin": 3.29,
-            "pct": 65.8,
-            "ref": 5.0
-          },
-          "6": {
-            "margin": 1.7,
-            "pct": 2.4,
-            "ref": 70.0
-          },
-          "7": {
-            "margin": 21.74,
-            "pct": 100.0,
-            "ref": 20.0
-          },
-          "8": {
-            "margin": 8.0,
-            "pct": 80.0,
-            "ref": 10.0
-          }
-        }
-      },
-      "pattern_detected": false,
-      "entry_ready": false,
-      "cup_depth_pct": 9.23,
-      "cup_base_days": 7,
-      "shelf_position_pct": 46.34,
-      "shelf_depth_pct": 3.09,
-      "shelf_length_days": 0,
-      "pivot_price": 19770.0,
-      "pct_to_pivot": 1.16,
-      "volume_dryup_ratio": 0.891,
-      "rally_vol_ratio": 1.283,
-      "tightness_pct": 3.84,
-      "status": "actionable",
-      "reason": "cup_too_shallow",
-      "left_rim_date": "2026-10-20",
-      "cup_low_date": "2026-10-27",
-      "shelf_high_date": "2026-10-29"
-    },
-    {
-      "code": "252990",
-      "name": "샘씨엔에스",
-      "market": "KOSDAQ",
-      "current_price": 17420.0,
-      "rs": 98,
-      "gate_near": false,
-      "gate_near_reasons": [],
-      "gate_margin": {
-        "score": 57.2,
-        "tightest": "7",
-        "tightest_label": "⑦ 52주고가",
-        "tightest_detail": "52주고가 대비 -13.6% (기준 -25%까지 11.4%p)",
-        "per_condition": {
-          "1": {
-            "margin": 27.58,
-            "pct": 100.0,
-            "ref": 10.0
-          },
-          "2": {
-            "margin": 8.25,
-            "pct": 100.0,
-            "ref": 5.0
-          },
-          "3": {
-            "margin": 10.11,
-            "pct": 100.0,
-            "ref": 5.0
-          },
-          "4": {
-            "margin": 16.26,
-            "pct": 100.0,
-            "ref": 10.0
-          },
-          "5": {
-            "margin": 9.73,
-            "pct": 100.0,
-            "ref": 5.0
-          },
-          "6": {
-            "margin": 148.32,
-            "pct": 100.0,
-            "ref": 70.0
-          },
-          "7": {
-            "margin": 11.44,
-            "pct": 57.2,
-            "ref": 20.0
-          },
-          "8": {
-            "margin": 18.0,
-            "pct": 100.0,
-            "ref": 10.0
-          }
-        }
-      },
-      "pattern_detected": false,
-      "entry_ready": false,
-      "cup_depth_pct": 32.64,
-      "cup_base_days": 18,
-      "shelf_position_pct": 57.43,
-      "shelf_depth_pct": 8.45,
-      "shelf_length_days": 1,
-      "pivot_price": 17870.0,
-      "pct_to_pivot": 2.52,
-      "volume_dryup_ratio": 0.985,
-      "rally_vol_ratio": 1.261,
-      "tightness_pct": 8.93,
-      "status": "actionable",
-      "reason": "shelf_too_short",
-      "left_rim_date": "2026-10-01",
-      "cup_low_date": "2026-10-15",
-      "shelf_high_date": "2026-10-28"
-    },
-    {
       "code": "089860",
       "name": "롯데렌탈",
       "market": "KOSPI",
-      "current_price": 51300.0,
-      "rs": 95,
+      "current_price": 52300.0,
+      "rs": 96,
       "gate_near": false,
       "gate_near_reasons": [],
       "gate_margin": {
-        "score": 77.5,
-        "tightest": "5",
-        "tightest_label": "⑤ 50일선",
-        "tightest_detail": "종가가 50일선 위로 +3.9%",
+        "score": 88.0,
+        "tightest": "6",
+        "tightest_label": "⑥ 52주저가 대비",
+        "tightest_detail": "52주저가 대비 +92% (기준 +30%)",
         "per_condition": {
           "1": {
-            "margin": 33.0,
+            "margin": 35.12,
             "pct": 100.0,
             "ref": 10.0
           },
           "2": {
-            "margin": 4.66,
-            "pct": 93.2,
+            "margin": 4.72,
+            "pct": 94.3,
             "ref": 5.0
           },
           "3": {
-            "margin": 5.94,
+            "margin": 5.98,
             "pct": 100.0,
             "ref": 5.0
           },
           "4": {
-            "margin": 28.04,
+            "margin": 27.96,
             "pct": 100.0,
             "ref": 10.0
           },
           "5": {
-            "margin": 3.88,
-            "pct": 77.5,
+            "margin": 5.6,
+            "pct": 100.0,
             "ref": 5.0
           },
           "6": {
-            "margin": 57.92,
-            "pct": 82.7,
+            "margin": 61.58,
+            "pct": 88.0,
             "ref": 70.0
           },
           "7": {
-            "margin": 22.53,
+            "margin": 24.43,
             "pct": 100.0,
             "ref": 20.0
           },
           "8": {
-            "margin": 15.0,
+            "margin": 16.0,
             "pct": 100.0,
             "ref": 10.0
           }
@@ -603,15 +85,15 @@
       "pattern_detected": false,
       "entry_ready": false,
       "cup_depth_pct": 11.3,
-      "cup_base_days": 38,
+      "cup_base_days": 39,
       "shelf_position_pct": 96.69,
       "shelf_depth_pct": 4.73,
-      "shelf_length_days": 1,
-      "pivot_price": 52900.0,
-      "pct_to_pivot": 3.02,
-      "volume_dryup_ratio": 0.929,
+      "shelf_length_days": 2,
+      "pivot_price": 52899.13,
+      "pct_to_pivot": 1.13,
+      "volume_dryup_ratio": 0.969,
       "rally_vol_ratio": 0.246,
-      "tightness_pct": 3.49,
+      "tightness_pct": 3.59,
       "status": "actionable",
       "reason": "cup_too_shallow",
       "left_rim_date": "2026-09-01",
@@ -619,274 +101,126 @@
       "shelf_high_date": "2026-10-28"
     },
     {
-      "code": "281820",
-      "name": "케이씨텍",
+      "code": "453340",
+      "name": "현대그린푸드",
       "market": "KOSPI",
-      "current_price": 97600.0,
-      "rs": 98,
+      "current_price": 19570.0,
+      "rs": 89,
       "gate_near": false,
       "gate_near_reasons": [],
       "gate_margin": {
-        "score": 18.6,
-        "tightest": "7",
-        "tightest_label": "⑦ 52주고가",
-        "tightest_detail": "52주고가 대비 -21.3% (기준 -25%까지 3.7%p)",
+        "score": 2.7,
+        "tightest": "6",
+        "tightest_label": "⑥ 52주저가 대비",
+        "tightest_detail": "52주저가 대비 +32% (기준 +30%)",
         "per_condition": {
           "1": {
-            "margin": 31.03,
-            "pct": 100.0,
+            "margin": 9.82,
+            "pct": 98.2,
             "ref": 10.0
           },
           "2": {
-            "margin": 11.1,
-            "pct": 100.0,
+            "margin": 3.23,
+            "pct": 64.6,
             "ref": 5.0
           },
           "3": {
-            "margin": 11.18,
-            "pct": 100.0,
+            "margin": 2.16,
+            "pct": 43.2,
             "ref": 5.0
           },
           "4": {
-            "margin": 11.14,
-            "pct": 100.0,
+            "margin": 6.28,
+            "pct": 62.8,
             "ref": 10.0
           },
           "5": {
-            "margin": 17.9,
-            "pct": 100.0,
+            "margin": 3.33,
+            "pct": 66.6,
             "ref": 5.0
           },
           "6": {
-            "margin": 145.96,
-            "pct": 100.0,
+            "margin": 1.9,
+            "pct": 2.7,
             "ref": 70.0
           },
           "7": {
-            "margin": 3.72,
-            "pct": 18.6,
+            "margin": 21.88,
+            "pct": 100.0,
             "ref": 20.0
           },
           "8": {
-            "margin": 18.0,
-            "pct": 100.0,
+            "margin": 9.0,
+            "pct": 90.0,
             "ref": 10.0
           }
         }
       },
       "pattern_detected": false,
       "entry_ready": false,
-      "cup_depth_pct": 36.61,
-      "cup_base_days": 15,
-      "shelf_position_pct": 24.46,
-      "shelf_depth_pct": 6.19,
-      "shelf_length_days": 1,
-      "pivot_price": 97000.0,
-      "pct_to_pivot": -0.62,
-      "volume_dryup_ratio": 1.046,
-      "rally_vol_ratio": 0.554,
-      "tightness_pct": 9.02,
-      "status": "forming",
-      "reason": "cup_too_short",
-      "left_rim_date": "2026-10-07",
-      "cup_low_date": "2026-10-23",
-      "shelf_high_date": "2026-10-28"
-    },
-    {
-      "code": "005430",
-      "name": "한국공항",
-      "market": "KOSPI",
-      "current_price": 86500.0,
-      "rs": 90,
-      "gate_near": false,
-      "gate_near_reasons": [],
-      "gate_margin": {
-        "score": 34.9,
-        "tightest": "5",
-        "tightest_label": "⑤ 50일선",
-        "tightest_detail": "종가가 50일선 위로 +1.7%",
-        "per_condition": {
-          "1": {
-            "margin": 12.06,
-            "pct": 100.0,
-            "ref": 10.0
-          },
-          "2": {
-            "margin": 4.06,
-            "pct": 81.1,
-            "ref": 5.0
-          },
-          "3": {
-            "margin": 4.19,
-            "pct": 83.7,
-            "ref": 5.0
-          },
-          "4": {
-            "margin": 10.14,
-            "pct": 100.0,
-            "ref": 10.0
-          },
-          "5": {
-            "margin": 1.74,
-            "pct": 34.9,
-            "ref": 5.0
-          },
-          "6": {
-            "margin": 27.34,
-            "pct": 39.1,
-            "ref": 70.0
-          },
-          "7": {
-            "margin": 11.75,
-            "pct": 58.8,
-            "ref": 20.0
-          },
-          "8": {
-            "margin": 10.0,
-            "pct": 100.0,
-            "ref": 10.0
-          }
-        }
-      },
-      "pattern_detected": false,
-      "entry_ready": false,
-      "cup_depth_pct": 19.7,
-      "cup_base_days": 18,
-      "shelf_position_pct": 27.21,
-      "shelf_depth_pct": 4.44,
-      "shelf_length_days": 1,
-      "pivot_price": 87900.0,
-      "pct_to_pivot": 1.59,
-      "volume_dryup_ratio": 1.434,
-      "rally_vol_ratio": 0.281,
-      "tightness_pct": 3.25,
-      "status": "forming",
-      "reason": "shelf_too_short",
-      "left_rim_date": "2026-10-01",
-      "cup_low_date": "2026-10-27",
-      "shelf_high_date": "2026-10-28"
-    },
-    {
-      "code": "051160",
-      "name": "지어소프트",
-      "market": "KOSDAQ",
-      "current_price": 12980.0,
-      "rs": 94,
-      "gate_near": false,
-      "gate_near_reasons": [],
-      "gate_margin": {
-        "score": 64.4,
-        "tightest": "7",
-        "tightest_label": "⑦ 52주고가",
-        "tightest_detail": "52주고가 대비 -12.1% (기준 -25%까지 12.9%p)",
-        "per_condition": {
-          "1": {
-            "margin": 44.73,
-            "pct": 100.0,
-            "ref": 10.0
-          },
-          "2": {
-            "margin": 3.96,
-            "pct": 79.2,
-            "ref": 5.0
-          },
-          "3": {
-            "margin": 7.78,
-            "pct": 100.0,
-            "ref": 5.0
-          },
-          "4": {
-            "margin": 27.38,
-            "pct": 100.0,
-            "ref": 10.0
-          },
-          "5": {
-            "margin": 13.62,
-            "pct": 100.0,
-            "ref": 5.0
-          },
-          "6": {
-            "margin": 70.26,
-            "pct": 100.0,
-            "ref": 70.0
-          },
-          "7": {
-            "margin": 12.87,
-            "pct": 64.4,
-            "ref": 20.0
-          },
-          "8": {
-            "margin": 14.0,
-            "pct": 100.0,
-            "ref": 10.0
-          }
-        }
-      },
-      "pattern_detected": false,
-      "entry_ready": false,
-      "cup_depth_pct": 22.12,
-      "cup_base_days": 7,
-      "shelf_position_pct": 36.51,
-      "shelf_depth_pct": 4.47,
-      "shelf_length_days": 1,
-      "pivot_price": 13410.0,
-      "pct_to_pivot": 3.21,
-      "volume_dryup_ratio": 1.189,
-      "rally_vol_ratio": 0.481,
-      "tightness_pct": 7.38,
-      "status": "forming",
-      "reason": "cup_too_short",
+      "cup_depth_pct": 9.23,
+      "cup_base_days": 8,
+      "shelf_position_pct": 47.87,
+      "shelf_depth_pct": 2.63,
+      "shelf_length_days": 0,
+      "pivot_price": 19800.0,
+      "pct_to_pivot": 1.16,
+      "volume_dryup_ratio": 0.918,
+      "rally_vol_ratio": 1.23,
+      "tightness_pct": 3.73,
+      "status": "actionable",
+      "reason": "cup_too_shallow",
       "left_rim_date": "2026-10-20",
-      "cup_low_date": "2026-10-26",
-      "shelf_high_date": "2026-10-28"
+      "cup_low_date": "2026-10-27",
+      "shelf_high_date": "2026-10-30"
     },
     {
-      "code": "028050",
-      "name": "삼성E&A",
-      "market": "KOSPI",
-      "current_price": 62600.0,
+      "code": "098120",
+      "name": "마이크로컨텍솔",
+      "market": "KOSDAQ",
+      "current_price": 54700.0,
       "rs": 97,
       "gate_near": false,
       "gate_near_reasons": [],
       "gate_margin": {
-        "score": 27.9,
-        "tightest": "4",
-        "tightest_label": "④ 50일선 정렬",
-        "tightest_detail": "50일선이 150·200일선 위로 +2.8%",
+        "score": 77.0,
+        "tightest": "7",
+        "tightest_label": "⑦ 52주고가",
+        "tightest_detail": "52주고가 대비 -9.6% (기준 -25%까지 15.4%p)",
         "per_condition": {
           "1": {
-            "margin": 30.23,
+            "margin": 54.48,
             "pct": 100.0,
             "ref": 10.0
           },
           "2": {
-            "margin": 9.95,
+            "margin": 9.28,
             "pct": 100.0,
             "ref": 5.0
           },
           "3": {
-            "margin": 6.82,
+            "margin": 12.96,
             "pct": 100.0,
             "ref": 5.0
           },
           "4": {
-            "margin": 2.79,
-            "pct": 27.9,
+            "margin": 38.79,
+            "pct": 100.0,
             "ref": 10.0
           },
           "5": {
-            "margin": 26.69,
+            "margin": 11.31,
             "pct": 100.0,
             "ref": 5.0
           },
           "6": {
-            "margin": 139.19,
+            "margin": 213.46,
             "pct": 100.0,
             "ref": 70.0
           },
           "7": {
-            "margin": 22.22,
-            "pct": 100.0,
+            "margin": 15.39,
+            "pct": 77.0,
             "ref": 20.0
           },
           "8": {
@@ -898,69 +232,513 @@
       },
       "pattern_detected": false,
       "entry_ready": false,
-      "cup_depth_pct": 43.08,
-      "cup_base_days": 117,
-      "shelf_position_pct": 91.75,
-      "shelf_depth_pct": 4.62,
+      "cup_depth_pct": 39.3,
+      "cup_base_days": 16,
+      "shelf_position_pct": 75.71,
+      "shelf_depth_pct": 8.77,
       "shelf_length_days": 1,
-      "pivot_price": 64900.0,
-      "pct_to_pivot": 3.54,
-      "volume_dryup_ratio": 2.783,
-      "rally_vol_ratio": 0.84,
-      "tightness_pct": 6.72,
+      "pivot_price": 57000.0,
+      "pct_to_pivot": 4.04,
+      "volume_dryup_ratio": 0.996,
+      "rally_vol_ratio": 1.376,
+      "tightness_pct": 9.8,
+      "status": "actionable",
+      "reason": "cup_too_short",
+      "left_rim_date": "2026-10-07",
+      "cup_low_date": "2026-10-23",
+      "shelf_high_date": "2026-10-29"
+    },
+    {
+      "code": "000810",
+      "name": "삼성화재",
+      "market": "KOSPI",
+      "current_price": 655000.0,
+      "rs": 93,
+      "gate_near": false,
+      "gate_near_reasons": [],
+      "gate_margin": {
+        "score": 26.8,
+        "tightest": "6",
+        "tightest_label": "⑥ 52주저가 대비",
+        "tightest_detail": "52주저가 대비 +49% (기준 +30%)",
+        "per_condition": {
+          "1": {
+            "margin": 10.16,
+            "pct": 100.0,
+            "ref": 10.0
+          },
+          "2": {
+            "margin": 3.92,
+            "pct": 78.5,
+            "ref": 5.0
+          },
+          "3": {
+            "margin": 2.27,
+            "pct": 45.4,
+            "ref": 5.0
+          },
+          "4": {
+            "margin": 7.54,
+            "pct": 75.4,
+            "ref": 10.0
+          },
+          "5": {
+            "margin": 2.43,
+            "pct": 48.7,
+            "ref": 5.0
+          },
+          "6": {
+            "margin": 18.75,
+            "pct": 26.8,
+            "ref": 70.0
+          },
+          "7": {
+            "margin": 14.75,
+            "pct": 73.8,
+            "ref": 20.0
+          },
+          "8": {
+            "margin": 13.0,
+            "pct": 100.0,
+            "ref": 10.0
+          }
+        }
+      },
+      "pattern_detected": false,
+      "entry_ready": false,
+      "cup_depth_pct": 24.94,
+      "cup_base_days": 100,
+      "shelf_position_pct": 41.3,
+      "shelf_depth_pct": 6.19,
+      "shelf_length_days": 2,
+      "pivot_price": 645986.11,
+      "pct_to_pivot": -1.4,
+      "volume_dryup_ratio": 1.135,
+      "rally_vol_ratio": 0.692,
+      "tightness_pct": 4.51,
+      "status": "forming",
+      "reason": "volume_not_drying",
+      "left_rim_date": "2026-06-04",
+      "cup_low_date": "2026-10-15",
+      "shelf_high_date": "2026-10-28"
+    },
+    {
+      "code": "071200",
+      "name": "인피니트헬스케어",
+      "market": "KOSDAQ",
+      "current_price": 11240.0,
+      "rs": 96,
+      "gate_near": false,
+      "gate_near_reasons": [],
+      "gate_margin": {
+        "score": 44.4,
+        "tightest": "7",
+        "tightest_label": "⑦ 52주고가",
+        "tightest_detail": "52주고가 대비 -16.1% (기준 -25%까지 8.9%p)",
+        "per_condition": {
+          "1": {
+            "margin": 31.9,
+            "pct": 100.0,
+            "ref": 10.0
+          },
+          "2": {
+            "margin": 6.4,
+            "pct": 100.0,
+            "ref": 5.0
+          },
+          "3": {
+            "margin": 7.49,
+            "pct": 100.0,
+            "ref": 5.0
+          },
+          "4": {
+            "margin": 24.5,
+            "pct": 100.0,
+            "ref": 10.0
+          },
+          "5": {
+            "margin": 5.94,
+            "pct": 100.0,
+            "ref": 5.0
+          },
+          "6": {
+            "margin": 70.62,
+            "pct": 100.0,
+            "ref": 70.0
+          },
+          "7": {
+            "margin": 8.88,
+            "pct": 44.4,
+            "ref": 20.0
+          },
+          "8": {
+            "margin": 16.0,
+            "pct": 100.0,
+            "ref": 10.0
+          }
+        }
+      },
+      "pattern_detected": false,
+      "entry_ready": false,
+      "cup_depth_pct": 28.98,
+      "cup_base_days": 29,
+      "shelf_position_pct": 29.66,
+      "shelf_depth_pct": 4.37,
+      "shelf_length_days": 1,
+      "pivot_price": 11210.0,
+      "pct_to_pivot": -0.27,
+      "volume_dryup_ratio": 0.957,
+      "rally_vol_ratio": 0.181,
+      "tightness_pct": 4.64,
       "status": "forming",
       "reason": "shelf_too_short",
-      "left_rim_date": "2026-05-07",
-      "cup_low_date": "2026-07-14",
+      "left_rim_date": "2026-09-15",
+      "cup_low_date": "2026-10-15",
+      "shelf_high_date": "2026-10-29"
+    },
+    {
+      "code": "021240",
+      "name": "코웨이",
+      "market": "KOSPI",
+      "current_price": 103500.0,
+      "rs": 83,
+      "gate_near": false,
+      "gate_near_reasons": [],
+      "gate_margin": {
+        "score": 22.7,
+        "tightest": "6",
+        "tightest_label": "⑥ 52주저가 대비",
+        "tightest_detail": "52주저가 대비 +46% (기준 +30%)",
+        "per_condition": {
+          "1": {
+            "margin": 12.16,
+            "pct": 100.0,
+            "ref": 10.0
+          },
+          "2": {
+            "margin": 3.52,
+            "pct": 70.4,
+            "ref": 5.0
+          },
+          "3": {
+            "margin": 2.0,
+            "pct": 39.9,
+            "ref": 5.0
+          },
+          "4": {
+            "margin": 9.33,
+            "pct": 93.3,
+            "ref": 10.0
+          },
+          "5": {
+            "margin": 2.58,
+            "pct": 51.7,
+            "ref": 5.0
+          },
+          "6": {
+            "margin": 15.91,
+            "pct": 22.7,
+            "ref": 70.0
+          },
+          "7": {
+            "margin": 20.47,
+            "pct": 100.0,
+            "ref": 20.0
+          },
+          "8": {
+            "margin": 3.0,
+            "pct": 30.0,
+            "ref": 10.0
+          }
+        }
+      },
+      "pattern_detected": false,
+      "entry_ready": false,
+      "cup_depth_pct": 10.38,
+      "cup_base_days": 8,
+      "shelf_position_pct": 37.06,
+      "shelf_depth_pct": 3.44,
+      "shelf_length_days": 0,
+      "pivot_price": 104500.0,
+      "pct_to_pivot": 0.96,
+      "volume_dryup_ratio": 1.011,
+      "rally_vol_ratio": 0.919,
+      "tightness_pct": 3.35,
+      "status": "forming",
+      "reason": "cup_too_shallow",
+      "left_rim_date": "2026-10-20",
+      "cup_low_date": "2026-10-29",
+      "shelf_high_date": "2026-10-30"
+    },
+    {
+      "code": "005430",
+      "name": "한국공항",
+      "market": "KOSPI",
+      "current_price": 86300.0,
+      "rs": 92,
+      "gate_near": false,
+      "gate_near_reasons": [],
+      "gate_margin": {
+        "score": 30.3,
+        "tightest": "5",
+        "tightest_label": "⑤ 50일선",
+        "tightest_detail": "종가가 50일선 위로 +1.5%",
+        "per_condition": {
+          "1": {
+            "margin": 11.53,
+            "pct": 100.0,
+            "ref": 10.0
+          },
+          "2": {
+            "margin": 4.15,
+            "pct": 83.0,
+            "ref": 5.0
+          },
+          "3": {
+            "margin": 4.15,
+            "pct": 82.9,
+            "ref": 5.0
+          },
+          "4": {
+            "margin": 9.86,
+            "pct": 98.6,
+            "ref": 10.0
+          },
+          "5": {
+            "margin": 1.51,
+            "pct": 30.3,
+            "ref": 5.0
+          },
+          "6": {
+            "margin": 26.98,
+            "pct": 38.5,
+            "ref": 70.0
+          },
+          "7": {
+            "margin": 11.55,
+            "pct": 57.7,
+            "ref": 20.0
+          },
+          "8": {
+            "margin": 12.0,
+            "pct": 100.0,
+            "ref": 10.0
+          }
+        }
+      },
+      "pattern_detected": false,
+      "entry_ready": false,
+      "cup_depth_pct": 19.7,
+      "cup_base_days": 19,
+      "shelf_position_pct": 27.21,
+      "shelf_depth_pct": 4.89,
+      "shelf_length_days": 2,
+      "pivot_price": 87900.41,
+      "pct_to_pivot": 1.82,
+      "volume_dryup_ratio": 1.186,
+      "rally_vol_ratio": 0.281,
+      "tightness_pct": 3.23,
+      "status": "forming",
+      "reason": "volume_not_drying",
+      "left_rim_date": "2026-10-01",
+      "cup_low_date": "2026-10-27",
       "shelf_high_date": "2026-10-28"
+    },
+    {
+      "code": "051160",
+      "name": "지어소프트",
+      "market": "KOSDAQ",
+      "current_price": 13020.0,
+      "rs": 95,
+      "gate_near": false,
+      "gate_near_reasons": [],
+      "gate_margin": {
+        "score": 65.7,
+        "tightest": "7",
+        "tightest_label": "⑦ 52주고가",
+        "tightest_detail": "52주고가 대비 -11.9% (기준 -25%까지 13.2%p)",
+        "per_condition": {
+          "1": {
+            "margin": 44.64,
+            "pct": 100.0,
+            "ref": 10.0
+          },
+          "2": {
+            "margin": 4.03,
+            "pct": 80.6,
+            "ref": 5.0
+          },
+          "3": {
+            "margin": 7.67,
+            "pct": 100.0,
+            "ref": 5.0
+          },
+          "4": {
+            "margin": 27.52,
+            "pct": 100.0,
+            "ref": 10.0
+          },
+          "5": {
+            "margin": 13.43,
+            "pct": 100.0,
+            "ref": 5.0
+          },
+          "6": {
+            "margin": 70.88,
+            "pct": 100.0,
+            "ref": 70.0
+          },
+          "7": {
+            "margin": 13.15,
+            "pct": 65.7,
+            "ref": 20.0
+          },
+          "8": {
+            "margin": 15.0,
+            "pct": 100.0,
+            "ref": 10.0
+          }
+        }
+      },
+      "pattern_detected": false,
+      "entry_ready": false,
+      "cup_depth_pct": 22.12,
+      "cup_base_days": 8,
+      "shelf_position_pct": 36.51,
+      "shelf_depth_pct": 4.62,
+      "shelf_length_days": 2,
+      "pivot_price": 13409.72,
+      "pct_to_pivot": 2.91,
+      "volume_dryup_ratio": 1.177,
+      "rally_vol_ratio": 0.481,
+      "tightness_pct": 6.87,
+      "status": "forming",
+      "reason": "cup_too_short",
+      "left_rim_date": "2026-10-20",
+      "cup_low_date": "2026-10-26",
+      "shelf_high_date": "2026-10-28"
+    },
+    {
+      "code": "044450",
+      "name": "KSS해운",
+      "market": "KOSPI",
+      "current_price": 11880.0,
+      "rs": 89,
+      "gate_near": false,
+      "gate_near_reasons": [],
+      "gate_margin": {
+        "score": 11.8,
+        "tightest": "6",
+        "tightest_label": "⑥ 52주저가 대비",
+        "tightest_detail": "52주저가 대비 +38% (기준 +30%)",
+        "per_condition": {
+          "1": {
+            "margin": 10.7,
+            "pct": 100.0,
+            "ref": 10.0
+          },
+          "2": {
+            "margin": 1.91,
+            "pct": 38.1,
+            "ref": 5.0
+          },
+          "3": {
+            "margin": 2.82,
+            "pct": 56.4,
+            "ref": 5.0
+          },
+          "4": {
+            "margin": 2.76,
+            "pct": 27.6,
+            "ref": 10.0
+          },
+          "5": {
+            "margin": 7.73,
+            "pct": 100.0,
+            "ref": 5.0
+          },
+          "6": {
+            "margin": 8.27,
+            "pct": 11.8,
+            "ref": 70.0
+          },
+          "7": {
+            "margin": 12.09,
+            "pct": 60.4,
+            "ref": 20.0
+          },
+          "8": {
+            "margin": 9.0,
+            "pct": 90.0,
+            "ref": 10.0
+          }
+        }
+      },
+      "pattern_detected": false,
+      "entry_ready": false,
+      "cup_depth_pct": 38.13,
+      "cup_base_days": 135,
+      "shelf_position_pct": 69.96,
+      "shelf_depth_pct": 9.12,
+      "shelf_length_days": 19,
+      "pivot_price": 12752.05,
+      "pct_to_pivot": 6.84,
+      "volume_dryup_ratio": 1.132,
+      "rally_vol_ratio": 0.198,
+      "tightness_pct": 1.94,
+      "status": "forming",
+      "reason": "volume_not_drying",
+      "left_rim_date": "2026-04-10",
+      "cup_low_date": "2026-06-26",
+      "shelf_high_date": "2026-10-01"
     },
     {
       "code": "055490",
       "name": "테이팩스",
       "market": "KOSPI",
-      "current_price": 19770.0,
+      "current_price": 19500.0,
       "rs": 89,
       "gate_near": false,
       "gate_near_reasons": [],
       "gate_margin": {
-        "score": 14.4,
+        "score": 18.6,
         "tightest": "4",
         "tightest_label": "④ 50일선 정렬",
-        "tightest_detail": "50일선이 150·200일선 위로 +1.4%",
+        "tightest_detail": "50일선이 150·200일선 위로 +1.9%",
         "per_condition": {
           "1": {
-            "margin": 21.56,
+            "margin": 19.67,
             "pct": 100.0,
             "ref": 10.0
           },
           "2": {
-            "margin": 2.13,
-            "pct": 42.6,
+            "margin": 2.14,
+            "pct": 42.8,
             "ref": 5.0
           },
           "3": {
-            "margin": 2.11,
-            "pct": 42.1,
+            "margin": 2.32,
+            "pct": 46.4,
             "ref": 5.0
           },
           "4": {
-            "margin": 1.44,
-            "pct": 14.4,
+            "margin": 1.86,
+            "pct": 18.6,
             "ref": 10.0
           },
           "5": {
-            "margin": 19.83,
+            "margin": 17.49,
             "pct": 100.0,
             "ref": 5.0
           },
           "6": {
-            "margin": 57.93,
-            "pct": 82.8,
+            "margin": 55.36,
+            "pct": 79.1,
             "ref": 70.0
           },
           "7": {
-            "margin": 15.29,
-            "pct": 76.4,
+            "margin": 14.06,
+            "pct": 70.3,
             "ref": 20.0
           },
           "8": {
@@ -973,15 +751,15 @@
       "pattern_detected": false,
       "entry_ready": false,
       "cup_depth_pct": 56.44,
-      "cup_base_days": 104,
+      "cup_base_days": 105,
       "shelf_position_pct": 82.13,
       "shelf_depth_pct": 9.31,
-      "shelf_length_days": 1,
-      "pivot_price": 20950.0,
-      "pct_to_pivot": 5.63,
-      "volume_dryup_ratio": 1.268,
+      "shelf_length_days": 2,
+      "pivot_price": 20950.19,
+      "pct_to_pivot": 6.92,
+      "volume_dryup_ratio": 1.258,
       "rally_vol_ratio": 0.513,
-      "tightness_pct": 6.52,
+      "tightness_pct": 6.37,
       "status": "forming",
       "reason": "cup_too_deep",
       "left_rim_date": "2026-05-27",
@@ -989,56 +767,56 @@
       "shelf_high_date": "2026-10-28"
     },
     {
-      "code": "091580",
-      "name": "상신이디피",
-      "market": "KOSDAQ",
-      "current_price": 26200.0,
-      "rs": 97,
+      "code": "028050",
+      "name": "삼성E&A",
+      "market": "KOSPI",
+      "current_price": 60600.0,
+      "rs": 98,
       "gate_near": false,
       "gate_near_reasons": [],
       "gate_margin": {
-        "score": 51.5,
-        "tightest": "7",
-        "tightest_label": "⑦ 52주고가",
-        "tightest_detail": "52주고가 대비 -14.7% (기준 -25%까지 10.3%p)",
+        "score": 28.9,
+        "tightest": "4",
+        "tightest_label": "④ 50일선 정렬",
+        "tightest_detail": "50일선이 150·200일선 위로 +2.9%",
         "per_condition": {
           "1": {
-            "margin": 28.9,
+            "margin": 25.63,
             "pct": 100.0,
             "ref": 10.0
           },
           "2": {
-            "margin": 7.0,
+            "margin": 9.88,
             "pct": 100.0,
             "ref": 5.0
           },
           "3": {
-            "margin": 6.57,
+            "margin": 6.94,
             "pct": 100.0,
             "ref": 5.0
           },
           "4": {
-            "margin": 9.48,
-            "pct": 94.8,
+            "margin": 2.89,
+            "pct": 28.9,
             "ref": 10.0
           },
           "5": {
-            "margin": 17.73,
+            "margin": 22.1,
             "pct": 100.0,
             "ref": 5.0
           },
           "6": {
-            "margin": 100.91,
+            "margin": 130.59,
             "pct": 100.0,
             "ref": 70.0
           },
           "7": {
-            "margin": 10.31,
-            "pct": 51.5,
+            "margin": 19.11,
+            "pct": 95.6,
             "ref": 20.0
           },
           "8": {
-            "margin": 17.0,
+            "margin": 18.0,
             "pct": 100.0,
             "ref": 10.0
           }
@@ -1046,69 +824,69 @@
       },
       "pattern_detected": false,
       "entry_ready": false,
-      "cup_depth_pct": 65.05,
-      "cup_base_days": 127,
-      "shelf_position_pct": 82.4,
-      "shelf_depth_pct": 10.02,
+      "cup_depth_pct": 43.08,
+      "cup_base_days": 118,
+      "shelf_position_pct": 93.82,
+      "shelf_depth_pct": 7.79,
       "shelf_length_days": 1,
-      "pivot_price": 27950.0,
-      "pct_to_pivot": 6.26,
-      "volume_dryup_ratio": 1.443,
-      "rally_vol_ratio": 1.181,
-      "tightness_pct": 10.45,
+      "pivot_price": 65500.0,
+      "pct_to_pivot": 7.48,
+      "volume_dryup_ratio": 1.813,
+      "rally_vol_ratio": 0.846,
+      "tightness_pct": 6.44,
       "status": "forming",
-      "reason": "cup_too_deep",
-      "left_rim_date": "2026-04-21",
-      "cup_low_date": "2026-07-30",
-      "shelf_high_date": "2026-10-28"
+      "reason": "shelf_too_short",
+      "left_rim_date": "2026-05-07",
+      "cup_low_date": "2026-07-14",
+      "shelf_high_date": "2026-10-29"
     },
     {
       "code": "351320",
       "name": "넥사다이내믹스",
       "market": "KOSDAQ",
-      "current_price": 5240.0,
+      "current_price": 5200.0,
       "rs": 99,
       "gate_near": false,
       "gate_near_reasons": [],
       "gate_margin": {
-        "score": 98.8,
+        "score": 95.2,
         "tightest": "7",
         "tightest_label": "⑦ 52주고가",
-        "tightest_detail": "52주고가 대비 -5.2% (기준 -25%까지 19.8%p)",
+        "tightest_detail": "52주고가 대비 -6.0% (기준 -25%까지 19.0%p)",
         "per_condition": {
           "1": {
-            "margin": 151.65,
+            "margin": 146.66,
             "pct": 100.0,
             "ref": 10.0
           },
           "2": {
-            "margin": 12.03,
+            "margin": 12.23,
             "pct": 100.0,
             "ref": 5.0
           },
           "3": {
-            "margin": 26.03,
+            "margin": 26.29,
             "pct": 100.0,
             "ref": 5.0
           },
           "4": {
-            "margin": 83.34,
+            "margin": 84.93,
             "pct": 100.0,
             "ref": 10.0
           },
           "5": {
-            "margin": 37.25,
+            "margin": 33.38,
             "pct": 100.0,
             "ref": 5.0
           },
           "6": {
-            "margin": 484.94,
+            "margin": 480.26,
             "pct": 100.0,
             "ref": 70.0
           },
           "7": {
-            "margin": 19.76,
-            "pct": 98.8,
+            "margin": 19.04,
+            "pct": 95.2,
             "ref": 20.0
           },
           "8": {
@@ -1121,146 +899,72 @@
       "pattern_detected": false,
       "entry_ready": false,
       "cup_depth_pct": 39.37,
-      "cup_base_days": 31,
+      "cup_base_days": 32,
       "shelf_position_pct": 98.18,
-      "shelf_depth_pct": 9.38,
-      "shelf_length_days": 1,
-      "pivot_price": 5650.0,
-      "pct_to_pivot": 7.26,
-      "volume_dryup_ratio": 0.912,
+      "shelf_depth_pct": 10.44,
+      "shelf_length_days": 2,
+      "pivot_price": 5649.83,
+      "pct_to_pivot": 7.96,
+      "volume_dryup_ratio": 0.662,
       "rally_vol_ratio": 0.578,
-      "tightness_pct": 7.99,
+      "tightness_pct": 7.54,
       "status": "forming",
-      "reason": "shelf_too_short",
+      "reason": "shelf_too_high_in_cup",
       "left_rim_date": "2026-09-10",
       "cup_low_date": "2026-09-23",
       "shelf_high_date": "2026-10-28"
     },
     {
-      "code": "044450",
-      "name": "KSS해운",
-      "market": "KOSPI",
-      "current_price": 11810.0,
-      "rs": 87,
-      "gate_near": false,
-      "gate_near_reasons": [],
-      "gate_margin": {
-        "score": 10.6,
-        "tightest": "6",
-        "tightest_label": "⑥ 52주저가 대비",
-        "tightest_detail": "52주저가 대비 +37% (기준 +30%)",
-        "per_condition": {
-          "1": {
-            "margin": 10.12,
-            "pct": 100.0,
-            "ref": 10.0
-          },
-          "2": {
-            "margin": 1.99,
-            "pct": 39.8,
-            "ref": 5.0
-          },
-          "3": {
-            "margin": 2.81,
-            "pct": 56.3,
-            "ref": 5.0
-          },
-          "4": {
-            "margin": 2.52,
-            "pct": 25.2,
-            "ref": 10.0
-          },
-          "5": {
-            "margin": 7.41,
-            "pct": 100.0,
-            "ref": 5.0
-          },
-          "6": {
-            "margin": 7.45,
-            "pct": 10.6,
-            "ref": 70.0
-          },
-          "7": {
-            "margin": 11.57,
-            "pct": 57.9,
-            "ref": 20.0
-          },
-          "8": {
-            "margin": 7.0,
-            "pct": 70.0,
-            "ref": 10.0
-          }
-        }
-      },
-      "pattern_detected": false,
-      "entry_ready": false,
-      "cup_depth_pct": 38.13,
-      "cup_base_days": 134,
-      "shelf_position_pct": 69.96,
-      "shelf_depth_pct": 9.12,
-      "shelf_length_days": 18,
-      "pivot_price": 12751.99,
-      "pct_to_pivot": 7.39,
-      "volume_dryup_ratio": 1.217,
-      "rally_vol_ratio": 0.198,
-      "tightness_pct": 2.0,
-      "status": "forming",
-      "reason": "volume_not_drying",
-      "left_rim_date": "2026-04-10",
-      "cup_low_date": "2026-06-26",
-      "shelf_high_date": "2026-10-01"
-    },
-    {
-      "code": "217190",
-      "name": "제너셈",
+      "code": "031980",
+      "name": "피에스케이홀딩스",
       "market": "KOSDAQ",
-      "current_price": 8360.0,
-      "rs": 90,
+      "current_price": 182500.0,
+      "rs": 99,
       "gate_near": false,
       "gate_near_reasons": [],
       "gate_margin": {
-        "score": 40.6,
+        "score": 47.5,
         "tightest": "7",
         "tightest_label": "⑦ 52주고가",
-        "tightest_detail": "52주고가 대비 -16.9% (기준 -25%까지 8.1%p)",
+        "tightest_detail": "52주고가 대비 -15.5% (기준 -25%까지 9.5%p)",
         "per_condition": {
           "1": {
-            "margin": 29.44,
+            "margin": 37.55,
             "pct": 100.0,
             "ref": 10.0
           },
           "2": {
-            "margin": 2.93,
-            "pct": 58.6,
+            "margin": 11.21,
+            "pct": 100.0,
             "ref": 5.0
           },
           "3": {
-            "margin": 6.93,
+            "margin": 15.34,
             "pct": 100.0,
             "ref": 5.0
           },
           "4": {
-            "margin": 15.58,
+            "margin": 21.95,
             "pct": 100.0,
             "ref": 10.0
           },
           "5": {
-            "margin": 11.99,
+            "margin": 12.79,
             "pct": 100.0,
             "ref": 5.0
           },
           "6": {
-            "margin": 69.09,
-            "pct": 98.7,
+            "margin": 317.27,
+            "pct": 100.0,
             "ref": 70.0
           },
           "7": {
-            "margin": 8.11,
-            "pct": 40.6,
+            "margin": 9.5,
+            "pct": 47.5,
             "ref": 20.0
           },
           "8": {
-            "margin": 10.0,
+            "margin": 19.0,
             "pct": 100.0,
             "ref": 10.0
           }
@@ -1268,143 +972,143 @@
       },
       "pattern_detected": false,
       "entry_ready": false,
-      "cup_depth_pct": 31.45,
-      "cup_base_days": 14,
-      "shelf_position_pct": 51.96,
-      "shelf_depth_pct": 9.18,
+      "cup_depth_pct": 28.76,
+      "cup_base_days": 13,
+      "shelf_position_pct": 69.39,
+      "shelf_depth_pct": 9.26,
       "shelf_length_days": 1,
-      "pivot_price": 9040.0,
-      "pct_to_pivot": 7.52,
-      "volume_dryup_ratio": 0.928,
-      "rally_vol_ratio": 0.396,
-      "tightness_pct": 9.16,
+      "pivot_price": 199700.0,
+      "pct_to_pivot": 8.61,
+      "volume_dryup_ratio": 0.915,
+      "rally_vol_ratio": 0.773,
+      "tightness_pct": 8.26,
       "status": "forming",
       "reason": "cup_too_short",
-      "left_rim_date": "2026-10-08",
-      "cup_low_date": "2026-10-26",
-      "shelf_high_date": "2026-10-28"
+      "left_rim_date": "2026-10-13",
+      "cup_low_date": "2026-10-23",
+      "shelf_high_date": "2026-10-29"
     },
     {
-      "code": "086450",
-      "name": "동국제약",
-      "market": "KOSDAQ",
-      "current_price": 23750.0,
-      "rs": 88,
+      "code": "077500",
+      "name": "유니퀘스트",
+      "market": "KOSPI",
+      "current_price": 10950.0,
+      "rs": 94,
       "gate_near": false,
       "gate_near_reasons": [],
       "gate_margin": {
-        "score": 14.9,
-        "tightest": "4",
-        "tightest_label": "④ 50일선 정렬",
-        "tightest_detail": "50일선이 150·200일선 위로 +1.5%",
+        "score": 61.6,
+        "tightest": "2",
+        "tightest_label": "② 150>200일선",
+        "tightest_detail": "150일선이 200일선 위로 +3.1%",
         "per_condition": {
           "1": {
-            "margin": 11.51,
+            "margin": 50.2,
             "pct": 100.0,
             "ref": 10.0
           },
           "2": {
-            "margin": 3.72,
-            "pct": 74.4,
+            "margin": 3.08,
+            "pct": 61.6,
             "ref": 5.0
           },
           "3": {
-            "margin": 2.85,
-            "pct": 57.0,
+            "margin": 6.86,
+            "pct": 100.0,
             "ref": 5.0
           },
           "4": {
-            "margin": 1.49,
-            "pct": 14.9,
+            "margin": 21.24,
+            "pct": 100.0,
             "ref": 10.0
           },
           "5": {
-            "margin": 9.88,
+            "margin": 23.89,
             "pct": 100.0,
             "ref": 5.0
           },
           "6": {
-            "margin": 14.65,
-            "pct": 20.9,
+            "margin": 126.07,
+            "pct": 100.0,
             "ref": 70.0
           },
           "7": {
-            "margin": 4.46,
-            "pct": 22.3,
+            "margin": 16.1,
+            "pct": 80.5,
             "ref": 20.0
           },
           "8": {
-            "margin": 8.0,
-            "pct": 80.0,
+            "margin": 14.0,
+            "pct": 100.0,
             "ref": 10.0
           }
         }
       },
-      "pattern_detected": true,
+      "pattern_detected": false,
       "entry_ready": false,
-      "cup_depth_pct": 47.32,
-      "cup_base_days": 138,
-      "shelf_position_pct": 66.24,
-      "shelf_depth_pct": 11.05,
-      "shelf_length_days": 9,
-      "pivot_price": 26248.73,
-      "pct_to_pivot": 9.52,
-      "volume_dryup_ratio": 0.947,
-      "rally_vol_ratio": 0.828,
-      "tightness_pct": 5.81,
+      "cup_depth_pct": 18.91,
+      "cup_base_days": 6,
+      "shelf_position_pct": 82.06,
+      "shelf_depth_pct": 11.83,
+      "shelf_length_days": 1,
+      "pivot_price": 12260.0,
+      "pct_to_pivot": 10.69,
+      "volume_dryup_ratio": 0.651,
+      "rally_vol_ratio": 0.413,
+      "tightness_pct": 10.29,
       "status": "forming",
-      "reason": null,
-      "left_rim_date": "2026-04-06",
-      "cup_low_date": "2026-06-08",
-      "shelf_high_date": "2026-10-16"
+      "reason": "cup_too_short",
+      "left_rim_date": "2026-10-22",
+      "cup_low_date": "2026-10-22",
+      "shelf_high_date": "2026-10-29"
     },
     {
       "code": "092870",
       "name": "엑시콘",
       "market": "KOSDAQ",
-      "current_price": 64700.0,
+      "current_price": 58700.0,
       "rs": 99,
       "gate_near": false,
       "gate_near_reasons": [],
       "gate_margin": {
-        "score": 87.3,
-        "tightest": "2",
-        "tightest_label": "② 150>200일선",
-        "tightest_detail": "150일선이 200일선 위로 +4.4%",
+        "score": 63.0,
+        "tightest": "7",
+        "tightest_label": "⑦ 52주고가",
+        "tightest_detail": "52주고가 대비 -12.4% (기준 -25%까지 12.6%p)",
         "per_condition": {
           "1": {
-            "margin": 115.98,
+            "margin": 94.73,
             "pct": 100.0,
             "ref": 10.0
           },
           "2": {
-            "margin": 4.37,
-            "pct": 87.3,
+            "margin": 4.25,
+            "pct": 85.0,
             "ref": 5.0
           },
           "3": {
-            "margin": 17.03,
+            "margin": 17.15,
             "pct": 100.0,
             "ref": 5.0
           },
           "4": {
-            "margin": 31.62,
+            "margin": 33.34,
             "pct": 100.0,
             "ref": 10.0
           },
           "5": {
-            "margin": 64.08,
+            "margin": 46.04,
             "pct": 100.0,
             "ref": 5.0
           },
           "6": {
-            "margin": 460.15,
+            "margin": 405.41,
             "pct": 100.0,
             "ref": 70.0
           },
           "7": {
-            "margin": 21.57,
-            "pct": 100.0,
+            "margin": 12.61,
+            "pct": 63.0,
             "ref": 20.0
           },
           "8": {
@@ -1436,49 +1140,49 @@
       "code": "064290",
       "name": "인텍플러스",
       "market": "KOSDAQ",
-      "current_price": 62300.0,
+      "current_price": 53000.0,
       "rs": 99,
       "gate_near": false,
       "gate_near_reasons": [],
       "gate_margin": {
-        "score": 100.0,
-        "tightest": "1",
-        "tightest_label": "① 150·200일선",
-        "tightest_detail": "종가가 150·200일선 위로 +65.0%",
+        "score": 41.0,
+        "tightest": "7",
+        "tightest_label": "⑦ 52주고가",
+        "tightest_detail": "52주고가 대비 -16.8% (기준 -25%까지 8.2%p)",
         "per_condition": {
           "1": {
-            "margin": 64.99,
+            "margin": 39.48,
             "pct": 100.0,
             "ref": 10.0
           },
           "2": {
-            "margin": 17.0,
+            "margin": 17.04,
             "pct": 100.0,
             "ref": 5.0
           },
           "3": {
-            "margin": 17.65,
+            "margin": 17.48,
             "pct": 100.0,
             "ref": 5.0
           },
           "4": {
-            "margin": 27.07,
+            "margin": 27.42,
             "pct": 100.0,
             "ref": 10.0
           },
           "5": {
-            "margin": 29.84,
+            "margin": 9.46,
             "pct": 100.0,
             "ref": 5.0
           },
           "6": {
-            "margin": 431.45,
+            "margin": 347.63,
             "pct": 100.0,
             "ref": 70.0
           },
           "7": {
-            "margin": 22.8,
-            "pct": 100.0,
+            "margin": 8.2,
+            "pct": 41.0,
             "ref": 20.0
           },
           "8": {
@@ -1510,49 +1214,49 @@
       "code": "219130",
       "name": "타이거일렉",
       "market": "KOSDAQ",
-      "current_price": 100700.0,
+      "current_price": 91000.0,
       "rs": 99,
       "gate_near": false,
       "gate_near_reasons": [],
       "gate_margin": {
-        "score": 100.0,
-        "tightest": "1",
-        "tightest_label": "① 150·200일선",
-        "tightest_detail": "종가가 150·200일선 위로 +58.5%",
+        "score": 72.0,
+        "tightest": "7",
+        "tightest_label": "⑦ 52주고가",
+        "tightest_detail": "52주고가 대비 -10.6% (기준 -25%까지 14.4%p)",
         "per_condition": {
           "1": {
-            "margin": 58.55,
+            "margin": 42.41,
             "pct": 100.0,
             "ref": 10.0
           },
           "2": {
-            "margin": 14.67,
+            "margin": 14.66,
             "pct": 100.0,
             "ref": 5.0
           },
           "3": {
-            "margin": 15.83,
+            "margin": 15.78,
             "pct": 100.0,
             "ref": 5.0
           },
           "4": {
-            "margin": 22.09,
+            "margin": 21.68,
             "pct": 100.0,
             "ref": 10.0
           },
           "5": {
-            "margin": 29.87,
+            "margin": 17.03,
             "pct": 100.0,
             "ref": 5.0
           },
           "6": {
-            "margin": 521.78,
+            "margin": 458.98,
             "pct": 100.0,
             "ref": 70.0
           },
           "7": {
-            "margin": 24.9,
-            "pct": 100.0,
+            "margin": 14.39,
+            "pct": 72.0,
             "ref": 20.0
           },
           "8": {
@@ -1584,49 +1288,49 @@
       "code": "159010",
       "name": "아스플로",
       "market": "KOSDAQ",
-      "current_price": 35850.0,
+      "current_price": 30250.0,
       "rs": 99,
       "gate_near": false,
       "gate_near_reasons": [],
       "gate_margin": {
-        "score": 100.0,
-        "tightest": "1",
-        "tightest_label": "① 150·200일선",
-        "tightest_detail": "종가가 150·200일선 위로 +97.3%",
+        "score": 49.3,
+        "tightest": "7",
+        "tightest_label": "⑦ 52주고가",
+        "tightest_detail": "52주고가 대비 -15.1% (기준 -25%까지 9.8%p)",
         "per_condition": {
           "1": {
-            "margin": 97.29,
+            "margin": 64.96,
             "pct": 100.0,
             "ref": 10.0
           },
           "2": {
-            "margin": 21.66,
+            "margin": 21.76,
             "pct": 100.0,
             "ref": 5.0
           },
           "3": {
-            "margin": 23.99,
+            "margin": 23.77,
             "pct": 100.0,
             "ref": 5.0
           },
           "4": {
-            "margin": 44.53,
+            "margin": 43.95,
             "pct": 100.0,
             "ref": 10.0
           },
           "5": {
-            "margin": 36.51,
+            "margin": 14.6,
             "pct": 100.0,
             "ref": 5.0
           },
           "6": {
-            "margin": 828.65,
+            "margin": 678.9,
             "pct": 100.0,
             "ref": 70.0
           },
           "7": {
-            "margin": 25.0,
-            "pct": 100.0,
+            "margin": 9.85,
+            "pct": 49.3,
             "ref": 20.0
           },
           "8": {
@@ -1655,200 +1359,52 @@
       "shelf_high_date": null
     },
     {
-      "code": "144960",
-      "name": "뉴파워프라즈마",
-      "market": "KOSDAQ",
-      "current_price": 14980.0,
-      "rs": 98,
-      "gate_near": false,
-      "gate_near_reasons": [],
-      "gate_margin": {
-        "score": 100.0,
-        "tightest": "1",
-        "tightest_label": "① 150·200일선",
-        "tightest_detail": "종가가 150·200일선 위로 +62.5%",
-        "per_condition": {
-          "1": {
-            "margin": 62.46,
-            "pct": 100.0,
-            "ref": 10.0
-          },
-          "2": {
-            "margin": 9.81,
-            "pct": 100.0,
-            "ref": 5.0
-          },
-          "3": {
-            "margin": 12.16,
-            "pct": 100.0,
-            "ref": 5.0
-          },
-          "4": {
-            "margin": 22.98,
-            "pct": 100.0,
-            "ref": 10.0
-          },
-          "5": {
-            "margin": 32.1,
-            "pct": 100.0,
-            "ref": 5.0
-          },
-          "6": {
-            "margin": 184.53,
-            "pct": 100.0,
-            "ref": 70.0
-          },
-          "7": {
-            "margin": 22.27,
-            "pct": 100.0,
-            "ref": 20.0
-          },
-          "8": {
-            "margin": 18.0,
-            "pct": 100.0,
-            "ref": 10.0
-          }
-        }
-      },
-      "pattern_detected": false,
-      "entry_ready": false,
-      "cup_depth_pct": null,
-      "cup_base_days": null,
-      "shelf_position_pct": null,
-      "shelf_depth_pct": null,
-      "shelf_length_days": null,
-      "pivot_price": null,
-      "pct_to_pivot": null,
-      "volume_dryup_ratio": null,
-      "rally_vol_ratio": null,
-      "tightness_pct": null,
-      "status": "forming",
-      "reason": "no_overhead_cup",
-      "left_rim_date": null,
-      "cup_low_date": null,
-      "shelf_high_date": null
-    },
-    {
       "code": "080580",
       "name": "오킨스전자",
       "market": "KOSDAQ",
-      "current_price": 28300.0,
+      "current_price": 24250.0,
       "rs": 98,
       "gate_near": false,
       "gate_near_reasons": [],
       "gate_margin": {
-        "score": 100.0,
-        "tightest": "1",
-        "tightest_label": "① 150·200일선",
-        "tightest_detail": "종가가 150·200일선 위로 +44.5%",
-        "per_condition": {
-          "1": {
-            "margin": 44.46,
-            "pct": 100.0,
-            "ref": 10.0
-          },
-          "2": {
-            "margin": 7.17,
-            "pct": 100.0,
-            "ref": 5.0
-          },
-          "3": {
-            "margin": 11.35,
-            "pct": 100.0,
-            "ref": 5.0
-          },
-          "4": {
-            "margin": 17.48,
-            "pct": 100.0,
-            "ref": 10.0
-          },
-          "5": {
-            "margin": 22.96,
-            "pct": 100.0,
-            "ref": 5.0
-          },
-          "6": {
-            "margin": 239.32,
-            "pct": 100.0,
-            "ref": 70.0
-          },
-          "7": {
-            "margin": 20.29,
-            "pct": 100.0,
-            "ref": 20.0
-          },
-          "8": {
-            "margin": 18.0,
-            "pct": 100.0,
-            "ref": 10.0
-          }
-        }
-      },
-      "pattern_detected": false,
-      "entry_ready": false,
-      "cup_depth_pct": null,
-      "cup_base_days": null,
-      "shelf_position_pct": null,
-      "shelf_depth_pct": null,
-      "shelf_length_days": null,
-      "pivot_price": null,
-      "pct_to_pivot": null,
-      "volume_dryup_ratio": null,
-      "rally_vol_ratio": null,
-      "tightness_pct": null,
-      "status": "forming",
-      "reason": "no_overhead_cup",
-      "left_rim_date": null,
-      "cup_low_date": null,
-      "shelf_high_date": null
-    },
-    {
-      "code": "396300",
-      "name": "HT로보틱스",
-      "market": "KOSDAQ",
-      "current_price": 8840.0,
-      "rs": 98,
-      "gate_near": false,
-      "gate_near_reasons": [],
-      "gate_margin": {
-        "score": 21.8,
+        "score": 33.3,
         "tightest": "7",
         "tightest_label": "⑦ 52주고가",
-        "tightest_detail": "52주고가 대비 -20.6% (기준 -25%까지 4.4%p)",
+        "tightest_detail": "52주고가 대비 -18.3% (기준 -25%까지 6.7%p)",
         "per_condition": {
           "1": {
-            "margin": 79.9,
+            "margin": 23.64,
             "pct": 100.0,
             "ref": 10.0
           },
           "2": {
-            "margin": 6.03,
+            "margin": 6.9,
             "pct": 100.0,
             "ref": 5.0
           },
           "3": {
-            "margin": 13.74,
+            "margin": 11.2,
             "pct": 100.0,
             "ref": 5.0
           },
           "4": {
-            "margin": 23.73,
+            "margin": 18.08,
             "pct": 100.0,
             "ref": 10.0
           },
           "5": {
-            "margin": 45.4,
-            "pct": 100.0,
+            "margin": 4.71,
+            "pct": 94.2,
             "ref": 5.0
           },
           "6": {
-            "margin": 255.25,
+            "margin": 186.48,
             "pct": 100.0,
             "ref": 70.0
           },
           "7": {
-            "margin": 4.36,
-            "pct": 21.8,
+            "margin": 6.65,
+            "pct": 33.3,
             "ref": 20.0
           },
           "8": {
@@ -1877,46 +1433,46 @@
       "shelf_high_date": null
     },
     {
-      "code": "425420",
-      "name": "티에프이",
+      "code": "053800",
+      "name": "안랩",
       "market": "KOSDAQ",
-      "current_price": 86600.0,
+      "current_price": 121100.0,
       "rs": 97,
       "gate_near": false,
       "gate_near_reasons": [],
       "gate_margin": {
-        "score": 87.3,
-        "tightest": "4",
-        "tightest_label": "④ 50일선 정렬",
-        "tightest_detail": "50일선이 150·200일선 위로 +8.7%",
+        "score": 6.4,
+        "tightest": "2",
+        "tightest_label": "② 150>200일선",
+        "tightest_detail": "150일선이 200일선 위로 +0.3%",
         "per_condition": {
           "1": {
-            "margin": 64.44,
+            "margin": 90.87,
             "pct": 100.0,
             "ref": 10.0
           },
           "2": {
-            "margin": 4.96,
-            "pct": 99.1,
+            "margin": 0.32,
+            "pct": 6.4,
             "ref": 5.0
           },
           "3": {
-            "margin": 6.41,
-            "pct": 100.0,
+            "margin": 4.53,
+            "pct": 90.6,
             "ref": 5.0
           },
           "4": {
-            "margin": 8.73,
-            "pct": 87.3,
+            "margin": 14.02,
+            "pct": 100.0,
             "ref": 10.0
           },
           "5": {
-            "margin": 51.24,
+            "margin": 67.41,
             "pct": 100.0,
             "ref": 5.0
           },
           "6": {
-            "margin": 218.39,
+            "margin": 105.15,
             "pct": 100.0,
             "ref": 70.0
           },
@@ -1951,51 +1507,199 @@
       "shelf_high_date": null
     },
     {
-      "code": "093320",
-      "name": "케이아이엔엑스",
+      "code": "425420",
+      "name": "티에프이",
       "market": "KOSDAQ",
-      "current_price": 176300.0,
-      "rs": 96,
+      "current_price": 85800.0,
+      "rs": 97,
       "gate_near": false,
       "gate_near_reasons": [],
       "gate_margin": {
-        "score": 20.5,
+        "score": 94.4,
         "tightest": "2",
         "tightest_label": "② 150>200일선",
-        "tightest_detail": "150일선이 200일선 위로 +1.0%",
+        "tightest_detail": "150일선이 200일선 위로 +4.7%",
         "per_condition": {
           "1": {
-            "margin": 41.63,
+            "margin": 62.56,
             "pct": 100.0,
             "ref": 10.0
           },
           "2": {
-            "margin": 1.03,
-            "pct": 20.5,
+            "margin": 4.72,
+            "pct": 94.4,
             "ref": 5.0
           },
           "3": {
-            "margin": 1.51,
-            "pct": 30.3,
+            "margin": 6.7,
+            "pct": 100.0,
             "ref": 5.0
           },
           "4": {
-            "margin": 10.96,
+            "margin": 10.29,
             "pct": 100.0,
             "ref": 10.0
           },
           "5": {
-            "margin": 27.63,
+            "margin": 47.4,
             "pct": 100.0,
             "ref": 5.0
           },
           "6": {
-            "margin": 82.52,
+            "margin": 215.17,
             "pct": 100.0,
             "ref": 70.0
           },
           "7": {
             "margin": 25.0,
+            "pct": 100.0,
+            "ref": 20.0
+          },
+          "8": {
+            "margin": 17.0,
+            "pct": 100.0,
+            "ref": 10.0
+          }
+        }
+      },
+      "pattern_detected": false,
+      "entry_ready": false,
+      "cup_depth_pct": null,
+      "cup_base_days": null,
+      "shelf_position_pct": null,
+      "shelf_depth_pct": null,
+      "shelf_length_days": null,
+      "pivot_price": null,
+      "pct_to_pivot": null,
+      "volume_dryup_ratio": null,
+      "rally_vol_ratio": null,
+      "tightness_pct": null,
+      "status": "forming",
+      "reason": "no_overhead_cup",
+      "left_rim_date": null,
+      "cup_low_date": null,
+      "shelf_high_date": null
+    },
+    {
+      "code": "144960",
+      "name": "뉴파워프라즈마",
+      "market": "KOSDAQ",
+      "current_price": 13620.0,
+      "rs": 97,
+      "gate_near": false,
+      "gate_near_reasons": [],
+      "gate_margin": {
+        "score": 67.2,
+        "tightest": "7",
+        "tightest_label": "⑦ 52주고가",
+        "tightest_detail": "52주고가 대비 -11.6% (기준 -25%까지 13.4%p)",
+        "per_condition": {
+          "1": {
+            "margin": 46.84,
+            "pct": 100.0,
+            "ref": 10.0
+          },
+          "2": {
+            "margin": 9.93,
+            "pct": 100.0,
+            "ref": 5.0
+          },
+          "3": {
+            "margin": 12.12,
+            "pct": 100.0,
+            "ref": 5.0
+          },
+          "4": {
+            "margin": 22.84,
+            "pct": 100.0,
+            "ref": 10.0
+          },
+          "5": {
+            "margin": 19.54,
+            "pct": 100.0,
+            "ref": 5.0
+          },
+          "6": {
+            "margin": 155.99,
+            "pct": 100.0,
+            "ref": 70.0
+          },
+          "7": {
+            "margin": 13.45,
+            "pct": 67.2,
+            "ref": 20.0
+          },
+          "8": {
+            "margin": 17.0,
+            "pct": 100.0,
+            "ref": 10.0
+          }
+        }
+      },
+      "pattern_detected": false,
+      "entry_ready": false,
+      "cup_depth_pct": null,
+      "cup_base_days": null,
+      "shelf_position_pct": null,
+      "shelf_depth_pct": null,
+      "shelf_length_days": null,
+      "pivot_price": null,
+      "pct_to_pivot": null,
+      "volume_dryup_ratio": null,
+      "rally_vol_ratio": null,
+      "tightness_pct": null,
+      "status": "forming",
+      "reason": "no_overhead_cup",
+      "left_rim_date": null,
+      "cup_low_date": null,
+      "shelf_high_date": null
+    },
+    {
+      "code": "093320",
+      "name": "케이아이엔엑스",
+      "market": "KOSDAQ",
+      "current_price": 175700.0,
+      "rs": 96,
+      "gate_near": false,
+      "gate_near_reasons": [],
+      "gate_margin": {
+        "score": 23.8,
+        "tightest": "2",
+        "tightest_label": "② 150>200일선",
+        "tightest_detail": "150일선이 200일선 위로 +1.2%",
+        "per_condition": {
+          "1": {
+            "margin": 40.57,
+            "pct": 100.0,
+            "ref": 10.0
+          },
+          "2": {
+            "margin": 1.19,
+            "pct": 23.8,
+            "ref": 5.0
+          },
+          "3": {
+            "margin": 1.62,
+            "pct": 32.5,
+            "ref": 5.0
+          },
+          "4": {
+            "margin": 10.94,
+            "pct": 100.0,
+            "ref": 10.0
+          },
+          "5": {
+            "margin": 26.71,
+            "pct": 100.0,
+            "ref": 5.0
+          },
+          "6": {
+            "margin": 81.79,
+            "pct": 100.0,
+            "ref": 70.0
+          },
+          "7": {
+            "margin": 24.04,
             "pct": 100.0,
             "ref": 20.0
           },
@@ -2028,48 +1732,48 @@
       "code": "079940",
       "name": "가비아",
       "market": "KOSDAQ",
-      "current_price": 50300.0,
+      "current_price": 49850.0,
       "rs": 96,
       "gate_near": false,
       "gate_near_reasons": [],
       "gate_margin": {
-        "score": 51.9,
+        "score": 54.4,
         "tightest": "3",
         "tightest_label": "③ 200일선 상승",
-        "tightest_detail": "200일선이 한 달 전보다 +2.6%",
+        "tightest_detail": "200일선이 한 달 전보다 +2.7%",
         "per_condition": {
           "1": {
-            "margin": 39.62,
+            "margin": 37.79,
             "pct": 100.0,
             "ref": 10.0
           },
           "2": {
-            "margin": 3.43,
-            "pct": 68.5,
+            "margin": 3.61,
+            "pct": 72.1,
             "ref": 5.0
           },
           "3": {
-            "margin": 2.59,
-            "pct": 51.9,
+            "margin": 2.72,
+            "pct": 54.4,
             "ref": 5.0
           },
           "4": {
-            "margin": 16.02,
+            "margin": 15.82,
             "pct": 100.0,
             "ref": 10.0
           },
           "5": {
-            "margin": 20.34,
+            "margin": 18.97,
             "pct": 100.0,
             "ref": 5.0
           },
           "6": {
-            "margin": 69.17,
-            "pct": 98.8,
+            "margin": 67.38,
+            "pct": 96.3,
             "ref": 70.0
           },
           "7": {
-            "margin": 24.6,
+            "margin": 23.71,
             "pct": 100.0,
             "ref": 20.0
           },
@@ -2099,52 +1803,52 @@
       "shelf_high_date": null
     },
     {
-      "code": "053800",
-      "name": "안랩",
+      "code": "017890",
+      "name": "한국알콜",
       "market": "KOSDAQ",
-      "current_price": 99000.0,
+      "current_price": 15980.0,
       "rs": 94,
       "gate_near": false,
       "gate_near_reasons": [],
       "gate_margin": {
-        "score": 3.4,
-        "tightest": "2",
-        "tightest_label": "② 150>200일선",
-        "tightest_detail": "150일선이 200일선 위로 +0.2%",
+        "score": 62.4,
+        "tightest": "6",
+        "tightest_label": "⑥ 52주저가 대비",
+        "tightest_detail": "52주저가 대비 +74% (기준 +30%)",
         "per_condition": {
           "1": {
-            "margin": 57.04,
+            "margin": 20.77,
             "pct": 100.0,
             "ref": 10.0
           },
           "2": {
-            "margin": 0.17,
-            "pct": 3.4,
+            "margin": 3.88,
+            "pct": 77.6,
             "ref": 5.0
           },
           "3": {
-            "margin": 4.14,
-            "pct": 82.7,
+            "margin": 3.82,
+            "pct": 76.4,
             "ref": 5.0
           },
           "4": {
-            "margin": 12.75,
+            "margin": 10.91,
             "pct": 100.0,
             "ref": 10.0
           },
           "5": {
-            "margin": 39.28,
+            "margin": 8.89,
             "pct": 100.0,
             "ref": 5.0
           },
           "6": {
-            "margin": 62.24,
-            "pct": 88.9,
+            "margin": 43.67,
+            "pct": 62.4,
             "ref": 70.0
           },
           "7": {
-            "margin": 14.27,
-            "pct": 71.3,
+            "margin": 23.71,
+            "pct": 100.0,
             "ref": 20.0
           },
           "8": {
@@ -2176,197 +1880,49 @@
       "code": "012030",
       "name": "DB",
       "market": "KOSPI",
-      "current_price": 2430.0,
-      "rs": 94,
-      "gate_near": false,
-      "gate_near_reasons": [],
-      "gate_margin": {
-        "score": 19.1,
-        "tightest": "4",
-        "tightest_label": "④ 50일선 정렬",
-        "tightest_detail": "50일선이 150·200일선 위로 +1.9%",
-        "per_condition": {
-          "1": {
-            "margin": 35.06,
-            "pct": 100.0,
-            "ref": 10.0
-          },
-          "2": {
-            "margin": 1.1,
-            "pct": 22.0,
-            "ref": 5.0
-          },
-          "3": {
-            "margin": 4.39,
-            "pct": 87.8,
-            "ref": 5.0
-          },
-          "4": {
-            "margin": 1.91,
-            "pct": 19.1,
-            "ref": 10.0
-          },
-          "5": {
-            "margin": 32.52,
-            "pct": 100.0,
-            "ref": 5.0
-          },
-          "6": {
-            "margin": 55.35,
-            "pct": 79.1,
-            "ref": 70.0
-          },
-          "7": {
-            "margin": 20.67,
-            "pct": 100.0,
-            "ref": 20.0
-          },
-          "8": {
-            "margin": 14.0,
-            "pct": 100.0,
-            "ref": 10.0
-          }
-        }
-      },
-      "pattern_detected": false,
-      "entry_ready": false,
-      "cup_depth_pct": null,
-      "cup_base_days": null,
-      "shelf_position_pct": null,
-      "shelf_depth_pct": null,
-      "shelf_length_days": null,
-      "pivot_price": null,
-      "pct_to_pivot": null,
-      "volume_dryup_ratio": null,
-      "rally_vol_ratio": null,
-      "tightness_pct": null,
-      "status": "forming",
-      "reason": "no_overhead_cup",
-      "left_rim_date": null,
-      "cup_low_date": null,
-      "shelf_high_date": null
-    },
-    {
-      "code": "042510",
-      "name": "라온시큐어",
-      "market": "KOSDAQ",
-      "current_price": 16650.0,
-      "rs": 94,
-      "gate_near": false,
-      "gate_near_reasons": [],
-      "gate_margin": {
-        "score": 23.3,
-        "tightest": "7",
-        "tightest_label": "⑦ 52주고가",
-        "tightest_detail": "52주고가 대비 -20.3% (기준 -25%까지 4.7%p)",
-        "per_condition": {
-          "1": {
-            "margin": 59.47,
-            "pct": 100.0,
-            "ref": 10.0
-          },
-          "2": {
-            "margin": 2.88,
-            "pct": 57.5,
-            "ref": 5.0
-          },
-          "3": {
-            "margin": 8.09,
-            "pct": 100.0,
-            "ref": 5.0
-          },
-          "4": {
-            "margin": 18.91,
-            "pct": 100.0,
-            "ref": 10.0
-          },
-          "5": {
-            "margin": 34.1,
-            "pct": 100.0,
-            "ref": 5.0
-          },
-          "6": {
-            "margin": 117.76,
-            "pct": 100.0,
-            "ref": 70.0
-          },
-          "7": {
-            "margin": 4.67,
-            "pct": 23.3,
-            "ref": 20.0
-          },
-          "8": {
-            "margin": 14.0,
-            "pct": 100.0,
-            "ref": 10.0
-          }
-        }
-      },
-      "pattern_detected": false,
-      "entry_ready": false,
-      "cup_depth_pct": null,
-      "cup_base_days": null,
-      "shelf_position_pct": null,
-      "shelf_depth_pct": null,
-      "shelf_length_days": null,
-      "pivot_price": null,
-      "pct_to_pivot": null,
-      "volume_dryup_ratio": null,
-      "rally_vol_ratio": null,
-      "tightness_pct": null,
-      "status": "forming",
-      "reason": "no_overhead_cup",
-      "left_rim_date": null,
-      "cup_low_date": null,
-      "shelf_high_date": null
-    },
-    {
-      "code": "017890",
-      "name": "한국알콜",
-      "market": "KOSDAQ",
-      "current_price": 15700.0,
+      "current_price": 2260.0,
       "rs": 93,
       "gate_near": false,
       "gate_near_reasons": [],
       "gate_margin": {
-        "score": 58.0,
-        "tightest": "6",
-        "tightest_label": "⑥ 52주저가 대비",
-        "tightest_detail": "52주저가 대비 +71% (기준 +30%)",
+        "score": 21.1,
+        "tightest": "2",
+        "tightest_label": "② 150>200일선",
+        "tightest_detail": "150일선이 200일선 위로 +1.1%",
         "per_condition": {
           "1": {
-            "margin": 18.91,
+            "margin": 25.41,
             "pct": 100.0,
             "ref": 10.0
           },
           "2": {
-            "margin": 3.87,
-            "pct": 77.5,
+            "margin": 1.06,
+            "pct": 21.1,
             "ref": 5.0
           },
           "3": {
-            "margin": 3.79,
-            "pct": 75.8,
+            "margin": 4.5,
+            "pct": 90.1,
             "ref": 5.0
           },
           "4": {
-            "margin": 10.92,
-            "pct": 100.0,
+            "margin": 2.57,
+            "pct": 25.7,
             "ref": 10.0
           },
           "5": {
-            "margin": 7.21,
+            "margin": 22.27,
             "pct": 100.0,
             "ref": 5.0
           },
           "6": {
-            "margin": 40.62,
-            "pct": 58.0,
+            "margin": 42.38,
+            "pct": 60.5,
             "ref": 70.0
           },
           "7": {
-            "margin": 21.98,
-            "pct": 100.0,
+            "margin": 13.97,
+            "pct": 69.9,
             "ref": 20.0
           },
           "8": {
@@ -2395,52 +1951,200 @@
       "shelf_high_date": null
     },
     {
-      "code": "228850",
-      "name": "레이언스",
-      "market": "KOSDAQ",
-      "current_price": 7870.0,
-      "rs": 90,
+      "code": "033780",
+      "name": "KT&G",
+      "market": "KOSPI",
+      "current_price": 196100.0,
+      "rs": 92,
       "gate_near": false,
       "gate_near_reasons": [],
       "gate_margin": {
-        "score": 44.0,
-        "tightest": "6",
-        "tightest_label": "⑥ 52주저가 대비",
-        "tightest_detail": "52주저가 대비 +61% (기준 +30%)",
+        "score": 14.0,
+        "tightest": "4",
+        "tightest_label": "④ 50일선 정렬",
+        "tightest_detail": "50일선이 150·200일선 위로 +1.4%",
         "per_condition": {
           "1": {
-            "margin": 17.09,
+            "margin": 11.3,
             "pct": 100.0,
             "ref": 10.0
           },
           "2": {
-            "margin": 5.33,
+            "margin": 2.99,
+            "pct": 59.8,
+            "ref": 5.0
+          },
+          "3": {
+            "margin": 2.76,
+            "pct": 55.3,
+            "ref": 5.0
+          },
+          "4": {
+            "margin": 1.4,
+            "pct": 14.0,
+            "ref": 10.0
+          },
+          "5": {
+            "margin": 9.76,
+            "pct": 100.0,
+            "ref": 5.0
+          },
+          "6": {
+            "margin": 16.75,
+            "pct": 23.9,
+            "ref": 70.0
+          },
+          "7": {
+            "margin": 25.0,
+            "pct": 100.0,
+            "ref": 20.0
+          },
+          "8": {
+            "margin": 12.0,
+            "pct": 100.0,
+            "ref": 10.0
+          }
+        }
+      },
+      "pattern_detected": false,
+      "entry_ready": false,
+      "cup_depth_pct": null,
+      "cup_base_days": null,
+      "shelf_position_pct": null,
+      "shelf_depth_pct": null,
+      "shelf_length_days": null,
+      "pivot_price": null,
+      "pct_to_pivot": null,
+      "volume_dryup_ratio": null,
+      "rally_vol_ratio": null,
+      "tightness_pct": null,
+      "status": "forming",
+      "reason": "no_overhead_cup",
+      "left_rim_date": null,
+      "cup_low_date": null,
+      "shelf_high_date": null
+    },
+    {
+      "code": "228850",
+      "name": "레이언스",
+      "market": "KOSDAQ",
+      "current_price": 7740.0,
+      "rs": 91,
+      "gate_near": false,
+      "gate_near_reasons": [],
+      "gate_margin": {
+        "score": 9.8,
+        "tightest": "5",
+        "tightest_label": "⑤ 50일선",
+        "tightest_detail": "종가가 50일선 위로 +0.5%",
+        "per_condition": {
+          "1": {
+            "margin": 14.98,
+            "pct": 100.0,
+            "ref": 10.0
+          },
+          "2": {
+            "margin": 5.27,
             "pct": 100.0,
             "ref": 5.0
           },
           "3": {
-            "margin": 5.44,
+            "margin": 5.42,
             "pct": 100.0,
             "ref": 5.0
           },
           "4": {
-            "margin": 14.02,
+            "margin": 14.41,
             "pct": 100.0,
             "ref": 10.0
           },
           "5": {
-            "margin": 2.69,
-            "pct": 53.8,
+            "margin": 0.49,
+            "pct": 9.8,
             "ref": 5.0
           },
           "6": {
-            "margin": 30.79,
-            "pct": 44.0,
+            "margin": 28.13,
+            "pct": 40.2,
             "ref": 70.0
           },
           "7": {
-            "margin": 16.42,
-            "pct": 82.1,
+            "margin": 14.91,
+            "pct": 74.5,
+            "ref": 20.0
+          },
+          "8": {
+            "margin": 11.0,
+            "pct": 100.0,
+            "ref": 10.0
+          }
+        }
+      },
+      "pattern_detected": false,
+      "entry_ready": false,
+      "cup_depth_pct": null,
+      "cup_base_days": null,
+      "shelf_position_pct": null,
+      "shelf_depth_pct": null,
+      "shelf_length_days": null,
+      "pivot_price": null,
+      "pct_to_pivot": null,
+      "volume_dryup_ratio": null,
+      "rally_vol_ratio": null,
+      "tightness_pct": null,
+      "status": "forming",
+      "reason": "no_overhead_cup",
+      "left_rim_date": null,
+      "cup_low_date": null,
+      "shelf_high_date": null
+    },
+    {
+      "code": "025000",
+      "name": "KPX케미칼",
+      "market": "KOSPI",
+      "current_price": 60800.0,
+      "rs": 90,
+      "gate_near": false,
+      "gate_near_reasons": [],
+      "gate_margin": {
+        "score": 7.5,
+        "tightest": "6",
+        "tightest_label": "⑥ 52주저가 대비",
+        "tightest_detail": "52주저가 대비 +35% (기준 +30%)",
+        "per_condition": {
+          "1": {
+            "margin": 15.11,
+            "pct": 100.0,
+            "ref": 10.0
+          },
+          "2": {
+            "margin": 1.58,
+            "pct": 31.6,
+            "ref": 5.0
+          },
+          "3": {
+            "margin": 2.54,
+            "pct": 50.7,
+            "ref": 5.0
+          },
+          "4": {
+            "margin": 8.72,
+            "pct": 87.2,
+            "ref": 10.0
+          },
+          "5": {
+            "margin": 5.88,
+            "pct": 100.0,
+            "ref": 5.0
+          },
+          "6": {
+            "margin": 5.23,
+            "pct": 7.5,
+            "ref": 70.0
+          },
+          "7": {
+            "margin": 17.41,
+            "pct": 87.0,
             "ref": 20.0
           },
           "8": {
@@ -2469,348 +2173,52 @@
       "shelf_high_date": null
     },
     {
-      "code": "021240",
-      "name": "코웨이",
-      "market": "KOSPI",
-      "current_price": 102900.0,
-      "rs": 80,
-      "gate_near": false,
-      "gate_near_reasons": [],
-      "gate_margin": {
-        "score": 0.0,
-        "tightest": "8",
-        "tightest_label": "⑧ RS",
-        "tightest_detail": "RS 80 (합격선 80 위 +0점)",
-        "per_condition": {
-          "1": {
-            "margin": 11.73,
-            "pct": 100.0,
-            "ref": 10.0
-          },
-          "2": {
-            "margin": 3.42,
-            "pct": 68.4,
-            "ref": 5.0
-          },
-          "3": {
-            "margin": 1.98,
-            "pct": 39.6,
-            "ref": 5.0
-          },
-          "4": {
-            "margin": 9.46,
-            "pct": 94.6,
-            "ref": 10.0
-          },
-          "5": {
-            "margin": 2.07,
-            "pct": 41.4,
-            "ref": 5.0
-          },
-          "6": {
-            "margin": 15.06,
-            "pct": 21.5,
-            "ref": 70.0
-          },
-          "7": {
-            "margin": 19.92,
-            "pct": 99.6,
-            "ref": 20.0
-          },
-          "8": {
-            "margin": 0.0,
-            "pct": 0.0,
-            "ref": 10.0
-          }
-        }
-      },
-      "pattern_detected": false,
-      "entry_ready": false,
-      "cup_depth_pct": null,
-      "cup_base_days": null,
-      "shelf_position_pct": null,
-      "shelf_depth_pct": null,
-      "shelf_length_days": null,
-      "pivot_price": null,
-      "pct_to_pivot": null,
-      "volume_dryup_ratio": null,
-      "rally_vol_ratio": null,
-      "tightness_pct": null,
-      "status": "forming",
-      "reason": "no_overhead_cup",
-      "left_rim_date": null,
-      "cup_low_date": null,
-      "shelf_high_date": null
-    },
-    {
-      "code": "098120",
-      "name": "마이크로컨텍솔",
+      "code": "042510",
+      "name": "라온시큐어",
       "market": "KOSDAQ",
-      "current_price": 55700.0,
-      "rs": 97,
-      "gate_near": false,
-      "gate_near_reasons": [],
-      "gate_margin": {
-        "score": 85.2,
-        "tightest": "7",
-        "tightest_label": "⑦ 52주고가",
-        "tightest_detail": "52주고가 대비 -8.0% (기준 -25%까지 17.0%p)",
-        "per_condition": {
-          "1": {
-            "margin": 58.11,
-            "pct": 100.0,
-            "ref": 10.0
-          },
-          "2": {
-            "margin": 9.33,
-            "pct": 100.0,
-            "ref": 5.0
-          },
-          "3": {
-            "margin": 13.11,
-            "pct": 100.0,
-            "ref": 5.0
-          },
-          "4": {
-            "margin": 38.05,
-            "pct": 100.0,
-            "ref": 10.0
-          },
-          "5": {
-            "margin": 14.53,
-            "pct": 100.0,
-            "ref": 5.0
-          },
-          "6": {
-            "margin": 219.74,
-            "pct": 100.0,
-            "ref": 70.0
-          },
-          "7": {
-            "margin": 17.04,
-            "pct": 85.2,
-            "ref": 20.0
-          },
-          "8": {
-            "margin": 17.0,
-            "pct": 100.0,
-            "ref": 10.0
-          }
-        }
-      },
-      "pattern_detected": false,
-      "entry_ready": false,
-      "cup_depth_pct": 39.3,
-      "cup_base_days": 15,
-      "shelf_position_pct": 65.61,
-      "shelf_depth_pct": 12.84,
-      "shelf_length_days": 1,
-      "pivot_price": 54500.0,
-      "pct_to_pivot": -2.2,
-      "volume_dryup_ratio": 0.984,
-      "rally_vol_ratio": 1.398,
-      "tightness_pct": 10.1,
-      "status": "failed",
-      "reason": "cup_too_short",
-      "left_rim_date": "2026-10-07",
-      "cup_low_date": "2026-10-23",
-      "shelf_high_date": "2026-10-28"
-    },
-    {
-      "code": "294870",
-      "name": "IPARK현대산업개발",
-      "market": "KOSPI",
-      "current_price": 24850.0,
-      "rs": 89,
-      "gate_near": false,
-      "gate_near_reasons": [],
-      "gate_margin": {
-        "score": 0.2,
-        "tightest": "2",
-        "tightest_label": "② 150>200일선",
-        "tightest_detail": "150일선이 200일선 위로 +0.0%",
-        "per_condition": {
-          "1": {
-            "margin": 15.39,
-            "pct": 100.0,
-            "ref": 10.0
-          },
-          "2": {
-            "margin": 0.01,
-            "pct": 0.2,
-            "ref": 5.0
-          },
-          "3": {
-            "margin": 0.81,
-            "pct": 16.2,
-            "ref": 5.0
-          },
-          "4": {
-            "margin": 5.69,
-            "pct": 56.9,
-            "ref": 10.0
-          },
-          "5": {
-            "margin": 9.18,
-            "pct": 100.0,
-            "ref": 5.0
-          },
-          "6": {
-            "margin": 14.43,
-            "pct": 20.6,
-            "ref": 70.0
-          },
-          "7": {
-            "margin": 25.0,
-            "pct": 100.0,
-            "ref": 20.0
-          },
-          "8": {
-            "margin": 9.0,
-            "pct": 90.0,
-            "ref": 10.0
-          }
-        }
-      },
-      "pattern_detected": false,
-      "entry_ready": false,
-      "cup_depth_pct": 32.53,
-      "cup_base_days": 123,
-      "shelf_position_pct": 98.84,
-      "shelf_depth_pct": 18.63,
-      "shelf_length_days": 30,
-      "pivot_price": 24947.11,
-      "pct_to_pivot": 0.39,
-      "volume_dryup_ratio": 1.044,
-      "rally_vol_ratio": 0.838,
-      "tightness_pct": 5.53,
-      "status": "failed",
-      "reason": "shelf_too_long",
-      "left_rim_date": "2026-04-27",
-      "cup_low_date": "2026-07-14",
-      "shelf_high_date": "2026-09-11"
-    },
-    {
-      "code": "059090",
-      "name": "미코",
-      "market": "KOSDAQ",
-      "current_price": 25150.0,
-      "rs": 94,
-      "gate_near": false,
-      "gate_near_reasons": [],
-      "gate_margin": {
-        "score": 75.8,
-        "tightest": "7",
-        "tightest_label": "⑦ 52주고가",
-        "tightest_detail": "52주고가 대비 -9.8% (기준 -25%까지 15.2%p)",
-        "per_condition": {
-          "1": {
-            "margin": 31.83,
-            "pct": 100.0,
-            "ref": 10.0
-          },
-          "2": {
-            "margin": 5.59,
-            "pct": 100.0,
-            "ref": 5.0
-          },
-          "3": {
-            "margin": 5.85,
-            "pct": 100.0,
-            "ref": 5.0
-          },
-          "4": {
-            "margin": 8.97,
-            "pct": 89.7,
-            "ref": 10.0
-          },
-          "5": {
-            "margin": 20.98,
-            "pct": 100.0,
-            "ref": 5.0
-          },
-          "6": {
-            "margin": 81.18,
-            "pct": 100.0,
-            "ref": 70.0
-          },
-          "7": {
-            "margin": 15.16,
-            "pct": 75.8,
-            "ref": 20.0
-          },
-          "8": {
-            "margin": 14.0,
-            "pct": 100.0,
-            "ref": 10.0
-          }
-        }
-      },
-      "pattern_detected": false,
-      "entry_ready": false,
-      "cup_depth_pct": 61.36,
-      "cup_base_days": 118,
-      "shelf_position_pct": 83.56,
-      "shelf_depth_pct": 25.31,
-      "shelf_length_days": 13,
-      "pivot_price": 26295.13,
-      "pct_to_pivot": 4.35,
-      "volume_dryup_ratio": 2.016,
-      "rally_vol_ratio": 0.571,
-      "tightness_pct": 9.21,
-      "status": "failed",
-      "reason": "cup_too_deep",
-      "left_rim_date": "2026-05-06",
-      "cup_low_date": "2026-07-29",
-      "shelf_high_date": "2026-10-12"
-    },
-    {
-      "code": "078350",
-      "name": "한양디지텍",
-      "market": "KOSDAQ",
-      "current_price": 39000.0,
+      "current_price": 19140.0,
       "rs": 96,
       "gate_near": false,
       "gate_near_reasons": [],
       "gate_margin": {
-        "score": 24.7,
-        "tightest": "4",
-        "tightest_label": "④ 50일선 정렬",
-        "tightest_detail": "50일선이 150·200일선 위로 +2.5%",
+        "score": 60.6,
+        "tightest": "2",
+        "tightest_label": "② 150>200일선",
+        "tightest_detail": "150일선이 200일선 위로 +3.0%",
         "per_condition": {
           "1": {
-            "margin": 45.69,
+            "margin": 82.16,
             "pct": 100.0,
             "ref": 10.0
           },
           "2": {
-            "margin": 1.46,
-            "pct": 29.2,
+            "margin": 3.03,
+            "pct": 60.6,
             "ref": 5.0
           },
           "3": {
-            "margin": 6.7,
+            "margin": 8.49,
             "pct": 100.0,
             "ref": 5.0
           },
           "4": {
-            "margin": 2.47,
-            "pct": 24.7,
+            "margin": 20.24,
+            "pct": 100.0,
             "ref": 10.0
           },
           "5": {
-            "margin": 42.18,
+            "margin": 51.5,
             "pct": 100.0,
             "ref": 5.0
           },
           "6": {
-            "margin": 136.94,
+            "margin": 154.81,
             "pct": 100.0,
             "ref": 70.0
           },
           "7": {
-            "margin": 16.75,
-            "pct": 83.7,
+            "margin": 16.58,
+            "pct": 82.9,
             "ref": 20.0
           },
           "8": {
@@ -2822,16 +2230,386 @@
       },
       "pattern_detected": false,
       "entry_ready": false,
-      "cup_depth_pct": 69.03,
-      "cup_base_days": 105,
-      "shelf_position_pct": 94.75,
-      "shelf_depth_pct": 12.3,
+      "cup_depth_pct": 26.37,
+      "cup_base_days": 11,
+      "shelf_position_pct": 58.61,
+      "shelf_depth_pct": 17.25,
+      "shelf_length_days": 2,
+      "pivot_price": 19999.68,
+      "pct_to_pivot": 4.3,
+      "volume_dryup_ratio": 1.279,
+      "rally_vol_ratio": 0.554,
+      "tightness_pct": 12.86,
+      "status": "failed",
+      "reason": "cup_too_short",
+      "left_rim_date": "2026-10-15",
+      "cup_low_date": "2026-10-23",
+      "shelf_high_date": "2026-10-28"
+    },
+    {
+      "code": "091580",
+      "name": "상신이디피",
+      "market": "KOSDAQ",
+      "current_price": 25650.0,
+      "rs": 97,
+      "gate_near": false,
+      "gate_near_reasons": [],
+      "gate_margin": {
+        "score": 42.6,
+        "tightest": "7",
+        "tightest_label": "⑦ 52주고가",
+        "tightest_detail": "52주고가 대비 -16.5% (기준 -25%까지 8.5%p)",
+        "per_condition": {
+          "1": {
+            "margin": 25.92,
+            "pct": 100.0,
+            "ref": 10.0
+          },
+          "2": {
+            "margin": 6.87,
+            "pct": 100.0,
+            "ref": 5.0
+          },
+          "3": {
+            "margin": 6.68,
+            "pct": 100.0,
+            "ref": 5.0
+          },
+          "4": {
+            "margin": 9.92,
+            "pct": 99.2,
+            "ref": 10.0
+          },
+          "5": {
+            "margin": 14.55,
+            "pct": 100.0,
+            "ref": 5.0
+          },
+          "6": {
+            "margin": 96.06,
+            "pct": 100.0,
+            "ref": 70.0
+          },
+          "7": {
+            "margin": 8.51,
+            "pct": 42.6,
+            "ref": 20.0
+          },
+          "8": {
+            "margin": 17.0,
+            "pct": 100.0,
+            "ref": 10.0
+          }
+        }
+      },
+      "pattern_detected": false,
+      "entry_ready": false,
+      "cup_depth_pct": 65.05,
+      "cup_base_days": 128,
+      "shelf_position_pct": 84.59,
+      "shelf_depth_pct": 13.03,
       "shelf_length_days": 1,
-      "pivot_price": 42700.0,
-      "pct_to_pivot": 8.67,
-      "volume_dryup_ratio": 1.593,
+      "pivot_price": 28400.0,
+      "pct_to_pivot": 9.68,
+      "volume_dryup_ratio": 1.442,
+      "rally_vol_ratio": 1.195,
+      "tightness_pct": 10.36,
+      "status": "failed",
+      "reason": "cup_too_deep",
+      "left_rim_date": "2026-04-21",
+      "cup_low_date": "2026-07-30",
+      "shelf_high_date": "2026-10-29"
+    },
+    {
+      "code": "086450",
+      "name": "동국제약",
+      "market": "KOSDAQ",
+      "current_price": 23300.0,
+      "rs": 88,
+      "gate_near": false,
+      "gate_near_reasons": [],
+      "gate_margin": {
+        "score": 14.8,
+        "tightest": "7",
+        "tightest_label": "⑦ 52주고가",
+        "tightest_detail": "52주고가 대비 -22.0% (기준 -25%까지 3.0%p)",
+        "per_condition": {
+          "1": {
+            "margin": 9.24,
+            "pct": 92.4,
+            "ref": 10.0
+          },
+          "2": {
+            "margin": 3.72,
+            "pct": 74.4,
+            "ref": 5.0
+          },
+          "3": {
+            "margin": 2.94,
+            "pct": 58.8,
+            "ref": 5.0
+          },
+          "4": {
+            "margin": 1.69,
+            "pct": 16.9,
+            "ref": 10.0
+          },
+          "5": {
+            "margin": 7.43,
+            "pct": 100.0,
+            "ref": 5.0
+          },
+          "6": {
+            "margin": 11.91,
+            "pct": 17.0,
+            "ref": 70.0
+          },
+          "7": {
+            "margin": 2.96,
+            "pct": 14.8,
+            "ref": 20.0
+          },
+          "8": {
+            "margin": 8.0,
+            "pct": 80.0,
+            "ref": 10.0
+          }
+        }
+      },
+      "pattern_detected": false,
+      "entry_ready": false,
+      "cup_depth_pct": 47.32,
+      "cup_base_days": 139,
+      "shelf_position_pct": 66.24,
+      "shelf_depth_pct": 12.18,
+      "shelf_length_days": 10,
+      "pivot_price": 26247.76,
+      "pct_to_pivot": 11.23,
+      "volume_dryup_ratio": 0.893,
+      "rally_vol_ratio": 0.828,
+      "tightness_pct": 5.5,
+      "status": "failed",
+      "reason": "shelf_too_loose",
+      "left_rim_date": "2026-04-06",
+      "cup_low_date": "2026-06-08",
+      "shelf_high_date": "2026-10-16"
+    },
+    {
+      "code": "059090",
+      "name": "미코",
+      "market": "KOSDAQ",
+      "current_price": 23000.0,
+      "rs": 91,
+      "gate_near": false,
+      "gate_near_reasons": [],
+      "gate_margin": {
+        "score": 37.3,
+        "tightest": "7",
+        "tightest_label": "⑦ 52주고가",
+        "tightest_detail": "52주고가 대비 -17.5% (기준 -25%까지 7.5%p)",
+        "per_condition": {
+          "1": {
+            "margin": 20.23,
+            "pct": 100.0,
+            "ref": 10.0
+          },
+          "2": {
+            "margin": 5.63,
+            "pct": 100.0,
+            "ref": 5.0
+          },
+          "3": {
+            "margin": 5.87,
+            "pct": 100.0,
+            "ref": 5.0
+          },
+          "4": {
+            "margin": 9.05,
+            "pct": 90.5,
+            "ref": 10.0
+          },
+          "5": {
+            "margin": 10.25,
+            "pct": 100.0,
+            "ref": 5.0
+          },
+          "6": {
+            "margin": 63.13,
+            "pct": 90.2,
+            "ref": 70.0
+          },
+          "7": {
+            "margin": 7.45,
+            "pct": 37.3,
+            "ref": 20.0
+          },
+          "8": {
+            "margin": 11.0,
+            "pct": 100.0,
+            "ref": 10.0
+          }
+        }
+      },
+      "pattern_detected": false,
+      "entry_ready": false,
+      "cup_depth_pct": 61.36,
+      "cup_base_days": 119,
+      "shelf_position_pct": 84.71,
+      "shelf_depth_pct": 14.91,
+      "shelf_length_days": 1,
+      "pivot_price": 26500.0,
+      "pct_to_pivot": 13.21,
+      "volume_dryup_ratio": 1.671,
+      "rally_vol_ratio": 0.644,
+      "tightness_pct": 9.32,
+      "status": "failed",
+      "reason": "cup_too_deep",
+      "left_rim_date": "2026-05-06",
+      "cup_low_date": "2026-07-29",
+      "shelf_high_date": "2026-10-29"
+    },
+    {
+      "code": "000400",
+      "name": "롯데손해보험",
+      "market": "KOSPI",
+      "current_price": 2410.0,
+      "rs": 88,
+      "gate_near": false,
+      "gate_near_reasons": [],
+      "gate_margin": {
+        "score": 24.4,
+        "tightest": "6",
+        "tightest_label": "⑥ 52주저가 대비",
+        "tightest_detail": "52주저가 대비 +47% (기준 +30%)",
+        "per_condition": {
+          "1": {
+            "margin": 14.09,
+            "pct": 100.0,
+            "ref": 10.0
+          },
+          "2": {
+            "margin": 2.47,
+            "pct": 49.3,
+            "ref": 5.0
+          },
+          "3": {
+            "margin": 3.23,
+            "pct": 64.6,
+            "ref": 5.0
+          },
+          "4": {
+            "margin": 4.17,
+            "pct": 41.7,
+            "ref": 10.0
+          },
+          "5": {
+            "margin": 9.53,
+            "pct": 100.0,
+            "ref": 5.0
+          },
+          "6": {
+            "margin": 17.05,
+            "pct": 24.4,
+            "ref": 70.0
+          },
+          "7": {
+            "margin": 13.4,
+            "pct": 67.0,
+            "ref": 20.0
+          },
+          "8": {
+            "margin": 8.0,
+            "pct": 80.0,
+            "ref": 10.0
+          }
+        }
+      },
+      "pattern_detected": false,
+      "entry_ready": false,
+      "cup_depth_pct": 50.28,
+      "cup_base_days": 168,
+      "shelf_position_pct": 72.95,
+      "shelf_depth_pct": 17.46,
+      "shelf_length_days": 12,
+      "pivot_price": 2835.07,
+      "pct_to_pivot": 14.99,
+      "volume_dryup_ratio": 0.585,
+      "rally_vol_ratio": 0.55,
+      "tightness_pct": 3.8,
+      "status": "failed",
+      "reason": "cup_too_deep",
+      "left_rim_date": "2026-02-23",
+      "cup_low_date": "2026-06-26",
+      "shelf_high_date": "2026-10-14"
+    },
+    {
+      "code": "078350",
+      "name": "한양디지텍",
+      "market": "KOSDAQ",
+      "current_price": 36100.0,
+      "rs": 95,
+      "gate_near": false,
+      "gate_near_reasons": [],
+      "gate_margin": {
+        "score": 28.7,
+        "tightest": "2",
+        "tightest_label": "② 150>200일선",
+        "tightest_detail": "150일선이 200일선 위로 +1.4%",
+        "per_condition": {
+          "1": {
+            "margin": 34.54,
+            "pct": 100.0,
+            "ref": 10.0
+          },
+          "2": {
+            "margin": 1.43,
+            "pct": 28.7,
+            "ref": 5.0
+          },
+          "3": {
+            "margin": 6.84,
+            "pct": 100.0,
+            "ref": 5.0
+          },
+          "4": {
+            "margin": 3.2,
+            "pct": 32.0,
+            "ref": 10.0
+          },
+          "5": {
+            "margin": 30.36,
+            "pct": 100.0,
+            "ref": 5.0
+          },
+          "6": {
+            "margin": 117.08,
+            "pct": 100.0,
+            "ref": 70.0
+          },
+          "7": {
+            "margin": 9.92,
+            "pct": 49.6,
+            "ref": 20.0
+          },
+          "8": {
+            "margin": 15.0,
+            "pct": 100.0,
+            "ref": 10.0
+          }
+        }
+      },
+      "pattern_detected": false,
+      "entry_ready": false,
+      "cup_depth_pct": 69.03,
+      "cup_base_days": 106,
+      "shelf_position_pct": 94.75,
+      "shelf_depth_pct": 18.5,
+      "shelf_length_days": 2,
+      "pivot_price": 42700.65,
+      "pct_to_pivot": 15.46,
+      "volume_dryup_ratio": 1.633,
       "rally_vol_ratio": 1.515,
-      "tightness_pct": 12.21,
+      "tightness_pct": 11.87,
       "status": "failed",
       "reason": "cup_too_deep",
       "left_rim_date": "2026-05-26",
@@ -2839,52 +2617,126 @@
       "shelf_high_date": "2026-10-28"
     },
     {
-      "code": "052460",
-      "name": "아이크래프트",
+      "code": "217190",
+      "name": "제너셈",
       "market": "KOSDAQ",
-      "current_price": 7060.0,
-      "rs": 98,
+      "current_price": 7640.0,
+      "rs": 87,
       "gate_near": false,
       "gate_near_reasons": [],
       "gate_margin": {
-        "score": 65.7,
+        "score": 4.8,
         "tightest": "7",
         "tightest_label": "⑦ 52주고가",
-        "tightest_detail": "52주고가 대비 -11.9% (기준 -25%까지 13.1%p)",
+        "tightest_detail": "52주고가 대비 -24.0% (기준 -25%까지 1.0%p)",
         "per_condition": {
           "1": {
-            "margin": 58.51,
+            "margin": 18.11,
             "pct": 100.0,
             "ref": 10.0
           },
           "2": {
-            "margin": 7.2,
-            "pct": 100.0,
+            "margin": 2.91,
+            "pct": 58.3,
             "ref": 5.0
           },
           "3": {
-            "margin": 10.46,
+            "margin": 6.9,
             "pct": 100.0,
             "ref": 5.0
           },
           "4": {
-            "margin": 36.48,
+            "margin": 15.9,
             "pct": 100.0,
             "ref": 10.0
           },
           "5": {
-            "margin": 16.14,
+            "margin": 1.9,
+            "pct": 38.0,
+            "ref": 5.0
+          },
+          "6": {
+            "margin": 51.95,
+            "pct": 74.2,
+            "ref": 70.0
+          },
+          "7": {
+            "margin": 0.96,
+            "pct": 4.8,
+            "ref": 20.0
+          },
+          "8": {
+            "margin": 7.0,
+            "pct": 70.0,
+            "ref": 10.0
+          }
+        }
+      },
+      "pattern_detected": false,
+      "entry_ready": false,
+      "cup_depth_pct": 31.45,
+      "cup_base_days": 15,
+      "shelf_position_pct": 51.96,
+      "shelf_depth_pct": 15.59,
+      "shelf_length_days": 2,
+      "pivot_price": 9039.59,
+      "pct_to_pivot": 15.48,
+      "volume_dryup_ratio": 0.849,
+      "rally_vol_ratio": 0.396,
+      "tightness_pct": 9.28,
+      "status": "failed",
+      "reason": "cup_too_short",
+      "left_rim_date": "2026-10-08",
+      "cup_low_date": "2026-10-26",
+      "shelf_high_date": "2026-10-28"
+    },
+    {
+      "code": "052460",
+      "name": "아이크래프트",
+      "market": "KOSDAQ",
+      "current_price": 6510.0,
+      "rs": 98,
+      "gate_near": false,
+      "gate_near_reasons": [],
+      "gate_margin": {
+        "score": 31.4,
+        "tightest": "7",
+        "tightest_label": "⑦ 52주고가",
+        "tightest_detail": "52주고가 대비 -18.7% (기준 -25%까지 6.3%p)",
+        "per_condition": {
+          "1": {
+            "margin": 45.52,
+            "pct": 100.0,
+            "ref": 10.0
+          },
+          "2": {
+            "margin": 7.18,
+            "pct": 100.0,
+            "ref": 5.0
+          },
+          "3": {
+            "margin": 10.47,
+            "pct": 100.0,
+            "ref": 5.0
+          },
+          "4": {
+            "margin": 35.41,
+            "pct": 100.0,
+            "ref": 10.0
+          },
+          "5": {
+            "margin": 7.47,
             "pct": 100.0,
             "ref": 5.0
           },
           "6": {
-            "margin": 172.44,
+            "margin": 148.88,
             "pct": 100.0,
             "ref": 70.0
           },
           "7": {
-            "margin": 13.14,
-            "pct": 65.7,
+            "margin": 6.27,
+            "pct": 31.4,
             "ref": 20.0
           },
           "8": {
@@ -2897,316 +2749,20 @@
       "pattern_detected": false,
       "entry_ready": false,
       "cup_depth_pct": 48.78,
-      "cup_base_days": 46,
+      "cup_base_days": 47,
       "shelf_position_pct": 79.99,
       "shelf_depth_pct": 27.67,
-      "shelf_length_days": 6,
-      "pivot_price": 7769.9,
-      "pct_to_pivot": 9.14,
-      "volume_dryup_ratio": 1.39,
+      "shelf_length_days": 7,
+      "pivot_price": 7769.79,
+      "pct_to_pivot": 16.21,
+      "volume_dryup_ratio": 1.244,
       "rally_vol_ratio": 0.394,
-      "tightness_pct": 9.9,
+      "tightness_pct": 10.69,
       "status": "failed",
       "reason": "shelf_too_loose",
       "left_rim_date": "2026-08-20",
       "cup_low_date": "2026-09-03",
       "shelf_high_date": "2026-10-21"
-    },
-    {
-      "code": "006400",
-      "name": "삼성SDI",
-      "market": "KOSPI",
-      "current_price": 539000.0,
-      "rs": 97,
-      "gate_near": false,
-      "gate_near_reasons": [],
-      "gate_margin": {
-        "score": 3.4,
-        "tightest": "7",
-        "tightest_label": "⑦ 52주고가",
-        "tightest_detail": "52주고가 대비 -24.3% (기준 -25%까지 0.7%p)",
-        "per_condition": {
-          "1": {
-            "margin": 3.46,
-            "pct": 34.6,
-            "ref": 10.0
-          },
-          "2": {
-            "margin": 7.98,
-            "pct": 100.0,
-            "ref": 5.0
-          },
-          "3": {
-            "margin": 5.94,
-            "pct": 100.0,
-            "ref": 5.0
-          },
-          "4": {
-            "margin": 2.99,
-            "pct": 29.9,
-            "ref": 10.0
-          },
-          "5": {
-            "margin": 0.46,
-            "pct": 9.2,
-            "ref": 5.0
-          },
-          "6": {
-            "margin": 78.83,
-            "pct": 100.0,
-            "ref": 70.0
-          },
-          "7": {
-            "margin": 0.68,
-            "pct": 3.4,
-            "ref": 20.0
-          },
-          "8": {
-            "margin": 17.0,
-            "pct": 100.0,
-            "ref": 10.0
-          }
-        }
-      },
-      "pattern_detected": false,
-      "entry_ready": false,
-      "cup_depth_pct": 52.77,
-      "cup_base_days": 120,
-      "shelf_position_pct": 67.71,
-      "shelf_depth_pct": 21.42,
-      "shelf_length_days": 11,
-      "pivot_price": 599964.85,
-      "pct_to_pivot": 10.16,
-      "volume_dryup_ratio": 1.458,
-      "rally_vol_ratio": 0.7,
-      "tightness_pct": 7.48,
-      "status": "failed",
-      "reason": "cup_too_deep",
-      "left_rim_date": "2026-04-30",
-      "cup_low_date": "2026-07-29",
-      "shelf_high_date": "2026-10-14"
-    },
-    {
-      "code": "100120",
-      "name": "뷰웍스",
-      "market": "KOSDAQ",
-      "current_price": 27600.0,
-      "rs": 91,
-      "gate_near": false,
-      "gate_near_reasons": [],
-      "gate_margin": {
-        "score": 13.5,
-        "tightest": "5",
-        "tightest_label": "⑤ 50일선",
-        "tightest_detail": "종가가 50일선 위로 +0.7%",
-        "per_condition": {
-          "1": {
-            "margin": 3.66,
-            "pct": 36.6,
-            "ref": 10.0
-          },
-          "2": {
-            "margin": 2.62,
-            "pct": 52.4,
-            "ref": 5.0
-          },
-          "3": {
-            "margin": 3.71,
-            "pct": 74.1,
-            "ref": 5.0
-          },
-          "4": {
-            "margin": 2.96,
-            "pct": 29.6,
-            "ref": 10.0
-          },
-          "5": {
-            "margin": 0.68,
-            "pct": 13.5,
-            "ref": 5.0
-          },
-          "6": {
-            "margin": 22.8,
-            "pct": 32.6,
-            "ref": 70.0
-          },
-          "7": {
-            "margin": 8.79,
-            "pct": 44.0,
-            "ref": 20.0
-          },
-          "8": {
-            "margin": 11.0,
-            "pct": 100.0,
-            "ref": 10.0
-          }
-        }
-      },
-      "pattern_detected": false,
-      "entry_ready": false,
-      "cup_depth_pct": 44.24,
-      "cup_base_days": 113,
-      "shelf_position_pct": 78.05,
-      "shelf_depth_pct": 14.76,
-      "shelf_length_days": 13,
-      "pivot_price": 31499.46,
-      "pct_to_pivot": 12.38,
-      "volume_dryup_ratio": 0.697,
-      "rally_vol_ratio": 0.532,
-      "tightness_pct": 3.84,
-      "status": "failed",
-      "reason": "shelf_too_loose",
-      "left_rim_date": "2026-05-13",
-      "cup_low_date": "2026-07-30",
-      "shelf_high_date": "2026-10-12"
-    },
-    {
-      "code": "079650",
-      "name": "서산",
-      "market": "KOSDAQ",
-      "current_price": 7980.0,
-      "rs": 99,
-      "gate_near": false,
-      "gate_near_reasons": [],
-      "gate_margin": {
-        "score": 79.4,
-        "tightest": "7",
-        "tightest_label": "⑦ 52주고가",
-        "tightest_detail": "52주고가 대비 -9.1% (기준 -25%까지 15.9%p)",
-        "per_condition": {
-          "1": {
-            "margin": 101.8,
-            "pct": 100.0,
-            "ref": 10.0
-          },
-          "2": {
-            "margin": 18.88,
-            "pct": 100.0,
-            "ref": 5.0
-          },
-          "3": {
-            "margin": 21.79,
-            "pct": 100.0,
-            "ref": 5.0
-          },
-          "4": {
-            "margin": 61.16,
-            "pct": 100.0,
-            "ref": 10.0
-          },
-          "5": {
-            "margin": 25.22,
-            "pct": 100.0,
-            "ref": 5.0
-          },
-          "6": {
-            "margin": 685.02,
-            "pct": 100.0,
-            "ref": 70.0
-          },
-          "7": {
-            "margin": 15.89,
-            "pct": 79.4,
-            "ref": 20.0
-          },
-          "8": {
-            "margin": 19.0,
-            "pct": 100.0,
-            "ref": 10.0
-          }
-        }
-      },
-      "pattern_detected": false,
-      "entry_ready": false,
-      "cup_depth_pct": 69.8,
-      "cup_base_days": 84,
-      "shelf_position_pct": 84.55,
-      "shelf_depth_pct": 29.71,
-      "shelf_length_days": 11,
-      "pivot_price": 9189.76,
-      "pct_to_pivot": 13.16,
-      "volume_dryup_ratio": 0.708,
-      "rally_vol_ratio": 0.282,
-      "tightness_pct": 14.07,
-      "status": "failed",
-      "reason": "cup_too_deep",
-      "left_rim_date": "2026-06-25",
-      "cup_low_date": "2026-07-03",
-      "shelf_high_date": "2026-10-14"
-    },
-    {
-      "code": "000400",
-      "name": "롯데손해보험",
-      "market": "KOSPI",
-      "current_price": 2440.0,
-      "rs": 87,
-      "gate_near": false,
-      "gate_near_reasons": [],
-      "gate_margin": {
-        "score": 27.0,
-        "tightest": "6",
-        "tightest_label": "⑥ 52주저가 대비",
-        "tightest_detail": "52주저가 대비 +49% (기준 +30%)",
-        "per_condition": {
-          "1": {
-            "margin": 15.63,
-            "pct": 100.0,
-            "ref": 10.0
-          },
-          "2": {
-            "margin": 2.54,
-            "pct": 50.9,
-            "ref": 5.0
-          },
-          "3": {
-            "margin": 3.1,
-            "pct": 62.0,
-            "ref": 5.0
-          },
-          "4": {
-            "margin": 3.91,
-            "pct": 39.1,
-            "ref": 10.0
-          },
-          "5": {
-            "margin": 11.28,
-            "pct": 100.0,
-            "ref": 5.0
-          },
-          "6": {
-            "margin": 18.89,
-            "pct": 27.0,
-            "ref": 70.0
-          },
-          "7": {
-            "margin": 14.5,
-            "pct": 72.5,
-            "ref": 20.0
-          },
-          "8": {
-            "margin": 7.0,
-            "pct": 70.0,
-            "ref": 10.0
-          }
-        }
-      },
-      "pattern_detected": false,
-      "entry_ready": false,
-      "cup_depth_pct": 50.28,
-      "cup_base_days": 167,
-      "shelf_position_pct": 72.95,
-      "shelf_depth_pct": 17.46,
-      "shelf_length_days": 11,
-      "pivot_price": 2835.02,
-      "pct_to_pivot": 13.93,
-      "volume_dryup_ratio": 0.591,
-      "rally_vol_ratio": 0.55,
-      "tightness_pct": 3.94,
-      "status": "failed",
-      "reason": "cup_too_deep",
-      "left_rim_date": "2026-02-23",
-      "cup_low_date": "2026-06-26",
-      "shelf_high_date": "2026-10-14"
     },
     {
       "code": "032580",
@@ -3223,27 +2779,27 @@
         "tightest_detail": "52주고가 대비 -19.5% (기준 -25%까지 5.5%p)",
         "per_condition": {
           "1": {
-            "margin": 55.9,
+            "margin": 54.55,
             "pct": 100.0,
             "ref": 10.0
           },
           "2": {
-            "margin": 23.14,
+            "margin": 23.23,
             "pct": 100.0,
             "ref": 5.0
           },
           "3": {
-            "margin": 21.87,
+            "margin": 21.61,
             "pct": 100.0,
             "ref": 5.0
           },
           "4": {
-            "margin": 31.26,
+            "margin": 31.38,
             "pct": 100.0,
             "ref": 10.0
           },
           "5": {
-            "margin": 18.77,
+            "margin": 17.64,
             "pct": 100.0,
             "ref": 5.0
           },
@@ -3267,20 +2823,94 @@
       "pattern_detected": false,
       "entry_ready": false,
       "cup_depth_pct": 71.6,
-      "cup_base_days": 104,
+      "cup_base_days": 105,
       "shelf_position_pct": 78.79,
       "shelf_depth_pct": 37.23,
-      "shelf_length_days": 18,
+      "shelf_length_days": 19,
       "pivot_price": 8300.08,
       "pct_to_pivot": 17.95,
-      "volume_dryup_ratio": 0.758,
+      "volume_dryup_ratio": 0.515,
       "rally_vol_ratio": 0.581,
-      "tightness_pct": 9.94,
+      "tightness_pct": 9.08,
       "status": "failed",
       "reason": "cup_too_deep",
       "left_rim_date": "2026-05-27",
       "cup_low_date": "2026-07-30",
       "shelf_high_date": "2026-10-01"
+    },
+    {
+      "code": "079650",
+      "name": "서산",
+      "market": "KOSDAQ",
+      "current_price": 7150.0,
+      "rs": 99,
+      "gate_near": false,
+      "gate_near_reasons": [],
+      "gate_margin": {
+        "score": 32.2,
+        "tightest": "7",
+        "tightest_label": "⑦ 52주고가",
+        "tightest_detail": "52주고가 대비 -18.6% (기준 -25%까지 6.4%p)",
+        "per_condition": {
+          "1": {
+            "margin": 79.14,
+            "pct": 100.0,
+            "ref": 10.0
+          },
+          "2": {
+            "margin": 18.98,
+            "pct": 100.0,
+            "ref": 5.0
+          },
+          "3": {
+            "margin": 21.68,
+            "pct": 100.0,
+            "ref": 5.0
+          },
+          "4": {
+            "margin": 60.73,
+            "pct": 100.0,
+            "ref": 10.0
+          },
+          "5": {
+            "margin": 11.45,
+            "pct": 100.0,
+            "ref": 5.0
+          },
+          "6": {
+            "margin": 600.24,
+            "pct": 100.0,
+            "ref": 70.0
+          },
+          "7": {
+            "margin": 6.43,
+            "pct": 32.2,
+            "ref": 20.0
+          },
+          "8": {
+            "margin": 19.0,
+            "pct": 100.0,
+            "ref": 10.0
+          }
+        }
+      },
+      "pattern_detected": false,
+      "entry_ready": false,
+      "cup_depth_pct": 69.8,
+      "cup_base_days": 85,
+      "shelf_position_pct": 91.37,
+      "shelf_depth_pct": 28.51,
+      "shelf_length_days": 1,
+      "pivot_price": 9680.0,
+      "pct_to_pivot": 26.14,
+      "volume_dryup_ratio": 0.766,
+      "rally_vol_ratio": 0.276,
+      "tightness_pct": 13.41,
+      "status": "failed",
+      "reason": "cup_too_deep",
+      "left_rim_date": "2026-06-25",
+      "cup_low_date": "2026-07-03",
+      "shelf_high_date": "2026-10-29"
     }
   ]
 }
