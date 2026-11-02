@@ -1,7 +1,7 @@
 {
   "code": "100840",
   "name": "SNT에너지",
-  "last_checked": "2026-10-30T20:44:27.725+09:00",
+  "last_checked": "2026-11-02T11:08:33.183+09:00",
   "metrics": [
     {
       "id": "op_margin",
@@ -15,8 +15,8 @@
     {
       "id": "supply_gap",
       "label": "수주 공백",
-      "value": 18,
-      "display": "18일",
+      "value": 21,
+      "display": "21일",
       "threshold": "180일 경과",
       "hit": false,
       "tone": "good"
@@ -48,32 +48,20 @@
       "message": "현재 47.97% — 매도 트리거 도달"
     },
     {
-      "severity": "warn",
+      "severity": "info",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 2건 (관찰 신호 2건 포함)",
+      "title": "리스크 키워드 매칭 뉴스 1건 (관찰 신호 0건 — 키워드 단순 매칭만)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
   "news_hits": [
     {
-      "keyword": "중동 수주 둔화",
-      "date": "2026-10-26",
-      "title": "태광, 중동 수주 공백에 실적 둔화 전망…한투증권 \"목표가 16%↓\" - 뉴스웍스",
-      "url": "https://news.google.com/rss/articles/CBMib0FVX3lxTE5nZmJsbkc0UjVzODRwdE5JMDRfQUlPeHJCMXlyZ2lKOXJReDdOZENDbjZJTTN0SWhpcGNZQjNZdmNfMnlBTXd4NVlscVZJSWZMVG1odHBSSDY1eGZkSDFNTjBkUUJrOG55TzNMNzdtZ9IBc0FVX3lxTE5pQWlYV3BjNS1HazJ6WGtncVFxS0JwQmlGQ0pYR1pYWEt1RHl3RC1OMXZxTl9JN1kxLWN2SmRZTF9pUHZ0V3JGUnQ1NlpidmpUaHlqeVdncGZ0bXFTbm1Za2hIT0dGWV8tSnEtbkxHVC1qQzg?oc=5",
-      "severity": "warn",
-      "signals": [
-        "둔화"
-      ]
-    },
-    {
-      "keyword": "원전 발주 지연",
-      "date": "2026-10-25",
-      "title": "‘원전 공론화’ 변수… 신규발주 지연되나 - 대한경제",
-      "url": "https://news.google.com/rss/articles/CBMihgFBVV95cUxOeEZSMTRkbDRCVFlsN3o3Z3U5M2g5V3dMaVBxZzJSYVZuM3RMMHltV1RJbFhjMlEtQ0Fxd0FQMWJHX1NXOFdBSUMxdEpJVDZUcFZERG40YXN2T1BZMmhLYzV3b1FZXzg0WUhUazMyTUQ2ZzFpNUZER2N0V0FpdHFQUEU0bjhOQQ?oc=5",
-      "severity": "warn",
-      "signals": [
-        "지연"
-      ]
+      "keyword": "SNT에너지 적자",
+      "date": "2026-11-02",
+      "title": "SNT에너지, 2026년 3분기 당기순손실 74억4200만원으로 적자전환 - 디지털투데이",
+      "url": "https://news.google.com/rss/articles/CBMie0FVX3lxTE00eVIxQmJJVWg1TVhib2dHamh2YjhZOEEyLTRManhNR3hsRGtFZEwtOUlHTU1nbFhjbXJuYjJHcmxFM3NoLXI3ZzhiTHlkaUZuSFJrTFp0RFpiSUw5YUxHTG1ROXg4SG5Kc3UtLUQ4cGo1bnE1emNMWnBzQQ?oc=5",
+      "severity": "info",
+      "signals": []
     }
   ],
   "sources": [

@@ -1,13 +1,13 @@
 {
   "code": "000660",
   "name": "SK하이닉스",
-  "last_checked": "2026-10-30T20:43:32.876+09:00",
+  "last_checked": "2026-11-02T11:08:00.697+09:00",
   "metrics": [
     {
       "id": "pbr",
       "label": "PBR",
-      "value": 8.41,
-      "display": "8.41배",
+      "value": 8.59,
+      "display": "8.59배",
       "threshold": "8배 돌파",
       "hit": true,
       "tone": "bad"
@@ -33,11 +33,11 @@
     {
       "id": "affiliate_yoy_pp",
       "label": "계열사 거래 비율 YoY 변화",
-      "value": 0.613,
-      "display": "0.61%p",
+      "value": 3.864,
+      "display": "3.86%p",
       "threshold": "+2%p 이상 급증",
-      "hit": false,
-      "tone": "good"
+      "hit": true,
+      "tone": "bad"
     },
     {
       "id": "sk_square_disposal",
@@ -72,13 +72,19 @@
       "severity": "bad",
       "type": "pbr",
       "title": "PBR 8배 돌파",
-      "message": "현재 8.41배 — 매도 트리거 도달"
+      "message": "현재 8.59배 — 매도 트리거 도달"
     },
     {
       "severity": "bad",
       "type": "affiliate_ratio",
       "title": "계열사 거래 매출 비율 (1년) 매출의 7% 초과",
       "message": "현재 7.161% — 매도 트리거 도달"
+    },
+    {
+      "severity": "bad",
+      "type": "affiliate_yoy_pp",
+      "title": "계열사 거래 비율 YoY 변화 +2%p 이상 급증",
+      "message": "현재 3.86%p — 매도 트리거 도달"
     },
     {
       "severity": "info",
