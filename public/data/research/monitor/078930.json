@@ -1,13 +1,13 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-11-02T19:34:31.852+09:00",
+  "last_checked": "2026-11-02T22:57:25.289+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 3.36,
-      "display": "3.36배",
+      "value": 3.37,
+      "display": "3.37배",
       "threshold": "10배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "dividend_yield",
       "label": "배당수익률",
-      "value": 3.62,
-      "display": "3.62%",
+      "value": 3.61,
+      "display": "3.61%",
       "threshold": "3.5% 이하",
       "hit": false,
       "tone": "warn"
@@ -60,8 +60,8 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 114.71,
-      "display": "114.71$",
+      "value": 114.4,
+      "display": "114.40$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
@@ -72,7 +72,7 @@
       "severity": "warn",
       "type": "dividend_yield",
       "title": "배당수익률 임계 근접",
-      "message": "현재 3.62% (임계 3.5% 이하)"
+      "message": "현재 3.61% (임계 3.5% 이하)"
     },
     {
       "severity": "warn",
@@ -136,6 +136,14 @@
     },
     {
       "keyword": "중동 긴장 완화",
+      "date": "2026-10-28",
+      "title": "중동 긴장완화 기대…국제유가, 100달러 밑으로 - 중기이코노미",
+      "url": "https://news.google.com/rss/articles/CBMiakFVX3lxTE9tRVhHd3FvRktpMDV4QmR5SGVpMXBVbWM0MGZvQmw4UC16eDJyM19Vb1hkcldBZjVxNTNEQjU3eWlvbHVENVpYS0Q3b0lUUXk1RENHbUtvREZBMHhDXzA5YTk3Wl9zTlltcmc?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "중동 긴장 완화",
       "date": "2026-10-27",
       "title": "중동 긴장 완화 기대에 국제유가 하락…WTI 100달러 아래로 - 아시아경제",
       "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTFBhVHV0NEg4NklNZERfZERUVVVNUzQtWXlQY0JIZEhmdDZuX19ETFFibkdVUWhhU01sTmo4NG52eVUwSzQ3R0JCMUNpWEpja3ZueUpOdklGX0h5QkhPWFlXbw?oc=5",
@@ -143,14 +151,6 @@
       "signals": [
         "하락"
       ]
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-10-28",
-      "title": "중동 긴장완화 기대…국제유가, 100달러 밑으로 - 중기이코노미",
-      "url": "https://news.google.com/rss/articles/CBMiakFVX3lxTE9tRVhHd3FvRktpMDV4QmR5SGVpMXBVbWM0MGZvQmw4UC16eDJyM19Vb1hkcldBZjVxNTNEQjU3eWlvbHVENVpYS0Q3b0lUUXk1RENHbUtvREZBMHhDXzA5YTk3Wl9zTlltcmc?oc=5",
-      "severity": "info",
-      "signals": []
     },
     {
       "keyword": "중동 긴장 완화",
@@ -177,7 +177,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 108.72 USD (2026-11-02, 7일 평균 114.71)",
+      "label": "Brent 원유 종가 106.52 USD (2026-11-02, 7일 평균 114.4)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
