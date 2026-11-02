@@ -1,13 +1,13 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-11-02T11:09:42.669+09:00",
+  "last_checked": "2026-11-02T19:34:31.852+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 3.3,
-      "display": "3.30배",
+      "value": 3.36,
+      "display": "3.36배",
       "threshold": "10배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "dividend_yield",
       "label": "배당수익률",
-      "value": 3.69,
-      "display": "3.69%",
+      "value": 3.62,
+      "display": "3.62%",
       "threshold": "3.5% 이하",
       "hit": false,
       "tone": "warn"
@@ -60,8 +60,8 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 115.07,
-      "display": "115.07$",
+      "value": 114.71,
+      "display": "114.71$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
@@ -72,7 +72,7 @@
       "severity": "warn",
       "type": "dividend_yield",
       "title": "배당수익률 임계 근접",
-      "message": "현재 3.69% (임계 3.5% 이하)"
+      "message": "현재 3.62% (임계 3.5% 이하)"
     },
     {
       "severity": "warn",
@@ -90,6 +90,16 @@
   "news_hits": [
     {
       "keyword": "정제마진 하락",
+      "date": "2026-10-29",
+      "title": "북서유럽 휘발유 정제마진, 재고 증가에 3달러 넘게 하락 - Investing.com 한국어",
+      "url": "https://news.google.com/rss/articles/CBMidkFVX3lxTE5GTHVpTEtTUmY4dEN4T2tOMjBOOWRBQUFvSFRNdi1SSkQ0YWF6aDNqdmJRUUtHelFOS1luT3dsRk1MVmZNaTczRFFQcGNjMXJWZGkwNnRYUjBGZVl1amRqcnRQaXFiVXdOS1BFb0JRWGtURWJGSVE?oc=5",
+      "severity": "warn",
+      "signals": [
+        "하락"
+      ]
+    },
+    {
+      "keyword": "정제마진 하락",
       "date": "2026-10-27",
       "title": "러시아 정유 생산 증가에 경유 정제마진 7% 하락 - Investing.com 한국어",
       "url": "https://news.google.com/rss/articles/CBMidkFVX3lxTFBSRFhham9pcXdNeG9qNmprZG1xN0RCeFB5cnRWNFRHV1UxeHhBSjF5bXBlWjZCSFVyNTRRNzcwdkRaeFhHMkdNZXBoVFUwWmczaFBMR1JUWXVGVWJKQVAtTzFhRk5OWVpod252Z2RrZVBOWHpyT0E?oc=5",
@@ -103,6 +113,14 @@
       "date": "2026-11-01",
       "title": "이란 외교 “미국과 평화 협상 진전···최종 합의는 미 답변에 달렸다” - 경향신문",
       "url": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE1Xd1dzSXhMWFM1cnJBUWduNVFVb2dxUHpoX0V1eF9fR0dzMFZXeVZ1UWlsWF9QNk1VeWFRTUpkUUZiMjhER0FGcDhtNlJoQnBTUTRwcmRlYzhMZ9IBX0FVX3lxTE0ya2d6NHlNWHA0TVFLaDZOV0hLVFFzTlhsQm5iMTFGa1VFRVZZZjBETzdCRVJoUmUwc2RmMFN4ZDBtLUIteFE5cHh5Y0R2X2tuak1QMGlVc1F6Um5yTW1Z?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "중동 긴장 완화",
+      "date": "2026-11-02",
+      "title": "중국, 중동·아프리카에 특사 3명 동시 파견…“긴장 완화 역할” - KBS 뉴스",
+      "url": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE01cDB6MmxFcHFkd1JkRVg0OVJCWXVPT2R2enFrb3RkbnNST2xza29sUXBMZE8teWJBUEpmcVJPcWlJUUIzTGlvZG5iWmpieVJxc19aYWlNUGJsOVk?oc=5",
       "severity": "info",
       "signals": []
     },
@@ -136,17 +154,9 @@
     },
     {
       "keyword": "중동 긴장 완화",
-      "date": "2026-10-26",
-      "title": "뉴욕증시, 앤트로픽 IPO·중동 긴장 완화에 상승 출발 - Chosunbiz",
-      "url": "https://news.google.com/rss/articles/CBMingFBVV95cUxPWWprYm0yOHF3Smxfc0N2b1lnbDAwQmlYQk8tYnRtRktrUU5Cd0w1X1MwT1dvRUswWlJISG5DbThSOVVZbFQ1SkRwaXlpWnc3N2hOamRlSThaVnRHb0xyVDUwZjVTM1RaeTVRT1ZMdklweFhUcEhySXBPeXotZkNNU2Jyck5FLURMNHc1Uk01aGJnZ3VGOEdGR24ydThOZ9IBsgFBVV95cUxQLU1UU0ZLMTMyMnNZTUxyb1pULUFVY1k4Z1dsaGVMMEhYeDR0b182ZGR2WFVMRDJiMjJlMEQ5Z1VzdHBxbzMwVDBMbUpCVHQ5blZqaWFHZ3RSdDcxX2w0Q2RYSkVxdmF0ZXlENUNpYlJTOGE3dEFZcVdCMmpKQ2xEeWZ6VDlrVDUwa2lIZkZQcWJwbDZpYWp4eTkzbVJKLWc3VmhkYnpFckVqUkV2UlNxRWpn?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-10-26",
-      "title": "중동 긴장 완화 기대에 국제유가 하락⋯브렌트유 115달러대 - 아이뉴스24",
-      "url": "https://news.google.com/rss/articles/CBMiS0FVX3lxTE56N05UbEh0WG5nWloycFNNS0M3eDRBaWlOX1E5ajVDYTFrcmpnRWktXzdjTzdwdEY3S0dvRlNlQ28tMzFxU3ZUVTZyTQ?oc=5",
+      "date": "2026-11-02",
+      "title": "중동 지역의 긴장 완화에 대한 기대감 속에 세계 유가가 1% 이상 하락했다. - Vietnam.vn",
+      "url": "https://news.google.com/rss/articles/CBMingFBVV95cUxPdXBGMUd3UDlwYjB6Mm9oZDdDd0JhS1RDYV9rdEkyVm9yc2s5MFdCWmRwZ2lNczhSaDRTYk5ZVTBlWGFFRkZuWVJxT1B6dVR6T19tbHYzZ2RnZGNDb1ljU1F2UHpzbW91U09CbEZoR3AwblhxZFp6cE9nMm5CYjB3dHY0Qy00bjhRMEZucENEbG5LSGJIVWtubEYxMnZNUQ?oc=5",
       "severity": "warn",
       "signals": [
         "하락"
@@ -159,16 +169,6 @@
       "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE9EVlFhdUNzYWZlX3l5cGVLZi05cVZ2TU1Va3F6dXY3VWl3RW0yTlZrVWt3emlqQ2xTQ2tEQlJNLTZFMmJEeDBUdC0xVUUtSWNoaXh1OUozbTRtc1JWR1pNZw?oc=5",
       "severity": "info",
       "signals": []
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-10-27",
-      "title": "국제유가, 중동지역 외교적 긴장완화 기대감 등 영향 이틀째 하락-WTI 배럴당 100달러 밑으로 - 포커스온경제",
-      "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTFA4ZEdRSGdPQzVxNE9vTWpDTDd0ckFCd3FSaDN2eXcyRHI0b25tS25oT2Y3VndaWU5oZkhvOGxEYXl3cXU5TmV1UmlrTFpSei1CcjV5c1JoSzNvbjlQc29PZA?oc=5",
-      "severity": "warn",
-      "signals": [
-        "하락"
-      ]
     }
   ],
   "sources": [
@@ -177,7 +177,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 111.23 USD (2026-11-02, 7일 평균 115.07)",
+      "label": "Brent 원유 종가 108.72 USD (2026-11-02, 7일 평균 114.71)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
