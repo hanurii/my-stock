@@ -1,13 +1,13 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-11-03T19:30:16.289+09:00",
+  "last_checked": "2026-11-03T22:07:10.240+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 3.19,
-      "display": "3.19배",
+      "value": 3.2,
+      "display": "3.20배",
       "threshold": "10배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "dividend_yield",
       "label": "배당수익률",
-      "value": 3.81,
-      "display": "3.81%",
+      "value": 3.8,
+      "display": "3.80%",
       "threshold": "3.5% 이하",
       "hit": false,
       "tone": "good"
@@ -60,8 +60,8 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 112.56,
-      "display": "112.56$",
+      "value": 112.42,
+      "display": "112.42$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
@@ -88,16 +88,6 @@
     }
   ],
   "news_hits": [
-    {
-      "keyword": "정제마진 하락",
-      "date": "2026-10-29",
-      "title": "북서유럽 휘발유 정제마진, 재고 증가에 3달러 넘게 하락 - Investing.com 한국어",
-      "url": "https://news.google.com/rss/articles/CBMidkFVX3lxTE5GTHVpTEtTUmY4dEN4T2tOMjBOOWRBQUFvSFRNdi1SSkQ0YWF6aDNqdmJRUUtHelFOS1luT3dsRk1MVmZNaTczRFFQcGNjMXJWZGkwNnRYUjBGZVl1amRqcnRQaXFiVXdOS1BFb0JRWGtURWJGSVE?oc=5",
-      "severity": "warn",
-      "signals": [
-        "하락"
-      ]
-    },
     {
       "keyword": "정제마진 하락",
       "date": "2026-10-27",
@@ -172,6 +162,14 @@
       "signals": [
         "하락"
       ]
+    },
+    {
+      "keyword": "중동 긴장 완화",
+      "date": "2026-10-29",
+      "title": "비트코인 1억890만원선 강보합...美 금리 동결·중동 긴장 완화 기대 - 메트로신문",
+      "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE9EVlFhdUNzYWZlX3l5cGVLZi05cVZ2TU1Va3F6dXY3VWl3RW0yTlZrVWt3emlqQ2xTQ2tEQlJNLTZFMmJEeDBUdC0xVUUtSWNoaXh1OUozbTRtc1JWR1pNZw?oc=5",
+      "severity": "info",
+      "signals": []
     }
   ],
   "sources": [
@@ -180,7 +178,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 105.65 USD (2026-11-03, 7일 평균 112.56)",
+      "label": "Brent 원유 종가 104.65 USD (2026-11-03, 7일 평균 112.42)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
