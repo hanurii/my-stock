@@ -1,13 +1,13 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-11-04T11:59:05.474+09:00",
+  "last_checked": "2026-11-04T19:29:15.899+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 3.08,
-      "display": "3.08배",
+      "value": 3.25,
+      "display": "3.25배",
       "threshold": "10배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "dividend_yield",
       "label": "배당수익률",
-      "value": 3.95,
-      "display": "3.95%",
+      "value": 3.75,
+      "display": "3.75%",
       "threshold": "3.5% 이하",
       "hit": false,
       "tone": "good"
@@ -60,8 +60,8 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 110.4,
-      "display": "110.40$",
+      "value": 110.31,
+      "display": "110.31$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
@@ -87,16 +87,6 @@
       "date": "2026-11-04",
       "title": "브렌트유 103달러·두바이유 102달러… 미·이란 종전 협상 기대에 이틀 연속 하락 - 파이낸셜포스트",
       "url": "https://news.google.com/rss/articles/CBMidEFVX3lxTFAwVG9WZF9pWG9IZC1sM2M2elVVeVpBR3E4YjhYdE15bjFHLU82d2cwd1NmX2l6ZkFYSno3TWg3bzlTWjVzMHhIbHZ5OWFjZ28wSWJrUVFWd0IzUXAtLWw4SWVOUDFncTUwN19HSVhGamV0VC1S?oc=5",
-      "severity": "warn",
-      "signals": [
-        "하락"
-      ]
-    },
-    {
-      "keyword": "정제마진 하락",
-      "date": "2026-10-29",
-      "title": "북서유럽 휘발유 정제마진, 재고 증가에 3달러 넘게 하락 - Investing.com 한국어",
-      "url": "https://news.google.com/rss/articles/CBMidkFVX3lxTE5GTHVpTEtTUmY4dEN4T2tOMjBOOWRBQUFvSFRNdi1SSkQ0YWF6aDNqdmJRUUtHelFOS1luT3dsRk1MVmZNaTczRFFQcGNjMXJWZGkwNnRYUjBGZVl1amRqcnRQaXFiVXdOS1BFb0JRWGtURWJGSVE?oc=5",
       "severity": "warn",
       "signals": [
         "하락"
@@ -146,6 +136,14 @@
       "url": "https://news.google.com/rss/articles/CBMiXkFVX3lxTFBxZ3JRa1pHQ0JPcnpkdWhyc1JmdHJOc2FiYU9vVlBlRF8zUEFiSndYX1hsajBOUkxHNlRWREk5NC1nZ0N0dFlZZl9pNGN2bkFuaU5TLUsxd2tLZGhFX1E?oc=5",
       "severity": "info",
       "signals": []
+    },
+    {
+      "keyword": "GS 배당성향",
+      "date": "2026-11-04",
+      "title": "GS피앤엘, 2028년까지 별도기준 배당성향 50% 이상 유지하기로 - 비즈니스포스트",
+      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE5JLVZkVThFWDI2M2ZtRXFteFlpeWVGcWRhRkI1OTRhOGxXaHdZVXVUbVVMVDVHOFlIbFU3VklPWXdMc2ZUUGZ0RWF6eDFISXNYakhXU2RXSHZhd3lHYllPOEpNc3VoWVV4eWh5YmhleXlDaDQ?oc=5",
+      "severity": "info",
+      "signals": []
     }
   ],
   "sources": [
@@ -154,7 +152,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 102.72 USD (2026-11-04, 7일 평균 110.4)",
+      "label": "Brent 원유 종가 102.05 USD (2026-11-04, 7일 평균 110.31)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
