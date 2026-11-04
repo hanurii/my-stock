@@ -1,7 +1,7 @@
 {
   "code": "005930",
   "name": "삼성전자",
-  "last_checked": "2026-11-04T19:27:57.427+09:00",
+  "last_checked": "2026-11-04T22:21:00.690+09:00",
   "metrics": [
     {
       "id": "per",
@@ -73,9 +73,27 @@
       "type": "buyback_gap",
       "title": "자사주 소각 공시 공백 180일 경과",
       "message": "현재 218일 — 매도 트리거 도달"
+    },
+    {
+      "severity": "warn",
+      "type": "news_keyword_hit",
+      "title": "리스크 키워드 매칭 뉴스 1건 (관찰 신호 1건 포함)",
+      "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
-  "news_hits": [],
+  "news_hits": [
+    {
+      "keyword": "메모리 가격 하락",
+      "date": "2026-11-02",
+      "title": "애플, 장전 거래에서 4% 이상 하락하며 한 달 만의 최저치 근접: 4분기 실적은 예상을 상회했으나 서비스 성장 둔화와 메모리 가격 상승이 매출총이익률에 부담 - TradingKey",
+      "url": "https://news.google.com/rss/articles/CBMi5gFBVV95cUxPc0NKeGo1Y1RxQ045UHpNZHJsb3pIMEg4NnFQcWhfaEo2ZEI0UnBydXdWY1hYNTlMMXQ1aExpVjdZNWtRZHBrM2VpU1lZNkNRam5QTHFybk1ycEJtLVF5NW44LXR3X2NXYXhTZWlQZ0tDeWxHVDNlLUMwanVnSFNRTTM0bDZpOTZCRzNOUlVZdXBVT2JNQzJiaVA2Q3l2RmM0bk5EQlQ1ZDk5a1VFdFhjYmp6M29VTzhVdWRvXzRoT2NCMzIzMTRLWVY2S3ItNmFGa1lTc0k0ZjZmMU8zMEJKMElDYS15UQ?oc=5",
+      "severity": "warn",
+      "signals": [
+        "하락",
+        "둔화"
+      ]
+    }
+  ],
   "sources": [
     {
       "label": "PER/PEG/PBR 스코어",
@@ -88,6 +106,10 @@
     {
       "label": "최근 자사주 소각 공시 (2026-03-31)",
       "ref": "DART 20260331800004"
+    },
+    {
+      "label": "뉴스 RSS",
+      "ref": "news.google.com/rss (7일)"
     }
   ]
 }
