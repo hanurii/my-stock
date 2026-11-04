@@ -1,13 +1,13 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-11-04T01:54:10.933+09:00",
+  "last_checked": "2026-11-04T11:59:05.474+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 3.2,
-      "display": "3.20배",
+      "value": 3.08,
+      "display": "3.08배",
       "threshold": "10배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "dividend_yield",
       "label": "배당수익률",
-      "value": 3.8,
-      "display": "3.80%",
+      "value": 3.95,
+      "display": "3.95%",
       "threshold": "3.5% 이하",
       "hit": false,
       "tone": "good"
@@ -24,11 +24,11 @@
     {
       "id": "price_high",
       "label": "주가",
-      "value": 82900,
-      "display": "82,900원",
+      "value": 77800,
+      "display": "77,800원",
       "threshold": "85,000원+ 돌파",
       "hit": false,
-      "tone": "warn"
+      "tone": "good"
     },
     {
       "id": "separate_net_loss",
@@ -60,20 +60,14 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 112.25,
-      "display": "112.25$",
+      "value": 110.4,
+      "display": "110.40$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
     }
   ],
   "alerts": [
-    {
-      "severity": "warn",
-      "type": "price_high",
-      "title": "주가 임계 근접",
-      "message": "현재 82,900원 (임계 85,000원+ 돌파)"
-    },
     {
       "severity": "warn",
       "type": "separate_net_loss",
@@ -83,11 +77,21 @@
     {
       "severity": "bad",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 9건 (부정 시그널 1건 포함)",
+      "title": "리스크 키워드 매칭 뉴스 7건 (부정 시그널 1건 포함)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
   "news_hits": [
+    {
+      "keyword": "두바이유 하락",
+      "date": "2026-11-04",
+      "title": "브렌트유 103달러·두바이유 102달러… 미·이란 종전 협상 기대에 이틀 연속 하락 - 파이낸셜포스트",
+      "url": "https://news.google.com/rss/articles/CBMidEFVX3lxTFAwVG9WZF9pWG9IZC1sM2M2elVVeVpBR3E4YjhYdE15bjFHLU82d2cwd1NmX2l6ZkFYSno3TWg3bzlTWjVzMHhIbHZ5OWFjZ28wSWJrUVFWd0IzUXAtLWw4SWVOUDFncTUwN19HSVhGamV0VC1S?oc=5",
+      "severity": "warn",
+      "signals": [
+        "하락"
+      ]
+    },
     {
       "keyword": "정제마진 하락",
       "date": "2026-10-29",
@@ -100,21 +104,11 @@
     },
     {
       "keyword": "이란 미국 합의",
-      "date": "2026-11-03",
-      "title": "미국·이란 합의 기대감에 뉴욕증시 3대 지수 일제히 상승 출발 - news.sbs.co.kr",
-      "url": "https://news.google.com/rss/articles/CBMijwFBVV95cUxPTFkyb0RwOXJocG5DaC1Yb0JyY1E1Z1YyU0huczcyb2JWa1RQc2NXZ3lqTGRLc1VlbE5UNDZuWlV2ZFJ5RUlMSEZzOWRlbHJ2UmxBYTVEQjI1cFdfU0VfWlpzQS1ESllaeVhEdHF4VVpSazl4QzEtOGM3NkpBRUt0WlBjMjE0cUh1MFh2alhfbw?oc=5",
+      "date": "2026-11-04",
+      "title": "이란 “종전 합의, 여전히 갈 길 멀어…미국 공격엔 강력 대응” - KBS 뉴스",
+      "url": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE5QZU5tNG9uOUE3bFpHWjYxTjc1alZUSDV1X0dudDI1OXVybnE3VWJCbkNyc3NqRmpHTEtXbC1BVF9GQ204LU9RTHMyamtRZUVDSWtEUDNFVzJ2M28?oc=5",
       "severity": "info",
       "signals": []
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-11-02",
-      "title": "중동 긴장 완화 기대에 기름값 '뚝'…국제유가 7%대 급락 - 진일보 | 전남일보",
-      "url": "https://news.google.com/rss/articles/CBMib0FVX3lxTE9MWTRSNFBCNzVXLTljN0J5QjZnTE9yQ0c3VDhxSGl1WlZfWTJlYmxCZTVNemlXVXNvaU4yTnd6NHhhNjVrcFhLc1Qxd1U2WVgyLTQ1c1ZJWTltblBsRGZaZy1fUG5vYUp4MkgtNUpUWQ?oc=5",
-      "severity": "bad",
-      "signals": [
-        "급락"
-      ]
     },
     {
       "keyword": "중동 긴장 완화",
@@ -129,11 +123,13 @@
     },
     {
       "keyword": "중동 긴장 완화",
-      "date": "2026-11-03",
-      "title": "中왕이, '사우디·이란 화해' 주역과 회담…중동 긴장완화 논의 - 뉴스1",
-      "url": "https://news.google.com/rss/articles/CBMiXkFVX3lxTFBxZ3JRa1pHQ0JPcnpkdWhyc1JmdHJOc2FiYU9vVlBlRF8zUEFiSndYX1hsajBOUkxHNlRWREk5NC1nZ0N0dFlZZl9pNGN2bkFuaU5TLUsxd2tLZGhFX1E?oc=5",
-      "severity": "info",
-      "signals": []
+      "date": "2026-11-02",
+      "title": "중동 긴장 완화 기대에 기름값 '뚝'…국제유가 7%대 급락 - 진일보 | 전남일보",
+      "url": "https://news.google.com/rss/articles/CBMib0FVX3lxTE9MWTRSNFBCNzVXLTljN0J5QjZnTE9yQ0c3VDhxSGl1WlZfWTJlYmxCZTVNemlXVXNvaU4yTnd6NHhhNjVrcFhLc1Qxd1U2WVgyLTQ1c1ZJWTltblBsRGZaZy1fUG5vYUp4MkgtNUpUWQ?oc=5",
+      "severity": "bad",
+      "signals": [
+        "급락"
+      ]
     },
     {
       "keyword": "중동 긴장 완화",
@@ -145,31 +141,11 @@
     },
     {
       "keyword": "중동 긴장 완화",
-      "date": "2026-10-27",
-      "title": "중동 긴장 완화 기대에 국제유가 하락…WTI 1.83%↓ - www.ebn.co.kr",
-      "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE5PbVQwSi1zYk1mdzY4dXBxSmhoV21hbUZjeGE5QWhRYmZXYXRfYW1BcGNWNDA1d0FWcXJWTVhpc3YwWU9wUzRmN3B6ZjctRnhFQjJ2VzlhaWhXaXhXMDVhdm94WUh4QWFY?oc=5",
-      "severity": "warn",
-      "signals": [
-        "하락"
-      ]
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-10-28",
-      "title": "중동 긴장완화 기대…국제유가, 100달러 밑으로 - 중기이코노미",
-      "url": "https://news.google.com/rss/articles/CBMiakFVX3lxTE9tRVhHd3FvRktpMDV4QmR5SGVpMXBVbWM0MGZvQmw4UC16eDJyM19Vb1hkcldBZjVxNTNEQjU3eWlvbHVENVpYS0Q3b0lUUXk1RENHbUtvREZBMHhDXzA5YTk3Wl9zTlltcmc?oc=5",
+      "date": "2026-11-03",
+      "title": "中왕이, '사우디·이란 화해' 주역과 회담…중동 긴장완화 논의 - 뉴스1",
+      "url": "https://news.google.com/rss/articles/CBMiXkFVX3lxTFBxZ3JRa1pHQ0JPcnpkdWhyc1JmdHJOc2FiYU9vVlBlRF8zUEFiSndYX1hsajBOUkxHNlRWREk5NC1nZ0N0dFlZZl9pNGN2bkFuaU5TLUsxd2tLZGhFX1E?oc=5",
       "severity": "info",
       "signals": []
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-10-27",
-      "title": "중동 긴장 완화 기대에 국제유가 하락…WTI 100달러 아래로 - 아시아경제",
-      "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTFBhVHV0NEg4NklNZERfZERUVVVNUzQtWXlQY0JIZEhmdDZuX19ETFFibkdVUWhhU01sTmo4NG52eVUwSzQ3R0JCMUNpWEpja3ZueUpOdklGX0h5QkhPWFlXbw?oc=5",
-      "severity": "warn",
-      "signals": [
-        "하락"
-      ]
     }
   ],
   "sources": [
@@ -178,7 +154,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 103.43 USD (2026-11-03, 7일 평균 112.25)",
+      "label": "Brent 원유 종가 102.72 USD (2026-11-04, 7일 평균 110.4)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
