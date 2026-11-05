@@ -1,13 +1,13 @@
 {
   "code": "175330",
   "name": "JB금융지주",
-  "last_checked": "2026-11-05T01:57:55.129+09:00",
+  "last_checked": "2026-11-05T12:15:20.801+09:00",
   "metrics": [
     {
       "id": "pbr",
       "label": "PBR",
-      "value": 0.81,
-      "display": "0.81배",
+      "value": 0.83,
+      "display": "0.83배",
       "threshold": "1.1배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "pbr_premium_pp",
       "label": "지방지주 평균 대비 PBR 프리미엄",
-      "value": 0.45,
-      "display": "0.450pp",
+      "value": 0.47,
+      "display": "0.470pp",
       "threshold": "+0.50pp 이상",
       "hit": false,
       "tone": "warn"
@@ -24,8 +24,8 @@
     {
       "id": "foreign_ratio",
       "label": "외국인 지분율",
-      "value": 32.86,
-      "display": "32.86%",
+      "value": 32.87,
+      "display": "32.87%",
       "threshold": "25% 이하",
       "hit": false,
       "tone": "good"
@@ -51,8 +51,8 @@
     {
       "id": "buyback_program_status",
       "label": "자사주 프로그램 (마지막 소각결정 · 후속 지연)",
-      "value": 104,
-      "display": "104일",
+      "value": 105,
+      "display": "105일",
       "threshold": "180일+ (1,550억 트랜치 미집행)",
       "hit": false,
       "tone": "warn"
@@ -108,7 +108,7 @@
       "severity": "warn",
       "type": "pbr_premium_pp",
       "title": "지방지주 평균 대비 PBR 프리미엄 임계 근접",
-      "message": "현재 0.450pp (임계 +0.50pp 이상)"
+      "message": "현재 0.470pp (임계 +0.50pp 이상)"
     },
     {
       "severity": "bad",
@@ -126,7 +126,7 @@
       "severity": "warn",
       "type": "buyback_program_status",
       "title": "자사주 프로그램 (마지막 소각결정 · 후속 지연) 임계 근접",
-      "message": "현재 104일 (임계 180일+ (1,550억 트랜치 미집행))"
+      "message": "현재 105일 (임계 180일+ (1,550억 트랜치 미집행))"
     },
     {
       "severity": "info",
