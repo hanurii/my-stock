@@ -1,7 +1,7 @@
 {
   "code": "086790",
   "name": "하나금융지주",
-  "last_checked": "2026-11-09T23:28:43.864+09:00",
+  "last_checked": "2026-11-10T04:35:10.792+09:00",
   "metrics": [
     {
       "id": "pbr",
@@ -15,8 +15,8 @@
     {
       "id": "pbr_premium_pp",
       "label": "4대 지주 평균 대비 PBR 프리미엄",
-      "value": -0.033,
-      "display": "-0.033pp",
+      "value": -0.037,
+      "display": "-0.037pp",
       "threshold": "+0.10pp 이상",
       "hit": false,
       "tone": "good"
@@ -91,27 +91,9 @@
       "type": "foreign_net_buy_4w",
       "title": "최근 20거래일 외국인 순매수 순매도 전환",
       "message": "현재 -122만주 — 매도 트리거 도달"
-    },
-    {
-      "severity": "warn",
-      "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 1건 (관찰 신호 1건 포함)",
-      "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
-  "news_hits": [
-    {
-      "keyword": "하나은행 제재",
-      "date": "2026-11-09",
-      "title": "하나은행, 中 사업 부진…영업망·순익 줄고 당국 제재까지 - 1코노미뉴스",
-      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTFBnVUlRbkJTZnVqU05OVVlTbDVhaTNLVkNKbTNBQ2Q3TGNtX1RodGVVLUFPS3dvQUpZSGtxOUV4QXFOTDZHWFRXNm8wTGFVejlaVkE1QnNMMDJvSFVQOU1iQTBhSVFhYmt0UVZKM1U4d0M?oc=5",
-      "severity": "warn",
-      "signals": [
-        "부진",
-        "제재"
-      ]
-    }
-  ],
+  "news_hits": [],
   "sources": [
     {
       "label": "PER/PEG/PBR 스코어",
@@ -119,7 +101,7 @@
     },
     {
       "label": "4대 지주 평균 PBR 비교 (3종목)",
-      "ref": "peers: 316140, 105560, 055550 / avg 0.753"
+      "ref": "peers: 316140, 105560, 055550 / avg 0.757"
     },
     {
       "label": "분기 배당 결정 ([기재정정]사업보고서 (2025.12))",
@@ -136,10 +118,6 @@
     {
       "label": "자사주 프로그램 마지막 활동 (2026-11-04 · 소각결정) — 누적 취득 9 / 결과 5 / 소각 20",
       "ref": "DART 20261104800373"
-    },
-    {
-      "label": "뉴스 RSS",
-      "ref": "news.google.com/rss (7일)"
     }
   ]
 }
