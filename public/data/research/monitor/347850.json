@@ -1,13 +1,13 @@
 {
   "code": "347850",
   "name": "디앤디파마텍",
-  "last_checked": "2026-11-07T01:39:34.394+09:00",
+  "last_checked": "2026-11-09T11:25:27.327+09:00",
   "metrics": [
     {
       "id": "pbr",
       "label": "PBR (극고평가)",
-      "value": 12.88,
-      "display": "12.88배",
+      "value": 13.17,
+      "display": "13.17배",
       "threshold": "50배 돌파",
       "hit": false,
       "tone": "good"
@@ -52,12 +52,21 @@
   "alerts": [
     {
       "severity": "info",
-      "type": "all_clear",
-      "title": "모든 매도 트리거 범위 내",
-      "message": "현재 지표·공시·뉴스 기준 즉각 매도 사유 없음. 보유 유지."
+      "type": "news_keyword_hit",
+      "title": "리스크 키워드 매칭 뉴스 1건 (관찰 신호 0건 — 키워드 단순 매칭만)",
+      "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
-  "news_hits": [],
+  "news_hits": [
+    {
+      "keyword": "디앤디파마텍 DD01 48주",
+      "date": "2026-11-08",
+      "title": "디앤디파마텍 DD01, 48주 간섬유화 혈액지표 개선 - PRESS9",
+      "url": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE5fdnpIcmh1OFZybUFYVHVMdVgzd1NrOUtsbXBWb0RxV1ZQVTRRNjBGamxBYVFwUVVMb2RhZW1yOW1WaXhMVThuNVotd3JuUFFQOW9ZSU54M1c5YzV1QW0zUGhEX3Q?oc=5",
+      "severity": "info",
+      "signals": []
+    }
+  ],
   "sources": [
     {
       "label": "PER/PEG/PBR 스코어",
@@ -74,6 +83,10 @@
     {
       "label": "ClinicalTrials.gov 임상 5건 (30일 status 변경 0건)",
       "ref": "query.spons: D&D Pharmatech, Neuraly"
+    },
+    {
+      "label": "뉴스 RSS",
+      "ref": "news.google.com/rss (7일)"
     }
   ]
 }
