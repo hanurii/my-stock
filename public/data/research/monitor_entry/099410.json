@@ -1,7 +1,7 @@
 {
   "code": "099410",
   "name": "동방선기",
-  "last_checked": "2026-11-12T02:00:42.022+09:00",
+  "last_checked": "2026-11-12T12:41:58.798+09:00",
   "metrics": [
     {
       "id": "no_capital_issuance",
@@ -33,8 +33,8 @@
     {
       "id": "per_value_zone",
       "label": "✅ PER 저평가",
-      "value": 4.25,
-      "display": "4.25배",
+      "value": 4.24,
+      "display": "4.24배",
       "threshold": "8.0배 이하 (현 9.67배)",
       "hit": true,
       "tone": "good"
@@ -69,10 +69,25 @@
       "severity": "info",
       "type": "per_value_zone",
       "title": "✅ PER 저평가 8.0배 이하 (현 9.67배)",
-      "message": "현재 4.25배 — 매수 시그널 (분할 진입 검토 권장)"
+      "message": "현재 4.24배 — 매수 시그널 (분할 진입 검토 권장)"
+    },
+    {
+      "severity": "info",
+      "type": "news_keyword_hit",
+      "title": "매수 시그널 키워드 매칭 뉴스 1건 (관찰 신호 0건 — 키워드 단순 매칭만)",
+      "message": "매수 시그널 모니터링 키워드 기준 최근 7일 매칭. 호재 명시 phrase로 등록되어 있으나 본문 직접 확인 권장."
     }
   ],
-  "news_hits": [],
+  "news_hits": [
+    {
+      "keyword": "조선 슈퍼사이클",
+      "date": "2026-11-11",
+      "title": "\"벌크선 넘어 LNG·자율운항까지\"… 中 조선업계, ‘역사적 슈퍼사이클’ 선언 - 글로벌이코노믹",
+      "url": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxPYVpHU1hZTnQtc2xZS1l3OFBoSW1ZTWRtQm1OVTlDUTRpQjBvSmtobzh5Y2ZucktTcEV3RXVBTmw5UkxpY0ViUjFIN1BtcHFrMmJDdEtwUGdpY056WHRsSEYzWFZuT0dtdFg3TWpFRWlqX2drNWdyUFJWbFpSZHZ6MERoaTk5aVpf?oc=5",
+      "severity": "info",
+      "signals": []
+    }
+  ],
   "sources": [
     {
       "label": "PER/PEG/PBR 스코어",
@@ -81,6 +96,10 @@
     {
       "label": "분기 영업이익률 (2026)",
       "ref": "DART 20260814000007"
+    },
+    {
+      "label": "뉴스 RSS",
+      "ref": "news.google.com/rss (7일)"
     }
   ]
 }

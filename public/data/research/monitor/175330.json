@@ -1,13 +1,13 @@
 {
   "code": "175330",
   "name": "JB금융지주",
-  "last_checked": "2026-11-12T01:59:47.668+09:00",
+  "last_checked": "2026-11-12T12:41:07.319+09:00",
   "metrics": [
     {
       "id": "pbr",
       "label": "PBR",
-      "value": 0.82,
-      "display": "0.82배",
+      "value": 0.79,
+      "display": "0.79배",
       "threshold": "1.1배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,17 +15,17 @@
     {
       "id": "pbr_premium_pp",
       "label": "지방지주 평균 대비 PBR 프리미엄",
-      "value": 0.46,
-      "display": "0.460pp",
+      "value": 0.44,
+      "display": "0.440pp",
       "threshold": "+0.50pp 이상",
       "hit": false,
-      "tone": "warn"
+      "tone": "good"
     },
     {
       "id": "foreign_ratio",
       "label": "외국인 지분율",
-      "value": 32.64,
-      "display": "32.64%",
+      "value": 32.69,
+      "display": "32.69%",
       "threshold": "25% 이하",
       "hit": false,
       "tone": "good"
@@ -51,8 +51,8 @@
     {
       "id": "buyback_program_status",
       "label": "자사주 프로그램 (마지막 소각결정 · 후속 지연)",
-      "value": 111,
-      "display": "111일",
+      "value": 112,
+      "display": "112일",
       "threshold": "180일+ (1,550억 트랜치 미집행)",
       "hit": false,
       "tone": "warn"
@@ -105,12 +105,6 @@
   ],
   "alerts": [
     {
-      "severity": "warn",
-      "type": "pbr_premium_pp",
-      "title": "지방지주 평균 대비 PBR 프리미엄 임계 근접",
-      "message": "현재 0.460pp (임계 +0.50pp 이상)"
-    },
-    {
       "severity": "bad",
       "type": "foreign_net_buy_4w",
       "title": "최근 20거래일 외국인 순매수 순매도 전환",
@@ -126,7 +120,7 @@
       "severity": "warn",
       "type": "buyback_program_status",
       "title": "자사주 프로그램 (마지막 소각결정 · 후속 지연) 임계 근접",
-      "message": "현재 111일 (임계 180일+ (1,550억 트랜치 미집행))"
+      "message": "현재 112일 (임계 180일+ (1,550억 트랜치 미집행))"
     },
     {
       "severity": "info",
@@ -138,17 +132,17 @@
   "news_hits": [
     {
       "keyword": "지방은행 부실",
-      "date": "2026-11-10",
-      "title": "지방은행 부실채권 2조 육박···‘생산적 금융’ 압박에 자본관리 이중고 - 스마트비즈",
-      "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE9ENDVEcVRHX0lQYnNRaVhEaTVWQ3ptZWowQzBTemtvZWNuQ0tleVpwUEpXNm9YdGVuQW94djF2UlQ1QjJrWnRjeVRmWkd0NnpxT1JrNGVuOVFKak81OVh0T1Y2QU51bm91d0FZMg?oc=5",
+      "date": "2026-11-06",
+      "title": "대출 늘린 지방은행…부실채권 4배 더 빨리 늘었다 - 뉴스토마토",
+      "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTFA1cGMxUzJ3N1RiblNnRnc2cDkwUG9qd2ExYWpONnNHMlM3czJfeEJOazFxYng4akpnUE0yMUV2bU95am1qMDZHb0xYam5DaEZ3cC1SREdYWlNDbEU3Z0liNg?oc=5",
       "severity": "info",
       "signals": []
     },
     {
       "keyword": "지방은행 부실",
-      "date": "2026-11-06",
-      "title": "대출 늘린 지방은행…부실채권 4배 더 빨리 늘었다 - 뉴스토마토",
-      "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTFA1cGMxUzJ3N1RiblNnRnc2cDkwUG9qd2ExYWpONnNHMlM3czJfeEJOazFxYng4akpnUE0yMUV2bU95am1qMDZHb0xYam5DaEZ3cC1SREdYWlNDbEU3Z0liNg?oc=5",
+      "date": "2026-11-10",
+      "title": "지방은행 부실채권 2조 육박···‘생산적 금융’ 압박에 자본관리 이중고 - 스마트비즈",
+      "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE9ENDVEcVRHX0lQYnNRaVhEaTVWQ3ptZWowQzBTemtvZWNuQ0tleVpwUEpXNm9YdGVuQW94djF2UlQ1QjJrWnRjeVRmWkd0NnpxT1JrNGVuOVFKak81OVh0T1Y2QU51bm91d0FZMg?oc=5",
       "severity": "info",
       "signals": []
     },
@@ -168,7 +162,7 @@
     },
     {
       "label": "4대 지주 평균 PBR 비교 (1종목)",
-      "ref": "peers: 138930 / avg 0.36"
+      "ref": "peers: 138930 / avg 0.35"
     },
     {
       "label": "분기 배당 결정 (반기보고서 (2026.06))",
