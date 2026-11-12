@@ -1,13 +1,13 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-11-12T12:41:27.511+09:00",
+  "last_checked": "2026-11-12T19:39:42.667+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 3.28,
-      "display": "3.28배",
+      "value": 3.38,
+      "display": "3.38배",
       "threshold": "10배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,11 +15,11 @@
     {
       "id": "dividend_yield",
       "label": "배당수익률",
-      "value": 3.71,
-      "display": "3.71%",
+      "value": 3.6,
+      "display": "3.60%",
       "threshold": "3.5% 이하",
       "hit": false,
-      "tone": "good"
+      "tone": "warn"
     },
     {
       "id": "price_high",
@@ -60,14 +60,20 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 94.25,
-      "display": "94.25$",
+      "value": 94.29,
+      "display": "94.29$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
     }
   ],
   "alerts": [
+    {
+      "severity": "warn",
+      "type": "dividend_yield",
+      "title": "배당수익률 임계 근접",
+      "message": "현재 3.60% (임계 3.5% 이하)"
+    },
     {
       "severity": "warn",
       "type": "price_high",
@@ -83,7 +89,7 @@
     {
       "severity": "warn",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 12건 (관찰 신호 6건 포함)",
+      "title": "리스크 키워드 매칭 뉴스 9건 (관찰 신호 5건 포함)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
@@ -109,36 +115,18 @@
       ]
     },
     {
-      "keyword": "정제마진 하락",
-      "date": "2026-11-05",
-      "title": "GS, 환율 하락 불구 정제마진 유지로 3Q 영업익 전년 대비 46%↑ - 생생비즈플러스",
-      "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTFAzOUxPRndWRUVLbTFrUzFNLU96aGMweXJWaXZkc0hfSkc2MTJnaFRNZVFpVnlVQlVkME04cE93OEpqU2tKMTFPZmZGcHE0ZUtyM2FJeHNtREFwSWVfNTVPOVJOdm5TNXJEYkxEMQ?oc=5",
-      "severity": "warn",
-      "signals": [
-        "하락"
-      ]
-    },
-    {
-      "keyword": "GS칼텍스 정제마진",
-      "date": "2026-11-05",
-      "title": "GS칼텍스 3분기 영업익 1조 1447억, 전년比 208%↑…\"정제마진 강세\" - 뉴스1",
-      "url": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE1VTGRsUHdwRktSSE1JTnIxMEVyVEZMa013ZlNJVU03el9OTkcxQ3FUeE9zV0JUT2hqTlNhU3JoV29HckpFOC1rcEd1My03NlRBQ3hJbmZTWU9hMXlGTzdJbFlDZFI?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "GS칼텍스 정제마진",
-      "date": "2026-11-05",
-      "title": "GS칼텍스, '정제마진' 강세에 3분기 영업익 1조1447억 - 화이트페이퍼",
-      "url": "https://news.google.com/rss/articles/CBMib0FVX3lxTE5UaUlfUlVsSTg4a2Itc1pydXd0NXhjcWpoV2ZSZFgxT2gtQXZOd212aXhwTkZ3al9ES1dXSlVmWmlkZXZwVXZRNGZMUTZpRFBlZU1vSmptdGlRa2I1dHotQnFTTHp3QzJRVERORVNJQdIBc0FVX3lxTE1wVVVmREtuaUNxWlprcXFNVC13Z0R0bmM4dk5laUE4dy1rcGtYRlNXaFVxb0RXWmJDYjBYeGpqX2h0TmdVUTZjZTJ0TzZyS0RJb1R4Ymw5UFJFcS04VzVpSDQ5MzlHMlZoY1dzMFhIcmNsbXc?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
       "keyword": "이란 미국 합의",
       "date": "2026-11-10",
       "title": "“미국·이란, 우라늄 농축 제한·동결자금 해제 등 합의 근접” - KBS 뉴스",
       "url": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE1hRjY0cDVoY3VKX1JsZ2lZUmZmYlctR2x4cDUyZXF0d3lFLWp5Vm9QNDNFa3J0Rlg5TFVheTQzaEh3MFVCZVZKUzBYZnZsbERFbjhuMGpNQVU4cWs?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "중동 긴장 완화",
+      "date": "2026-11-11",
+      "title": "호르무즈 해협 유조선 피격에 중동 긴장 완화 기대 약화…유가 상승 - Investing.com 한국어",
+      "url": "https://news.google.com/rss/articles/CBMib0FVX3lxTE9tU24tTWV6eThUWUk4bk1qQzF2aU1rUjJ1QXR0bVloWVA4VzZPRDJ4SlVYMVRRVDB4ZW9jRnpvS0JKRS05ZkJ6SkFlTERJTjNhZnlQdzY2bmFTLXFIWWZfX29Wc0N6VXI5UE5OZHZCRQ?oc=5",
       "severity": "info",
       "signals": []
     },
@@ -151,14 +139,6 @@
       "signals": [
         "하락"
       ]
-    },
-    {
-      "keyword": "중동 긴장 완화",
-      "date": "2026-11-11",
-      "title": "호르무즈 해협 유조선 피격에 중동 긴장 완화 기대 약화…유가 상승 - Investing.com 한국어",
-      "url": "https://news.google.com/rss/articles/CBMib0FVX3lxTE9tU24tTWV6eThUWUk4bk1qQzF2aU1rUjJ1QXR0bVloWVA4VzZPRDJ4SlVYMVRRVDB4ZW9jRnpvS0JKRS05ZkJ6SkFlTERJTjNhZnlQdzY2bmFTLXFIWWZfX29Wc0N6VXI5UE5OZHZCRQ?oc=5",
-      "severity": "info",
-      "signals": []
     },
     {
       "keyword": "중동 긴장 완화",
@@ -204,7 +184,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 91.69 USD (2026-11-12, 7일 평균 94.25)",
+      "label": "Brent 원유 종가 91.95 USD (2026-11-12, 7일 평균 94.29)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
