@@ -1,13 +1,13 @@
 {
   "code": "005930",
   "name": "삼성전자",
-  "last_checked": "2026-11-13T02:25:08.856+09:00",
+  "last_checked": "2026-11-13T12:10:32.025+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 31.26,
-      "display": "31.26배",
+      "value": 32.21,
+      "display": "32.21배",
       "threshold": "35배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "buyback_gap",
       "label": "자사주 소각 공시 공백",
-      "value": 226,
-      "display": "226일",
+      "value": 227,
+      "display": "227일",
       "threshold": "180일 경과",
       "hit": true,
       "tone": "bad"
@@ -72,27 +72,10 @@
       "severity": "bad",
       "type": "buyback_gap",
       "title": "자사주 소각 공시 공백 180일 경과",
-      "message": "현재 226일 — 매도 트리거 도달"
-    },
-    {
-      "severity": "warn",
-      "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 1건 (관찰 신호 1건 포함)",
-      "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
+      "message": "현재 227일 — 매도 트리거 도달"
     }
   ],
-  "news_hits": [
-    {
-      "keyword": "메모리 가격 하락",
-      "date": "2026-11-10",
-      "title": "“SK하이닉스, 메모리 가격 하락해도 2029년 영업이익 290조 원” - 주간동아",
-      "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE1pWGpHV25VV19rOEI2MVBfc2wxa1NRc3I0ZjFLQmRTQ1ljS3ItSUVYellkWG1XSnF6SkpwR2dtd051QkF3QUlRekhUcXJtZDR6ejdoWUZ4aGdZTHl0VDR1SE5uUnQ1bkhl?oc=5",
-      "severity": "warn",
-      "signals": [
-        "하락"
-      ]
-    }
-  ],
+  "news_hits": [],
   "sources": [
     {
       "label": "PER/PEG/PBR 스코어",
@@ -105,10 +88,6 @@
     {
       "label": "최근 자사주 소각 공시 (2026-03-31)",
       "ref": "DART 20260331800004"
-    },
-    {
-      "label": "뉴스 RSS",
-      "ref": "news.google.com/rss (7일)"
     }
   ]
 }
