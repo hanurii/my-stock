@@ -1,13 +1,13 @@
 {
   "code": "175330",
   "name": "JB금융지주",
-  "last_checked": "2026-11-14T02:00:16.055+09:00",
+  "last_checked": "2026-11-16T11:37:48.583+09:00",
   "metrics": [
     {
       "id": "pbr",
       "label": "PBR",
-      "value": 0.83,
-      "display": "0.83배",
+      "value": 0.84,
+      "display": "0.84배",
       "threshold": "1.1배 돌파",
       "hit": false,
       "tone": "good"
@@ -24,8 +24,8 @@
     {
       "id": "foreign_ratio",
       "label": "외국인 지분율",
-      "value": 32.71,
-      "display": "32.71%",
+      "value": 32.75,
+      "display": "32.75%",
       "threshold": "25% 이하",
       "hit": false,
       "tone": "good"
@@ -51,8 +51,8 @@
     {
       "id": "buyback_program_status",
       "label": "자사주 프로그램 (마지막 소각결정 · 후속 지연)",
-      "value": 113,
-      "display": "113일",
+      "value": 116,
+      "display": "116일",
       "threshold": "180일+ (1,550억 트랜치 미집행)",
       "hit": false,
       "tone": "warn"
@@ -126,12 +126,12 @@
       "severity": "warn",
       "type": "buyback_program_status",
       "title": "자사주 프로그램 (마지막 소각결정 · 후속 지연) 임계 근접",
-      "message": "현재 113일 (임계 180일+ (1,550억 트랜치 미집행))"
+      "message": "현재 116일 (임계 180일+ (1,550억 트랜치 미집행))"
     },
     {
       "severity": "info",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 3건 (관찰 신호 0건 — 키워드 단순 매칭만)",
+      "title": "리스크 키워드 매칭 뉴스 4건 (관찰 신호 0건 — 키워드 단순 매칭만)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
@@ -141,6 +141,14 @@
       "date": "2026-11-13",
       "title": "지방은행, 부실채권 2조 육박···건전성 관리 '비상' - 서울파이낸스",
       "url": "https://news.google.com/rss/articles/CBMiakFVX3lxTE0tTnc1X1NfMVBvUy1tYWdVY0pBakpZZ002b2h3NjBlNFllblQxRTQ3eXZEdnU0Q2J6aEJxb2cwamViNWFtVVE3WnZXQS1xejNXQld3eWp4NmVZS3lmMnBEUHJDOEdLWXQ2b2c?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "지방은행 부실",
+      "date": "2026-11-14",
+      "title": "부실채권 2조 앞둔 지방은행, 기업대출 늘릴 수 있나 - 자본시장뉴스",
+      "url": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE9uOVZDWTRUb05ydDg4cmtfZmZ5d0ctUjJ3VlM2TFc0NlkxMHBWMk1SLVJWUldWb1FkdUp3OUNISi12bzRfODE5bTdqV0NvYnVUUklmbXN3dmwzODh6elpLaEpaTWZUUnM?oc=5",
       "severity": "info",
       "signals": []
     },
@@ -168,7 +176,7 @@
     },
     {
       "label": "4대 지주 평균 PBR 비교 (1종목)",
-      "ref": "peers: 138930 / avg 0.37"
+      "ref": "peers: 138930 / avg 0.38"
     },
     {
       "label": "분기 배당 결정 (반기보고서 (2026.06))",
