@@ -1,13 +1,13 @@
 {
   "code": "175330",
   "name": "JB금융지주",
-  "last_checked": "2026-11-18T03:16:55.077+09:00",
+  "last_checked": "2026-11-18T13:04:47.007+09:00",
   "metrics": [
     {
       "id": "pbr",
       "label": "PBR",
-      "value": 0.84,
-      "display": "0.84배",
+      "value": 0.81,
+      "display": "0.81배",
       "threshold": "1.1배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,17 +15,17 @@
     {
       "id": "pbr_premium_pp",
       "label": "지방지주 평균 대비 PBR 프리미엄",
-      "value": 0.47,
-      "display": "0.470pp",
+      "value": 0.44,
+      "display": "0.440pp",
       "threshold": "+0.50pp 이상",
       "hit": false,
-      "tone": "warn"
+      "tone": "good"
     },
     {
       "id": "foreign_ratio",
       "label": "외국인 지분율",
-      "value": 32.75,
-      "display": "32.75%",
+      "value": 32.74,
+      "display": "32.74%",
       "threshold": "25% 이하",
       "hit": false,
       "tone": "good"
@@ -51,8 +51,8 @@
     {
       "id": "buyback_program_status",
       "label": "자사주 프로그램 (마지막 소각결정 · 후속 지연)",
-      "value": 117,
-      "display": "117일",
+      "value": 118,
+      "display": "118일",
       "threshold": "180일+ (1,550억 트랜치 미집행)",
       "hit": false,
       "tone": "warn"
@@ -105,12 +105,6 @@
   ],
   "alerts": [
     {
-      "severity": "warn",
-      "type": "pbr_premium_pp",
-      "title": "지방지주 평균 대비 PBR 프리미엄 임계 근접",
-      "message": "현재 0.470pp (임계 +0.50pp 이상)"
-    },
-    {
       "severity": "bad",
       "type": "foreign_net_buy_4w",
       "title": "최근 20거래일 외국인 순매수 순매도 전환",
@@ -126,12 +120,12 @@
       "severity": "warn",
       "type": "buyback_program_status",
       "title": "자사주 프로그램 (마지막 소각결정 · 후속 지연) 임계 근접",
-      "message": "현재 117일 (임계 180일+ (1,550억 트랜치 미집행))"
+      "message": "현재 118일 (임계 180일+ (1,550억 트랜치 미집행))"
     },
     {
       "severity": "info",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 4건 (관찰 신호 0건 — 키워드 단순 매칭만)",
+      "title": "리스크 키워드 매칭 뉴스 3건 (관찰 신호 0건 — 키워드 단순 매칭만)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
@@ -157,14 +151,6 @@
       "date": "2026-11-14",
       "title": "부실채권 2조 앞둔 지방은행, 기업대출 늘릴 수 있나 - 자본시장뉴스",
       "url": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE9uOVZDWTRUb05ydDg4cmtfZmZ5d0ctUjJ3VlM2TFc0NlkxMHBWMk1SLVJWUldWb1FkdUp3OUNISi12bzRfODE5bTdqV0NvYnVUUklmbXN3dmwzODh6elpLaEpaTWZUUnM?oc=5",
-      "severity": "info",
-      "signals": []
-    },
-    {
-      "keyword": "지방은행 부실",
-      "date": "2026-11-10",
-      "title": "지방은행 부실채권 2조 육박···‘생산적 금융’ 압박에 자본관리 이중고 - 스마트비즈",
-      "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE9ENDVEcVRHX0lQYnNRaVhEaTVWQ3ptZWowQzBTemtvZWNuQ0tleVpwUEpXNm9YdGVuQW94djF2UlQ1QjJrWnRjeVRmWkd0NnpxT1JrNGVuOVFKak81OVh0T1Y2QU51bm91d0FZMg?oc=5",
       "severity": "info",
       "signals": []
     }
