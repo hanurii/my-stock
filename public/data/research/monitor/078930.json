@@ -1,13 +1,13 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-11-19T02:53:00.101+09:00",
+  "last_checked": "2026-11-19T13:00:41.259+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 3.4,
-      "display": "3.40배",
+      "value": 3.28,
+      "display": "3.28배",
       "threshold": "10배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "dividend_yield",
       "label": "배당수익률",
-      "value": 3.57,
-      "display": "3.57%",
+      "value": 3.7,
+      "display": "3.70%",
       "threshold": "3.5% 이하",
       "hit": false,
       "tone": "warn"
@@ -24,8 +24,8 @@
     {
       "id": "price_high",
       "label": "주가",
-      "value": 82400,
-      "display": "82,400원",
+      "value": 83800,
+      "display": "83,800원",
       "threshold": "85,000원+ 돌파",
       "hit": false,
       "tone": "warn"
@@ -60,8 +60,8 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 92.85,
-      "display": "92.85$",
+      "value": 93.01,
+      "display": "93.01$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
@@ -72,13 +72,13 @@
       "severity": "warn",
       "type": "dividend_yield",
       "title": "배당수익률 임계 근접",
-      "message": "현재 3.57% (임계 3.5% 이하)"
+      "message": "현재 3.70% (임계 3.5% 이하)"
     },
     {
       "severity": "warn",
       "type": "price_high",
       "title": "주가 임계 근접",
-      "message": "현재 82,400원 (임계 85,000원+ 돌파)"
+      "message": "현재 83,800원 (임계 85,000원+ 돌파)"
     },
     {
       "severity": "warn",
@@ -119,7 +119,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 88.44 USD (2026-11-18, 7일 평균 92.85)",
+      "label": "Brent 원유 종가 89.13 USD (2026-11-19, 7일 평균 93.01)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
