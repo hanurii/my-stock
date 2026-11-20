@@ -1,7 +1,7 @@
 {
   "code": "099410",
   "name": "동방선기",
-  "last_checked": "2026-11-20T23:30:32.917+09:00",
+  "last_checked": "2026-11-21T02:38:19.230+09:00",
   "metrics": [
     {
       "id": "no_capital_issuance",
@@ -33,8 +33,8 @@
     {
       "id": "per_value_zone",
       "label": "✅ PER 저평가",
-      "value": 3.46,
-      "display": "3.46배",
+      "value": 3.49,
+      "display": "3.49배",
       "threshold": "8.0배 이하 (현 9.67배)",
       "hit": true,
       "tone": "good"
@@ -69,10 +69,25 @@
       "severity": "info",
       "type": "per_value_zone",
       "title": "✅ PER 저평가 8.0배 이하 (현 9.67배)",
-      "message": "현재 3.46배 — 매수 시그널 (분할 진입 검토 권장)"
+      "message": "현재 3.49배 — 매수 시그널 (분할 진입 검토 권장)"
+    },
+    {
+      "severity": "info",
+      "type": "news_keyword_hit",
+      "title": "매수 시그널 키워드 매칭 뉴스 1건 (관찰 신호 0건 — 키워드 단순 매칭만)",
+      "message": "매수 시그널 모니터링 키워드 기준 최근 7일 매칭. 호재 명시 phrase로 등록되어 있으나 본문 직접 확인 권장."
     }
   ],
-  "news_hits": [],
+  "news_hits": [
+    {
+      "keyword": "조선 슈퍼사이클",
+      "date": "2026-11-13",
+      "title": "조선의 국모가 외친다... 조선업 슈퍼사이클 믿으시라! ㅣ 엄경아 신영증권 위원 #삼성중공업 #한화오션 #hd한국조선해양 #hd현대중공업 - KPI뉴스",
+      "url": "https://news.google.com/rss/articles/CBMiUkFVX3lxTFBvUnVRNUxwRENwVHZqX0JCOGpQMUNHUkE3YjNkWk54UGtWMWQ0X0hPdzhRUXo2SlN4RE10Q3dSMzJ1WE0yaGs3VmZHZ2VRSmdwTlHSAVJBVV95cUxQb1J1UTVMcERDcFR2al9CQjhqUDFDR1JBN2IzZFpOeFBrVjFkNF9IT3c4UVF6NkpTeERNdEN3UjMydVhNMmhrN1ZmR2dlUUpncE5R?oc=5",
+      "severity": "info",
+      "signals": []
+    }
+  ],
   "sources": [
     {
       "label": "PER/PEG/PBR 스코어",
@@ -81,6 +96,10 @@
     {
       "label": "분기 영업이익률 (2026)",
       "ref": "DART 20260814000007"
+    },
+    {
+      "label": "뉴스 RSS",
+      "ref": "news.google.com/rss (7일)"
     }
   ]
 }
