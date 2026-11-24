@@ -1,7 +1,7 @@
 {
   "code": "100840",
   "name": "SNT에너지",
-  "last_checked": "2026-11-24T05:56:18.998+09:00",
+  "last_checked": "2026-11-24T15:47:24.441+09:00",
   "metrics": [
     {
       "id": "op_margin",
@@ -15,8 +15,8 @@
     {
       "id": "supply_gap",
       "label": "수주 공백",
-      "value": 42,
-      "display": "42일",
+      "value": 43,
+      "display": "43일",
       "threshold": "180일 경과",
       "hit": false,
       "tone": "good"
@@ -48,9 +48,9 @@
       "message": "현재 47.97% — 매도 트리거 도달"
     },
     {
-      "severity": "info",
+      "severity": "warn",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 2건 (관찰 신호 0건 — 키워드 단순 매칭만)",
+      "title": "리스크 키워드 매칭 뉴스 3건 (관찰 신호 1건 포함)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
@@ -70,6 +70,16 @@
       "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE9kcWJnYWx6VFRTSWNBM1pjV0l0ckFCd05JRUdrelhHc19mdjZEUTMtSGU0YkthVGExX09BNS0tRmFKSUhRVVFFTDJQaC1fZWp1TjJ6eVhGVTZjZUl3OGp2RHFyZGlpRzhpOU9UWGV4VHV0c3c?oc=5",
       "severity": "info",
       "signals": []
+    },
+    {
+      "keyword": "원전 발주 지연",
+      "date": "2026-11-24",
+      "title": "원전 핵심 기자재 ‘건설허가 전 선발주’ 법제화 추진…공기 지연 막는다 - 에너지데일리",
+      "url": "https://news.google.com/rss/articles/CBMickFVX3lxTE9leG85Zk5vdi1pdWs2SlkzTTVLR2dMX0J4Y0pDNDZPNWloRGtqZE43Ui1UVFZzcEpaNVBjSnlmTXNYeU9MaERXZDk3b1BQbzBXOEVGYVY1YzV4SURuTVFWQTh1eURJT29GTUlhZGtkNGlGZw?oc=5",
+      "severity": "warn",
+      "signals": [
+        "지연"
+      ]
     }
   ],
   "sources": [
