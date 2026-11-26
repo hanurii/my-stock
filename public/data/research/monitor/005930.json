@@ -1,13 +1,13 @@
 {
   "code": "005930",
   "name": "삼성전자",
-  "last_checked": "2026-11-26T04:00:18.368+09:00",
+  "last_checked": "2026-11-26T13:43:39.555+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 25.27,
-      "display": "25.27배",
+      "value": 26.28,
+      "display": "26.28배",
       "threshold": "35배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "buyback_gap",
       "label": "자사주 소각 공시 공백",
-      "value": 239,
-      "display": "239일",
+      "value": 240,
+      "display": "240일",
       "threshold": "180일 경과",
       "hit": true,
       "tone": "bad"
@@ -72,7 +72,7 @@
       "severity": "bad",
       "type": "buyback_gap",
       "title": "자사주 소각 공시 공백 180일 경과",
-      "message": "현재 239일 — 매도 트리거 도달"
+      "message": "현재 240일 — 매도 트리거 도달"
     },
     {
       "severity": "bad",
@@ -89,7 +89,7 @@
     {
       "severity": "warn",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 8건 (관찰 신호 7건 포함)",
+      "title": "리스크 키워드 매칭 뉴스 7건 (관찰 신호 6건 포함)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
@@ -124,9 +124,19 @@
     },
     {
       "keyword": "메모리 가격 하락",
-      "date": "2026-11-25",
-      "title": "메모리반도체 \"2027년 중반부터 가격 하락\" 전망 나와, 삼성전자 SK하이닉스 공급 과잉 리스크 - 비즈니스포스트",
-      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE13eTAzMVhwS1E0M1ktMXdwQW8xVWsyaWRlWER1aUlXQlN4VnRreURfWjFfME5YWW1GM012YnpnLTJvXzFYc1c5djBMWFFYLUM1UXBSZ0lyR2ZtVUxGM2dYdlJlcmd2b3lUY04wV0JIdTVjV1U?oc=5",
+      "date": "2026-11-26",
+      "title": "BNP “내년 중반 메모리 가격 하락”…마이크론 목표가 54% 하향 - 서울경제",
+      "url": "https://news.google.com/rss/articles/CBMiUkFVX3lxTE1IZEZwTGZSWGhpWXplOTEwRGhWWENoZWZvX1NlU1ZfTXlNdDZjdDBXMUFQT2hLRnQxeWdZYjAwb1haZVRjSzdQMUs1VWV0RkhwYUHSAVNBVV95cUxOdHg1SmxQc0NpNTd3Sno0XzVjbThEQi1ENWNndHM2ZUNmV05JY3BYWjgyMVZ5ekN1aDFqaW1HbzZjMEdfQzhUWFI5RnhNdWp4WVYyTQ?oc=5",
+      "severity": "warn",
+      "signals": [
+        "하락"
+      ]
+    },
+    {
+      "keyword": "메모리 가격 하락",
+      "date": "2026-11-26",
+      "title": "삼성전자, 세계 첫 500단 낸드 내년 출시…메모리 가격 하락에 제조원가 최대 33% 절감 기대 - 서울STV뉴스",
+      "url": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE9QRnExQlpNVXg4cDZJcWk1bC1FQVgzd21EYkd6RjFxSXFlUm1aRVhscnlCS2ZYd0FNWmxQWVNPdndHa3pPTDZnTjNWVzkxWkluYld1a1VYb1ladkJtV182VVI5cjdXaUk?oc=5",
       "severity": "warn",
       "signals": [
         "하락"
@@ -146,34 +156,11 @@
     {
       "keyword": "메모리 가격 하락",
       "date": "2026-11-25",
-      "title": "\"내년부터 낸드 가격 하락…메모리 시장 성장세 둔화\" - 연합뉴스",
-      "url": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE5heS1SSVdlaG9sNWhockZ6QllCbUsydDl1Z3hYMTF0YnNQUWNieEtZSEpHNjBoSEprM2pqbEZpZG41dVZiOXF2LVdjTWd5bl9yRk9YQUh4RmNQV2vSAWBBVV95cUxPNzVDOG9aOVNBa2l1VUtSNlpuYTQ0ZUxzbkxKWVpvQVVzRm5sbUNDUV9CVDNuclpsU1VFODl3bm5vbU84MnRvaUkwVnVFSmM1VWM1WXlWT2NvcVEtVkE0ZU0?oc=5",
+      "title": "메모리반도체 \"2027년 중반부터 가격 하락\" 전망 나와, 삼성전자 SK하이닉스 공급 과잉 리스크 - 비즈니스포스트",
+      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE13eTAzMVhwS1E0M1ktMXdwQW8xVWsyaWRlWER1aUlXQlN4VnRreURfWjFfME5YWW1GM012YnpnLTJvXzFYc1c5djBMWFFYLUM1UXBSZ0lyR2ZtVUxGM2dYdlJlcmd2b3lUY04wV0JIdTVjV1U?oc=5",
       "severity": "warn",
       "signals": [
-        "하락",
-        "둔화"
-      ]
-    },
-    {
-      "keyword": "메모리 가격 하락",
-      "date": "2026-11-25",
-      "title": "\"내년부터 낸드 가격 하락…메모리 시장 성장세 둔화\" - 전파신문",
-      "url": "https://news.google.com/rss/articles/CBMiakFVX3lxTE1xMkZ4RWJHOXJOY09XUHM5ekk4U0VDejgzbzM3RHdJdFFsYS1hd3NIZHRGbEdHX25nRWFJbTZ6UkQ4bnpXcG10YlA0aC1mNmVHUTFVWG4xLVpzYXNFNEc4WTV4Q2VEQTVIVEE?oc=5",
-      "severity": "warn",
-      "signals": [
-        "하락",
-        "둔화"
-      ]
-    },
-    {
-      "keyword": "메모리 가격 하락",
-      "date": "2026-11-25",
-      "title": "트랜드포스 \"내년 메모리 시장 성장세 둔화\"...낸드플래시 가격 하락 사이클 시작 - 생생비즈플러스",
-      "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE53c19ZbXl2ZTJ6S29LeUh4TEQxWS1IdGdVckhlQ2RRNDNfMTFQUUFyV19pcnBPaGtPZ1pzbXR6TzBVdWh6YWY2ZFBUSnVieUVvUkJ5akJ1Sm5VcThCX3NrZFFES0lRcWJVaTd6bA?oc=5",
-      "severity": "warn",
-      "signals": [
-        "하락",
-        "둔화"
+        "하락"
       ]
     }
   ],
