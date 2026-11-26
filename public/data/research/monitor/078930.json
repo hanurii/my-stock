@@ -1,13 +1,13 @@
 {
   "code": "078930",
   "name": "GS",
-  "last_checked": "2026-11-26T13:46:21.221+09:00",
+  "last_checked": "2026-11-26T20:56:01.342+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 2.49,
-      "display": "2.49배",
+      "value": 2.48,
+      "display": "2.48배",
       "threshold": "10배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "dividend_yield",
       "label": "배당수익률",
-      "value": 4.36,
-      "display": "4.36%",
+      "value": 4.38,
+      "display": "4.38%",
       "threshold": "3.5% 이하",
       "hit": false,
       "tone": "good"
@@ -60,8 +60,8 @@
     {
       "id": "oil_price_brent",
       "label": "Brent 7일 평균 (두바이유 대용)",
-      "value": 91.85,
-      "display": "91.85$",
+      "value": 91.86,
+      "display": "91.86$",
       "threshold": "70달러 이하 (정유 매크로 약화)",
       "hit": false,
       "tone": "good"
@@ -77,7 +77,7 @@
     {
       "severity": "warn",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 1건 (관찰 신호 1건 포함)",
+      "title": "리스크 키워드 매칭 뉴스 2건 (관찰 신호 1건 포함)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
@@ -91,6 +91,14 @@
       "signals": [
         "하락"
       ]
+    },
+    {
+      "keyword": "GS칼텍스 적자",
+      "date": "2026-11-26",
+      "title": "GS칼텍스, 2.7조 석화 공장 적자···‘美 주주 설득·구조조정’ 이중고 - 뉴스프리존",
+      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTFBFTFdCakhrX2UwRXVFOU9MOVZQb21YQ2RDVTczN3kzMjBVMkMzeEpILTg1WlBZVjE0NXlqQmF0ZkJCeGJFVmZ1OE5oZDNwbl9lM2pHU2FBcmFUWjI2S2dMRnhnbUI5bU9lYVhGQk9nVzRMZU3SAXdBVV95cUxNS2xFVzNXaVBGa1JIalE3MzhXRE5sSXY5OFRrX0NtdG1sd2wydnh3TWlUemc1WU5oNldMZUVHSVFhMGI3c1JzSVhDREgxRl94Q3VUWnZLVDFia0ZXYnhBR0l2Wl9MT3otRXR1NnMxNjJKTzFRRFVEaw?oc=5",
+      "severity": "info",
+      "signals": []
     }
   ],
   "sources": [
@@ -99,7 +107,7 @@
       "ref": "public/data/naver-m-stock.json"
     },
     {
-      "label": "Brent 원유 종가 91.1 USD (2026-11-26, 7일 평균 91.85)",
+      "label": "Brent 원유 종가 91.14 USD (2026-11-26, 7일 평균 91.86)",
       "ref": "Yahoo Finance BZ=F"
     },
     {
