@@ -1,13 +1,13 @@
 {
   "code": "005930",
   "name": "삼성전자",
-  "last_checked": "2026-11-27T03:52:31.128+09:00",
+  "last_checked": "2026-11-27T13:48:48.889+09:00",
   "metrics": [
     {
       "id": "per",
       "label": "PER",
-      "value": 25.97,
-      "display": "25.97배",
+      "value": 27.01,
+      "display": "27.01배",
       "threshold": "35배 돌파",
       "hit": false,
       "tone": "good"
@@ -15,8 +15,8 @@
     {
       "id": "buyback_gap",
       "label": "자사주 소각 공시 공백",
-      "value": 240,
-      "display": "240일",
+      "value": 241,
+      "display": "241일",
       "threshold": "180일 경과",
       "hit": true,
       "tone": "bad"
@@ -72,7 +72,7 @@
       "severity": "bad",
       "type": "buyback_gap",
       "title": "자사주 소각 공시 공백 180일 경과",
-      "message": "현재 240일 — 매도 트리거 도달"
+      "message": "현재 241일 — 매도 트리거 도달"
     },
     {
       "severity": "bad",
@@ -89,7 +89,7 @@
     {
       "severity": "warn",
       "type": "news_keyword_hit",
-      "title": "리스크 키워드 매칭 뉴스 9건 (관찰 신호 8건 포함)",
+      "title": "리스크 키워드 매칭 뉴스 9건 (관찰 신호 7건 포함)",
       "message": "매도 신호 모니터링 키워드 기준 최근 7일 매칭. 키워드 매칭만으로는 호재·악재 구분이 어려우므로 제목·본문 직접 확인 필요."
     }
   ],
@@ -110,6 +110,24 @@
       "severity": "warn",
       "signals": [
         "축소"
+      ]
+    },
+    {
+      "keyword": "삼성생명 삼성전자 지분 매각",
+      "date": "2026-11-25",
+      "title": "삼성전자 배당·지분 매각익…삼성생명 유배당보험 배당 길 열리나 - 더트래커",
+      "url": "https://news.google.com/rss/articles/CBMiWEFVX3lxTFBYNjctZkQ4azR4TmJVVzNWRmNSN3EzTTA5QTlGUU9oc1dCVUQxdnpIS3k2eVFMNFRDbFp5ejVzYzlSbHJpVV93TkZFV3ZubE1HNjBJSkRtbFk?oc=5",
+      "severity": "info",
+      "signals": []
+    },
+    {
+      "keyword": "메모리 가격 하락",
+      "date": "2026-11-27",
+      "title": "치솟던 메모리 가격 드디어 꺾이나…DDR4 현물 가격 하락 전환 - 케이벤치",
+      "url": "https://news.google.com/rss/articles/CBMiSEFVX3lxTFB2Y1dLel9pTzdaMjBjZnJFakNzWUdienBFLWIyc19xdmtWb2hZMDFGVUx6VW5sSFExaTBpNklZdjFtQ2RZRWhESQ?oc=5",
+      "severity": "warn",
+      "signals": [
+        "하락"
       ]
     },
     {
@@ -134,12 +152,13 @@
     },
     {
       "keyword": "메모리 가격 하락",
-      "date": "2026-11-26",
-      "title": "BNP “내년 중반 메모리 가격 하락”…마이크론 목표가 54% 하향 - 서울경제",
-      "url": "https://news.google.com/rss/articles/CBMiUkFVX3lxTE1IZEZwTGZSWGhpWXplOTEwRGhWWENoZWZvX1NlU1ZfTXlNdDZjdDBXMUFQT2hLRnQxeWdZYjAwb1haZVRjSzdQMUs1VWV0RkhwYUHSAVNBVV95cUxOdHg1SmxQc0NpNTd3Sno0XzVjbThEQi1ENWNndHM2ZUNmV05JY3BYWjgyMVZ5ekN1aDFqaW1HbzZjMEdfQzhUWFI5RnhNdWp4WVYyTQ?oc=5",
+      "date": "2026-11-25",
+      "title": "\"D램 가격 상승세 둔화·낸드는 하락\"...내년 메모리 시장 성장세 꺾이나 - KBC광주방송",
+      "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE1URjhoN0V1SXo4SkduRk9KeDhha1RLMUZoVjBja21HR18zN1lzbENPQjJJUXg4bGliaVVzdDRvSWoweGdYUHRCTDVuZnNtUmJJVUdKX0xyVkFZRXFaUUdOWA?oc=5",
       "severity": "warn",
       "signals": [
-        "하락"
+        "하락",
+        "둔화"
       ]
     },
     {
@@ -155,34 +174,11 @@
     {
       "keyword": "메모리 가격 하락",
       "date": "2026-11-26",
-      "title": "“‘AI 거품론’에 메모리 가격 하락 우려까지”…삼성·SK, 위기 커지나 - CEO스코어데일리",
-      "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE91YVVKZGRQUFFUbGEtSGRfSFB6dGlucnprM0hLQzB5S3B1WTN3MW1UVTA0R1NBbjNIaG5hclhpTC1qdlA1QzY0TXV2TWY0Z1Z6NjdsYjM0M19mT241THB4aE5LNXhXOFdO?oc=5",
+      "title": "BNP “내년 중반 메모리 가격 하락”…마이크론 목표가 54% 하향 - 서울경제",
+      "url": "https://news.google.com/rss/articles/CBMiUkFVX3lxTE1IZEZwTGZSWGhpWXplOTEwRGhWWENoZWZvX1NlU1ZfTXlNdDZjdDBXMUFQT2hLRnQxeWdZYjAwb1haZVRjSzdQMUs1VWV0RkhwYUHSAVNBVV95cUxOdHg1SmxQc0NpNTd3Sno0XzVjbThEQi1ENWNndHM2ZUNmV05JY3BYWjgyMVZ5ekN1aDFqaW1HbzZjMEdfQzhUWFI5RnhNdWp4WVYyTQ?oc=5",
       "severity": "warn",
       "signals": [
-        "하락",
-        "우려"
-      ]
-    },
-    {
-      "keyword": "메모리 가격 하락",
-      "date": "2026-11-25",
-      "title": "\"D램 가격 상승세 둔화·낸드는 하락\"...내년 메모리 시장 성장세 꺾이나 - KBC광주방송",
-      "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE1URjhoN0V1SXo4SkduRk9KeDhha1RLMUZoVjBja21HR18zN1lzbENPQjJJUXg4bGliaVVzdDRvSWoweGdYUHRCTDVuZnNtUmJJVUdKX0xyVkFZRXFaUUdOWA?oc=5",
-      "severity": "warn",
-      "signals": [
-        "하락",
-        "둔화"
-      ]
-    },
-    {
-      "keyword": "메모리 가격 하락",
-      "date": "2026-11-25",
-      "title": "\"내년부터 낸드 가격 하락…메모리 시장 성장세 둔화\" - 연합뉴스",
-      "url": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE5heS1SSVdlaG9sNWhockZ6QllCbUsydDl1Z3hYMTF0YnNQUWNieEtZSEpHNjBoSEprM2pqbEZpZG41dVZiOXF2LVdjTWd5bl9yRk9YQUh4RmNQV2vSAWBBVV95cUxPNzVDOG9aOVNBa2l1VUtSNlpuYTQ0ZUxzbkxKWVpvQVVzRm5sbUNDUV9CVDNuclpsU1VFODl3bm5vbU84MnRvaUkwVnVFSmM1VWM1WXlWT2NvcVEtVkE0ZU0?oc=5",
-      "severity": "warn",
-      "signals": [
-        "하락",
-        "둔화"
+        "하락"
       ]
     }
   ],
